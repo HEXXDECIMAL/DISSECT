@@ -54,6 +54,14 @@ traits:
       substr: "password"
       case_insensitive: true
 
+  - id: password-weak
+    desc: weak password keyword (password12345678)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: "password12345678"
+
   - id: pwd
     desc: pwd keyword
     if:

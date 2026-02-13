@@ -71,72 +71,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe",
+      "id": "meta/internal/imported::json/parse",
       "kind": "structural",
-      "desc": "calls safe",
+      "desc": "calls JSON.parse",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safe"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pruneobject",
-      "kind": "structural",
-      "desc": "calls pruneObject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pruneObject"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::objafter",
-      "kind": "structural",
-      "desc": "calls objAfter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "objAfter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::objbefore",
-      "kind": "structural",
-      "desc": "calls objBefore",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "objBefore"
+          "value": "JSON.parse"
         }
       ]
     },
@@ -155,6 +99,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::stackneedledetails",
       "kind": "structural",
       "desc": "calls stackNeedleDetails",
@@ -169,16 +127,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::json/parse",
+      "id": "meta/internal/imported::objbefore",
       "kind": "structural",
-      "desc": "calls JSON.parse",
+      "desc": "calls objBefore",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "JSON.parse"
+          "value": "objBefore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objafter",
+      "kind": "structural",
+      "desc": "calls objAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pruneobject",
+      "kind": "structural",
+      "desc": "calls pruneObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pruneObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
         }
       ]
     }

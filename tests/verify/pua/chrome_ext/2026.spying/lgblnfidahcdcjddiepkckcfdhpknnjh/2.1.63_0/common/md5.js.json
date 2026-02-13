@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -46,26 +62,10 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 4  for (",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
-      "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -73,25 +73,27 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "comments.total = 0.00"
+          "value": "comments.to_code_ratio = 0.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
       "kind": "capability",
-      "desc": "Small file under 5KB",
+      "desc": "Low identifier reuse (each variable",
       "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "md5.js"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.05"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
@@ -111,28 +113,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
-      "desc": "charAt in loop pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hc.charAt",
-          "location": "import"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -140,24 +124,7 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.sequential_names = 14.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
+          "value": "comments.total = 0.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
@@ -180,10 +147,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
-      "conf": 0.7,
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -191,10 +158,43 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.05"
+          "value": "identifiers.sequential_names = 14.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "kind": "capability",
+      "desc": "charAt in loop pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hc.charAt",
+          "location": "import"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "md5.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -237,76 +237,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::nblk",
-      "kind": "structural",
-      "desc": "calls nblk",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "nblk"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::oldc",
-      "kind": "structural",
-      "desc": "calls oldc",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "oldc"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hc",
-      "kind": "structural",
-      "desc": "calls hc",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hc"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::oldb",
-      "kind": "structural",
-      "desc": "calls oldb",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "oldb"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::blks",
-      "kind": "structural",
-      "desc": "calls blks",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "blks"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::olda",
       "kind": "structural",
       "desc": "calls olda",
@@ -317,48 +247,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "olda"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ad",
-      "kind": "structural",
-      "desc": "calls ad",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ad"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cm",
-      "kind": "structural",
-      "desc": "calls cm",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cm"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rl",
-      "kind": "structural",
-      "desc": "calls rl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rl"
         }
       ]
     },
@@ -377,6 +265,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::hc",
+      "kind": "structural",
+      "desc": "calls hc",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hc"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ad",
+      "kind": "structural",
+      "desc": "calls ad",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ad"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::gg",
       "kind": "structural",
       "desc": "calls gg",
@@ -391,6 +307,48 @@
       ]
     },
     {
+      "id": "meta/internal/imported::hc/charat",
+      "kind": "structural",
+      "desc": "calls hc.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hc.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rh",
+      "kind": "structural",
+      "desc": "calls rh",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rh"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldc",
+      "kind": "structural",
+      "desc": "calls oldc",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldc"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::x/charcodeat",
       "kind": "structural",
       "desc": "calls x.charCodeAt",
@@ -401,6 +359,90 @@
           "method": "symbol",
           "source": "ast",
           "value": "x.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::blks",
+      "kind": "structural",
+      "desc": "calls blks",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "blks"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hh",
+      "kind": "structural",
+      "desc": "calls hh",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hh"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nblk",
+      "kind": "structural",
+      "desc": "calls nblk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nblk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldb",
+      "kind": "structural",
+      "desc": "calls oldb",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldb"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rl",
+      "kind": "structural",
+      "desc": "calls rl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::oldd",
+      "kind": "structural",
+      "desc": "calls oldd",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "oldd"
         }
       ]
     },
@@ -433,58 +475,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::oldd",
+      "id": "meta/internal/imported::cm",
       "kind": "structural",
-      "desc": "calls oldd",
+      "desc": "calls cm",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "oldd"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hh",
-      "kind": "structural",
-      "desc": "calls hh",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hh"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rh",
-      "kind": "structural",
-      "desc": "calls rh",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rh"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hc/charat",
-      "kind": "structural",
-      "desc": "calls hc.charAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hc.charAt"
+          "value": "cm"
         }
       ]
     }

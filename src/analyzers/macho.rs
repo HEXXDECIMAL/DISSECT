@@ -107,8 +107,15 @@ impl MachOAnalyzer {
         self.analyze_sections(&macho, data, &mut report)?;
 
         // Initialize metrics with Mach-O header info
-        let rpath_count = macho.load_commands.iter()
-            .filter(|lc| matches!(lc.command, goblin::mach::load_command::CommandVariant::Rpath(_)))
+        let rpath_count = macho
+            .load_commands
+            .iter()
+            .filter(|lc| {
+                matches!(
+                    lc.command,
+                    goblin::mach::load_command::CommandVariant::Rpath(_)
+                )
+            })
             .count() as u32;
 
         let macho_metrics = MachoMetrics {
@@ -120,32 +127,34 @@ impl MachOAnalyzer {
         // Always compute basic binary metrics (even if radare2 fails)
         let binary_metrics = crate::types::BinaryMetrics {
             file_size: data.len() as u64,
-            segment_count: macho.load_commands.iter()
-                .filter(|lc| matches!(
-                    lc.command,
-                    goblin::mach::load_command::CommandVariant::Segment32(_)
-                        | goblin::mach::load_command::CommandVariant::Segment64(_)
-                ))
+            segment_count: macho
+                .load_commands
+                .iter()
+                .filter(|lc| {
+                    matches!(
+                        lc.command,
+                        goblin::mach::load_command::CommandVariant::Segment32(_)
+                            | goblin::mach::load_command::CommandVariant::Segment64(_)
+                    )
+                })
                 .count() as u32,
             is_stripped: macho.symbols().count() == 0,
-            has_debug_info: macho.load_commands.iter().any(|lc| {
-                match &lc.command {
-                    goblin::mach::load_command::CommandVariant::Segment32(seg) => {
-                        seg.segname.iter()
-                            .take_while(|&&b| b != 0)
-                            .map(|&b| b as char)
-                            .collect::<String>()
-                            .contains("DWARF")
-                    }
-                    goblin::mach::load_command::CommandVariant::Segment64(seg) => {
-                        seg.segname.iter()
-                            .take_while(|&&b| b != 0)
-                            .map(|&b| b as char)
-                            .collect::<String>()
-                            .contains("DWARF")
-                    }
-                    _ => false,
-                }
+            has_debug_info: macho.load_commands.iter().any(|lc| match &lc.command {
+                goblin::mach::load_command::CommandVariant::Segment32(seg) => seg
+                    .segname
+                    .iter()
+                    .take_while(|&&b| b != 0)
+                    .map(|&b| b as char)
+                    .collect::<String>()
+                    .contains("DWARF"),
+                goblin::mach::load_command::CommandVariant::Segment64(seg) => seg
+                    .segname
+                    .iter()
+                    .take_while(|&&b| b != 0)
+                    .map(|&b| b as char)
+                    .collect::<String>()
+                    .contains("DWARF"),
+                _ => false,
             }),
             is_pie: (macho.header.flags & 0x200000) != 0,
             string_count: 0, // Will be updated after string extraction
@@ -186,7 +195,8 @@ impl MachOAnalyzer {
 
                         // Also merge section-level metrics from radare2
                         if r2_binary_metrics.section_count > 0 {
-                            binary_metrics.executable_sections = r2_binary_metrics.executable_sections;
+                            binary_metrics.executable_sections =
+                                r2_binary_metrics.executable_sections;
                             binary_metrics.writable_sections = r2_binary_metrics.writable_sections;
                             binary_metrics.wx_sections = r2_binary_metrics.wx_sections;
                         }
@@ -194,12 +204,16 @@ impl MachOAnalyzer {
                         // Fallback: set full radare2 metrics if binary metrics somehow missing
                         let mut full_metrics = r2_binary_metrics;
                         full_metrics.file_size = data.len() as u64;
-                        full_metrics.segment_count = macho.load_commands.iter()
-                            .filter(|lc| matches!(
-                                lc.command,
-                                goblin::mach::load_command::CommandVariant::Segment32(_)
-                                    | goblin::mach::load_command::CommandVariant::Segment64(_)
-                            ))
+                        full_metrics.segment_count = macho
+                            .load_commands
+                            .iter()
+                            .filter(|lc| {
+                                matches!(
+                                    lc.command,
+                                    goblin::mach::load_command::CommandVariant::Segment32(_)
+                                        | goblin::mach::load_command::CommandVariant::Segment64(_)
+                                )
+                            })
                             .count() as u32;
                         full_metrics.is_stripped = macho.symbols().count() == 0;
                         full_metrics.is_pie = (macho.header.flags & 0x200000) != 0;
@@ -309,7 +323,7 @@ impl MachOAnalyzer {
                                     mbc: yara_match.mbc.clone(),
                                     attack: yara_match.attack.clone(),
                                     evidence,
-                                
+
                                     source_file: None,
                                 });
                             }
@@ -360,13 +374,16 @@ impl MachOAnalyzer {
                 // Calculate string metrics
                 if !report.strings.is_empty() {
                     use crate::entropy::calculate_entropy;
-                    let entropies: Vec<f64> = report.strings.iter()
+                    let entropies: Vec<f64> = report
+                        .strings
+                        .iter()
                         .map(|s| calculate_entropy(s.value.as_bytes()))
                         .collect();
 
                     let total_entropy: f64 = entropies.iter().sum();
                     binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
-                    binary.high_entropy_strings = entropies.iter().filter(|&&e| e > 6.0).count() as u32;
+                    binary.high_entropy_strings =
+                        entropies.iter().filter(|&&e| e > 6.0).count() as u32;
 
                     // Calculate string length metrics
                     let mut total_length: u64 = 0;
@@ -401,17 +418,17 @@ impl MachOAnalyzer {
                         total_size += section.size;
 
                         // Extract section name (e.g., "__text" from "__TEXT.____text")
-                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name = section.name.rsplit('.').next().unwrap_or(&section.name);
                         let section_name_clean = section_name.trim_start_matches("__");
 
                         // Only these sections contain executable code in Mach-O binaries
-                        let is_code_section = matches!(
-                            section_name_clean,
-                            "text" | "stubs" | "stub_helper"
-                        );
+                        let is_code_section =
+                            matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section.permissions.as_ref()
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
                             .map(|p| p.contains('x'))
                             .unwrap_or(false);
 
@@ -453,17 +470,17 @@ impl MachOAnalyzer {
                         entropies.push(entropy);
 
                         // Extract section name (e.g., "__text" from "__TEXT.____text")
-                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name = section.name.rsplit('.').next().unwrap_or(&section.name);
                         let section_name_clean = section_name.trim_start_matches("__");
 
                         // Only these sections contain executable code in Mach-O binaries
-                        let is_code_section = matches!(
-                            section_name_clean,
-                            "text" | "stubs" | "stub_helper"
-                        );
+                        let is_code_section =
+                            matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section.permissions.as_ref()
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
                             .map(|p| p.contains('x'))
                             .unwrap_or(false);
 
@@ -481,39 +498,45 @@ impl MachOAnalyzer {
                     }
 
                     if !entropies.is_empty() {
-                        binary.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
+                        binary.overall_entropy =
+                            entropies.iter().sum::<f32>() / entropies.len() as f32;
 
                         let mean = binary.overall_entropy;
-                        let variance: f32 = entropies.iter()
-                            .map(|e| (e - mean).powi(2))
-                            .sum::<f32>() / entropies.len() as f32;
+                        let variance: f32 =
+                            entropies.iter().map(|e| (e - mean).powi(2)).sum::<f32>()
+                                / entropies.len() as f32;
                         binary.entropy_variance = variance.sqrt();
                     }
 
                     if !code_entropies.is_empty() {
-                        binary.code_entropy = code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
+                        binary.code_entropy =
+                            code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
                     }
 
                     if !data_entropies.is_empty() {
-                        binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+                        binary.data_entropy =
+                            data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
                     }
                 }
 
                 // Calculate function-related metrics from report data
                 if !report.functions.is_empty() {
-                    let total_size: u64 = report.functions.iter()
-                        .map(|f| f.size.unwrap_or(0))
-                        .sum();
+                    let total_size: u64 =
+                        report.functions.iter().map(|f| f.size.unwrap_or(0)).sum();
                     if total_size > 0 {
-                        binary.avg_function_size = total_size as f32 / report.functions.len() as f32;
+                        binary.avg_function_size =
+                            total_size as f32 / report.functions.len() as f32;
                     }
 
                     // Count high complexity functions (threshold: 15+)
                     // Cyclomatic complexity > 15 is considered high complexity
                     if binary.max_complexity > 0 {
-                        binary.high_complexity_functions = report.functions.iter()
+                        binary.high_complexity_functions = report
+                            .functions
+                            .iter()
                             .filter(|f| f.complexity.unwrap_or(0) > 15)
-                            .count() as u32;
+                            .count()
+                            as u32;
                     }
 
                     // Note: total_basic_blocks would require summing from control_flow metrics
@@ -551,8 +574,10 @@ impl MachOAnalyzer {
 
                 // Compute largest section ratio
                 if binary.file_size > 0 && !report.sections.is_empty() {
-                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
-                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                    let max_section_size =
+                        report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio =
+                        max_section_size as f32 / binary.file_size as f32;
                 }
 
                 // Call compute_ratio_metrics to calculate density/normalized metrics
@@ -571,17 +596,17 @@ impl MachOAnalyzer {
                         total_size += section.size;
 
                         // Extract section name (e.g., "__text" from "__TEXT.____text")
-                        let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                        let section_name = section.name.rsplit('.').next().unwrap_or(&section.name);
                         let section_name_clean = section_name.trim_start_matches("__");
 
                         // Only these sections contain executable code in Mach-O binaries
-                        let is_code_section = matches!(
-                            section_name_clean,
-                            "text" | "stubs" | "stub_helper"
-                        );
+                        let is_code_section =
+                            matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section.permissions.as_ref()
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
                             .map(|p| p.contains('x'))
                             .unwrap_or(false);
 
@@ -637,7 +662,7 @@ impl MachOAnalyzer {
                 value: format!("0x{:x}", macho.header.magic),
                 location: None,
             }],
-        
+
             source_file: None,
         });
 
@@ -658,7 +683,7 @@ impl MachOAnalyzer {
                 value: format!("cputype=0x{:x}", macho.header.cputype),
                 location: None,
             }],
-        
+
             source_file: None,
         });
 
@@ -687,7 +712,7 @@ impl MachOAnalyzer {
                     value: "LC_CODE_SIGNATURE".to_string(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -710,7 +735,7 @@ impl MachOAnalyzer {
                         value: s.value.chars().take(50).collect::<String>() + "...",
                         location: s.offset.map(|o| format!("{:#x}", o)),
                     }],
-                
+
                     source_file: None,
                 });
                 break;
@@ -735,7 +760,7 @@ impl MachOAnalyzer {
                     value: "$FreeBSD$".to_string(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -770,7 +795,7 @@ impl MachOAnalyzer {
                             value: lib.clone(),
                             location: None,
                         }],
-                    
+
                         source_file: None,
                     });
                 }
@@ -795,7 +820,7 @@ impl MachOAnalyzer {
                         value: format!("{:.2}", section.entropy),
                         location: Some(section.name.clone()),
                     }],
-                
+
                     source_file: None,
                 });
                 break; // Only report once
@@ -831,7 +856,7 @@ impl MachOAnalyzer {
                     value: func_names.join(", "),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -983,10 +1008,18 @@ impl MachOAnalyzer {
             let segment_perm = {
                 let init_prot = segment.initprot;
                 let mut perm = String::new();
-                if init_prot & 0x01 != 0 { perm.push('r'); }  // VM_PROT_READ
-                if init_prot & 0x02 != 0 { perm.push('w'); }  // VM_PROT_WRITE
-                if init_prot & 0x04 != 0 { perm.push('x'); }  // VM_PROT_EXECUTE
-                if perm.is_empty() { perm.push('-'); }
+                if init_prot & 0x01 != 0 {
+                    perm.push('r');
+                } // VM_PROT_READ
+                if init_prot & 0x02 != 0 {
+                    perm.push('w');
+                } // VM_PROT_WRITE
+                if init_prot & 0x04 != 0 {
+                    perm.push('x');
+                } // VM_PROT_EXECUTE
+                if perm.is_empty() {
+                    perm.push('-');
+                }
                 perm
             };
 
@@ -1010,7 +1043,7 @@ impl MachOAnalyzer {
                         address: Some(section.addr),
                         size: section.size,
                         entropy,
-                        permissions: Some(segment_perm.clone()),  // Use segment permissions
+                        permissions: Some(segment_perm.clone()), // Use segment permissions
                     });
 
                     // Add entropy-based structural features
@@ -1085,7 +1118,7 @@ impl MachOAnalyzer {
                 value: format!("{}::{}", sig_category, signer),
                 location: None,
             }],
-        
+
             source_file: None,
         });
 
@@ -1106,7 +1139,7 @@ impl MachOAnalyzer {
                     value: identifier.clone(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -1130,7 +1163,7 @@ impl MachOAnalyzer {
                     value: entitlement_key.clone(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -1152,7 +1185,7 @@ impl MachOAnalyzer {
                     value: "0x00010000".to_string(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -1239,7 +1272,7 @@ impl MachOAnalyzer {
             mbc: Some("C0027".to_string()), // Obfuscated Files or Information
             attack: Some("T1027".to_string()),
             evidence: evidence.clone(),
-        
+
             source_file: None,
         });
 
@@ -1329,7 +1362,7 @@ impl MachOAnalyzer {
                         mbc: Some("C0027".to_string()),
                         attack: Some("T1027".to_string()),
                         evidence: decrypt_evidence,
-                    
+
                         source_file: None,
                     });
                 }
@@ -1478,7 +1511,8 @@ impl Analyzer for MachOAnalyzer {
                     let mut report = self.analyze_single(file_path, arch_data)?;
 
                     // Update report with all architectures from fat binary
-                    let arch_names: Vec<String> = arches.iter()
+                    let arch_names: Vec<String> = arches
+                        .iter()
                         .map(|a| self.arch_name_from_cputype(a.cputype))
                         .collect();
                     report.target.architectures = Some(arch_names.clone());

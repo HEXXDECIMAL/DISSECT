@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -29,22 +45,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "10:5"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -93,6 +93,20 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "meta/internal/imported::safe/json_stringify",
+      "kind": "structural",
+      "desc": "calls safe.JSON_stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_stringify"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::matched/push",
       "kind": "structural",
       "desc": "calls matched.push",
@@ -103,34 +117,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "matched.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::matched",
-      "kind": "structural",
-      "desc": "calls matched",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "matched"
         }
       ]
     },
@@ -149,6 +135,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::safe/testpattern",
+      "kind": "structural",
+      "desc": "calls safe.testPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.testPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::safe",
       "kind": "structural",
       "desc": "calls safe",
@@ -163,30 +177,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe/json_stringify",
+      "id": "meta/internal/imported::matched",
       "kind": "structural",
-      "desc": "calls safe.JSON_stringify",
+      "desc": "calls matched",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safe.JSON_stringify"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/testpattern",
-      "kind": "structural",
-      "desc": "calls safe.testPattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.testPattern"
+          "value": "matched"
         }
       ]
     }

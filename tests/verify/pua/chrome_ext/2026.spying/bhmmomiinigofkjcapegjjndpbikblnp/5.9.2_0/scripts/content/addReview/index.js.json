@@ -12,6 +12,37 @@
   },
   "findings": [
     {
+      "id": "meta/format/json::valid",
+      "kind": "capability",
+      "desc": "JSON data format",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/format/json/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
       "id": "meta/library/react::react-dom",
       "kind": "capability",
       "desc": "ReactDOM object reference",
@@ -42,49 +73,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::e/ready",
-      "kind": "structural",
-      "desc": "calls e.ready",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.ready"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/ready/then",
-      "kind": "structural",
-      "desc": "calls e.ready.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.ready.then"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
       "desc": "calls React.createElement",
@@ -109,6 +97,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "ReactDOM.render"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready/then",
+      "kind": "structural",
+      "desc": "calls e.ready.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready",
+      "kind": "structural",
+      "desc": "calls e.ready",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready"
         }
       ]
     }

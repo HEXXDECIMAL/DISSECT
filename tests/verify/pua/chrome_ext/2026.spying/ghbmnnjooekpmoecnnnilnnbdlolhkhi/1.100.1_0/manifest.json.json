@@ -58,25 +58,41 @@
       ]
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
+      "id": "meta/format/json::valid",
       "kind": "capability",
-      "desc": "Exposes resources to web",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "JSON data format",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/format/json/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::externally-connectable",
+      "kind": "capability",
+      "desc": "Extension allows external connections",
+      "conf": 0.9,
+      "crit": "suspicious",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/manifest.json",
-          "value": "[{\"matches\":[\"<all_urls>\"],\"resources\":[\"page_embed_script.js\"]}]",
-          "location": "web_accessible_resources"
+          "value": "{\"matches\":[\"https://docs.google.com/*\",\"https://drive.google.com/*\",\"https://drive-autopush.corp.google.com/*\",\"https://drive-daily-0.corp.google.com/*\",\"https://drive-daily-1.corp.google.com/*\",\"...",
+          "location": "externally_connectable"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
       "kind": "capability",
-      "desc": "Chrome extension manifest file",
+      "desc": "Chrome extension using Manifest V3",
       "conf": 0.95,
       "crit": "notable",
       "evidence": [
@@ -85,6 +101,22 @@
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/manifest.json",
           "value": "3",
           "location": "manifest_version"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
+      "kind": "capability",
+      "desc": "Extension uses service worker (MV3)",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/manifest.json",
+          "value": "service_worker_bin_prod.js",
+          "location": "background.service_worker"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
@@ -106,9 +138,9 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
       "kind": "capability",
-      "desc": "Chrome extension using Manifest V3",
+      "desc": "Chrome extension manifest file",
       "conf": 0.95,
       "crit": "notable",
       "evidence": [
@@ -138,33 +170,17 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
       "kind": "capability",
-      "desc": "Extension uses service worker (MV3)",
-      "conf": 0.9,
+      "desc": "Exposes resources to web",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/manifest.json",
-          "value": "service_worker_bin_prod.js",
-          "location": "background.service_worker"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::externally-connectable",
-      "kind": "capability",
-      "desc": "Extension allows external connections",
-      "conf": 0.9,
-      "crit": "suspicious",
-      "evidence": [
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/ghbmnnjooekpmoecnnnilnnbdlolhkhi/1.100.1_0/manifest.json",
-          "value": "{\"matches\":[\"https://docs.google.com/*\",\"https://drive.google.com/*\",\"https://drive-autopush.corp.google.com/*\",\"https://drive-daily-0.corp.google.com/*\",\"https://drive-daily-1.corp.google.com/*\",\"...",
-          "location": "externally_connectable"
+          "value": "[{\"matches\":[\"<all_urls>\"],\"resources\":[\"page_embed_script.js\"]}]",
+          "location": "web_accessible_resources"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"

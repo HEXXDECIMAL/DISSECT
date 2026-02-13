@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "15:5"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1  for (",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "15:5"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -95,62 +95,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safecontext",
-      "kind": "structural",
-      "desc": "calls safeContext",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeContext"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mapreadystatetovalue",
-      "kind": "structural",
-      "desc": "calls mapReadyStateToValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mapReadyStateToValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::handlestatechange",
-      "kind": "structural",
-      "desc": "calls handleStateChange",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "handleStateChange"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::statekey",
-      "kind": "structural",
-      "desc": "calls stateKey",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stateKey"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::action",
       "kind": "structural",
       "desc": "calls action",
@@ -165,58 +109,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safeself/removeeventlistener",
+      "id": "meta/internal/imported::safecontext",
       "kind": "structural",
-      "desc": "calls safeSelf.removeEventListener",
+      "desc": "calls safeContext",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safeSelf.removeEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::statemapping",
-      "kind": "structural",
-      "desc": "calls stateMapping",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stateMapping"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safecontext/addeventlistener",
-      "kind": "structural",
-      "desc": "calls safeContext.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeContext.addEventListener"
+          "value": "safeContext"
         }
       ]
     },
@@ -235,6 +137,90 @@
       ]
     },
     {
+      "id": "meta/internal/imported::statemapping",
+      "kind": "structural",
+      "desc": "calls stateMapping",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateMapping"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safecontext/addeventlistener",
+      "kind": "structural",
+      "desc": "calls safeContext.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeContext.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mapreadystatetovalue",
+      "kind": "structural",
+      "desc": "calls mapReadyStateToValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mapReadyStateToValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statekey",
+      "kind": "structural",
+      "desc": "calls stateKey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stateKey"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself/removeeventlistener",
+      "kind": "structural",
+      "desc": "calls safeSelf.removeEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf.removeEventListener"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::targetreadystatevalue",
       "kind": "structural",
       "desc": "calls targetReadyStateValue",
@@ -245,6 +231,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "targetReadyStateValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handlestatechange",
+      "kind": "structural",
+      "desc": "calls handleStateChange",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handleStateChange"
         }
       ]
     }

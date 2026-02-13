@@ -113,7 +113,7 @@ impl ElfAnalyzer {
                     attack: Some("T1027".to_string()), // Obfuscated Files or Information
                     evidence: vec![],
                     trait_refs: vec![],
-                
+
                     source_file: None,
                 });
 
@@ -160,11 +160,16 @@ impl ElfAnalyzer {
                     // Recalculate density metrics that depend on code_size
                     let code_kb = code_size as f32 / 1024.0;
                     if code_kb > 0.0 {
-                        binary_metrics.import_density = binary_metrics.import_count as f32 / code_kb;
-                        binary_metrics.string_density = binary_metrics.string_count as f32 / code_kb;
-                        binary_metrics.function_density = binary_metrics.function_count as f32 / code_kb;
-                        binary_metrics.relocation_density = binary_metrics.relocation_count as f32 / code_kb;
-                        binary_metrics.complexity_per_kb = binary_metrics.avg_complexity * 1024.0 / code_size as f32;
+                        binary_metrics.import_density =
+                            binary_metrics.import_count as f32 / code_kb;
+                        binary_metrics.string_density =
+                            binary_metrics.string_count as f32 / code_kb;
+                        binary_metrics.function_density =
+                            binary_metrics.function_count as f32 / code_kb;
+                        binary_metrics.relocation_density =
+                            binary_metrics.relocation_count as f32 / code_kb;
+                        binary_metrics.complexity_per_kb =
+                            binary_metrics.avg_complexity * 1024.0 / code_size as f32;
                     }
                 }
 
@@ -243,7 +248,7 @@ impl ElfAnalyzer {
                                     mbc: yara_match.mbc.clone(),
                                     attack: yara_match.attack.clone(),
                                     evidence,
-                                
+
                                     source_file: None,
                                 });
                             }
@@ -368,7 +373,7 @@ impl ElfAnalyzer {
                             value: "STT_GNU_IFUNC (LOOS)".to_string(),
                             location: Some(format!("{:#x}", dynsym.st_value)),
                         }],
-                    
+
                         source_file: None,
                     });
                 }
@@ -415,7 +420,7 @@ impl ElfAnalyzer {
                                 value: "STT_GNU_IFUNC (LOOS)".to_string(),
                                 location: Some(format!("{:#x}", sym.st_value)),
                             }],
-                        
+
                             source_file: None,
                         });
                     }
@@ -609,6 +614,12 @@ impl ElfAnalyzer {
 
         // Program header analysis (security features)
         for ph in &elf.program_headers {
+            if ph.p_type == PT_LOAD {
+                metrics.load_segment_max_p_filesz =
+                    metrics.load_segment_max_p_filesz.max(ph.p_filesz);
+                metrics.load_segment_max_p_memsz = metrics.load_segment_max_p_memsz.max(ph.p_memsz);
+            }
+
             match ph.p_type {
                 PT_GNU_RELRO => {
                     // GNU_RELRO present (partial unless DT_BIND_NOW also set)
@@ -778,8 +789,10 @@ impl Analyzer for ElfAnalyzer {
 
                 // Compute largest section ratio
                 if binary.file_size > 0 && !report.sections.is_empty() {
-                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
-                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                    let max_section_size =
+                        report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio =
+                        max_section_size as f32 / binary.file_size as f32;
                 }
 
                 // Compute ratio metrics

@@ -13,32 +13,17 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-symbol",
-      "kind": "capability",
-      "desc": "for loop (symbol)",
+      "desc": "for loop (content)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "M.Symbol.iterator",
-          "location": "import"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -88,72 +73,119 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/control-flow/analysis::for-loop-symbol",
       "kind": "capability",
-      "desc": "for loop (content)",
+      "desc": "for loop (symbol)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
+          "method": "symbol",
+          "source": "ast",
+          "value": "M.Symbol.iterator",
+          "location": "import"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::buffer-from-call",
+      "id": "cap/data/encoding/charset::json-stringify-js",
       "kind": "capability",
-      "desc": "Buffer.from conversion",
-      "conf": 0.4,
-      "crit": "inert",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Buffer.from.toString.split.reverse.join"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString.split.reverse"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Buffer.from"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString.split"
+          "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "String obfuscation via fromCharCode",
-      "conf": 0.66,
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "String.fromCharCode"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
+      "kind": "capability",
+      "desc": "Split to empty-delimiter char array",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .split(\"\")",
+          "location": "file"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::base64-encode-function",
+      "kind": "capability",
+      "desc": "base64 encoding function/method",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "E1041",
+      "attack": "T1041",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 toString(\"base64\")",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-buffer-from-base64",
+      "kind": "capability",
+      "desc": "Buffer.from base64",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 Buffer.from(JSON.stringify(M)).toString(\"base64\")",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "cap/data/encode/base64::tostring-base64",
@@ -207,6 +239,41 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "cap/exec/vm/sandbox::buffer-from-call",
+      "kind": "capability",
+      "desc": "Buffer.from conversion",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Buffer.from"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString.split"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString.split.reverse.join"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString.split.reverse"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
@@ -222,24 +289,6 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/encoding::split-join-obfuscation",
-      "kind": "capability",
-      "desc": "Split/join string obfuscation",
-      "conf": 0.8,
-      "crit": "suspicious",
-      "mbc": "E1014",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .split(\"\").reverse().join(\"\")",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/encoding/double-encoding.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
@@ -259,72 +308,27 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-buffer-from-base64",
+      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
       "kind": "capability",
-      "desc": "Buffer.from base64",
-      "conf": 0.6,
+      "desc": "String obfuscation via fromCharCode",
+      "conf": 0.66,
       "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 Buffer.from(JSON.stringify(M)).toString(\"base64\")",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
-      "kind": "capability",
-      "desc": "Split to empty-delimiter char array",
-      "conf": 0.6,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .split(\"\")",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "encoder.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
-      "kind": "capability",
-      "desc": "JSON.stringify call",
-      "conf": 0.5,
-      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "JSON.stringify"
+          "value": "String.fromCharCode"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
       "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -332,43 +336,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "text.max_line_length = 4136.00"
+          "value": "identifiers.single_char_ratio = 0.33"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "cap/exec/eval/dynamic::variable-immediate-call",
-      "kind": "capability",
-      "desc": "Variable called immediately as function",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 var _slicedToArray=function(M,D){",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 7.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -386,6 +357,38 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "kind": "capability",
+      "desc": "Code uses Symbol for private",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.iterator"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
     },
     {
       "id": "cap/exec/vm/sandbox::base64-long-string",
@@ -410,40 +413,6 @@
       "source_file": "cap/exec/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
       "kind": "capability",
       "desc": "Join using empty string delimiter",
@@ -460,43 +429,26 @@
       "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::base64-encode-function",
+      "id": "cap/exec/eval/dynamic::variable-immediate-call",
       "kind": "capability",
-      "desc": "base64 encoding function/method",
+      "desc": "Variable called immediately as function",
       "conf": 0.7,
       "crit": "notable",
-      "mbc": "E1041",
-      "attack": "T1041",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 2 toString(\"base64\")",
+          "value": "Found 1 var _slicedToArray=function(M,D){",
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Code uses Symbol for private",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Symbol.iterator"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
-      "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -504,10 +456,58 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.33"
+          "value": "text.max_line_length = 4136.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/encoding::split-join-obfuscation",
+      "kind": "capability",
+      "desc": "Split/join string obfuscation",
+      "conf": 0.8,
+      "crit": "suspicious",
+      "mbc": "E1014",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .split(\"\").reverse().join(\"\")",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/encoding/double-encoding.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "encoder.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -523,6 +523,43 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 700.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 7.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 8.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -574,85 +611,6 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 700.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 7.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 8.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::t/return",
-      "kind": "structural",
-      "desc": "calls T.return",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "T.return"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fp",
-      "kind": "structural",
-      "desc": "calls fp",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fp"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/map",
-      "kind": "structural",
-      "desc": "calls M.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "M.map"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::m/symbol/iterator",
       "kind": "structural",
       "desc": "calls M.Symbol.iterator",
@@ -663,132 +621,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "M.Symbol.iterator"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::key/charcodeat",
-      "kind": "structural",
-      "desc": "calls key.charCodeAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "key.charCodeAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buffer/from/tostring/split/reverse/join",
-      "kind": "structural",
-      "desc": "calls Buffer.from.toString.split.reverse.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString.split.reverse.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/charcodeat",
-      "kind": "structural",
-      "desc": "calls M.charCodeAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "M.charCodeAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::string/fromcharcode",
-      "kind": "structural",
-      "desc": "calls String.fromCharCode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "String.fromCharCode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fp/flow",
-      "kind": "structural",
-      "desc": "calls fp.flow",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fp.flow"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::key",
-      "kind": "structural",
-      "desc": "calls key",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "key"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isempty",
-      "kind": "structural",
-      "desc": "calls isEmpty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isEmpty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/stringify",
-      "kind": "structural",
-      "desc": "calls JSON.stringify",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
         }
       ]
     },
@@ -807,6 +639,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::key/charcodeat",
+      "kind": "structural",
+      "desc": "calls key.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::w/push",
       "kind": "structural",
       "desc": "calls w.push",
@@ -817,6 +677,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "w.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/return",
+      "kind": "structural",
+      "desc": "calls T.return",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "T.return"
         }
       ]
     },
@@ -835,48 +709,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::slicedtoarray",
-      "kind": "structural",
-      "desc": "calls slicedToArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "slicedToArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buffer/from/tostring",
-      "kind": "structural",
-      "desc": "calls Buffer.from.toString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buffer/from/tostring/split/reverse",
-      "kind": "structural",
-      "desc": "calls Buffer.from.toString.split.reverse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Buffer.from.toString.split.reverse"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::object",
       "kind": "structural",
       "desc": "calls Object",
@@ -887,34 +719,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Object"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::require",
-      "kind": "structural",
-      "desc": "calls require",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "require"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buffer/from",
-      "kind": "structural",
-      "desc": "calls Buffer.from",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Buffer.from"
         }
       ]
     },
@@ -933,6 +737,174 @@
       ]
     },
     {
+      "id": "meta/internal/imported::isempty",
+      "kind": "structural",
+      "desc": "calls isEmpty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isEmpty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fp/flow",
+      "kind": "structural",
+      "desc": "calls fp.flow",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fp.flow"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::slicedtoarray",
+      "kind": "structural",
+      "desc": "calls slicedToArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "slicedToArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fp",
+      "kind": "structural",
+      "desc": "calls fp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/charcodeat",
+      "kind": "structural",
+      "desc": "calls M.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "M.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/map",
+      "kind": "structural",
+      "desc": "calls M.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "M.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::key",
+      "kind": "structural",
+      "desc": "calls key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string/fromcharcode",
+      "kind": "structural",
+      "desc": "calls String.fromCharCode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::require",
+      "kind": "structural",
+      "desc": "calls require",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "require"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buffer/from/tostring",
+      "kind": "structural",
+      "desc": "calls Buffer.from.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/stringify",
+      "kind": "structural",
+      "desc": "calls JSON.stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buffer/from",
+      "kind": "structural",
+      "desc": "calls Buffer.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Buffer.from"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::buffer/from/tostring/split",
       "kind": "structural",
       "desc": "calls Buffer.from.toString.split",
@@ -943,6 +915,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "Buffer.from.toString.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buffer/from/tostring/split/reverse/join",
+      "kind": "structural",
+      "desc": "calls Buffer.from.toString.split.reverse.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString.split.reverse.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buffer/from/tostring/split/reverse",
+      "kind": "structural",
+      "desc": "calls Buffer.from.toString.split.reverse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Buffer.from.toString.split.reverse"
         }
       ]
     },

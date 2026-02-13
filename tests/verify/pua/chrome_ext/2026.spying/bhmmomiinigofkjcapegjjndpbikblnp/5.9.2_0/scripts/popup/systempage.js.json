@@ -27,21 +27,6 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "systempage.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
@@ -98,6 +83,21 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "systempage.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
       "kind": "capability",
       "desc": "chrome.runtime.sendMessage",
@@ -136,72 +136,30 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::t/innertext",
+      "id": "meta/internal/imported::close",
       "kind": "structural",
-      "desc": "calls t.innerText",
+      "desc": "calls close",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.innerText"
+          "value": "close"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::webextapi/i18n/getmessage",
+      "id": "meta/internal/imported::window/onblur",
       "kind": "structural",
-      "desc": "calls webextApi.i18n.getMessage",
+      "desc": "calls window.onblur",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webextApi.i18n.getMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
-      "kind": "structural",
-      "desc": "calls webextApi.runtime.sendMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.runtime.sendMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/onload",
-      "kind": "structural",
-      "desc": "calls window.onload",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.onload"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::o/onclick",
-      "kind": "structural",
-      "desc": "calls o.onclick",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "o.onclick"
+          "value": "window.onblur"
         }
       ]
     },
@@ -220,16 +178,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/onblur",
+      "id": "meta/internal/imported::window/onload",
       "kind": "structural",
-      "desc": "calls window.onblur",
+      "desc": "calls window.onload",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.onblur"
+          "value": "window.onload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/i18n/getmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.i18n.getMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.i18n.getMessage"
         }
       ]
     },
@@ -262,6 +234,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::o/onclick",
+      "kind": "structural",
+      "desc": "calls o.onclick",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.onclick"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::window/close",
       "kind": "structural",
       "desc": "calls window.close",
@@ -276,16 +262,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::close",
+      "id": "meta/internal/imported::t/innertext",
       "kind": "structural",
-      "desc": "calls close",
+      "desc": "calls t.innerText",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "close"
+          "value": "t.innerText"
         }
       ]
     },
@@ -300,6 +286,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "n.innerText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
         }
       ]
     }

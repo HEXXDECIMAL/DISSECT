@@ -12,35 +12,36 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(()=>{",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 7.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "meta/library/react::react-dom",
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
-      "desc": "ReactDOM object reference",
-      "conf": 0.85,
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "ReactDOM.render"
+          "value": "React.createElement"
         }
       ],
-      "source_file": "meta/library/react/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
@@ -77,6 +78,71 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1910.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
+    },
+    {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
@@ -108,72 +174,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1910.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 7.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
@@ -201,30 +201,30 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::react/createelement",
+      "id": "meta/internal/imported::document/getelementbyid",
       "kind": "structural",
-      "desc": "calls React.createElement",
+      "desc": "calls document.getElementById",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "document.getElementById"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/body/appendchild",
+      "id": "meta/internal/imported::e/id",
       "kind": "structural",
-      "desc": "calls document.body.appendChild",
+      "desc": "calls e.id",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.body.appendChild"
+          "value": "e.id"
         }
       ]
     },
@@ -243,44 +243,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::webextapi/i18n/getmessage",
+      "id": "meta/internal/imported::document/body/appendchild",
       "kind": "structural",
-      "desc": "calls webextApi.i18n.getMessage",
+      "desc": "calls document.body.appendChild",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webextApi.i18n.getMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::goupgrade",
-      "kind": "structural",
-      "desc": "calls goUpgrade",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "goUpgrade"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
+          "value": "document.body.appendChild"
         }
       ]
     },
@@ -299,30 +271,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/getelementbyid",
+      "id": "meta/internal/imported::goupgrade",
       "kind": "structural",
-      "desc": "calls document.getElementById",
+      "desc": "calls goUpgrade",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.getElementById"
+          "value": "goUpgrade"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::sendmixpanelevent",
+      "id": "meta/internal/imported::webextapi/i18n/getmessage",
       "kind": "structural",
-      "desc": "calls sendMixpanelEvent",
+      "desc": "calls webextApi.i18n.getMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "sendMixpanelEvent"
+          "value": "webextApi.i18n.getMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
         }
       ]
     },
@@ -341,16 +327,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reactdom/render",
+      "id": "meta/internal/imported::sendmixpanelevent",
       "kind": "structural",
-      "desc": "calls ReactDOM.render",
+      "desc": "calls sendMixpanelEvent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "ReactDOM.render"
+          "value": "sendMixpanelEvent"
         }
       ]
     },
@@ -369,16 +355,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/id",
+      "id": "meta/internal/imported::settimeout",
       "kind": "structural",
-      "desc": "calls e.id",
+      "desc": "calls setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.id"
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactdom/render",
+      "kind": "structural",
+      "desc": "calls ReactDOM.render",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
         }
       ]
     }

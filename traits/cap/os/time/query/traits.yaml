@@ -41,14 +41,21 @@ traits:
     platforms: [unix, linux, macos]
 
   # Time formatting and conversion
-  - id: localtime
-    desc: Convert time to local time
+  - id: localtime-symbol
+    desc: localtime function (symbol)
     crit: inert
     conf: 0.2
     if:
       type: symbol
       regex: localtime
-    platforms: [unix, linux, macos, windows]
+
+  - id: localtime-string
+    desc: localtime function (string)
+    crit: inert
+    conf: 0.2
+    if:
+      type: string
+      regex: ocaltime
 
   - id: gmtime
     desc: Convert time to UTC time
@@ -120,3 +127,13 @@ traits:
       type: symbol
       regex: sleep|usleep|nanosleep
     platforms: [unix, linux, macos]
+
+composite_rules:
+  - id: localtime
+    desc: Convert time to local time
+    crit: inert
+    conf: 0.2
+    any:
+      - id: cap/os/time/query::localtime-symbol
+      - id: cap/os/time/query::localtime-string
+    platforms: [unix, linux, macos, windows]

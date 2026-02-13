@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "49:5"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -44,6 +28,39 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "49:5"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
@@ -53,7 +70,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.keys.map.sort"
+          "value": "Object.keys.map"
         },
         {
           "method": "import_symbol",
@@ -63,7 +80,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.keys.map"
+          "value": "Object.keys.map.sort"
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
@@ -101,23 +118,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
@@ -127,7 +127,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.keys.map.sort"
+          "value": "Object.keys.map"
         },
         {
           "method": "import_symbol",
@@ -137,7 +137,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.keys.map"
+          "value": "Object.keys.map.sort"
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
@@ -165,16 +165,30 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::currentdate/getdate",
+      "id": "meta/internal/imported::today",
       "kind": "structural",
-      "desc": "calls currentDate.getDate",
+      "desc": "calls today",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentDate.getDate"
+          "value": "today"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/updatedata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.updateData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.updateData"
         }
       ]
     },
@@ -193,16 +207,142 @@
       ]
     },
     {
-      "id": "meta/internal/imported::promise/all",
+      "id": "meta/internal/imported::statistics",
       "kind": "structural",
-      "desc": "calls Promise.all",
+      "desc": "calls statistics",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Promise.all"
+          "value": "statistics"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdate/getdate",
+      "kind": "structural",
+      "desc": "calls currentDate.getDate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDate.getDate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/map",
+      "kind": "structural",
+      "desc": "calls Object.keys.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::day",
+      "kind": "structural",
+      "desc": "calls day",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "day"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/day/ads",
+      "kind": "structural",
+      "desc": "calls data.day.ads",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.day.ads"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/gettime",
+      "kind": "structural",
+      "desc": "calls a.getTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.getTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/day/trackers",
+      "kind": "structural",
+      "desc": "calls data.day.trackers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.day.trackers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj/isodate",
+      "kind": "structural",
+      "desc": "calls obj.isoDate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj.isoDate"
         }
       ]
     },
@@ -221,30 +361,128 @@
       ]
     },
     {
-      "id": "meta/internal/imported::data/day/popups",
+      "id": "meta/internal/imported::pagedatacomponent/getdata",
       "kind": "structural",
-      "desc": "calls data.day.popups",
+      "desc": "calls pageDataComponent.getData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "data.day.popups"
+          "value": "pageDataComponent.getData"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::currentdate",
+      "id": "meta/internal/imported::b/gettime",
       "kind": "structural",
-      "desc": "calls currentDate",
+      "desc": "calls b.getTime",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentDate"
+          "value": "b.getTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result/today",
+      "kind": "structural",
+      "desc": "calls result.today",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result.today"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dates/at",
+      "kind": "structural",
+      "desc": "calls dates.at",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dates.at"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/day/cookiebanners",
+      "kind": "structural",
+      "desc": "calls data.day.cookieBanners",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.day.cookieBanners"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data/day",
+      "kind": "structural",
+      "desc": "calls data.day",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data.day"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/parse",
+      "kind": "structural",
+      "desc": "calls Date.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.parse"
         }
       ]
     },
@@ -277,90 +515,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::currentdate/setdate",
-      "kind": "structural",
-      "desc": "calls currentDate.setDate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDate.setDate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::b/gettime",
-      "kind": "structural",
-      "desc": "calls b.getTime",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "b.getTime"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::obj/isodate",
-      "kind": "structural",
-      "desc": "calls obj.isoDate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "obj.isoDate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data",
-      "kind": "structural",
-      "desc": "calls data",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
-      "kind": "structural",
-      "desc": "calls dataProcessingConsent.getConsent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataProcessingConsent.getConsent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data/day/ads",
-      "kind": "structural",
-      "desc": "calls data.day.ads",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data.day.ads"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::getdatestring",
       "kind": "structural",
       "desc": "calls getDateString",
@@ -375,16 +529,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::statistics",
+      "id": "meta/internal/imported::currentdate/setdate",
       "kind": "structural",
-      "desc": "calls statistics",
+      "desc": "calls currentDate.setDate",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "statistics"
+          "value": "currentDate.setDate"
         }
       ]
     },
@@ -403,58 +557,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::result/today",
+      "id": "meta/internal/imported::currentdate",
       "kind": "structural",
-      "desc": "calls result.today",
+      "desc": "calls currentDate",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "result.today"
+          "value": "currentDate"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/updatedata",
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
       "kind": "structural",
-      "desc": "calls pageDataComponent.updateData",
+      "desc": "calls dataProcessingConsent.getConsent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.updateData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::date/parse",
-      "kind": "structural",
-      "desc": "calls Date.parse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Date.parse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys",
-      "kind": "structural",
-      "desc": "calls Object.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys"
+          "value": "dataProcessingConsent.getConsent"
         }
       ]
     },
@@ -473,142 +599,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::today",
+      "id": "meta/internal/imported::data/day/popups",
       "kind": "structural",
-      "desc": "calls today",
+      "desc": "calls data.day.popups",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "today"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::day",
-      "kind": "structural",
-      "desc": "calls day",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "day"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data/day",
-      "kind": "structural",
-      "desc": "calls data.day",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data.day"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys/map",
-      "kind": "structural",
-      "desc": "calls Object.keys.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data/day/trackers",
-      "kind": "structural",
-      "desc": "calls data.day.trackers",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data.day.trackers"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/gettime",
-      "kind": "structural",
-      "desc": "calls a.getTime",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.getTime"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::result",
-      "kind": "structural",
-      "desc": "calls result",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "result"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pagedatacomponent/getdata",
-      "kind": "structural",
-      "desc": "calls pageDataComponent.getData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pageDataComponent.getData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data/day/cookiebanners",
-      "kind": "structural",
-      "desc": "calls data.day.cookieBanners",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data.day.cookieBanners"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dates/at",
-      "kind": "structural",
-      "desc": "calls dates.at",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dates.at"
+          "value": "data.day.popups"
         }
       ]
     }

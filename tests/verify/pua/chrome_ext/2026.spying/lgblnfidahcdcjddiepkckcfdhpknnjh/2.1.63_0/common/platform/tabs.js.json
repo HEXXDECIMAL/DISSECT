@@ -39,6 +39,99 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-create",
+      "kind": "capability",
+      "desc": "Creates new browser tab",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.tabs.create({\n      url,\n      active: true\n    })",
+          "location": "26:18"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
+      "kind": "capability",
+      "desc": "Queries browser tabs",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.tabs.query(filter)",
+          "location": "15:18"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "kind": "capability",
+      "desc": "exec function pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x6ca"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "exec",
+          "location": "0x6cb"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "exec"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::browser-namespace",
       "kind": "capability",
       "desc": "Uses browser.* namespace (Firefox/WebExtension)",
@@ -101,54 +194,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
-      "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "tabs.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
-      "kind": "capability",
-      "desc": "Queries browser tabs",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "browser.tabs.query(filter)",
-          "location": "15:18"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
@@ -166,64 +211,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
-      "kind": "capability",
-      "desc": "exec function pattern",
+      "desc": "Small file under 5KB",
       "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "exec",
-          "location": "0x6ca"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "exec",
-          "location": "0x6cb"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "exec"
+          "method": "basename",
+          "source": "target",
+          "value": "tabs.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-create",
-      "kind": "capability",
-      "desc": "Creates new browser tab",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "browser.tabs.create({\n      url,\n      active: true\n    })",
-          "location": "26:18"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
@@ -261,16 +261,16 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::browser/tabs/get",
+      "id": "meta/internal/imported::d/func",
       "kind": "structural",
-      "desc": "calls browser.tabs.get",
+      "desc": "calls d.func",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browser.tabs.get"
+          "value": "d.func"
         }
       ]
     },
@@ -289,20 +289,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::alltabs/at",
-      "kind": "structural",
-      "desc": "calls allTabs.at",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "allTabs.at"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::results",
       "kind": "structural",
       "desc": "calls results",
@@ -317,240 +303,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::tab",
+      "id": "meta/internal/imported::alltabs/at",
       "kind": "structural",
-      "desc": "calls tab",
+      "desc": "calls allTabs.at",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "tab"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/tabs/create",
-      "kind": "structural",
-      "desc": "calls browser.tabs.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.tabs.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browserinfo/getbrowserstoreurl",
-      "kind": "structural",
-      "desc": "calls browserInfo.getBrowserStoreUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browserInfo.getBrowserStoreUrl"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::d/func",
-      "kind": "structural",
-      "desc": "calls d.func",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "d.func"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::d/files",
-      "kind": "structural",
-      "desc": "calls d.files",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "d.files"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::querytabs",
-      "kind": "structural",
-      "desc": "calls queryTabs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "queryTabs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::d/args",
-      "kind": "structural",
-      "desc": "calls d.args",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "d.args"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::activetabs",
-      "kind": "structural",
-      "desc": "calls activeTabs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "activeTabs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/tabs/reload",
-      "kind": "structural",
-      "desc": "calls browser.tabs.reload",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.tabs.reload"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/tabs/query",
-      "kind": "structural",
-      "desc": "calls browser.tabs.query",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.tabs.query"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getactivetab",
-      "kind": "structural",
-      "desc": "calls getActiveTab",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getActiveTab"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browserstoreurl",
-      "kind": "structural",
-      "desc": "calls browserStoreUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browserStoreUrl"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tab/url/startswith",
-      "kind": "structural",
-      "desc": "calls tab.url.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tab.url.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::activetabs/at",
-      "kind": "structural",
-      "desc": "calls activeTabs.at",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "activeTabs.at"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::results/map",
-      "kind": "structural",
-      "desc": "calls results.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "results.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browserinfo/getextensionsurl",
-      "kind": "structural",
-      "desc": "calls browserInfo.getExtensionsUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browserInfo.getExtensionsUrl"
+          "value": "allTabs.at"
         }
       ]
     },
@@ -569,16 +331,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::alltabs",
+      "id": "meta/internal/imported::getactivetab",
       "kind": "structural",
-      "desc": "calls allTabs",
+      "desc": "calls getActiveTab",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "allTabs"
+          "value": "getActiveTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::d/files",
+      "kind": "structural",
+      "desc": "calls d.files",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "d.files"
         }
       ]
     },
@@ -593,6 +369,230 @@
           "method": "symbol",
           "source": "ast",
           "value": "browser.tabs.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserstoreurl",
+      "kind": "structural",
+      "desc": "calls browserStoreUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserStoreUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/query",
+      "kind": "structural",
+      "desc": "calls browser.tabs.query",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.query"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::results/map",
+      "kind": "structural",
+      "desc": "calls results.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "results.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::querytabs",
+      "kind": "structural",
+      "desc": "calls queryTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/reload",
+      "kind": "structural",
+      "desc": "calls browser.tabs.reload",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.reload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::activetabs",
+      "kind": "structural",
+      "desc": "calls activeTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab",
+      "kind": "structural",
+      "desc": "calls tab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/url/startswith",
+      "kind": "structural",
+      "desc": "calls tab.url.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.url.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getbrowserstoreurl",
+      "kind": "structural",
+      "desc": "calls browserInfo.getBrowserStoreUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getBrowserStoreUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/get",
+      "kind": "structural",
+      "desc": "calls browser.tabs.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getextensionsurl",
+      "kind": "structural",
+      "desc": "calls browserInfo.getExtensionsUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getExtensionsUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/tabs/create",
+      "kind": "structural",
+      "desc": "calls browser.tabs.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.tabs.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::d/args",
+      "kind": "structural",
+      "desc": "calls d.args",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "d.args"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::activetabs/at",
+      "kind": "structural",
+      "desc": "calls activeTabs.at",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabs.at"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::alltabs",
+      "kind": "structural",
+      "desc": "calls allTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allTabs"
         }
       ]
     }

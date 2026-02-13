@@ -8,9 +8,25 @@
   "size": 1127,
   "risk": "notable",
   "counts": {
-    "notable": 12
+    "notable": 10
   },
   "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
@@ -34,35 +50,21 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": ".proto file extension",
+      "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 11.00"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-keys-call",
@@ -119,41 +121,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
       "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 prototype",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "extendHandler.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -161,27 +132,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "text.max_line_length = 1127.00"
+          "value": "identifiers.single_char_ratio = 0.69"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -218,10 +172,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -229,10 +183,41 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.69"
+          "value": "text.max_line_length = 1127.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "extendHandler.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -253,49 +238,6 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
-      "kind": "capability",
-      "desc": "Iteration or loop pattern",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:41"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:96"
-        },
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -330,30 +272,86 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::extends",
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:41"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:96"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::object/values/join",
       "kind": "structural",
-      "desc": "calls extends",
+      "desc": "calls Object.values.join",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "extends"
+          "value": "Object.values.join"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/isoriginal",
+      "id": "meta/internal/imported::d/e/foreach",
       "kind": "structural",
-      "desc": "calls t.isOriginal",
+      "desc": "calls d.e.forEach",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.isOriginal"
+          "value": "d.e.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/getterm",
+      "kind": "structural",
+      "desc": "calls t.getTerm",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.getTerm"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::l/e/push",
+      "kind": "structural",
+      "desc": "calls l.e.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "l.e.push"
         }
       ]
     },
@@ -372,6 +370,62 @@
       ]
     },
     {
+      "id": "meta/internal/imported::r/join",
+      "kind": "structural",
+      "desc": "calls r.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/isoriginal",
+      "kind": "structural",
+      "desc": "calls t.isOriginal",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.isOriginal"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
+      "kind": "structural",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/queryselector",
+      "kind": "structural",
+      "desc": "calls e.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.querySelector"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::t/map",
       "kind": "structural",
       "desc": "calls t.map",
@@ -386,16 +440,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::object/values/join",
+      "id": "meta/internal/imported::object/values",
       "kind": "structural",
-      "desc": "calls Object.values.join",
+      "desc": "calls Object.values",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.values.join"
+          "value": "Object.values"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extends",
+      "kind": "structural",
+      "desc": "calls extends",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extends"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/s",
+      "kind": "structural",
+      "desc": "calls e.s",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.s"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/isbasedon",
+      "kind": "structural",
+      "desc": "calls t.isBasedOn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.isBasedOn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
         }
       ]
     },
@@ -438,146 +548,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "l.e"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/queryselector",
-      "kind": "structural",
-      "desc": "calls e.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.querySelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/getterm",
-      "kind": "structural",
-      "desc": "calls t.getTerm",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.getTerm"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys",
-      "kind": "structural",
-      "desc": "calls Object.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::d/e/foreach",
-      "kind": "structural",
-      "desc": "calls d.e.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "d.e.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/values",
-      "kind": "structural",
-      "desc": "calls Object.values",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.values"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/join",
-      "kind": "structural",
-      "desc": "calls r.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::l/e/push",
-      "kind": "structural",
-      "desc": "calls l.e.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "l.e.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/s",
-      "kind": "structural",
-      "desc": "calls e.s",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.s"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/isbasedon",
-      "kind": "structural",
-      "desc": "calls t.isBasedOn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.isBasedOn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
-      "kind": "structural",
-      "desc": "calls Object.prototype.hasOwnProperty.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
         }
       ]
     },

@@ -12,6 +12,40 @@
   },
   "findings": [
     {
+      "id": "cap/exec/eval/dynamic::bracket-function-access",
+      "kind": "capability",
+      "desc": "Function access via bracket notation",
+      "conf": 0.65,
+      "crit": "notable",
+      "attack": "T1027.002",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 t[i](",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
       "desc": "setTimeout with code execution",
@@ -59,38 +93,18 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "id": "meta/internal/imported::e/dispatchevent",
+      "kind": "structural",
+      "desc": "calls e.dispatchEvent",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.dispatchEvent"
         }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/exec/eval/dynamic::bracket-function-access",
-      "kind": "capability",
-      "desc": "Function access via bracket notation",
-      "conf": 0.65,
-      "crit": "notable",
-      "attack": "T1027.002",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 t[i](",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      ]
     },
     {
       "id": "meta/internal/imported::t/i",
@@ -103,6 +117,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "t.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/value",
+      "kind": "structural",
+      "desc": "calls e.value",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.value"
         }
       ]
     },
@@ -121,44 +149,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/location/href/indexof",
+      "id": "meta/internal/imported::window/location/href/match",
       "kind": "structural",
-      "desc": "calls window.location.href.indexOf",
+      "desc": "calls window.location.href.match",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.location.href.indexOf"
+          "value": "window.location.href.match"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::e/dispatchevent",
+      "id": "meta/internal/imported::document/createevent",
       "kind": "structural",
-      "desc": "calls e.dispatchEvent",
+      "desc": "calls document.createEvent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.dispatchEvent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::decodeuricomponent",
-      "kind": "structural",
-      "desc": "calls decodeURIComponent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "decodeURIComponent"
+          "value": "document.createEvent"
         }
       ]
     },
@@ -191,16 +205,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/value",
+      "id": "meta/internal/imported::decodeuricomponent",
       "kind": "structural",
-      "desc": "calls e.value",
+      "desc": "calls decodeURIComponent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.value"
+          "value": "decodeURIComponent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/location/href/indexof",
+      "kind": "structural",
+      "desc": "calls window.location.href.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.location.href.indexOf"
         }
       ]
     },
@@ -215,34 +243,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "e.style.height"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/location/href/match",
-      "kind": "structural",
-      "desc": "calls window.location.href.match",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.location.href.match"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/createevent",
-      "kind": "structural",
-      "desc": "calls document.createEvent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.createEvent"
         }
       ]
     }

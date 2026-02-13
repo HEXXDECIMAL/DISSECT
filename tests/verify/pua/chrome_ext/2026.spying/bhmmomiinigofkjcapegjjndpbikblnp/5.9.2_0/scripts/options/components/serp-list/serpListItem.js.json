@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:53"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -44,19 +28,20 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "serpListItem.js"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
@@ -108,26 +93,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Iteration or loop pattern",
-      "conf": 0.5,
-      "crit": "inert",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:53"
-        },
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 {for(",
-          "location": "file"
+          "method": "basename",
+          "source": "target",
+          "value": "serpListItem.js"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -152,74 +130,26 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::l/action",
-      "kind": "structural",
-      "desc": "calls l.action",
-      "conf": 0.95,
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
       "crit": "inert",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "l.action"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::toconsumablearray",
-      "kind": "structural",
-      "desc": "calls toConsumableArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
+        },
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "toConsumableArray"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {for(",
+          "location": "file"
         }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ga/apply",
-      "kind": "structural",
-      "desc": "calls GA.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "GA.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/t",
-      "kind": "structural",
-      "desc": "calls a.t",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.t"
-        }
-      ]
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/internal/imported::array/from",
@@ -250,16 +180,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::translate",
+      "id": "meta/internal/imported::a/t",
       "kind": "structural",
-      "desc": "calls translate",
+      "desc": "calls a.t",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "translate"
+          "value": "a.t"
         }
       ]
     },
@@ -278,6 +208,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::array",
       "kind": "structural",
       "desc": "calls Array",
@@ -288,6 +232,62 @@
           "method": "symbol",
           "source": "ast",
           "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::toconsumablearray",
+      "kind": "structural",
+      "desc": "calls toConsumableArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toConsumableArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::l/action",
+      "kind": "structural",
+      "desc": "calls l.action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "l.action"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga/apply",
+      "kind": "structural",
+      "desc": "calls GA.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
         }
       ]
     }

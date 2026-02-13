@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "12:3"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1  for (",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -81,20 +81,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::safe",
-      "kind": "structural",
-      "desc": "calls safe",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::pattern",
       "kind": "structural",
       "desc": "calls pattern",
@@ -105,76 +91,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "pattern"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::needles",
-      "kind": "structural",
-      "desc": "calls needles",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "needles"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/string_split/call",
-      "kind": "structural",
-      "desc": "calls safe.String_split.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.String_split.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::needles/set",
-      "kind": "structural",
-      "desc": "calls needles.set",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "needles.set"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/initpattern",
-      "kind": "structural",
-      "desc": "calls safe.initPattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.initPattern"
         }
       ]
     },
@@ -193,6 +109,62 @@
       ]
     },
     {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::needles/set",
+      "kind": "structural",
+      "desc": "calls needles.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "needles.set"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/string_split/call",
+      "kind": "structural",
+      "desc": "calls safe.String_split.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.String_split.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::prop",
       "kind": "structural",
       "desc": "calls prop",
@@ -203,6 +175,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/initpattern",
+      "kind": "structural",
+      "desc": "calls safe.initPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.initPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::needles",
+      "kind": "structural",
+      "desc": "calls needles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "needles"
         }
       ]
     }

@@ -12,37 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
-      "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/comm/http/upload::form-data-append",
-      "kind": "capability",
-      "desc": "Appends data to FormData",
-      "conf": 0.6,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 .append(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/comm/http/upload/javascript.yaml"
-    },
-    {
       "id": "cap/comm/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
@@ -77,6 +46,60 @@
         }
       ],
       "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/upload::form-data-append",
+      "kind": "capability",
+      "desc": "Appends data to FormData",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 .append(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/comm/http/upload/javascript.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json-stringify-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/c2/network/beacon::json-response-parse",
+      "kind": "capability",
+      "desc": "JSON response parsing",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0030",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "response.json",
+          "location": "0x3e3"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "response.json"
+        }
+      ],
+      "source_file": "obj/c2/network/beacon/json-c2.yaml"
     },
     {
       "id": "obj/c2/network/beacon::json-content-type",
@@ -115,6 +138,39 @@
       "source_file": "obj/c2/network/beacon/json-c2.yaml"
     },
     {
+      "id": "cap/exec/dropper/loader::fetch-call",
+      "kind": "capability",
+      "desc": "fetch() API call",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "B0024",
+      "attack": "T1059.007",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 fetch(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
       "id": "obj/c2/network/beacon::http-response-text",
       "kind": "capability",
       "desc": "HTTP response text extraction",
@@ -138,24 +194,6 @@
       "source_file": "obj/c2/network/beacon/json-c2.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
-      "kind": "capability",
-      "desc": "fetch() API call",
-      "conf": 0.6,
-      "crit": "inert",
-      "mbc": "B0024",
-      "attack": "T1059.007",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 fetch(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
@@ -169,21 +207,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
-      "kind": "capability",
-      "desc": "JSON.stringify call",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "cap/comm/http/request::application-json",
@@ -222,32 +245,9 @@
       "source_file": "cap/comm/http/request/javascript.yaml"
     },
     {
-      "id": "obj/c2/network/beacon::json-response-parse",
+      "id": "cap/exec/vm/sandbox::http-clients",
       "kind": "capability",
-      "desc": "JSON response parsing",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0030",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "response.json",
-          "location": "0x3e3"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "response.json"
-        }
-      ],
-      "source_file": "obj/c2/network/beacon/json-c2.yaml"
-    },
-    {
-      "id": "cap/exec/vm/sandbox::http-fetch-methods",
-      "kind": "capability",
-      "desc": "HTTP fetch methods",
+      "desc": "HTTP client library usage",
       "conf": 0.6,
       "crit": "inert",
       "evidence": [
@@ -294,9 +294,9 @@
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-clients",
+      "id": "cap/exec/vm/sandbox::http-fetch-methods",
       "kind": "capability",
-      "desc": "HTTP client library usage",
+      "desc": "HTTP fetch methods",
       "conf": 0.6,
       "crit": "inert",
       "evidence": [
@@ -326,21 +326,6 @@
         }
       ],
       "source_file": "cap/exec/vm/sandbox/node.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::json",
-      "kind": "capability",
-      "desc": "JSON serialization libraries",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "obj/c2/ddos/attack::http-methods",
@@ -379,46 +364,19 @@
       "source_file": "obj/c2/ddos/attack/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::response/json",
-      "kind": "structural",
-      "desc": "calls response.json",
-      "conf": 0.95,
-      "crit": "inert",
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
+          "method": "import_symbol",
           "source": "ast",
-          "value": "response.json"
+          "value": "JSON.stringify"
         }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::headers/append",
-      "kind": "structural",
-      "desc": "calls headers.append",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "headers.append"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fetch",
-      "kind": "structural",
-      "desc": "calls fetch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fetch"
-        }
-      ]
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "meta/internal/imported::body",
@@ -431,34 +389,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "body"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::response",
-      "kind": "structural",
-      "desc": "calls response",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "response"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::response/text",
-      "kind": "structural",
-      "desc": "calls response.text",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "response.text"
         }
       ]
     },
@@ -491,58 +421,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::response/headers/get",
+      "id": "meta/internal/imported::response/text",
       "kind": "structural",
-      "desc": "calls response.headers.get",
+      "desc": "calls response.text",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "response.headers.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/stringify",
-      "kind": "structural",
-      "desc": "calls JSON.stringify",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::responsedata",
-      "kind": "structural",
-      "desc": "calls responseData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "responseData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::errormessage",
-      "kind": "structural",
-      "desc": "calls errorMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "errorMessage"
+          "value": "response.text"
         }
       ]
     },
@@ -561,16 +449,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::response/headers/get/includes",
+      "id": "meta/internal/imported::fetch",
       "kind": "structural",
-      "desc": "calls response.headers.get.includes",
+      "desc": "calls fetch",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "response.headers.get.includes"
+          "value": "fetch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/stringify",
+      "kind": "structural",
+      "desc": "calls JSON.stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::response/headers/get",
+      "kind": "structural",
+      "desc": "calls response.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "response.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::responsedata",
+      "kind": "structural",
+      "desc": "calls responseData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "responseData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::headers",
+      "kind": "structural",
+      "desc": "calls headers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "headers"
         }
       ]
     },
@@ -589,16 +533,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::headers",
+      "id": "meta/internal/imported::headers/append",
       "kind": "structural",
-      "desc": "calls headers",
+      "desc": "calls headers.append",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "headers"
+          "value": "headers.append"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::response/headers/get/includes",
+      "kind": "structural",
+      "desc": "calls response.headers.get.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "response.headers.get.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::response",
+      "kind": "structural",
+      "desc": "calls response",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "response"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::errormessage",
+      "kind": "structural",
+      "desc": "calls errorMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "errorMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::response/json",
+      "kind": "structural",
+      "desc": "calls response.json",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "response.json"
         }
       ]
     }

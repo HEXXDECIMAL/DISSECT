@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "5:3"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1  for (",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "5:3"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -81,16 +81,16 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::checkelem",
+      "id": "meta/internal/imported::checkelem/style/getpropertyvalue",
       "kind": "structural",
-      "desc": "calls checkElem",
+      "desc": "calls checkElem.style.getPropertyValue",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "checkElem"
+          "value": "checkElem.style.getPropertyValue"
         }
       ]
     },
@@ -105,6 +105,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::checkelem",
+      "kind": "structural",
+      "desc": "calls checkElem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "checkElem"
         }
       ]
     },
@@ -133,20 +147,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "elems"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::checkelem/style/getpropertyvalue",
-      "kind": "structural",
-      "desc": "calls checkElem.style.getPropertyValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "checkElem.style.getPropertyValue"
         }
       ]
     }

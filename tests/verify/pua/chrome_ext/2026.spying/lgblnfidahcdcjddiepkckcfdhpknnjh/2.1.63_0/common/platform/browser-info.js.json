@@ -12,6 +12,44 @@
   },
   "findings": [
     {
+      "id": "obj/discovery/host/browser::edge-name",
+      "kind": "capability",
+      "desc": "Edge browser name",
+      "conf": 0.4,
+      "crit": "notable",
+      "attack": "T1217",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x105"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Microsoft Edge",
+          "location": "0x106"
+        }
+      ],
+      "source_file": "obj/discovery/host/browser/traits.yaml"
+    },
+    {
+      "id": "obj/c2/network/beacon::user-agent-rotation-keywords",
+      "kind": "capability",
+      "desc": "User-Agent randomization or rotation terms",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "userAgentData.brand"
+        }
+      ],
+      "source_file": "obj/c2/network/beacon/traits.yaml"
+    },
+    {
       "id": "obj/discovery/host/browser::firefox-name",
       "kind": "capability",
       "desc": "Firefox browser name",
@@ -45,21 +83,6 @@
         }
       ],
       "source_file": "obj/discovery/host/browser/traits.yaml"
-    },
-    {
-      "id": "obj/c2/network/beacon::user-agent-rotation-keywords",
-      "kind": "capability",
-      "desc": "User-Agent randomization or rotation terms",
-      "conf": 0.75,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "userAgentData.brand"
-        }
-      ],
-      "source_file": "obj/c2/network/beacon/traits.yaml"
     },
     {
       "id": "obj/creds/browser/chromium::edge-path",
@@ -202,44 +225,6 @@
       "source_file": "obj/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::edge-name",
-      "kind": "capability",
-      "desc": "Edge browser name",
-      "conf": 0.4,
-      "crit": "notable",
-      "attack": "T1217",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Microsoft Edge",
-          "location": "0x105"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Microsoft Edge",
-          "location": "0x106"
-        }
-      ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "browser-info.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "cap/exec/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
@@ -260,6 +245,21 @@
         }
       ],
       "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "browser-info.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/collect/stealer/behavior::js-browser-target",
@@ -415,30 +415,16 @@
       "source_file": "obj/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::useragentdata/brands/map",
+      "id": "meta/internal/imported::brands",
       "kind": "structural",
-      "desc": "calls userAgentData.brands.map",
+      "desc": "calls brands",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "userAgentData.brands.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::matches",
-      "kind": "structural",
-      "desc": "calls matches",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "matches"
+          "value": "brands"
         }
       ]
     },
@@ -457,16 +443,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::browserversion",
+      "id": "meta/internal/imported::number/isnan",
       "kind": "structural",
-      "desc": "calls browserVersion",
+      "desc": "calls Number.isNaN",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browserVersion"
+          "value": "Number.isNaN"
         }
       ]
     },
@@ -485,30 +471,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::brands",
+      "id": "meta/internal/imported::useragentdata/brands/map",
       "kind": "structural",
-      "desc": "calls brands",
+      "desc": "calls userAgentData.brands.map",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "brands"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::regex/exec",
-      "kind": "structural",
-      "desc": "calls regex.exec",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "regex.exec"
+          "value": "userAgentData.brands.map"
         }
       ]
     },
@@ -527,6 +499,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::matches",
+      "kind": "structural",
+      "desc": "calls matches",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matches"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::parseint",
       "kind": "structural",
       "desc": "calls parseInt",
@@ -541,16 +527,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::number/isnan",
+      "id": "meta/internal/imported::browserversion",
       "kind": "structural",
-      "desc": "calls Number.isNaN",
+      "desc": "calls browserVersion",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Number.isNaN"
+          "value": "browserVersion"
         }
       ]
     },
@@ -565,6 +551,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "browserInfo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::regex/exec",
+      "kind": "structural",
+      "desc": "calls regex.exec",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "regex.exec"
         }
       ]
     }

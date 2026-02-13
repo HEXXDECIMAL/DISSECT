@@ -12,20 +12,20 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
       "kind": "capability",
-      "desc": "Code auto-executes on require/import",
-      "conf": 0.8,
+      "desc": "Split to empty-delimiter char array",
+      "conf": 0.6,
       "crit": "notable",
       "evidence": [
         {
-          "method": "yara",
-          "source": "yara-x",
-          "value": "(function",
-          "location": "offset:0"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .split(\" \")",
+          "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
       "id": "cap/exec/eval/dynamic::iife-pattern",
@@ -44,22 +44,6 @@
       "source_file": "cap/exec/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
-      "kind": "capability",
-      "desc": "Split to empty-delimiter char array",
-      "conf": 0.6,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .split(\" \")",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
@@ -73,6 +57,22 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "kind": "capability",
+      "desc": "Code auto-executes on require/import",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "yara",
+          "source": "yara-x",
+          "value": "(function",
+          "location": "offset:0"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
       "id": "meta/internal/imported::window/_docs_chrome_extension_permissions",
@@ -89,16 +89,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/_docs_chrome_extension_version",
+      "id": "meta/internal/imported::window/_docs_chrome_extension_manifest_version",
       "kind": "structural",
-      "desc": "calls window._docs_chrome_extension_version",
+      "desc": "calls window._docs_chrome_extension_manifest_version",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window._docs_chrome_extension_version"
+          "value": "window._docs_chrome_extension_manifest_version"
         }
       ]
     },
@@ -117,20 +117,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/_docs_chrome_extension_exists",
-      "kind": "structural",
-      "desc": "calls window._docs_chrome_extension_exists",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window._docs_chrome_extension_exists"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::alarms-clipboardread-clipboardwrite-storage-unlimitedstorage-offscreen-split",
       "kind": "structural",
       "desc": "calls \"alarms clipboardRead clipboardWrite storage unlimitedStorage offscreen\".split",
@@ -145,16 +131,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/_docs_chrome_extension_manifest_version",
+      "id": "meta/internal/imported::window/_docs_chrome_extension_version",
       "kind": "structural",
-      "desc": "calls window._docs_chrome_extension_manifest_version",
+      "desc": "calls window._docs_chrome_extension_version",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window._docs_chrome_extension_manifest_version"
+          "value": "window._docs_chrome_extension_version"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/_docs_chrome_extension_exists",
+      "kind": "structural",
+      "desc": "calls window._docs_chrome_extension_exists",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window._docs_chrome_extension_exists"
         }
       ]
     }

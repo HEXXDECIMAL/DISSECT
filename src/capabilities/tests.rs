@@ -554,7 +554,12 @@ fn test_apply_composite_defaults_applies_all_defaults() {
     };
 
     let mut warnings = Vec::new();
-    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+    let result = parsing::apply_composite_defaults(
+        raw,
+        &defaults,
+        &mut warnings,
+        std::path::Path::new("test.yaml"),
+    );
 
     assert_eq!(result.conf, 0.75);
     assert_eq!(result.crit, Criticality::Notable);
@@ -614,7 +619,12 @@ fn test_apply_composite_defaults_unset_with_none() {
     };
 
     let mut warnings = Vec::new();
-    let result = parsing::apply_composite_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+    let result = parsing::apply_composite_defaults(
+        raw,
+        &defaults,
+        &mut warnings,
+        std::path::Path::new("test.yaml"),
+    );
 
     assert_eq!(result.mbc, None);
     assert_eq!(result.attack, None);

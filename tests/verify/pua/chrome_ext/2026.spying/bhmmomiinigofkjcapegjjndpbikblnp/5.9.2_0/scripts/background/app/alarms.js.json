@@ -13,6 +13,57 @@
   },
   "findings": [
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 17.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "kind": "capability",
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
@@ -64,6 +115,40 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
@@ -79,6 +164,55 @@
         }
       ],
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "kind": "capability",
+      "desc": "Long base64-like string pattern",
+      "conf": 0.4,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "updateBlockedSitesStatisticsData"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 2529.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
@@ -110,162 +244,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 2529.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 17.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
-      "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 6.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
-      "kind": "capability",
-      "desc": "Very few string literals (string",
-      "conf": 0.4,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "strings.total = 4.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 5.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "cap/exec/vm/sandbox::base64-long-string",
-      "kind": "capability",
-      "desc": "Long base64-like string pattern",
-      "conf": 0.4,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "updateBlockedSitesStatisticsData"
-        }
-      ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
-      "kind": "capability",
-      "desc": "Identifier obfuscation (random/encoded names)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.avg_entropy = 2.87"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 6.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -305,6 +283,28 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.avg_entropy = 2.87"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 6.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
       "kind": "capability",
       "desc": "npm malware obfuscation pattern (install",
@@ -342,104 +342,6 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "meta/internal/imported::getleakdata",
-      "kind": "structural",
-      "desc": "calls getLeakData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getLeakData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::updatepopupscantime",
-      "kind": "structural",
-      "desc": "calls updatePopupScanTime",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "updatePopupScanTime"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::requestserpsconf",
-      "kind": "structural",
-      "desc": "calls requestSerpsConf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "requestSerpsConf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/alarms/clearall",
-      "kind": "structural",
-      "desc": "calls webextApi.alarms.clearAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.alarms.clearAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::optoutpopup",
-      "kind": "structural",
-      "desc": "calls OptOutPopUp",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "OptOutPopUp"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isvalidpageforcontent",
-      "kind": "structural",
-      "desc": "calls isValidPageForContent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isValidPageForContent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/action/setbadgetext",
-      "kind": "structural",
-      "desc": "calls webextApi.action.setBadgeText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.action.setBadgeText"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::webextapi/alarms/get",
       "kind": "structural",
       "desc": "calls webextApi.alarms.get",
@@ -450,6 +352,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "webextApi.alarms.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getleakdata",
+      "kind": "structural",
+      "desc": "calls getLeakData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLeakData"
         }
       ]
     },
@@ -468,34 +384,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::fireisaliveevent",
-      "kind": "structural",
-      "desc": "calls fireIsAliveEvent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fireIsAliveEvent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/alarms/create",
-      "kind": "structural",
-      "desc": "calls webextApi.alarms.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.alarms.create"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::getcurrenttab",
       "kind": "structural",
       "desc": "calls getCurrentTab",
@@ -506,20 +394,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "getCurrentTab"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/alarms/clear",
-      "kind": "structural",
-      "desc": "calls webextApi.alarms.clear",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.alarms.clear"
         }
       ]
     },
@@ -538,6 +412,48 @@
       ]
     },
     {
+      "id": "meta/internal/imported::updatepopupscantime",
+      "kind": "structural",
+      "desc": "calls updatePopupScanTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updatePopupScanTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fireisaliveevent",
+      "kind": "structural",
+      "desc": "calls fireIsAliveEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fireIsAliveEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::optoutpopup",
+      "kind": "structural",
+      "desc": "calls OptOutPopUp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "OptOutPopUp"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::updateblockedsitesstatisticsdata",
       "kind": "structural",
       "desc": "calls updateBlockedSitesStatisticsData",
@@ -548,6 +464,90 @@
           "method": "symbol",
           "source": "ast",
           "value": "updateBlockedSitesStatisticsData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/alarms/clear",
+      "kind": "structural",
+      "desc": "calls webextApi.alarms.clear",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.alarms.clear"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isvalidpageforcontent",
+      "kind": "structural",
+      "desc": "calls isValidPageForContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isValidPageForContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/alarms/create",
+      "kind": "structural",
+      "desc": "calls webextApi.alarms.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.alarms.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/alarms/clearall",
+      "kind": "structural",
+      "desc": "calls webextApi.alarms.clearAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.alarms.clearAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/action/setbadgetext",
+      "kind": "structural",
+      "desc": "calls webextApi.action.setBadgeText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.action.setBadgeText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::requestserpsconf",
+      "kind": "structural",
+      "desc": "calls requestSerpsConf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "requestSerpsConf"
         }
       ]
     }

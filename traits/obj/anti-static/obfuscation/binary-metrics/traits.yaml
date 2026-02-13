@@ -120,15 +120,6 @@ traits:
       field: binary.section_name_entropy
       min: 5.4
 
-  - id: few-sections
-    desc: "Very few sections (merged/stripped)"
-    crit: notable
-    conf: 0.6
-    if:
-      type: metrics
-      field: binary.section_count
-      max: 3
-
   # NOTE: Many legitimate system binaries have a dominant .text section.
   # This is normal for compiled C/C++ programs without large data sections.
   # Downgraded to notable - only suspicious when combined with other packing indicators.
@@ -187,30 +178,10 @@ traits:
       field: binary.high_entropy_strings
       min: 10
 
-  # === Function Anomalies ===
   # NOTE: Function detection depends on analysis depth and binary format.
   # Shared libraries (.so, .dylib, .dll) may have few detected functions
   # if only exported symbols are counted. Downgraded to notable to avoid
   # false positives on legitimate libraries.
-
-  - id: no-functions
-    desc: "No detected functions (packed/obfuscated)"
-    crit: notable
-    conf: 0.5
-    attack: "T1045"
-    if:
-      type: metrics
-      field: binary.function_count
-      max: 3
-
-  - id: few-functions
-    desc: "Very few functions detected"
-    crit: notable
-    conf: 0.4
-    if:
-      type: metrics
-      field: binary.function_count
-      max: 10
 
   - id: huge-functions
     desc: "Has extremely large functions (>64KB)"
@@ -316,18 +287,6 @@ traits:
       field: binary.avg_basic_blocks
       min: 50
 
-  # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
-  # Small utilities legitimately have few basic blocks.
-  - id: few-basic-blocks
-    desc: "Very few basic blocks (obfuscated"
-    crit: notable
-    conf: 0.4
-    if:
-      type: metrics
-      field: binary.total_basic_blocks
-      min: 1
-      max: 10
-
   - id: many-linear-functions
     desc: "Many linear functions (possible VM"
     crit: notable
@@ -354,18 +313,6 @@ traits:
       type: metrics
       field: binary.noreturn_functions
       min: 20
-
-  # NOTE: Requires min: 1 to avoid triggering when metrics are unavailable.
-  # Small utilities legitimately have few leaf functions.
-  - id: few-leaf-functions
-    desc: "Very few leaf functions (deep"
-    crit: notable
-    conf: 0.4
-    if:
-      type: metrics
-      field: binary.leaf_functions
-      min: 1
-      max: 5
 
   # === Stack Anomalies ===
 
@@ -454,7 +401,7 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/binary-metrics::very-high-entropy
       - id: obj/anti-static/obfuscation/binary-metrics::no-strings
-      - id: obj/anti-static/obfuscation/binary-metrics::no-functions
+      - id: meta/format::no-functions
       - id: obj/anti-static/obfuscation/binary-metrics::wx-sections
 
   - id: binary-encrypted-overlay
@@ -478,7 +425,7 @@ composite_rules:
     needs: 2
     any:
       - id: obj/anti-static/obfuscation/binary-metrics::high-section-name-entropy
-      - id: obj/anti-static/obfuscation/binary-metrics::few-sections
+      - id: meta/format::few-sections
       - id: obj/anti-static/obfuscation/binary-metrics::wx-sections
 
   # === Control Flow Obfuscation Detection ===
@@ -521,5 +468,5 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/binary-metrics::many-noreturn-functions
       - id: obj/anti-static/obfuscation/binary-metrics::many-complex-functions
-      - id: obj/anti-static/obfuscation/binary-metrics::few-leaf-functions
+      - id: meta/format::few-leaf-functions
       - id: obj/anti-static/obfuscation/binary-metrics::large-stack-frames

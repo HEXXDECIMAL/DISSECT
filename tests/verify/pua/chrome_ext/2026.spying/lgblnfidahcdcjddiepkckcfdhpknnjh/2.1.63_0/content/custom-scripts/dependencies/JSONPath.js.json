@@ -12,59 +12,17 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::json-stringify-js",
-      "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-symbol",
-      "kind": "capability",
-      "desc": "for loop (symbol)",
+      "desc": "for loop (content)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "iterator",
-          "location": "import"
-        },
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "iterator.stack.push",
-          "location": "import"
-        },
-        {
-          "method": "symbol",
-          "source": "tree-sitter-javascript",
-          "value": "[Symbol.iterator]",
-          "location": "0x2359"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 12  for (",
+          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -152,20 +110,96 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": "for loop (content)",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-symbol",
+      "kind": "capability",
+      "desc": "for loop (symbol)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 12  for (",
-          "location": "file"
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.stack.push",
+          "location": "import"
+        },
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "[Symbol.iterator]",
+          "location": "0x2359"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json-stringify-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.10"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-keys-call",
@@ -188,19 +222,37 @@
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
-      "desc": "JSON.stringify call",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
+      "kind": "capability",
+      "desc": "Join using empty string delimiter",
       "conf": 0.5,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .join('')",
+          "location": "file"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
@@ -220,54 +272,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
       "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
-      "kind": "capability",
-      "desc": "Join using empty string delimiter",
+      "desc": "JSON.stringify call",
       "conf": 0.5,
       "crit": "notable",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .join('')",
-          "location": "file"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-entries-call",
@@ -283,23 +300,6 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
-      "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.10"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -330,6 +330,28 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 8.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.10"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -458,98 +480,6 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
-      "kind": "capability",
-      "desc": "Identifier obfuscation (random/encoded names)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 8.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.10"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::r/rval",
-      "kind": "structural",
-      "desc": "calls r.rval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.rval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/modify",
-      "kind": "structural",
-      "desc": "calls r.modify",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.modify"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::lval",
-      "kind": "structural",
-      "desc": "calls lval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "lval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::resultset",
-      "kind": "structural",
-      "desc": "calls resultset",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "resultset"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::jsonp/compile",
-      "kind": "structural",
-      "desc": "calls jsonp.compile",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "jsonp.compile"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::key",
       "kind": "structural",
       "desc": "calls key",
@@ -560,286 +490,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "key"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::jsonpath/tojson",
-      "kind": "structural",
-      "desc": "calls JSONPath.toJSON",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSONPath.toJSON"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::step/rval",
-      "kind": "structural",
-      "desc": "calls step.rval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "step.rval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::jsonp",
-      "kind": "structural",
-      "desc": "calls jsonp",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "jsonp"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parts/push",
-      "kind": "structural",
-      "desc": "calls parts.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parts.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::step/rval/test",
-      "kind": "structural",
-      "desc": "calls step.rval.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "step.rval.test"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::end",
-      "kind": "structural",
-      "desc": "calls end",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "end"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::recursive",
-      "kind": "structural",
-      "desc": "calls recursive",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "recursive"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::steps",
-      "kind": "structural",
-      "desc": "calls steps",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "steps"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::query/slice",
-      "kind": "structural",
-      "desc": "calls query.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "query.slice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parts",
-      "kind": "structural",
-      "desc": "calls parts",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parts"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::step",
-      "kind": "structural",
-      "desc": "calls step",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "step"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mv",
-      "kind": "structural",
-      "desc": "calls mv",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mv"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::result",
-      "kind": "structural",
-      "desc": "calls result",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "result"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/parse",
-      "kind": "structural",
-      "desc": "calls JSON.parse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::obj/splice",
-      "kind": "structural",
-      "desc": "calls obj.splice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "obj.splice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::not",
-      "kind": "structural",
-      "desc": "calls not",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "not"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::beg",
-      "kind": "structural",
-      "desc": "calls beg",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "beg"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parts/join",
-      "kind": "structural",
-      "desc": "calls parts.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parts.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::details",
-      "kind": "structural",
-      "desc": "calls details",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "details"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::step/op",
-      "kind": "structural",
-      "desc": "calls step.op",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "step.op"
         }
       ]
     },
@@ -858,380 +508,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/key",
+      "id": "meta/internal/imported::path/at",
       "kind": "structural",
-      "desc": "calls obj.key",
+      "desc": "calls path.at",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "obj.key"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::target",
-      "kind": "structural",
-      "desc": "calls target",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "target"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::normalized",
-      "kind": "structural",
-      "desc": "calls normalized",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "normalized"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::c0",
-      "kind": "structural",
-      "desc": "calls c0",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "c0"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/entries",
-      "kind": "structural",
-      "desc": "calls Object.entries",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.entries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::steps/at",
-      "kind": "structural",
-      "desc": "calls steps.at",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "steps.at"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::details/keys/next",
-      "kind": "structural",
-      "desc": "calls details.keys.next",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "details.keys.next"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::descendantvalue",
-      "kind": "structural",
-      "desc": "calls descendantValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "descendantValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys",
-      "kind": "structural",
-      "desc": "calls Object.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::out/push",
-      "kind": "structural",
-      "desc": "calls out.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "out.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::lval/k",
-      "kind": "structural",
-      "desc": "calls lval.k",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "lval.k"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rval/pattern/replace",
-      "kind": "structural",
-      "desc": "calls rval.pattern.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rval.pattern.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys/values",
-      "kind": "structural",
-      "desc": "calls Object.keys.values",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys.values"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::obj",
-      "kind": "structural",
-      "desc": "calls obj",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "obj"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::iterator",
-      "kind": "structural",
-      "desc": "calls iterator",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "iterator"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::query/startswith",
-      "kind": "structural",
-      "desc": "calls query.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "query.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::steps/push",
-      "kind": "structural",
-      "desc": "calls steps.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "steps.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::query/charcodeat",
-      "kind": "structural",
-      "desc": "calls query.charCodeAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "query.charCodeAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parseint",
-      "kind": "structural",
-      "desc": "calls parseInt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseInt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::keys",
-      "kind": "structural",
-      "desc": "calls keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/hasown",
-      "kind": "structural",
-      "desc": "calls Object.hasOwn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.hasOwn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::paths",
-      "kind": "structural",
-      "desc": "calls paths",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "paths"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/stringify",
-      "kind": "structural",
-      "desc": "calls JSON.stringify",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::outcome",
-      "kind": "structural",
-      "desc": "calls outcome",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "outcome"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::v/keys",
-      "kind": "structural",
-      "desc": "calls v.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "v.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::len",
-      "kind": "structural",
-      "desc": "calls len",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "len"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::listout",
-      "kind": "structural",
-      "desc": "calls listout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "listout"
+          "value": "path.at"
         }
       ]
     },
@@ -1250,58 +536,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::path/at",
+      "id": "meta/internal/imported::parseint",
       "kind": "structural",
-      "desc": "calls path.at",
+      "desc": "calls parseInt",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "path.at"
+          "value": "parseInt"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::val",
+      "id": "meta/internal/imported::obj/splice",
       "kind": "structural",
-      "desc": "calls val",
+      "desc": "calls obj.splice",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "val"
+          "value": "obj.splice"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::entry",
+      "id": "meta/internal/imported::json/stringify",
       "kind": "structural",
-      "desc": "calls entry",
+      "desc": "calls JSON.stringify",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "entry"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/steps/at/not",
-      "kind": "structural",
-      "desc": "calls r.steps.at.not",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.steps.at.not"
+          "value": "JSON.stringify"
         }
       ]
     },
@@ -1320,6 +592,90 @@
       ]
     },
     {
+      "id": "meta/internal/imported::step/op",
+      "kind": "structural",
+      "desc": "calls step.op",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "step.op"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::recursive",
+      "kind": "structural",
+      "desc": "calls recursive",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "recursive"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::details",
+      "kind": "structural",
+      "desc": "calls details",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "details"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj/key",
+      "kind": "structural",
+      "desc": "calls obj.key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj.key"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::outcome",
+      "kind": "structural",
+      "desc": "calls outcome",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "outcome"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::step",
+      "kind": "structural",
+      "desc": "calls step",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "step"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::indice",
       "kind": "structural",
       "desc": "calls indice",
@@ -1334,30 +690,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::lval/replace",
+      "id": "meta/internal/imported::listout",
       "kind": "structural",
-      "desc": "calls lval.replace",
+      "desc": "calls listout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "lval.replace"
+          "value": "listout"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::iterator/stack/push",
+      "id": "meta/internal/imported::step/rval/test",
       "kind": "structural",
-      "desc": "calls iterator.stack.push",
+      "desc": "calls step.rval.test",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "iterator.stack.push"
+          "value": "step.rval.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lval",
+      "kind": "structural",
+      "desc": "calls lval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonpath/tojson",
+      "kind": "structural",
+      "desc": "calls JSONPath.toJSON",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSONPath.toJSON"
         }
       ]
     },
@@ -1376,6 +760,244 @@
       ]
     },
     {
+      "id": "meta/internal/imported::descendantvalue",
+      "kind": "structural",
+      "desc": "calls descendantValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "descendantValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mv",
+      "kind": "structural",
+      "desc": "calls mv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/hasown",
+      "kind": "structural",
+      "desc": "calls Object.hasOwn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.hasOwn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::steps/at",
+      "kind": "structural",
+      "desc": "calls steps.at",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "steps.at"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parts",
+      "kind": "structural",
+      "desc": "calls parts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp",
+      "kind": "structural",
+      "desc": "calls jsonp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::details/keys/next",
+      "kind": "structural",
+      "desc": "calls details.keys.next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "details.keys.next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::out/push",
+      "kind": "structural",
+      "desc": "calls out.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "out.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c0",
+      "kind": "structural",
+      "desc": "calls c0",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c0"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/steps/at/not",
+      "kind": "structural",
+      "desc": "calls r.steps.at.not",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.steps.at.not"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::query/charcodeat",
+      "kind": "structural",
+      "desc": "calls query.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "query.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::entry",
+      "kind": "structural",
+      "desc": "calls entry",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "entry"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::resultset",
+      "kind": "structural",
+      "desc": "calls resultset",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "resultset"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::query/slice",
+      "kind": "structural",
+      "desc": "calls query.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "query.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::step/rval",
+      "kind": "structural",
+      "desc": "calls step.rval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "step.rval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj",
+      "kind": "structural",
+      "desc": "calls obj",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::hasown",
       "kind": "structural",
       "desc": "calls hasOwn",
@@ -1390,16 +1012,240 @@
       ]
     },
     {
-      "id": "meta/internal/imported::match",
+      "id": "meta/internal/imported::object/entries",
       "kind": "structural",
-      "desc": "calls match",
+      "desc": "calls Object.entries",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "match"
+          "value": "Object.entries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::keys",
+      "kind": "structural",
+      "desc": "calls keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::steps",
+      "kind": "structural",
+      "desc": "calls steps",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "steps"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parts/join",
+      "kind": "structural",
+      "desc": "calls parts.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parts.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::paths",
+      "kind": "structural",
+      "desc": "calls paths",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "paths"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/rval",
+      "kind": "structural",
+      "desc": "calls r.rval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.rval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::beg",
+      "kind": "structural",
+      "desc": "calls beg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "beg"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rval/pattern/replace",
+      "kind": "structural",
+      "desc": "calls rval.pattern.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rval.pattern.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::val",
+      "kind": "structural",
+      "desc": "calls val",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "val"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::steps/push",
+      "kind": "structural",
+      "desc": "calls steps.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "steps.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator",
+      "kind": "structural",
+      "desc": "calls iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::v/keys",
+      "kind": "structural",
+      "desc": "calls v.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "v.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lval/k",
+      "kind": "structural",
+      "desc": "calls lval.k",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lval.k"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target",
+      "kind": "structural",
+      "desc": "calls target",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::query/startswith",
+      "kind": "structural",
+      "desc": "calls query.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "query.startsWith"
         }
       ]
     },
@@ -1414,6 +1260,160 @@
           "method": "symbol",
           "source": "ast",
           "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parts/push",
+      "kind": "structural",
+      "desc": "calls parts.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parts.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lval/replace",
+      "kind": "structural",
+      "desc": "calls lval.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lval.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::not",
+      "kind": "structural",
+      "desc": "calls not",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "not"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::normalized",
+      "kind": "structural",
+      "desc": "calls normalized",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "normalized"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len",
+      "kind": "structural",
+      "desc": "calls len",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/modify",
+      "kind": "structural",
+      "desc": "calls r.modify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.modify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::end",
+      "kind": "structural",
+      "desc": "calls end",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "end"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonp/compile",
+      "kind": "structural",
+      "desc": "calls jsonp.compile",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonp.compile"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/values",
+      "kind": "structural",
+      "desc": "calls Object.keys.values",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.values"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::iterator/stack/push",
+      "kind": "structural",
+      "desc": "calls iterator.stack.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "iterator.stack.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::match",
+      "kind": "structural",
+      "desc": "calls match",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "match"
         }
       ]
     }

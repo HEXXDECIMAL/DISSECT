@@ -134,41 +134,25 @@
       ]
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
+      "id": "meta/format/json::valid",
       "kind": "capability",
-      "desc": "Exposes resources to web",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "JSON data format",
+      "conf": 0.6,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "[{\"matches\":[\"*://*/*\"],\"resources\":[\"assets/*\",\"report.html\",\"settings.html\"]}]",
-          "location": "web_accessible_resources"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {",
+          "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "meta/format/json/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-scripting",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
       "kind": "capability",
-      "desc": "Extension requests scripting permission (MV3)",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
-          "location": "permissions"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
-      "kind": "capability",
-      "desc": "Chrome extension manifest file",
+      "desc": "Chrome extension using Manifest V3",
       "conf": 0.95,
       "crit": "notable",
       "evidence": [
@@ -177,22 +161,6 @@
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
           "value": "3",
           "location": "manifest_version"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::host-all-http",
-      "kind": "capability",
-      "desc": "Access to all HTTP sites",
-      "conf": 0.95,
-      "crit": "suspicious",
-      "evidence": [
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "[*://*/*]",
-          "location": "host_permissions"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
@@ -230,17 +198,65 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
       "kind": "capability",
-      "desc": "Uses Google update URL",
-      "conf": 0.95,
+      "desc": "Extension uses service worker (MV3)",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "https://clients2.google.com/service/update2/crx",
-          "location": "update_url"
+          "value": "background.js",
+          "location": "background.service_worker"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-cookies",
+      "kind": "capability",
+      "desc": "Extension requests cookies permission",
+      "conf": 0.9,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
+          "location": "permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::host-all-http",
+      "kind": "capability",
+      "desc": "Access to all HTTP sites",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "[*://*/*]",
+          "location": "host_permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-scripting",
+      "kind": "capability",
+      "desc": "Extension requests scripting permission (MV3)",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
+          "location": "permissions"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
@@ -262,9 +278,25 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
       "kind": "capability",
-      "desc": "Chrome extension using Manifest V3",
+      "desc": "Uses Google update URL",
+      "conf": 0.95,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "kind": "capability",
+      "desc": "Chrome extension manifest file",
       "conf": 0.95,
       "crit": "notable",
       "evidence": [
@@ -294,55 +326,17 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-cookies",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
       "kind": "capability",
-      "desc": "Extension requests cookies permission",
-      "conf": 0.9,
-      "crit": "suspicious",
-      "evidence": [
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
-          "location": "permissions"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
-      "kind": "capability",
-      "desc": "Extension uses service worker (MV3)",
-      "conf": 0.9,
+      "desc": "Exposes resources to web",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "background.js",
-          "location": "background.service_worker"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::data-theft-permissions",
-      "kind": "capability",
-      "desc": "Extension has permissions enabling data theft",
-      "conf": 0.95,
-      "crit": "suspicious",
-      "evidence": [
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "3",
-          "location": "manifest_version"
-        },
-        {
-          "method": "kv",
-          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
-          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
-          "location": "permissions"
+          "value": "[{\"matches\":[\"*://*/*\"],\"resources\":[\"assets/*\",\"report.html\",\"settings.html\"]}]",
+          "location": "web_accessible_resources"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
@@ -365,6 +359,28 @@
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
           "value": "[*://*/*]",
           "location": "host_permissions"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::data-theft-permissions",
+      "kind": "capability",
+      "desc": "Extension has permissions enabling data theft",
+      "conf": 0.95,
+      "crit": "suspicious",
+      "evidence": [
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "3",
+          "location": "manifest_version"
+        },
+        {
+          "method": "kv",
+          "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/dnclkkkjlabdgfdjngdkaebpaahnohoo/3.22.1_0/manifest.json",
+          "value": "[cookies, storage, alarms, background, tabs, activeTab, scripting, webNavigation, notifications, unlimitedStorage, gcm]",
+          "location": "permissions"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"

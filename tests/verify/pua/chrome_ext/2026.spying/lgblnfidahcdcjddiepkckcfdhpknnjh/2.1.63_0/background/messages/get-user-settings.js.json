@@ -27,20 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::userdata/getsettings",
-      "kind": "structural",
-      "desc": "calls userData.getSettings",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "userData.getSettings"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
       "desc": "calls sendMessage",
@@ -51,6 +37,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getsettings",
+      "kind": "structural",
+      "desc": "calls userData.getSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getSettings"
         }
       ]
     },

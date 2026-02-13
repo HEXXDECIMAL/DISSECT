@@ -353,7 +353,18 @@ fn test_eval_section_regex() {
     let ctx = create_test_context(&report, &data);
 
     let regex = r"^UPX".to_string();
-    let result = eval_section(None, None, Some(&regex), None, false, None, None, None, None, &ctx);
+    let result = eval_section(
+        None,
+        None,
+        Some(&regex),
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, "UPX0");
 }
@@ -372,7 +383,18 @@ fn test_eval_section_contains() {
     let ctx = create_test_context(&report, &data);
 
     let substr = "packed".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
+    let result = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
 }
 
@@ -390,7 +412,18 @@ fn test_eval_section_no_match() {
     let ctx = create_test_context(&report, &data);
 
     let substr = "UPX".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
+    let result = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(!result.matched);
 }
 
@@ -415,7 +448,18 @@ fn test_eval_section_multiple_matches() {
     let ctx = create_test_context(&report, &data);
 
     let substr = ".text".to_string();
-    let result = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
+    let result = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }
@@ -441,7 +485,18 @@ fn test_eval_section_exact() {
     let ctx = create_test_context(&report, &data);
 
     let exact = ".text".to_string();
-    let result = eval_section(Some(&exact), None, None, None, false, None, None, None, None, &ctx);
+    let result = eval_section(
+        Some(&exact),
+        None,
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1); // Only exact match, not .text.plt
 }
@@ -460,7 +515,18 @@ fn test_eval_section_case_insensitive() {
     let ctx = create_test_context(&report, &data);
 
     let substr = ".text".to_string();
-    let result = eval_section(None, Some(&substr), None, None, true, None, None, None, None, &ctx);
+    let result = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        true,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence[0].value, ".TEXT");
 }
@@ -751,7 +817,18 @@ fn test_eval_section_entropy_min() {
     let ctx = create_test_context(&report, &data);
 
     // Match sections with entropy >= 7.0
-    let result = eval_section(None, None, None, None, false, None, None, Some(7.0), None, &ctx);
+    let result = eval_section(
+        None,
+        None,
+        None,
+        None,
+        false,
+        None,
+        None,
+        Some(7.0),
+        None,
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
     assert!(result.evidence[0].value.contains(".text"));
@@ -779,7 +856,18 @@ fn test_eval_section_entropy_max() {
     let ctx = create_test_context(&report, &data);
 
     // Match sections with entropy <= 4.0
-    let result = eval_section(None, None, None, None, false, None, None, None, Some(4.0), &ctx);
+    let result = eval_section(
+        None,
+        None,
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        Some(4.0),
+        &ctx,
+    );
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 1);
     assert!(result.evidence[0].value.contains(".data"));
@@ -848,17 +936,50 @@ fn test_eval_section_precision_scoring() {
 
     // Exact match should have highest precision
     let exact = ".text".to_string();
-    let result1 = eval_section(Some(&exact), None, None, None, false, None, None, None, None, &ctx);
+    let result1 = eval_section(
+        Some(&exact),
+        None,
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert_eq!(result1.precision, 2.0);
 
     // Regex should have lower precision
     let regex = r"\.text".to_string();
-    let result2 = eval_section(None, None, Some(&regex), None, false, None, None, None, None, &ctx);
+    let result2 = eval_section(
+        None,
+        None,
+        Some(&regex),
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert_eq!(result2.precision, 1.5);
 
     // Substr should have even lower precision
     let substr = "text".to_string();
-    let result3 = eval_section(None, Some(&substr), None, None, false, None, None, None, None, &ctx);
+    let result3 = eval_section(
+        None,
+        Some(&substr),
+        None,
+        None,
+        false,
+        None,
+        None,
+        None,
+        None,
+        &ctx,
+    );
     assert_eq!(result3.precision, 1.0);
 
     // Adding entropy constraints should increase precision

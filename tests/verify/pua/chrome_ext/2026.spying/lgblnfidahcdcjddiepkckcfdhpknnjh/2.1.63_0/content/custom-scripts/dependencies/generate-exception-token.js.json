@@ -59,62 +59,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::originalonerror",
-      "kind": "structural",
-      "desc": "calls originalOnError",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "originalOnError"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::globalthis/onerror",
-      "kind": "structural",
-      "desc": "calls globalThis.onerror",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "globalThis.onerror"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::string/fromcharcode",
-      "kind": "structural",
-      "desc": "calls String.fromCharCode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "String.fromCharCode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeenv/math_random",
-      "kind": "structural",
-      "desc": "calls safeEnv.Math_random",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeEnv.Math_random"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::date/now",
       "kind": "structural",
       "desc": "calls Date.now",
@@ -125,62 +69,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Date.now"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeenv",
-      "kind": "structural",
-      "desc": "calls safeEnv",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeEnv"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::originalonerror/call",
-      "kind": "structural",
-      "desc": "calls originalOnError.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "originalOnError.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeenv/math_floor",
-      "kind": "structural",
-      "desc": "calls safeEnv.Math_floor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeEnv.Math_floor"
         }
       ]
     },
@@ -199,16 +87,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::token",
+      "id": "meta/internal/imported::originalonerror/call",
       "kind": "structural",
-      "desc": "calls token",
+      "desc": "calls originalOnError.call",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "token"
+          "value": "originalOnError.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv/math_floor",
+      "kind": "structural",
+      "desc": "calls safeEnv.Math_floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv.Math_floor"
         }
       ]
     },
@@ -223,6 +125,104 @@
           "method": "symbol",
           "source": "ast",
           "value": "safeEnv.Math_floor.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string/fromcharcode",
+      "kind": "structural",
+      "desc": "calls String.fromCharCode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv",
+      "kind": "structural",
+      "desc": "calls safeEnv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv/math_random",
+      "kind": "structural",
+      "desc": "calls safeEnv.Math_random",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv.Math_random"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::globalthis/onerror",
+      "kind": "structural",
+      "desc": "calls globalThis.onerror",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "globalThis.onerror"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::token",
+      "kind": "structural",
+      "desc": "calls token",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "token"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::originalonerror",
+      "kind": "structural",
+      "desc": "calls originalOnError",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "originalOnError"
         }
       ]
     }

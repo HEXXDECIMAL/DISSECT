@@ -41,20 +41,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::data",
-      "kind": "structural",
-      "desc": "calls data",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::popupshownotificationlist",
       "kind": "structural",
       "desc": "calls popupShowNotificationList",
@@ -65,6 +51,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "popupShowNotificationList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
         }
       ]
     }

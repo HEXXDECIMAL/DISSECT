@@ -27,6 +27,37 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "${this.props.comments.count.toLocaleString()} ${translate(\"reviews\")}",
+          "location": "0x26d"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
@@ -61,25 +92,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
       "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "reputationBubble.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -87,25 +103,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "text.max_line_length = 1368.00"
+          "value": "identifiers.single_char_ratio = 0.50"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -142,10 +143,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -153,26 +154,25 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.50"
+          "value": "text.max_line_length = 1368.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Local AppData reference",
-      "conf": 0.4,
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "${this.props.comments.count.toLocaleString()} ${translate(\"reviews\")}",
-          "location": "0x26d"
+          "method": "basename",
+          "source": "target",
+          "value": "reputationBubble.js"
         }
       ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -216,48 +216,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reputationbubble/proptypes",
-      "kind": "structural",
-      "desc": "calls ReputationBubble.propTypes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ReputationBubble.propTypes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::translate",
-      "kind": "structural",
-      "desc": "calls translate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "translate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reputationbubble",
-      "kind": "structural",
-      "desc": "calls ReputationBubble",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ReputationBubble"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
       "desc": "calls React.createElement",
@@ -286,6 +244,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::webextapi/i18n/getmessage",
       "kind": "structural",
       "desc": "calls webextApi.i18n.getMessage",
@@ -296,6 +268,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "webextApi.i18n.getMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reputationbubble/proptypes",
+      "kind": "structural",
+      "desc": "calls ReputationBubble.propTypes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReputationBubble.propTypes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reputationbubble",
+      "kind": "structural",
+      "desc": "calls ReputationBubble",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReputationBubble"
         }
       ]
     }

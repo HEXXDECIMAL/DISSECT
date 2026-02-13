@@ -27,30 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::browser/scripting/unregistercontentscripts",
+      "id": "meta/internal/imported::debug/error",
       "kind": "structural",
-      "desc": "calls browser.scripting.unregisterContentScripts",
+      "desc": "calls debug.error",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browser.scripting.unregisterContentScripts"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/scripting/registercontentscripts",
-      "kind": "structural",
-      "desc": "calls browser.scripting.registerContentScripts",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.scripting.registerContentScripts"
+          "value": "debug.error"
         }
       ]
     },
@@ -69,16 +55,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::debug/error",
+      "id": "meta/internal/imported::browser/scripting/registercontentscripts",
       "kind": "structural",
-      "desc": "calls debug.error",
+      "desc": "calls browser.scripting.registerContentScripts",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "debug.error"
+          "value": "browser.scripting.registerContentScripts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/scripting/unregistercontentscripts",
+      "kind": "structural",
+      "desc": "calls browser.scripting.unregisterContentScripts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.scripting.unregisterContentScripts"
         }
       ]
     }

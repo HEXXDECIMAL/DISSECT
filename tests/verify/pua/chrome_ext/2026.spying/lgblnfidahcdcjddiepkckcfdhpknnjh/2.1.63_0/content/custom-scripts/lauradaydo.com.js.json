@@ -27,20 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::abortcurrentscript",
-      "kind": "structural",
-      "desc": "calls abortCurrentScript",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "abortCurrentScript"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::defineconstant",
       "kind": "structural",
       "desc": "calls defineConstant",
@@ -51,6 +37,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "defineConstant"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::abortcurrentscript",
+      "kind": "structural",
+      "desc": "calls abortCurrentScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "abortCurrentScript"
         }
       ]
     }

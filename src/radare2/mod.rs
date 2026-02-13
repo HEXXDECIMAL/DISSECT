@@ -611,11 +611,7 @@ impl Radare2Analyzer {
 
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
-            warn!(
-                "radare2 exited with status {}: {}",
-                output.status,
-                stderr
-            );
+            warn!("radare2 exited with status {}: {}", output.status, stderr);
             anyhow::bail!("radare2 failed with status {}: {}", output.status, stderr);
         }
 
@@ -699,7 +695,7 @@ impl Radare2Analyzer {
             if let Some(ref perm) = section.perm {
                 // Workaround for radare2 bug: __const sections are marked as r-x but should not be counted as code
                 // Extract just the section name (after the last dot)
-                let section_name = section.name.rsplitn(2, '.').next().unwrap_or(&section.name);
+                let section_name = section.name.rsplit('.').next().unwrap_or(&section.name);
                 let is_data_only = section_name == "__const"
                     || section_name == "__cstring"
                     || section_name == "__gcc_except_tab"
@@ -845,7 +841,8 @@ impl Radare2Analyzer {
 
         // Export to import ratio
         if metrics.import_count > 0 {
-            metrics.export_to_import_ratio = metrics.export_count as f32 / metrics.import_count as f32;
+            metrics.export_to_import_ratio =
+                metrics.export_count as f32 / metrics.import_count as f32;
         }
 
         // Normalized metrics (size-independent)
@@ -867,7 +864,8 @@ impl Radare2Analyzer {
 
         // Code section ratio
         if metrics.section_count > 0 {
-            metrics.code_section_ratio = metrics.executable_sections as f32 / metrics.section_count as f32;
+            metrics.code_section_ratio =
+                metrics.executable_sections as f32 / metrics.section_count as f32;
         }
     }
 

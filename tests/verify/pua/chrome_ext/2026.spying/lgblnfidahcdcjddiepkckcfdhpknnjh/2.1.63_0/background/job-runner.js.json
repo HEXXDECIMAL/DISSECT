@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "job-runner.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "known/malware/backdoor/melofee::heartbeat-string",
       "kind": "capability",
       "desc": "heartbeat C2 string",
@@ -47,6 +32,21 @@
         }
       ],
       "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "job-runner.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "known/malware/backdoor/melofee::c2-protocols",
@@ -71,16 +71,16 @@
       "source_file": "known/malware/backdoor/melofee/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::jobrunner",
+      "id": "meta/internal/imported::browser/alarms/get",
       "kind": "structural",
-      "desc": "calls jobRunner",
+      "desc": "calls browser.alarms.get",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "jobRunner"
+          "value": "browser.alarms.get"
         }
       ]
     },
@@ -99,20 +99,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::browser/alarms/get/then",
-      "kind": "structural",
-      "desc": "calls browser.alarms.get.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.alarms.get.then"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::tab/cleanuptabs/bind",
       "kind": "structural",
       "desc": "calls tab.cleanupTabs.bind",
@@ -127,16 +113,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::browser/alarms/get",
+      "id": "meta/internal/imported::jobrunner",
       "kind": "structural",
-      "desc": "calls browser.alarms.get",
+      "desc": "calls jobRunner",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browser.alarms.get"
+          "value": "jobRunner"
         }
       ]
     },
@@ -151,6 +137,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "browser.alarms.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/alarms/get/then",
+      "kind": "structural",
+      "desc": "calls browser.alarms.get.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.alarms.get.then"
         }
       ]
     }

@@ -297,11 +297,12 @@ traits:
   - id: embedded-pe-in-pe
     desc: Embedded PE resource in executable
     crit: notable # Common for PE files with resources
-    conf: 0.7
+    conf: 0.9
     for: [pe, dll]
     if:
       type: hex
-      pattern: "4D 5A"
+      # MZ ... [up to 4096 bytes] ... PE\0\0
+      pattern: "4D 5A [2-4096] 50 45 00 00"
       
 
   - id: embedded-zip

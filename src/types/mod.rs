@@ -92,8 +92,7 @@ pub use code_structure::{
 };
 
 pub use text_metrics::{
-    CommentMetrics, FunctionMetrics, IdentifierMetrics, ImportMetrics, StatementMetrics,
-    StringMetrics, TextMetrics,
+    CommentMetrics, FunctionMetrics, IdentifierMetrics, ImportMetrics, StringMetrics, TextMetrics,
 };
 
 #[allow(unused_imports)]

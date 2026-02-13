@@ -27,16 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::document/queryselectorall/foreach",
+      "id": "meta/internal/imported::document/head/prepend",
       "kind": "structural",
-      "desc": "calls document.querySelectorAll.forEach",
+      "desc": "calls document.head.prepend",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelectorAll.forEach"
+          "value": "document.head.prepend"
         }
       ]
     },
@@ -55,34 +55,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::styleelement",
-      "kind": "structural",
-      "desc": "calls styleElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "styleElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/head/prepend",
-      "kind": "structural",
-      "desc": "calls document.head.prepend",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.head.prepend"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::styleelement/textcontent",
       "kind": "structural",
       "desc": "calls styleElement.textContent",
@@ -97,16 +69,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::i/remove",
+      "id": "meta/internal/imported::document/queryselectorall/foreach",
       "kind": "structural",
-      "desc": "calls i.remove",
+      "desc": "calls document.querySelectorAll.forEach",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "i.remove"
+          "value": "document.querySelectorAll.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement",
+      "kind": "structural",
+      "desc": "calls styleElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement"
         }
       ]
     },
@@ -125,16 +125,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/queryselectorall",
+      "id": "meta/internal/imported::i/remove",
       "kind": "structural",
-      "desc": "calls document.querySelectorAll",
+      "desc": "calls i.remove",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelectorAll"
+          "value": "i.remove"
         }
       ]
     }

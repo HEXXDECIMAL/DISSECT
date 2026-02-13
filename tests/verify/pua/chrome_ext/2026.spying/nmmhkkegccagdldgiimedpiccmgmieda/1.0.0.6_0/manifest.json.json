@@ -28,17 +28,33 @@
       ]
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v2",
+      "id": "meta/format/json::valid",
       "kind": "capability",
-      "desc": "Uses deprecated Manifest V2",
+      "desc": "JSON data format",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/format/json/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "kind": "capability",
+      "desc": "Uses Google update URL",
       "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
-          "value": "2",
-          "location": "manifest_version"
+          "value": "https://clients2.google.com/service/update2/crx",
+          "location": "update_url"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
@@ -60,10 +76,10 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
       "kind": "capability",
-      "desc": "Uses Google update URL",
-      "conf": 0.95,
+      "desc": "Has update_url field",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
@@ -76,17 +92,17 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v2",
       "kind": "capability",
-      "desc": "Has update_url field",
-      "conf": 0.9,
+      "desc": "Uses deprecated Manifest V2",
+      "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
           "method": "kv",
           "source": "/Users/t/data/dissect/pua/chrome_ext/2026.spying/nmmhkkegccagdldgiimedpiccmgmieda/1.0.0.6_0/manifest.json",
-          "value": "https://clients2.google.com/service/update2/crx",
-          "location": "update_url"
+          "value": "2",
+          "location": "manifest_version"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"

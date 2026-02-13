@@ -1483,7 +1483,10 @@ mod llm_validation_tests {
 
         let warning = cond_with_filters.check_count_min_value("test-trait");
         assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("count_min: 0") || warning.as_ref().unwrap().contains("count_min of 0"));
+        assert!(
+            warning.as_ref().unwrap().contains("count_min: 0")
+                || warning.as_ref().unwrap().contains("count_min of 0")
+        );
     }
 
     #[test]

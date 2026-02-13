@@ -59,16 +59,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::document/queryselector",
+      "id": "meta/internal/imported::fn",
       "kind": "structural",
-      "desc": "calls document.querySelector",
+      "desc": "calls fn",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelector"
+          "value": "fn"
         }
       ]
     },
@@ -101,16 +101,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::fn",
+      "id": "meta/internal/imported::document/queryselector",
       "kind": "structural",
-      "desc": "calls fn",
+      "desc": "calls document.querySelector",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "fn"
+          "value": "document.querySelector"
         }
       ]
     }

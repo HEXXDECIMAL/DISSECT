@@ -8,176 +8,48 @@
   "size": 13123,
   "risk": "notable",
   "counts": {
-    "notable": 46
+    "notable": 43
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::json-stringify-js",
-      "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-symbol",
-      "kind": "capability",
-      "desc": "for loop (symbol)",
+      "desc": "for loop (content)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.Symbol.iterator",
-          "location": "import"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 7 {for(",
+          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
       "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:148"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:452"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:507"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:635"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:841"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:1015"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:9505"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:9842"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/comm/http/post::post-method",
-      "kind": "capability",
-      "desc": "POST HTTP method",
-      "conf": 0.5,
-      "crit": "notable",
       "mbc": "C0002",
       "attack": "T1071.001",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5b"
+          "value": "Content-Type",
+          "location": "0x2b6b"
         },
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5c"
+          "value": "Content-Type",
+          "location": "0x2b6c"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
-    },
-    {
-      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
-      "kind": "capability",
-      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "mywot.com",
-          "location": "0x4f1"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "mywot.com",
-          "location": "0x4f2"
-        }
-      ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
-    },
-    {
-      "id": "meta/quality/versioning::version-upper",
-      "kind": "capability",
-      "desc": "VERSION word (uppercase)",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "VERSION",
-          "location": "0x179f"
-        }
-      ],
-      "source_file": "meta/quality/versioning/traits.yaml"
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "cap/comm/http/headers::bearer-token",
@@ -276,59 +148,436 @@
       "source_file": "cap/comm/http/headers/generic.yaml"
     },
     {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
-      "desc": "Content-Type JSON header",
-      "conf": 0.6,
+      "desc": "for loop (AST)",
+      "conf": 0.3,
       "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:148"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:452"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:507"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:635"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:841"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1015"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9505"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:9842"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/quality/versioning::version-upper",
+      "kind": "capability",
+      "desc": "VERSION word (uppercase)",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "VERSION",
+          "location": "0x179f"
+        }
+      ],
+      "source_file": "meta/quality/versioning/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "kind": "capability",
+      "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
+      "conf": 0.7,
+      "crit": "notable",
       "mbc": "C0002",
       "attack": "T1071.001",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x2b6b"
+          "value": "mywot.com",
+          "location": "0x4f1"
         },
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x2b6c"
+          "value": "mywot.com",
+          "location": "0x4f2"
         }
       ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": ".proto file extension",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-symbol",
+      "kind": "capability",
+      "desc": "for loop (symbol)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.Symbol.iterator",
+          "location": "import"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post-method",
+      "kind": "capability",
+      "desc": "POST HTTP method",
+      "conf": 0.5,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5c"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json-stringify-js",
+      "kind": "capability",
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 96.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.07"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "kind": "capability",
+      "desc": "Code uses Promises",
       "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "value": "Promise.all"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 7 {for(",
-          "location": "file"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 18.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://api.mywot.com/",
+          "location": "0x4f1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://api.mywot.com/",
+          "location": "0x4f2"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocale"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 9600.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 13123.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
+      "kind": "capability",
+      "desc": "Accesses local extension storage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.storage.local.get(ANALYTICS.ANALYTICS_INFO_KEY,e=>{let s=e.uuid;t(s)})",
+          "location": "1:10839"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.storage.local.set({[ANALYTICS.ANALYTICS_INFO_KEY]:t})",
+          "location": "1:11371"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-storage",
+      "kind": "capability",
+      "desc": "chrome.storage API usage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.storage.local.get"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
@@ -347,20 +596,34 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
       "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
+      "desc": "Uses chrome.* namespace",
+      "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(()=>{",
-          "location": "file"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.storage"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "kind": "capability",
+      "desc": "Code uses Symbol for private",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Symbol.iterator"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
     },
     {
       "id": "obj/c2/network/beacon::json-content-type",
@@ -399,158 +662,20 @@
       "source_file": "obj/c2/network/beacon/json-c2.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
-      "desc": "Uses chrome.* namespace",
-      "conf": 0.95,
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
       "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "chrome.storage"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
-      "kind": "capability",
-      "desc": "Object.keys call",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys.forEach"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
-      "kind": "capability",
-      "desc": "Accesses local extension storage",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "chrome.storage.local.get(ANALYTICS.ANALYTICS_INFO_KEY,e=>{let s=e.uuid;t(s)})",
-          "location": "1:10839"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.storage.local.set({[ANALYTICS.ANALYTICS_INFO_KEY]:t})",
-          "location": "1:11371"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
-      "kind": "capability",
-      "desc": "Code uses Promises",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Promise.all"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
-    },
-    {
-      "id": "meta/quality/error-handling::catch-keyword",
-      "kind": "capability",
-      "desc": "catch keyword",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "catch"
-        }
-      ],
-      "source_file": "meta/quality/error-handling/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
-      "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
-      "kind": "capability",
-      "desc": "High function density (>20 functions",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 9600.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
-      "kind": "capability",
-      "desc": "Very long lines (>1000 chars)",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 13123.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 3 prototype",
+          "value": "Found 1 setTimeout(()=>{",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
       "id": "cap/exec/dropper/loader::fetch-call",
@@ -571,10 +696,10 @@
       "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -582,10 +707,58 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "functions.anonymous = 18.00"
+          "value": "functions.high_entropy_names = 15.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::variable-immediate-call",
+      "kind": "capability",
+      "desc": "Variable called immediately as function",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 var _slicedToArray=function(t,e){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 13123.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::json-stringify-call",
@@ -601,6 +774,22 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "cap/comm/http/request::application-json",
@@ -639,90 +828,6 @@
       "source_file": "cap/comm/http/request/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 13123.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "cap/exec/eval/dynamic::variable-immediate-call",
-      "kind": "capability",
-      "desc": "Variable called immediately as function",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 var _slicedToArray=function(t,e){",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 96.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
-      "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 15.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::single-char-function-names",
       "kind": "capability",
       "desc": "Functions with single-character names",
@@ -740,78 +845,30 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/discovery/host/fingerprint::object-entries-call",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/exec/native/api::node-addon",
-      "kind": "capability",
-      "desc": "Package contains native Node.js addon",
-      "conf": 0.7,
+      "desc": "Object.entries call",
+      "conf": 0.5,
       "crit": "notable",
       "evidence": [
         {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:763"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.entries.map"
         },
         {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:926"
-        },
-        {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:953"
-        },
-        {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:1085"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.entries"
         }
       ],
-      "source_file": "cap/exec/native/api/suspicious.yaml"
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-storage",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
       "kind": "capability",
-      "desc": "chrome.storage API usage",
-      "conf": 0.9,
+      "desc": "Chrome extension API context",
+      "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
@@ -823,45 +880,52 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-entries-call",
+      "id": "obj/lateral/supply-chain/vscode::send-methods",
       "kind": "capability",
-      "desc": "Object.entries call",
-      "conf": 0.5,
+      "desc": "HTTP send methods",
+      "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.entries"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5b"
         },
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.entries.map"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5c"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "id": "obj/anti-static/obfuscation/code-metrics::minification-pattern",
       "kind": "capability",
-      "desc": "Code uses Symbol for private",
-      "conf": 0.85,
+      "desc": "Code appears minified by webpack/uglify/terser",
+      "conf": 0.8,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Symbol.iterator"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 13123.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.single_char_names = 29.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/minified-vs-obfuscated.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "id": "cap/comm/http/post::post-method-detection",
       "kind": "capability",
-      "desc": "Network URL with domain name (script)",
-      "conf": 0.7,
+      "desc": "Makes HTTP POST requests (method detection)",
+      "conf": 0.75,
       "crit": "notable",
       "mbc": "C0002",
       "attack": "T1071.001",
@@ -869,23 +933,92 @@
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "https://api.mywot.com/",
-          "location": "0x4f1"
+          "value": "POST",
+          "location": "0x2b5b"
         },
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "https://api.mywot.com/",
-          "location": "0x4f2"
+          "value": "POST",
+          "location": "0x2b5c"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "cap/comm/http/post/generic.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "cap/exec/vm/sandbox::http-clients",
       "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
-      "conf": 0.7,
+      "desc": "HTTP client library usage",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2b7a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2b7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2f90"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2f91"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "kind": "capability",
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.entries.map"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.entries"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -893,25 +1026,92 @@
         {
           "method": "metrics",
           "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 9600.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 96.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "meta/quality::versioned",
+      "kind": "capability",
+      "desc": "Contains version information",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "VERSION",
+          "location": "0x179f"
+        }
+      ],
+      "source_file": "meta/quality/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/post::post",
+      "kind": "capability",
+      "desc": "HTTP POST request capability",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5c"
+        }
+      ],
+      "source_file": "cap/comm/http/post/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 15.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
           "value": "identifiers.reuse_ratio = 0.07"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
-      "kind": "capability",
-      "desc": "Local AppData reference",
-      "conf": 0.4,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "getLocale"
-        }
-      ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
     },
     {
       "id": "cap/exec/vm/sandbox::http-fetch-methods",
@@ -948,20 +1148,52 @@
       "source_file": "cap/exec/vm/sandbox/node.yaml"
     },
     {
-      "id": "meta/quality::versioned",
+      "id": "obj/c2/ddos/attack::http-methods",
       "kind": "capability",
-      "desc": "Contains version information",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "HTTP request methods detected",
+      "conf": 1.0,
+      "crit": "inert",
+      "mbc": "B0009",
+      "attack": "T1498",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "VERSION",
-          "location": "0x179f"
+          "value": "POST",
+          "location": "0x2b5b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x2b5c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2b7a"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2b7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2f90"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "application/json",
+          "location": "0x2f91"
         }
       ],
-      "source_file": "meta/quality/traits.yaml"
+      "source_file": "obj/c2/ddos/attack/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
@@ -979,39 +1211,31 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::generated-code",
       "kind": "capability",
-      "desc": "Object serialization methods",
-      "conf": 1.0,
-      "crit": "inert",
+      "desc": "Machine-generated or transformed code",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.07"
         },
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys.forEach"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 11.00"
         },
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.entries"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.entries.map"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.single_char_names = 29.00"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -1084,38 +1308,24 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-clients",
+      "id": "cap/data/encoding/charset::json",
       "kind": "capability",
-      "desc": "HTTP client library usage",
-      "conf": 0.6,
-      "crit": "inert",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2b7a"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
         },
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2b7b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2f90"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2f91"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "cap/comm/http/headers::headers-auth",
@@ -1214,280 +1424,6 @@
       "source_file": "cap/comm/http/headers/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
-      "kind": "capability",
-      "desc": "JSON serialization libraries",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
-      "kind": "capability",
-      "desc": "Chrome extension API context",
-      "conf": 0.95,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "chrome.storage.local.get"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::generated-code",
-      "kind": "capability",
-      "desc": "Machine-generated or transformed code",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 11.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.07"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.single_char_names = 29.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
-      "kind": "capability",
-      "desc": "Identifier obfuscation (random/encoded names)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 15.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.07"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::minification-pattern",
-      "kind": "capability",
-      "desc": "Code appears minified by webpack/uglify/terser",
-      "conf": 0.8,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 13123.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.single_char_names = 29.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/minified-vs-obfuscated.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/comm/http/post::post-method-detection",
-      "kind": "capability",
-      "desc": "Makes HTTP POST requests (method detection)",
-      "conf": 0.75,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5c"
-        }
-      ],
-      "source_file": "cap/comm/http/post/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 9600.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 96.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/vscode::send-methods",
-      "kind": "capability",
-      "desc": "HTTP send methods",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5c"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
-    },
-    {
-      "id": "obj/c2/ddos/attack::http-methods",
-      "kind": "capability",
-      "desc": "HTTP request methods detected",
-      "conf": 1.0,
-      "crit": "inert",
-      "mbc": "B0009",
-      "attack": "T1498",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5c"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2b7a"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2b7b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2f90"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "application/json",
-          "location": "0x2f91"
-        }
-      ],
-      "source_file": "obj/c2/ddos/attack/generic.yaml"
-    },
-    {
-      "id": "cap/comm/http/post::post",
-      "kind": "capability",
-      "desc": "HTTP POST request capability",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x2b5c"
-        }
-      ],
-      "source_file": "cap/comm/http/post/generic.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/malicious-patterns::http-post-exfil",
       "kind": "capability",
       "desc": "HTTP POST exfiltration",
@@ -1510,72 +1446,100 @@
       "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "meta/internal/imported::r/salt",
+      "id": "meta/internal/imported::e/attributes/r/nodename",
       "kind": "structural",
-      "desc": "calls r.salt",
+      "desc": "calls e.@attributes.r.nodeName",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "r.salt"
+          "value": "e.@attributes.r.nodeName"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::promise/all",
+      "id": "meta/internal/imported::r/responsetext/match",
       "kind": "structural",
-      "desc": "calls Promise.all",
+      "desc": "calls r.responseText.match",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Promise.all"
+          "value": "r.responseText.match"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/entries",
+      "id": "meta/internal/imported::wotnetwork/get",
       "kind": "structural",
-      "desc": "calls Object.entries",
+      "desc": "calls WotNetwork.get",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.entries"
+          "value": "WotNetwork.get"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::e/i",
+      "id": "meta/internal/imported::date/now",
       "kind": "structural",
-      "desc": "calls e.i",
+      "desc": "calls Date.now",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.i"
+          "value": "Date.now"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/keys/foreach",
+      "id": "meta/internal/imported::encoder/encode",
       "kind": "structural",
-      "desc": "calls Object.keys.forEach",
+      "desc": "calls encoder.encode",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.keys.forEach"
+          "value": "encoder.encode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotployder/takeandpack",
+      "kind": "structural",
+      "desc": "calls wotPloyder.takeAndPack",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "wotPloyder.takeAndPack"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/storage/local/set",
+      "kind": "structural",
+      "desc": "calls webextApi.storage.local.set",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.storage.local.set"
         }
       ]
     },
@@ -1594,142 +1558,86 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/color",
+      "id": "meta/internal/imported::a/return",
       "kind": "structural",
-      "desc": "calls e.color",
+      "desc": "calls a.return",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.color"
+          "value": "a.return"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/symbol/iterator",
+      "id": "meta/internal/imported::reject",
       "kind": "structural",
-      "desc": "calls t.Symbol.iterator",
+      "desc": "calls reject",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.Symbol.iterator"
+          "value": "reject"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::e/target",
+      "id": "meta/internal/imported::object/keys",
       "kind": "structural",
-      "desc": "calls e.target",
+      "desc": "calls Object.keys",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.target"
+          "value": "Object.keys"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/dch",
+      "id": "meta/internal/imported::object",
       "kind": "structural",
-      "desc": "calls t.dch",
+      "desc": "calls Object",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.dch"
+          "value": "Object"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/target",
+      "id": "meta/internal/imported::wotnetwork/get/then/catch",
       "kind": "structural",
-      "desc": "calls t.target",
+      "desc": "calls WotNetwork.get.then.catch",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.target"
+          "value": "WotNetwork.get.then.catch"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::unescape",
+      "id": "meta/internal/imported::object/entries/map",
       "kind": "structural",
-      "desc": "calls unescape",
+      "desc": "calls Object.entries.map",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "unescape"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/json",
-      "kind": "structural",
-      "desc": "calls s.json",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.json"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/tostring",
-      "kind": "structural",
-      "desc": "calls s.toString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/hasownproperty",
-      "kind": "structural",
-      "desc": "calls t.hasOwnProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.hasOwnProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::i/createpayload",
-      "kind": "structural",
-      "desc": "calls i.createPayload",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "i.createPayload"
+          "value": "Object.entries.map"
         }
       ]
     },
@@ -1748,48 +1656,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/attributes",
-      "kind": "structural",
-      "desc": "calls e.@attributes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.@attributes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotapi",
-      "kind": "structural",
-      "desc": "calls WotApi",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotApi"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::e/indexof",
       "kind": "structural",
       "desc": "calls e.indexOf",
@@ -1800,104 +1666,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "e.indexOf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/assign",
-      "kind": "structural",
-      "desc": "calls Object.assign",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.assign"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/postform",
-      "kind": "structural",
-      "desc": "calls WotNetwork.postForm",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.postForm"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/foreach",
-      "kind": "structural",
-      "desc": "calls s.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/id",
-      "kind": "structural",
-      "desc": "calls t.id",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.id"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/push",
-      "kind": "structural",
-      "desc": "calls s.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/categories/map/filter",
-      "kind": "structural",
-      "desc": "calls e.categories.map.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.categories.map.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/iged",
-      "kind": "structural",
-      "desc": "calls t.iged",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.iged"
         }
       ]
     },
@@ -1930,142 +1698,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::date/now",
+      "id": "meta/internal/imported::s/target",
       "kind": "structural",
-      "desc": "calls Date.now",
+      "desc": "calls s.target",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Date.now"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/storage/local/set",
-      "kind": "structural",
-      "desc": "calls webextApi.storage.local.set",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.storage.local.set"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buildispremiumparams",
-      "kind": "structural",
-      "desc": "calls buildIsPremiumParams",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "buildIsPremiumParams"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/entries/map",
-      "kind": "structural",
-      "desc": "calls Object.entries.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.entries.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/responsetext/match",
-      "kind": "structural",
-      "desc": "calls r.responseText.match",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.responseText.match"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::resolve",
-      "kind": "structural",
-      "desc": "calls resolve",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "resolve"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/get/then/catch",
-      "kind": "structural",
-      "desc": "calls WotNetwork.get.then.catch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.get.then.catch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/e/target",
-      "kind": "structural",
-      "desc": "calls t.e.target",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.e.target"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotployder/hasitems",
-      "kind": "structural",
-      "desc": "calls wotPloyder.hasItems",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "wotPloyder.hasItems"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/return",
-      "kind": "structural",
-      "desc": "calls a.return",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.return"
+          "value": "s.target"
         }
       ]
     },
@@ -2084,296 +1726,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::self/dispatchevent",
+      "id": "meta/internal/imported::resolve",
       "kind": "structural",
-      "desc": "calls self.dispatchEvent",
+      "desc": "calls resolve",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self.dispatchEvent"
+          "value": "resolve"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::extends",
+      "id": "meta/internal/imported::t/indexof",
       "kind": "structural",
-      "desc": "calls extends",
+      "desc": "calls t.indexOf",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "extends"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/wid",
-      "kind": "structural",
-      "desc": "calls t.wid",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.wid"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/next",
-      "kind": "structural",
-      "desc": "calls a.next",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.next"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotployder/takeandpack",
-      "kind": "structural",
-      "desc": "calls wotPloyder.takeAndPack",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "wotPloyder.takeAndPack"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::buildleakmonitoringparams",
-      "kind": "structural",
-      "desc": "calls buildLeakMonitoringParams",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "buildLeakMonitoringParams"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys",
-      "kind": "structural",
-      "desc": "calls Object.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reject",
-      "kind": "structural",
-      "desc": "calls reject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reject"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::generateuuidv4",
-      "kind": "structural",
-      "desc": "calls generateUuidV4",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "generateUuidV4"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/postjson",
-      "kind": "structural",
-      "desc": "calls WotNetwork.postJson",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.postJson"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/childnodes/item",
-      "kind": "structural",
-      "desc": "calls t.childNodes.item",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.childNodes.item"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fetch",
-      "kind": "structural",
-      "desc": "calls fetch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fetch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::o/createpayload",
-      "kind": "structural",
-      "desc": "calls o.createPayload",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "o.createPayload"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/parse",
-      "kind": "structural",
-      "desc": "calls JSON.parse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::objectwithoutproperties",
-      "kind": "structural",
-      "desc": "calls objectWithoutProperties",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "objectWithoutProperties"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/attributes/r/nodename",
-      "kind": "structural",
-      "desc": "calls e.@attributes.r.nodeName",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.@attributes.r.nodeName"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/wot_trace_id/name",
-      "kind": "structural",
-      "desc": "calls s.WOT_TRACE_ID.name",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.WOT_TRACE_ID.name"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/get/then",
-      "kind": "structural",
-      "desc": "calls WotNetwork.get.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.get.then"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/target",
-      "kind": "structural",
-      "desc": "calls s.target",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.target"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::i/push",
-      "kind": "structural",
-      "desc": "calls i.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "i.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chrome/storage/local/get",
-      "kind": "structural",
-      "desc": "calls chrome.storage.local.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chrome.storage.local.get"
+          "value": "t.indexOf"
         }
       ]
     },
@@ -2392,142 +1768,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/categories",
+      "id": "meta/internal/imported::t/id",
       "kind": "structural",
-      "desc": "calls e.categories",
+      "desc": "calls t.id",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.categories"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/reduce",
-      "kind": "structural",
-      "desc": "calls s.reduce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.reduce"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/haschildnodes",
-      "kind": "structural",
-      "desc": "calls t.hasChildNodes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.hasChildNodes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/get",
-      "kind": "structural",
-      "desc": "calls WotNetwork.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/join",
-      "kind": "structural",
-      "desc": "calls s.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::encoder/encode",
-      "kind": "structural",
-      "desc": "calls encoder.encode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "encoder.encode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getlocale",
-      "kind": "structural",
-      "desc": "calls getLocale",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getLocale"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/r",
-      "kind": "structural",
-      "desc": "calls t.r",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.r"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/categories/map",
-      "kind": "structural",
-      "desc": "calls e.categories.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.categories.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::btoa",
-      "kind": "structural",
-      "desc": "calls btoa",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "btoa"
+          "value": "t.id"
         }
       ]
     },
@@ -2546,100 +1796,338 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/i/push",
+      "id": "meta/internal/imported::fetch",
       "kind": "structural",
-      "desc": "calls e.i.push",
+      "desc": "calls fetch",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.i.push"
+          "value": "fetch"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/headers/get",
+      "id": "meta/internal/imported::r/salt",
       "kind": "structural",
-      "desc": "calls t.headers.get",
+      "desc": "calls r.salt",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.headers.get"
+          "value": "r.salt"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/lk",
+      "id": "meta/internal/imported::e/attributes",
       "kind": "structural",
-      "desc": "calls t.lk",
+      "desc": "calls e.@attributes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.lk"
+          "value": "e.@attributes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/setrequestheader",
+      "id": "meta/internal/imported::t/wid",
       "kind": "structural",
-      "desc": "calls t.setRequestHeader",
+      "desc": "calls t.wid",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.setRequestHeader"
+          "value": "t.wid"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object",
+      "id": "meta/internal/imported::t/childnodes/item",
       "kind": "structural",
-      "desc": "calls Object",
+      "desc": "calls t.childNodes.item",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object"
+          "value": "t.childNodes.item"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::t/attributes/item",
+      "id": "meta/internal/imported::wotployder/hasitems",
       "kind": "structural",
-      "desc": "calls t.attributes.item",
+      "desc": "calls wotPloyder.hasItems",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.attributes.item"
+          "value": "wotPloyder.hasItems"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::settimeout",
+      "id": "meta/internal/imported::o/createpayload",
       "kind": "structural",
-      "desc": "calls setTimeout",
+      "desc": "calls o.createPayload",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setTimeout"
+          "value": "o.createPayload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buildispremiumparams",
+      "kind": "structural",
+      "desc": "calls buildIsPremiumParams",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "buildIsPremiumParams"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/haschildnodes",
+      "kind": "structural",
+      "desc": "calls t.hasChildNodes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.hasChildNodes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/push",
+      "kind": "structural",
+      "desc": "calls s.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/color",
+      "kind": "structural",
+      "desc": "calls e.color",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.color"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/createpayload",
+      "kind": "structural",
+      "desc": "calls i.createPayload",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.createPayload"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::btoa",
+      "kind": "structural",
+      "desc": "calls btoa",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "btoa"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/dispatchevent",
+      "kind": "structural",
+      "desc": "calls self.dispatchEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.dispatchEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/i",
+      "kind": "structural",
+      "desc": "calls e.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/categories/map/filter",
+      "kind": "structural",
+      "desc": "calls e.categories.map.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.categories.map.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/target",
+      "kind": "structural",
+      "desc": "calls t.target",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/symbol/iterator",
+      "kind": "structural",
+      "desc": "calls t.Symbol.iterator",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.Symbol.iterator"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/get/then",
+      "kind": "structural",
+      "desc": "calls WotNetwork.get.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.get.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/hasownproperty",
+      "kind": "structural",
+      "desc": "calls t.hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unescape",
+      "kind": "structural",
+      "desc": "calls unescape",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unescape"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/json",
+      "kind": "structural",
+      "desc": "calls s.json",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.json"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotapi",
+      "kind": "structural",
+      "desc": "calls WotApi",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotApi"
         }
       ]
     },
@@ -2658,6 +2146,132 @@
       ]
     },
     {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/categories/map",
+      "kind": "structural",
+      "desc": "calls e.categories.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.categories.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/i/push",
+      "kind": "structural",
+      "desc": "calls e.i.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.i.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/e/target",
+      "kind": "structural",
+      "desc": "calls t.e.target",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.e.target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::buildleakmonitoringparams",
+      "kind": "structural",
+      "desc": "calls buildLeakMonitoringParams",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "buildLeakMonitoringParams"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postform",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postForm",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postForm"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/foreach",
+      "kind": "structural",
+      "desc": "calls Object.keys.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/entries",
+      "kind": "structural",
+      "desc": "calls Object.entries",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.entries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocale",
+      "kind": "structural",
+      "desc": "calls getLocale",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocale"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::o/loadstatefields",
       "kind": "structural",
       "desc": "calls o.loadStateFields",
@@ -2668,6 +2282,118 @@
           "method": "symbol",
           "source": "ast",
           "value": "o.loadStateFields"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/push",
+      "kind": "structural",
+      "desc": "calls i.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/assign",
+      "kind": "structural",
+      "desc": "calls Object.assign",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.assign"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/reduce",
+      "kind": "structural",
+      "desc": "calls s.reduce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.reduce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/headers/get",
+      "kind": "structural",
+      "desc": "calls t.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objectwithoutproperties",
+      "kind": "structural",
+      "desc": "calls objectWithoutProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectWithoutProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/wot_trace_id/name",
+      "kind": "structural",
+      "desc": "calls s.WOT_TRACE_ID.name",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.WOT_TRACE_ID.name"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extends",
+      "kind": "structural",
+      "desc": "calls extends",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extends"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/foreach",
+      "kind": "structural",
+      "desc": "calls s.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.forEach"
         }
       ]
     },
@@ -2686,16 +2412,226 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/indexof",
+      "id": "meta/internal/imported::e/target",
       "kind": "structural",
-      "desc": "calls t.indexOf",
+      "desc": "calls e.target",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.indexOf"
+          "value": "e.target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/categories",
+      "kind": "structural",
+      "desc": "calls e.categories",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.categories"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/dch",
+      "kind": "structural",
+      "desc": "calls t.dch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.dch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/tostring",
+      "kind": "structural",
+      "desc": "calls s.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/setrequestheader",
+      "kind": "structural",
+      "desc": "calls t.setRequestHeader",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.setRequestHeader"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/lk",
+      "kind": "structural",
+      "desc": "calls t.lk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.lk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/next",
+      "kind": "structural",
+      "desc": "calls a.next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/r",
+      "kind": "structural",
+      "desc": "calls t.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.r"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/iged",
+      "kind": "structural",
+      "desc": "calls t.iged",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.iged"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/join",
+      "kind": "structural",
+      "desc": "calls s.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/storage/local/get",
+      "kind": "structural",
+      "desc": "calls chrome.storage.local.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.storage.local.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generateuuidv4",
+      "kind": "structural",
+      "desc": "calls generateUuidV4",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generateUuidV4"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/attributes/item",
+      "kind": "structural",
+      "desc": "calls t.attributes.item",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.attributes.item"
         }
       ]
     }

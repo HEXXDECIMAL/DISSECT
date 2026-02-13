@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -29,22 +45,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "12:7"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -93,20 +93,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::element/style/display",
-      "kind": "structural",
-      "desc": "calls element.style.display",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.style.display"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::element/getelementsbytagname",
       "kind": "structural",
       "desc": "calls element.getElementsByTagName",
@@ -135,20 +121,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::setinterval",
-      "kind": "structural",
-      "desc": "calls setInterval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setInterval"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/getelementsbyclassname",
       "kind": "structural",
       "desc": "calls document.getElementsByClassName",
@@ -159,20 +131,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.getElementsByClassName"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::anchor/innertext/tolowercase",
-      "kind": "structural",
-      "desc": "calls anchor.innerText.toLowerCase",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "anchor.innerText.toLowerCase"
         }
       ]
     },
@@ -191,6 +149,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::element/setattribute",
+      "kind": "structural",
+      "desc": "calls element.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.setAttribute"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::element/getattribute",
       "kind": "structural",
       "desc": "calls element.getAttribute",
@@ -205,16 +177,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::anchors",
+      "id": "meta/internal/imported::anchor/innertext/tolowercase",
       "kind": "structural",
-      "desc": "calls anchors",
+      "desc": "calls anchor.innerText.toLowerCase",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "anchors"
+          "value": "anchor.innerText.toLowerCase"
         }
       ]
     },
@@ -233,16 +205,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::element/setattribute",
+      "id": "meta/internal/imported::anchors",
       "kind": "structural",
-      "desc": "calls element.setAttribute",
+      "desc": "calls anchors",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "element.setAttribute"
+          "value": "anchors"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/style/display",
+      "kind": "structural",
+      "desc": "calls element.style.display",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.style.display"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setinterval",
+      "kind": "structural",
+      "desc": "calls setInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setInterval"
         }
       ]
     },

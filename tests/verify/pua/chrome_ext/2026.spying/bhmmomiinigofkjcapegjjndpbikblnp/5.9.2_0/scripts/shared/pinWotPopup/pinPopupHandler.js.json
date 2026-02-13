@@ -27,6 +27,70 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "kind": "capability",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.onMessage.addListener"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "meta/library/react::react-dom",
       "kind": "capability",
       "desc": "ReactDOM object reference",
@@ -73,70 +137,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
-      "kind": "capability",
-      "desc": "chrome.runtime.onMessage listener",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "webextApi.runtime.onMessage.addListener"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 5.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
@@ -159,6 +159,20 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::webextapi/runtime/onmessage/addlistener",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.onMessage.addListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.onMessage.addListener"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::document/body/appendchild",
       "kind": "structural",
       "desc": "calls document.body.appendChild",
@@ -169,6 +183,48 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/id",
+      "kind": "structural",
+      "desc": "calls e.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dismisspinwotpopup",
+      "kind": "structural",
+      "desc": "calls dismissPinWotPopup",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dismissPinWotPopup"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactdom/render",
+      "kind": "structural",
+      "desc": "calls ReactDOM.render",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
         }
       ]
     },
@@ -201,48 +257,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::webextapi/runtime/onmessage/addlistener",
-      "kind": "structural",
-      "desc": "calls webextApi.runtime.onMessage.addListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.runtime.onMessage.addListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::react/createelement",
-      "kind": "structural",
-      "desc": "calls React.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dismisspinwotpopup",
-      "kind": "structural",
-      "desc": "calls dismissPinWotPopup",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dismissPinWotPopup"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/getelementbyid",
       "kind": "structural",
       "desc": "calls document.getElementById",
@@ -257,30 +271,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reactdom/render",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls ReactDOM.render",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "ReactDOM.render"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/id",
-      "kind": "structural",
-      "desc": "calls e.id",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.id"
+          "value": "React.createElement"
         }
       ]
     }

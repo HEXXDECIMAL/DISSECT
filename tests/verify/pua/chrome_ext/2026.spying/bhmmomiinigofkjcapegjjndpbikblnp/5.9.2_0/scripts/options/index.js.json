@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "meta/library/react::react-dom",
-      "kind": "capability",
-      "desc": "ReactDOM object reference",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "ReactDOM.render"
-        }
-      ],
-      "source_file": "meta/library/react/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-di-pattern",
       "kind": "capability",
       "desc": "Code uses dependency injection",
@@ -40,6 +25,36 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
@@ -57,19 +72,32 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
+          "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "document.getElementById"
         }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      ]
+    },
+    {
+      "id": "meta/internal/imported::store",
+      "kind": "structural",
+      "desc": "calls store",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store"
+        }
+      ]
     },
     {
       "id": "meta/internal/imported::store/ready",
@@ -100,20 +128,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reactdom/render",
-      "kind": "structural",
-      "desc": "calls ReactDOM.render",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ReactDOM.render"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::store/ready/then",
       "kind": "structural",
       "desc": "calls store.ready.then",
@@ -128,16 +142,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::store",
+      "id": "meta/internal/imported::reactdom/render",
       "kind": "structural",
-      "desc": "calls store",
+      "desc": "calls ReactDOM.render",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "store"
+          "value": "ReactDOM.render"
         }
       ]
     },
@@ -152,20 +166,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "React.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid",
-      "kind": "structural",
-      "desc": "calls document.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById"
         }
       ]
     }

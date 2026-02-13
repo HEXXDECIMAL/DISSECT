@@ -12,28 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::runtime",
-      "kind": "capability",
-      "desc": "runtime keyword",
-      "conf": 0.2,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "./common/platform/runtime.js",
-          "location": "0x52"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "./common/platform/runtime.js",
-          "location": "0x53"
-        }
-      ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
-    },
-    {
       "id": "meta/quality/logging::logger-lower",
       "kind": "capability",
       "desc": "logger reference (lowercase)",
@@ -56,6 +34,45 @@
       "source_file": "meta/quality/logging/traits.yaml"
     },
     {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "./common/platform/runtime.js",
+          "location": "0x52"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "./common/platform/runtime.js",
+          "location": "0x53"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
@@ -68,6 +85,67 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "kind": "capability",
+      "desc": "md5 hash algorithm",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x372"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "md5",
+          "location": "0x373"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::heartbeat-string",
+      "kind": "capability",
+      "desc": "heartbeat C2 string",
+      "conf": 0.7,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x7e5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x7e6"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.07"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
@@ -112,67 +190,6 @@
       "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "background.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "known/malware/backdoor/melofee::heartbeat-string",
-      "kind": "capability",
-      "desc": "heartbeat C2 string",
-      "conf": 0.7,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0x7e5"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0x7e6"
-        }
-      ],
-      "source_file": "known/malware/backdoor/melofee/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
-      "kind": "capability",
-      "desc": "Electron resources directory",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0024",
-      "attack": "T1195.002",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "./common/constants/resources.js",
-          "location": "0x13f"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "./common/constants/resources.js",
-          "location": "0x140"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
-    },
-    {
       "id": "cap/exec/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
@@ -207,82 +224,43 @@
       "source_file": "cap/exec/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
+      "desc": "Electron resources directory",
       "conf": 0.7,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "mbc": "B0024",
+      "attack": "T1195.002",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.07"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "./common/constants/resources.js",
+          "location": "0x13f"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "./common/constants/resources.js",
+          "location": "0x140"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "md5 hash algorithm",
-      "conf": 0.6,
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "md5",
-          "location": "0x372"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "md5",
-          "location": "0x373"
+          "method": "basename",
+          "source": "target",
+          "value": "background.js"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "known/malware/backdoor/melofee::c2-protocols",
-      "kind": "capability",
-      "desc": "C2 heartbeat/beacon protocols",
-      "conf": 1.0,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0x7e5"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0x7e6"
-        }
-      ],
-      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -327,6 +305,28 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "known/malware/backdoor/melofee::c2-protocols",
+      "kind": "capability",
+      "desc": "C2 heartbeat/beacon protocols",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x7e5"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0x7e6"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
     },
     {
       "id": "meta/internal/imported::importscripts",

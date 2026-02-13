@@ -12,6 +12,21 @@
   },
   "findings": [
     {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
@@ -27,19 +42,18 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
+      "id": "meta/internal/imported::breachlist",
+      "kind": "structural",
+      "desc": "calls BreachList",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
+          "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "BreachList"
         }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      ]
     },
     {
       "id": "meta/internal/imported::translate",
@@ -56,16 +70,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/map",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls t.map",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.map"
+          "value": "React.createElement"
         }
       ]
     },
@@ -84,30 +98,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::breachlist",
+      "id": "meta/internal/imported::t/map",
       "kind": "structural",
-      "desc": "calls BreachList",
+      "desc": "calls t.map",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "BreachList"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::react/createelement",
-      "kind": "structural",
-      "desc": "calls React.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "React.createElement"
+          "value": "t.map"
         }
       ]
     }

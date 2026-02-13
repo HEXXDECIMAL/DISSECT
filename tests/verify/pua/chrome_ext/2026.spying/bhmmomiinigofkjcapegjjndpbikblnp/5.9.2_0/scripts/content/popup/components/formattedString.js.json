@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:169"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -44,35 +28,20 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
+      "desc": "for loop (AST)",
+      "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 constructor",
-          "location": "file"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:169"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "formattedString.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
@@ -107,6 +76,37 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "formattedString.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
@@ -129,44 +129,16 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::s/replace",
+      "id": "meta/internal/imported::s/split",
       "kind": "structural",
-      "desc": "calls s.replace",
+      "desc": "calls s.split",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "s.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/map",
-      "kind": "structural",
-      "desc": "calls r.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/touppercase",
-      "kind": "structural",
-      "desc": "calls e.toUpperCase",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.toUpperCase"
+          "value": "s.split"
         }
       ]
     },
@@ -185,16 +157,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::s/split",
+      "id": "meta/internal/imported::s/replace",
       "kind": "structural",
-      "desc": "calls s.split",
+      "desc": "calls s.replace",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "s.split"
+          "value": "s.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/touppercase",
+      "kind": "structural",
+      "desc": "calls e.toUpperCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.toUpperCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/map",
+      "kind": "structural",
+      "desc": "calls r.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.map"
         }
       ]
     }

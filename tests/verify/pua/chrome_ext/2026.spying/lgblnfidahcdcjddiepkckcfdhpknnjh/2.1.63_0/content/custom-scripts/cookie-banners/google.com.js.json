@@ -59,34 +59,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::document/body/classlist/remove",
-      "kind": "structural",
-      "desc": "calls document.body.classList.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.body.classList.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselector",
-      "kind": "structural",
-      "desc": "calls document.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelector"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::fn",
       "kind": "structural",
       "desc": "calls fn",
@@ -97,6 +69,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/classlist/remove",
+      "kind": "structural",
+      "desc": "calls document.body.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.classList.remove"
         }
       ]
     },
@@ -125,6 +111,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
         }
       ]
     }

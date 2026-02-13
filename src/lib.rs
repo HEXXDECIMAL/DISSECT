@@ -157,16 +157,17 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Detect file type
     tracing::debug!("Detecting file type for: {}", path.display());
     let file_type = detect_file_type(path)?;
-    tracing::debug!("Detected file type: {:?} for: {}", file_type, path.display());
+    tracing::debug!(
+        "Detected file type: {:?} for: {}",
+        file_type,
+        path.display()
+    );
 
     // Get file size for memory tracking
     let file_size = std::fs::metadata(path)?.len();
 
     // Log memory state before processing
-    memory_tracker::log_before_file_processing(
-        path.to_str().unwrap_or("unknown"),
-        file_size,
-    );
+    memory_tracker::log_before_file_processing(path.to_str().unwrap_or("unknown"), file_size);
 
     let analysis_start = std::time::Instant::now();
 
@@ -176,10 +177,8 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     let file_data = file_data_wrapper.as_slice();
 
     // Track file read for memory monitoring
-    memory_tracker::global_tracker().record_file_read(
-        file_size,
-        path.to_str().unwrap_or("unknown"),
-    );
+    memory_tracker::global_tracker()
+        .record_file_read(file_size, path.to_str().unwrap_or("unknown"));
 
     // Check for extension/content mismatch
     let mismatch = analyzers::check_extension_content_mismatch(path, file_data);

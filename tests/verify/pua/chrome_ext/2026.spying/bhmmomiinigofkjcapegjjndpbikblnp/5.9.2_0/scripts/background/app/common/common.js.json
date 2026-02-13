@@ -12,6 +12,23 @@
   },
   "findings": [
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 8.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
@@ -46,41 +63,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
       "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 constructor",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "common.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -88,27 +74,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "text.max_line_length = 1392.00"
+          "value": "identifiers.single_char_ratio = 0.39"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 8.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -145,10 +114,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -156,10 +125,41 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.39"
+          "value": "text.max_line_length = 1392.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "common.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -194,20 +194,6 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::retained-numofdays-replace",
       "kind": "structural",
       "desc": "calls \"Retained {{numOfDays}}\".replace",
@@ -218,34 +204,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "\"Retained {{numOfDays}}\".replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/floor",
-      "kind": "structural",
-      "desc": "calls Math.floor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.floor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/abs",
-      "kind": "structural",
-      "desc": "calls Math.abs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.abs"
         }
       ]
     },
@@ -264,20 +222,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/gethours",
-      "kind": "structural",
-      "desc": "calls t.getHours",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.getHours"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::saveretentiontdays",
       "kind": "structural",
       "desc": "calls saveRetentiontDays",
@@ -288,20 +232,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "saveRetentiontDays"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::retentionevent",
-      "kind": "structural",
-      "desc": "calls RetentionEvent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "RetentionEvent"
         }
       ]
     },
@@ -358,6 +288,76 @@
           "method": "symbol",
           "source": "ast",
           "value": "t.getDate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::retentionevent",
+      "kind": "structural",
+      "desc": "calls RetentionEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "RetentionEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/abs",
+      "kind": "structural",
+      "desc": "calls Math.abs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.abs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/gethours",
+      "kind": "structural",
+      "desc": "calls t.getHours",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.getHours"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/floor",
+      "kind": "structural",
+      "desc": "calls Math.floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.floor"
         }
       ]
     }

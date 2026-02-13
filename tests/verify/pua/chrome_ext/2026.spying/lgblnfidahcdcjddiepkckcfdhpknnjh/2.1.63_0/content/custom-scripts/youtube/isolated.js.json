@@ -8,34 +8,41 @@
   "size": 11219,
   "risk": "notable",
   "counts": {
-    "notable": 25
+    "notable": 22
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::token",
+      "id": "obj/persist/autostart/systemd::dot-desktop-ext",
       "kind": "capability",
-      "desc": "token keyword",
-      "conf": 0.2,
-      "crit": "inert",
+      "desc": ".desktop file extension",
+      "conf": 0.5,
+      "crit": "notable",
+      "attack": "T1547.013",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "token",
-          "location": "0x11e7"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "token"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Token"
+          "value": "(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType || location.href.startsWith('https://www.youtube.com/tv#/') || location.href.startsWith('https://www.youtube.com/embed/')) return;\n      document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          const mp = document.getElementById('movie_player');\n          if (!mp) return;\n          if (!mp.getStatsForNerds?.()?.debug_info?.startsWith?.('SSAP, AD')) return;\n          const e = mp.getProgressState?.();\n          if (e && e.duration > 0 && (e.loaded < e.duration || e.duration - e.current > 1)) {\n            mp.seekTo?.(e.duration);\n          }\n        };\n        t();\n        new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n          subtree: !0\n        });\n      });\n      window.Promise.prototype.then = new Proxy(window.Promise.prototype.then, {\n        apply: (t, e, o) => {\n          const n = o[0];\n          return 'function' == typeof n && n.toString().includes('onAbnormalityDetected') && (o[0] = function () {}), Reflect.apply(t, e, o);\n        }\n      });\n    }).toString()})();${patternStr}",
+          "location": "0x269f"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "obj/persist/autostart/systemd/linux.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
@@ -70,6 +77,47 @@
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::token",
+      "kind": "capability",
+      "desc": "token keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "token",
+          "location": "0x11e7"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Token"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "token"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::connect",
+      "kind": "capability",
+      "desc": "connect keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "observer.disconnect"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
       "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
@@ -114,289 +162,6 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::connect",
-      "kind": "capability",
-      "desc": "connect keyword",
-      "conf": 0.2,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "observer.disconnect"
-        }
-      ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
-    },
-    {
-      "id": "obj/persist/autostart/systemd::dot-desktop-ext",
-      "kind": "capability",
-      "desc": ".desktop file extension",
-      "conf": 0.5,
-      "crit": "notable",
-      "attack": "T1547.013",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType || location.href.startsWith('https://www.youtube.com/tv#/') || location.href.startsWith('https://www.youtube.com/embed/')) return;\n      document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          const mp = document.getElementById('movie_player');\n          if (!mp) return;\n          if (!mp.getStatsForNerds?.()?.debug_info?.startsWith?.('SSAP, AD')) return;\n          const e = mp.getProgressState?.();\n          if (e && e.duration > 0 && (e.loaded < e.duration || e.duration - e.current > 1)) {\n            mp.seekTo?.(e.duration);\n          }\n        };\n        t();\n        new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n          subtree: !0\n        });\n      });\n      window.Promise.prototype.then = new Proxy(window.Promise.prototype.then, {\n        apply: (t, e, o) => {\n          const n = o[0];\n          return 'function' == typeof n && n.toString().includes('onAbnormalityDetected') && (o[0] = function () {}), Reflect.apply(t, e, o);\n        }\n      });\n    }).toString()})();${patternStr}",
-          "location": "0x269f"
-        }
-      ],
-      "source_file": "obj/persist/autostart/systemd/linux.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::proto-extension",
-      "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType || location.href.startsWith('https://www.youtube.com/tv#/') || location.href.startsWith('https://www.youtube.com/embed/')) return;\n      document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          const mp = document.getElementById('movie_player');\n          if (!mp) return;\n          if (!mp.getStatsForNerds?.()?.debug_info?.startsWith?.('SSAP, AD')) return;\n          const e = mp.getProgressState?.();\n          if (e && e.duration > 0 && (e.loaded < e.duration || e.duration - e.current > 1)) {\n            mp.seekTo?.(e.duration);\n          }\n        };\n        t();\n        new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n          subtree: !0\n        });\n      });\n      window.Promise.prototype.then = new Proxy(window.Promise.prototype.then, {\n        apply: (t, e, o) => {\n          const n = o[0];\n          return 'function' == typeof n && n.toString().includes('onAbnormalityDetected') && (o[0] = function () {}), Reflect.apply(t, e, o);\n        }\n      });\n    }).toString()})();${patternStr}",
-          "location": "0x269f"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "window.Promise.prototype.then"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 4  for (",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
-      "kind": "capability",
-      "desc": "Converts URL object to string",
-      "conf": 0.8,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "replaceNodeTextFn('script', patternStr, `(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytI...",
-          "location": "306:5"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.l...",
-          "location": "306:49"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "n.toString().includes('onAbnormalityDetected')",
-          "location": "329:44"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "n.toString()",
-          "location": "329:44"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
-      "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(() => {",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
-      "kind": "capability",
-      "desc": "String obfuscation via fromCharCode",
-      "conf": 0.66,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "safe.String_fromCharCode"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "meta/lang::arrow-function",
-      "kind": "capability",
-      "desc": "ES6 arrow function syntax",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "=> {",
-          "location": "0x269f"
-        }
-      ],
-      "source_file": "meta/lang/javascript-es6.yaml"
-    },
-    {
-      "id": "meta/lang::const-let",
-      "kind": "capability",
-      "desc": "ES6 const/let declarations",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "const t",
-          "location": "0x269f"
-        }
-      ],
-      "source_file": "meta/lang/javascript-es6.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
-      "kind": "capability",
-      "desc": "MutationObserver DOM monitoring",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 occurrences of MutationObserver",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
-      "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
-      "kind": "capability",
-      "desc": "Observes DOM mutations",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "replaceNodeTextFn('script', patternStr, `(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytI...",
-          "location": "306:5"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.l...",
-          "location": "306:49"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          cons...",
-          "location": "308:7"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n...",
-          "location": "319:9"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 8 prototype",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
-      "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.anonymous = 15.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/testing::underscore-test-filename",
-      "kind": "capability",
-      "desc": "_test. in filename",
-      "conf": 0.6,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "safe.RegExp_test.call"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
@@ -430,45 +195,6 @@
       "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/blockchain::contract-keyword",
-      "kind": "capability",
-      "desc": "contract keyword",
-      "conf": 0.3,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Contract",
-          "location": "0x2655"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Contract",
-          "location": "0x2656"
-        }
-      ],
-      "source_file": "obj/c2/infrastructure/blockchain/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 8.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
@@ -486,47 +212,37 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/exec/native/api::node-addon",
+      "id": "meta/lang::arrow-function",
       "kind": "capability",
-      "desc": "Package contains native Node.js addon",
-      "conf": 0.7,
-      "crit": "notable",
+      "desc": "ES6 arrow function syntax",
+      "conf": 0.9,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:2313"
-        },
-        {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:2787"
-        },
-        {
-          "method": "yara",
-          "source": "yara-x",
-          "value": ".node",
-          "location": "offset:3475"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "=> {",
+          "location": "0x269f"
         }
       ],
-      "source_file": "cap/exec/native/api/suspicious.yaml"
+      "source_file": "meta/lang/javascript-es6.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
       "kind": "capability",
-      "desc": "Object.defineProperty call",
-      "conf": 0.6,
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.defineProperty.bind"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 15.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/c2/infrastructure/domain::http-url-script",
@@ -569,6 +285,278 @@
         }
       ],
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "kind": "capability",
+      "desc": "String obfuscation via fromCharCode",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "safe.String_fromCharCode"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::underscore-test-filename",
+      "kind": "capability",
+      "desc": "_test. in filename",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "safe.RegExp_test.call"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 8.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "kind": "capability",
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "replaceNodeTextFn('script', patternStr, `(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytI...",
+          "location": "306:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.l...",
+          "location": "306:49"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "n.toString().includes('onAbnormalityDetected')",
+          "location": "329:44"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "n.toString()",
+          "location": "329:44"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "kind": "capability",
+      "desc": "Observes DOM mutations",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "replaceNodeTextFn('script', patternStr, `(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytI...",
+          "location": "306:5"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.l...",
+          "location": "306:49"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          cons...",
+          "location": "308:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n...",
+          "location": "319:9"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(() => {",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "kind": "capability",
+      "desc": "Object.defineProperty call",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty.bind"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 8 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/blockchain::contract-keyword",
+      "kind": "capability",
+      "desc": "contract keyword",
+      "conf": 0.3,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Contract",
+          "location": "0x2655"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Contract",
+          "location": "0x2656"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/blockchain/traits.yaml"
+    },
+    {
+      "id": "meta/lang::const-let",
+      "kind": "capability",
+      "desc": "ES6 const/let declarations",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "const t",
+          "location": "0x269f"
+        }
+      ],
+      "source_file": "meta/lang/javascript-es6.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/blockchain::contract-or-address",
+      "kind": "capability",
+      "desc": "Contract keyword or Ethereum address",
+      "conf": 0.3,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Contract",
+          "location": "0x2655"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Contract",
+          "location": "0x2656"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/blockchain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "kind": "capability",
+      "desc": "Minifier helper patterns",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty.bind"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/testing::test-filename-pattern",
@@ -653,69 +641,11 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/blockchain::contract-or-address",
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
       "kind": "capability",
-      "desc": "Contract keyword or Ethereum address",
-      "conf": 0.3,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Contract",
-          "location": "0x2655"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Contract",
-          "location": "0x2656"
-        }
-      ],
-      "source_file": "obj/c2/infrastructure/blockchain/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
-      "kind": "capability",
-      "desc": "Minifier helper patterns",
+      "desc": "Testing Library methods",
       "conf": 1.0,
       "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.defineProperty.bind"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "(${(() => {\n      if ('YOUTUBE_PREMIUM_LOGO' === window.ytInitialData?.topbar?.desktopTopbarRenderer?.logo?.topbarLogoRenderer?.iconImage?.iconType || location.href.startsWith('https://www.youtube.com/tv#/') || location.href.startsWith('https://www.youtube.com/embed/')) return;\n      document.addEventListener('DOMContentLoaded', function () {\n        const t = () => {\n          const mp = document.getElementById('movie_player');\n          if (!mp) return;\n          if (!mp.getStatsForNerds?.()?.debug_info?.startsWith?.('SSAP, AD')) return;\n          const e = mp.getProgressState?.();\n          if (e && e.duration > 0 && (e.loaded < e.duration || e.duration - e.current > 1)) {\n            mp.seekTo?.(e.duration);\n          }\n        };\n        t();\n        new MutationObserver(() => {\n          t();\n        }).observe(document, {\n          childList: !0,\n          subtree: !0\n        });\n      });\n      window.Promise.prototype.then = new Proxy(window.Promise.prototype.then, {\n        apply: (t, e, o) => {\n          const n = o[0];\n          return 'function' == typeof n && n.toString().includes('onAbnormalityDetected') && (o[0] = function () {}), Reflect.apply(t, e, o);\n        }\n      });\n    }).toString()})();${patternStr}",
-          "location": "0x269f"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "window.Promise.prototype.then"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
-      "kind": "capability",
-      "desc": "Test fixture or mock data",
-      "conf": 0.9,
-      "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
@@ -741,11 +671,11 @@
       "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
       "kind": "capability",
-      "desc": "Testing Library methods",
-      "conf": 1.0,
-      "crit": "inert",
+      "desc": "Test fixture or mock data",
+      "conf": 0.9,
+      "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
@@ -771,212 +701,16 @@
       "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::prop",
+      "id": "meta/internal/imported::count",
       "kind": "structural",
-      "desc": "calls prop",
+      "desc": "calls count",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "prop"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reflect/apply",
-      "kind": "structural",
-      "desc": "calls Reflect.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Reflect.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::date/now",
-      "kind": "structural",
-      "desc": "calls Date.now",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Date.now"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::repattern",
-      "kind": "structural",
-      "desc": "calls rePattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rePattern"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::handlemutations",
-      "kind": "structural",
-      "desc": "calls handleMutations",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "handleMutations"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reincludes/lastindex",
-      "kind": "structural",
-      "desc": "calls reIncludes.lastIndex",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reIncludes.lastIndex"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::before/replace",
-      "kind": "structural",
-      "desc": "calls before.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "before.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe",
-      "kind": "structural",
-      "desc": "calls safe",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/math_floor/tostring",
-      "kind": "structural",
-      "desc": "calls safe.Math_floor.toString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.Math_floor.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::location/href/startswith",
-      "kind": "structural",
-      "desc": "calls location.href.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "location.href.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reexcludes/lastindex",
-      "kind": "structural",
-      "desc": "calls reExcludes.lastIndex",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reExcludes.lastIndex"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fn",
-      "kind": "structural",
-      "desc": "calls fn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tokens",
-      "kind": "structural",
-      "desc": "calls tokens",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tokens"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isolated",
-      "kind": "structural",
-      "desc": "calls isolated",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isolated"
+          "value": "count"
         }
       ]
     },
@@ -995,76 +729,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe/json_parsefn/call",
-      "kind": "structural",
-      "desc": "calls safe.JSON_parseFn.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.JSON_parseFn.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/addeventlistener/apply",
-      "kind": "structural",
-      "desc": "calls safe.addEventListener.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.addEventListener.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::after",
-      "kind": "structural",
-      "desc": "calls after",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "after"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::renodename",
-      "kind": "structural",
-      "desc": "calls reNodeName",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reNodeName"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::targets",
       "kind": "structural",
       "desc": "calls targets",
@@ -1075,90 +739,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "targets"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/defineproperties/bind",
-      "kind": "structural",
-      "desc": "calls Object.defineProperties.bind",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.defineProperties.bind"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::before/trim",
-      "kind": "structural",
-      "desc": "calls before.trim",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "before.trim"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::repattern/lastindex",
-      "kind": "structural",
-      "desc": "calls rePattern.lastIndex",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rePattern.lastIndex"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::textcontentfactory/createscript",
-      "kind": "structural",
-      "desc": "calls textContentFactory.createScript",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "textContentFactory.createScript"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/patterntoregex",
-      "kind": "structural",
-      "desc": "calls safe.patternToRegex",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.patternToRegex"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/removeeventlistener/apply",
-      "kind": "structural",
-      "desc": "calls safe.removeEventListener.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.removeEventListener.apply"
         }
       ]
     },
@@ -1177,44 +757,394 @@
       ]
     },
     {
-      "id": "meta/internal/imported::patternstr",
+      "id": "meta/internal/imported::object/defineproperties/bind",
       "kind": "structural",
-      "desc": "calls patternStr",
+      "desc": "calls Object.defineProperties.bind",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "patternStr"
+          "value": "Object.defineProperties.bind"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::quitafter",
+      "id": "meta/internal/imported::array/isarray",
       "kind": "structural",
-      "desc": "calls quitAfter",
+      "desc": "calls Array.isArray",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "quitAfter"
+          "value": "Array.isArray"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::intfromreadystate",
+      "id": "meta/internal/imported::mp/getprogressstate",
       "kind": "structural",
-      "desc": "calls intFromReadyState",
+      "desc": "calls mp.getProgressState",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "intFromReadyState"
+          "value": "mp.getProgressState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::repattern/lastindex",
+      "kind": "structural",
+      "desc": "calls rePattern.lastIndex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rePattern.lastIndex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::after/trim",
+      "kind": "structural",
+      "desc": "calls after.trim",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "after.trim"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::replacenodetextfn",
+      "kind": "structural",
+      "desc": "calls replaceNodeTextFn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "replaceNodeTextFn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::observer",
+      "kind": "structural",
+      "desc": "calls observer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "observer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/apply",
+      "kind": "structural",
+      "desc": "calls Reflect.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::observer/observe",
+      "kind": "structural",
+      "desc": "calls observer.observe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "observer.observe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::before/replace",
+      "kind": "structural",
+      "desc": "calls before.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "before.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mp/seekto",
+      "kind": "structural",
+      "desc": "calls mp.seekTo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mp.seekTo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/tostring/includes",
+      "kind": "structural",
+      "desc": "calls n.toString.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.toString.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::before",
+      "kind": "structural",
+      "desc": "calls before",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "before"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/patterntoregex",
+      "kind": "structural",
+      "desc": "calls safe.patternToRegex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.patternToRegex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reincludes",
+      "kind": "structural",
+      "desc": "calls reIncludes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reIncludes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/stndzlog",
+      "kind": "structural",
+      "desc": "calls safe.stndzLog",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.stndzLog"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/requestanimationframe",
+      "kind": "structural",
+      "desc": "calls self.requestAnimationFrame",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.requestAnimationFrame"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::removenodetext",
+      "kind": "structural",
+      "desc": "calls removeNodeText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "removeNodeText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getrandomtokenfn",
+      "kind": "structural",
+      "desc": "calls getRandomTokenFn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getRandomTokenFn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mp/getstatsfornerds/debug_info/startswith",
+      "kind": "structural",
+      "desc": "calls mp.getStatsForNerds.debug_info.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mp.getStatsForNerds.debug_info.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::targets/hasownproperty",
+      "kind": "structural",
+      "desc": "calls targets.hasOwnProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "targets.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pattern/slice",
+      "kind": "structural",
+      "desc": "calls pattern.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pattern.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stop",
+      "kind": "structural",
+      "desc": "calls stop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::textcontentfactory",
+      "kind": "structural",
+      "desc": "calls textContentFactory",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "textContentFactory"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/regexp_test/call",
+      "kind": "structural",
+      "desc": "calls safe.RegExp_test.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.RegExp_test.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::restr",
+      "kind": "structural",
+      "desc": "calls reStr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reStr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tokens",
+      "kind": "structural",
+      "desc": "calls tokens",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tokens"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/getextraargs",
+      "kind": "structural",
+      "desc": "calls safe.getExtraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.getExtraArgs"
         }
       ]
     },
@@ -1247,660 +1177,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::restr",
+      "id": "meta/internal/imported::s/replace",
       "kind": "structural",
-      "desc": "calls reStr",
+      "desc": "calls s.replace",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "reStr"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::value",
-      "kind": "structural",
-      "desc": "calls value",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "value"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::count",
-      "kind": "structural",
-      "desc": "calls count",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "count"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reexcludes",
-      "kind": "structural",
-      "desc": "calls reExcludes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reExcludes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/makelogprefix",
-      "kind": "structural",
-      "desc": "calls safe.makeLogPrefix",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.makeLogPrefix"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::args",
-      "kind": "structural",
-      "desc": "calls args",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "args"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::match",
-      "kind": "structural",
-      "desc": "calls match",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "match"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/defineproperty/bind",
-      "kind": "structural",
-      "desc": "calls Object.defineProperty.bind",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.defineProperty.bind"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/math_floor",
-      "kind": "structural",
-      "desc": "calls safe.Math_floor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.Math_floor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/requestidlecallback",
-      "kind": "structural",
-      "desc": "calls self.requestIdleCallback",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self.requestIdleCallback"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pattern/startswith",
-      "kind": "structural",
-      "desc": "calls pattern.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pattern.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::args/slice",
-      "kind": "structural",
-      "desc": "calls args.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "args.slice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stop",
-      "kind": "structural",
-      "desc": "calls stop",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stop"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::treewalker",
-      "kind": "structural",
-      "desc": "calls treeWalker",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "treeWalker"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::sedcount",
-      "kind": "structural",
-      "desc": "calls sedCount",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sedCount"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mp",
-      "kind": "structural",
-      "desc": "calls mp",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mp"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::logprefix",
-      "kind": "structural",
-      "desc": "calls logPrefix",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "logPrefix"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mp/seekto",
-      "kind": "structural",
-      "desc": "calls mp.seekTo",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mp.seekTo"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::expect",
-      "kind": "structural",
-      "desc": "calls expect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "expect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/getextraargs",
-      "kind": "structural",
-      "desc": "calls safe.getExtraArgs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.getExtraArgs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reincludes",
-      "kind": "structural",
-      "desc": "calls reIncludes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reIncludes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::replacenodetextfn",
-      "kind": "structural",
-      "desc": "calls replaceNodeTextFn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "replaceNodeTextFn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::renodename/test",
-      "kind": "structural",
-      "desc": "calls reNodeName.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "reNodeName.test"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/json_stringifyfn/call",
-      "kind": "structural",
-      "desc": "calls safe.JSON_stringifyFn.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.JSON_stringifyFn.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::args/slice/reduce",
-      "kind": "structural",
-      "desc": "calls args.slice.reduce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "args.slice.reduce"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/promise/prototype/then",
-      "kind": "structural",
-      "desc": "calls window.Promise.prototype.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.Promise.prototype.then"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::removenodetext",
-      "kind": "structural",
-      "desc": "calls removeNodeText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "removeNodeText"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::runat",
-      "kind": "structural",
-      "desc": "calls runAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "runAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tt/createpolicy",
-      "kind": "structural",
-      "desc": "calls tt.createPolicy",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tt.createPolicy"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::entries",
-      "kind": "structural",
-      "desc": "calls entries",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "entries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::scriptletglobals/safeself",
-      "kind": "structural",
-      "desc": "calls scriptletGlobals.safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "scriptletGlobals.safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/string_fromcharcode",
-      "kind": "structural",
-      "desc": "calls safe.String_fromCharCode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.String_fromCharCode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/tostring/includes",
-      "kind": "structural",
-      "desc": "calls n.toString.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.toString.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::args/join",
-      "kind": "structural",
-      "desc": "calls args.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "args.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/regexp_test/call",
-      "kind": "structural",
-      "desc": "calls safe.RegExp_test.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.RegExp_test.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/requestanimationframe",
-      "kind": "structural",
-      "desc": "calls self.requestAnimationFrame",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self.requestAnimationFrame"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fromreadystate",
-      "kind": "structural",
-      "desc": "calls fromReadyState",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fromReadyState"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mp/getprogressstate",
-      "kind": "structural",
-      "desc": "calls mp.getProgressState",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mp.getProgressState"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::observer/observe",
-      "kind": "structural",
-      "desc": "calls observer.observe",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "observer.observe"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/createtreewalker",
-      "kind": "structural",
-      "desc": "calls document.createTreeWalker",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.createTreeWalker"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/tostring",
-      "kind": "structural",
-      "desc": "calls n.toString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid",
-      "kind": "structural",
-      "desc": "calls document.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rawvalue",
-      "kind": "structural",
-      "desc": "calls rawValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rawValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::haystack/includes",
-      "kind": "structural",
-      "desc": "calls haystack.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "haystack.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::out",
-      "kind": "structural",
-      "desc": "calls out",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "out"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::targets/hasownproperty",
-      "kind": "structural",
-      "desc": "calls targets.hasOwnProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "targets.hasOwnProperty"
+          "value": "s.replace"
         }
       ]
     },
@@ -1919,58 +1205,170 @@
       ]
     },
     {
-      "id": "meta/internal/imported::self",
+      "id": "meta/internal/imported::pattern/startswith",
       "kind": "structural",
-      "desc": "calls self",
+      "desc": "calls pattern.startsWith",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self"
+          "value": "pattern.startsWith"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::node/textcontent",
+      "id": "meta/internal/imported::match",
       "kind": "structural",
-      "desc": "calls node.textContent",
+      "desc": "calls match",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "node.textContent"
+          "value": "match"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::safe/math_random",
+      "id": "meta/internal/imported::value",
       "kind": "structural",
-      "desc": "calls safe.Math_random",
+      "desc": "calls value",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safe.Math_random"
+          "value": "value"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::treewalker/nextnode",
+      "id": "meta/internal/imported::safe/string_fromcharcode",
       "kind": "structural",
-      "desc": "calls treeWalker.nextNode",
+      "desc": "calls safe.String_fromCharCode",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "treeWalker.nextNode"
+          "value": "safe.String_fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/math_floor",
+      "kind": "structural",
+      "desc": "calls safe.Math_floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Math_floor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::logprefix",
+      "kind": "structural",
+      "desc": "calls logPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "logPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::out",
+      "kind": "structural",
+      "desc": "calls out",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "out"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/slice",
+      "kind": "structural",
+      "desc": "calls args.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sedcount",
+      "kind": "structural",
+      "desc": "calls sedCount",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sedCount"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::repattern",
+      "kind": "structural",
+      "desc": "calls rePattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rePattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
         }
       ]
     },
@@ -1989,6 +1387,370 @@
       ]
     },
     {
+      "id": "meta/internal/imported::safe/json_parsefn/call",
+      "kind": "structural",
+      "desc": "calls safe.JSON_parseFn.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_parseFn.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rawvalue",
+      "kind": "structural",
+      "desc": "calls rawValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rawValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args",
+      "kind": "structural",
+      "desc": "calls args",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/addeventlistener",
+      "kind": "structural",
+      "desc": "calls document.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pattern",
+      "kind": "structural",
+      "desc": "calls pattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::entries",
+      "kind": "structural",
+      "desc": "calls entries",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "entries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/math_random",
+      "kind": "structural",
+      "desc": "calls safe.Math_random",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Math_random"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/requestidlecallback",
+      "kind": "structural",
+      "desc": "calls self.requestIdleCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.requestIdleCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::observer/disconnect",
+      "kind": "structural",
+      "desc": "calls observer.disconnect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "observer.disconnect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::treewalker",
+      "kind": "structural",
+      "desc": "calls treeWalker",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "treeWalker"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/tostring",
+      "kind": "structural",
+      "desc": "calls n.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::date/now",
+      "kind": "structural",
+      "desc": "calls Date.now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop",
+      "kind": "structural",
+      "desc": "calls prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::renodename/test",
+      "kind": "structural",
+      "desc": "calls reNodeName.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reNodeName.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mp",
+      "kind": "structural",
+      "desc": "calls mp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isolated",
+      "kind": "structural",
+      "desc": "calls isolated",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isolated"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::quitafter",
+      "kind": "structural",
+      "desc": "calls quitAfter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "quitAfter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/promise/prototype/then",
+      "kind": "structural",
+      "desc": "calls window.Promise.prototype.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.Promise.prototype.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/defineproperty/bind",
+      "kind": "structural",
+      "desc": "calls Object.defineProperty.bind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.defineProperty.bind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/href/startswith",
+      "kind": "structural",
+      "desc": "calls location.href.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.href.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mp/getstatsfornerds",
+      "kind": "structural",
+      "desc": "calls mp.getStatsForNerds",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mp.getStatsForNerds"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/json_stringifyfn/call",
+      "kind": "structural",
+      "desc": "calls safe.JSON_stringifyFn.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.JSON_stringifyFn.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::haystack/includes",
+      "kind": "structural",
+      "desc": "calls haystack.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "haystack.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scriptletglobals",
+      "kind": "structural",
+      "desc": "calls scriptletGlobals",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scriptletGlobals"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/math_floor/tostring",
+      "kind": "structural",
+      "desc": "calls safe.Math_floor.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Math_floor.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tt/createpolicy",
+      "kind": "structural",
+      "desc": "calls tt.createPolicy",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tt.createPolicy"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::observer/takerecords",
       "kind": "structural",
       "desc": "calls observer.takeRecords",
@@ -1999,6 +1761,174 @@
           "method": "symbol",
           "source": "ast",
           "value": "observer.takeRecords"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::patternstr",
+      "kind": "structural",
+      "desc": "calls patternStr",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "patternStr"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/makelogprefix",
+      "kind": "structural",
+      "desc": "calls safe.makeLogPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.makeLogPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::after",
+      "kind": "structural",
+      "desc": "calls after",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "after"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::textcontentfactory/createscript",
+      "kind": "structural",
+      "desc": "calls textContentFactory.createScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "textContentFactory.createScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::runat",
+      "kind": "structural",
+      "desc": "calls runAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "runAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scriptletglobals/safeself",
+      "kind": "structural",
+      "desc": "calls scriptletGlobals.safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scriptletGlobals.safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::before/trim",
+      "kind": "structural",
+      "desc": "calls before.trim",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "before.trim"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/join",
+      "kind": "structural",
+      "desc": "calls args.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::args/slice/reduce",
+      "kind": "structural",
+      "desc": "calls args.slice.reduce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "args.slice.reduce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::renodename",
+      "kind": "structural",
+      "desc": "calls reNodeName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "reNodeName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/createtreewalker",
+      "kind": "structural",
+      "desc": "calls document.createTreeWalker",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createTreeWalker"
         }
       ]
     },
@@ -2031,142 +1961,198 @@
       ]
     },
     {
-      "id": "meta/internal/imported::mp/getstatsfornerds/debug_info/startswith",
+      "id": "meta/internal/imported::node/textcontent",
       "kind": "structural",
-      "desc": "calls mp.getStatsForNerds.debug_info.startsWith",
+      "desc": "calls node.textContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "mp.getStatsForNerds.debug_info.startsWith"
+          "value": "node.textContent"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::mp/getstatsfornerds",
+      "id": "meta/internal/imported::self",
       "kind": "structural",
-      "desc": "calls mp.getStatsForNerds",
+      "desc": "calls self",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "mp.getStatsForNerds"
+          "value": "self"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::textcontentfactory",
+      "id": "meta/internal/imported::expect",
       "kind": "structural",
-      "desc": "calls textContentFactory",
+      "desc": "calls expect",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "textContentFactory"
+          "value": "expect"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::scriptletglobals",
+      "id": "meta/internal/imported::handlemutations",
       "kind": "structural",
-      "desc": "calls scriptletGlobals",
+      "desc": "calls handleMutations",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "scriptletGlobals"
+          "value": "handleMutations"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::observer/disconnect",
+      "id": "meta/internal/imported::safe",
       "kind": "structural",
-      "desc": "calls observer.disconnect",
+      "desc": "calls safe",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "observer.disconnect"
+          "value": "safe"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::safe/stndzlog",
+      "id": "meta/internal/imported::reincludes/lastindex",
       "kind": "structural",
-      "desc": "calls safe.stndzLog",
+      "desc": "calls reIncludes.lastIndex",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safe.stndzLog"
+          "value": "reIncludes.lastIndex"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/addeventlistener",
+      "id": "meta/internal/imported::reexcludes",
       "kind": "structural",
-      "desc": "calls document.addEventListener",
+      "desc": "calls reExcludes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.addEventListener"
+          "value": "reExcludes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::before",
+      "id": "meta/internal/imported::reexcludes/lastindex",
       "kind": "structural",
-      "desc": "calls before",
+      "desc": "calls reExcludes.lastIndex",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "before"
+          "value": "reExcludes.lastIndex"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::after/trim",
+      "id": "meta/internal/imported::treewalker/nextnode",
       "kind": "structural",
-      "desc": "calls after.trim",
+      "desc": "calls treeWalker.nextNode",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "after.trim"
+          "value": "treeWalker.nextNode"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::s/replace",
+      "id": "meta/internal/imported::fromreadystate",
       "kind": "structural",
-      "desc": "calls s.replace",
+      "desc": "calls fromReadyState",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "s.replace"
+          "value": "fromReadyState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::intfromreadystate",
+      "kind": "structural",
+      "desc": "calls intFromReadyState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "intFromReadyState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/removeeventlistener/apply",
+      "kind": "structural",
+      "desc": "calls safe.removeEventListener.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.removeEventListener.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/addeventlistener/apply",
+      "kind": "structural",
+      "desc": "calls safe.addEventListener.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.addEventListener.apply"
         }
       ]
     },
@@ -2181,62 +2167,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "parseInt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pattern",
-      "kind": "structural",
-      "desc": "calls pattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pattern"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::observer",
-      "kind": "structural",
-      "desc": "calls observer",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "observer"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getrandomtokenfn",
-      "kind": "structural",
-      "desc": "calls getRandomTokenFn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getRandomTokenFn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pattern/slice",
-      "kind": "structural",
-      "desc": "calls pattern.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pattern.slice"
         }
       ]
     }

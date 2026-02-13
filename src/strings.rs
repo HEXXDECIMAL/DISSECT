@@ -213,10 +213,7 @@ impl StringExtractor {
         // and raw scanning with garbage filtering enabled
         let lang_strings = stng::extract_strings_with_options(data, &opts);
 
-        tracing::debug!(
-            "stng returned {} strings",
-            lang_strings.len()
-        );
+        tracing::debug!("stng returned {} strings", lang_strings.len());
 
         // Log first few stng strings to see what we got
         for (i, es) in lang_strings.iter().take(5).enumerate() {

@@ -47,3 +47,69 @@ traits:
       field: binary.avg_complexity
       max: 3
 
+  # === Sparsity Metrics (Neutral) ===
+
+  - id: few-sections
+    desc: "Very few sections (merged/stripped)"
+    crit: inert
+    conf: 0.6
+    if:
+      type: metrics
+      field: binary.section_count
+      max: 3
+
+  - id: no-functions
+    desc: "No detected functions (packed/obfuscated)"
+    crit: inert
+    conf: 0.5
+    if:
+      type: metrics
+      field: binary.function_count
+      max: 3
+
+  - id: few-functions
+    desc: "Very few functions detected"
+    crit: inert
+    conf: 0.4
+    if:
+      type: metrics
+      field: binary.function_count
+      max: 10
+
+  - id: few-basic-blocks
+    desc: "Very few basic blocks (obfuscated"
+    crit: inert
+    conf: 0.4
+    if:
+      type: metrics
+      field: binary.total_basic_blocks
+      min: 1
+      max: 10
+
+  - id: few-leaf-functions
+    desc: "Very few leaf functions (deep"
+    crit: inert
+    conf: 0.4
+    if:
+      type: metrics
+      field: binary.leaf_functions
+      min: 1
+      max: 5
+
+  - id: no-imports
+    desc: "No imported symbols"
+    crit: inert
+    conf: 0.7
+    if:
+      type: metrics
+      field: binary.import_density
+      max: 0.01
+
+  - id: elf-no-sections
+    desc: "ELF with no section headers"
+    crit: inert
+    conf: 0.75
+    if:
+      type: structure
+      feature: "no_sections"
+

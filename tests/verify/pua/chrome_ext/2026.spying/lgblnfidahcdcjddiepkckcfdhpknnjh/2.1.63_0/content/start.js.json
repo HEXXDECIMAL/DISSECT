@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -29,22 +45,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "15:7"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -109,34 +109,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::generarulescounter",
-      "kind": "structural",
-      "desc": "calls generaRulesCounter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "generaRulesCounter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannerrulescounter",
-      "kind": "structural",
-      "desc": "calls cookieBannerRulesCounter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannerRulesCounter"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::iframe/src/includes",
       "kind": "structural",
       "desc": "calls iframe.src.includes",
@@ -151,58 +123,128 @@
       ]
     },
     {
-      "id": "meta/internal/imported::startpopupsblocking",
+      "id": "meta/internal/imported::cookiebannerextendedrules",
       "kind": "structural",
-      "desc": "calls startPopupsBlocking",
+      "desc": "calls cookieBannerExtendedRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "startPopupsBlocking"
+          "value": "cookieBannerExtendedRules"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::sendmessage",
+      "id": "meta/internal/imported::math/random",
       "kind": "structural",
-      "desc": "calls sendMessage",
+      "desc": "calls Math.random",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "sendMessage"
+          "value": "Math.random"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::currentdocument",
+      "id": "meta/internal/imported::previouspagedata",
       "kind": "structural",
-      "desc": "calls currentDocument",
+      "desc": "calls previousPageData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentDocument"
+          "value": "previousPageData"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::pagedata",
+      "id": "meta/internal/imported::iframeid",
       "kind": "structural",
-      "desc": "calls pageData",
+      "desc": "calls iframeId",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageData"
+          "value": "iframeId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generarulescounter",
+      "kind": "structural",
+      "desc": "calls generaRulesCounter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generaRulesCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/get",
+      "kind": "structural",
+      "desc": "calls storageService.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/getelementsbytagname",
+      "kind": "structural",
+      "desc": "calls currentDocument.getElementsByTagName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.getElementsByTagName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trackers",
+      "kind": "structural",
+      "desc": "calls trackers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trackers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generalextendedrules",
+      "kind": "structural",
+      "desc": "calls generalExtendedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generalExtendedRules"
         }
       ]
     },
@@ -235,20 +277,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::iframes",
-      "kind": "structural",
-      "desc": "calls iframes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "iframes"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::math/random/tostring",
       "kind": "structural",
       "desc": "calls Math.random.toString",
@@ -259,20 +287,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Math.random.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/getelementsbytagname",
-      "kind": "structural",
-      "desc": "calls currentDocument.getElementsByTagName",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.getElementsByTagName"
         }
       ]
     },
@@ -291,58 +305,86 @@
       ]
     },
     {
-      "id": "meta/internal/imported::storageservice/get",
+      "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
-      "desc": "calls storageService.get",
+      "desc": "calls sendMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "storageService.get"
+          "value": "sendMessage"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::generalextendedrules",
+      "id": "meta/internal/imported::iframes",
       "kind": "structural",
-      "desc": "calls generalExtendedRules",
+      "desc": "calls iframes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generalExtendedRules"
+          "value": "iframes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::cookiebannerextendedrules",
+      "id": "meta/internal/imported::startpopupsblocking",
       "kind": "structural",
-      "desc": "calls cookieBannerExtendedRules",
+      "desc": "calls startPopupsBlocking",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cookieBannerExtendedRules"
+          "value": "startPopupsBlocking"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::previouspagedata",
+      "id": "meta/internal/imported::cookiebannerrulescounter",
       "kind": "structural",
-      "desc": "calls previousPageData",
+      "desc": "calls cookieBannerRulesCounter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "previousPageData"
+          "value": "cookieBannerRulesCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedata",
+      "kind": "structural",
+      "desc": "calls pageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument",
+      "kind": "structural",
+      "desc": "calls currentDocument",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument"
         }
       ]
     },
@@ -357,48 +399,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "iframe.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::iframeid",
-      "kind": "structural",
-      "desc": "calls iframeId",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "iframeId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::trackers",
-      "kind": "structural",
-      "desc": "calls trackers",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "trackers"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/random",
-      "kind": "structural",
-      "desc": "calls Math.random",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.random"
         }
       ]
     }

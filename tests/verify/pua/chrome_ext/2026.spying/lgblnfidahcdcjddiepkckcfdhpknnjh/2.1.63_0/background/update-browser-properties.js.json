@@ -27,6 +27,20 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::userdata/getgeo",
+      "kind": "structural",
+      "desc": "calls userData.getGeo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getGeo"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::serverapi/callurl",
       "kind": "structural",
       "desc": "calls serverApi.callUrl",
@@ -37,20 +51,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "serverApi.callUrl"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::userdata/updatedata",
-      "kind": "structural",
-      "desc": "calls userData.updateData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "userData.updateData"
         }
       ]
     },
@@ -83,16 +83,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::userdata/getgeo",
+      "id": "meta/internal/imported::userdata/updatedata",
       "kind": "structural",
-      "desc": "calls userData.getGeo",
+      "desc": "calls userData.updateData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "userData.getGeo"
+          "value": "userData.updateData"
         }
       ]
     }

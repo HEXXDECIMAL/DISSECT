@@ -109,7 +109,11 @@ impl MemoryTracker {
             total_read_mb = total_read / 1024 / 1024,
             current_rss_mb = current_rss.map(|r| r / 1024 / 1024),
             peak_rss_mb = peak_rss / 1024 / 1024,
-            avg_file_size_mb = if files > 0 { (total_read / files as u64) / 1024 / 1024 } else { 0 },
+            avg_file_size_mb = if files > 0 {
+                (total_read / files as u64) / 1024 / 1024
+            } else {
+                0
+            },
             "Memory usage statistics"
         );
     }

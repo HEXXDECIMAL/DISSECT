@@ -2,9 +2,11 @@
 //!
 //! Run with: cargo run --release --example memory_profile_pe <pe_file>
 
-use dissect::analyzers::Analyzer;
 use dissect::analyzers::pe::PEAnalyzer;
-use dissect::memory_tracker::{get_current_rss, log_before_file_processing, log_after_file_processing, global_tracker};
+use dissect::analyzers::Analyzer;
+use dissect::memory_tracker::{
+    get_current_rss, global_tracker, log_after_file_processing, log_before_file_processing,
+};
 use std::env;
 use std::fs;
 use std::time::Instant;
@@ -62,7 +64,10 @@ fn main() -> anyhow::Result<()> {
     let data = fs::read(file_path)?;
     println!("[FILE READ] Took: {:?}", start.elapsed());
     log_memory("AFTER file read");
-    println!("Memory increase from file read: ~{}", format_bytes(data.len() as u64));
+    println!(
+        "Memory increase from file read: ~{}",
+        format_bytes(data.len() as u64)
+    );
     println!();
 
     // Track with global tracker
@@ -97,18 +102,31 @@ fn main() -> anyhow::Result<()> {
     println!();
 
     // Estimate memory per component
-    let strings_memory: usize = report.strings.iter()
+    let strings_memory: usize = report
+        .strings
+        .iter()
         .map(|s| s.value.len() + std::mem::size_of_val(s))
         .sum();
-    println!("Estimated string storage: {}", format_bytes(strings_memory as u64));
+    println!(
+        "Estimated string storage: {}",
+        format_bytes(strings_memory as u64)
+    );
 
     let functions_memory = report.functions.len() * std::mem::size_of::<dissect::types::Function>();
-    println!("Estimated function storage: {}", format_bytes(functions_memory as u64));
+    println!(
+        "Estimated function storage: {}",
+        format_bytes(functions_memory as u64)
+    );
 
-    let findings_memory: usize = report.findings.iter()
+    let findings_memory: usize = report
+        .findings
+        .iter()
         .map(|f| f.desc.len() + f.evidence.iter().map(|e| e.value.len()).sum::<usize>() + 200)
         .sum();
-    println!("Estimated findings storage: {}", format_bytes(findings_memory as u64));
+    println!(
+        "Estimated findings storage: {}",
+        format_bytes(findings_memory as u64)
+    );
 
     println!();
     log_memory("END");
@@ -119,7 +137,10 @@ fn main() -> anyhow::Result<()> {
         println!("=== Summary ===");
         println!("File size: {}", format_bytes(file_size));
         println!("Peak RSS: {}", format_bytes(peak_rss));
-        println!("Memory amplification: {:.1}x", peak_rss as f64 / file_size as f64);
+        println!(
+            "Memory amplification: {:.1}x",
+            peak_rss as f64 / file_size as f64
+        );
     }
 
     // Log completion

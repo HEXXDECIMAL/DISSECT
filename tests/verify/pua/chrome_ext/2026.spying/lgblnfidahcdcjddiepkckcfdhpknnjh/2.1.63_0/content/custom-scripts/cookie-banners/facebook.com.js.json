@@ -13,30 +13,6 @@
   },
   "findings": [
     {
-      "id": "cap/fs/path/sensitive/browser::cookies",
-      "kind": "capability",
-      "desc": "Reference to browser cookies",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "T1539",
-      "attack": "T1539",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Optionale Cookies ablehnen",
-          "location": "0x106"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Optionale Cookies ablehnen",
-          "location": "0x107"
-        }
-      ],
-      "source_file": "cap/fs/path/sensitive/browser/macos.yaml"
-    },
-    {
       "id": "obj/creds/browser/chromium::cookies",
       "kind": "capability",
       "desc": "Chromium Cookies database path",
@@ -61,20 +37,28 @@
       "source_file": "obj/creds/browser/chromium/paths.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "cap/fs/path/sensitive/browser::cookies",
       "kind": "capability",
-      "desc": "MutationObserver DOM monitoring",
-      "conf": 0.9,
+      "desc": "Reference to browser cookies",
+      "conf": 0.7,
       "crit": "notable",
+      "mbc": "T1539",
+      "attack": "T1539",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 occurrences of MutationObserver",
-          "location": "file"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Optionale Cookies ablehnen",
+          "location": "0x106"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Optionale Cookies ablehnen",
+          "location": "0x107"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "cap/fs/path/sensitive/browser/macos.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
@@ -94,6 +78,22 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
@@ -108,38 +108,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "facebook.com.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1246.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
@@ -229,6 +197,38 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1246.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "facebook.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/unicode::international-script-obfuscation",
@@ -339,6 +339,28 @@
       "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
     },
     {
+      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "kind": "capability",
+      "desc": "Targets browser data paths",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Optionale Cookies ablehnen",
+          "location": "0x106"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Optionale Cookies ablehnen",
+          "location": "0x107"
+        }
+      ],
+      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+    },
+    {
       "id": "obj/collect/stealer/data::sensitive-paths",
       "kind": "capability",
       "desc": "Browser or wallet file paths",
@@ -363,66 +385,16 @@
       "source_file": "obj/collect/stealer/data/browser-wallet.yaml"
     },
     {
-      "id": "obj/collect/stealer/behavior::js-browser-target",
-      "kind": "capability",
-      "desc": "Targets browser data paths",
-      "conf": 0.8,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Optionale Cookies ablehnen",
-          "location": "0x106"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Optionale Cookies ablehnen",
-          "location": "0x107"
-        }
-      ],
-      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
-    },
-    {
-      "id": "meta/internal/imported::btn/textcontent/trim",
+      "id": "meta/internal/imported::btns",
       "kind": "structural",
-      "desc": "calls btn.textContent.trim",
+      "desc": "calls btns",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btn.textContent.trim"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/from/find/click",
-      "kind": "structural",
-      "desc": "calls Array.from.find.click",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.from.find.click"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselectorall",
-      "kind": "structural",
-      "desc": "calls document.querySelectorAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelectorAll"
+          "value": "btns"
         }
       ]
     },
@@ -437,6 +409,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "Array.from.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from/find/click",
+      "kind": "structural",
+      "desc": "calls Array.from.find.click",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from.find.click"
         }
       ]
     },
@@ -469,30 +469,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::btns",
+      "id": "meta/internal/imported::btn/textcontent/trim",
       "kind": "structural",
-      "desc": "calls btns",
+      "desc": "calls btn.textContent.trim",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btns"
+          "value": "btn.textContent.trim"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::fn",
+      "id": "meta/internal/imported::document/queryselectorall",
       "kind": "structural",
-      "desc": "calls fn",
+      "desc": "calls document.querySelectorAll",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "fn"
+          "value": "document.querySelectorAll"
         }
       ]
     }

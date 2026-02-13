@@ -57,7 +57,7 @@ pub fn detect_language(value: &str, is_encoded: bool) -> Option<FileType> {
     }
 
     // Pattern threshold (stricter for plain strings)
-    let min_matches = if is_encoded { 1 } else { 2 };
+    let min_matches = if is_encoded { 2 } else { 3 };
 
     // PHP detection (check first - <?php is most distinctive marker)
     if detect_php(value) {
@@ -149,14 +149,18 @@ fn detect_shell(value: &str, min_matches: usize) -> bool {
     }
 
     let patterns = [
-        r"\becho\s+",
-        r"\bcurl\s+",
-        r"\bwget\s+",
-        r"\bchmod\s+",
-        r"\|\s*\w+",
+        r"\b(echo|curl|wget|chmod|chown|chgrp)\s+",
+        r"\|\s*\b(grep|sh|bash|python|php|node|base64|sed|awk)\b",
         r"\$\{?\w+\}?",
         r"\bif\s*\[\s*",
         r"\bfor\s+\w+\s+in\b",
+        r"\bexport\s+\w+=",
+        r"\b(python|php|perl|ruby)\s+-e\s+",
+        r"2>&1",
+        r">/dev/null",
+        r"\b(sudo|doas)\s+",
+        r"&\s*/dev/null",
+        r"\bnohup\s+",
     ];
 
     let mut matches = 0;

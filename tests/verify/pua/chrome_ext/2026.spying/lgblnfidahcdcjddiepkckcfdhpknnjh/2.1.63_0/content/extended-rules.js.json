@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 5  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -52,52 +68,38 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 5  for (",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 8.00"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "Converts URL object to string",
-      "conf": 0.8,
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "numericValue.toString()",
-          "location": "64:36"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
-      "kind": "capability",
-      "desc": "MutationObserver DOM monitoring",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 occurrences of MutationObserver",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -117,54 +119,36 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
       "kind": "capability",
-      "desc": "Prototype pollution guard check present",
+      "desc": "MutationObserver DOM monitoring",
       "conf": 0.9,
-      "crit": "inert",
+      "crit": "notable",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1 constructor",
+          "value": "Found 1 occurrences of MutationObserver",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
       "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 8.00"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "numericValue.toString()",
+          "location": "64:36"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
-      "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
@@ -185,10 +169,10 @@
       "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -196,10 +180,26 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
+          "value": "functions.high_entropy_names = 11.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -248,688 +248,16 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::contentend",
+      "id": "meta/internal/imported::hasrules",
       "kind": "structural",
-      "desc": "calls contentEnd",
+      "desc": "calls hasRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "contentEnd"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::textcondition/split",
-      "kind": "structural",
-      "desc": "calls textCondition.split",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "textCondition.split"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pos",
-      "kind": "structural",
-      "desc": "calls pos",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pos"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rule/indexof",
-      "kind": "structural",
-      "desc": "calls rule.indexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rule.indexOf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::trimmed",
-      "kind": "structural",
-      "desc": "calls trimmed",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "trimmed"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::styleelement",
-      "kind": "structural",
-      "desc": "calls styleElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "styleElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::targetelement",
-      "kind": "structural",
-      "desc": "calls targetElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "targetElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::result",
-      "kind": "structural",
-      "desc": "calls result",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "result"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rules/map",
-      "kind": "structural",
-      "desc": "calls rules.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rules.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule",
-      "kind": "structural",
-      "desc": "calls currentRule",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::addelementtohead",
-      "kind": "structural",
-      "desc": "calls addElementToHead",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "addElementToHead"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent",
-      "kind": "structural",
-      "desc": "calls parent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule/not/push",
-      "kind": "structural",
-      "desc": "calls currentRule.not.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule.not.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::firstchar",
-      "kind": "structural",
-      "desc": "calls firstChar",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "firstChar"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isnan",
-      "kind": "structural",
-      "desc": "calls isNaN",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isNaN"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule/selector",
-      "kind": "structural",
-      "desc": "calls currentRule.selector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule.selector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::candidates",
-      "kind": "structural",
-      "desc": "calls candidates",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "candidates"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule/upward",
-      "kind": "structural",
-      "desc": "calls currentRule.upward",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule.upward"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rule/selector/trim",
-      "kind": "structural",
-      "desc": "calls rule.selector.trim",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rule.selector.trim"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::numericvalue",
-      "kind": "structural",
-      "desc": "calls numericValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "numericValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::baseselector/trim",
-      "kind": "structural",
-      "desc": "calls baseSelector.trim",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "baseSelector.trim"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule/not",
-      "kind": "structural",
-      "desc": "calls currentRule.not",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule.not"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::result/push",
-      "kind": "structural",
-      "desc": "calls result.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "result.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::candidates/filter",
-      "kind": "structural",
-      "desc": "calls candidates.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "candidates.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentrule/has",
-      "kind": "structural",
-      "desc": "calls currentRule.has",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentRule.has"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentnode",
-      "kind": "structural",
-      "desc": "calls currentNode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentNode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::nodetext",
-      "kind": "structural",
-      "desc": "calls nodeText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "nodeText"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::content/trim",
-      "kind": "structural",
-      "desc": "calls content.trim",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "content.trim"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rule/not/every",
-      "kind": "structural",
-      "desc": "calls rule.not.every",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rule.not.every"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::trimmed/endswith",
-      "kind": "structural",
-      "desc": "calls trimmed.endsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "trimmed.endsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selector",
-      "kind": "structural",
-      "desc": "calls selector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::node/setattribute",
-      "kind": "structural",
-      "desc": "calls node.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "node.setAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::textcondition/split/some",
-      "kind": "structural",
-      "desc": "calls textCondition.split.some",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "textCondition.split.some"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debouncedhandler",
-      "kind": "structural",
-      "desc": "calls debouncedHandler",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debouncedHandler"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/addeventlistener",
-      "kind": "structural",
-      "desc": "calls document.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rule/substring",
-      "kind": "structural",
-      "desc": "calls rule.substring",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rule.substring"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notcontent",
-      "kind": "structural",
-      "desc": "calls notContent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notContent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/queryselector/remove",
-      "kind": "structural",
-      "desc": "calls currentDocument.querySelector.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.querySelector.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selector/charat",
-      "kind": "structural",
-      "desc": "calls selector.charAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selector.charAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::contentstart",
-      "kind": "structural",
-      "desc": "calls contentStart",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "contentStart"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/from",
-      "kind": "structural",
-      "desc": "calls Array.from",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.from"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::sendmessage",
-      "kind": "structural",
-      "desc": "calls sendMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sendMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pseudoclasses",
-      "kind": "structural",
-      "desc": "calls pseudoClasses",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pseudoClasses"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::nodetext/includes",
-      "kind": "structural",
-      "desc": "calls nodeText.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "nodeText.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent/queryselectorall",
-      "kind": "structural",
-      "desc": "calls parent.querySelectorAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notrule/has/some",
-      "kind": "structural",
-      "desc": "calls notRule.has.some",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notRule.has.some"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::char",
-      "kind": "structural",
-      "desc": "calls char",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "char"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent/closest",
-      "kind": "structural",
-      "desc": "calls parent.closest",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent.closest"
+          "value": "hasRules"
         }
       ]
     },
@@ -948,16 +276,100 @@
       ]
     },
     {
-      "id": "meta/internal/imported::styleelement/textcontent",
+      "id": "meta/internal/imported::currentrule/upward",
       "kind": "structural",
-      "desc": "calls styleElement.textContent",
+      "desc": "calls currentRule.upward",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "styleElement.textContent"
+          "value": "currentRule.upward"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::node/setattribute",
+      "kind": "structural",
+      "desc": "calls node.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "node.setAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debouncedhandler",
+      "kind": "structural",
+      "desc": "calls debouncedHandler",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debouncedHandler"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::textcondition/split",
+      "kind": "structural",
+      "desc": "calls textCondition.split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "textCondition.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selector/charat",
+      "kind": "structural",
+      "desc": "calls selector.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selector.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::baseselector/trim",
+      "kind": "structural",
+      "desc": "calls baseSelector.trim",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "baseSelector.trim"
         }
       ]
     },
@@ -976,72 +388,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::currentrule/text",
+      "id": "meta/internal/imported::char",
       "kind": "structural",
-      "desc": "calls currentRule.text",
+      "desc": "calls char",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentRule.text"
+          "value": "char"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::trimmed/replace",
+      "id": "meta/internal/imported::content/trim",
       "kind": "structural",
-      "desc": "calls trimmed.replace",
+      "desc": "calls content.trim",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "trimmed.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/createelement",
-      "kind": "structural",
-      "desc": "calls currentDocument.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debounce",
-      "kind": "structural",
-      "desc": "calls debounce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debounce"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/queryselector",
-      "kind": "structural",
-      "desc": "calls currentDocument.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.querySelector"
+          "value": "content.trim"
         }
       ]
     },
@@ -1060,6 +430,202 @@
       ]
     },
     {
+      "id": "meta/internal/imported::content",
+      "kind": "structural",
+      "desc": "calls content",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "content"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::firstchar",
+      "kind": "structural",
+      "desc": "calls firstChar",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "firstChar"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::candidates",
+      "kind": "structural",
+      "desc": "calls candidates",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "candidates"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule/text",
+      "kind": "structural",
+      "desc": "calls currentRule.text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule.text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pseudoclasses",
+      "kind": "structural",
+      "desc": "calls pseudoClasses",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pseudoClasses"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/not/every",
+      "kind": "structural",
+      "desc": "calls rule.not.every",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.not.every"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contentstart",
+      "kind": "structural",
+      "desc": "calls contentStart",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contentStart"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/substring",
+      "kind": "structural",
+      "desc": "calls rule.substring",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.substring"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselector/remove",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelector.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::amount",
+      "kind": "structural",
+      "desc": "calls amount",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "amount"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selector",
+      "kind": "structural",
+      "desc": "calls selector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selector"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::current",
       "kind": "structural",
       "desc": "calls current",
@@ -1074,6 +640,216 @@
       ]
     },
     {
+      "id": "meta/internal/imported::nodetext/includes",
+      "kind": "structural",
+      "desc": "calls nodeText.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nodeText.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::str/includes",
+      "kind": "structural",
+      "desc": "calls str.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "str.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::depth",
+      "kind": "structural",
+      "desc": "calls depth",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "depth"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trimmed",
+      "kind": "structural",
+      "desc": "calls trimmed",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trimmed"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule",
+      "kind": "structural",
+      "desc": "calls currentRule",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trimmed/startswith",
+      "kind": "structural",
+      "desc": "calls trimmed.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trimmed.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addelementtohead",
+      "kind": "structural",
+      "desc": "calls addElementToHead",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addElementToHead"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent/queryselectorall",
+      "kind": "structural",
+      "desc": "calls parent.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::contentend",
+      "kind": "structural",
+      "desc": "calls contentEnd",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "contentEnd"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pos",
+      "kind": "structural",
+      "desc": "calls pos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result/push",
+      "kind": "structural",
+      "desc": "calls result.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::textcondition/includes",
+      "kind": "structural",
+      "desc": "calls textCondition.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "textCondition.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rules/map",
+      "kind": "structural",
+      "desc": "calls rules.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rules.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/indexof",
+      "kind": "structural",
+      "desc": "calls rule.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.indexOf"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::selector/trim",
       "kind": "structural",
       "desc": "calls selector.trim",
@@ -1084,6 +860,160 @@
           "method": "symbol",
           "source": "ast",
           "value": "selector.trim"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trimmed/replace",
+      "kind": "structural",
+      "desc": "calls trimmed.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trimmed.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/selector/trim",
+      "kind": "structural",
+      "desc": "calls rule.selector.trim",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.selector.trim"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule/has/push",
+      "kind": "structural",
+      "desc": "calls currentRule.has.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule.has.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement",
+      "kind": "structural",
+      "desc": "calls styleElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent/closest",
+      "kind": "structural",
+      "desc": "calls parent.closest",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent.closest"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::numericvalue",
+      "kind": "structural",
+      "desc": "calls numericValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "numericValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselector",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule/selector",
+      "kind": "structural",
+      "desc": "calls currentRule.selector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule.selector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::root/queryselectorall",
+      "kind": "structural",
+      "desc": "calls root.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "root.querySelectorAll"
         }
       ]
     },
@@ -1116,72 +1046,86 @@
       ]
     },
     {
-      "id": "meta/internal/imported::parseint",
+      "id": "meta/internal/imported::currentrule/not/push",
       "kind": "structural",
-      "desc": "calls parseInt",
+      "desc": "calls currentRule.not.push",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "parseInt"
+          "value": "currentRule.not.push"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::str/includes",
+      "id": "meta/internal/imported::currentnode",
       "kind": "structural",
-      "desc": "calls str.includes",
+      "desc": "calls currentNode",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "str.includes"
+          "value": "currentNode"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::amount",
+      "id": "meta/internal/imported::notcontent",
       "kind": "structural",
-      "desc": "calls amount",
+      "desc": "calls notContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "amount"
+          "value": "notContent"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::root/queryselectorall",
+      "id": "meta/internal/imported::array/from",
       "kind": "structural",
-      "desc": "calls root.querySelectorAll",
+      "desc": "calls Array.from",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "root.querySelectorAll"
+          "value": "Array.from"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::depth",
+      "id": "meta/internal/imported::document/addeventlistener",
       "kind": "structural",
-      "desc": "calls depth",
+      "desc": "calls document.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "depth"
+          "value": "document.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule/has",
+      "kind": "structural",
+      "desc": "calls currentRule.has",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule.has"
         }
       ]
     },
@@ -1200,58 +1144,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::currentrule/has/push",
+      "id": "meta/internal/imported::candidates/filter",
       "kind": "structural",
-      "desc": "calls currentRule.has.push",
+      "desc": "calls candidates.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentRule.has.push"
+          "value": "candidates.filter"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::textcondition/includes",
+      "id": "meta/internal/imported::textcondition/split/some",
       "kind": "structural",
-      "desc": "calls textCondition.includes",
+      "desc": "calls textCondition.split.some",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "textCondition.includes"
+          "value": "textCondition.split.some"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::content",
+      "id": "meta/internal/imported::targetelement",
       "kind": "structural",
-      "desc": "calls content",
+      "desc": "calls targetElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "content"
+          "value": "targetElement"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::hasrules",
+      "id": "meta/internal/imported::styleelement/textcontent",
       "kind": "structural",
-      "desc": "calls hasRules",
+      "desc": "calls styleElement.textContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "hasRules"
+          "value": "styleElement.textContent"
         }
       ]
     },
@@ -1270,16 +1214,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::trimmed/startswith",
+      "id": "meta/internal/imported::nodetext",
       "kind": "structural",
-      "desc": "calls trimmed.startsWith",
+      "desc": "calls nodeText",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "trimmed.startsWith"
+          "value": "nodeText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trimmed/endswith",
+      "kind": "structural",
+      "desc": "calls trimmed.endsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trimmed.endsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notrule/has/some",
+      "kind": "structural",
+      "desc": "calls notRule.has.some",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notRule.has.some"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent",
+      "kind": "structural",
+      "desc": "calls parent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentrule/not",
+      "kind": "structural",
+      "desc": "calls currentRule.not",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentRule.not"
         }
       ]
     }

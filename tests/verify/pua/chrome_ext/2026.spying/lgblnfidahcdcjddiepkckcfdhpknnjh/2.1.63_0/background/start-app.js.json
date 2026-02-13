@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::setUninstallURL",
-      "kind": "capability",
-      "desc": "Extension uninstall URL callback",
-      "conf": 0.95,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "setUninstallURL"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/vscode::activate-word",
       "kind": "capability",
       "desc": "activate keyword",
@@ -40,21 +25,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "start-app.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-set-uninstall-url",
@@ -73,100 +43,46 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
-      "kind": "structural",
-      "desc": "calls dataProcessingConsent.getConsent",
-      "conf": 0.95,
-      "crit": "inert",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataProcessingConsent.getConsent"
+          "method": "basename",
+          "source": "target",
+          "value": "start-app.js"
         }
-      ]
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::userdata/init",
-      "kind": "structural",
-      "desc": "calls userData.init",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::setUninstallURL",
+      "kind": "capability",
+      "desc": "Extension uninstall URL callback",
       "conf": 0.95,
-      "crit": "inert",
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
+          "method": "import_symbol",
           "source": "ast",
-          "value": "userData.init"
+          "value": "setUninstallURL"
         }
-      ]
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::setappiconbadgebackgroundcolor",
+      "id": "meta/internal/imported::notifications/init",
       "kind": "structural",
-      "desc": "calls setAppIconBadgeBackgroundColor",
+      "desc": "calls notifications.init",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setAppIconBadgeBackgroundColor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::registertoessentialevents",
-      "kind": "structural",
-      "desc": "calls registerToEssentialEvents",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "registerToEssentialEvents"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::loadlists",
-      "kind": "structural",
-      "desc": "calls loadLists",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "loadLists"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hasconsent",
-      "kind": "structural",
-      "desc": "calls hasConsent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hasConsent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannersallowedsites/init",
-      "kind": "structural",
-      "desc": "calls cookieBannersAllowedSites.init",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannersAllowedSites.init"
+          "value": "notifications.init"
         }
       ]
     },
@@ -185,86 +101,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::updatebrowserproperties",
+      "id": "meta/internal/imported::updateenabledrulesets",
       "kind": "structural",
-      "desc": "calls updateBrowserProperties",
+      "desc": "calls updateEnabledRulesets",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "updateBrowserProperties"
+          "value": "updateEnabledRulesets"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::user",
+      "id": "meta/internal/imported::setappiconbadgebackgroundcolor",
       "kind": "structural",
-      "desc": "calls user",
+      "desc": "calls setAppIconBadgeBackgroundColor",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "user"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::userdata/getdata",
-      "kind": "structural",
-      "desc": "calls userData.getData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "userData.getData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::createalljobs",
-      "kind": "structural",
-      "desc": "calls createAllJobs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "createAllJobs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setuninstallurl",
-      "kind": "structural",
-      "desc": "calls setUninstallURL",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setUninstallURL"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::deactivatedsites/init",
-      "kind": "structural",
-      "desc": "calls deactivatedSites.init",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "deactivatedSites.init"
+          "value": "setAppIconBadgeBackgroundColor"
         }
       ]
     },
@@ -283,30 +143,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::settings",
+      "id": "meta/internal/imported::serverlogger/logerror",
       "kind": "structural",
-      "desc": "calls settings",
+      "desc": "calls serverLogger.logError",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "settings"
+          "value": "serverLogger.logError"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::startapp",
+      "id": "meta/internal/imported::cookiebannersallowedsites/init",
       "kind": "structural",
-      "desc": "calls startApp",
+      "desc": "calls cookieBannersAllowedSites.init",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "startApp"
+          "value": "cookieBannersAllowedSites.init"
         }
       ]
     },
@@ -325,30 +185,100 @@
       ]
     },
     {
-      "id": "meta/internal/imported::updateenabledrulesets",
+      "id": "meta/internal/imported::deactivatedsites/init",
       "kind": "structural",
-      "desc": "calls updateEnabledRulesets",
+      "desc": "calls deactivatedSites.init",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "updateEnabledRulesets"
+          "value": "deactivatedSites.init"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::notifications/init",
+      "id": "meta/internal/imported::updatebrowserproperties",
       "kind": "structural",
-      "desc": "calls notifications.init",
+      "desc": "calls updateBrowserProperties",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "notifications.init"
+          "value": "updateBrowserProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createalljobs",
+      "kind": "structural",
+      "desc": "calls createAllJobs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createAllJobs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/init",
+      "kind": "structural",
+      "desc": "calls userData.init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::user",
+      "kind": "structural",
+      "desc": "calls user",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "user"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setuninstallurl",
+      "kind": "structural",
+      "desc": "calls setUninstallURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setUninstallURL"
         }
       ]
     },
@@ -367,16 +297,86 @@
       ]
     },
     {
-      "id": "meta/internal/imported::serverlogger/logerror",
+      "id": "meta/internal/imported::startapp",
       "kind": "structural",
-      "desc": "calls serverLogger.logError",
+      "desc": "calls startApp",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "serverLogger.logError"
+          "value": "startApp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::registertoessentialevents",
+      "kind": "structural",
+      "desc": "calls registerToEssentialEvents",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "registerToEssentialEvents"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getdata",
+      "kind": "structural",
+      "desc": "calls userData.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasconsent",
+      "kind": "structural",
+      "desc": "calls hasConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasConsent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settings",
+      "kind": "structural",
+      "desc": "calls settings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "settings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loadlists",
+      "kind": "structural",
+      "desc": "calls loadLists",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "loadLists"
         }
       ]
     }

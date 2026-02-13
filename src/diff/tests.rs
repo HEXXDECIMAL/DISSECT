@@ -25,7 +25,7 @@ fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisRepo
             attack: None,
             trait_refs: vec![],
             evidence: vec![],
-        
+
             source_file: None,
         })
         .collect();

@@ -43,7 +43,9 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
         Data::Struct(data_struct) => {
             match &data_struct.fields {
                 Fields::Named(fields) => {
-                    fields.named.iter()
+                    fields
+                        .named
+                        .iter()
                         .filter_map(|field| {
                             // Only include public fields
                             if matches!(field.vis, syn::Visibility::Public(_)) {
@@ -57,7 +59,7 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
                 _ => {
                     return syn::Error::new_spanned(
                         name,
-                        "ValidFieldPaths can only be derived for structs with named fields"
+                        "ValidFieldPaths can only be derived for structs with named fields",
                     )
                     .to_compile_error()
                     .into();
@@ -67,7 +69,7 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
         _ => {
             return syn::Error::new_spanned(
                 name,
-                "ValidFieldPaths can only be derived for structs"
+                "ValidFieldPaths can only be derived for structs",
             )
             .to_compile_error()
             .into();

@@ -59,20 +59,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::fn",
-      "kind": "structural",
-      "desc": "calls fn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fn"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/queryselector/remove",
       "kind": "structural",
       "desc": "calls document.querySelector.remove",
@@ -87,20 +73,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::debounce",
-      "kind": "structural",
-      "desc": "calls debounce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debounce"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/queryselector",
       "kind": "structural",
       "desc": "calls document.querySelector",
@@ -111,6 +83,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fn",
+      "kind": "structural",
+      "desc": "calls fn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
         }
       ]
     }

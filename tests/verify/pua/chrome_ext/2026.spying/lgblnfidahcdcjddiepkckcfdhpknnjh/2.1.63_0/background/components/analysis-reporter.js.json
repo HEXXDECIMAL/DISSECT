@@ -36,6 +36,23 @@
       "source_file": "cap/comm/http/post/generic.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
       "kind": "capability",
       "desc": "Code uses Promises",
@@ -83,21 +100,26 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/lateral/supply-chain/vscode::send-methods",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
+      "desc": "HTTP send methods",
+      "conf": 0.7,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a4"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "POST",
+          "location": "0x5a5"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
     },
     {
       "id": "cap/comm/http/post::post-method-detection",
@@ -124,11 +146,13 @@
       "source_file": "cap/comm/http/post/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/vscode::send-methods",
+      "id": "cap/comm/http/post::post",
       "kind": "capability",
-      "desc": "HTTP send methods",
-      "conf": 0.7,
+      "desc": "HTTP POST request capability",
+      "conf": 0.8,
       "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
       "evidence": [
         {
           "method": "string",
@@ -143,7 +167,7 @@
           "location": "0x5a5"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+      "source_file": "cap/comm/http/post/generic.yaml"
     },
     {
       "id": "obj/c2/ddos/attack::http-methods",
@@ -170,30 +194,6 @@
       "source_file": "obj/c2/ddos/attack/generic.yaml"
     },
     {
-      "id": "cap/comm/http/post::post",
-      "kind": "capability",
-      "desc": "HTTP POST request capability",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x5a4"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "POST",
-          "location": "0x5a5"
-        }
-      ],
-      "source_file": "cap/comm/http/post/generic.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/malicious-patterns::http-post-exfil",
       "kind": "capability",
       "desc": "HTTP POST exfiltration",
@@ -216,58 +216,16 @@
       "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "meta/internal/imported::newerroramount",
+      "id": "meta/internal/imported::userdata/getgeo",
       "kind": "structural",
-      "desc": "calls newErrorAmount",
+      "desc": "calls userData.getGeo",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "newErrorAmount"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::encodeuricomponent",
-      "kind": "structural",
-      "desc": "calls encodeURIComponent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "encodeURIComponent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::serverlogger/logerror",
-      "kind": "structural",
-      "desc": "calls serverLogger.logError",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "serverLogger.logError"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::serverapi/callurl",
-      "kind": "structural",
-      "desc": "calls serverApi.callUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "serverApi.callUrl"
+          "value": "userData.getGeo"
         }
       ]
     },
@@ -286,6 +244,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::rows",
+      "kind": "structural",
+      "desc": "calls rows",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rows"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::loadanonyid",
+      "kind": "structural",
+      "desc": "calls loadAnonyId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "loadAnonyId"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::data/bulk/splice",
       "kind": "structural",
       "desc": "calls data.bulk.splice",
@@ -296,6 +282,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "data.bulk.splice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getoperatingsystem",
+      "kind": "structural",
+      "desc": "calls getOperatingSystem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getOperatingSystem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/trq/join",
+      "kind": "structural",
+      "desc": "calls r.trq.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.trq.join"
         }
       ]
     },
@@ -328,16 +342,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::loadanonyid",
+      "id": "meta/internal/imported::newerroramount",
       "kind": "structural",
-      "desc": "calls loadAnonyId",
+      "desc": "calls newErrorAmount",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "loadAnonyId"
+          "value": "newErrorAmount"
         }
       ]
     },
@@ -356,30 +370,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::getoperatingsystem",
+      "id": "meta/internal/imported::reports",
       "kind": "structural",
-      "desc": "calls getOperatingSystem",
+      "desc": "calls reports",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getOperatingSystem"
+          "value": "reports"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::userdata/getgeo",
+      "id": "meta/internal/imported::serverapi/callurl",
       "kind": "structural",
-      "desc": "calls userData.getGeo",
+      "desc": "calls serverApi.callUrl",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "userData.getGeo"
+          "value": "serverApi.callUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::encodeuricomponent",
+      "kind": "structural",
+      "desc": "calls encodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "encodeURIComponent"
         }
       ]
     },
@@ -412,34 +440,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::rows",
-      "kind": "structural",
-      "desc": "calls rows",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rows"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/trq/join",
-      "kind": "structural",
-      "desc": "calls r.trq.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.trq.join"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::data",
       "kind": "structural",
       "desc": "calls data",
@@ -454,16 +454,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reports",
+      "id": "meta/internal/imported::serverlogger/logerror",
       "kind": "structural",
-      "desc": "calls reports",
+      "desc": "calls serverLogger.logError",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "reports"
+          "value": "serverLogger.logError"
         }
       ]
     }

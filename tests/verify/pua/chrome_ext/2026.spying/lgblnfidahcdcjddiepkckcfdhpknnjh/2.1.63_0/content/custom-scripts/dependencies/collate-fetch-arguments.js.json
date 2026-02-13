@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "9:7"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1  for (",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "9:7"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -103,86 +103,30 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::out/url",
+      "id": "meta/internal/imported::safe",
       "kind": "structural",
-      "desc": "calls out.url",
+      "desc": "calls safe",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "out.url"
+          "value": "safe"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::clone",
+      "id": "meta/internal/imported::collatefetcharguments",
       "kind": "structural",
-      "desc": "calls clone",
+      "desc": "calls collateFetchArguments",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "clone"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/request_clone/call",
-      "kind": "structural",
-      "desc": "calls safe.Request_clone.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.Request_clone.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::outparam/prop",
-      "kind": "structural",
-      "desc": "calls outParam.prop",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "outParam.prop"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::collatefetcharguments/collateknownprops",
-      "kind": "structural",
-      "desc": "calls collateFetchArguments.collateKnownProps",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "collateFetchArguments.collateKnownProps"
+          "value": "collateFetchArguments"
         }
       ]
     },
@@ -201,16 +145,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe",
+      "id": "meta/internal/imported::out/url",
       "kind": "structural",
-      "desc": "calls safe",
+      "desc": "calls out.url",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safe"
+          "value": "out.url"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/request_clone/call",
+      "kind": "structural",
+      "desc": "calls safe.Request_clone.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Request_clone.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clone",
+      "kind": "structural",
+      "desc": "calls clone",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clone"
         }
       ]
     },
@@ -229,6 +215,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::outparam/prop",
+      "kind": "structural",
+      "desc": "calls outParam.prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "outParam.prop"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::out",
       "kind": "structural",
       "desc": "calls out",
@@ -243,16 +243,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::collatefetcharguments",
+      "id": "meta/internal/imported::collatefetcharguments/collateknownprops",
       "kind": "structural",
-      "desc": "calls collateFetchArguments",
+      "desc": "calls collateFetchArguments.collateKnownProps",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "collateFetchArguments"
+          "value": "collateFetchArguments.collateKnownProps"
         }
       ]
     }

@@ -27,16 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::activetabid",
+      "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
-      "desc": "calls activeTabId",
+      "desc": "calls sendMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "activeTabId"
+          "value": "sendMessage"
         }
       ]
     },
@@ -55,20 +55,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::unblockelementsonpage",
-      "kind": "structural",
-      "desc": "calls unblockElementsOnPage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "unblockElementsOnPage"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::sendmessagetotab",
       "kind": "structural",
       "desc": "calls sendMessageToTab",
@@ -83,16 +69,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::sendmessage",
+      "id": "meta/internal/imported::unblockelementsonpage",
       "kind": "structural",
-      "desc": "calls sendMessage",
+      "desc": "calls unblockElementsOnPage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "sendMessage"
+          "value": "unblockElementsOnPage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::activetabid",
+      "kind": "structural",
+      "desc": "calls activeTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabId"
         }
       ]
     }

@@ -33,19 +33,19 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "svgComponent.js"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
@@ -62,21 +62,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -96,6 +81,21 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "svgComponent.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
       "kind": "capability",
       "desc": "File is part of a browser extension",
@@ -112,16 +112,16 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::react/createelement",
+      "id": "meta/internal/imported::t/endswith",
       "kind": "structural",
-      "desc": "calls React.createElement",
+      "desc": "calls t.endsWith",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "t.endsWith"
         }
       ]
     },
@@ -140,16 +140,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/endswith",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls t.endsWith",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.endsWith"
+          "value": "React.createElement"
         }
       ]
     }

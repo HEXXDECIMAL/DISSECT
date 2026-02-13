@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -85,20 +101,76 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x205"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.standsapp.org/",
+          "location": "0x206"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "kind": "capability",
+      "desc": "exec function pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "exec"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-dynamic-key-create",
+      "kind": "capability",
+      "desc": "Dynamic property creation via bracket notation",
+      "conf": 0.7,
       "crit": "inert",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 4  for (",
+          "value": "Found 1 dataByDay[day] = {}",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::executeScript",
@@ -138,21 +210,6 @@
       "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "on-installed.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
@@ -170,52 +227,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-dynamic-key-create",
-      "kind": "capability",
-      "desc": "Dynamic property creation via bracket notation",
-      "conf": 0.7,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 dataByDay[day] = {}",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
-      "kind": "capability",
-      "desc": "exec function pattern",
+      "desc": "Small file under 5KB",
       "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "exec"
+          "method": "basename",
+          "source": "target",
+          "value": "on-installed.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-entries-call",
@@ -231,30 +255,6 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
-      "kind": "capability",
-      "desc": "Network URL with domain name (script)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://www.standsapp.org/",
-          "location": "0x205"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://www.standsapp.org/",
-          "location": "0x206"
-        }
-      ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -312,216 +312,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::serverlogger/loginstall",
-      "kind": "structural",
-      "desc": "calls serverLogger.logInstall",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "serverLogger.logInstall"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/all",
-      "kind": "structural",
-      "desc": "calls Promise.all",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Promise.all"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::querytabs",
-      "kind": "structural",
-      "desc": "calls queryTabs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "queryTabs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arr",
-      "kind": "structural",
-      "desc": "calls arr",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arr"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::opentabwithurl",
-      "kind": "structural",
-      "desc": "calls openTabWithUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "openTabWithUrl"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/values/filter/map",
-      "kind": "structural",
-      "desc": "calls Object.values.filter.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.values.filter.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::allkeys/filter",
-      "kind": "structural",
-      "desc": "calls allKeys.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "allKeys.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::databyday/day/ads",
-      "kind": "structural",
-      "desc": "calls dataByDay.day.ads",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataByDay.day.ads"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::contextmenus/create",
-      "kind": "structural",
-      "desc": "calls contextMenus.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "contextMenus.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
-      "kind": "structural",
-      "desc": "calls dataProcessingConsent.getConsent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataProcessingConsent.getConsent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::databyday/day/popups",
-      "kind": "structural",
-      "desc": "calls dataByDay.day.popups",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataByDay.day.popups"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::openonboardingpageoninstall",
-      "kind": "structural",
-      "desc": "calls openOnboardingPageOnInstall",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "openOnboardingPageOnInstall"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tabs/find",
-      "kind": "structural",
-      "desc": "calls tabs.find",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tabs.find"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::search",
-      "kind": "structural",
-      "desc": "calls search",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "search"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::arr/slice",
       "kind": "structural",
       "desc": "calls arr.slice",
@@ -532,6 +322,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "arr.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getmanifest/content_scripts/filter/flatmap",
+      "kind": "structural",
+      "desc": "calls getManifest.content_scripts.filter.flatMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getManifest.content_scripts.filter.flatMap"
         }
       ]
     },
@@ -550,100 +354,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::userdata/getsettings",
+      "id": "meta/internal/imported::openonboardingpageoninstall",
       "kind": "structural",
-      "desc": "calls userData.getSettings",
+      "desc": "calls openOnboardingPageOnInstall",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "userData.getSettings"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::enableblockmaliciousurls",
-      "kind": "structural",
-      "desc": "calls enableBlockMaliciousUrls",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "enableBlockMaliciousUrls"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::databyday/day/cookiebanners",
-      "kind": "structural",
-      "desc": "calls dataByDay.day.cookieBanners",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dataByDay.day.cookieBanners"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tabs",
-      "kind": "structural",
-      "desc": "calls tabs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tabs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::tab",
-      "kind": "structural",
-      "desc": "calls tab",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tab"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/values/filter",
-      "kind": "structural",
-      "desc": "calls Object.values.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.values.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::keystoremove",
-      "kind": "structural",
-      "desc": "calls keysToRemove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "keysToRemove"
+          "value": "openOnboardingPageOnInstall"
         }
       ]
     },
@@ -662,156 +382,184 @@
       ]
     },
     {
-      "id": "meta/internal/imported::url/includes",
+      "id": "meta/internal/imported::pagesdata/id/stats",
       "kind": "structural",
-      "desc": "calls url.includes",
+      "desc": "calls pagesData.id.stats",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "url.includes"
+          "value": "pagesData.id.stats"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/getalldata",
+      "id": "meta/internal/imported::allkeys",
       "kind": "structural",
-      "desc": "calls pageDataComponent.getAllData",
+      "desc": "calls allKeys",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.getAllData"
+          "value": "allKeys"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::analysisreporter/addreportsbulk",
+      "id": "meta/internal/imported::contextmenus/create",
       "kind": "structural",
-      "desc": "calls analysisReporter.addReportsBulk",
+      "desc": "calls contextMenus.create",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "analysisReporter.addReportsBulk"
+          "value": "contextMenus.create"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::getmanifest/content_scripts/filter",
+      "id": "meta/internal/imported::arr",
       "kind": "structural",
-      "desc": "calls getManifest.content_scripts.filter",
+      "desc": "calls arr",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getManifest.content_scripts.filter"
+          "value": "arr"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::allowedkeys",
+      "id": "meta/internal/imported::tabs",
       "kind": "structural",
-      "desc": "calls allowedKeys",
+      "desc": "calls tabs",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "allowedKeys"
+          "value": "tabs"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::allowedkeys/includes",
+      "id": "meta/internal/imported::storageservice/set",
       "kind": "structural",
-      "desc": "calls allowedKeys.includes",
+      "desc": "calls storageService.set",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "allowedKeys.includes"
+          "value": "storageService.set"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::migratedata",
+      "id": "meta/internal/imported::storageservice/keys",
       "kind": "structural",
-      "desc": "calls migrateData",
+      "desc": "calls storageService.keys",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "migrateData"
+          "value": "storageService.keys"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::databyhour",
+      "id": "meta/internal/imported::serverlogger/logupdate",
       "kind": "structural",
-      "desc": "calls dataByHour",
+      "desc": "calls serverLogger.logUpdate",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "dataByHour"
+          "value": "serverLogger.logUpdate"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::opennomorecookiebannerspage",
+      "id": "meta/internal/imported::userdata/getsettings",
       "kind": "structural",
-      "desc": "calls openNoMoreCookieBannersPage",
+      "desc": "calls userData.getSettings",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "openNoMoreCookieBannersPage"
+          "value": "userData.getSettings"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::settings",
+      "id": "meta/internal/imported::search",
       "kind": "structural",
-      "desc": "calls settings",
+      "desc": "calls search",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "settings"
+          "value": "search"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::storageservice/get",
+      "id": "meta/internal/imported::getmanifest",
       "kind": "structural",
-      "desc": "calls storageService.get",
+      "desc": "calls getManifest",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "storageService.get"
+          "value": "getManifest"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::shouldmigrate",
+      "kind": "structural",
+      "desc": "calls shouldMigrate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "shouldMigrate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::enableblockmaliciousurls",
+      "kind": "structural",
+      "desc": "calls enableBlockMaliciousUrls",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "enableBlockMaliciousUrls"
         }
       ]
     },
@@ -830,30 +578,114 @@
       ]
     },
     {
-      "id": "meta/internal/imported::databyday/day",
+      "id": "meta/internal/imported::allkeys/filter",
       "kind": "structural",
-      "desc": "calls dataByDay.day",
+      "desc": "calls allKeys.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "dataByDay.day"
+          "value": "allKeys.filter"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::databyday/day/trackers",
+      "id": "meta/internal/imported::databyday/day/cookiebanners",
       "kind": "structural",
-      "desc": "calls dataByDay.day.trackers",
+      "desc": "calls dataByDay.day.cookieBanners",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "dataByDay.day.trackers"
+          "value": "dataByDay.day.cookieBanners"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::keystoremove",
+      "kind": "structural",
+      "desc": "calls keysToRemove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "keysToRemove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getmanifest/content_scripts/filter",
+      "kind": "structural",
+      "desc": "calls getManifest.content_scripts.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getManifest.content_scripts.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/declarativenetrequest/setextensionactionoptions",
+      "kind": "structural",
+      "desc": "calls chrome.declarativeNetRequest.setExtensionActionOptions",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.declarativeNetRequest.setExtensionActionOptions"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settings",
+      "kind": "structural",
+      "desc": "calls settings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "settings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getalldata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getAllData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getAllData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::day",
+      "kind": "structural",
+      "desc": "calls day",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "day"
         }
       ]
     },
@@ -872,6 +704,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::storageservice/remove",
       "kind": "structural",
       "desc": "calls storageService.remove",
@@ -886,30 +732,114 @@
       ]
     },
     {
-      "id": "meta/internal/imported::pagesdata/id/stats",
+      "id": "meta/internal/imported::allowedkeys",
       "kind": "structural",
-      "desc": "calls pagesData.id.stats",
+      "desc": "calls allowedKeys",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pagesData.id.stats"
+          "value": "allowedKeys"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::shouldmigrate",
+      "id": "meta/internal/imported::debug/error",
       "kind": "structural",
-      "desc": "calls shouldMigrate",
+      "desc": "calls debug.error",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "shouldMigrate"
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tabs/find",
+      "kind": "structural",
+      "desc": "calls tabs.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tabs.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opennomorecookiebannerspage",
+      "kind": "structural",
+      "desc": "calls openNoMoreCookieBannersPage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openNoMoreCookieBannersPage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::opentabwithurl",
+      "kind": "structural",
+      "desc": "calls openTabWithUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openTabWithUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url/includes",
+      "kind": "structural",
+      "desc": "calls url.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "url.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/get",
+      "kind": "structural",
+      "desc": "calls storageService.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.get"
         }
       ]
     },
@@ -942,16 +872,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/createforalltabs",
+      "id": "meta/internal/imported::object/values",
       "kind": "structural",
-      "desc": "calls pageDataComponent.createForAllTabs",
+      "desc": "calls Object.values",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.createForAllTabs"
+          "value": "Object.values"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::querytabs",
+      "kind": "structural",
+      "desc": "calls queryTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "queryTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::databyday/day/popups",
+      "kind": "structural",
+      "desc": "calls dataByDay.day.popups",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataByDay.day.popups"
         }
       ]
     },
@@ -970,100 +928,198 @@
       ]
     },
     {
-      "id": "meta/internal/imported::chrome/declarativenetrequest/setextensionactionoptions",
+      "id": "meta/internal/imported::js",
       "kind": "structural",
-      "desc": "calls chrome.declarativeNetRequest.setExtensionActionOptions",
+      "desc": "calls js",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "chrome.declarativeNetRequest.setExtensionActionOptions"
+          "value": "js"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::day",
+      "id": "meta/internal/imported::object/values/filter/map",
       "kind": "structural",
-      "desc": "calls day",
+      "desc": "calls Object.values.filter.map",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "day"
+          "value": "Object.values.filter.map"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::allkeys",
+      "id": "meta/internal/imported::databyday/day/ads",
       "kind": "structural",
-      "desc": "calls allKeys",
+      "desc": "calls dataByDay.day.ads",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "allKeys"
+          "value": "dataByDay.day.ads"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/values",
+      "id": "meta/internal/imported::databyday/day",
       "kind": "structural",
-      "desc": "calls Object.values",
+      "desc": "calls dataByDay.day",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.values"
+          "value": "dataByDay.day"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::getmanifest",
+      "id": "meta/internal/imported::migratedata",
       "kind": "structural",
-      "desc": "calls getManifest",
+      "desc": "calls migrateData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getManifest"
+          "value": "migrateData"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::storageservice/set",
+      "id": "meta/internal/imported::object/values/filter",
       "kind": "structural",
-      "desc": "calls storageService.set",
+      "desc": "calls Object.values.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "storageService.set"
+          "value": "Object.values.filter"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::data",
+      "id": "meta/internal/imported::tab",
       "kind": "structural",
-      "desc": "calls data",
+      "desc": "calls tab",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "data"
+          "value": "tab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::databyhour",
+      "kind": "structural",
+      "desc": "calls dataByHour",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataByHour"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::analysisreporter/addreportsbulk",
+      "kind": "structural",
+      "desc": "calls analysisReporter.addReportsBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "analysisReporter.addReportsBulk"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::databyday/day/trackers",
+      "kind": "structural",
+      "desc": "calls dataByDay.day.trackers",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataByDay.day.trackers"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::allowedkeys/includes",
+      "kind": "structural",
+      "desc": "calls allowedKeys.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allowedKeys.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/createforalltabs",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.createForAllTabs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.createForAllTabs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::serverlogger/loginstall",
+      "kind": "structural",
+      "desc": "calls serverLogger.logInstall",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.logInstall"
         }
       ]
     },
@@ -1078,62 +1134,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Object.entries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getmanifest/content_scripts/filter/flatmap",
-      "kind": "structural",
-      "desc": "calls getManifest.content_scripts.filter.flatMap",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getManifest.content_scripts.filter.flatMap"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::serverlogger/logupdate",
-      "kind": "structural",
-      "desc": "calls serverLogger.logUpdate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "serverLogger.logUpdate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::storageservice/keys",
-      "kind": "structural",
-      "desc": "calls storageService.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "storageService.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::js",
-      "kind": "structural",
-      "desc": "calls js",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "js"
         }
       ]
     }

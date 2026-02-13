@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "main.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/discovery/host/fingerprint::md5-keyword",
       "kind": "capability",
       "desc": "md5 hash algorithm",
@@ -47,6 +32,21 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "main.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::hash-algorithms",
@@ -99,16 +99,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window",
+      "id": "meta/internal/imported::importscripts",
       "kind": "structural",
-      "desc": "calls window",
+      "desc": "calls importScripts",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window"
+          "value": "importScripts"
         }
       ]
     },
@@ -127,16 +127,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::importscripts",
+      "id": "meta/internal/imported::window",
       "kind": "structural",
-      "desc": "calls importScripts",
+      "desc": "calls window",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "importScripts"
+          "value": "window"
         }
       ]
     }

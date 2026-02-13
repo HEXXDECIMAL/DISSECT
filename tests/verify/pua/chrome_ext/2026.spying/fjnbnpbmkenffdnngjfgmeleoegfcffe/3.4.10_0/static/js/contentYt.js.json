@@ -12,17 +12,17 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "for loop (AST)",
+      "desc": "for loop (content)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:1612"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 ;for(",
+          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -43,55 +43,37 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
-      "desc": "for loop (content)",
+      "desc": "for loop (AST)",
       "conf": 0.3,
       "crit": "inert",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 ;for(",
-          "location": "file"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:1612"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "Uses chrome.* namespace",
-      "conf": 0.95,
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "chrome.runtime"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 18.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
-      "kind": "capability",
-      "desc": "Object.keys call",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys.filter"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-runtime",
@@ -107,6 +89,105 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.11"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "kind": "capability",
+      "desc": "Object.keys call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.filter"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "kind": "capability",
+      "desc": "Gets extension resource URL",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "function(){if(self._ProductsContainer=self._ProductsContainer||{},window.parent!==window&&0!==locati...",
+          "location": "1:2"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "t.setAttribute(\"src\",chrome.runtime.getURL(\"static/js/contentInt.js\"))",
+          "location": "1:717"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "chrome.runtime.getURL(\"static/js/contentInt.js\")",
+          "location": "1:738"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -160,10 +241,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -171,50 +252,22 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "functions.anonymous = 5.00"
+          "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
       "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
+      "desc": "Uses chrome.* namespace",
+      "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "contentYt.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
-      "kind": "capability",
-      "desc": "Gets extension resource URL",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "function(){if(self._ProductsContainer=self._ProductsContainer||{},window.parent!==window&&0!==locati...",
-          "location": "1:2"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "t.setAttribute(\"src\",chrome.runtime.getURL(\"static/js/contentInt.js\"))",
-          "location": "1:717"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "chrome.runtime.getURL(\"static/js/contentInt.js\")",
-          "location": "1:738"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime"
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
@@ -237,44 +290,60 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
+      "desc": "Small file under 5KB",
       "conf": 0.7,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 18.00"
+          "method": "basename",
+          "source": "target",
+          "value": "contentYt.js"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
       "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
+      "desc": "Chrome extension API context",
+      "conf": 0.95,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "obj/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
+      "desc": "Object serialization methods",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys.filter"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -283,26 +352,24 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "text.whitespace_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
-      "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
+        },
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.11"
+          "value": "functions.density_per_100_lines = 1800.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 18.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
@@ -338,26 +405,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
-      "kind": "capability",
-      "desc": "Object serialization methods",
-      "conf": 1.0,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys.filter"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
@@ -380,231 +427,16 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
-      "kind": "capability",
-      "desc": "Chrome extension API context",
-      "conf": 0.95,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "chrome.runtime.getURL"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 1800.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 18.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::self/_productscontainer",
+      "id": "meta/internal/imported::object/keys/filter",
       "kind": "structural",
-      "desc": "calls self._ProductsContainer",
+      "desc": "calls Object.keys.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self._ProductsContainer"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/resolve",
-      "kind": "structural",
-      "desc": "calls Promise.resolve",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Promise.resolve"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/instance/updatetestpackage",
-      "kind": "structural",
-      "desc": "calls t.instance.updateTestPackage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.instance.updateTestPackage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/ready",
-      "kind": "structural",
-      "desc": "calls e.ready",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.ready"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/apply",
-      "kind": "structural",
-      "desc": "calls t.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/createelement",
-      "kind": "structural",
-      "desc": "calls document.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/class",
-      "kind": "structural",
-      "desc": "calls e.class",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.class"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/_phonecallback",
-      "kind": "structural",
-      "desc": "calls self._PhoneCallback",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self._PhoneCallback"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chrome/runtime/geturl",
-      "kind": "structural",
-      "desc": "calls chrome.runtime.getURL",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chrome.runtime.getURL"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/addeventlistener",
-      "kind": "structural",
-      "desc": "calls self.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::location/href/indexof",
-      "kind": "structural",
-      "desc": "calls location.href.indexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "location.href.indexOf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::s/error",
-      "kind": "structural",
-      "desc": "calls s.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "s.error"
+          "value": "Object.keys.filter"
         }
       ]
     },
@@ -623,62 +455,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::productscontainer/clientwidth",
-      "kind": "structural",
-      "desc": "calls ProductsContainer.clientWidth",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ProductsContainer.clientWidth"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/instance/parsegeometryprimitive",
-      "kind": "structural",
-      "desc": "calls e.instance.parseGeometryPrimitive",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.instance.parseGeometryPrimitive"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/instance",
-      "kind": "structural",
-      "desc": "calls t.instance",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.instance"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/reject",
-      "kind": "structural",
-      "desc": "calls Promise.reject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Promise.reject"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::t/type",
       "kind": "structural",
       "desc": "calls t.type",
@@ -693,16 +469,86 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/instance",
+      "id": "meta/internal/imported::s/ready",
       "kind": "structural",
-      "desc": "calls e.instance",
+      "desc": "calls s.ready",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.instance"
+          "value": "s.ready"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::productscontainer/clientwidth",
+      "kind": "structural",
+      "desc": "calls ProductsContainer.clientWidth",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ProductsContainer.clientWidth"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/error",
+      "kind": "structural",
+      "desc": "calls s.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/documentelement/appendchild",
+      "kind": "structural",
+      "desc": "calls document.documentElement.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.documentElement.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/apply",
+      "kind": "structural",
+      "desc": "calls t.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.apply"
         }
       ]
     },
@@ -735,6 +581,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::t/onload",
       "kind": "structural",
       "desc": "calls t.onload",
@@ -749,30 +609,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::s/initinprogress",
+      "id": "meta/internal/imported::promise/resolve",
       "kind": "structural",
-      "desc": "calls s.initInProgress",
+      "desc": "calls Promise.resolve",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "s.initInProgress"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/setattribute",
-      "kind": "structural",
-      "desc": "calls t.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.setAttribute"
+          "value": "Promise.resolve"
         }
       ]
     },
@@ -791,44 +637,184 @@
       ]
     },
     {
-      "id": "meta/internal/imported::s/ready",
+      "id": "meta/internal/imported::t/setattribute",
       "kind": "structural",
-      "desc": "calls s.ready",
+      "desc": "calls t.setAttribute",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "s.ready"
+          "value": "t.setAttribute"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/keys/filter",
+      "id": "meta/internal/imported::self/addeventlistener",
       "kind": "structural",
-      "desc": "calls Object.keys.filter",
+      "desc": "calls self.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.keys.filter"
+          "value": "self.addEventListener"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/documentelement/appendchild",
+      "id": "meta/internal/imported::e/instance/parsegeometryprimitive",
       "kind": "structural",
-      "desc": "calls document.documentElement.appendChild",
+      "desc": "calls e.instance.parseGeometryPrimitive",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.documentElement.appendChild"
+          "value": "e.instance.parseGeometryPrimitive"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/_phonecallback",
+      "kind": "structural",
+      "desc": "calls self._PhoneCallback",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self._PhoneCallback"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/href/indexof",
+      "kind": "structural",
+      "desc": "calls location.href.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.href.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/class",
+      "kind": "structural",
+      "desc": "calls e.class",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.class"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::s/initinprogress",
+      "kind": "structural",
+      "desc": "calls s.initInProgress",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "s.initInProgress"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/reject",
+      "kind": "structural",
+      "desc": "calls Promise.reject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/instance/updatetestpackage",
+      "kind": "structural",
+      "desc": "calls t.instance.updateTestPackage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.instance.updateTestPackage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/instance",
+      "kind": "structural",
+      "desc": "calls e.instance",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.instance"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/_productscontainer",
+      "kind": "structural",
+      "desc": "calls self._ProductsContainer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self._ProductsContainer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chrome/runtime/geturl",
+      "kind": "structural",
+      "desc": "calls chrome.runtime.getURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chrome.runtime.getURL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/instance",
+      "kind": "structural",
+      "desc": "calls t.instance",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.instance"
         }
       ]
     },
@@ -843,6 +829,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "t.class"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready",
+      "kind": "structural",
+      "desc": "calls e.ready",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready"
         }
       ]
     }

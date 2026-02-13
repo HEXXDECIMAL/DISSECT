@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -29,22 +45,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "9:7"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -135,6 +135,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::pagedatacomponent/getframepagedata",
       "kind": "structural",
       "desc": "calls pageDataComponent.getFramePageData",
@@ -145,20 +159,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "pageDataComponent.getFramePageData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
         }
       ]
     },
@@ -191,16 +191,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "id": "meta/internal/imported::debug/error",
       "kind": "structural",
-      "desc": "calls pageDataComponent.refreshBulk",
+      "desc": "calls debug.error",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.refreshBulk"
+          "value": "debug.error"
         }
       ]
     }

@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "scheduler.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
@@ -59,6 +44,21 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "scheduler.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -97,16 +97,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::date/now",
+      "id": "meta/internal/imported::math/round",
       "kind": "structural",
-      "desc": "calls Date.now",
+      "desc": "calls Math.round",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Date.now"
+          "value": "Math.round"
         }
       ]
     },
@@ -153,16 +153,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::math/round",
+      "id": "meta/internal/imported::date/now",
       "kind": "structural",
-      "desc": "calls Math.round",
+      "desc": "calls Date.now",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Math.round"
+          "value": "Date.now"
         }
       ]
     }

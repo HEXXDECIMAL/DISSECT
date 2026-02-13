@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "obj/impact/ransomware/behavior::crypto-module",
+      "kind": "capability",
+      "desc": "crypto module",
+      "conf": 0.3,
+      "crit": "notable",
+      "attack": "T1486",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "crypto.randomUUID"
+        }
+      ],
+      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+    },
+    {
       "id": "obj/creds/wallet/mnemonic::crypto-word",
       "kind": "capability",
       "desc": "crypto term",
@@ -44,36 +60,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/impact/ransomware/behavior::crypto-module",
-      "kind": "capability",
-      "desc": "crypto module",
-      "conf": 0.3,
-      "crit": "notable",
-      "attack": "T1486",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "crypto.randomUUID"
-        }
-      ],
-      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
-    },
-    {
-      "id": "meta/internal/imported::newvalue",
-      "kind": "structural",
-      "desc": "calls newValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "newValue"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::crypto/randomuuid",
       "kind": "structural",
       "desc": "calls crypto.randomUUID",
@@ -84,6 +70,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "crypto.randomUUID"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::anonyreportkey",
+      "kind": "structural",
+      "desc": "calls anonyReportKey",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "anonyReportKey"
         }
       ]
     },
@@ -102,6 +102,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::newvalue",
+      "kind": "structural",
+      "desc": "calls newValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newValue"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::value",
       "kind": "structural",
       "desc": "calls value",
@@ -112,20 +126,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "value"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::anonyreportkey",
-      "kind": "structural",
-      "desc": "calls anonyReportKey",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "anonyReportKey"
         }
       ]
     },

@@ -13,6 +13,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -27,6 +43,21 @@
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/text/keywords::connect",
+      "kind": "capability",
+      "desc": "connect keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactRedux.connect"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
       "id": "cap/data/text/keywords::password",
@@ -46,21 +77,6 @@
           "source": "string_extractor",
           "value": "input[type=\"password\"], input[type=\"email\"]",
           "location": "0x116"
-        }
-      ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
-    },
-    {
-      "id": "cap/data/text/keywords::connect",
-      "kind": "capability",
-      "desc": "connect keyword",
-      "conf": 0.2,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "ReactRedux.connect"
         }
       ],
       "source_file": "cap/data/text/keywords/generic.yaml"
@@ -88,20 +104,53 @@
       "source_file": "meta/lang/compiler/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 {for(",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 18.00"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -155,6 +204,23 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
@@ -170,6 +236,40 @@
         }
       ],
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "kind": "capability",
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 3.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 2792.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
@@ -203,93 +303,10 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 2792.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 18.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
+      "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
-      "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 3.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -298,31 +315,24 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 1800.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 18.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
-      "kind": "capability",
-      "desc": "Iteration or loop pattern",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:53"
-        },
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/lang/compiler::cross-compiled",
@@ -369,36 +379,26 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
         },
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 1800.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 18.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {for(",
+          "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
@@ -438,188 +438,6 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "meta/internal/imported::calculatenextreminder",
-      "kind": "structural",
-      "desc": "calls calculateNextReminder",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "calculateNextReminder"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/removeeventlistener",
-      "kind": "structural",
-      "desc": "calls e.removeEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.removeEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselectorall",
-      "kind": "structural",
-      "desc": "calls document.querySelectorAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array",
-      "kind": "structural",
-      "desc": "calls Array",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reactredux/connect",
-      "kind": "structural",
-      "desc": "calls ReactRedux.connect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ReactRedux.connect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ga",
-      "kind": "structural",
-      "desc": "calls GA",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "GA"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::incrementcounter",
-      "kind": "structural",
-      "desc": "calls incrementCounter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "incrementCounter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::o/t",
-      "kind": "structural",
-      "desc": "calls o.t",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "o.t"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/addeventlistener",
-      "kind": "structural",
-      "desc": "calls e.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::toconsumablearray",
-      "kind": "structural",
-      "desc": "calls toConsumableArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "toConsumableArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::goupgrade",
-      "kind": "structural",
-      "desc": "calls goUpgrade",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "goUpgrade"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/from",
-      "kind": "structural",
-      "desc": "calls Array.from",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.from"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
       "desc": "calls React.createElement",
@@ -630,34 +448,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "React.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::translate",
-      "kind": "structural",
-      "desc": "calls translate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "translate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/properties/action",
-      "kind": "structural",
-      "desc": "calls t.properties.Action",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.properties.Action"
         }
       ]
     },
@@ -676,6 +466,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::t/properties/action",
+      "kind": "structural",
+      "desc": "calls t.properties.Action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.properties.Action"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::goupgrade",
+      "kind": "structural",
+      "desc": "calls goUpgrade",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "goUpgrade"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::leakhook",
       "kind": "structural",
       "desc": "calls LeakHook",
@@ -690,6 +508,174 @@
       ]
     },
     {
+      "id": "meta/internal/imported::toconsumablearray",
+      "kind": "structural",
+      "desc": "calls toConsumableArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toConsumableArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reactredux/connect",
+      "kind": "structural",
+      "desc": "calls ReactRedux.connect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ReactRedux.connect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/t",
+      "kind": "structural",
+      "desc": "calls o.t",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.t"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::incrementcounter",
+      "kind": "structural",
+      "desc": "calls incrementCounter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "incrementCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga",
+      "kind": "structural",
+      "desc": "calls GA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/removeeventlistener",
+      "kind": "structural",
+      "desc": "calls e.removeEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.removeEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array",
+      "kind": "structural",
+      "desc": "calls Array",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/addeventlistener",
+      "kind": "structural",
+      "desc": "calls e.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.addEventListener"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::sendmixpanelevent",
       "kind": "structural",
       "desc": "calls sendMixpanelEvent",
@@ -700,6 +686,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "sendMixpanelEvent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::calculatenextreminder",
+      "kind": "structural",
+      "desc": "calls calculateNextReminder",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "calculateNextReminder"
         }
       ]
     }

@@ -117,20 +117,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::documentelement/style/setproperty",
-      "kind": "structural",
-      "desc": "calls documentElement.style.setProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "documentElement.style.setProperty"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::body/style/setproperty",
       "kind": "structural",
       "desc": "calls body.style.setProperty",
@@ -141,20 +127,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "body.style.setProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselector",
-      "kind": "structural",
-      "desc": "calls document.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelector"
         }
       ]
     },
@@ -173,16 +145,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::body/style/getpropertyvalue",
+      "id": "meta/internal/imported::documentelement/style/setproperty",
       "kind": "structural",
-      "desc": "calls body.style.getPropertyValue",
+      "desc": "calls documentElement.style.setProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "body.style.getPropertyValue"
+          "value": "documentElement.style.setProperty"
         }
       ]
     },
@@ -197,6 +169,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/style/getpropertyvalue",
+      "kind": "structural",
+      "desc": "calls body.style.getPropertyValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.style.getPropertyValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
         }
       ]
     }

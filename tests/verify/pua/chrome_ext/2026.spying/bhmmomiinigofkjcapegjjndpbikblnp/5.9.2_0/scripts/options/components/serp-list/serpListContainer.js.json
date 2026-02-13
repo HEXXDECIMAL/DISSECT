@@ -8,9 +8,25 @@
   "size": 900,
   "risk": "notable",
   "counts": {
-    "notable": 8
+    "notable": 6
   },
   "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
@@ -32,68 +48,6 @@
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::proto-extension",
-      "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 prototype",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "serpListContainer.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
@@ -162,47 +116,35 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
-      "desc": "Iteration or loop pattern",
-      "conf": 0.5,
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
       "crit": "inert",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:41"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:96"
-        },
-        {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 2 {for(",
+          "value": "Found 2 prototype",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::protobuf",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "method": "basename",
+          "source": "target",
+          "value": "serpListContainer.js"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -232,16 +174,58 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::translate",
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:41"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:96"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
       "kind": "structural",
-      "desc": "calls translate",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "translate"
+          "value": "Object.prototype.hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ga",
+      "kind": "structural",
+      "desc": "calls GA",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "GA"
         }
       ]
     },
@@ -260,20 +244,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
-      "kind": "structural",
-      "desc": "calls Object.prototype.hasOwnProperty.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
       "desc": "calls React.createElement",
@@ -284,20 +254,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "React.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ga",
-      "kind": "structural",
-      "desc": "calls GA",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "GA"
         }
       ]
     },
@@ -326,6 +282,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "t.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
         }
       ]
     }

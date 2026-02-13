@@ -150,7 +150,10 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
         let mut decompressed = Vec::with_capacity(decoded.len() * 4);
 
         // Read with size limit to prevent decompression bombs
-        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
             Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
                 return Some((decompressed, Some("zlib".to_string())));
             }
@@ -170,7 +173,10 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
         let mut decompressed = Vec::with_capacity(decoded.len() * 4);
 
         // Read with size limit to prevent decompression bombs
-        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
             Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
                 return Some((decompressed, Some("gzip".to_string())));
             }

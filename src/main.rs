@@ -154,10 +154,10 @@ fn main() -> Result<()> {
 
     // Set up logging with optional file output
     if let Some(ref log_file) = args.log_file {
-        use tracing_subscriber::layer::SubscriberExt;
-        use tracing_subscriber::util::SubscriberInitExt;
         use std::fs::OpenOptions;
         use std::sync::{Arc, Mutex};
+        use tracing_subscriber::layer::SubscriberExt;
+        use tracing_subscriber::util::SubscriberInitExt;
 
         // Create or append to log file
         let file = Arc::new(Mutex::new(
@@ -168,7 +168,7 @@ fn main() -> Result<()> {
                 .unwrap_or_else(|e| {
                     eprintln!("Failed to open log file {}: {}", log_file, e);
                     std::process::exit(1);
-                })
+                }),
         ));
 
         if format == cli::OutputFormat::Terminal {
@@ -228,7 +228,10 @@ fn main() -> Result<()> {
     }
 
     // Log command line and initialization
-    tracing::info!("dissect started: {}", std::env::args().collect::<Vec<_>>().join(" "));
+    tracing::info!(
+        "dissect started: {}",
+        std::env::args().collect::<Vec<_>>().join(" ")
+    );
     tracing::trace!("Logging initialized (verbose={})", args.verbose);
 
     // Configure rayon thread pool with larger stack size to handle deeply nested ASTs
@@ -1204,7 +1207,7 @@ fn analyze_file_with_shared_mapper(
                 value: format!("expected={}, actual={}", expected, actual),
                 location: None,
             }],
-        
+
             source_file: None,
         });
     }
@@ -1234,7 +1237,7 @@ fn analyze_file_with_shared_mapper(
                 ),
                 location: Some(format!("offset:{}", payload.original_offset)),
             }],
-        
+
             source_file: None,
         });
 
@@ -1290,11 +1293,7 @@ fn analyze_file_with_shared_mapper(
     // Log memory state after processing
     if verbose {
         use dissect::memory_tracker;
-        memory_tracker::log_after_file_processing(
-            target,
-            file_size,
-            _t_start.elapsed(),
-        );
+        memory_tracker::log_after_file_processing(target, file_size, _t_start.elapsed());
     }
 
     // Output as JSONL format for parallel scanning
@@ -2085,27 +2084,24 @@ fn extract_metrics(
     // analyzers to compute metrics. Radare2 analysis can be slow, but it's controlled
     // by the --disable flag (already in disabled)
     let report = match file_type {
-        FileType::Elf => {
-            ElfAnalyzer::new()
-                .with_capability_mapper(capability_mapper)
-                .analyze(path)?
-        }
-        FileType::MachO => {
-            MachOAnalyzer::new()
-                .with_capability_mapper(capability_mapper)
-                .analyze(path)?
-        }
-        FileType::Pe => {
-            PEAnalyzer::new()
-                .with_capability_mapper(capability_mapper)
-                .analyze(path)?
-        }
+        FileType::Elf => ElfAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
+        FileType::MachO => MachOAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
+        FileType::Pe => PEAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
         _ => {
             // Use the generic analyzer for source code
             if let Some(analyzer) = analyzers::analyzer_for_file_type(&file_type, None) {
                 analyzer.analyze(path)?
             } else {
-                anyhow::bail!("Unsupported file type for metrics extraction: {:?}", file_type);
+                anyhow::bail!(
+                    "Unsupported file type for metrics extraction: {:?}",
+                    file_type
+                );
             }
         }
     };
@@ -2124,7 +2120,9 @@ fn extract_metrics(
         // Calculate string metrics
         if !report.strings.is_empty() {
             use crate::entropy::calculate_entropy;
-            let entropies: Vec<f64> = report.strings.iter()
+            let entropies: Vec<f64> = report
+                .strings
+                .iter()
                 .map(|s| calculate_entropy(s.value.as_bytes()))
                 .collect();
 
@@ -2168,7 +2166,9 @@ fn extract_metrics(
 
                 // Track code vs data section entropy
                 let name_lower = section.name.to_lowercase();
-                let is_executable = section.permissions.as_ref()
+                let is_executable = section
+                    .permissions
+                    .as_ref()
                     .map(|p| p.contains('x'))
                     .unwrap_or(false);
 
@@ -2187,18 +2187,19 @@ fn extract_metrics(
                 binary.overall_entropy = entropies.iter().sum::<f32>() / entropies.len() as f32;
 
                 let mean = binary.overall_entropy;
-                let variance: f32 = entropies.iter()
-                    .map(|e| (e - mean).powi(2))
-                    .sum::<f32>() / entropies.len() as f32;
+                let variance: f32 = entropies.iter().map(|e| (e - mean).powi(2)).sum::<f32>()
+                    / entropies.len() as f32;
                 binary.entropy_variance = variance.sqrt();
             }
 
             if !code_entropies.is_empty() {
-                binary.code_entropy = code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
+                binary.code_entropy =
+                    code_entropies.iter().sum::<f32>() / code_entropies.len() as f32;
             }
 
             if !data_entropies.is_empty() {
-                binary.data_entropy = data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
+                binary.data_entropy =
+                    data_entropies.iter().sum::<f32>() / data_entropies.len() as f32;
             }
 
             // If still zero, calculate from raw file data as fallback
@@ -2445,7 +2446,12 @@ fn test_match_debug(
         }
     } else if search_type == cli::SearchType::Section {
         // Section searches don't require pattern (can search by length or entropy alone)
-        let has_constraints = count_min > 1 || count_max.is_some() || length_min.is_some() || length_max.is_some() || entropy_min.is_some() || entropy_max.is_some();
+        let has_constraints = count_min > 1
+            || count_max.is_some()
+            || length_min.is_some()
+            || length_max.is_some()
+            || entropy_min.is_some()
+            || entropy_max.is_some();
         if pattern.is_none() && !has_constraints {
             anyhow::bail!("--pattern is required for section searches unless using size/entropy constraints (--count-min/max, --length-min/max, --entropy-min/max)");
         }
@@ -2454,7 +2460,9 @@ fn test_match_debug(
             anyhow::bail!("--pattern is required for metrics searches (use field path like 'binary.avg_complexity')");
         }
         if value_min.is_none() && value_max.is_none() {
-            anyhow::bail!("At least one of --value-min or --value-max is required for metrics searches");
+            anyhow::bail!(
+                "At least one of --value-min or --value-max is required for metrics searches"
+            );
         }
     } else if pattern.is_none() {
         anyhow::bail!("--pattern is required for {:?} searches", search_type);
@@ -3553,7 +3561,8 @@ fn test_match_debug(
             let match_count = matched_sections.len();
 
             // Check count constraints (number of matching sections)
-            let count_ok = match_count >= count_min && count_max.is_none_or(|max| match_count <= max);
+            let count_ok =
+                match_count >= count_min && count_max.is_none_or(|max| match_count <= max);
             let matched = count_ok;
 
             let mut out = String::new();
@@ -3596,7 +3605,10 @@ fn test_match_debug(
                     match_count
                 ));
                 for sec in matched_sections.iter().take(10) {
-                    let addr_str = sec.address.map(|a| format!("0x{:x}", a)).unwrap_or_else(|| "-".to_string());
+                    let addr_str = sec
+                        .address
+                        .map(|a| format!("0x{:x}", a))
+                        .unwrap_or_else(|| "-".to_string());
                     out.push_str(&format!(
                         "  {} (addr: {}, size: {}, entropy: {:.2})\n",
                         sec.name, addr_str, sec.size, sec.entropy
@@ -3609,12 +3621,24 @@ fn test_match_debug(
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
                 if report.sections.is_empty() {
                     out.push_str("  No sections found (not a binary file?)\n");
-                    out.push_str("  💡 Section search only works on ELF, PE, and Mach-O binaries\n");
+                    out.push_str(
+                        "  💡 Section search only works on ELF, PE, and Mach-O binaries\n",
+                    );
                 } else {
-                    out.push_str(&format!("Found 0 matching sections (out of {} total)\n", report.sections.len()));
+                    out.push_str(&format!(
+                        "Found 0 matching sections (out of {} total)\n",
+                        report.sections.len()
+                    ));
                     if !pattern.is_empty() {
-                        out.push_str(&format!("  Available sections: {}\n",
-                            report.sections.iter().map(|s| s.name.as_str()).collect::<Vec<_>>().join(", ")));
+                        out.push_str(&format!(
+                            "  Available sections: {}\n",
+                            report
+                                .sections
+                                .iter()
+                                .map(|s| s.name.as_str())
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        ));
                     }
                 }
             }
@@ -3653,12 +3677,7 @@ fn test_match_debug(
 
             // Use eval_metrics from the composite_rules module
             let result = composite_rules::evaluators::eval_metrics(
-                field,
-                value_min,
-                value_max,
-                min_size,
-                max_size,
-                &ctx,
+                field, value_min, value_max, min_size, max_size, &ctx,
             );
 
             let matched = result.matched;
@@ -3675,7 +3694,10 @@ fn test_match_debug(
                     }
                 }
 
-                out.push_str(&format!("  File size: {} bytes\n", report.target.size_bytes));
+                out.push_str(&format!(
+                    "  File size: {} bytes\n",
+                    report.target.size_bytes
+                ));
 
                 if !result.warnings.is_empty() {
                     out.push_str("\n  Warnings:\n");
@@ -3693,16 +3715,25 @@ fn test_match_debug(
                         out.push_str(&format!("  Current value: {:.2}\n", val));
                         if let Some(min) = value_min {
                             if val < min {
-                                out.push_str(&format!("  ❌ Value {:.2} is below minimum {:.2}\n", val, min));
+                                out.push_str(&format!(
+                                    "  ❌ Value {:.2} is below minimum {:.2}\n",
+                                    val, min
+                                ));
                             }
                         }
                         if let Some(max) = value_max {
                             if val > max {
-                                out.push_str(&format!("  ❌ Value {:.2} exceeds maximum {:.2}\n", val, max));
+                                out.push_str(&format!(
+                                    "  ❌ Value {:.2} exceeds maximum {:.2}\n",
+                                    val, max
+                                ));
                             }
                         }
                     } else {
-                        out.push_str(&format!("  Metric field '{}' not found or not applicable to this file type\n", field));
+                        out.push_str(&format!(
+                            "  Metric field '{}' not found or not applicable to this file type\n",
+                            field
+                        ));
                     }
                 } else {
                     out.push_str("  No metrics available for this file\n");
@@ -3712,12 +3743,18 @@ fn test_match_debug(
                 let file_size = report.target.size_bytes;
                 if let Some(min) = min_size {
                     if file_size < min {
-                        out.push_str(&format!("  ❌ File size {} bytes is below minimum {} bytes\n", file_size, min));
+                        out.push_str(&format!(
+                            "  ❌ File size {} bytes is below minimum {} bytes\n",
+                            file_size, min
+                        ));
                     }
                 }
                 if let Some(max) = max_size {
                     if file_size > max {
-                        out.push_str(&format!("  ❌ File size {} bytes exceeds maximum {} bytes\n", file_size, max));
+                        out.push_str(&format!(
+                            "  ❌ File size {} bytes exceeds maximum {} bytes\n",
+                            file_size, max
+                        ));
                     }
                 }
             }
@@ -3923,20 +3960,43 @@ fn test_match_debug(
             }
             cli::SearchType::Section => {
                 output.push_str("  💡 Section search matches binary section metadata\n");
-                if pattern.is_empty() && entropy_min.is_none() && entropy_max.is_none() && length_min.is_none() && length_max.is_none() && count_min <= 1 && count_max.is_none() {
+                if pattern.is_empty()
+                    && entropy_min.is_none()
+                    && entropy_max.is_none()
+                    && length_min.is_none()
+                    && length_max.is_none()
+                    && count_min <= 1
+                    && count_max.is_none()
+                {
                     output.push_str("  💡 Specify --pattern for name matching\n");
-                    output.push_str("  💡 Use --entropy-min/--entropy-max for entropy constraints\n");
-                    output.push_str("  💡 Use --length-min/--length-max for section size constraints\n");
-                    output.push_str("  💡 Use --count-min/--count-max for number of matching sections\n");
+                    output
+                        .push_str("  💡 Use --entropy-min/--entropy-max for entropy constraints\n");
+                    output.push_str(
+                        "  💡 Use --length-min/--length-max for section size constraints\n",
+                    );
+                    output.push_str(
+                        "  💡 Use --count-min/--count-max for number of matching sections\n",
+                    );
                 }
                 if !report.sections.is_empty() {
-                    output.push_str(&format!("  Available sections: {}\n",
-                        report.sections.iter().map(|s| s.name.as_str()).collect::<Vec<_>>().join(", ")));
+                    output.push_str(&format!(
+                        "  Available sections: {}\n",
+                        report
+                            .sections
+                            .iter()
+                            .map(|s| s.name.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ));
                 }
             }
             cli::SearchType::Metrics => {
-                output.push_str("  💡 Metrics search tests computed file metrics against thresholds\n");
-                output.push_str("  💡 Use --pattern for field path (e.g., 'binary.avg_complexity')\n");
+                output.push_str(
+                    "  💡 Metrics search tests computed file metrics against thresholds\n",
+                );
+                output.push_str(
+                    "  💡 Use --pattern for field path (e.g., 'binary.avg_complexity')\n",
+                );
                 output.push_str("  💡 Use --value-min/--value-max for thresholds\n");
                 output.push_str("  💡 Use --min-size/--max-size for file size constraints\n");
                 if let Some(metrics) = &report.metrics {
@@ -3951,7 +4011,9 @@ fn test_match_debug(
                         output.push_str("    functions.total, functions.avg_params, functions.max_nesting_depth, ...\n");
                     }
                     if metrics.identifiers.is_some() {
-                        output.push_str("    identifiers.avg_entropy, identifiers.reuse_ratio, ...\n");
+                        output.push_str(
+                            "    identifiers.avg_entropy, identifiers.reuse_ratio, ...\n",
+                        );
                     }
                     output.push_str("  Run `dissect metrics <file>` to see all available fields\n");
                 } else {

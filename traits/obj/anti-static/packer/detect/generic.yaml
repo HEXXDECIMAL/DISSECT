@@ -91,5 +91,5 @@ composite_rules:
     for: [macho]
     all:
       - id: upx-marker
-      - id: obj/anti-static/obfuscation/binary-metrics::few-sections
+      - id: meta/format::few-sections
       - id: cap/exec/dylib/load::webkit-framework

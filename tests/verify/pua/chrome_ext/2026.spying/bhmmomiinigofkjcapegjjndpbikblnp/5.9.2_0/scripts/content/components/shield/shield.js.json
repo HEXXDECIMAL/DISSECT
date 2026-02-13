@@ -8,9 +8,25 @@
   "size": 3212,
   "risk": "notable",
   "counts": {
-    "notable": 15
+    "notable": 13
   },
   "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
@@ -49,51 +65,53 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": ".proto file extension",
+      "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 11.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "value": "React.createElement"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
-      "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(()=>{",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -147,6 +165,90 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "kind": "capability",
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.single_char_ratio = 0.45"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 17.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 3212.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
@@ -176,166 +278,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 3212.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 11.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 17.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
-      "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.45"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
-      "kind": "capability",
-      "desc": "Iteration or loop pattern",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:41"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:96"
-        },
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -375,30 +317,44 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::getshieldcolor",
-      "kind": "structural",
-      "desc": "calls getShieldColor",
-      "conf": 0.95,
+      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "kind": "capability",
+      "desc": "Iteration or loop pattern",
+      "conf": 0.5,
       "crit": "inert",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getShieldColor"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:41"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:96"
+        },
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 {for(",
+          "location": "file"
         }
-      ]
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::window/addeventlistener",
+      "id": "meta/internal/imported::v/style/height",
       "kind": "structural",
-      "desc": "calls window.addEventListener",
+      "desc": "calls v.style.height",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.addEventListener"
+          "value": "v.style.height"
         }
       ]
     },
@@ -431,72 +387,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::mapstatetopros/dependsonownprops",
+      "id": "meta/internal/imported::shieldcomponent",
       "kind": "structural",
-      "desc": "calls mapStateToPros.dependsOnOwnProps",
+      "desc": "calls ShieldComponent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "mapStateToPros.dependsOnOwnProps"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/i",
-      "kind": "structural",
-      "desc": "calls e.i",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.i"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/assign",
-      "kind": "structural",
-      "desc": "calls Object.assign",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.assign"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
-      "kind": "structural",
-      "desc": "calls Object.prototype.hasOwnProperty.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/postmessage",
-      "kind": "structural",
-      "desc": "calls window.postMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.postMessage"
+          "value": "ShieldComponent"
         }
       ]
     },
@@ -515,72 +415,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/removeeventlistener",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls window.removeEventListener",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.removeEventListener"
+          "value": "React.createElement"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::v/style/width",
+      "id": "meta/internal/imported::mapstatetopros/dependsonownprops",
       "kind": "structural",
-      "desc": "calls v.style.width",
+      "desc": "calls mapStateToPros.dependsOnOwnProps",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "v.style.width"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getencodeddomain",
-      "kind": "structural",
-      "desc": "calls getEncodedDomain",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getEncodedDomain"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getshieldlevel",
-      "kind": "structural",
-      "desc": "calls getShieldLevel",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getShieldLevel"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::shieldcomponent",
-      "kind": "structural",
-      "desc": "calls ShieldComponent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ShieldComponent"
+          "value": "mapStateToPros.dependsOnOwnProps"
         }
       ]
     },
@@ -599,6 +457,90 @@
       ]
     },
     {
+      "id": "meta/internal/imported::getshieldlevel",
+      "kind": "structural",
+      "desc": "calls getShieldLevel",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getShieldLevel"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::v/style/width",
+      "kind": "structural",
+      "desc": "calls v.style.width",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "v.style.width"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getshieldcolor",
+      "kind": "structural",
+      "desc": "calls getShieldColor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getShieldColor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/removeeventlistener",
+      "kind": "structural",
+      "desc": "calls window.removeEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.removeEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/i",
+      "kind": "structural",
+      "desc": "calls e.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.i"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::postmessageonce",
       "kind": "structural",
       "desc": "calls postMessageOnce",
@@ -609,6 +551,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "postMessageOnce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/assign",
+      "kind": "structural",
+      "desc": "calls Object.assign",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.assign"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getencodeddomain",
+      "kind": "structural",
+      "desc": "calls getEncodedDomain",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getEncodedDomain"
         }
       ]
     },
@@ -641,30 +611,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::v/style/height",
+      "id": "meta/internal/imported::window/postmessage",
       "kind": "structural",
-      "desc": "calls v.style.height",
+      "desc": "calls window.postMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "v.style.height"
+          "value": "window.postMessage"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::react/createelement",
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
       "kind": "structural",
-      "desc": "calls React.createElement",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "Object.prototype.hasOwnProperty.call"
         }
       ]
     }

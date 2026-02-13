@@ -59,6 +59,34 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::player/currenttime",
+      "kind": "structural",
+      "desc": "calls player.currentTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "player.currentTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::player",
+      "kind": "structural",
+      "desc": "calls player",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "player"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::debounce",
       "kind": "structural",
       "desc": "calls debounce",
@@ -111,34 +139,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "skipPrerolls"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::player/currenttime",
-      "kind": "structural",
-      "desc": "calls player.currentTime",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "player.currentTime"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::player",
-      "kind": "structural",
-      "desc": "calls player",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "player"
         }
       ]
     }

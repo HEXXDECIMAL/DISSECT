@@ -120,60 +120,6 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "api-urls.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "known/malware/backdoor/melofee::heartbeat-string",
-      "kind": "capability",
-      "desc": "heartbeat C2 string",
-      "conf": 0.7,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0xe2"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "heartbeat",
-          "location": "0xe3"
-        }
-      ],
-      "source_file": "known/malware/backdoor/melofee/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.08"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/c2/infrastructure/domain::http-url-script",
       "kind": "capability",
       "desc": "Network URL with domain name (script)",
@@ -282,6 +228,60 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
+      "id": "known/malware/backdoor/melofee::heartbeat-string",
+      "kind": "capability",
+      "desc": "heartbeat C2 string",
+      "conf": 0.7,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe2"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "heartbeat",
+          "location": "0xe3"
+        }
+      ],
+      "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.08"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "api-urls.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "known/malware/backdoor/melofee::c2-protocols",
       "kind": "capability",
       "desc": "C2 heartbeat/beacon protocols",
@@ -304,20 +304,6 @@
       "source_file": "known/malware/backdoor/melofee/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::api_urls",
-      "kind": "structural",
-      "desc": "calls API_URLS",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "API_URLS"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::staticbaseurl",
       "kind": "structural",
       "desc": "calls staticBaseUrl",
@@ -328,6 +314,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "staticBaseUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::api_urls",
+      "kind": "structural",
+      "desc": "calls API_URLS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "API_URLS"
         }
       ]
     }

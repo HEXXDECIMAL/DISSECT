@@ -42,20 +42,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::getappversion",
-      "kind": "structural",
-      "desc": "calls getAppVersion",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getAppVersion"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
       "desc": "calls sendMessage",
@@ -70,30 +56,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
+      "id": "meta/internal/imported::getappversion",
       "kind": "structural",
-      "desc": "calls pageDataComponent.getActiveTabData",
+      "desc": "calls getAppVersion",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.getActiveTabData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupallowedsites/getlist",
-      "kind": "structural",
-      "desc": "calls popupAllowedSites.getList",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupAllowedSites.getList"
+          "value": "getAppVersion"
         }
       ]
     },
@@ -112,16 +84,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::browserinfo/getrateurl",
+      "id": "meta/internal/imported::popupallowedsites/getlist",
       "kind": "structural",
-      "desc": "calls browserInfo.getRateUrl",
+      "desc": "calls popupAllowedSites.getList",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browserInfo.getRateUrl"
+          "value": "popupAllowedSites.getList"
         }
       ]
     },
@@ -136,6 +108,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "cookieBannersAllowedSites.getList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.getActiveTabData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.getActiveTabData"
         }
       ]
     },
@@ -164,6 +150,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browserinfo/getrateurl",
+      "kind": "structural",
+      "desc": "calls browserInfo.getRateUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browserInfo.getRateUrl"
         }
       ]
     }

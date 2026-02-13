@@ -13,8 +13,10 @@ pub fn analyze_imports(imports: &[Import], file_type: &str) -> ImportMetrics {
         return ImportMetrics::default();
     }
 
-    let mut metrics = ImportMetrics::default();
-    metrics.total = imports.len() as u32;
+    let mut metrics = ImportMetrics {
+        total: imports.len() as u32,
+        ..Default::default()
+    };
 
     let mut unique_modules: FxHashSet<String> = FxHashSet::default();
     let mut stdlib_count = 0;
@@ -399,14 +401,6 @@ fn is_perl_stdlib(module: &str) -> bool {
 fn is_lua_stdlib(module: &str) -> bool {
     matches!(
         module,
-        "coroutine"
-            | "debug"
-            | "io"
-            | "math"
-            | "os"
-            | "package"
-            | "string"
-            | "table"
-            | "utf8"
+        "coroutine" | "debug" | "io" | "math" | "os" | "package" | "string" | "table" | "utf8"
     )
 }

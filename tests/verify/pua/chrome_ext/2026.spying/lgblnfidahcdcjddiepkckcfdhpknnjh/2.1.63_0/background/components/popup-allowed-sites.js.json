@@ -57,16 +57,16 @@
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "meta/internal/imported::popupallowedsites",
+      "id": "meta/internal/imported::object/keys",
       "kind": "structural",
-      "desc": "calls popupAllowedSites",
+      "desc": "calls Object.keys",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "popupAllowedSites"
+          "value": "Object.keys"
         }
       ]
     },
@@ -99,16 +99,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::object/keys",
+      "id": "meta/internal/imported::popupallowedsites",
       "kind": "structural",
-      "desc": "calls Object.keys",
+      "desc": "calls popupAllowedSites",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.keys"
+          "value": "popupAllowedSites"
         }
       ]
     }

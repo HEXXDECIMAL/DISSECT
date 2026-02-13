@@ -42,21 +42,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "messages.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
       "kind": "capability",
       "desc": "Sends message between extension contexts",
@@ -71,6 +56,21 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "messages.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
@@ -104,20 +104,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::browser/runtime/sendmessage",
-      "kind": "structural",
-      "desc": "calls browser.runtime.sendMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.runtime.sendMessage"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::debug/error",
       "kind": "structural",
       "desc": "calls debug.error",
@@ -128,6 +114,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls browser.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.runtime.sendMessage"
         }
       ]
     }

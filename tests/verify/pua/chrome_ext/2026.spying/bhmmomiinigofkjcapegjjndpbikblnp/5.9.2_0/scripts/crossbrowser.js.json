@@ -81,21 +81,6 @@
       "source_file": "obj/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "crossbrowser.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
@@ -111,6 +96,21 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "crossbrowser.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/browser::browser-names",
@@ -174,20 +174,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::navigator/useragent/indexof",
-      "kind": "structural",
-      "desc": "calls navigator.userAgent.indexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "navigator.userAgent.indexOf"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::crossbrowser",
       "kind": "structural",
       "desc": "calls crossbrowser",
@@ -226,6 +212,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "crossbrowserName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::navigator/useragent/indexof",
+      "kind": "structural",
+      "desc": "calls navigator.userAgent.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "navigator.userAgent.indexOf"
         }
       ]
     }

@@ -44,48 +44,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::browser/contextmenus/create",
-      "kind": "structural",
-      "desc": "calls browser.contextMenus.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.contextMenus.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/contextmenus/removeall/then",
-      "kind": "structural",
-      "desc": "calls browser.contextMenus.removeAll.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.contextMenus.removeAll.then"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/contextmenus/update",
-      "kind": "structural",
-      "desc": "calls browser.contextMenus.update",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.contextMenus.update"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::resolve",
       "kind": "structural",
       "desc": "calls resolve",
@@ -114,16 +72,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::browser/contextmenus/removeall",
+      "id": "meta/internal/imported::browser/contextmenus/removeall/then",
       "kind": "structural",
-      "desc": "calls browser.contextMenus.removeAll",
+      "desc": "calls browser.contextMenus.removeAll.then",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "browser.contextMenus.removeAll"
+          "value": "browser.contextMenus.removeAll.then"
         }
       ]
     },
@@ -138,6 +96,48 @@
           "method": "symbol",
           "source": "ast",
           "value": "reject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/update",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.update",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.update"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/create",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/contextmenus/removeall",
+      "kind": "structural",
+      "desc": "calls browser.contextMenus.removeAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.contextMenus.removeAll"
         }
       ]
     }

@@ -119,11 +119,25 @@ pub enum AnalysisWarning {
 impl std::fmt::Display for AnalysisWarning {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::AstTooDeep { max_depth } => write!(f, "AST nesting limit hit (depth: {})", max_depth),
-            Self::NestingTooDeep { max_depth } => write!(f, "Control flow nesting limit hit (depth: {})", max_depth),
-            Self::ArchiveTooDeep { max_depth } => write!(f, "Archive nesting limit hit (depth: {})", max_depth),
-            Self::RuleTimeout { rule_id, duration_ms, timeout_ms } => {
-                write!(f, "Rule evaluation timeout for '{}' ({}ms > {}ms limit)", rule_id, duration_ms, timeout_ms)
+            Self::AstTooDeep { max_depth } => {
+                write!(f, "AST nesting limit hit (depth: {})", max_depth)
+            }
+            Self::NestingTooDeep { max_depth } => {
+                write!(f, "Control flow nesting limit hit (depth: {})", max_depth)
+            }
+            Self::ArchiveTooDeep { max_depth } => {
+                write!(f, "Archive nesting limit hit (depth: {})", max_depth)
+            }
+            Self::RuleTimeout {
+                rule_id,
+                duration_ms,
+                timeout_ms,
+            } => {
+                write!(
+                    f,
+                    "Rule evaluation timeout for '{}' ({}ms > {}ms limit)",
+                    rule_id, duration_ms, timeout_ms
+                )
             }
         }
     }

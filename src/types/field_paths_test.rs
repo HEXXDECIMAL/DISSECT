@@ -18,7 +18,11 @@ mod tests {
         assert!(fields.contains(&"function_count"));
 
         // Should have extracted many fields (BinaryMetrics has 50+ fields)
-        assert!(fields.len() > 50, "Expected 50+ fields, got {}", fields.len());
+        assert!(
+            fields.len() > 50,
+            "Expected 50+ fields, got {}",
+            fields.len()
+        );
     }
 
     #[test]
@@ -32,7 +36,11 @@ mod tests {
         assert!(fields.contains(&"whitespace_ratio"));
 
         // Should have extracted many fields
-        assert!(fields.len() > 20, "Expected 20+ fields, got {}", fields.len());
+        assert!(
+            fields.len() > 20,
+            "Expected 20+ fields, got {}",
+            fields.len()
+        );
     }
 
     #[test]
@@ -47,6 +55,10 @@ mod tests {
 
         // Should have hundreds of paths (all metrics combined)
         eprintln!("Total dynamic metric paths: {}", paths.len());
-        assert!(paths.len() > 100, "Expected 100+ paths, got {}", paths.len());
+        assert!(
+            paths.len() > 100,
+            "Expected 100+ paths, got {}",
+            paths.len()
+        );
     }
 }

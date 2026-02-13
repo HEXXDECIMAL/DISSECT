@@ -1331,5 +1331,5 @@ fn test_eval_encoded_count_min_not_met() {
 
     // Should match - "password123" contains "password"
     assert!(result.matched);
-    assert!(result.evidence.len() > 0);
+    assert!(!result.evidence.is_empty());
 }

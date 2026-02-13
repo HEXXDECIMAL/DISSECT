@@ -58,21 +58,6 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "recommendation.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
       "desc": "Code uses frontend framework patterns",
@@ -105,32 +90,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::react/createelement",
-      "kind": "structural",
-      "desc": "calls React.createElement",
-      "conf": 0.95,
-      "crit": "inert",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "React.createElement"
+          "method": "basename",
+          "source": "target",
+          "value": "recommendation.js"
         }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::translate",
-      "kind": "structural",
-      "desc": "calls translate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "translate"
-        }
-      ]
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::recommendation",
@@ -147,6 +119,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::react/createelement",
+      "kind": "structural",
+      "desc": "calls React.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::recommendationsmeta",
       "kind": "structural",
       "desc": "calls recommendationsMeta",
@@ -157,6 +143,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "recommendationsMeta"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
         }
       ]
     },

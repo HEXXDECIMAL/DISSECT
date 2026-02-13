@@ -183,10 +183,12 @@ pub fn eval_metrics(
         "binary.file_size" => metrics.binary.as_ref().map(|b| b.file_size as f64),
         "binary.code_size" => metrics.binary.as_ref().map(|b| b.code_size as f64),
         "binary.code_to_data_ratio" => metrics.binary.as_ref().map(|b| b.code_to_data_ratio as f64),
-        "binary.has_debug_info" => metrics
-            .binary
-            .as_ref()
-            .map(|b| if b.has_debug_info { 1.0 } else { 0.0 }),
+        "binary.has_debug_info" => {
+            metrics
+                .binary
+                .as_ref()
+                .map(|b| if b.has_debug_info { 1.0 } else { 0.0 })
+        }
         "binary.is_stripped" => metrics
             .binary
             .as_ref()
@@ -233,10 +235,22 @@ pub fn eval_metrics(
         "binary.import_density" => metrics.binary.as_ref().map(|b| b.import_density as f64),
         "binary.function_density" => metrics.binary.as_ref().map(|b| b.function_density as f64),
         "binary.string_density" => metrics.binary.as_ref().map(|b| b.string_density as f64),
-        "binary.normalized_string_count" => metrics.binary.as_ref().map(|b| b.normalized_string_count as f64),
-        "binary.normalized_import_count" => metrics.binary.as_ref().map(|b| b.normalized_import_count as f64),
-        "binary.normalized_export_count" => metrics.binary.as_ref().map(|b| b.normalized_export_count as f64),
-        "binary.export_to_import_ratio" => metrics.binary.as_ref().map(|b| b.export_to_import_ratio as f64),
+        "binary.normalized_string_count" => metrics
+            .binary
+            .as_ref()
+            .map(|b| b.normalized_string_count as f64),
+        "binary.normalized_import_count" => metrics
+            .binary
+            .as_ref()
+            .map(|b| b.normalized_import_count as f64),
+        "binary.normalized_export_count" => metrics
+            .binary
+            .as_ref()
+            .map(|b| b.normalized_export_count as f64),
+        "binary.export_to_import_ratio" => metrics
+            .binary
+            .as_ref()
+            .map(|b| b.export_to_import_ratio as f64),
         "binary.has_overlay" => metrics
             .binary
             .as_ref()
@@ -250,6 +264,14 @@ pub fn eval_metrics(
 
         // ELF specific
         "elf.e_type" => metrics.elf.as_ref().map(|e| e.e_type as f64),
+        "elf.load_segment_max_p_filesz" => metrics
+            .elf
+            .as_ref()
+            .map(|e| e.load_segment_max_p_filesz as f64),
+        "elf.load_segment_max_p_memsz" => metrics
+            .elf
+            .as_ref()
+            .map(|e| e.load_segment_max_p_memsz as f64),
 
         // Complexity metrics
         "binary.avg_complexity" => metrics.binary.as_ref().map(|b| b.avg_complexity as f64),

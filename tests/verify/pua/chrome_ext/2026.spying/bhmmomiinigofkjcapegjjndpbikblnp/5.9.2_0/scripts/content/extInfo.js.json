@@ -27,51 +27,21 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(()=>{",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 constructor",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
+      "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "extInfo.js"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 10.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
@@ -96,9 +66,9 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
+      "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
@@ -107,10 +77,26 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "functions.one_liners = 10.00"
+          "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
@@ -128,6 +114,22 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/electron::electron-resources-path",
@@ -154,10 +156,25 @@
       "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
+      "desc": "Small file under 5KB",
       "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "extInfo.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -166,6 +183,11 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "text.whitespace_ratio = 0.01"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 10.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
@@ -193,140 +215,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 10.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::extinfo/createextinfosharedobject",
-      "kind": "structural",
-      "desc": "calls extInfo.createExtInfoSharedObject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "extInfo.createExtInfoSharedObject"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::extinfo",
-      "kind": "structural",
-      "desc": "calls extInfo",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "extInfo"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cloneinto",
-      "kind": "structural",
-      "desc": "calls cloneInto",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cloneInto"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/open",
-      "kind": "structural",
-      "desc": "calls n.open",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.open"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/responsetype",
-      "kind": "structural",
-      "desc": "calls n.responseType",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.responseType"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/send",
-      "kind": "structural",
-      "desc": "calls n.send",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.send"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/wrappedjsobject/extinfo",
-      "kind": "structural",
-      "desc": "calls window.wrappedJSObject.extInfo",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.wrappedJSObject.extInfo"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/addeventlistener",
-      "kind": "structural",
-      "desc": "calls n.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.addEventListener"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::webextapi/runtime/geturl",
       "kind": "structural",
       "desc": "calls webextApi.runtime.getURL",
@@ -341,30 +229,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::settimeout",
+      "id": "meta/internal/imported::extinfo/createextinfosharedobject",
       "kind": "structural",
-      "desc": "calls setTimeout",
+      "desc": "calls extInfo.createExtInfoSharedObject",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/setattribute",
-      "kind": "structural",
-      "desc": "calls e.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.setAttribute"
+          "value": "extInfo.createExtInfoSharedObject"
         }
       ]
     },
@@ -383,6 +257,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::n/open",
+      "kind": "structural",
+      "desc": "calls n.open",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.open"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/setattribute",
+      "kind": "structural",
+      "desc": "calls e.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.setAttribute"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::document/body/appendchild",
       "kind": "structural",
       "desc": "calls document.body.appendChild",
@@ -393,6 +295,104 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/wrappedjsobject/extinfo",
+      "kind": "structural",
+      "desc": "calls window.wrappedJSObject.extInfo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.wrappedJSObject.extInfo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cloneinto",
+      "kind": "structural",
+      "desc": "calls cloneInto",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cloneInto"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/send",
+      "kind": "structural",
+      "desc": "calls n.send",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.send"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/responsetype",
+      "kind": "structural",
+      "desc": "calls n.responseType",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.responseType"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extinfo",
+      "kind": "structural",
+      "desc": "calls extInfo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extInfo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/addeventlistener",
+      "kind": "structural",
+      "desc": "calls n.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
         }
       ]
     }

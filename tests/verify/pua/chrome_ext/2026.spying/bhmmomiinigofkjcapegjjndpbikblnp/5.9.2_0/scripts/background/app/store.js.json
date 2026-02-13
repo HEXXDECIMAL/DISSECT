@@ -27,6 +27,20 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::laststate",
+      "kind": "structural",
+      "desc": "calls lastState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lastState"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::initstore",
       "kind": "structural",
       "desc": "calls initStore",
@@ -37,6 +51,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "initStore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createwrapstore",
+      "kind": "structural",
+      "desc": "calls createWrapStore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createWrapStore"
         }
       ]
     },
@@ -69,48 +97,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::createwrapstore",
-      "kind": "structural",
-      "desc": "calls createWrapStore",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "createWrapStore"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/getstate",
-      "kind": "structural",
-      "desc": "calls r.getState",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.getState"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::redux/compose",
-      "kind": "structural",
-      "desc": "calls Redux.compose",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Redux.compose"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::alias",
       "kind": "structural",
       "desc": "calls alias",
@@ -139,16 +125,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::laststate",
+      "id": "meta/internal/imported::redux/compose",
       "kind": "structural",
-      "desc": "calls lastState",
+      "desc": "calls Redux.compose",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "lastState"
+          "value": "Redux.compose"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/getstate",
+      "kind": "structural",
+      "desc": "calls r.getState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.getState"
         }
       ]
     }

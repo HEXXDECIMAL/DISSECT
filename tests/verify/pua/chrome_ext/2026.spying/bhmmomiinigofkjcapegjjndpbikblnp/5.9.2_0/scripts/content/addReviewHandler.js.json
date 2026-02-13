@@ -12,6 +12,27 @@
   },
   "findings": [
     {
+      "id": "cap/data/text/keywords::runtime",
+      "kind": "capability",
+      "desc": "runtime keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "${webextApi.runtime.getURL(\"/loggedOut.html\")}?doamin_source=${location.hostname.replace(/^www\\d*\\./,\"\")}",
+          "location": "0x3fa"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.getURL"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
       "id": "cap/os/admin/observability::datadog",
       "kind": "capability",
       "desc": "Datadog monitoring agent",
@@ -58,41 +79,49 @@
       "source_file": "cap/os/admin/observability/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "runtime keyword",
-      "conf": 0.2,
-      "crit": "inert",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "${webextApi.runtime.getURL(\"/loggedOut.html\")}?doamin_source=${location.hostname.replace(/^www\\d*\\./,\"\")}",
-          "location": "0x3fa"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "webextApi.runtime.getURL"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 7.00"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
       "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
+      "desc": "Gets extension resource URL",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 setTimeout(()=>{",
-          "location": "file"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "window.addEventListener(\"message\",t=>{const i=t.data;if(i){if(i.type===OPEN_ADD_REVIEW&&!document.ge...",
+          "location": "1:301"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.getURL(\"/addReview.html\")",
+          "location": "1:850"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.getURL(\"/loggedOut.html\")",
+          "location": "1:1022"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
@@ -129,6 +158,77 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.01"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "hostname",
+          "location": "0x3fa"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1191.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
@@ -158,134 +258,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
-      "kind": "capability",
-      "desc": "Gets extension resource URL",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "window.addEventListener(\"message\",t=>{const i=t.data;if(i){if(i.type===OPEN_ADD_REVIEW&&!document.ge...",
-          "location": "1:301"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.runtime.getURL(\"/addReview.html\")",
-          "location": "1:850"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.runtime.getURL(\"/loggedOut.html\")",
-          "location": "1:1022"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1191.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 7.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::hostname-keyword",
-      "kind": "capability",
-      "desc": "hostname keyword",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "hostname",
-          "location": "0x3fa"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "hostname"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
-      "kind": "capability",
-      "desc": "File is part of a browser extension",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "window.addEventListener(\"message\",t=>{const i=t.data;if(i){if(i.type===OPEN_ADD_REVIEW&&!document.ge...",
-          "location": "1:301"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.runtime.getURL(\"/addReview.html\")",
-          "location": "1:850"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.runtime.getURL(\"/loggedOut.html\")",
-          "location": "1:1022"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::system-id-sources",
@@ -336,58 +308,44 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::e/preventdefault",
-      "kind": "structural",
-      "desc": "calls e.preventDefault",
-      "conf": 0.95,
-      "crit": "inert",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "kind": "capability",
+      "desc": "File is part of a browser extension",
+      "conf": 0.9,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.preventDefault"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "window.addEventListener(\"message\",t=>{const i=t.data;if(i){if(i.type===OPEN_ADD_REVIEW&&!document.ge...",
+          "location": "1:301"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.getURL(\"/addReview.html\")",
+          "location": "1:850"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.runtime.getURL(\"/loggedOut.html\")",
+          "location": "1:1022"
         }
-      ]
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::t/addeventlistener",
+      "id": "meta/internal/imported::e/remove",
       "kind": "structural",
-      "desc": "calls t.addEventListener",
+      "desc": "calls e.remove",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/addeventlistener",
-      "kind": "structural",
-      "desc": "calls window.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::location/hostname/replace",
-      "kind": "structural",
-      "desc": "calls location.hostname.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "location.hostname.replace"
+          "value": "e.remove"
         }
       ]
     },
@@ -406,34 +364,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::addreviewhandler/closeaddreview",
-      "kind": "structural",
-      "desc": "calls AddReviewHandler.closeAddReview",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "AddReviewHandler.closeAddReview"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/id",
-      "kind": "structural",
-      "desc": "calls t.id",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.id"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/body/appendchild",
       "kind": "structural",
       "desc": "calls document.body.appendChild",
@@ -448,30 +378,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::settimeout",
+      "id": "meta/internal/imported::addreviewhandler/closeaddreview",
       "kind": "structural",
-      "desc": "calls setTimeout",
+      "desc": "calls AddReviewHandler.closeAddReview",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/runtime/geturl",
-      "kind": "structural",
-      "desc": "calls webextApi.runtime.getURL",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.runtime.getURL"
+          "value": "AddReviewHandler.closeAddReview"
         }
       ]
     },
@@ -490,16 +406,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/appendchild",
+      "id": "meta/internal/imported::document/addeventlistener",
       "kind": "structural",
-      "desc": "calls t.appendChild",
+      "desc": "calls document.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.appendChild"
+          "value": "document.addEventListener"
         }
       ]
     },
@@ -518,30 +434,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/addeventlistener",
+      "id": "meta/internal/imported::webextapi/runtime/geturl",
       "kind": "structural",
-      "desc": "calls document.addEventListener",
+      "desc": "calls webextApi.runtime.getURL",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.addEventListener"
+          "value": "webextApi.runtime.getURL"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::e/remove",
+      "id": "meta/internal/imported::t/appendchild",
       "kind": "structural",
-      "desc": "calls e.remove",
+      "desc": "calls t.appendChild",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.remove"
+          "value": "t.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/preventdefault",
+      "kind": "structural",
+      "desc": "calls e.preventDefault",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.preventDefault"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/addeventlistener",
+      "kind": "structural",
+      "desc": "calls window.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.addEventListener"
         }
       ]
     },
@@ -560,6 +504,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::t/addeventlistener",
+      "kind": "structural",
+      "desc": "calls t.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.addEventListener"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::e/getstate",
       "kind": "structural",
       "desc": "calls e.getState",
@@ -570,6 +528,48 @@
           "method": "symbol",
           "source": "ast",
           "value": "e.getState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/id",
+      "kind": "structural",
+      "desc": "calls t.id",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.id"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/hostname/replace",
+      "kind": "structural",
+      "desc": "calls location.hostname.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.hostname.replace"
         }
       ]
     }

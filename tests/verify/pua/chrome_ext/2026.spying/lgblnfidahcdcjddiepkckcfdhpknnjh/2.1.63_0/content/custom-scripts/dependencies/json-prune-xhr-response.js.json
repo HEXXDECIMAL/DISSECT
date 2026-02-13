@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/fs/file/operations::binary-file-ops",
+      "kind": "capability",
+      "desc": "Binary file operations",
+      "conf": 0.8,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "open",
+          "location": "0x246"
+        }
+      ],
+      "source_file": "cap/fs/file/operations/traits.yaml"
+    },
+    {
       "id": "cap/comm/http/request::xmlhttprequest-word",
       "kind": "capability",
       "desc": "XMLHttpRequest reference",
@@ -27,20 +43,21 @@
       "source_file": "cap/comm/http/request/generic.yaml"
     },
     {
-      "id": "cap/fs/file/operations::binary-file-ops",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "Binary file operations",
-      "conf": 0.8,
-      "crit": "inert",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "tree-sitter-javascript",
-          "value": "open",
-          "location": "0x246"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "cap/fs/file/operations/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -92,38 +109,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/exec/vm/sandbox::http-fetch-methods",
-      "kind": "capability",
-      "desc": "HTTP fetch methods",
-      "conf": 0.6,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "self.XMLHttpRequest"
-        }
-      ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
-    },
-    {
       "id": "cap/exec/vm/sandbox::http-clients",
       "kind": "capability",
       "desc": "HTTP client library usage",
@@ -154,6 +139,21 @@
       "source_file": "cap/comm/http/request/generic.yaml"
     },
     {
+      "id": "cap/exec/vm/sandbox::http-fetch-methods",
+      "kind": "capability",
+      "desc": "HTTP fetch methods",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "self.XMLHttpRequest"
+        }
+      ],
+      "source_file": "cap/exec/vm/sandbox/node.yaml"
+    },
+    {
       "id": "obj/c2/ddos/attack::http-methods",
       "kind": "capability",
       "desc": "HTTP request methods detected",
@@ -171,34 +171,6 @@
       "source_file": "obj/c2/ddos/attack/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::safe/getextraargs",
-      "kind": "structural",
-      "desc": "calls safe.getExtraArgs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.getExtraArgs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::createpropertymatchmap",
-      "kind": "structural",
-      "desc": "calls createPropertyMatchMap",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "createPropertyMatchMap"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::xhrinstances/set",
       "kind": "structural",
       "desc": "calls xhrInstances.set",
@@ -209,132 +181,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "xhrInstances.set"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::responselength",
-      "kind": "structural",
-      "desc": "calls responseLength",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "responseLength"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::xhrdetails/lastresponselength",
-      "kind": "structural",
-      "desc": "calls xhrDetails.lastResponseLength",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "xhrDetails.lastResponseLength"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::response",
-      "kind": "structural",
-      "desc": "calls response",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "response"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::matchobjectproperties",
-      "kind": "structural",
-      "desc": "calls matchObjectProperties",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "matchObjectProperties"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::logprefix",
-      "kind": "structural",
-      "desc": "calls logPrefix",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "logPrefix"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pruneobject",
-      "kind": "structural",
-      "desc": "calls pruneObject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pruneObject"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::outcome",
-      "kind": "structural",
-      "desc": "calls outcome",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "outcome"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stackneedle",
-      "kind": "structural",
-      "desc": "calls stackNeedle",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stackNeedle"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::innerresponse",
-      "kind": "structural",
-      "desc": "calls innerResponse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "innerResponse"
         }
       ]
     },
@@ -353,6 +199,118 @@
       ]
     },
     {
+      "id": "meta/internal/imported::objbefore",
+      "kind": "structural",
+      "desc": "calls objBefore",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objBefore"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/makelogprefix",
+      "kind": "structural",
+      "desc": "calls safe.makeLogPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.makeLogPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::innerresponse",
+      "kind": "structural",
+      "desc": "calls innerResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "innerResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::matchobjectproperties",
+      "kind": "structural",
+      "desc": "calls matchObjectProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "matchObjectProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::responselength",
+      "kind": "structural",
+      "desc": "calls responseLength",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "responseLength"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::logprefix",
+      "kind": "structural",
+      "desc": "calls logPrefix",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "logPrefix"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stackneedle",
+      "kind": "structural",
+      "desc": "calls stackNeedle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stackNeedle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::xhrdetails",
+      "kind": "structural",
+      "desc": "calls xhrDetails",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "xhrDetails"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::safe/json_parse",
       "kind": "structural",
       "desc": "calls safe.JSON_parse",
@@ -363,6 +321,76 @@
           "method": "symbol",
           "source": "ast",
           "value": "safe.JSON_parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/initpattern",
+      "kind": "structural",
+      "desc": "calls safe.initPattern",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.initPattern"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::xhrdetails/response",
+      "kind": "structural",
+      "desc": "calls xhrDetails.response",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "xhrDetails.response"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::propneedles",
+      "kind": "structural",
+      "desc": "calls propNeedles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "propNeedles"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::xhrinstances",
+      "kind": "structural",
+      "desc": "calls xhrInstances",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "xhrInstances"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::outcome",
+      "kind": "structural",
+      "desc": "calls outcome",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "outcome"
         }
       ]
     },
@@ -381,16 +409,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::objbefore",
+      "id": "meta/internal/imported::createpropertymatchmap",
       "kind": "structural",
-      "desc": "calls objBefore",
+      "desc": "calls createPropertyMatchMap",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "objBefore"
+          "value": "createPropertyMatchMap"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pruneobject",
+      "kind": "structural",
+      "desc": "calls pruneObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pruneObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
         }
       ]
     },
@@ -423,20 +479,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe/initpattern",
-      "kind": "structural",
-      "desc": "calls safe.initPattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.initPattern"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::safe/json_stringify",
       "kind": "structural",
       "desc": "calls safe.JSON_stringify",
@@ -451,16 +493,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::xhrinstances",
+      "id": "meta/internal/imported::response",
       "kind": "structural",
-      "desc": "calls xhrInstances",
+      "desc": "calls response",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "xhrInstances"
+          "value": "response"
         }
       ]
     },
@@ -479,76 +521,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safe/makelogprefix",
-      "kind": "structural",
-      "desc": "calls safe.makeLogPrefix",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.makeLogPrefix"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::propneedles",
-      "kind": "structural",
-      "desc": "calls propNeedles",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "propNeedles"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::xhrdetails",
-      "kind": "structural",
-      "desc": "calls xhrDetails",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "xhrDetails"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::xhrdetails/response",
-      "kind": "structural",
-      "desc": "calls xhrDetails.response",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "xhrDetails.response"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::self/xmlhttprequest",
       "kind": "structural",
       "desc": "calls self.XMLHttpRequest",
@@ -563,6 +535,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::xhrdetails/lastresponselength",
+      "kind": "structural",
+      "desc": "calls xhrDetails.lastResponseLength",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "xhrDetails.lastResponseLength"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::outerresponse",
       "kind": "structural",
       "desc": "calls outerResponse",
@@ -573,6 +559,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "outerResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/getextraargs",
+      "kind": "structural",
+      "desc": "calls safe.getExtraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.getExtraArgs"
         }
       ]
     }

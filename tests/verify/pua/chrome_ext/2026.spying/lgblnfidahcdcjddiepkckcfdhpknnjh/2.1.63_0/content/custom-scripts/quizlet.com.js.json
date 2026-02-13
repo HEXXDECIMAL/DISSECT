@@ -12,6 +12,23 @@
   },
   "findings": [
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.06"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
@@ -99,21 +116,18 @@
       "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.06"
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
         }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      ]
     },
     {
       "id": "meta/internal/imported::document/queryselector/click",
@@ -126,20 +140,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector.click"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselector",
-      "kind": "structural",
-      "desc": "calls document.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelector"
         }
       ]
     }

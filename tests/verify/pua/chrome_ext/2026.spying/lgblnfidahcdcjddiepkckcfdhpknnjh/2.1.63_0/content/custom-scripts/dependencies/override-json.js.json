@@ -8,23 +8,24 @@
   "size": 1072,
   "risk": "notable",
   "counts": {
-    "notable": 6
+    "notable": 4
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
@@ -43,35 +44,36 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "Response.prototype.json"
+          "value": "JSON.parse"
         }
       ],
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1  for (",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
     },
     {
       "id": "meta/quality/error-handling::catch-keyword",
@@ -120,23 +122,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
-      "kind": "capability",
-      "desc": "Very few string literals (string",
-      "conf": 0.4,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "strings.total = 4.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
@@ -174,31 +159,100 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Response.prototype.json"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::promise/then/catch",
+      "id": "meta/internal/imported::response/prototype/json",
       "kind": "structural",
-      "desc": "calls promise.then.catch",
+      "desc": "calls Response.prototype.json",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "promise.then.catch"
+          "value": "Response.prototype.json"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/then",
+      "kind": "structural",
+      "desc": "calls promise.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overridden",
+      "kind": "structural",
+      "desc": "calls overridden",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overridden"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/apply",
+      "kind": "structural",
+      "desc": "calls Reflect.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise",
+      "kind": "structural",
+      "desc": "calls promise",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "promise"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativejsonparse/apply",
+      "kind": "structural",
+      "desc": "calls nativeJSONParse.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeJSONParse.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::obj/key",
+      "kind": "structural",
+      "desc": "calls obj.key",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "obj.key"
         }
       ]
     },
@@ -231,142 +285,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::overridden",
+      "id": "meta/internal/imported::promise/then/catch",
       "kind": "structural",
-      "desc": "calls overridden",
+      "desc": "calls promise.then.catch",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "overridden"
+          "value": "promise.then.catch"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::nativejsonparse/apply",
+      "id": "meta/internal/imported::reject",
       "kind": "structural",
-      "desc": "calls nativeJSONParse.apply",
+      "desc": "calls reject",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "nativeJSONParse.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise",
-      "kind": "structural",
-      "desc": "calls promise",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "promise"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::obj/key",
-      "kind": "structural",
-      "desc": "calls obj.key",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "obj.key"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/then",
-      "kind": "structural",
-      "desc": "calls promise.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "promise.then"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reflect/apply",
-      "kind": "structural",
-      "desc": "calls Reflect.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Reflect.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::response/prototype/json",
-      "kind": "structural",
-      "desc": "calls Response.prototype.json",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Response.prototype.json"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::nativeresponsejson",
-      "kind": "structural",
-      "desc": "calls nativeResponseJson",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "nativeResponseJson"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::obj/hasownproperty",
-      "kind": "structural",
-      "desc": "calls obj.hasOwnProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "obj.hasOwnProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::overrideobject",
-      "kind": "structural",
-      "desc": "calls overrideObject",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "overrideObject"
+          "value": "reject"
         }
       ]
     },
@@ -385,6 +327,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::overrideobject",
+      "kind": "structural",
+      "desc": "calls overrideObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overrideObject"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::resolve",
       "kind": "structural",
       "desc": "calls resolve",
@@ -399,16 +355,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reject",
+      "id": "meta/internal/imported::obj/hasownproperty",
       "kind": "structural",
-      "desc": "calls reject",
+      "desc": "calls obj.hasOwnProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "reject"
+          "value": "obj.hasOwnProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::nativeresponsejson",
+      "kind": "structural",
+      "desc": "calls nativeResponseJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "nativeResponseJson"
         }
       ]
     }

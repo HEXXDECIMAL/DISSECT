@@ -93,6 +93,34 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::document/body/style/getpropertyvalue",
+      "kind": "structural",
+      "desc": "calls document.body.style.getPropertyValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.style.getPropertyValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector/remove",
+      "kind": "structural",
+      "desc": "calls document.querySelector.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::document/body/style/setproperty",
       "kind": "structural",
       "desc": "calls document.body.style.setProperty",
@@ -117,34 +145,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselector/remove",
-      "kind": "structural",
-      "desc": "calls document.querySelector.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelector.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/body/style/getpropertyvalue",
-      "kind": "structural",
-      "desc": "calls document.body.style.getPropertyValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.body.style.getPropertyValue"
         }
       ]
     }

@@ -12,6 +12,46 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 5  for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "kind": "capability",
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x5f3"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x5f4"
+        }
+      ],
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -46,78 +86,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
-      "kind": "capability",
-      "desc": "Content-Type JSON header",
-      "conf": 0.6,
-      "crit": "inert",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x5f3"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x5f4"
-        }
-      ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 5  for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "meta/quality/error-handling::catch-keyword",
-      "kind": "capability",
-      "desc": "catch keyword",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "catch"
-        }
-      ],
-      "source_file": "meta/quality/error-handling/traits.yaml"
-    },
-    {
-      "id": "obj/c2/network/beacon::http-response-text",
-      "kind": "capability",
-      "desc": "HTTP response text extraction",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0030",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "response.text"
-        }
-      ],
-      "source_file": "obj/c2/network/beacon/json-c2.yaml"
-    },
-    {
       "id": "cap/exec/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
@@ -136,6 +104,21 @@
       "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
     },
     {
+      "id": "meta/quality/error-handling::catch-keyword",
+      "kind": "capability",
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
       "id": "cap/exec/eval/dynamic::variable-immediate-call",
       "kind": "capability",
       "desc": "Variable called immediately as function",
@@ -150,6 +133,23 @@
         }
       ],
       "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/c2/network/beacon::http-response-text",
+      "kind": "capability",
+      "desc": "HTTP response text extraction",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0030",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "response.text"
+        }
+      ],
+      "source_file": "obj/c2/network/beacon/json-c2.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -192,58 +192,30 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::getdomainfromurl",
+      "id": "meta/internal/imported::parseplaylist",
       "kind": "structural",
-      "desc": "calls getDomainFromUrl",
+      "desc": "calls parsePlaylist",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getDomainFromUrl"
+          "value": "parsePlaylist"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::url",
+      "id": "meta/internal/imported::loadfilets",
       "kind": "structural",
-      "desc": "calls url",
+      "desc": "calls loadFileTS",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "url"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cycle",
-      "kind": "structural",
-      "desc": "calls cycle",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cycle"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::sizeofvideo",
-      "kind": "structural",
-      "desc": "calls sizeOfVideo",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sizeOfVideo"
+          "value": "loadFileTS"
         }
       ]
     },
@@ -262,44 +234,100 @@
       ]
     },
     {
-      "id": "meta/internal/imported::urltsfile",
+      "id": "meta/internal/imported::console/log",
       "kind": "structural",
-      "desc": "calls urlTSFile",
+      "desc": "calls console.log",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "urlTSFile"
+          "value": "console.log"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::isnexttsfile",
+      "id": "meta/internal/imported::url/lastindexof",
       "kind": "structural",
-      "desc": "calls isNextTSFile",
+      "desc": "calls url.lastIndexOf",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isNextTSFile"
+          "value": "url.lastIndexOf"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::self/onmessage",
+      "id": "meta/internal/imported::isplaylist",
       "kind": "structural",
-      "desc": "calls self.onmessage",
+      "desc": "calls isPlaylist",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self.onmessage"
+          "value": "isPlaylist"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arrayplaylist",
+      "kind": "structural",
+      "desc": "calls arrayPlaylist",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arrayPlaylist"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/postmessage",
+      "kind": "structural",
+      "desc": "calls self.postMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.postMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url",
+      "kind": "structural",
+      "desc": "calls url",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "url"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fetch/then/then/catch",
+      "kind": "structural",
+      "desc": "calls fetch.then.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fetch.then.then.catch"
         }
       ]
     },
@@ -318,58 +346,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::roughsizeofobject",
+      "id": "meta/internal/imported::bytes",
       "kind": "structural",
-      "desc": "calls roughSizeOfObject",
+      "desc": "calls bytes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "roughSizeOfObject"
+          "value": "bytes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::isrequestsuccessful",
+      "id": "meta/internal/imported::isnexttsfile",
       "kind": "structural",
-      "desc": "calls isRequestSuccessful",
+      "desc": "calls isNextTSFile",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isRequestSuccessful"
+          "value": "isNextTSFile"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::objectlist/objectlist/length",
+      "id": "meta/internal/imported::isrun",
       "kind": "structural",
-      "desc": "calls objectList.objectList.length",
+      "desc": "calls isRun",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "objectList.objectList.length"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/postmessage",
-      "kind": "structural",
-      "desc": "calls self.postMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self.postMessage"
+          "value": "isRun"
         }
       ]
     },
@@ -398,48 +412,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "arrayPlaylist.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::loadfilets",
-      "kind": "structural",
-      "desc": "calls loadFileTS",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "loadFileTS"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::console/log",
-      "kind": "structural",
-      "desc": "calls console.log",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "console.log"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parseplaylist",
-      "kind": "structural",
-      "desc": "calls parsePlaylist",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parsePlaylist"
         }
       ]
     },
@@ -486,118 +458,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::isfind",
-      "kind": "structural",
-      "desc": "calls isFind",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isFind"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::url/substring",
-      "kind": "structural",
-      "desc": "calls url.substring",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "url.substring"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::allplaylist",
-      "kind": "structural",
-      "desc": "calls allPlaylist",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "allPlaylist"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isrun",
-      "kind": "structural",
-      "desc": "calls isRun",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isRun"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::recurse",
-      "kind": "structural",
-      "desc": "calls recurse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "recurse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fetch/then/then/catch",
-      "kind": "structural",
-      "desc": "calls fetch.then.then.catch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fetch.then.then.catch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arrayplaylist/i/startswith",
-      "kind": "structural",
-      "desc": "calls arrayPlaylist.i.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arrayPlaylist.i.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arrayplaylist",
-      "kind": "structural",
-      "desc": "calls arrayPlaylist",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arrayPlaylist"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::strplaylist/split",
       "kind": "structural",
       "desc": "calls strPlaylist.split",
@@ -608,62 +468,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "strPlaylist.split"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isplaylist",
-      "kind": "structural",
-      "desc": "calls isPlaylist",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isPlaylist"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::allplaylist/i/search",
-      "kind": "structural",
-      "desc": "calls allPlaylist.i.search",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "allPlaylist.i.search"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::objectlist",
-      "kind": "structural",
-      "desc": "calls objectList",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "objectList"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::url/lastindexof",
-      "kind": "structural",
-      "desc": "calls url.lastIndexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "url.lastIndexOf"
         }
       ]
     },
@@ -682,30 +486,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::bytes",
+      "id": "meta/internal/imported::sizeofvideo",
       "kind": "structural",
-      "desc": "calls bytes",
+      "desc": "calls sizeOfVideo",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "bytes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::counttsfiles",
-      "kind": "structural",
-      "desc": "calls countTSFiles",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "countTSFiles"
+          "value": "sizeOfVideo"
         }
       ]
     },
@@ -720,6 +510,216 @@
           "method": "symbol",
           "source": "ast",
           "value": "lastTSFile"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getdomainfromurl",
+      "kind": "structural",
+      "desc": "calls getDomainFromUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getDomainFromUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isfind",
+      "kind": "structural",
+      "desc": "calls isFind",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isFind"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::recurse",
+      "kind": "structural",
+      "desc": "calls recurse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "recurse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arrayplaylist/i/startswith",
+      "kind": "structural",
+      "desc": "calls arrayPlaylist.i.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arrayPlaylist.i.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objectlist",
+      "kind": "structural",
+      "desc": "calls objectList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::allplaylist",
+      "kind": "structural",
+      "desc": "calls allPlaylist",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allPlaylist"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/onmessage",
+      "kind": "structural",
+      "desc": "calls self.onmessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.onmessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::allplaylist/i/search",
+      "kind": "structural",
+      "desc": "calls allPlaylist.i.search",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allPlaylist.i.search"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objectlist/objectlist/length",
+      "kind": "structural",
+      "desc": "calls objectList.objectList.length",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectList.objectList.length"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::urltsfile",
+      "kind": "structural",
+      "desc": "calls urlTSFile",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "urlTSFile"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::roughsizeofobject",
+      "kind": "structural",
+      "desc": "calls roughSizeOfObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "roughSizeOfObject"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isrequestsuccessful",
+      "kind": "structural",
+      "desc": "calls isRequestSuccessful",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isRequestSuccessful"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url/substring",
+      "kind": "structural",
+      "desc": "calls url.substring",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "url.substring"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cycle",
+      "kind": "structural",
+      "desc": "calls cycle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cycle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::counttsfiles",
+      "kind": "structural",
+      "desc": "calls countTSFiles",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "countTSFiles"
         }
       ]
     }

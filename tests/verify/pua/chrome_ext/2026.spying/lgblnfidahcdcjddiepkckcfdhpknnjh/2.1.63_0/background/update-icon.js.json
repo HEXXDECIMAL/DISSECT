@@ -12,6 +12,27 @@
   },
   "findings": [
     {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "${amount} ${getLocalizedText('blocks_on_this_page')}",
+          "location": "0x368"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
       "kind": "capability",
       "desc": "Converts URL object to string",
@@ -55,51 +76,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
-      "kind": "capability",
-      "desc": "Local AppData reference",
-      "conf": 0.4,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "${amount} ${getLocalizedText('blocks_on_this_page')}",
-          "location": "0x368"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "getLocalizedText"
-        }
-      ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
-    },
-    {
-      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
       "kind": "structural",
-      "desc": "calls dataProcessingConsent.getConsent",
+      "desc": "calls pageDataComponent.getActiveTabData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "dataProcessingConsent.getConsent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setappiconbadgetext",
-      "kind": "structural",
-      "desc": "calls setAppIconBadgeText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setAppIconBadgeText"
+          "value": "pageDataComponent.getActiveTabData"
         }
       ]
     },
@@ -114,6 +100,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getsettings",
+      "kind": "structural",
+      "desc": "calls userData.getSettings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getSettings"
         }
       ]
     },
@@ -160,20 +160,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::getlocalizedtext",
-      "kind": "structural",
-      "desc": "calls getLocalizedText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getLocalizedText"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::amount/tostring",
       "kind": "structural",
       "desc": "calls amount.toString",
@@ -184,20 +170,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "amount.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::disabled",
-      "kind": "structural",
-      "desc": "calls disabled",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "disabled"
         }
       ]
     },
@@ -230,30 +202,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::userdata/getsettings",
+      "id": "meta/internal/imported::disabled",
       "kind": "structural",
-      "desc": "calls userData.getSettings",
+      "desc": "calls disabled",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "userData.getSettings"
+          "value": "disabled"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::pagedatacomponent/getactivetabdata",
+      "id": "meta/internal/imported::setappiconbadgetext",
       "kind": "structural",
-      "desc": "calls pageDataComponent.getActiveTabData",
+      "desc": "calls setAppIconBadgeText",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "pageDataComponent.getActiveTabData"
+          "value": "setAppIconBadgeText"
         }
       ]
     },
@@ -268,6 +240,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "setIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocalizedtext",
+      "kind": "structural",
+      "desc": "calls getLocalizedText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dataprocessingconsent/getconsent",
+      "kind": "structural",
+      "desc": "calls dataProcessingConsent.getConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dataProcessingConsent.getConsent"
         }
       ]
     }

@@ -27,30 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::csslistdatacomponent/start",
+      "id": "meta/internal/imported::promise/allsettled",
       "kind": "structural",
-      "desc": "calls cssListDataComponent.start",
+      "desc": "calls Promise.allSettled",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cssListDataComponent.start"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::trackerslistdata",
-      "kind": "structural",
-      "desc": "calls trackersListData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "trackersListData"
+          "value": "Promise.allSettled"
         }
       ]
     },
@@ -69,16 +55,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::promise/allsettled",
+      "id": "meta/internal/imported::trackerslistdata",
       "kind": "structural",
-      "desc": "calls Promise.allSettled",
+      "desc": "calls trackersListData",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Promise.allSettled"
+          "value": "trackersListData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::csslistdatacomponent/start",
+      "kind": "structural",
+      "desc": "calls cssListDataComponent.start",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cssListDataComponent.start"
         }
       ]
     }

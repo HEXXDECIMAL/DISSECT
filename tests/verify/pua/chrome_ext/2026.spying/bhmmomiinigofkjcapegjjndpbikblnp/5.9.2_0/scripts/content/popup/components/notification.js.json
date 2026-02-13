@@ -12,6 +12,21 @@
   },
   "findings": [
     {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
       "desc": "setTimeout with code execution",
@@ -43,31 +58,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
+      "id": "meta/internal/imported::webextapi/i18n/getmessage",
       "kind": "structural",
-      "desc": "calls setTimeout",
+      "desc": "calls webextApi.i18n.getMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setTimeout"
+          "value": "webextApi.i18n.getMessage"
         }
       ]
     },
@@ -100,16 +100,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::webextapi/i18n/getmessage",
+      "id": "meta/internal/imported::settimeout",
       "kind": "structural",
-      "desc": "calls webextApi.i18n.getMessage",
+      "desc": "calls setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webextApi.i18n.getMessage"
+          "value": "setTimeout"
         }
       ]
     }

@@ -117,30 +117,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::body/style/setproperty",
+      "id": "meta/internal/imported::documentelement/style/setproperty",
       "kind": "structural",
-      "desc": "calls body.style.setProperty",
+      "desc": "calls documentElement.style.setProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "body.style.setProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::body/style/getpropertyvalue",
-      "kind": "structural",
-      "desc": "calls body.style.getPropertyValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "body.style.getPropertyValue"
+          "value": "documentElement.style.setProperty"
         }
       ]
     },
@@ -159,16 +145,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::documentelement/style/setproperty",
+      "id": "meta/internal/imported::body/style/setproperty",
       "kind": "structural",
-      "desc": "calls documentElement.style.setProperty",
+      "desc": "calls body.style.setProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "documentElement.style.setProperty"
+          "value": "body.style.setProperty"
         }
       ]
     },
@@ -197,6 +183,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "documentElement.style.getPropertyValue"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::body/style/getpropertyvalue",
+      "kind": "structural",
+      "desc": "calls body.style.getPropertyValue",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "body.style.getPropertyValue"
         }
       ]
     }

@@ -211,7 +211,7 @@ fn test_finding_constructor() {
         attack: None,
         trait_refs: vec![],
         evidence,
-    
+
         source_file: None,
     };
 
@@ -315,7 +315,7 @@ fn test_string_info_creation() {
 fn test_section_creation() {
     let section = Section {
         name: ".text".to_string(),
-            address: None,
+        address: None,
         size: 4096,
         entropy: 6.5,
         permissions: Some("r-x".to_string()),

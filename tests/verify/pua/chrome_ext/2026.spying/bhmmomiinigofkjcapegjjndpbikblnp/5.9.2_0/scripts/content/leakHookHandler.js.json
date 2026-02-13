@@ -34,6 +34,38 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "meta/library/react::react-dom",
       "kind": "capability",
       "desc": "ReactDOM object reference",
@@ -80,62 +112,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::document/body/appendchild",
+      "id": "meta/internal/imported::istrustedsite",
       "kind": "structural",
-      "desc": "calls document.body.appendChild",
+      "desc": "calls isTrustedSite",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.body.appendChild"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementsbyclassname",
-      "kind": "structural",
-      "desc": "calls document.getElementsByClassName",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementsByClassName"
+          "value": "isTrustedSite"
         }
       ]
     },
@@ -168,20 +154,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/createelement",
-      "kind": "structural",
-      "desc": "calls document.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.createElement"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::shouldperform",
       "kind": "structural",
       "desc": "calls shouldPerform",
@@ -196,30 +168,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::react/createelement",
+      "id": "meta/internal/imported::reactdom/render",
       "kind": "structural",
-      "desc": "calls React.createElement",
+      "desc": "calls ReactDOM.render",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "ReactDOM.render"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::istrustedsite",
+      "id": "meta/internal/imported::document/createelement",
       "kind": "structural",
-      "desc": "calls isTrustedSite",
+      "desc": "calls document.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isTrustedSite"
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementsbyclassname",
+      "kind": "structural",
+      "desc": "calls document.getElementsByClassName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementsByClassName"
         }
       ]
     },
@@ -238,16 +224,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::reactdom/render",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls ReactDOM.render",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "ReactDOM.render"
+          "value": "React.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/appendchild",
+      "kind": "structural",
+      "desc": "calls document.body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.appendChild"
         }
       ]
     }

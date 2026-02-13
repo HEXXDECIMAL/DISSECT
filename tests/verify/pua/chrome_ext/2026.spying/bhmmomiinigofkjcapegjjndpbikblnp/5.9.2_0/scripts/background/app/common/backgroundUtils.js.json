@@ -8,9 +8,25 @@
   "size": 1516,
   "risk": "notable",
   "counts": {
-    "notable": 15
+    "notable": 13
   },
   "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3 {for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
@@ -64,166 +80,6 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
-      "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 3 {for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
-      "kind": "capability",
-      "desc": "Object.keys call",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.keys"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
-      "kind": "capability",
-      "desc": "Accesses local extension storage",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.storage.local.get(t)",
-          "location": "1:1485"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
-      "kind": "capability",
-      "desc": "High function density (>20 functions",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 1200.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
-      "kind": "capability",
-      "desc": "Very long lines (>1000 chars)",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1516.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 prototype",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "backgroundUtils.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
-      "kind": "capability",
-      "desc": "Queries browser tabs",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "webextApi.tabs.query({active:!0,currentWindow:!0},e=>{if(!e)return t({});const r=e[0];t(r||{})})",
-          "location": "1:491"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1516.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
@@ -241,38 +97,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "obj/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
+      "desc": "Object.keys call",
+      "conf": 0.5,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 5.00"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.keys"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "obj/c2/infrastructure/domain::http-url-script",
@@ -311,6 +148,154 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 1200.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
+      "kind": "capability",
+      "desc": "Queries browser tabs",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.tabs.query({active:!0,currentWindow:!0},e=>{if(!e)return t({});const r=e[0];t(r||{})})",
+          "location": "1:491"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1516.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
+      "kind": "capability",
+      "desc": "Accesses local extension storage",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "webextApi.storage.local.get(t)",
+          "location": "1:1485"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1516.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "backgroundUtils.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "obj/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
@@ -324,6 +309,38 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 1200.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 12.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -360,51 +377,46 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
+      "id": "meta/internal/imported::addcategorydescription",
+      "kind": "structural",
+      "desc": "calls addCategoryDescription",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
+          "method": "symbol",
           "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "value": "addCategoryDescription"
         }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      ]
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "id": "meta/internal/imported::t/o",
+      "kind": "structural",
+      "desc": "calls t.o",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 1200.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 12.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 5.00"
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.o"
         }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      ]
+    },
+    {
+      "id": "meta/internal/imported::migrations",
+      "kind": "structural",
+      "desc": "calls migrations",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "migrations"
+        }
+      ]
     },
     {
       "id": "meta/internal/imported::extends",
@@ -421,30 +433,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::addcategorydescription",
+      "id": "meta/internal/imported::shouldoverridecompletely",
       "kind": "structural",
-      "desc": "calls addCategoryDescription",
+      "desc": "calls shouldOverrideCompletely",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "addCategoryDescription"
+          "value": "shouldOverrideCompletely"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::migrations",
+      "id": "meta/internal/imported::t/reminders/scheduler_types/email_protection",
       "kind": "structural",
-      "desc": "calls migrations",
+      "desc": "calls t.reminders.SCHEDULER_TYPES.EMAIL_PROTECTION",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "migrations"
+          "value": "t.reminders.SCHEDULER_TYPES.EMAIL_PROTECTION"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::migrations/foreach",
+      "kind": "structural",
+      "desc": "calls migrations.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "migrations.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/storage/local/get",
+      "kind": "structural",
+      "desc": "calls webextApi.storage.local.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.storage.local.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/startswith",
+      "kind": "structural",
+      "desc": "calls t.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.startsWith"
         }
       ]
     },
@@ -477,104 +531,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/o",
-      "kind": "structural",
-      "desc": "calls e.o",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.o"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/emailprotection",
-      "kind": "structural",
-      "desc": "calls t.emailProtection",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.emailProtection"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/storage/local/get",
-      "kind": "structural",
-      "desc": "calls webextApi.storage.local.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.storage.local.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/reminders/scheduler_types/email_protection",
-      "kind": "structural",
-      "desc": "calls t.reminders.SCHEDULER_TYPES.EMAIL_PROTECTION",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.reminders.SCHEDULER_TYPES.EMAIL_PROTECTION"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webextapi/tabs/query",
-      "kind": "structural",
-      "desc": "calls webextApi.tabs.query",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webextApi.tabs.query"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::shouldoverridecompletely",
-      "kind": "structural",
-      "desc": "calls shouldOverrideCompletely",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "shouldOverrideCompletely"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::mergestate",
       "kind": "structural",
       "desc": "calls mergeState",
@@ -589,58 +545,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/o",
+      "id": "meta/internal/imported::e/o",
       "kind": "structural",
-      "desc": "calls t.o",
+      "desc": "calls e.o",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.o"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
-      "kind": "structural",
-      "desc": "calls Object.prototype.hasOwnProperty.call",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::migrations/foreach",
-      "kind": "structural",
-      "desc": "calls migrations.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "migrations.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isvalidpageforcontent",
-      "kind": "structural",
-      "desc": "calls isValidPageForContent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isValidPageForContent"
+          "value": "e.o"
         }
       ]
     },
@@ -659,16 +573,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/startswith",
+      "id": "meta/internal/imported::isvalidpageforcontent",
       "kind": "structural",
-      "desc": "calls t.startsWith",
+      "desc": "calls isValidPageForContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "t.startsWith"
+          "value": "isValidPageForContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/tabs/query",
+      "kind": "structural",
+      "desc": "calls webextApi.tabs.query",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.tabs.query"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
+      "kind": "structural",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/emailprotection",
+      "kind": "structural",
+      "desc": "calls t.emailProtection",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.emailProtection"
         }
       ]
     }

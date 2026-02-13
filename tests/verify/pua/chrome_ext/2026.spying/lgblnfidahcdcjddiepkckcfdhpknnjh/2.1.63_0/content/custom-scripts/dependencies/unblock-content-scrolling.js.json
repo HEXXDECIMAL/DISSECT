@@ -125,72 +125,30 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::documenthtml/style/setproperty",
+      "id": "meta/internal/imported::document/body/style/getpropertyvalue",
       "kind": "structural",
-      "desc": "calls documentHtml.style.setProperty",
+      "desc": "calls document.body.style.getPropertyValue",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "documentHtml.style.setProperty"
+          "value": "document.body.style.getPropertyValue"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::interval",
+      "id": "meta/internal/imported::document/body/style/setproperty",
       "kind": "structural",
-      "desc": "calls interval",
+      "desc": "calls document.body.style.setProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "interval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::clearinterval",
-      "kind": "structural",
-      "desc": "calls clearInterval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "clearInterval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/queryselector",
-      "kind": "structural",
-      "desc": "calls document.querySelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.querySelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setinterval",
-      "kind": "structural",
-      "desc": "calls setInterval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setInterval"
+          "value": "document.body.style.setProperty"
         }
       ]
     },
@@ -209,16 +167,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::container",
+      "id": "meta/internal/imported::setinterval",
       "kind": "structural",
-      "desc": "calls container",
+      "desc": "calls setInterval",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "container"
+          "value": "setInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settimeout",
+      "kind": "structural",
+      "desc": "calls setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setTimeout"
         }
       ]
     },
@@ -237,16 +209,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::documenthtml/style/getpropertyvalue",
+      "id": "meta/internal/imported::document/queryselector",
       "kind": "structural",
-      "desc": "calls documentHtml.style.getPropertyValue",
+      "desc": "calls document.querySelector",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "documentHtml.style.getPropertyValue"
+          "value": "document.querySelector"
         }
       ]
     },
@@ -265,44 +237,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::documenthtml/style/csstext/includes",
+      "id": "meta/internal/imported::container",
       "kind": "structural",
-      "desc": "calls documentHtml.style.cssText.includes",
+      "desc": "calls container",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "documentHtml.style.cssText.includes"
+          "value": "container"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::unblockcontentscrolling",
+      "id": "meta/internal/imported::clearinterval",
       "kind": "structural",
-      "desc": "calls unblockContentScrolling",
+      "desc": "calls clearInterval",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "unblockContentScrolling"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
+          "value": "clearInterval"
         }
       ]
     },
@@ -335,30 +293,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/body/style/getpropertyvalue",
+      "id": "meta/internal/imported::documenthtml/style/getpropertyvalue",
       "kind": "structural",
-      "desc": "calls document.body.style.getPropertyValue",
+      "desc": "calls documentHtml.style.getPropertyValue",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.body.style.getPropertyValue"
+          "value": "documentHtml.style.getPropertyValue"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/body/style/setproperty",
+      "id": "meta/internal/imported::documenthtml/style/setproperty",
       "kind": "structural",
-      "desc": "calls document.body.style.setProperty",
+      "desc": "calls documentHtml.style.setProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.body.style.setProperty"
+          "value": "documentHtml.style.setProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrolling",
+      "kind": "structural",
+      "desc": "calls unblockContentScrolling",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrolling"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documenthtml/style/csstext/includes",
+      "kind": "structural",
+      "desc": "calls documentHtml.style.cssText.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentHtml.style.cssText.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::interval",
+      "kind": "structural",
+      "desc": "calls interval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "interval"
         }
       ]
     }

@@ -28,6 +28,21 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocale"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+    },
+    {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
@@ -59,19 +74,18 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
-      "kind": "capability",
-      "desc": "Local AppData reference",
-      "conf": 0.4,
-      "crit": "notable",
+      "id": "meta/internal/imported::getlocale",
+      "kind": "structural",
+      "desc": "calls getLocale",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
+          "method": "symbol",
           "source": "ast",
           "value": "getLocale"
         }
-      ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+      ]
     },
     {
       "id": "meta/internal/imported::getversion/replace",
@@ -84,34 +98,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "getVersion.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getversion",
-      "kind": "structural",
-      "desc": "calls getVersion",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getVersion"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/href",
-      "kind": "structural",
-      "desc": "calls t.href",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.href"
         }
       ]
     },
@@ -130,6 +116,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::document/createelement",
+      "kind": "structural",
+      "desc": "calls document.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/href",
+      "kind": "structural",
+      "desc": "calls t.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.href"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::window/location/href/match",
       "kind": "structural",
       "desc": "calls window.location.href.match",
@@ -144,30 +158,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::getlocale",
+      "id": "meta/internal/imported::getversion",
       "kind": "structural",
-      "desc": "calls getLocale",
+      "desc": "calls getVersion",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getLocale"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/createelement",
-      "kind": "structural",
-      "desc": "calls document.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.createElement"
+          "value": "getVersion"
         }
       ]
     }

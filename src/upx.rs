@@ -35,14 +35,24 @@ pub enum UPXError {
 pub struct UPXDecompressor;
 
 impl UPXDecompressor {
-    /// Check if data appears to be UPX-packed by looking for "UPX!" magic string
-    /// in the first 512 bytes of the file.
+    /// Check if data appears to be UPX-packed by looking for "UPX!" or similar
+    /// tampered magic strings ([A-Z]PX!) in the first 512 bytes of the file.
     pub fn is_upx_packed(data: &[u8]) -> bool {
         let search_range = data.len().min(512);
         let search_data = &data[..search_range];
 
-        // Look for "UPX!" magic string
-        search_data.windows(4).any(|window| window == b"UPX!")
+        // Look for "[A-Z]PX!" pattern
+        for window in search_data.windows(4) {
+            if window.len() == 4
+                && window[0] >= b'A'
+                && window[0] <= b'Z'
+                && &window[1..4] == b"PX!"
+            {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// Check if the upx binary is available in PATH (and not disabled).

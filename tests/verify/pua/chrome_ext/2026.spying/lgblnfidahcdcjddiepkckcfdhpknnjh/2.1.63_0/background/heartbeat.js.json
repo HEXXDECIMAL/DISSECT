@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "heartbeat.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "known/malware/backdoor/melofee::heartbeat-string",
       "kind": "capability",
       "desc": "heartbeat C2 string",
@@ -52,6 +37,21 @@
         }
       ],
       "source_file": "known/malware/backdoor/melofee/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "heartbeat.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "known/malware/backdoor/melofee::c2-protocols",
@@ -95,6 +95,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::serverlogger/prepareandsend",
+      "kind": "structural",
+      "desc": "calls serverLogger.prepareAndSend",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "serverLogger.prepareAndSend"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::user",
       "kind": "structural",
       "desc": "calls user",
@@ -123,20 +151,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::serverapi/callurl",
-      "kind": "structural",
-      "desc": "calls serverApi.callUrl",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "serverApi.callUrl"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::userdata/getdata",
       "kind": "structural",
       "desc": "calls userData.getData",
@@ -151,16 +165,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::serverlogger/prepareandsend",
+      "id": "meta/internal/imported::serverapi/callurl",
       "kind": "structural",
-      "desc": "calls serverLogger.prepareAndSend",
+      "desc": "calls serverApi.callUrl",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "serverLogger.prepareAndSend"
+          "value": "serverApi.callUrl"
         }
       ]
     },
@@ -175,20 +189,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "analysisReporter.reportBulk"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
         }
       ]
     }

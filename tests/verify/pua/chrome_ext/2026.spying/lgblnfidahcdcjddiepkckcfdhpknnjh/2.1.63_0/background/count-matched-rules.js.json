@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "12:3"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1  for (",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "12:3"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -81,6 +81,34 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "meta/internal/imported::getmatchedrules",
+      "kind": "structural",
+      "desc": "calls getMatchedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getMatchedRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::groupedbytab",
+      "kind": "structural",
+      "desc": "calls groupedByTab",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "groupedByTab"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::rules",
       "kind": "structural",
       "desc": "calls rules",
@@ -109,44 +137,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::getmatchedrules",
+      "id": "meta/internal/imported::rules/filter",
       "kind": "structural",
-      "desc": "calls getMatchedRules",
+      "desc": "calls rules.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getMatchedRules"
+          "value": "rules.filter"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/groupby",
+      "id": "meta/internal/imported::cookiebanners",
       "kind": "structural",
-      "desc": "calls Object.groupBy",
+      "desc": "calls cookieBanners",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.groupBy"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::date/now",
-      "kind": "structural",
-      "desc": "calls Date.now",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Date.now"
+          "value": "cookieBanners"
         }
       ]
     },
@@ -179,20 +193,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::rules/filter",
-      "kind": "structural",
-      "desc": "calls rules.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rules.filter"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::statistics/incrementblock",
       "kind": "structural",
       "desc": "calls statistics.incrementBlock",
@@ -207,30 +207,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::cookiebanners",
+      "id": "meta/internal/imported::date/now",
       "kind": "structural",
-      "desc": "calls cookieBanners",
+      "desc": "calls Date.now",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cookieBanners"
+          "value": "Date.now"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::groupedbytab",
+      "id": "meta/internal/imported::object/groupby",
       "kind": "structural",
-      "desc": "calls groupedByTab",
+      "desc": "calls Object.groupBy",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "groupedByTab"
+          "value": "Object.groupBy"
         }
       ]
     }

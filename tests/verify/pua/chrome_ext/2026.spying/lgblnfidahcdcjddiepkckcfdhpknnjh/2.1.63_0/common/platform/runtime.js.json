@@ -21,7 +21,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "browser.runtime.getURL"
+          "value": "browser.runtime.getPlatformInfo"
         },
         {
           "method": "import_symbol",
@@ -31,7 +31,7 @@
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "browser.runtime.getPlatformInfo"
+          "value": "browser.runtime.getURL"
         },
         {
           "method": "import_symbol",
@@ -40,6 +40,22 @@
         }
       ],
       "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "kind": "capability",
+      "desc": "Gets extension resource URL",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.runtime.getURL(path)",
+          "location": "15:10"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::browser-namespace",
@@ -72,19 +88,20 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::setUninstallURL",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-set-uninstall-url",
       "kind": "capability",
-      "desc": "Extension uninstall URL callback",
-      "conf": 0.95,
+      "desc": "Sets uninstall tracking URL",
+      "conf": 0.9,
       "crit": "notable",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "browser.runtime.setUninstallURL"
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "browser.runtime.setUninstallURL(url)",
+          "location": "12:9"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
@@ -102,36 +119,19 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "id": "obj/lateral/supply-chain/chrome-ext/permissions::setUninstallURL",
       "kind": "capability",
-      "desc": "Gets extension resource URL",
-      "conf": 0.9,
+      "desc": "Extension uninstall URL callback",
+      "conf": 0.95,
       "crit": "notable",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "browser.runtime.getURL(path)",
-          "location": "15:10"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "browser.runtime.setUninstallURL"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-set-uninstall-url",
-      "kind": "capability",
-      "desc": "Sets uninstall tracking URL",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "browser.runtime.setUninstallURL(url)",
-          "location": "12:9"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
@@ -170,34 +170,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::browser/runtime/geturl",
-      "kind": "structural",
-      "desc": "calls browser.runtime.getURL",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.runtime.getURL"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/runtime/setuninstallurl",
-      "kind": "structural",
-      "desc": "calls browser.runtime.setUninstallURL",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.runtime.setUninstallURL"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::browser/runtime/getplatforminfo",
       "kind": "structural",
       "desc": "calls browser.runtime.getPlatformInfo",
@@ -222,6 +194,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "details"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/runtime/setuninstallurl",
+      "kind": "structural",
+      "desc": "calls browser.runtime.setUninstallURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.runtime.setUninstallURL"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::browser/runtime/geturl",
+      "kind": "structural",
+      "desc": "calls browser.runtime.getURL",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.runtime.getURL"
         }
       ]
     },

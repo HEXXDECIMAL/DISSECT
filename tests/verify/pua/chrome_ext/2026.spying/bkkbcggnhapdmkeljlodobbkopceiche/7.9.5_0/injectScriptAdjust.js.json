@@ -8,38 +8,24 @@
   "size": 5306,
   "risk": "notable",
   "counts": {
-    "notable": 30
+    "notable": 28
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/fs/file/operations::binary-file-ops",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "Binary file operations",
+      "conf": 0.8,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
+          "method": "symbol",
+          "source": "tree-sitter-javascript",
+          "value": "read",
+          "location": "0xf19"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::json-stringify-js",
-      "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.stringify"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "cap/fs/file/operations/traits.yaml"
     },
     {
       "id": "cap/data/text/keywords::buffer",
@@ -55,6 +41,68 @@
         }
       ],
       "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3 ;for(",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/websocket::websocket-class",
+      "kind": "capability",
+      "desc": "WebSocket class reference",
+      "conf": 0.5,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "WebSocketWrapper.prototype"
+        }
+      ],
+      "source_file": "cap/comm/http/websocket/generic.yaml"
+    },
+    {
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "kind": "capability",
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0xd32"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0xd33"
+        }
+      ],
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
@@ -91,268 +139,25 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/comm/http/websocket::websocket-class",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": "WebSocket class reference",
-      "conf": 0.5,
-      "crit": "inert",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "window.WebSocket"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "WebSocketWrapper.prototype"
-        }
-      ],
-      "source_file": "cap/comm/http/websocket/generic.yaml"
-    },
-    {
-      "id": "cap/fs/file/operations::binary-file-ops",
-      "kind": "capability",
-      "desc": "Binary file operations",
-      "conf": 0.8,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "tree-sitter-javascript",
-          "value": "read",
-          "location": "0xf19"
-        }
-      ],
-      "source_file": "cap/fs/file/operations/traits.yaml"
-    },
-    {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
-      "kind": "capability",
-      "desc": "Content-Type JSON header",
-      "conf": 0.6,
-      "crit": "inert",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0xd32"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0xd33"
-        }
-      ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::proto-extension",
-      "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "WebSocketWrapper.prototype"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "value": "JSON.parse"
         }
       ],
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/encoding/charset::json-stringify-js",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 3 ;for(",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
-      "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(()=>{",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
-      "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/exec/eval/dynamic::iife-pattern",
-      "kind": "capability",
-      "desc": "Immediately invoked function expression",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2 (function(e){",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
-      "kind": "capability",
-      "desc": "High function density (>20 functions",
+      "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 3900.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
-      "kind": "capability",
-      "desc": "Very long lines (>1000 chars)",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 5306.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/bundlers::typescript-compiled",
-      "kind": "capability",
-      "desc": "Code compiled from TypeScript",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20c"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/bundlers/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/minifier::esmodule-export",
-      "kind": "capability",
-      "desc": "__esModule property",
-      "conf": 0.6,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20c"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
-      "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 5 prototype",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
-      "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.anonymous = 17.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
-      "kind": "capability",
-      "desc": "JSON.stringify call",
-      "conf": 0.5,
       "crit": "notable",
       "evidence": [
         {
@@ -361,24 +166,7 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 5306.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
@@ -415,6 +203,147 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "kind": "capability",
+      "desc": "Low identifier reuse (each variable",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.11"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 17.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "kind": "capability",
+      "desc": "High function density (>20 functions",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 3900.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "kind": "capability",
+      "desc": "Very long lines (>1000 chars)",
+      "conf": 0.85,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 5306.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/bundlers::typescript-compiled",
+      "kind": "capability",
+      "desc": "Code compiled from TypeScript",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20c"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/bundlers/traits.yaml"
+    },
+    {
       "id": "obj/c2/reverse-shell/pty::websocket-ref",
       "kind": "capability",
       "desc": "WebSocket reference",
@@ -435,57 +364,6 @@
       "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
-      "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 3.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 9.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
@@ -501,6 +379,59 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::esmodule-export",
+      "kind": "capability",
+      "desc": "__esModule property",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20c"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "kind": "capability",
+      "desc": "setTimeout with code execution",
+      "conf": 0.75,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(()=>{",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "kind": "capability",
+      "desc": "Object.defineProperty call",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::deep-nesting",
@@ -520,24 +451,26 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
-      "desc": "Object.defineProperty call",
-      "conf": 0.6,
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.defineProperty"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 3.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
+      "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
@@ -546,10 +479,104 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.11"
+          "value": "text.max_line_length = 5306.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2 (function(e){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "kind": "capability",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 5 prototype",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/c2/reverse-shell/pty::node-socket",
+      "kind": "capability",
+      "desc": "Node.js socket connection",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "WebSocketWrapper.prototype"
+        }
+      ],
+      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "kind": "capability",
+      "desc": "Minifier helper patterns",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "__esModule",
+          "location": "0x20c"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "Object.defineProperty"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -565,6 +592,87 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 3900.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 39.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 9.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "kind": "capability",
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 3.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.11"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/websocket::websocket",
+      "kind": "capability",
+      "desc": "WebSocket communication",
+      "conf": 0.66,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "window.WebSocket"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "WebSocketWrapper.prototype"
+        }
+      ],
+      "source_file": "cap/comm/http/websocket/generic.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -607,28 +715,6 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/comm/http/websocket::websocket",
-      "kind": "capability",
-      "desc": "WebSocket communication",
-      "conf": 0.66,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "window.WebSocket"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "WebSocketWrapper.prototype"
-        }
-      ],
-      "source_file": "cap/comm/http/websocket/generic.yaml"
-    },
-    {
       "id": "cap/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
@@ -649,137 +735,11 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
       "kind": "capability",
-      "desc": "Minifier helper patterns",
+      "desc": "Testing Library methods",
       "conf": 1.0,
       "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20b"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "__esModule",
-          "location": "0x20c"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.defineProperty"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
-    },
-    {
-      "id": "obj/c2/reverse-shell/pty::node-socket",
-      "kind": "capability",
-      "desc": "Node.js socket connection",
-      "conf": 0.6,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "window.WebSocket"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "WebSocketWrapper.prototype"
-        }
-      ],
-      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
-      "kind": "capability",
-      "desc": "Identifier obfuscation (random/encoded names)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 3.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.11"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "WebSocketWrapper.prototype"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 3900.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 39.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 9.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
-      "kind": "capability",
-      "desc": "Test fixture or mock data",
-      "conf": 0.9,
-      "crit": "notable",
       "evidence": [
         {
           "method": "string",
@@ -829,11 +789,11 @@
       "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
       "kind": "capability",
-      "desc": "Testing Library methods",
-      "conf": 1.0,
-      "crit": "inert",
+      "desc": "Test fixture or mock data",
+      "conf": 0.9,
+      "crit": "notable",
       "evidence": [
         {
           "method": "string",
@@ -911,114 +871,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::n/apply",
+      "id": "meta/internal/imported::t/n",
       "kind": "structural",
-      "desc": "calls n.apply",
+      "desc": "calls t.n",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "n.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/send",
-      "kind": "structural",
-      "desc": "calls e.send",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.send"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webpack_require__/n",
-      "kind": "structural",
-      "desc": "calls webpack_require__.n",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webpack_require__.n"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/assign",
-      "kind": "structural",
-      "desc": "calls Object.assign",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.assign"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webpack_require__/d",
-      "kind": "structural",
-      "desc": "calls webpack_require__.d",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webpack_require__.d"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::i/addeventlistener",
-      "kind": "structural",
-      "desc": "calls i.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "i.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/apply",
-      "kind": "structural",
-      "desc": "calls t.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::objecttojsonexclusive",
-      "kind": "structural",
-      "desc": "calls objectToJsonExclusive",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "objectToJsonExclusive"
+          "value": "t.n"
         }
       ]
     },
@@ -1037,44 +899,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::array/isarray",
+      "id": "meta/internal/imported::json/stringify",
       "kind": "structural",
-      "desc": "calls Array.isArray",
+      "desc": "calls JSON.stringify",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/headers/get",
-      "kind": "structural",
-      "desc": "calls a.headers.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.headers.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/open",
-      "kind": "structural",
-      "desc": "calls e.open",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.open"
+          "value": "JSON.stringify"
         }
       ]
     },
@@ -1093,20 +927,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::t/n",
-      "kind": "structural",
-      "desc": "calls t.n",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.n"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::webpack_require__",
       "kind": "structural",
       "desc": "calls webpack_require__",
@@ -1121,156 +941,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::isnan",
+      "id": "meta/internal/imported::webpack_require__/m",
       "kind": "structural",
-      "desc": "calls isNaN",
+      "desc": "calls webpack_require__.m",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isNaN"
+          "value": "webpack_require__.m"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::webpack_require__/r",
+      "id": "meta/internal/imported::r/hasownproperty",
       "kind": "structural",
-      "desc": "calls webpack_require__.r",
+      "desc": "calls r.hasOwnProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webpack_require__.r"
+          "value": "r.hasOwnProperty"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::window/fetch",
+      "id": "meta/internal/imported::i/addeventlistener",
       "kind": "structural",
-      "desc": "calls window.fetch",
+      "desc": "calls i.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.fetch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fireevent",
-      "kind": "structural",
-      "desc": "calls fireEvent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fireEvent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::c/opts",
-      "kind": "structural",
-      "desc": "calls c.opts",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "c.opts"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::c/url",
-      "kind": "structural",
-      "desc": "calls c.url",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "c.url"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/clone",
-      "kind": "structural",
-      "desc": "calls a.clone",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.clone"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::t/find",
-      "kind": "structural",
-      "desc": "calls t.find",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.find"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/_metadata",
-      "kind": "structural",
-      "desc": "calls e._metadata",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e._metadata"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/readresult",
-      "kind": "structural",
-      "desc": "calls n.readResult",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.readResult"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webpack_require__/t",
-      "kind": "structural",
-      "desc": "calls webpack_require__.t",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webpack_require__.t"
+          "value": "i.addEventListener"
         }
       ]
     },
@@ -1289,114 +997,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::json/parse",
+      "id": "meta/internal/imported::c/url",
       "kind": "structural",
-      "desc": "calls JSON.parse",
+      "desc": "calls c.url",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "JSON.parse"
+          "value": "c.url"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::n/status",
+      "id": "meta/internal/imported::r/l",
       "kind": "structural",
-      "desc": "calls n.status",
+      "desc": "calls r.l",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "n.status"
+          "value": "r.l"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::websocketwrapper/prototype",
+      "id": "meta/internal/imported::webpack_require__/c",
       "kind": "structural",
-      "desc": "calls WebSocketWrapper.prototype",
+      "desc": "calls webpack_require__.c",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "WebSocketWrapper.prototype"
+          "value": "webpack_require__.c"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::window/e/getevents",
+      "id": "meta/internal/imported::r/startswith",
       "kind": "structural",
-      "desc": "calls window.e.getEvents",
+      "desc": "calls r.startsWith",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.e.getEvents"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::n/buffer",
-      "kind": "structural",
-      "desc": "calls n.buffer",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "n.buffer"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::clearinterval",
-      "kind": "structural",
-      "desc": "calls clearInterval",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "clearInterval"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/endswith",
-      "kind": "structural",
-      "desc": "calls r.endsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.endsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::i/includes",
-      "kind": "structural",
-      "desc": "calls i.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "i.includes"
+          "value": "r.startsWith"
         }
       ]
     },
@@ -1429,170 +1081,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::webpack_require__/m",
+      "id": "meta/internal/imported::array/isarray",
       "kind": "structural",
-      "desc": "calls webpack_require__.m",
+      "desc": "calls Array.isArray",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webpack_require__.m"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::o/text",
-      "kind": "structural",
-      "desc": "calls o.text",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "o.text"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/list/foreach",
-      "kind": "structural",
-      "desc": "calls r.list.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.list.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/read",
-      "kind": "structural",
-      "desc": "calls e.read",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.read"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::webpack_require__/p",
-      "kind": "structural",
-      "desc": "calls webpack_require__.p",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "webpack_require__.p"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parsefloat",
-      "kind": "structural",
-      "desc": "calls parseFloat",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseFloat"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/l",
-      "kind": "structural",
-      "desc": "calls r.l",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.l"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/match",
-      "kind": "structural",
-      "desc": "calls e.match",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.match"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::r/hasownproperty",
-      "kind": "structural",
-      "desc": "calls r.hasOwnProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "r.hasOwnProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/apply",
-      "kind": "structural",
-      "desc": "calls e.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/test",
-      "kind": "structural",
-      "desc": "calls e.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.test"
+          "value": "Array.isArray"
         }
       ]
     },
@@ -1611,16 +1109,184 @@
       ]
     },
     {
-      "id": "meta/internal/imported::r/startswith",
+      "id": "meta/internal/imported::a/clone",
       "kind": "structural",
-      "desc": "calls r.startsWith",
+      "desc": "calls a.clone",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "r.startsWith"
+          "value": "a.clone"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webpack_require__/p",
+      "kind": "structural",
+      "desc": "calls webpack_require__.p",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webpack_require__.p"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/text",
+      "kind": "structural",
+      "desc": "calls o.text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/readresult",
+      "kind": "structural",
+      "desc": "calls n.readResult",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.readResult"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/endswith",
+      "kind": "structural",
+      "desc": "calls r.endsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.endsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/assign",
+      "kind": "structural",
+      "desc": "calls Object.assign",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.assign"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/read",
+      "kind": "structural",
+      "desc": "calls e.read",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.read"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/apply",
+      "kind": "structural",
+      "desc": "calls n.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parsefloat",
+      "kind": "structural",
+      "desc": "calls parseFloat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseFloat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/apply",
+      "kind": "structural",
+      "desc": "calls t.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/open",
+      "kind": "structural",
+      "desc": "calls e.open",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.open"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clearinterval",
+      "kind": "structural",
+      "desc": "calls clearInterval",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearInterval"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webpack_require__/r",
+      "kind": "structural",
+      "desc": "calls webpack_require__.r",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webpack_require__.r"
         }
       ]
     },
@@ -1639,44 +1305,156 @@
       ]
     },
     {
-      "id": "meta/internal/imported::webpack_require__/c",
+      "id": "meta/internal/imported::e/send",
       "kind": "structural",
-      "desc": "calls webpack_require__.c",
+      "desc": "calls e.send",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webpack_require__.c"
+          "value": "e.send"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::e/n/call",
+      "id": "meta/internal/imported::settimeout",
       "kind": "structural",
-      "desc": "calls e.n.call",
+      "desc": "calls setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.n.call"
+          "value": "setTimeout"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
+      "id": "meta/internal/imported::websocketwrapper/prototype",
       "kind": "structural",
-      "desc": "calls Object.prototype.hasOwnProperty.call",
+      "desc": "calls WebSocketWrapper.prototype",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.prototype.hasOwnProperty.call"
+          "value": "WebSocketWrapper.prototype"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/create",
+      "kind": "structural",
+      "desc": "calls Object.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/find",
+      "kind": "structural",
+      "desc": "calls t.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.find"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/buffer",
+      "kind": "structural",
+      "desc": "calls n.buffer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.buffer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/_metadata",
+      "kind": "structural",
+      "desc": "calls e._metadata",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e._metadata"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webpack_require__/d",
+      "kind": "structural",
+      "desc": "calls webpack_require__.d",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webpack_require__.d"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/headers/get",
+      "kind": "structural",
+      "desc": "calls a.headers.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.headers.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::c/opts",
+      "kind": "structural",
+      "desc": "calls c.opts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "c.opts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/fetch",
+      "kind": "structural",
+      "desc": "calls window.fetch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.fetch"
         }
       ]
     },
@@ -1695,30 +1473,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::json/stringify",
+      "id": "meta/internal/imported::e/test",
       "kind": "structural",
-      "desc": "calls JSON.stringify",
+      "desc": "calls e.test",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "JSON.stringify"
+          "value": "e.test"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::self/addeventlistener",
+      "id": "meta/internal/imported::window/e/getevents",
       "kind": "structural",
-      "desc": "calls self.addEventListener",
+      "desc": "calls window.e.getEvents",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self.addEventListener"
+          "value": "window.e.getEvents"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fireevent",
+      "kind": "structural",
+      "desc": "calls fireEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fireEvent"
         }
       ]
     },
@@ -1737,16 +1529,184 @@
       ]
     },
     {
-      "id": "meta/internal/imported::object/create",
+      "id": "meta/internal/imported::webpack_require__/t",
       "kind": "structural",
-      "desc": "calls Object.create",
+      "desc": "calls webpack_require__.t",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Object.create"
+          "value": "webpack_require__.t"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::r/list/foreach",
+      "kind": "structural",
+      "desc": "calls r.list.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "r.list.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::objecttojsonexclusive",
+      "kind": "structural",
+      "desc": "calls objectToJsonExclusive",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "objectToJsonExclusive"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/prototype/hasownproperty/call",
+      "kind": "structural",
+      "desc": "calls Object.prototype.hasOwnProperty.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.prototype.hasOwnProperty.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/match",
+      "kind": "structural",
+      "desc": "calls e.match",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.match"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::n/status",
+      "kind": "structural",
+      "desc": "calls n.status",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "n.status"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/n/call",
+      "kind": "structural",
+      "desc": "calls e.n.call",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.n.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/addeventlistener",
+      "kind": "structural",
+      "desc": "calls self.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/apply",
+      "kind": "structural",
+      "desc": "calls e.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webpack_require__/n",
+      "kind": "structural",
+      "desc": "calls webpack_require__.n",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webpack_require__.n"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/includes",
+      "kind": "structural",
+      "desc": "calls i.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.includes"
         }
       ]
     }

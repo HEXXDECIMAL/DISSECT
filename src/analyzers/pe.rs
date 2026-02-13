@@ -131,9 +131,12 @@ impl PEAnalyzer {
                 if code_kb > 0.0 {
                     binary_metrics.import_density = binary_metrics.import_count as f32 / code_kb;
                     binary_metrics.string_density = binary_metrics.string_count as f32 / code_kb;
-                    binary_metrics.function_density = binary_metrics.function_count as f32 / code_kb;
-                    binary_metrics.relocation_density = binary_metrics.relocation_count as f32 / code_kb;
-                    binary_metrics.complexity_per_kb = binary_metrics.avg_complexity * 1024.0 / goblin_code_size as f32;
+                    binary_metrics.function_density =
+                        binary_metrics.function_count as f32 / code_kb;
+                    binary_metrics.relocation_density =
+                        binary_metrics.relocation_count as f32 / code_kb;
+                    binary_metrics.complexity_per_kb =
+                        binary_metrics.avg_complexity * 1024.0 / goblin_code_size as f32;
                 }
 
                 report.metrics = Some(Metrics {
@@ -202,7 +205,7 @@ impl PEAnalyzer {
                                         value: yara_match.rule.clone(),
                                         location: None,
                                     }],
-                                
+
                                     source_file: None,
                                 });
                             }
@@ -229,8 +232,10 @@ impl PEAnalyzer {
 
                 // Compute largest section ratio
                 if binary.file_size > 0 && !report.sections.is_empty() {
-                    let max_section_size = report.sections.iter().map(|s| s.size).max().unwrap_or(0);
-                    binary.largest_section_ratio = max_section_size as f32 / binary.file_size as f32;
+                    let max_section_size =
+                        report.sections.iter().map(|s| s.size).max().unwrap_or(0);
+                    binary.largest_section_ratio =
+                        max_section_size as f32 / binary.file_size as f32;
                 }
 
                 // Compute ratio metrics
@@ -399,7 +404,7 @@ impl PEAnalyzer {
                         value: format!("{:.2}", entropy),
                         location: Some(name.clone()),
                     }],
-                
+
                     source_file: None,
                 });
             }
@@ -420,7 +425,7 @@ impl PEAnalyzer {
                         value: permissions,
                         location: Some(name),
                     }],
-                
+
                     source_file: None,
                 });
             }
@@ -461,11 +466,9 @@ impl PEAnalyzer {
         if pe_offset > 0x80 {
             // Rich header typically found here
             for i in (0x80..pe_offset.min(0x200)).step_by(4) {
-                if i + 4 <= data.len() {
-                    if &data[i..i + 4] == b"Rich" {
-                        metrics.rich_header_present = true;
-                        break;
-                    }
+                if i + 4 <= data.len() && &data[i..i + 4] == b"Rich" {
+                    metrics.rich_header_present = true;
+                    break;
                 }
             }
         }
@@ -491,7 +494,8 @@ impl PEAnalyzer {
                     let section_end = section_start + section.size_of_raw_data as usize;
                     if section_end <= data.len() {
                         let section_data = &data[section_start..section_end];
-                        metrics.rsrc_entropy = crate::entropy::calculate_entropy(section_data) as f32;
+                        metrics.rsrc_entropy =
+                            crate::entropy::calculate_entropy(section_data) as f32;
                     }
                 }
             }
@@ -534,10 +538,8 @@ impl PEAnalyzer {
             // Typical alignments: 0x200 (512) for file, 0x1000 (4096) for section
             // Unusual if they're equal, very small, or very large
             if file_alignment == section_alignment
-                || file_alignment < 0x200
-                || file_alignment > 0x10000
-                || section_alignment < 0x1000
-                || section_alignment > 0x100000
+                || !(0x200..=0x10000).contains(&file_alignment)
+                || !(0x1000..=0x100000).contains(&section_alignment)
             {
                 metrics.unusual_alignment = true;
             }

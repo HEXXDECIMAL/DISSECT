@@ -12,6 +12,40 @@
   },
   "findings": [
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
@@ -46,23 +80,6 @@
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
-      "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.anonymous = 5.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
@@ -78,75 +95,44 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::getvalidatedconstant",
+      "id": "meta/internal/imported::owner/prop",
       "kind": "structural",
-      "desc": "calls getValidatedConstant",
+      "desc": "calls owner.prop",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getValidatedConstant"
+          "value": "owner.prop"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::trappedprop",
+      "id": "meta/internal/imported::reflect/defineproperty",
       "kind": "structural",
-      "desc": "calls trappedProp",
+      "desc": "calls Reflect.defineProperty",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "trappedProp"
+          "value": "Reflect.defineProperty"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::mustabort",
+      "id": "meta/internal/imported::safe",
       "kind": "structural",
-      "desc": "calls mustAbort",
+      "desc": "calls safe",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "mustAbort"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::trapproperty",
-      "kind": "structural",
-      "desc": "calls trapProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "trapProperty"
+          "value": "safe"
         }
       ]
     },
@@ -165,6 +151,118 @@
       ]
     },
     {
+      "id": "meta/internal/imported::getvalidatedconstant",
+      "kind": "structural",
+      "desc": "calls getValidatedConstant",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getValidatedConstant"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::originaldescriptor",
+      "kind": "structural",
+      "desc": "calls originalDescriptor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "originalDescriptor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/getextraargs",
+      "kind": "structural",
+      "desc": "calls safe.getExtraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.getExtraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mustabort",
+      "kind": "structural",
+      "desc": "calls mustAbort",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mustAbort"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::reflect/get",
+      "kind": "structural",
+      "desc": "calls Reflect.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Reflect.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trappedprop",
+      "kind": "structural",
+      "desc": "calls trappedProp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trappedProp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::thisscript",
+      "kind": "structural",
+      "desc": "calls thisScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "thisScript"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/object_getownpropertydescriptor",
+      "kind": "structural",
+      "desc": "calls safe.Object_getOwnPropertyDescriptor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Object_getOwnPropertyDescriptor"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::chainvalue/slice",
       "kind": "structural",
       "desc": "calls chainValue.slice",
@@ -175,6 +273,230 @@
           "method": "symbol",
           "source": "ast",
           "value": "chainValue.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::extraargs",
+      "kind": "structural",
+      "desc": "calls extraArgs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "extraArgs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::previousgetter",
+      "kind": "structural",
+      "desc": "calls previousGetter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "previousGetter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cloakfunction",
+      "kind": "structural",
+      "desc": "calls cloakFunction",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cloakFunction"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::trapproperty",
+      "kind": "structural",
+      "desc": "calls trapProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "trapProperty"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chainval/lastindexof",
+      "kind": "structural",
+      "desc": "calls chainVal.lastIndexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chainVal.lastIndexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::aborted",
+      "kind": "structural",
+      "desc": "calls aborted",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "aborted"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setconstantfn",
+      "kind": "structural",
+      "desc": "calls setConstantFn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setConstantFn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop",
+      "kind": "structural",
+      "desc": "calls prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pos",
+      "kind": "structural",
+      "desc": "calls pos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handler/init",
+      "kind": "structural",
+      "desc": "calls handler.init",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handler.init"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::handler/getter",
+      "kind": "structural",
+      "desc": "calls handler.getter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "handler.getter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::val",
+      "kind": "structural",
+      "desc": "calls val",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "val"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::scheduleexecution",
+      "kind": "structural",
+      "desc": "calls scheduleExecution",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "scheduleExecution"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chainval/slice",
+      "kind": "structural",
+      "desc": "calls chainVal.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chainVal.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::previoussetter",
+      "kind": "structural",
+      "desc": "calls previousSetter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "previousSetter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chainvalue/indexof",
+      "kind": "structural",
+      "desc": "calls chainValue.indexOf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chainValue.indexOf"
         }
       ]
     },
@@ -207,20 +529,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::handler/getter",
-      "kind": "structural",
-      "desc": "calls handler.getter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "handler.getter"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::normalvalue",
       "kind": "structural",
       "desc": "calls normalValue",
@@ -231,244 +539,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "normalValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe",
-      "kind": "structural",
-      "desc": "calls safe",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::aborted",
-      "kind": "structural",
-      "desc": "calls aborted",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "aborted"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::val",
-      "kind": "structural",
-      "desc": "calls val",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "val"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cloakfunction",
-      "kind": "structural",
-      "desc": "calls cloakFunction",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cloakFunction"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setconstantfn",
-      "kind": "structural",
-      "desc": "calls setConstantFn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setConstantFn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reflect/get",
-      "kind": "structural",
-      "desc": "calls Reflect.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Reflect.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/getextraargs",
-      "kind": "structural",
-      "desc": "calls safe.getExtraArgs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.getExtraArgs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reflect/defineproperty",
-      "kind": "structural",
-      "desc": "calls Reflect.defineProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Reflect.defineProperty"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::previoussetter",
-      "kind": "structural",
-      "desc": "calls previousSetter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "previousSetter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::prop",
-      "kind": "structural",
-      "desc": "calls prop",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "prop"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/object_getownpropertydescriptor",
-      "kind": "structural",
-      "desc": "calls safe.Object_getOwnPropertyDescriptor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.Object_getOwnPropertyDescriptor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::originaldescriptor",
-      "kind": "structural",
-      "desc": "calls originalDescriptor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "originalDescriptor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pos",
-      "kind": "structural",
-      "desc": "calls pos",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pos"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chainval/lastindexof",
-      "kind": "structural",
-      "desc": "calls chainVal.lastIndexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chainVal.lastIndexOf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chainvalue",
-      "kind": "structural",
-      "desc": "calls chainValue",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chainValue"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chainvalue/indexof",
-      "kind": "structural",
-      "desc": "calls chainValue.indexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chainValue.indexOf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chainval/slice",
-      "kind": "structural",
-      "desc": "calls chainVal.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chainVal.slice"
         }
       ]
     },
@@ -487,62 +557,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::thisscript",
-      "kind": "structural",
-      "desc": "calls thisScript",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "thisScript"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::previousgetter",
-      "kind": "structural",
-      "desc": "calls previousGetter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "previousGetter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::handler/init",
-      "kind": "structural",
-      "desc": "calls handler.init",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "handler.init"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::scheduleexecution",
-      "kind": "structural",
-      "desc": "calls scheduleExecution",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "scheduleExecution"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::handler/setter",
       "kind": "structural",
       "desc": "calls handler.setter",
@@ -557,30 +571,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::extraargs",
+      "id": "meta/internal/imported::chainvalue",
       "kind": "structural",
-      "desc": "calls extraArgs",
+      "desc": "calls chainValue",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "extraArgs"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::owner/prop",
-      "kind": "structural",
-      "desc": "calls owner.prop",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "owner.prop"
+          "value": "chainValue"
         }
       ]
     }

@@ -27,19 +27,21 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
+      "desc": "Functions with random-looking names",
+      "conf": 0.85,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "basename",
-          "source": "target",
-          "value": "popups.js"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 3.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::json-stringify-call",
@@ -57,21 +59,19 @@
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Functions with random-looking names",
-      "conf": 0.85,
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 3.00"
+          "method": "basename",
+          "source": "target",
+          "value": "popups.js"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-serialization",
@@ -104,6 +104,20 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::script",
+      "kind": "structural",
+      "desc": "calls script",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "script"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::getextensionrelativeurl",
       "kind": "structural",
       "desc": "calls getExtensionRelativeUrl",
@@ -114,20 +128,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "getExtensionRelativeUrl"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupscriptembedded",
-      "kind": "structural",
-      "desc": "calls popupScriptEmbedded",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupScriptEmbedded"
         }
       ]
     },
@@ -146,48 +146,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::sendeventtopopupblocking",
-      "kind": "structural",
-      "desc": "calls sendEventToPopupBlocking",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sendEventToPopupBlocking"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/dispatchevent",
-      "kind": "structural",
-      "desc": "calls document.dispatchEvent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.dispatchEvent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::script",
-      "kind": "structural",
-      "desc": "calls script",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "script"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::addelementtohead",
       "kind": "structural",
       "desc": "calls addElementToHead",
@@ -198,6 +156,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "addElementToHead"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/stringify",
+      "kind": "structural",
+      "desc": "calls JSON.stringify",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "JSON.stringify"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendeventtopopupblocking",
+      "kind": "structural",
+      "desc": "calls sendEventToPopupBlocking",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendEventToPopupBlocking"
         }
       ]
     },
@@ -230,16 +216,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::json/stringify",
+      "id": "meta/internal/imported::popupscriptembedded",
       "kind": "structural",
-      "desc": "calls JSON.stringify",
+      "desc": "calls popupScriptEmbedded",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "JSON.stringify"
+          "value": "popupScriptEmbedded"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/dispatchevent",
+      "kind": "structural",
+      "desc": "calls document.dispatchEvent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.dispatchEvent"
         }
       ]
     }

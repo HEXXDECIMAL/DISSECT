@@ -49,20 +49,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::boost",
-      "kind": "structural",
-      "desc": "calls boost",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "boost"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::regexneedle/test",
       "kind": "structural",
       "desc": "calls regexNeedle.test",
@@ -77,30 +63,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::callbackfunc/tostring",
+      "id": "meta/internal/imported::boost",
       "kind": "structural",
-      "desc": "calls callbackFunc.toString",
+      "desc": "calls boost",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "callbackFunc.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::delay",
-      "kind": "structural",
-      "desc": "calls delay",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "delay"
+          "value": "boost"
         }
       ]
     },
@@ -119,16 +91,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::self/settimeout",
+      "id": "meta/internal/imported::callbackfunc/tostring",
       "kind": "structural",
-      "desc": "calls self.setTimeout",
+      "desc": "calls callbackFunc.toString",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "self.setTimeout"
+          "value": "callbackFunc.toString"
         }
       ]
     },
@@ -147,16 +119,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::isfinite",
+      "id": "meta/internal/imported::self/settimeout",
       "kind": "structural",
-      "desc": "calls isFinite",
+      "desc": "calls self.setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isFinite"
+          "value": "self.setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parsefloat",
+      "kind": "structural",
+      "desc": "calls parseFloat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseFloat"
         }
       ]
     },
@@ -171,6 +157,76 @@
           "method": "symbol",
           "source": "ast",
           "value": "target.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::delay",
+      "kind": "structural",
+      "desc": "calls delay",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "delay"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeenv",
+      "kind": "structural",
+      "desc": "calls safeEnv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeEnv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/min",
+      "kind": "structural",
+      "desc": "calls Math.min",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.min"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
         }
       ]
     },
@@ -203,72 +259,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safeenv",
+      "id": "meta/internal/imported::isfinite",
       "kind": "structural",
-      "desc": "calls safeEnv",
+      "desc": "calls isFinite",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safeEnv"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parseint",
-      "kind": "structural",
-      "desc": "calls parseInt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseInt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parsefloat",
-      "kind": "structural",
-      "desc": "calls parseFloat",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseFloat"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isnan",
-      "kind": "structural",
-      "desc": "calls isNaN",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isNaN"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/min",
-      "kind": "structural",
-      "desc": "calls Math.min",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.min"
+          "value": "isFinite"
         }
       ]
     }

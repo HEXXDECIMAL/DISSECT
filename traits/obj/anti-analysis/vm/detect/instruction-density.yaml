@@ -29,21 +29,12 @@ traits:
 
   - id: sparse-logic-density
     desc: "Extremely low logic density (function sparsity)"
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: metrics
       field: binary.complexity_per_kb
       max: 0.05
-
-  - id: import-sparsity
-    desc: "Abnormally low import density"
-    crit: notable
-    conf: 0.7
-    if:
-      type: metrics
-      field: binary.import_density
-      max: 0.2
 
 composite_rules:
   - id: instruction-based-evasion
@@ -60,7 +51,7 @@ composite_rules:
     conf: 0.9
     all:
       - id: sparse-logic-density
-      - id: import-sparsity
+      - id: meta/format::no-imports
     any:
       - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
       - id: meta/binary/structure::minimal-string-count

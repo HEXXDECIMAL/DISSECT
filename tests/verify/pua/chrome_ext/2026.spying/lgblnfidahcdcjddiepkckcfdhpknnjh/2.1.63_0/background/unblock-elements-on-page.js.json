@@ -42,6 +42,20 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
+      "kind": "structural",
+      "desc": "calls pageDataComponent.refreshBulk",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageDataComponent.refreshBulk"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::sendmessagetotab",
       "kind": "structural",
       "desc": "calls sendMessageToTab",
@@ -52,6 +66,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "sendMessageToTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssrules/remove",
+      "kind": "structural",
+      "desc": "calls customCssRules.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules.remove"
         }
       ]
     },
@@ -94,34 +122,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Promise.all"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::customcssrules/remove",
-      "kind": "structural",
-      "desc": "calls customCssRules.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "customCssRules.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pagedatacomponent/refreshbulk",
-      "kind": "structural",
-      "desc": "calls pageDataComponent.refreshBulk",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pageDataComponent.refreshBulk"
         }
       ]
     },

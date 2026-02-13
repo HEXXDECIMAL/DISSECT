@@ -563,14 +563,11 @@ impl RawContentRegexIndex {
     ) -> FxHashSet<usize> {
         let mut matching_traits = FxHashSet::default();
 
-        let content = match std::str::from_utf8(binary_data) {
-            Ok(c) => c,
-            Err(_) => return matching_traits,
-        };
+        let content = String::from_utf8_lossy(binary_data);
 
         // Match universal patterns
         if let Some(ref universal) = self.universal {
-            for pattern_idx in universal.regex_set.matches(content).iter() {
+            for pattern_idx in universal.regex_set.matches(&content).iter() {
                 if let Some(trait_indices) = universal.pattern_to_traits.get(pattern_idx) {
                     for &trait_idx in trait_indices {
                         matching_traits.insert(trait_idx);
@@ -581,7 +578,7 @@ impl RawContentRegexIndex {
 
         // Match file-type-specific patterns
         if let Some(ft_set) = self.by_file_type.get(file_type) {
-            for pattern_idx in ft_set.regex_set.matches(content).iter() {
+            for pattern_idx in ft_set.regex_set.matches(&content).iter() {
                 if let Some(trait_indices) = ft_set.pattern_to_traits.get(pattern_idx) {
                     for &trait_idx in trait_indices {
                         matching_traits.insert(trait_idx);
@@ -597,6 +594,7 @@ impl RawContentRegexIndex {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::composite_rules::Platform;
 
     // ==================== TraitIndex Tests ====================
 
@@ -824,12 +822,50 @@ mod tests {
 
     #[test]
     fn test_raw_content_regex_index_find_matches_invalid_utf8() {
-        let index = RawContentRegexIndex::build(&[]).unwrap();
-        // Invalid UTF-8 data
-        let content = &[0xFF, 0xFE, 0x00, 0x01];
+        let trait_def = TraitDefinition {
+            id: "test".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: crate::types::Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            r#if: crate::composite_rules::traits::ConditionWithFilters {
+                condition: Condition::Raw {
+                    exact: None,
+                    substr: None,
+                    regex: Some("test".to_string()),
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            not: None,
+            unless: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+
+        let index = RawContentRegexIndex::build(&[trait_def]).unwrap();
+        // Content with invalid UTF-8 and the target string
+        let content = &[0xFF, b't', b'e', b's', b't', 0xFE];
 
         let matches = index.find_matches(content, &RuleFileType::All);
-        // Should handle invalid UTF-8 gracefully (return empty matches)
-        assert!(matches.is_empty());
+        // Should handle invalid UTF-8 gracefully and find the match
+        assert!(!matches.is_empty());
     }
 }

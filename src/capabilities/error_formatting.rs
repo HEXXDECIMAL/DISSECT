@@ -389,7 +389,9 @@ fn provide_error_guidance(
     // Extract the actual field name from the error message if present
     let unknown_field = if error_msg.contains("unknown field") {
         if let Some(field_start) = error_msg.find("`") {
-            error_msg[field_start + 1..].find("`").map(|field_end| error_msg[field_start + 1..field_start + 1 + field_end].to_string())
+            error_msg[field_start + 1..].find("`").map(|field_end| {
+                error_msg[field_start + 1..field_start + 1 + field_end].to_string()
+            })
         } else {
             None
         }
@@ -426,107 +428,106 @@ fn provide_error_guidance(
     // Check for specific invalid fields based on condition type and field name
     if !found_hallucination {
         if let Some(field) = unknown_field {
+            // Detect condition type from context
+            let condition_type = if context.contains("type: raw") {
+                Some("raw")
+            } else if context.contains("type: string") {
+                Some("string")
+            } else if context.contains("type: symbol") {
+                Some("symbol")
+            } else if context.contains("type: hex") {
+                Some("hex")
+            } else if context.contains("type: encoded") {
+                Some("encoded")
+            } else if context.contains("type: ast") {
+                Some("ast")
+            } else if context.contains("type: syscall") {
+                Some("syscall")
+            } else {
+                None
+            };
 
-        // Detect condition type from context
-        let condition_type = if context.contains("type: raw") {
-            Some("raw")
-        } else if context.contains("type: string") {
-            Some("string")
-        } else if context.contains("type: symbol") {
-            Some("symbol")
-        } else if context.contains("type: hex") {
-            Some("hex")
-        } else if context.contains("type: encoded") {
-            Some("encoded")
-        } else if context.contains("type: ast") {
-            Some("ast")
-        } else if context.contains("type: syscall") {
-            Some("syscall")
-        } else {
-            None
-        };
-
-        // Provide specific guidance based on field and condition type
-        match (field.as_str(), condition_type) {
-            ("exclude_patterns", Some("raw")) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid for 'type: raw'.\n",
-                    field
-                ));
-                guidance.push_str(
-                    "   💡 The 'exclude_patterns' field only works with 'type: string'.\n",
-                );
-                guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
-                found_hallucination = true;
+            // Provide specific guidance based on field and condition type
+            match (field.as_str(), condition_type) {
+                ("exclude_patterns", Some("raw")) => {
+                    guidance.push_str(&format!(
+                        "\n   Field '{}' is not valid for 'type: raw'.\n",
+                        field
+                    ));
+                    guidance.push_str(
+                        "   💡 The 'exclude_patterns' field only works with 'type: string'.\n",
+                    );
+                    guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
+                    found_hallucination = true;
+                }
+                ("min_ratio" | "max_ratio", Some("section_ratio")) => {
+                    guidance.push_str(&format!(
+                        "\n   Field '{}' is not valid for 'type: section_ratio'.\n",
+                        field
+                    ));
+                    guidance.push_str(
+                        "   💡 Use 'min' and 'max' instead of 'min_ratio' and 'max_ratio'.\n",
+                    );
+                    guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
+                    found_hallucination = true;
+                }
+                ("count_min" | "count_max" | "per_kb_min" | "per_kb_max", Some("ast")) => {
+                    guidance.push_str(&format!(
+                        "\n   Field '{}' is not valid for 'type: ast'.\n",
+                        field
+                    ));
+                    guidance.push_str("   💡 AST conditions don't support count/density fields.\n");
+                    guidance.push_str(
+                        "   💡 AST patterns match structural code patterns, not occurrences.\n",
+                    );
+                    found_hallucination = true;
+                }
+                ("needs", _) => {
+                    guidance.push_str(&format!(
+                        "\n   Field '{}' is not valid in atomic trait conditions.\n",
+                        field
+                    ));
+                    guidance.push_str("   💡 The 'needs' field only works in composite rules (with 'any:' clauses).\n");
+                    guidance.push_str(
+                        "   💡 For atomic traits, use 'count_min' to require multiple matches.\n",
+                    );
+                    found_hallucination = true;
+                }
+                (field_name, Some(cond_type)) => {
+                    guidance.push_str(&format!(
+                        "\n   Field '{}' is not valid for 'type: {}'.\n",
+                        field_name, cond_type
+                    ));
+                    guidance.push_str(&format!(
+                        "   💡 Check the valid fields for 'type: {}' conditions.\n",
+                        cond_type
+                    ));
+                    found_hallucination = true;
+                }
+                (field_name, None) => {
+                    guidance.push_str(&format!(
+                        "\n   Unknown field '{}' in condition.\n",
+                        field_name
+                    ));
+                    found_hallucination = true;
+                }
             }
-            ("min_ratio" | "max_ratio", Some("section_ratio")) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid for 'type: section_ratio'.\n",
-                    field
-                ));
-                guidance.push_str(
-                    "   💡 Use 'min' and 'max' instead of 'min_ratio' and 'max_ratio'.\n",
-                );
-                guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
-                found_hallucination = true;
-            }
-            ("count_min" | "count_max" | "per_kb_min" | "per_kb_max", Some("ast")) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid for 'type: ast'.\n",
-                    field
-                ));
-                guidance.push_str("   💡 AST conditions don't support count/density fields.\n");
-                guidance.push_str(
-                    "   💡 AST patterns match structural code patterns, not occurrences.\n",
-                );
-                found_hallucination = true;
-            }
-            ("needs", _) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid in atomic trait conditions.\n",
-                    field
-                ));
-                guidance.push_str("   💡 The 'needs' field only works in composite rules (with 'any:' clauses).\n");
-                guidance.push_str(
-                    "   💡 For atomic traits, use 'count_min' to require multiple matches.\n",
-                );
-                found_hallucination = true;
-            }
-            (field_name, Some(cond_type)) => {
-                guidance.push_str(&format!(
-                    "\n   Field '{}' is not valid for 'type: {}'.\n",
-                    field_name, cond_type
-                ));
-                guidance.push_str(&format!(
-                    "   💡 Check the valid fields for 'type: {}' conditions.\n",
-                    cond_type
-                ));
-                found_hallucination = true;
-            }
-            (field_name, None) => {
-                guidance.push_str(&format!(
-                    "\n   Unknown field '{}' in condition.\n",
-                    field_name
-                ));
-                found_hallucination = true;
-            }
-        }
         }
     }
 
     // Check for fields used with wrong condition type (kv doesn't support count/density)
     if !found_hallucination
         && context.contains("type: kv")
-            && (context.contains("count_min:")
-                || context.contains("count_max:")
-                || context.contains("per_kb_min:")
-                || context.contains("per_kb_max:"))
-        {
-            guidance.push_str("\n   Count/density fields are not valid for 'type: kv'.\n");
-            guidance.push_str("   💡 These fields only work with 'type: string', 'type: raw', 'type: hex', 'type: symbol', or 'type: encoded'.\n");
-            guidance.push_str("   💡 KV searches query structured data and return boolean results, not frequency counts.\n");
-            found_hallucination = true;
-        }
+        && (context.contains("count_min:")
+            || context.contains("count_max:")
+            || context.contains("per_kb_min:")
+            || context.contains("per_kb_max:"))
+    {
+        guidance.push_str("\n   Count/density fields are not valid for 'type: kv'.\n");
+        guidance.push_str("   💡 These fields only work with 'type: string', 'type: raw', 'type: hex', 'type: symbol', or 'type: encoded'.\n");
+        guidance.push_str("   💡 KV searches query structured data and return boolean results, not frequency counts.\n");
+        found_hallucination = true;
+    }
 
     // If no specific field error detected, check for ConditionDeser error - means invalid condition type
     // But only show this if it's not an "unknown field" error (which we handled above)

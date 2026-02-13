@@ -7,9 +7,8 @@ use super::condition::{Condition, NotException};
 use super::context::{ConditionResult, EvaluationContext, StringParams};
 use super::evaluators::{
     eval_ast, eval_basename, eval_encoded, eval_exports_count, eval_hex, eval_import_combination,
-    eval_metrics, eval_raw, eval_section, eval_section_ratio, eval_string,
-    eval_string_count, eval_structure, eval_symbol, eval_syscall, eval_trait, eval_yara_inline,
-    ContentLocationParams,
+    eval_metrics, eval_raw, eval_section, eval_section_ratio, eval_string, eval_string_count,
+    eval_structure, eval_symbol, eval_syscall, eval_trait, eval_yara_inline, ContentLocationParams,
 };
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};

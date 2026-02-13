@@ -13,19 +13,20 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "cap/data/text/keywords::padding",
@@ -72,58 +73,53 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/testing::should-word",
-      "kind": "capability",
-      "desc": "should keyword",
-      "conf": 0.6,
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "should",
-          "location": "0x2fa1"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "should",
-          "location": "0x32a3"
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "setTimeout with code execution",
-      "conf": 0.75,
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 setTimeout(() => {",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 14.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::href-assignment",
@@ -140,6 +136,23 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 23.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -193,21 +206,57 @@
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
-      "desc": "Many anonymous functions",
+      "desc": "setTimeout with code execution",
       "conf": 0.75,
       "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.anonymous = 23.00"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 setTimeout(() => {",
+          "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::should-word",
+      "kind": "capability",
+      "desc": "should keyword",
+      "conf": 0.6,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x2fa1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x32a3"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "kind": "capability",
+      "desc": "hostname keyword",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "hostname"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
@@ -227,45 +276,11 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "obj/discovery/host/fingerprint::system-id-sources",
       "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 14.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/discovery/host/fingerprint::hostname-keyword",
-      "kind": "capability",
-      "desc": "hostname keyword",
-      "conf": 0.5,
-      "crit": "notable",
+      "desc": "System identification sources",
+      "conf": 1.0,
+      "crit": "inert",
       "evidence": [
         {
           "method": "import_symbol",
@@ -274,6 +289,28 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
+      "kind": "capability",
+      "desc": "Mocha assertions or hooks",
+      "conf": 1.0,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x2fa1"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "should",
+          "location": "0x32a3"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -319,43 +356,6 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::system-id-sources",
-      "kind": "capability",
-      "desc": "System identification sources",
-      "conf": 1.0,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "hostname"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
-      "kind": "capability",
-      "desc": "Mocha assertions or hooks",
-      "conf": 1.0,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "should",
-          "location": "0x2fa1"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "should",
-          "location": "0x32a3"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
       "kind": "capability",
       "desc": "npm malware obfuscation pattern (install",
@@ -393,16 +393,58 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "meta/internal/imported::popupurl",
+      "id": "meta/internal/imported::targetvalid",
       "kind": "structural",
-      "desc": "calls popupUrl",
+      "desc": "calls targetValid",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "popupUrl"
+          "value": "targetValid"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/documentelement/appendchild",
+      "kind": "structural",
+      "desc": "calls document.documentElement.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.documentElement.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popup_options",
+      "kind": "structural",
+      "desc": "calls POPUP_OPTIONS",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "POPUP_OPTIONS"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::anchorpopupsexcludedhosts",
+      "kind": "structural",
+      "desc": "calls anchorPopupsExcludedHosts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "anchorPopupsExcludedHosts"
         }
       ]
     },
@@ -421,58 +463,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/postmessage",
+      "id": "meta/internal/imported::host/substring",
       "kind": "structural",
-      "desc": "calls window.postMessage",
+      "desc": "calls host.substring",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.postMessage"
+          "value": "host.substring"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::window/top/postmessage",
+      "id": "meta/internal/imported::window/location/hostname/includes",
       "kind": "structural",
-      "desc": "calls window.top.postMessage",
+      "desc": "calls window.location.hostname.includes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.top.postMessage"
+          "value": "window.location.hostname.includes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::notificationelement",
+      "id": "meta/internal/imported::popupurl/startswith",
       "kind": "structural",
-      "desc": "calls notificationElement",
+      "desc": "calls popupUrl.startsWith",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "notificationElement"
+          "value": "popupUrl.startsWith"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::cleartimeout",
+      "id": "meta/internal/imported::div/setattribute",
       "kind": "structural",
-      "desc": "calls clearTimeout",
+      "desc": "calls div.setAttribute",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "clearTimeout"
+          "value": "div.setAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::event/preventdefault",
+      "kind": "structural",
+      "desc": "calls event.preventDefault",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "event.preventDefault"
         }
       ]
     },
@@ -491,100 +547,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::action",
+      "id": "meta/internal/imported::e/preventdefault",
       "kind": "structural",
-      "desc": "calls action",
+      "desc": "calls e.preventDefault",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "action"
+          "value": "e.preventDefault"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::host",
+      "id": "meta/internal/imported::shownotification",
       "kind": "structural",
-      "desc": "calls host",
+      "desc": "calls showNotification",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "host"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/click",
-      "kind": "structural",
-      "desc": "calls element.click",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.click"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::issuspiciouslink",
-      "kind": "structural",
-      "desc": "calls isSuspiciousLink",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isSuspiciousLink"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::now",
-      "kind": "structural",
-      "desc": "calls now",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "now"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/parse",
-      "kind": "structural",
-      "desc": "calls JSON.parse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::blockpopupsfunc",
-      "kind": "structural",
-      "desc": "calls blockPopupsFunc",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "blockPopupsFunc"
+          "value": "showNotification"
         }
       ]
     },
@@ -603,44 +589,226 @@
       ]
     },
     {
-      "id": "meta/internal/imported::popupallowedregex",
+      "id": "meta/internal/imported::stndz/stndzpopupclicked",
       "kind": "structural",
-      "desc": "calls popupAllowedRegex",
+      "desc": "calls stndz.stndzPopupClicked",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "popupAllowedRegex"
+          "value": "stndz.stndzPopupClicked"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::detail",
+      "id": "meta/internal/imported::json/parse",
       "kind": "structural",
-      "desc": "calls detail",
+      "desc": "calls JSON.parse",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "detail"
+          "value": "JSON.parse"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::stndz/popupnotificationopen",
+      "id": "meta/internal/imported::issuspiciouslink",
       "kind": "structural",
-      "desc": "calls stndz.popupNotificationOpen",
+      "desc": "calls isSuspiciousLink",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "stndz.popupNotificationOpen"
+          "value": "isSuspiciousLink"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::openpopupfunc",
+      "kind": "structural",
+      "desc": "calls openPopupFunc",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "openPopupFunc"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::blockpopupsfunc",
+      "kind": "structural",
+      "desc": "calls blockPopupsFunc",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "blockPopupsFunc"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/showpopupnotification",
+      "kind": "structural",
+      "desc": "calls stndz.showPopupNotification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.showPopupNotification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::div/innerhtml",
+      "kind": "structural",
+      "desc": "calls div.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "div.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::host/includes",
+      "kind": "structural",
+      "desc": "calls host.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "host.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hidepopupnotificationid",
+      "kind": "structural",
+      "desc": "calls hidePopupNotificationId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hidePopupNotificationId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/settimeout",
+      "kind": "structural",
+      "desc": "calls window.setTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/active",
+      "kind": "structural",
+      "desc": "calls stndz.active",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.active"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notificationelement",
+      "kind": "structural",
+      "desc": "calls notificationElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notificationElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style/textcontent",
+      "kind": "structural",
+      "desc": "calls style.textContent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style.textContent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currenttargetvalid",
+      "kind": "structural",
+      "desc": "calls currentTargetValid",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentTargetValid"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::clicker",
+      "kind": "structural",
+      "desc": "calls clicker",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clicker"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notificationelement/classlist/toggle",
+      "kind": "structural",
+      "desc": "calls notificationElement.classList.toggle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notificationElement.classList.toggle"
         }
       ]
     },
@@ -655,20 +823,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.getElementById.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notificationelement/classlist/add",
-      "kind": "structural",
-      "desc": "calls notificationElement.classList.add",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notificationElement.classList.add"
         }
       ]
     },
@@ -701,352 +855,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::locationhost/includes",
+      "id": "meta/internal/imported::element/addeventlistener",
       "kind": "structural",
-      "desc": "calls locationHost.includes",
+      "desc": "calls element.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "locationHost.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/stndzpopupactionwindow/postmessage",
-      "kind": "structural",
-      "desc": "calls stndz.stndzPopupActionWindow.postMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.stndzPopupActionWindow.postMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::event/preventdefault",
-      "kind": "structural",
-      "desc": "calls event.preventDefault",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "event.preventDefault"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid",
-      "kind": "structural",
-      "desc": "calls document.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::style/textcontent",
-      "kind": "structural",
-      "desc": "calls style.textContent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "style.textContent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::div",
-      "kind": "structural",
-      "desc": "calls div",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "div"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/settimeout",
-      "kind": "structural",
-      "desc": "calls window.setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.setTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hidepopupnotificationid",
-      "kind": "structural",
-      "desc": "calls hidePopupNotificationId",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hidePopupNotificationId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::targetname",
-      "kind": "structural",
-      "desc": "calls targetName",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "targetName"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::is_popup_result",
-      "kind": "structural",
-      "desc": "calls IS_POPUP_RESULT",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "IS_POPUP_RESULT"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::targetvalid",
-      "kind": "structural",
-      "desc": "calls targetValid",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "targetValid"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notificationelement/onmouseover",
-      "kind": "structural",
-      "desc": "calls notificationElement.onmouseover",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notificationElement.onmouseover"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currenttargetvalid",
-      "kind": "structural",
-      "desc": "calls currentTargetValid",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentTargetValid"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::link/target",
-      "kind": "structural",
-      "desc": "calls link.target",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "link.target"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notificationelement/classlist/remove",
-      "kind": "structural",
-      "desc": "calls notificationElement.classList.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notificationElement.classList.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupallowhosts",
-      "kind": "structural",
-      "desc": "calls popupAllowHosts",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupAllowHosts"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::host/includes",
-      "kind": "structural",
-      "desc": "calls host.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "host.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::target/href/startswith",
-      "kind": "structural",
-      "desc": "calls target.href.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "target.href.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/originalwindowopen/apply",
-      "kind": "structural",
-      "desc": "calls stndz.originalWindowOpen.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.originalWindowOpen.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isnewexternallink",
-      "kind": "structural",
-      "desc": "calls isNewExternalLink",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isNewExternalLink"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::link",
-      "kind": "structural",
-      "desc": "calls link",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "link"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/hidepopupnotification",
-      "kind": "structural",
-      "desc": "calls stndz.hidePopupNotification",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.hidePopupNotification"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popuphost",
-      "kind": "structural",
-      "desc": "calls popupHost",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupHost"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::shownotification",
-      "kind": "structural",
-      "desc": "calls showNotification",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "showNotification"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
+          "value": "element.addEventListener"
         }
       ]
     },
@@ -1065,44 +883,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::element",
+      "id": "meta/internal/imported::window/postmessage",
       "kind": "structural",
-      "desc": "calls element",
+      "desc": "calls window.postMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "element"
+          "value": "window.postMessage"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::clicker",
+      "id": "meta/internal/imported::document/getelementbyid",
       "kind": "structural",
-      "desc": "calls clicker",
+      "desc": "calls document.getElementById",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "clicker"
+          "value": "document.getElementById"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::host/substring",
+      "id": "meta/internal/imported::div",
       "kind": "structural",
-      "desc": "calls host.substring",
+      "desc": "calls div",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "host.substring"
+          "value": "div"
         }
       ]
     },
@@ -1117,6 +935,412 @@
           "method": "symbol",
           "source": "ast",
           "value": "window.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::showpopupnotificationwindow",
+      "kind": "structural",
+      "desc": "calls showPopupNotificationWindow",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "showPopupNotificationWindow"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/onclick",
+      "kind": "structural",
+      "desc": "calls target.onclick",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.onclick"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::detail",
+      "kind": "structural",
+      "desc": "calls detail",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "detail"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::host",
+      "kind": "structural",
+      "desc": "calls host",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "host"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::link",
+      "kind": "structural",
+      "desc": "calls link",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "link"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::locationhost/includes",
+      "kind": "structural",
+      "desc": "calls locationHost.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "locationHost.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/popupnotificationopen",
+      "kind": "structural",
+      "desc": "calls stndz.popupNotificationOpen",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.popupNotificationOpen"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnewexternallink",
+      "kind": "structural",
+      "desc": "calls isNewExternalLink",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNewExternalLink"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rule/test",
+      "kind": "structural",
+      "desc": "calls rule.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rule.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popuphost",
+      "kind": "structural",
+      "desc": "calls popupHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedregex/test",
+      "kind": "structural",
+      "desc": "calls popupAllowedRegex.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedRegex.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::createtime",
+      "kind": "structural",
+      "desc": "calls createTime",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "createTime"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/hidepopupnotification",
+      "kind": "structural",
+      "desc": "calls stndz.hidePopupNotification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.hidePopupNotification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::action",
+      "kind": "structural",
+      "desc": "calls action",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "action"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupurl",
+      "kind": "structural",
+      "desc": "calls popupUrl",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupUrl"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::now",
+      "kind": "structural",
+      "desc": "calls now",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/body/appendchild",
+      "kind": "structural",
+      "desc": "calls document.body.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.body.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::block",
+      "kind": "structural",
+      "desc": "calls block",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "block"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/stndzpopupactionwindow",
+      "kind": "structural",
+      "desc": "calls stndz.stndzPopupActionWindow",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.stndzPopupActionWindow"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::notificationelement/classlist/remove",
+      "kind": "structural",
+      "desc": "calls notificationElement.classList.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "notificationElement.classList.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowhosts/test",
+      "kind": "structural",
+      "desc": "calls popupAllowHosts.test",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowHosts.test"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/top/postmessage",
+      "kind": "structural",
+      "desc": "calls window.top.postMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.top.postMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::targetname",
+      "kind": "structural",
+      "desc": "calls targetName",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "targetName"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/addeventlistener",
+      "kind": "structural",
+      "desc": "calls document.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowedregex",
+      "kind": "structural",
+      "desc": "calls popupAllowedRegex",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowedRegex"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/stndzpopupaction",
+      "kind": "structural",
+      "desc": "calls stndz.stndzPopupAction",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.stndzPopupAction"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/originalwindowopen/apply",
+      "kind": "structural",
+      "desc": "calls stndz.originalWindowOpen.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.originalWindowOpen.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::host/startswith",
+      "kind": "structural",
+      "desc": "calls host.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "host.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/click",
+      "kind": "structural",
+      "desc": "calls element.click",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.click"
         }
       ]
     },
@@ -1149,394 +1373,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::host/startswith",
+      "id": "meta/internal/imported::settimeout",
       "kind": "structural",
-      "desc": "calls host.startsWith",
+      "desc": "calls setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "host.startsWith"
+          "value": "setTimeout"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::stndz/stndzpopupclicked",
+      "id": "meta/internal/imported::notificationelement/classlist/add",
       "kind": "structural",
-      "desc": "calls stndz.stndzPopupClicked",
+      "desc": "calls notificationElement.classList.add",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "stndz.stndzPopupClicked"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/location/hostname/includes",
-      "kind": "structural",
-      "desc": "calls window.location.hostname.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.location.hostname.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/stndzpopupaction",
-      "kind": "structural",
-      "desc": "calls stndz.stndzPopupAction",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.stndzPopupAction"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::openpopupfunc",
-      "kind": "structural",
-      "desc": "calls openPopupFunc",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "openPopupFunc"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ispopup",
-      "kind": "structural",
-      "desc": "calls isPopup",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isPopup"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupallowedregex/test",
-      "kind": "structural",
-      "desc": "calls popupAllowedRegex.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupAllowedRegex.test"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::anchorpopupsexcludedhosts",
-      "kind": "structural",
-      "desc": "calls anchorPopupsExcludedHosts",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "anchorPopupsExcludedHosts"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::block",
-      "kind": "structural",
-      "desc": "calls block",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "block"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/active",
-      "kind": "structural",
-      "desc": "calls stndz.active",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.active"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::div/setattribute",
-      "kind": "structural",
-      "desc": "calls div.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "div.setAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popup_options",
-      "kind": "structural",
-      "desc": "calls POPUP_OPTIONS",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "POPUP_OPTIONS"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/addeventlistener",
-      "kind": "structural",
-      "desc": "calls document.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::showpopupnotificationwindow",
-      "kind": "structural",
-      "desc": "calls showPopupNotificationWindow",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "showPopupNotificationWindow"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupallowhosts/test",
-      "kind": "structural",
-      "desc": "calls popupAllowHosts.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupAllowHosts.test"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/addeventlistener",
-      "kind": "structural",
-      "desc": "calls element.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/body/appendchild",
-      "kind": "structural",
-      "desc": "calls document.body.appendChild",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.body.appendChild"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::notificationelement/classlist/toggle",
-      "kind": "structural",
-      "desc": "calls notificationElement.classList.toggle",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "notificationElement.classList.toggle"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/preventdefault",
-      "kind": "structural",
-      "desc": "calls e.preventDefault",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.preventDefault"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stndz/stndzpopupactionwindow",
-      "kind": "structural",
-      "desc": "calls stndz.stndzPopupActionWindow",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "stndz.stndzPopupActionWindow"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/documentelement/appendchild",
-      "kind": "structural",
-      "desc": "calls document.documentElement.appendChild",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.documentElement.appendChild"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::createtime",
-      "kind": "structural",
-      "desc": "calls createTime",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "createTime"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::div/innerhtml",
-      "kind": "structural",
-      "desc": "calls div.innerHTML",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "div.innerHTML"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rule/test",
-      "kind": "structural",
-      "desc": "calls rule.test",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rule.test"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::locationhost",
-      "kind": "structural",
-      "desc": "calls locationHost",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "locationHost"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupurl/startswith",
-      "kind": "structural",
-      "desc": "calls popupUrl.startsWith",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupUrl.startsWith"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/open",
-      "kind": "structural",
-      "desc": "calls window.open",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.open"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupdeniedregexs",
-      "kind": "structural",
-      "desc": "calls popupDeniedRegexs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupDeniedRegexs"
+          "value": "notificationElement.classList.add"
         }
       ]
     },
@@ -1555,30 +1415,170 @@
       ]
     },
     {
-      "id": "meta/internal/imported::target/onclick",
+      "id": "meta/internal/imported::notificationelement/onmouseover",
       "kind": "structural",
-      "desc": "calls target.onclick",
+      "desc": "calls notificationElement.onmouseover",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "target.onclick"
+          "value": "notificationElement.onmouseover"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::stndz/showpopupnotification",
+      "id": "meta/internal/imported::ispopup",
       "kind": "structural",
-      "desc": "calls stndz.showPopupNotification",
+      "desc": "calls isPopup",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "stndz.showPopupNotification"
+          "value": "isPopup"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupallowhosts",
+      "kind": "structural",
+      "desc": "calls popupAllowHosts",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupAllowHosts"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::locationhost",
+      "kind": "structural",
+      "desc": "calls locationHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "locationHost"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::is_popup_result",
+      "kind": "structural",
+      "desc": "calls IS_POPUP_RESULT",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "IS_POPUP_RESULT"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cleartimeout",
+      "kind": "structural",
+      "desc": "calls clearTimeout",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "clearTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::popupdeniedregexs",
+      "kind": "structural",
+      "desc": "calls popupDeniedRegexs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupDeniedRegexs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::link/target",
+      "kind": "structural",
+      "desc": "calls link.target",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "link.target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stndz/stndzpopupactionwindow/postmessage",
+      "kind": "structural",
+      "desc": "calls stndz.stndzPopupActionWindow.postMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stndz.stndzPopupActionWindow.postMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/open",
+      "kind": "structural",
+      "desc": "calls window.open",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.open"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/href/startswith",
+      "kind": "structural",
+      "desc": "calls target.href.startsWith",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.href.startsWith"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element",
+      "kind": "structural",
+      "desc": "calls element",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element"
         }
       ]
     }

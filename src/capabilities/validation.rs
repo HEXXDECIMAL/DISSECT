@@ -797,13 +797,9 @@ pub(crate) fn find_duplicate_traits_and_composites(
                 for t in chunk {
                     // Serialize the trait's unique characteristics
                     // Note: size_min/size_max are already inside r#if, no need to serialize separately
-                    if let Ok(serialized) = bincode::serialize(&(
-                        &t.r#if,
-                        &t.platforms,
-                        &t.r#for,
-                        &t.not,
-                        &t.unless,
-                    )) {
+                    if let Ok(serialized) =
+                        bincode::serialize(&(&t.r#if, &t.platforms, &t.r#for, &t.not, &t.unless))
+                    {
                         // Hash the serialized data to get a u64 key (much faster HashMap operations)
                         use std::collections::hash_map::DefaultHasher;
                         use std::hash::{Hash, Hasher};
@@ -870,7 +866,8 @@ pub(crate) fn find_duplicate_traits_and_composites(
                 let mut local_map: HashMap<u64, Vec<String>> = HashMap::with_capacity(chunk.len());
                 for r in chunk {
                     // Skip rules with no conditions
-                    if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none() {
+                    if r.all.is_none() && r.any.is_none() && r.none.is_none() && r.unless.is_none()
+                    {
                         continue;
                     }
 

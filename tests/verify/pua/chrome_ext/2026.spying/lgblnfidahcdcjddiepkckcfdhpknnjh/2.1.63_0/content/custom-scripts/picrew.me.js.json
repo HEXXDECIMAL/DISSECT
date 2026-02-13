@@ -59,30 +59,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::setcssvaluescript",
+      "id": "meta/internal/imported::picrewmescript",
       "kind": "structural",
-      "desc": "calls setCssValueScript",
+      "desc": "calls picrewmeScript",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "setCssValueScript"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settimeout",
-      "kind": "structural",
-      "desc": "calls setTimeout",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setTimeout"
+          "value": "picrewmeScript"
         }
       ]
     },
@@ -101,16 +87,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::picrewmescript",
+      "id": "meta/internal/imported::settimeout",
       "kind": "structural",
-      "desc": "calls picrewmeScript",
+      "desc": "calls setTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "picrewmeScript"
+          "value": "setTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setcssvaluescript",
+      "kind": "structural",
+      "desc": "calls setCssValueScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setCssValueScript"
         }
       ]
     }

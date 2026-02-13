@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -40,20 +56,55 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 3  for (",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 5.00"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "kind": "capability",
+      "desc": "No comments in code (stripped",
+      "conf": 0.6,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
@@ -72,21 +123,20 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "cap/data/exploitation/memory::js-path-split-single",
       "kind": "capability",
-      "desc": "No comments in code (stripped",
-      "conf": 0.6,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
+      "desc": "Dot-notation path splitting (single quotes)",
+      "conf": 0.8,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of .split('.')",
+          "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
@@ -135,56 +185,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 5.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "cap/data/exploitation/memory::js-path-split-single",
-      "kind": "capability",
-      "desc": "Dot-notation path splitting (single quotes)",
-      "conf": 0.8,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 occurrences of .split('.')",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-entries-call",
@@ -267,184 +267,142 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::parentdomains",
+      "id": "meta/internal/imported::setcustomcssintopage",
       "kind": "structural",
-      "desc": "calls parentDomains",
+      "desc": "calls setCustomCssIntoPage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "parentDomains"
+          "value": "setCustomCssIntoPage"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::styleelementids/push",
+      "id": "meta/internal/imported::generalrules",
       "kind": "structural",
-      "desc": "calls styleElementIds.push",
+      "desc": "calls generalRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "styleElementIds.push"
+          "value": "generalRules"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::hideelements",
+      "id": "meta/internal/imported::cookiebannersrules",
       "kind": "structural",
-      "desc": "calls hideElements",
+      "desc": "calls cookieBannersRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "hideElements"
+          "value": "cookieBannersRules"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::shadowdomnodes",
+      "id": "meta/internal/imported::whitelist/pagedata/hostaddress/includes",
       "kind": "structural",
-      "desc": "calls shadowDomNodes",
+      "desc": "calls whitelist.pageData.hostAddress.includes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "shadowDomNodes"
+          "value": "whitelist.pageData.hostAddress.includes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::cookiewhitelistrules",
+      "id": "meta/internal/imported::id",
       "kind": "structural",
-      "desc": "calls cookieWhitelistRules",
+      "desc": "calls id",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cookieWhitelistRules"
+          "value": "id"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::cookiebannerextendedrules/setstate",
+      "id": "meta/internal/imported::addstylerulestoshadowdomnodes",
       "kind": "structural",
-      "desc": "calls cookieBannerExtendedRules.setState",
+      "desc": "calls addStyleRulesToShadowDomNodes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cookieBannerExtendedRules.setState"
+          "value": "addStyleRulesToShadowDomNodes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::rules/push",
+      "id": "meta/internal/imported::styleelement/textcontent",
       "kind": "structural",
-      "desc": "calls rules.push",
+      "desc": "calls styleElement.textContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "rules.push"
+          "value": "styleElement.textContent"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::storageservice/get",
+      "id": "meta/internal/imported::cookiebannerrulescounter/setrules",
       "kind": "structural",
-      "desc": "calls storageService.get",
+      "desc": "calls cookieBannerRulesCounter.setRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "storageService.get"
+          "value": "cookieBannerRulesCounter.setRules"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::generarulescounter/setrules",
+      "id": "meta/internal/imported::arr/slice/join",
       "kind": "structural",
-      "desc": "calls generaRulesCounter.setRules",
+      "desc": "calls arr.slice.join",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generaRulesCounter.setRules"
+          "value": "arr.slice.join"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::styleelement/id",
+      "id": "meta/internal/imported::cookiebannerextendedrules/setrules",
       "kind": "structural",
-      "desc": "calls styleElement.id",
+      "desc": "calls cookieBannerExtendedRules.setRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "styleElement.id"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::node/shadowroot/getelementbyid",
-      "kind": "structural",
-      "desc": "calls node.shadowRoot.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "node.shadowRoot.getElementById"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::debug/error",
-      "kind": "structural",
-      "desc": "calls debug.error",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debug.error"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getcssfromstorage",
-      "kind": "structural",
-      "desc": "calls getCssFromStorage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getCssFromStorage"
+          "value": "cookieBannerExtendedRules.setRules"
         }
       ]
     },
@@ -477,296 +435,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::countperstyle",
+      "id": "meta/internal/imported::generarulescounter/setrules",
       "kind": "structural",
-      "desc": "calls countPerStyle",
+      "desc": "calls generaRulesCounter.setRules",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "countPerStyle"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setcustomcssintopage",
-      "kind": "structural",
-      "desc": "calls setCustomCssIntoPage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setCustomCssIntoPage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pattern/replace",
-      "kind": "structural",
-      "desc": "calls pattern.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pattern.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannersrules",
-      "kind": "structural",
-      "desc": "calls cookieBannersRules",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannersRules"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pattern/replace/replace",
-      "kind": "structural",
-      "desc": "calls pattern.replace.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pattern.replace.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannerextendedrules/setrules",
-      "kind": "structural",
-      "desc": "calls cookieBannerExtendedRules.setRules",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannerExtendedRules.setRules"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getrulesfromlist",
-      "kind": "structural",
-      "desc": "calls getRulesFromList",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getRulesFromList"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::data",
-      "kind": "structural",
-      "desc": "calls data",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::styleelement",
-      "kind": "structural",
-      "desc": "calls styleElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "styleElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arr/slice/join",
-      "kind": "structural",
-      "desc": "calls arr.slice.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arr.slice.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rules",
-      "kind": "structural",
-      "desc": "calls rules",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rules"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::styleelementids/foreach",
-      "kind": "structural",
-      "desc": "calls styleElementIds.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "styleElementIds.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::generarulescounter/setstate",
-      "kind": "structural",
-      "desc": "calls generaRulesCounter.setState",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "generaRulesCounter.setState"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/entries",
-      "kind": "structural",
-      "desc": "calls Object.entries",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.entries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannersextendedrules",
-      "kind": "structural",
-      "desc": "calls cookieBannersExtendedRules",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannersExtendedRules"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::stylenode",
-      "kind": "structural",
-      "desc": "calls styleNode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "styleNode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::whitelistrules/includes",
-      "kind": "structural",
-      "desc": "calls whitelistRules.includes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "whitelistRules.includes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cookiebannersrules/filter",
-      "kind": "structural",
-      "desc": "calls cookieBannersRules.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookieBannersRules.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/queryselectorall/foreach",
-      "kind": "structural",
-      "desc": "calls currentDocument.querySelectorAll.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.querySelectorAll.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::node/shadowroot/appendchild",
-      "kind": "structural",
-      "desc": "calls node.shadowRoot.appendChild",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "node.shadowRoot.appendChild"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/createelement",
-      "kind": "structural",
-      "desc": "calls currentDocument.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.createElement"
+          "value": "generaRulesCounter.setRules"
         }
       ]
     },
@@ -785,30 +463,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::math/ceil",
+      "id": "meta/internal/imported::styleelementids",
       "kind": "structural",
-      "desc": "calls Math.ceil",
+      "desc": "calls styleElementIds",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Math.ceil"
+          "value": "styleElementIds"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::debounce",
+      "id": "meta/internal/imported::hideelements",
       "kind": "structural",
-      "desc": "calls debounce",
+      "desc": "calls hideElements",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "debounce"
+          "value": "hideElements"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselectorall/foreach",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelectorAll.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelectorAll.forEach"
         }
       ]
     },
@@ -827,44 +519,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::generalextendedrules/setstate",
+      "id": "meta/internal/imported::currentdocument/createelement",
       "kind": "structural",
-      "desc": "calls generalExtendedRules.setState",
+      "desc": "calls currentDocument.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generalExtendedRules.setState"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::addstylerulestoshadowdomnodes",
-      "kind": "structural",
-      "desc": "calls addStyleRulesToShadowDomNodes",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "addStyleRulesToShadowDomNodes"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::res",
-      "kind": "structural",
-      "desc": "calls res",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "res"
+          "value": "currentDocument.createElement"
         }
       ]
     },
@@ -883,100 +547,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::styleelementids",
+      "id": "meta/internal/imported::styleelementids/foreach",
       "kind": "structural",
-      "desc": "calls styleElementIds",
+      "desc": "calls styleElementIds.forEach",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "styleElementIds"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::addelementtohead",
-      "kind": "structural",
-      "desc": "calls addElementToHead",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "addElementToHead"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::style/remove",
-      "kind": "structural",
-      "desc": "calls style.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "style.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid/clonenode",
-      "kind": "structural",
-      "desc": "calls document.getElementById.cloneNode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById.cloneNode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::existedstylenode",
-      "kind": "structural",
-      "desc": "calls existedStyleNode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "existedStyleNode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::whitelistrules",
-      "kind": "structural",
-      "desc": "calls whitelistRules",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "whitelistRules"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arr/slice",
-      "kind": "structural",
-      "desc": "calls arr.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arr.slice"
+          "value": "styleElementIds.forEach"
         }
       ]
     },
@@ -995,100 +575,142 @@
       ]
     },
     {
-      "id": "meta/internal/imported::styleelement/textcontent",
+      "id": "meta/internal/imported::shadowdomnodes",
       "kind": "structural",
-      "desc": "calls styleElement.textContent",
+      "desc": "calls shadowDomNodes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "styleElement.textContent"
+          "value": "shadowDomNodes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::currentdocument/queryselectorall",
+      "id": "meta/internal/imported::styleelementids/push",
       "kind": "structural",
-      "desc": "calls currentDocument.querySelectorAll",
+      "desc": "calls styleElementIds.push",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentDocument.querySelectorAll"
+          "value": "styleElementIds.push"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::id",
+      "id": "meta/internal/imported::generalextendedrules/setstate",
       "kind": "structural",
-      "desc": "calls id",
+      "desc": "calls generalExtendedRules.setState",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "id"
+          "value": "generalExtendedRules.setState"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::whitelist/pagedata/hostaddress/includes",
+      "id": "meta/internal/imported::styleelement/id",
       "kind": "structural",
-      "desc": "calls whitelist.pageData.hostAddress.includes",
+      "desc": "calls styleElement.id",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "whitelist.pageData.hostAddress.includes"
+          "value": "styleElement.id"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::generalextendedrules/setrules",
+      "id": "meta/internal/imported::cookiebannersrules/filter",
       "kind": "structural",
-      "desc": "calls generalExtendedRules.setRules",
+      "desc": "calls cookieBannersRules.filter",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generalExtendedRules.setRules"
+          "value": "cookieBannersRules.filter"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::cookiebannerrulescounter/setrules",
+      "id": "meta/internal/imported::node/shadowroot/appendchild",
       "kind": "structural",
-      "desc": "calls cookieBannerRulesCounter.setRules",
+      "desc": "calls node.shadowRoot.appendChild",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "cookieBannerRulesCounter.setRules"
+          "value": "node.shadowRoot.appendChild"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/getelementbyid",
+      "id": "meta/internal/imported::object/entries",
       "kind": "structural",
-      "desc": "calls document.getElementById",
+      "desc": "calls Object.entries",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.getElementById"
+          "value": "Object.entries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generalextendedrules",
+      "kind": "structural",
+      "desc": "calls generalExtendedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generalExtendedRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::whitelistrules",
+      "kind": "structural",
+      "desc": "calls whitelistRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "whitelistRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stylenode",
+      "kind": "structural",
+      "desc": "calls styleNode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleNode"
         }
       ]
     },
@@ -1107,30 +729,240 @@
       ]
     },
     {
-      "id": "meta/internal/imported::generalrules",
+      "id": "meta/internal/imported::rules/push",
       "kind": "structural",
-      "desc": "calls generalRules",
+      "desc": "calls rules.push",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generalRules"
+          "value": "rules.push"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::generalextendedrules",
+      "id": "meta/internal/imported::cookiebannerextendedrules/setstate",
       "kind": "structural",
-      "desc": "calls generalExtendedRules",
+      "desc": "calls cookieBannerExtendedRules.setState",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "generalExtendedRules"
+          "value": "cookieBannerExtendedRules.setState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/ceil",
+      "kind": "structural",
+      "desc": "calls Math.ceil",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.ceil"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pattern/replace/replace",
+      "kind": "structural",
+      "desc": "calls pattern.replace.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pattern.replace.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parentdomains",
+      "kind": "structural",
+      "desc": "calls parentDomains",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parentDomains"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselectorall",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debug/error",
+      "kind": "structural",
+      "desc": "calls debug.error",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debug.error"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::existedstylenode",
+      "kind": "structural",
+      "desc": "calls existedStyleNode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "existedStyleNode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::whitelistrules/includes",
+      "kind": "structural",
+      "desc": "calls whitelistRules.includes",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "whitelistRules.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiewhitelistrules",
+      "kind": "structural",
+      "desc": "calls cookieWhitelistRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieWhitelistRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::style/remove",
+      "kind": "structural",
+      "desc": "calls style.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "style.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::countperstyle",
+      "kind": "structural",
+      "desc": "calls countPerStyle",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "countPerStyle"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::storageservice/get",
+      "kind": "structural",
+      "desc": "calls storageService.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "storageService.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pattern/replace",
+      "kind": "structural",
+      "desc": "calls pattern.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pattern.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getrulesfromlist",
+      "kind": "structural",
+      "desc": "calls getRulesFromList",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getRulesFromList"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arr/slice",
+      "kind": "structural",
+      "desc": "calls arr.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arr.slice"
         }
       ]
     },
@@ -1159,6 +991,174 @@
           "method": "symbol",
           "source": "ast",
           "value": "cookieWhitelistRules.includes"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getcssfromstorage",
+      "kind": "structural",
+      "desc": "calls getCssFromStorage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getCssFromStorage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::res",
+      "kind": "structural",
+      "desc": "calls res",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "res"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::cookiebannersextendedrules",
+      "kind": "structural",
+      "desc": "calls cookieBannersExtendedRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "cookieBannersExtendedRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::debounce",
+      "kind": "structural",
+      "desc": "calls debounce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "debounce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::node/shadowroot/getelementbyid",
+      "kind": "structural",
+      "desc": "calls node.shadowRoot.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "node.shadowRoot.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::styleelement",
+      "kind": "structural",
+      "desc": "calls styleElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "styleElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rules",
+      "kind": "structural",
+      "desc": "calls rules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generalextendedrules/setrules",
+      "kind": "structural",
+      "desc": "calls generalExtendedRules.setRules",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generalExtendedRules.setRules"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::generarulescounter/setstate",
+      "kind": "structural",
+      "desc": "calls generaRulesCounter.setState",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "generaRulesCounter.setState"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid/clonenode",
+      "kind": "structural",
+      "desc": "calls document.getElementById.cloneNode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById.cloneNode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::addelementtohead",
+      "kind": "structural",
+      "desc": "calls addElementToHead",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "addElementToHead"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
         }
       ]
     }

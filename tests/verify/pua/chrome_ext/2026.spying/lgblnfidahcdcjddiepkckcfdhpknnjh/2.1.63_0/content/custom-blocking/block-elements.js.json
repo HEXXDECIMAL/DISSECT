@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -34,42 +50,37 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Split to empty-delimiter char array",
+      "conf": 0.6,
+      "crit": "notable",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 2  for (",
+          "value": "Found 1 .split(' ')",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "Converts URL object to string",
-      "conf": 0.8,
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "item.setAttribute('index', i.toString())",
-          "location": "45:7"
-        },
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "i.toString()",
-          "location": "45:34"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "meta/lang::template-literal",
@@ -105,6 +116,45 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "kind": "capability",
+      "desc": "Converts URL object to string",
+      "conf": 0.8,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "item.setAttribute('index', i.toString())",
+          "location": "45:7"
+        },
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "i.toString()",
+          "location": "45:34"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+    },
+    {
       "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
@@ -122,16 +172,16 @@
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
       "kind": "capability",
-      "desc": "Split to empty-delimiter char array",
-      "conf": 0.6,
+      "desc": "Join using empty string delimiter",
+      "conf": 0.5,
       "crit": "notable",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1 .split(' ')",
+          "value": "Found 1 .join('')",
           "location": "file"
         }
       ],
@@ -155,10 +205,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
       "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
+      "desc": "Identifier obfuscation (random/encoded names)",
+      "conf": 0.9,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -166,43 +216,15 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.sequential_names = 5.00"
+          "value": "identifiers.avg_entropy = 2.64"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.high_entropy_names = 6.00"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
-      "kind": "capability",
-      "desc": "Join using empty string delimiter",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .join('')",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -233,38 +255,30 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
-      "kind": "capability",
-      "desc": "Identifier obfuscation (random/encoded names)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.avg_entropy = 2.64"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.high_entropy_names = 6.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::element",
+      "id": "meta/internal/imported::selectednodesselector/join",
       "kind": "structural",
-      "desc": "calls element",
+      "desc": "calls selectedNodesSelector.join",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "element"
+          "value": "selectedNodesSelector.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementclass/replace",
+      "kind": "structural",
+      "desc": "calls elementClass.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementClass.replace"
         }
       ]
     },
@@ -283,6 +297,160 @@
       ]
     },
     {
+      "id": "meta/internal/imported::item/innerhtml",
+      "kind": "structural",
+      "desc": "calls item.innerHTML",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "item.innerHTML"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rect",
+      "kind": "structural",
+      "desc": "calls rect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/element/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls dialog.element.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.element.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/create",
+      "kind": "structural",
+      "desc": "calls dialog.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementrect",
+      "kind": "structural",
+      "desc": "calls elementRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::topmostelement",
+      "kind": "structural",
+      "desc": "calls topmostElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "topmostElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sendmessage",
+      "kind": "structural",
+      "desc": "calls sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::i/tostring",
+      "kind": "structural",
+      "desc": "calls i.toString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "i.toString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/getelementbyid",
+      "kind": "structural",
+      "desc": "calls currentDocument.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getelementcssselector",
+      "kind": "structural",
+      "desc": "calls getElementCssSelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getElementCssSelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementtooverlay",
+      "kind": "structural",
+      "desc": "calls elementToOverlay",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementToOverlay"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::element/getattribute",
       "kind": "structural",
       "desc": "calls element.getAttribute",
@@ -297,16 +465,366 @@
       ]
     },
     {
-      "id": "meta/internal/imported::currentdocument/queryselector/addeventlistener",
+      "id": "meta/internal/imported::cleanid",
       "kind": "structural",
-      "desc": "calls currentDocument.querySelector.addEventListener",
+      "desc": "calls cleanId",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "currentDocument.querySelector.addEventListener"
+          "value": "cleanId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isdocumentsize",
+      "kind": "structural",
+      "desc": "calls isDocumentSize",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isDocumentSize"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overlay/animate",
+      "kind": "structural",
+      "desc": "calls overlay.animate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overlay.animate"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/removeeventlistener",
+      "kind": "structural",
+      "desc": "calls currentDocument.removeEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.removeEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/showcountdown",
+      "kind": "structural",
+      "desc": "calls dialog.showCountdown",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.showCountdown"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::indexattribute",
+      "kind": "structural",
+      "desc": "calls indexAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "indexAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::allowselectelement",
+      "kind": "structural",
+      "desc": "calls allowSelectElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "allowSelectElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/showscreen",
+      "kind": "structural",
+      "desc": "calls dialog.showScreen",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.showScreen"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listcontainer/addeventlistener",
+      "kind": "structural",
+      "desc": "calls listContainer.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listContainer.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listcontainer",
+      "kind": "structural",
+      "desc": "calls listContainer",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listContainer"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselectorall/foreach",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelectorAll.forEach",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelectorAll.forEach"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::listcontainer/appendchild",
+      "kind": "structural",
+      "desc": "calls listContainer.appendChild",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "listContainer.appendChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/addeventlistener",
+      "kind": "structural",
+      "desc": "calls element.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::setcustomcssintopage",
+      "kind": "structural",
+      "desc": "calls setCustomCssIntoPage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "setCustomCssIntoPage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::applyelementselectiononview",
+      "kind": "structural",
+      "desc": "calls applyElementSelectionOnView",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "applyElementSelectionOnView"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls element.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/elementsfrompoint",
+      "kind": "structural",
+      "desc": "calls currentDocument.elementsFromPoint",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.elementsFromPoint"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/id/replace",
+      "kind": "structural",
+      "desc": "calls element.id.replace",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.id.replace"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element",
+      "kind": "structural",
+      "desc": "calls element",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::directchildrencounter",
+      "kind": "structural",
+      "desc": "calls directChildrenCounter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "directChildrenCounter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementtooverlay/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls elementToOverlay.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementToOverlay.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::dialog/remove",
+      "kind": "structural",
+      "desc": "calls dialog.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "dialog.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent",
+      "kind": "structural",
+      "desc": "calls parent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remove",
+      "kind": "structural",
+      "desc": "calls remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementselector",
+      "kind": "structural",
+      "desc": "calls elementSelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementSelector"
         }
       ]
     },
@@ -325,6 +843,468 @@
       ]
     },
     {
+      "id": "meta/internal/imported::target",
+      "kind": "structural",
+      "desc": "calls target",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::event/target/parentelement/getattribute",
+      "kind": "structural",
+      "desc": "calls event.target.parentElement.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "event.target.parentElement.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parentelement",
+      "kind": "structural",
+      "desc": "calls parentElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parentElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementclass/replace/split",
+      "kind": "structural",
+      "desc": "calls elementClass.replace.split",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementClass.replace.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/addeventlistener",
+      "kind": "structural",
+      "desc": "calls currentDocument.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector/map",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentelement/tagname/tolowercase",
+      "kind": "structural",
+      "desc": "calls currentElement.tagName.toLowerCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentElement.tagName.toLowerCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementclass/replace/split/filter/map/join",
+      "kind": "structural",
+      "desc": "calls elementClass.replace.split.filter.map.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementClass.replace.split.filter.map.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selected",
+      "kind": "structural",
+      "desc": "calls selected",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selected"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::others",
+      "kind": "structural",
+      "desc": "calls others",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "others"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentelement",
+      "kind": "structural",
+      "desc": "calls currentElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentelement/getattribute",
+      "kind": "structural",
+      "desc": "calls currentElement.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentElement.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::topmostelementrect",
+      "kind": "structural",
+      "desc": "calls topmostElementRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "topmostElementRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/createelement",
+      "kind": "structural",
+      "desc": "calls currentDocument.createElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.createElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::target/getattribute",
+      "kind": "structural",
+      "desc": "calls target.getAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "target.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overlay/element/setattribute",
+      "kind": "structural",
+      "desc": "calls overlay.element.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overlay.element.setAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::element/tagname/tolowercase",
+      "kind": "structural",
+      "desc": "calls element.tagName.toLowerCase",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "element.tagName.toLowerCase"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elements",
+      "kind": "structural",
+      "desc": "calls elements",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elements"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::forceclimbtoparent",
+      "kind": "structural",
+      "desc": "calls forceClimbToParent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "forceClimbToParent"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parent/queryselectorall",
+      "kind": "structural",
+      "desc": "calls parent.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parent.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::sametagelements",
+      "kind": "structural",
+      "desc": "calls sameTagElements",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "sameTagElements"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselector/addeventlistener",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelector.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelector.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementclass/replace/split/filter/map",
+      "kind": "structural",
+      "desc": "calls elementClass.replace.split.filter.map",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementClass.replace.split.filter.map"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selector",
+      "kind": "structural",
+      "desc": "calls selector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overlay/remove",
+      "kind": "structural",
+      "desc": "calls overlay.remove",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overlay.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::event/preventdefault",
+      "kind": "structural",
+      "desc": "calls event.preventDefault",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "event.preventDefault"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elementclass/replace/split/filter",
+      "kind": "structural",
+      "desc": "calls elementClass.replace.split.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "elementClass.replace.split.filter"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector/splice",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector.splice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector.splice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectors",
+      "kind": "structural",
+      "desc": "calls selectors",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectors"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::exitblockelements",
+      "kind": "structural",
+      "desc": "calls exitBlockElements",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "exitBlockElements"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector/filter/join",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector.filter.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector.filter.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::number",
+      "kind": "structural",
+      "desc": "calls Number",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Number"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector/filter",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector.filter",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector.filter"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::listcontainer/removechild",
       "kind": "structural",
       "desc": "calls listContainer.removeChild",
@@ -335,6 +1315,174 @@
           "method": "symbol",
           "source": "ast",
           "value": "listContainer.removeChild"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::item/setattribute",
+      "kind": "structural",
+      "desc": "calls item.setAttribute",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "item.setAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::selectednodesselector/push",
+      "kind": "structural",
+      "desc": "calls selectedNodesSelector.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "selectedNodesSelector.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::css",
+      "kind": "structural",
+      "desc": "calls css",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "css"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::remove/addeventlistener",
+      "kind": "structural",
+      "desc": "calls remove.addEventListener",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "remove.addEventListener"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::blockelementsfn",
+      "kind": "structural",
+      "desc": "calls blockElementsFn",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "blockElementsFn"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::item",
+      "kind": "structural",
+      "desc": "calls item",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "item"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::currentdocument/queryselectorall",
+      "kind": "structural",
+      "desc": "calls currentDocument.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "currentDocument.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::topmostelement/getboundingclientrect",
+      "kind": "structural",
+      "desc": "calls topmostElement.getBoundingClientRect",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "topmostElement.getBoundingClientRect"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::weakidentification",
+      "kind": "structural",
+      "desc": "calls weakIdentification",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "weakIdentification"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::overlay/create",
+      "kind": "structural",
+      "desc": "calls overlay.create",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "overlay.create"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isselectableelement",
+      "kind": "structural",
+      "desc": "calls isSelectableElement",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isSelectableElement"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::newcssselector",
+      "kind": "structural",
+      "desc": "calls newCssSelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "newCssSelector"
         }
       ]
     },
@@ -367,646 +1515,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::elementselector",
+      "id": "meta/internal/imported::setstyle",
       "kind": "structural",
-      "desc": "calls elementSelector",
+      "desc": "calls setStyle",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "elementSelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::event/preventdefault",
-      "kind": "structural",
-      "desc": "calls event.preventDefault",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "event.preventDefault"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isselectableelement",
-      "kind": "structural",
-      "desc": "calls isSelectableElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isSelectableElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dialog/create",
-      "kind": "structural",
-      "desc": "calls dialog.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dialog.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/addeventlistener",
-      "kind": "structural",
-      "desc": "calls element.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::remove",
-      "kind": "structural",
-      "desc": "calls remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/removeeventlistener",
-      "kind": "structural",
-      "desc": "calls currentDocument.removeEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.removeEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selected",
-      "kind": "structural",
-      "desc": "calls selected",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selected"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/splice",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.splice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.splice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/id/replace",
-      "kind": "structural",
-      "desc": "calls element.id.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.id.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent",
-      "kind": "structural",
-      "desc": "calls parent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dialog/remove",
-      "kind": "structural",
-      "desc": "calls dialog.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dialog.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::overlay/animate",
-      "kind": "structural",
-      "desc": "calls overlay.animate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "overlay.animate"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::topmostelement",
-      "kind": "structural",
-      "desc": "calls topmostElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "topmostElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::item/setattribute",
-      "kind": "structural",
-      "desc": "calls item.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "item.setAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::sametagelements",
-      "kind": "structural",
-      "desc": "calls sameTagElements",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sameTagElements"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/tagname/tolowercase",
-      "kind": "structural",
-      "desc": "calls element.tagName.toLowerCase",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.tagName.toLowerCase"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentelement/getattribute",
-      "kind": "structural",
-      "desc": "calls currentElement.getAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentElement.getAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/filter/join",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.filter.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.filter.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dialog/showscreen",
-      "kind": "structural",
-      "desc": "calls dialog.showScreen",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dialog.showScreen"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::overlay/create",
-      "kind": "structural",
-      "desc": "calls overlay.create",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "overlay.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::css",
-      "kind": "structural",
-      "desc": "calls css",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "css"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selector",
-      "kind": "structural",
-      "desc": "calls selector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setcustomcssintopage",
-      "kind": "structural",
-      "desc": "calls setCustomCssIntoPage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setCustomCssIntoPage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rect",
-      "kind": "structural",
-      "desc": "calls rect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::overlay/remove",
-      "kind": "structural",
-      "desc": "calls overlay.remove",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "overlay.remove"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::element/getboundingclientrect",
-      "kind": "structural",
-      "desc": "calls element.getBoundingClientRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "element.getBoundingClientRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementrect",
-      "kind": "structural",
-      "desc": "calls elementRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/elementsfrompoint",
-      "kind": "structural",
-      "desc": "calls currentDocument.elementsFromPoint",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.elementsFromPoint"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::exitblockelements",
-      "kind": "structural",
-      "desc": "calls exitBlockElements",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "exitBlockElements"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::i/tostring",
-      "kind": "structural",
-      "desc": "calls i.toString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "i.toString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::allowselectelement",
-      "kind": "structural",
-      "desc": "calls allowSelectElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "allowSelectElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::others",
-      "kind": "structural",
-      "desc": "calls others",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "others"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::forceclimbtoparent",
-      "kind": "structural",
-      "desc": "calls forceClimbToParent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "forceClimbToParent"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/filter",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::item",
-      "kind": "structural",
-      "desc": "calls item",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "item"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementtooverlay/getboundingclientrect",
-      "kind": "structural",
-      "desc": "calls elementToOverlay.getBoundingClientRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementToOverlay.getBoundingClientRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dialog/showcountdown",
-      "kind": "structural",
-      "desc": "calls dialog.showCountdown",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dialog.showCountdown"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementtooverlay",
-      "kind": "structural",
-      "desc": "calls elementToOverlay",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementToOverlay"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::event/target/parentelement/getattribute",
-      "kind": "structural",
-      "desc": "calls event.target.parentElement.getAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "event.target.parentElement.getAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementclass/replace",
-      "kind": "structural",
-      "desc": "calls elementClass.replace",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementClass.replace"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::dialog/element/getboundingclientrect",
-      "kind": "structural",
-      "desc": "calls dialog.element.getBoundingClientRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "dialog.element.getBoundingClientRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentelement",
-      "kind": "structural",
-      "desc": "calls currentElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementclass/replace/split/filter/map",
-      "kind": "structural",
-      "desc": "calls elementClass.replace.split.filter.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementClass.replace.split.filter.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getelementcssselector",
-      "kind": "structural",
-      "desc": "calls getElementCssSelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getElementCssSelector"
+          "value": "setStyle"
         }
       ]
     },
@@ -1025,454 +1543,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::selectors",
-      "kind": "structural",
-      "desc": "calls selectors",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectors"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::newcssselector",
-      "kind": "structural",
-      "desc": "calls newCssSelector",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "newCssSelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/join",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::indexattribute",
-      "kind": "structural",
-      "desc": "calls indexAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "indexAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::topmostelementrect",
-      "kind": "structural",
-      "desc": "calls topmostElementRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "topmostElementRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::listcontainer",
-      "kind": "structural",
-      "desc": "calls listContainer",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "listContainer"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::weakidentification",
-      "kind": "structural",
-      "desc": "calls weakIdentification",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "weakIdentification"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementclass/replace/split/filter",
-      "kind": "structural",
-      "desc": "calls elementClass.replace.split.filter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementClass.replace.split.filter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/push",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parentelement",
-      "kind": "structural",
-      "desc": "calls parentElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parentElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent/queryselectorall",
-      "kind": "structural",
-      "desc": "calls parent.querySelectorAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::topmostelement/getboundingclientrect",
-      "kind": "structural",
-      "desc": "calls topmostElement.getBoundingClientRect",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "topmostElement.getBoundingClientRect"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::cleanid",
-      "kind": "structural",
-      "desc": "calls cleanId",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cleanId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::directchildrencounter",
-      "kind": "structural",
-      "desc": "calls directChildrenCounter",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "directChildrenCounter"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::remove/addeventlistener",
-      "kind": "structural",
-      "desc": "calls remove.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "remove.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elements",
-      "kind": "structural",
-      "desc": "calls elements",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elements"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementclass/replace/split/filter/map/join",
-      "kind": "structural",
-      "desc": "calls elementClass.replace.split.filter.map.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementClass.replace.split.filter.map.join"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::overlay/element/setattribute",
-      "kind": "structural",
-      "desc": "calls overlay.element.setAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "overlay.element.setAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::listcontainer/appendchild",
-      "kind": "structural",
-      "desc": "calls listContainer.appendChild",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "listContainer.appendChild"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::target/getattribute",
-      "kind": "structural",
-      "desc": "calls target.getAttribute",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "target.getAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/createelement",
-      "kind": "structural",
-      "desc": "calls currentDocument.createElement",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentelement/tagname/tolowercase",
-      "kind": "structural",
-      "desc": "calls currentElement.tagName.toLowerCase",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentElement.tagName.toLowerCase"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::sendmessage",
-      "kind": "structural",
-      "desc": "calls sendMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "sendMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isdocumentsize",
-      "kind": "structural",
-      "desc": "calls isDocumentSize",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isDocumentSize"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::target",
-      "kind": "structural",
-      "desc": "calls target",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "target"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/queryselectorall",
-      "kind": "structural",
-      "desc": "calls currentDocument.querySelectorAll",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elementclass/replace/split",
-      "kind": "structural",
-      "desc": "calls elementClass.replace.split",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "elementClass.replace.split"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::listcontainer/addeventlistener",
-      "kind": "structural",
-      "desc": "calls listContainer.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "listContainer.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/queryselectorall/foreach",
-      "kind": "structural",
-      "desc": "calls currentDocument.querySelectorAll.forEach",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.querySelectorAll.forEach"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/addeventlistener",
-      "kind": "structural",
-      "desc": "calls currentDocument.addEventListener",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::blockelementsfn",
-      "kind": "structural",
-      "desc": "calls blockElementsFn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "blockElementsFn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::number",
-      "kind": "structural",
-      "desc": "calls Number",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Number"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::item/addeventlistener",
       "kind": "structural",
       "desc": "calls item.addEventListener",
@@ -1483,76 +1553,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "item.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::selectednodesselector/map",
-      "kind": "structural",
-      "desc": "calls selectedNodesSelector.map",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "selectedNodesSelector.map"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::applyelementselectiononview",
-      "kind": "structural",
-      "desc": "calls applyElementSelectionOnView",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "applyElementSelectionOnView"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::setstyle",
-      "kind": "structural",
-      "desc": "calls setStyle",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "setStyle"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::currentdocument/getelementbyid",
-      "kind": "structural",
-      "desc": "calls currentDocument.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "currentDocument.getElementById"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::item/innerhtml",
-      "kind": "structural",
-      "desc": "calls item.innerHTML",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "item.innerHTML"
         }
       ]
     }

@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -34,20 +50,21 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.01"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/discovery/host/fingerprint::object-keys-call",
@@ -68,6 +85,21 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "kind": "capability",
+      "desc": "Local AppData reference",
+      "conf": 0.4,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ],
+      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
     },
     {
       "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
@@ -129,38 +161,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.01"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
-      "kind": "capability",
-      "desc": "Local AppData reference",
-      "conf": 0.4,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "getLocalizedText"
-        }
-      ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
-    },
-    {
       "id": "obj/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
@@ -209,128 +209,30 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::deactivatedsites/ishostdeactivated",
+      "id": "meta/internal/imported::userdata/getsettings",
       "kind": "structural",
-      "desc": "calls deactivatedSites.isHostDeactivated",
+      "desc": "calls userData.getSettings",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "deactivatedSites.isHostDeactivated"
+          "value": "userData.getSettings"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::activetabid",
+      "id": "meta/internal/imported::ismenuenabled",
       "kind": "structural",
-      "desc": "calls activeTabId",
+      "desc": "calls isMenuEnabled",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "activeTabId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::menuitems",
-      "kind": "structural",
-      "desc": "calls menuItems",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "menuItems"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys/flatmap",
-      "kind": "structural",
-      "desc": "calls Object.keys.flatMap",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys.flatMap"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::documenturlpatterns",
-      "kind": "structural",
-      "desc": "calls documentUrlPatterns",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "documentUrlPatterns"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::settings",
-      "kind": "structural",
-      "desc": "calls settings",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "settings"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::updatecontextmenuitem",
-      "kind": "structural",
-      "desc": "calls updateContextMenuItem",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "updateContextMenuItem"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::customcssrules/getdata",
-      "kind": "structural",
-      "desc": "calls customCssRules.getData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "customCssRules.getData"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::contextmenus",
-      "kind": "structural",
-      "desc": "calls contextMenus",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "contextMenus"
+          "value": "isMenuEnabled"
         }
       ]
     },
@@ -349,6 +251,104 @@
       ]
     },
     {
+      "id": "meta/internal/imported::activetabid",
+      "kind": "structural",
+      "desc": "calls activeTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "activeTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockelementsonpage",
+      "kind": "structural",
+      "desc": "calls unblockElementsOnPage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockElementsOnPage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::settings",
+      "kind": "structural",
+      "desc": "calls settings",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "settings"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::promise/all",
+      "kind": "structural",
+      "desc": "calls Promise.all",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Promise.all"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::documenturlpatterns",
+      "kind": "structural",
+      "desc": "calls documentUrlPatterns",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "documentUrlPatterns"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssselectors",
+      "kind": "structural",
+      "desc": "calls customCssSelectors",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssSelectors"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys/flatmap",
+      "kind": "structural",
+      "desc": "calls Object.keys.flatMap",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys.flatMap"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::togglesiteinlist",
       "kind": "structural",
       "desc": "calls toggleSiteInList",
@@ -363,16 +363,142 @@
       ]
     },
     {
-      "id": "meta/internal/imported::ismenuenabled",
+      "id": "meta/internal/imported::getactivetabid",
       "kind": "structural",
-      "desc": "calls isMenuEnabled",
+      "desc": "calls getActiveTabId",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "isMenuEnabled"
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::customcssrules/getdata",
+      "kind": "structural",
+      "desc": "calls customCssRules.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules.getData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::deactivatedsites/ishostdeactivated",
+      "kind": "structural",
+      "desc": "calls deactivatedSites.isHostDeactivated",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "deactivatedSites.isHostDeactivated"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::pagedata",
+      "kind": "structural",
+      "desc": "calls pageData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getlocalizedtext",
+      "kind": "structural",
+      "desc": "calls getLocalizedText",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getLocalizedText"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::removecontextmenu",
+      "kind": "structural",
+      "desc": "calls removeContextMenu",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "removeContextMenu"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::menuitems",
+      "kind": "structural",
+      "desc": "calls menuItems",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "menuItems"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::updatecontextmenuitem",
+      "kind": "structural",
+      "desc": "calls updateContextMenuItem",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "updateContextMenuItem"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ishostdisabled",
+      "kind": "structural",
+      "desc": "calls isHostDisabled",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isHostDisabled"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::object/keys",
+      "kind": "structural",
+      "desc": "calls Object.keys",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Object.keys"
         }
       ]
     },
@@ -405,44 +531,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::items",
+      "id": "meta/internal/imported::createcontextmenuitem",
       "kind": "structural",
-      "desc": "calls items",
+      "desc": "calls createContextMenuItem",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "items"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::unblockelementsonpage",
-      "kind": "structural",
-      "desc": "calls unblockElementsOnPage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "unblockElementsOnPage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pagedata",
-      "kind": "structural",
-      "desc": "calls pageData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pageData"
+          "value": "createContextMenuItem"
         }
       ]
     },
@@ -461,128 +559,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::customcssselectors",
+      "id": "meta/internal/imported::items",
       "kind": "structural",
-      "desc": "calls customCssSelectors",
+      "desc": "calls items",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "customCssSelectors"
+          "value": "items"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::getactivetabid",
+      "id": "meta/internal/imported::contextmenus",
       "kind": "structural",
-      "desc": "calls getActiveTabId",
+      "desc": "calls contextMenus",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getActiveTabId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::removecontextmenu",
-      "kind": "structural",
-      "desc": "calls removeContextMenu",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "removeContextMenu"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::userdata/getsettings",
-      "kind": "structural",
-      "desc": "calls userData.getSettings",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "userData.getSettings"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/all",
-      "kind": "structural",
-      "desc": "calls Promise.all",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Promise.all"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ishostdisabled",
-      "kind": "structural",
-      "desc": "calls isHostDisabled",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isHostDisabled"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::getlocalizedtext",
-      "kind": "structural",
-      "desc": "calls getLocalizedText",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getLocalizedText"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::createcontextmenuitem",
-      "kind": "structural",
-      "desc": "calls createContextMenuItem",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "createContextMenuItem"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::object/keys",
-      "kind": "structural",
-      "desc": "calls Object.keys",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Object.keys"
+          "value": "contextMenus"
         }
       ]
     }

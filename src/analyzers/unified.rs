@@ -603,7 +603,10 @@ impl UnifiedSourceAnalyzer {
                 crate::analyzers::FileType::Lua => "lua",
                 _ => "unknown",
             };
-            metrics.imports = Some(import_metrics::analyze_imports(&report.imports, file_type_str));
+            metrics.imports = Some(import_metrics::analyze_imports(
+                &report.imports,
+                file_type_str,
+            ));
         }
 
         // Compute ratio metrics from already-populated counters
@@ -1003,8 +1006,7 @@ impl UnifiedSourceAnalyzer {
             let lines_log = (text.total_lines as f32).log2();
             if lines_log > 0.0 {
                 if let Some(idents) = identifiers {
-                    text.normalized_unique_identifiers =
-                        idents.unique_count as f32 / lines_log;
+                    text.normalized_unique_identifiers = idents.unique_count as f32 / lines_log;
                 }
             }
         }
@@ -1017,25 +1019,21 @@ impl UnifiedSourceAnalyzer {
                     + idents.sequential_names
                     + idents.keyboard_pattern_names
                     + idents.repeated_char_names;
-                text.suspicious_identifier_ratio =
-                    suspicious as f32 / idents.unique_count as f32;
+                text.suspicious_identifier_ratio = suspicious as f32 / idents.unique_count as f32;
             }
         }
 
         if let Some(strs) = strings {
             if strs.total > 0 {
-                let encoded =
-                    strs.base64_candidates + strs.hex_strings + strs.url_encoded_strings;
+                let encoded = strs.base64_candidates + strs.hex_strings + strs.url_encoded_strings;
                 text.encoded_string_ratio = encoded as f32 / strs.total as f32;
 
-                let suspicious = strs.embedded_code_candidates
-                    + strs.shell_command_strings
-                    + strs.sql_strings;
+                let suspicious =
+                    strs.embedded_code_candidates + strs.shell_command_strings + strs.sql_strings;
                 text.suspicious_string_ratio = suspicious as f32 / strs.total as f32;
 
-                let dynamic = strs.concat_operations
-                    + strs.char_construction
-                    + strs.array_join_construction;
+                let dynamic =
+                    strs.concat_operations + strs.char_construction + strs.array_join_construction;
                 text.dynamic_string_ratio = dynamic as f32 / strs.total as f32;
             }
         }

@@ -13,23 +13,6 @@
   },
   "findings": [
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::py-sequential-identifiers",
-      "kind": "capability",
-      "desc": "Excessive sequential identifiers (a, b, c, >15%)",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 21.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
@@ -42,6 +25,23 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "text.max_line_length = 11543.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.03"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
@@ -81,10 +81,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::py-sequential-identifiers",
       "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
+      "desc": "Excessive sequential identifiers (a, b, c, >15%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -92,10 +92,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.03"
+          "value": "identifiers.sequential_names = 21.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
@@ -162,16 +162,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::inset",
+      "id": "meta/internal/imported::media",
       "kind": "structural",
-      "desc": "calls inset",
+      "desc": "calls media",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "inset"
+          "value": "media"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::url",
+      "kind": "structural",
+      "desc": "calls url",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "url"
         }
       ]
     },
@@ -204,30 +218,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::media",
+      "id": "meta/internal/imported::inset",
       "kind": "structural",
-      "desc": "calls media",
+      "desc": "calls inset",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "media"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::url",
-      "kind": "structural",
-      "desc": "calls url",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "url"
+          "value": "inset"
         }
       ]
     },

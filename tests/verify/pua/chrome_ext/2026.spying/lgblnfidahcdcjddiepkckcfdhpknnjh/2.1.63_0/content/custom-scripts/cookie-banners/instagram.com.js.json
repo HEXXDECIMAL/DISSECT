@@ -12,20 +12,21 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
       "kind": "capability",
-      "desc": "MutationObserver DOM monitoring",
-      "conf": 0.9,
+      "desc": "Very few string literals (string",
+      "conf": 0.4,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 occurrences of MutationObserver",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "strings.total = 4.00"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
@@ -45,6 +46,22 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "kind": "capability",
+      "desc": "MutationObserver DOM monitoring",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 occurrences of MutationObserver",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
@@ -59,38 +76,6 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "instagram.com.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1377.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
@@ -110,10 +95,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
-      "desc": "Very few string literals (string",
-      "conf": 0.4,
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -121,10 +106,25 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "strings.total = 4.00"
+          "value": "text.max_line_length = 1377.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "instagram.com.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::fn",
@@ -141,30 +141,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::btn/textcontent/tolowercase/search",
+      "id": "meta/internal/imported::btn/click",
       "kind": "structural",
-      "desc": "calls btn.textContent.toLowerCase.search",
+      "desc": "calls btn.click",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btn.textContent.toLowerCase.search"
+          "value": "btn.click"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::btn/textcontent/tolowercase",
+      "id": "meta/internal/imported::btn",
       "kind": "structural",
-      "desc": "calls btn.textContent.toLowerCase",
+      "desc": "calls btn",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btn.textContent.toLowerCase"
+          "value": "btn"
         }
       ]
     },
@@ -197,30 +197,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::btn/click",
+      "id": "meta/internal/imported::btn/textcontent/tolowercase/search",
       "kind": "structural",
-      "desc": "calls btn.click",
+      "desc": "calls btn.textContent.toLowerCase.search",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btn.click"
+          "value": "btn.textContent.toLowerCase.search"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::btn",
+      "id": "meta/internal/imported::btn/textcontent/tolowercase",
       "kind": "structural",
-      "desc": "calls btn",
+      "desc": "calls btn.textContent.toLowerCase",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "btn"
+          "value": "btn.textContent.toLowerCase"
         }
       ]
     }

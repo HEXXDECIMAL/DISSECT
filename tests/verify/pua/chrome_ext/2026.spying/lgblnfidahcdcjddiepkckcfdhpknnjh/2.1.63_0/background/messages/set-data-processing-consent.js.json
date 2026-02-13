@@ -27,16 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::sendmessage",
+      "id": "meta/internal/imported::dataprocessingconsent/setconsent",
       "kind": "structural",
-      "desc": "calls sendMessage",
+      "desc": "calls dataProcessingConsent.setConsent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "sendMessage"
+          "value": "dataProcessingConsent.setConsent"
         }
       ]
     },
@@ -51,6 +51,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "userData.getData.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::userdata/getdata",
+      "kind": "structural",
+      "desc": "calls userData.getData",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "userData.getData"
         }
       ]
     },
@@ -83,20 +97,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::userdata/getdata",
-      "kind": "structural",
-      "desc": "calls userData.getData",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "userData.getData"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::serverlogger/prepareandsend",
       "kind": "structural",
       "desc": "calls serverLogger.prepareAndSend",
@@ -111,16 +111,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::dataprocessingconsent/setconsent",
+      "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
-      "desc": "calls dataProcessingConsent.setConsent",
+      "desc": "calls sendMessage",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "dataProcessingConsent.setConsent"
+          "value": "sendMessage"
         }
       ]
     }

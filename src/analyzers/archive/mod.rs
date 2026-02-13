@@ -192,7 +192,11 @@ impl ArchiveAnalyzer {
         use streaming::StreamingFileResult;
 
         // Log BEFORE processing archive to capture OOM crashes
-        tracing::info!("Starting archive analysis: {} (depth: {})", file_path.display(), self.current_depth);
+        tracing::info!(
+            "Starting archive analysis: {} (depth: {})",
+            file_path.display(),
+            self.current_depth
+        );
 
         let start = std::time::Instant::now();
 
@@ -204,7 +208,11 @@ impl ArchiveAnalyzer {
         // Create target info
         tracing::debug!("Reading archive file: {}", file_path.display());
         let file_data = fs::read(file_path)?;
-        tracing::debug!("Archive file size: {} bytes for: {}", file_data.len(), file_path.display());
+        tracing::debug!(
+            "Archive file size: {} bytes for: {}",
+            file_data.len(),
+            file_path.display()
+        );
         let target = TargetInfo {
             path: file_path.display().to_string(),
             file_type: detect_archive_type(file_path).to_string(),
@@ -411,7 +419,7 @@ impl ArchiveAnalyzer {
                     value: evidence_value,
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }
@@ -574,7 +582,7 @@ impl ArchiveAnalyzer {
                     value: evidence_value,
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }

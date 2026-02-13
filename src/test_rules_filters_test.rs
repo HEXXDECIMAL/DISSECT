@@ -5,7 +5,6 @@ use crate::composite_rules::debug::{EvaluationDebug, RuleType};
 use crate::composite_rules::traits::{CompositeTrait, ConditionWithFilters, TraitDefinition};
 use crate::composite_rules::{EvaluationContext, FileType as RuleFileType, Platform};
 use crate::types::{AnalysisReport, TargetInfo};
-use std::collections::HashMap;
 use std::sync::RwLock;
 
 /// Helper to create a minimal report for testing
@@ -110,7 +109,9 @@ fn test_count_min_filter_matches_debug_and_eval() {
     );
     let skip_reason = debug_info.skip_reason.unwrap().to_string();
     assert!(
-        skip_reason.to_lowercase().contains("count") && skip_reason.contains("2") && skip_reason.contains("3"),
+        skip_reason.to_lowercase().contains("count")
+            && skip_reason.contains("2")
+            && skip_reason.contains("3"),
         "Skip reason should mention count constraint (expected 2 < 3), got: {}",
         skip_reason
     );

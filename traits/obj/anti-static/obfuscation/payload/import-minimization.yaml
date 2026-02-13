@@ -1,6 +1,10 @@
 # Import table minimization patterns - indicators of string/import obfuscation
 # Malware often uses minimal imports + dynamic loading to evade static analysis
 
+defaults:
+  mbc: "B0032"
+  attack: "T1027"
+
 traits:
   # === Windows PE Import Patterns ===
 
@@ -121,15 +125,49 @@ traits:
       min_suspicious: 3
       max_total: 20
 
+  # === Mach-O Import Patterns ===
+
+  - id: macho-max-35-imports
+    desc: "Mach-O with 35 or fewer imports"
+    crit: notable
+    conf: 0.5
+    for: [macho]
+    if:
+      type: import_combination
+      max_total: 35
+
 composite_rules:
+  # === Mach-O Stealth Resolution ===
+  - id: macho-stealth-resolution
+    desc: "Mach-O stealth resolution (dlsym or direct syscalls)"
+    crit: notable
+    conf: 0.8
+    for: [macho]
+    any:
+      - id: cap/exec/dylib/load::dlsym
+      - id: cap/exec/syscall/direct::macos-arm64-direct-syscall
+
+  # === Mach-O Dropper/Ransomware Patterns ===
+
+  - id: macho-concealed-capability
+    desc: "Mach-O binary concealing capabilities via import minimization"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1027"
+    for: [macho]
+    all:
+      - id: macho-max-35-imports
+      - id: macho-stealth-resolution
+    any:
+      - id: obj/anti-static/obfuscation/payload::math-cipher-imports
+      - id: cap/exec/command/shell::system-call-symbol
+
   # === PE Ransomware/Dropper Patterns ===
 
   - id: pe-dropper-minimal-imports
     desc: "PE dropper with minimal imports and dynamic loading"
     crit: hostile
     conf: 0.9
-    attack: "T1027"
-    mbc: "B0032"
     for: [pe]
     all:
       - id: minimal-pe-dynamic-load
@@ -142,7 +180,6 @@ composite_rules:
     desc: "PE binary concealing capabilities via import minimization"
     crit: suspicious
     conf: 0.85
-    attack: "T1027"
     for: [pe]
     needs: 2
     any:
@@ -155,7 +192,6 @@ composite_rules:
     desc: "ELF binary concealing capabilities via import minimization"
     crit: suspicious
     conf: 0.85
-    attack: "T1027"
     for: [elf]
     all:
       - id: minimal-elf-dynamic-load

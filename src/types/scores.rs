@@ -192,6 +192,35 @@ pub struct SupplyChainScore {
     pub signals: Vec<String>,
 }
 
+// =============================================================================
+// METRIC VALUE ACCESSOR
+// =============================================================================
+
+/// Get a metric value by field path (e.g., "binary.string_count", "text.total_lines")
+/// Returns None if the metric doesn't exist or the field path is invalid
+///
+/// Uses serde_json for dynamic field access instead of hardcoded match statements
+pub fn get_metric_value(metrics: &Metrics, field: &str) -> Option<f64> {
+    // Convert metrics to JSON value for dynamic access
+    let value = serde_json::to_value(metrics).ok()?;
+
+    // Split field path into components (e.g., "binary.string_count" -> ["binary", "string_count"])
+    let parts: Vec<&str> = field.split('.').collect();
+
+    // Navigate through the JSON structure
+    let mut current = &value;
+    for part in parts {
+        current = current.get(part)?;
+    }
+
+    // Convert to f64 based on JSON type
+    match current {
+        serde_json::Value::Number(n) => n.as_f64(),
+        serde_json::Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -363,39 +392,5 @@ mod tests {
             ..Default::default()
         };
         assert_eq!(score.signals.len(), 3);
-    }
-}
-
-// =============================================================================
-// VALID FIELD PATHS FOR YAML VALIDATION
-// =============================================================================
-
-
-// =============================================================================
-// METRIC VALUE ACCESSOR
-// =============================================================================
-
-/// Get a metric value by field path (e.g., "binary.string_count", "text.total_lines")
-/// Returns None if the metric doesn't exist or the field path is invalid
-///
-/// Uses serde_json for dynamic field access instead of hardcoded match statements
-pub fn get_metric_value(metrics: &Metrics, field: &str) -> Option<f64> {
-    // Convert metrics to JSON value for dynamic access
-    let value = serde_json::to_value(metrics).ok()?;
-
-    // Split field path into components (e.g., "binary.string_count" -> ["binary", "string_count"])
-    let parts: Vec<&str> = field.split('.').collect();
-
-    // Navigate through the JSON structure
-    let mut current = &value;
-    for part in parts {
-        current = current.get(part)?;
-    }
-
-    // Convert to f64 based on JSON type
-    match current {
-        serde_json::Value::Number(n) => n.as_f64(),
-        serde_json::Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
-        _ => None,
     }
 }

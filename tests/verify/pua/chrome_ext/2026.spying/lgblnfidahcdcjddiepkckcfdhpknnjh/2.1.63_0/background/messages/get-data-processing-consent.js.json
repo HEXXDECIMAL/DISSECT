@@ -27,20 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::hasconsent",
-      "kind": "structural",
-      "desc": "calls hasConsent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hasConsent"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::dataprocessingconsent/getconsent",
       "kind": "structural",
       "desc": "calls dataProcessingConsent.getConsent",
@@ -65,6 +51,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hasconsent",
+      "kind": "structural",
+      "desc": "calls hasConsent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hasConsent"
         }
       ]
     }

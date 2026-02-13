@@ -12,19 +12,64 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
-      "desc": "JavaScript JSON.parse",
-      "conf": 0.85,
-      "crit": "notable",
+      "desc": "Content-Type JSON header",
+      "conf": 0.6,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "JSON.parse"
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x87"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Content-Type",
+          "location": "0x88"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+    },
+    {
+      "id": "cap/comm/http/headers::bearer-token",
+      "kind": "capability",
+      "desc": "Bearer token authentication",
+      "conf": 0.5,
+      "crit": "inert",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7b"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x7c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x405"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "Bearer ",
+          "location": "0x406"
+        }
+      ],
+      "source_file": "cap/comm/http/headers/generic.yaml"
     },
     {
       "id": "cap/data/text/keywords::token",
@@ -73,84 +118,77 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/comm/http/headers::bearer-token",
+      "id": "cap/data/encoding/charset::json-parse-js",
       "kind": "capability",
-      "desc": "Bearer token authentication",
-      "conf": 0.5,
-      "crit": "inert",
+      "desc": "JavaScript JSON.parse",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "kind": "capability",
+      "desc": "Many one-liner functions (minified code",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 22.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "kind": "capability",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 5.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
       "mbc": "C0002",
       "attack": "T1071.001",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Bearer ",
-          "location": "0x7b"
+          "value": "https://auth.api.mywot.com",
+          "location": "0x2a"
         },
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Bearer ",
-          "location": "0x7c"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Bearer ",
-          "location": "0x405"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Bearer ",
-          "location": "0x406"
+          "value": "https://auth.api.mywot.com",
+          "location": "0x2b"
         }
       ],
-      "source_file": "cap/comm/http/headers/generic.yaml"
-    },
-    {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
-      "kind": "capability",
-      "desc": "Content-Type JSON header",
-      "conf": 0.6,
-      "crit": "inert",
-      "mbc": "C0002",
-      "attack": "T1071.001",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x87"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Content-Type",
-          "location": "0x88"
-        }
-      ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
-    },
-    {
-      "id": "meta/quality/error-handling::catch-keyword",
-      "kind": "capability",
-      "desc": "catch keyword",
-      "conf": 0.5,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "catch"
-        },
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "catch"
-        }
-      ],
-      "source_file": "meta/quality/error-handling/traits.yaml"
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
@@ -187,26 +225,10 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
       "kind": "capability",
-      "desc": "Prototype pollution guard check present",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 constructor",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
-      "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
+      "desc": "Excessive single-character variable names (>30%)",
+      "conf": 0.8,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -214,59 +236,10 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "functions.anonymous = 5.00"
+          "value": "identifiers.single_char_ratio = 0.57"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "wotAuthApi.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1874.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
-      "kind": "capability",
-      "desc": "Many one-liner functions (minified code",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 22.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
@@ -303,10 +276,30 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::excessive-single-char-vars",
+      "id": "meta/quality/error-handling::catch-keyword",
       "kind": "capability",
-      "desc": "Excessive single-character variable names (>30%)",
-      "conf": 0.8,
+      "desc": "catch keyword",
+      "conf": 0.5,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        },
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "catch"
+        }
+      ],
+      "source_file": "meta/quality/error-handling/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
       "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
@@ -314,34 +307,88 @@
         {
           "method": "metrics",
           "source": "analyzer",
-          "value": "identifiers.single_char_ratio = 0.57"
+          "value": "text.max_line_length = 1874.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
-      "desc": "Network URL with domain name (script)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
+      "desc": "Prototype pollution guard check present",
+      "conf": 0.9,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://auth.api.mywot.com",
-          "location": "0x2a"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://auth.api.mywot.com",
-          "location": "0x2b"
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 constructor",
+          "location": "file"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "cap/data/exploitation/memory/generic.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "wotAuthApi.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.02"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.density_per_100_lines = 2200.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.one_liners = 22.00"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 7.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "cap/data/encoding/charset::json",
+      "kind": "capability",
+      "desc": "JSON serialization libraries",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "JSON.parse"
+        }
+      ],
+      "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
       "id": "cap/comm/http/headers::headers-auth",
@@ -380,51 +427,32 @@
       "source_file": "cap/comm/http/headers/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
-      "kind": "capability",
-      "desc": "JSON serialization libraries",
-      "conf": 0.85,
-      "crit": "notable",
+      "id": "meta/internal/imported::wotnetwork/postjson",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson",
+      "conf": 0.95,
+      "crit": "inert",
       "evidence": [
         {
-          "method": "import_symbol",
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::json/parse",
+      "kind": "structural",
+      "desc": "calls JSON.parse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
           "source": "ast",
           "value": "JSON.parse"
         }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.02"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.density_per_100_lines = 2200.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.one_liners = 22.00"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 7.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      ]
     },
     {
       "id": "meta/internal/imported::wotnetwork/get/then",
@@ -437,6 +465,76 @@
           "method": "symbol",
           "source": "ast",
           "value": "WotNetwork.get.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/get",
+      "kind": "structural",
+      "desc": "calls WotNetwork.get",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.get"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson/then/catch",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson.then.catch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson.then.catch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::merge",
+      "kind": "structural",
+      "desc": "calls .merge",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": ".merge"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::wotnetwork/postjson/then",
+      "kind": "structural",
+      "desc": "calls WotNetwork.postJson.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "WotNetwork.postJson.then"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parsestatus",
+      "kind": "structural",
+      "desc": "calls parseStatus",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseStatus"
         }
       ]
     },
@@ -469,20 +567,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::merge",
-      "kind": "structural",
-      "desc": "calls .merge",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": ".merge"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::wotnetwork/get/then/catch",
       "kind": "structural",
       "desc": "calls WotNetwork.get.then.catch",
@@ -493,90 +577,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "WotNetwork.get.then.catch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::json/parse",
-      "kind": "structural",
-      "desc": "calls JSON.parse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "JSON.parse"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/postjson",
-      "kind": "structural",
-      "desc": "calls WotNetwork.postJson",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.postJson"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/get",
-      "kind": "structural",
-      "desc": "calls WotNetwork.get",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.get"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parsestatus",
-      "kind": "structural",
-      "desc": "calls parseStatus",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseStatus"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/postjson/then/catch",
-      "kind": "structural",
-      "desc": "calls WotNetwork.postJson.then.catch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.postJson.then.catch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::wotnetwork/postjson/then",
-      "kind": "structural",
-      "desc": "calls WotNetwork.postJson.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "WotNetwork.postJson.then"
         }
       ]
     }

@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -26,28 +42,6 @@
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/text/keywords::overflow",
-      "kind": "capability",
-      "desc": "overflow keyword",
-      "conf": 0.2,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "overflow",
-          "location": "0x14c"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "overflow",
-          "location": "0x14d"
-        }
-      ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
       "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
@@ -74,20 +68,66 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "cap/data/text/keywords::overflow",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
+      "desc": "overflow keyword",
+      "conf": 0.2,
       "crit": "inert",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x14c"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "overflow",
+          "location": "0x14d"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
+      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "kind": "capability",
+      "desc": "Network URL with domain name (script)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "C0002",
+      "attack": "T1071.001",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.facebook.com/",
+          "location": "0x68"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "https://www.facebook.com/",
+          "location": "0x69"
+        }
+      ],
+      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::queryselector-link-targeting",
+      "kind": "capability",
+      "desc": "Link element selection",
+      "conf": 0.8,
+      "crit": "notable",
       "evidence": [
         {
           "method": "raw",
           "source": "raw_content",
-          "value": "Found 1  for (",
+          "value": "Found 1 querySelectorAll('article:has(a[href",
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
@@ -122,21 +162,6 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "isolated.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/chrome-ext/affiliate::queryselector-href",
       "kind": "capability",
       "desc": "Selects elements by href attribute",
@@ -165,44 +190,19 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::queryselector-link-targeting",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
-      "desc": "Link element selection",
-      "conf": 0.8,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 querySelectorAll('article:has(a[href",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
-    },
-    {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
-      "kind": "capability",
-      "desc": "Network URL with domain name (script)",
+      "desc": "Small file under 5KB",
       "conf": 0.7,
       "crit": "notable",
-      "mbc": "C0002",
-      "attack": "T1071.001",
       "evidence": [
         {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://www.facebook.com/",
-          "location": "0x68"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "https://www.facebook.com/",
-          "location": "0x69"
+          "method": "basename",
+          "source": "target",
+          "value": "isolated.js"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -227,16 +227,16 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "meta/internal/imported::array/from",
+      "id": "meta/internal/imported::blockmetafeedads",
       "kind": "structural",
-      "desc": "calls Array.from",
+      "desc": "calls blockMetaFeedAds",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Array.from"
+          "value": "blockMetaFeedAds"
         }
       ]
     },
@@ -255,30 +255,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::blockmetafeedads",
+      "id": "meta/internal/imported::document/queryselectorall",
       "kind": "structural",
-      "desc": "calls blockMetaFeedAds",
+      "desc": "calls document.querySelectorAll",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "blockMetaFeedAds"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ads/i/style/setproperty",
-      "kind": "structural",
-      "desc": "calls ads.i.style.setProperty",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ads.i.style.setProperty"
+          "value": "document.querySelectorAll"
         }
       ]
     },
@@ -311,16 +297,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/queryselectorall",
+      "id": "meta/internal/imported::array/from",
       "kind": "structural",
-      "desc": "calls document.querySelectorAll",
+      "desc": "calls Array.from",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelectorAll"
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ads/i/style/setproperty",
+      "kind": "structural",
+      "desc": "calls ads.i.style.setProperty",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ads.i.style.setProperty"
         }
       ]
     }

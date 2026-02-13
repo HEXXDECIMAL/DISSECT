@@ -11,13 +11,21 @@ traits:
       type: string
       regex: '/proc/[%{$][/\\$\\w\\}]{0,12}'
 
-  - id: process-self-exe
-    desc: Read own executable path via
+  - id: process-self-exe-path
+    desc: Read own executable path (/proc/self/exe)
     crit: inert
     conf: 0.66
     if:
       type: string
       substr: /proc/self/exe
+
+  - id: process-self-exe-partial
+    desc: Read own executable path (self/exe)
+    crit: inert
+    conf: 0.66
+    if:
+      type: string
+      substr: self/exe
 
   - id: process-self-cmdline
     desc: Read own command line via
@@ -147,6 +155,14 @@ traits:
       regex: '/proc/[^/]+/oom_score_adj'
 
 composite_rules:
+  - id: process-self-exe
+    desc: Read own executable path via /proc
+    crit: inert
+    conf: 0.66
+    any:
+      - id: cap/fs/proc/info::process-self-exe-path
+      - id: cap/fs/proc/info::process-self-exe-partial
+
   - id: process-pid-mem-maps-helper
     desc: Helper for process memory access
     all:

@@ -73,30 +73,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/queryselectorall",
+      "id": "meta/internal/imported::cookie_button",
       "kind": "structural",
-      "desc": "calls document.querySelectorAll",
+      "desc": "calls cookie_button",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::unblockcontentscrollingscript",
-      "kind": "structural",
-      "desc": "calls unblockContentScrollingScript",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "unblockContentScrollingScript"
+          "value": "cookie_button"
         }
       ]
     },
@@ -129,20 +115,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::cookie_button",
-      "kind": "structural",
-      "desc": "calls cookie_button",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "cookie_button"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/queryselector",
       "kind": "structural",
       "desc": "calls document.querySelector",
@@ -153,6 +125,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselectorall",
+      "kind": "structural",
+      "desc": "calls document.querySelectorAll",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelectorAll"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::unblockcontentscrollingscript",
+      "kind": "structural",
+      "desc": "calls unblockContentScrollingScript",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "unblockContentScrollingScript"
         }
       ]
     }

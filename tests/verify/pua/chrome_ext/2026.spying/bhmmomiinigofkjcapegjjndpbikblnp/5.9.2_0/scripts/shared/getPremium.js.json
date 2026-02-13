@@ -12,21 +12,6 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "getPremium.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
       "desc": "Code uses frontend framework patterns",
@@ -59,32 +44,19 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::translate",
-      "kind": "structural",
-      "desc": "calls translate",
-      "conf": 0.95,
-      "crit": "inert",
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
       "evidence": [
         {
-          "method": "symbol",
-          "source": "ast",
-          "value": "translate"
+          "method": "basename",
+          "source": "target",
+          "value": "getPremium.js"
         }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/round",
-      "kind": "structural",
-      "desc": "calls Math.round",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.round"
-        }
-      ]
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::react/createelement",
@@ -97,20 +69,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "React.createElement"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::goupgrade",
-      "kind": "structural",
-      "desc": "calls goUpgrade",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "goUpgrade"
         }
       ]
     },
@@ -129,16 +87,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::window/close",
+      "id": "meta/internal/imported::math/round",
       "kind": "structural",
-      "desc": "calls window.close",
+      "desc": "calls Math.round",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.close"
+          "value": "Math.round"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::goupgrade",
+      "kind": "structural",
+      "desc": "calls goUpgrade",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "goUpgrade"
         }
       ]
     },
@@ -153,6 +125,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "Date.now"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/close",
+      "kind": "structural",
+      "desc": "calls window.close",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.close"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::translate",
+      "kind": "structural",
+      "desc": "calls translate",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "translate"
         }
       ]
     }

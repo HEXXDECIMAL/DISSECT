@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 3  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -35,22 +51,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "25:3"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 3  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -105,6 +105,90 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "meta/internal/imported::self",
+      "kind": "structural",
+      "desc": "calls self",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::des/p",
+      "kind": "structural",
+      "desc": "calls des.p",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "des.p"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::haystack",
+      "kind": "structural",
+      "desc": "calls haystack",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "haystack"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe",
+      "kind": "structural",
+      "desc": "calls safe",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::self/extractproperties",
+      "kind": "structural",
+      "desc": "calls self.extractProperties",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "self.extractProperties"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safe/array_from",
+      "kind": "structural",
+      "desc": "calls safe.Array_from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safe.Array_from"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::props",
       "kind": "structural",
       "desc": "calls props",
@@ -115,6 +199,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "props"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
         }
       ]
     },
@@ -171,104 +269,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "safe.testPattern"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self",
-      "kind": "structural",
-      "desc": "calls self",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe",
-      "kind": "structural",
-      "desc": "calls safe",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safe/array_from",
-      "kind": "structural",
-      "desc": "calls safe.Array_from",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safe.Array_from"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::des/p",
-      "kind": "structural",
-      "desc": "calls des.p",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "des.p"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::haystack",
-      "kind": "structural",
-      "desc": "calls haystack",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "haystack"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::self/extractproperties",
-      "kind": "structural",
-      "desc": "calls self.extractProperties",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "self.extractProperties"
         }
       ]
     }

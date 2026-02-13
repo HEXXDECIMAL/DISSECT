@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "meta/format/json::valid",
+      "kind": "capability",
+      "desc": "JSON data format",
+      "conf": 0.6,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 {",
+          "location": "file"
+        }
+      ],
+      "source_file": "meta/format/json/traits.yaml"
+    },
+    {
       "id": "cap/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
@@ -25,36 +41,6 @@
         }
       ],
       "source_file": "cap/data/text/keywords/generic.yaml"
-    },
-    {
-      "id": "meta/library/react::react-dom",
-      "kind": "capability",
-      "desc": "ReactDOM object reference",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "ReactDOM.render"
-        }
-      ],
-      "source_file": "meta/library/react/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "sliderWrapper.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
@@ -122,6 +108,36 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
+      "id": "meta/library/react::react-dom",
+      "kind": "capability",
+      "desc": "ReactDOM object reference",
+      "conf": 0.85,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "ReactDOM.render"
+        }
+      ],
+      "source_file": "meta/library/react/traits.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "sliderWrapper.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
       "kind": "capability",
       "desc": "chrome.runtime.sendMessage",
@@ -160,58 +176,16 @@
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "id": "meta/internal/imported::getencodeddomain",
       "kind": "structural",
-      "desc": "calls webextApi.runtime.sendMessage",
+      "desc": "calls getEncodedDomain",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "webextApi.runtime.sendMessage"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid",
-      "kind": "structural",
-      "desc": "calls document.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::reactdom/render",
-      "kind": "structural",
-      "desc": "calls ReactDOM.render",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ReactDOM.render"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::e/ready/then",
-      "kind": "structural",
-      "desc": "calls e.ready.then",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "e.ready.then"
+          "value": "getEncodedDomain"
         }
       ]
     },
@@ -230,58 +204,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::e/ready",
+      "id": "meta/internal/imported::countpopupopening",
       "kind": "structural",
-      "desc": "calls e.ready",
+      "desc": "calls countPopupOpening",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "e.ready"
+          "value": "countPopupOpening"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::getencodeddomain",
+      "id": "meta/internal/imported::e/ready/then",
       "kind": "structural",
-      "desc": "calls getEncodedDomain",
+      "desc": "calls e.ready.then",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getEncodedDomain"
+          "value": "e.ready.then"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::getcomments",
+      "id": "meta/internal/imported::checkratewidgetdate",
       "kind": "structural",
-      "desc": "calls getComments",
+      "desc": "calls checkRateWidgetDate",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getComments"
+          "value": "checkRateWidgetDate"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::window/wot_trace_id/name",
+      "id": "meta/internal/imported::getcommentandrating",
       "kind": "structural",
-      "desc": "calls window.WOT_TRACE_ID.name",
+      "desc": "calls getCommentAndRating",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.WOT_TRACE_ID.name"
+          "value": "getCommentAndRating"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::o/find",
+      "kind": "structural",
+      "desc": "calls o.find",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "o.find"
         }
       ]
     },
@@ -314,30 +302,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::getcommentandrating",
+      "id": "meta/internal/imported::react/createelement",
       "kind": "structural",
-      "desc": "calls getCommentAndRating",
+      "desc": "calls React.createElement",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getCommentAndRating"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::checkratewidgetdate",
-      "kind": "structural",
-      "desc": "calls checkRateWidgetDate",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "checkRateWidgetDate"
+          "value": "React.createElement"
         }
       ]
     },
@@ -356,16 +330,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::react/createelement",
+      "id": "meta/internal/imported::reactdom/render",
       "kind": "structural",
-      "desc": "calls React.createElement",
+      "desc": "calls ReactDOM.render",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "React.createElement"
+          "value": "ReactDOM.render"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/wot_trace_id/name",
+      "kind": "structural",
+      "desc": "calls window.WOT_TRACE_ID.name",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.WOT_TRACE_ID.name"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::webextapi/runtime/sendmessage",
+      "kind": "structural",
+      "desc": "calls webextApi.runtime.sendMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "webextApi.runtime.sendMessage"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/getelementbyid",
+      "kind": "structural",
+      "desc": "calls document.getElementById",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.getElementById"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::e/ready",
+      "kind": "structural",
+      "desc": "calls e.ready",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "e.ready"
         }
       ]
     },
@@ -384,30 +414,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::o/find",
+      "id": "meta/internal/imported::getcomments",
       "kind": "structural",
-      "desc": "calls o.find",
+      "desc": "calls getComments",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "o.find"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::countpopupopening",
-      "kind": "structural",
-      "desc": "calls countPopupOpening",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "countPopupOpening"
+          "value": "getComments"
         }
       ]
     }

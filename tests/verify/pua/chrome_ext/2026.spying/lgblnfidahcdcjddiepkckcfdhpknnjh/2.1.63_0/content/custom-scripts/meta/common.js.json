@@ -35,6 +35,23 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
@@ -67,38 +84,6 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
-      "kind": "capability",
-      "desc": "Small file under 5KB",
-      "conf": 0.7,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "basename",
-          "source": "target",
-          "value": "common.js"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
-      "kind": "capability",
-      "desc": "Webpack/bundler minified output pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.max_line_length = 1515.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
@@ -260,6 +245,38 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "kind": "capability",
+      "desc": "Webpack/bundler minified output pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.max_line_length = 1515.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+    },
+    {
+      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "kind": "capability",
+      "desc": "Small file under 5KB",
+      "conf": 0.7,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "basename",
+          "source": "target",
+          "value": "common.js"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/unicode::international-script-obfuscation",
@@ -442,23 +459,6 @@
       "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/c2/shells/remote-exec::js-output-command-var",
       "kind": "capability",
       "desc": "Variable names suggesting command output",
@@ -481,30 +481,16 @@
       "source_file": "obj/c2/shells/remote-exec/javascript.yaml"
     },
     {
-      "id": "meta/internal/imported::svg/queryselector",
+      "id": "meta/internal/imported::use/setattribute",
       "kind": "structural",
-      "desc": "calls svg.querySelector",
+      "desc": "calls use.setAttribute",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "svg.querySelector"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::text/textcontent/tolowercase",
-      "kind": "structural",
-      "desc": "calls text.textContent.toLowerCase",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "text.textContent.toLowerCase"
+          "value": "use.setAttribute"
         }
       ]
     },
@@ -523,30 +509,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::state",
+      "id": "meta/internal/imported::uses/foreach",
       "kind": "structural",
-      "desc": "calls state",
+      "desc": "calls uses.forEach",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "state"
+          "value": "uses.forEach"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::use/closest",
+      "id": "meta/internal/imported::svg/queryselector/getattribute",
       "kind": "structural",
-      "desc": "calls use.closest",
+      "desc": "calls svg.querySelector.getAttribute",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "use.closest"
+          "value": "svg.querySelector.getAttribute"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::uses",
+      "kind": "structural",
+      "desc": "calls uses",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "uses"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::text",
+      "kind": "structural",
+      "desc": "calls text",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "text"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::svg",
+      "kind": "structural",
+      "desc": "calls svg",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "svg"
         }
       ]
     },
@@ -565,16 +593,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::use/setattribute",
+      "id": "meta/internal/imported::parent/style/display",
       "kind": "structural",
-      "desc": "calls use.setAttribute",
+      "desc": "calls parent.style.display",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "use.setAttribute"
+          "value": "parent.style.display"
         }
       ]
     },
@@ -607,6 +635,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::state",
+      "kind": "structural",
+      "desc": "calls state",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "state"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::sponsoredtexts/includes",
       "kind": "structural",
       "desc": "calls sponsoredTexts.includes",
@@ -621,44 +663,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::uses/foreach",
+      "id": "meta/internal/imported::text/textcontent/tolowercase",
       "kind": "structural",
-      "desc": "calls uses.forEach",
+      "desc": "calls text.textContent.toLowerCase",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "uses.forEach"
+          "value": "text.textContent.toLowerCase"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::svg",
+      "id": "meta/internal/imported::use/closest",
       "kind": "structural",
-      "desc": "calls svg",
+      "desc": "calls use.closest",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "svg"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::uses",
-      "kind": "structural",
-      "desc": "calls uses",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "uses"
+          "value": "use.closest"
         }
       ]
     },
@@ -677,44 +705,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::svg/queryselector/getattribute",
+      "id": "meta/internal/imported::document/queryselector",
       "kind": "structural",
-      "desc": "calls svg.querySelector.getAttribute",
+      "desc": "calls document.querySelector",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "svg.querySelector.getAttribute"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::text",
-      "kind": "structural",
-      "desc": "calls text",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "text"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parent/style/display",
-      "kind": "structural",
-      "desc": "calls parent.style.display",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parent.style.display"
+          "value": "document.querySelector"
         }
       ]
     },
@@ -733,16 +733,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::document/queryselector",
+      "id": "meta/internal/imported::svg/queryselector",
       "kind": "structural",
-      "desc": "calls document.querySelector",
+      "desc": "calls svg.querySelector",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelector"
+          "value": "svg.querySelector"
         }
       ]
     }

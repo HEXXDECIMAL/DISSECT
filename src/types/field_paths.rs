@@ -21,7 +21,9 @@ pub fn all_valid_metric_paths() -> HashSet<String> {
     let mut paths = HashSet::new();
 
     // Import all metrics types
-    use super::binary_metrics::{BinaryMetrics, ElfMetrics, JavaClassMetrics, MachoMetrics, PeMetrics};
+    use super::binary_metrics::{
+        BinaryMetrics, ElfMetrics, JavaClassMetrics, MachoMetrics, PeMetrics,
+    };
     use super::container_metrics::{ArchiveMetrics, PackageJsonMetrics};
     use super::language_metrics::{
         CMetrics, CSharpMetrics, GoMetrics, JavaScriptMetrics, JavaSourceMetrics, LuaMetrics,

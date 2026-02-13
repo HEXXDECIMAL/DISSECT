@@ -44,17 +44,14 @@ fn test_random_json_files_skipped_in_directory_scan() {
         all_files: false,
         ..Default::default()
     };
-    let reports = dissect::analyze_directory(base_path, &options)
-        .expect("Directory analysis failed");
+    let reports =
+        dissect::analyze_directory(base_path, &options).expect("Directory analysis failed");
 
     // Should only have one report (for package.json)
     // Random JSON files should not be analyzed
     let json_reports: Vec<_> = reports
         .iter()
-        .filter(|r| {
-            r.target.path.ends_with(".json")
-                && !r.target.path.contains("package.json")
-        })
+        .filter(|r| r.target.path.ends_with(".json") && !r.target.path.contains("package.json"))
         .collect();
 
     // Verify random JSON files were not analyzed
@@ -112,8 +109,8 @@ fn test_random_yaml_files_skipped() {
         all_files: false,
         ..Default::default()
     };
-    let reports = dissect::analyze_directory(base_path, &options)
-        .expect("Directory analysis failed");
+    let reports =
+        dissect::analyze_directory(base_path, &options).expect("Directory analysis failed");
 
     // Verify random YAML files were not analyzed
     let random_yaml_reports: Vec<_> = reports
@@ -172,8 +169,8 @@ fn test_random_toml_files_skipped() {
         all_files: false,
         ..Default::default()
     };
-    let reports = dissect::analyze_directory(base_path, &options)
-        .expect("Directory analysis failed");
+    let reports =
+        dissect::analyze_directory(base_path, &options).expect("Directory analysis failed");
 
     // Verify random TOML files were not analyzed
     let random_toml_reports: Vec<_> = reports
@@ -193,11 +190,7 @@ fn test_random_toml_files_skipped() {
         .filter(|r| r.target.path.contains("Cargo.toml"))
         .collect();
 
-    assert_eq!(
-        cargo_reports.len(),
-        1,
-        "Cargo.toml should be analyzed"
-    );
+    assert_eq!(cargo_reports.len(), 1, "Cargo.toml should be analyzed");
 }
 
 #[test]
@@ -208,11 +201,7 @@ fn test_explicit_file_argument_still_analyzed() {
     let base_path = temp_dir.path();
 
     let random_json = base_path.join("random.json");
-    fs::write(
-        &random_json,
-        br#"{"data": "value"}"#,
-    )
-    .unwrap();
+    fs::write(&random_json, br#"{"data": "value"}"#).unwrap();
 
     // When analyzing a specific file path (not directory scanning),
     // it should be processed
@@ -233,25 +222,17 @@ fn test_all_files_flag_processes_everything() {
     let base_path = temp_dir.path();
 
     // Create random JSON files
-    fs::write(
-        base_path.join("config.json"),
-        br#"{"test": "value"}"#,
-    )
-    .unwrap();
+    fs::write(base_path.join("config.json"), br#"{"test": "value"}"#).unwrap();
 
-    fs::write(
-        base_path.join("data.json"),
-        br#"{"other": "data"}"#,
-    )
-    .unwrap();
+    fs::write(base_path.join("data.json"), br#"{"other": "data"}"#).unwrap();
 
     // With --all-files flag, even random JSON files should be analyzed
     let options = AnalysisOptions {
         all_files: true,
         ..Default::default()
     };
-    let reports = dissect::analyze_directory(base_path, &options)
-        .expect("Directory analysis failed");
+    let reports =
+        dissect::analyze_directory(base_path, &options).expect("Directory analysis failed");
 
     // With all_files=true, all JSON files should be present in reports
     let json_count = reports

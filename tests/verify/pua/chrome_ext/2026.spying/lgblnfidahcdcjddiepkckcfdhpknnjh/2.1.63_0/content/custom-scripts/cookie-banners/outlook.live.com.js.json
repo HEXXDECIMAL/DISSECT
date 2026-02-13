@@ -59,30 +59,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::array/from/find",
+      "id": "meta/internal/imported::document/queryselectorall",
       "kind": "structural",
-      "desc": "calls Array.from.find",
+      "desc": "calls document.querySelectorAll",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Array.from.find"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/from",
-      "kind": "structural",
-      "desc": "calls Array.from",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.from"
+          "value": "document.querySelectorAll"
         }
       ]
     },
@@ -101,44 +87,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::button/click",
+      "id": "meta/internal/imported::textcontent/includes",
       "kind": "structural",
-      "desc": "calls button.click",
+      "desc": "calls textContent.includes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "button.click"
+          "value": "textContent.includes"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::document/queryselectorall",
+      "id": "meta/internal/imported::array/from/find",
       "kind": "structural",
-      "desc": "calls document.querySelectorAll",
+      "desc": "calls Array.from.find",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelectorAll"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::button",
-      "kind": "structural",
-      "desc": "calls button",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "button"
+          "value": "Array.from.find"
         }
       ]
     },
@@ -157,16 +129,44 @@
       ]
     },
     {
-      "id": "meta/internal/imported::textcontent/includes",
+      "id": "meta/internal/imported::button/click",
       "kind": "structural",
-      "desc": "calls textContent.includes",
+      "desc": "calls button.click",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "textContent.includes"
+          "value": "button.click"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/from",
+      "kind": "structural",
+      "desc": "calls Array.from",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.from"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::button",
+      "kind": "structural",
+      "desc": "calls button",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "button"
         }
       ]
     }

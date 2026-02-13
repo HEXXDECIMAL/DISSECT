@@ -43,20 +43,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::decodeuricomponent",
-      "kind": "structural",
-      "desc": "calls decodeURIComponent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "decodeURIComponent"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::location/search/substring/split",
       "kind": "structural",
       "desc": "calls location.search.substring.split",
@@ -67,20 +53,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "location.search.substring.split"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::location/href",
-      "kind": "structural",
-      "desc": "calls location.href",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "location.href"
         }
       ]
     },
@@ -99,6 +71,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::decodeuricomponent",
+      "kind": "structural",
+      "desc": "calls decodeURIComponent",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "decodeURIComponent"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::location/search/substring",
       "kind": "structural",
       "desc": "calls location.search.substring",
@@ -109,6 +95,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "location.search.substring"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::location/href",
+      "kind": "structural",
+      "desc": "calls location.href",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "location.href"
         }
       ]
     }

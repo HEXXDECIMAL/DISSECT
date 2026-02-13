@@ -27,30 +27,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::getactivetabid",
+      "id": "meta/internal/imported::promise/all",
       "kind": "structural",
-      "desc": "calls getActiveTabId",
+      "desc": "calls Promise.all",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "getActiveTabId"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::customcssrules/add",
-      "kind": "structural",
-      "desc": "calls customCssRules.add",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "customCssRules.add"
+          "value": "Promise.all"
         }
       ]
     },
@@ -69,6 +55,34 @@
       ]
     },
     {
+      "id": "meta/internal/imported::customcssrules/add",
+      "kind": "structural",
+      "desc": "calls customCssRules.add",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "customCssRules.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::getactivetabid",
+      "kind": "structural",
+      "desc": "calls getActiveTabId",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getActiveTabId"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::contextmenus/update",
       "kind": "structural",
       "desc": "calls contextMenus.update",
@@ -79,20 +93,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "contextMenus.update"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::promise/all",
-      "kind": "structural",
-      "desc": "calls Promise.all",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Promise.all"
         }
       ]
     }

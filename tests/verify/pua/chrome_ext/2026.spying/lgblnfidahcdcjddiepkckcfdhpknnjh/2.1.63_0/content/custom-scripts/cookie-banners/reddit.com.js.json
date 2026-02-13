@@ -59,16 +59,16 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::document/queryselector",
+      "id": "meta/internal/imported::debounce",
       "kind": "structural",
-      "desc": "calls document.querySelector",
+      "desc": "calls debounce",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "document.querySelector"
+          "value": "debounce"
         }
       ]
     },
@@ -87,20 +87,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::debounce",
-      "kind": "structural",
-      "desc": "calls debounce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "debounce"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::document/queryselector/remove",
       "kind": "structural",
       "desc": "calls document.querySelector.remove",
@@ -111,6 +97,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "document.querySelector.remove"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::document/queryselector",
+      "kind": "structural",
+      "desc": "calls document.querySelector",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "document.querySelector"
         }
       ]
     }

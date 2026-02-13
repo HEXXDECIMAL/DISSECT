@@ -89,7 +89,7 @@ impl super::JavaClassAnalyzer {
                                 value: class_ref.clone(),
                                 location: None,
                             }],
-                        
+
                             source_file: None,
                         });
                     }
@@ -358,7 +358,7 @@ impl super::JavaClassAnalyzer {
                     value: evidence_value.to_string(),
                     location: None,
                 }],
-            
+
                 source_file: None,
             });
         }

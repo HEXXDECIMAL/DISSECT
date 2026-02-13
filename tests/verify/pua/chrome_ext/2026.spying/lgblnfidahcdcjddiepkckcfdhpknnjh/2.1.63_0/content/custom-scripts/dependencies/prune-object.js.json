@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 2  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -29,22 +45,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "32:5"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 2  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -107,48 +107,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::prunepaths",
-      "kind": "structural",
-      "desc": "calls prunePaths",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "prunePaths"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::needlepaths",
-      "kind": "structural",
-      "desc": "calls needlePaths",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "needlePaths"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::safeself",
-      "kind": "structural",
-      "desc": "calls safeSelf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "safeSelf"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::safe",
       "kind": "structural",
       "desc": "calls safe",
@@ -177,30 +135,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::findobjectowner",
+      "id": "meta/internal/imported::prunepaths",
       "kind": "structural",
-      "desc": "calls findObjectOwner",
+      "desc": "calls prunePaths",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "findObjectOwner"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::outcome",
-      "kind": "structural",
-      "desc": "calls outcome",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "outcome"
+          "value": "prunePaths"
         }
       ]
     },
@@ -219,6 +163,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::findobjectowner",
+      "kind": "structural",
+      "desc": "calls findObjectOwner",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "findObjectOwner"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::safe/string_split/call",
       "kind": "structural",
       "desc": "calls safe.String_split.call",
@@ -229,6 +187,48 @@
           "method": "symbol",
           "source": "ast",
           "value": "safe.String_split.call"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::needlepaths",
+      "kind": "structural",
+      "desc": "calls needlePaths",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "needlePaths"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::outcome",
+      "kind": "structural",
+      "desc": "calls outcome",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "outcome"
         }
       ]
     }

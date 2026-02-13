@@ -575,7 +575,6 @@ impl<'a> RuleDebugger<'a> {
         None
     }
 
-
     /// Debug a single condition
     fn debug_condition(&self, condition: &Condition) -> ConditionDebugResult {
         let ctx = EvaluationContext {
@@ -1438,10 +1437,9 @@ impl<'a> RuleDebugger<'a> {
                         "  binary.code_to_data_ratio: {:.2}",
                         binary.code_to_data_ratio
                     ));
-                    result.details.push(format!(
-                        "  binary.string_count: {}",
-                        binary.string_count
-                    ));
+                    result
+                        .details
+                        .push(format!("  binary.string_count: {}", binary.string_count));
                     result.details.push(format!(
                         "  binary.function_count: {}",
                         binary.function_count
@@ -1450,10 +1448,9 @@ impl<'a> RuleDebugger<'a> {
                         "  binary.avg_complexity: {:.2}",
                         binary.avg_complexity
                     ));
-                    result.details.push(format!(
-                        "  binary.file_size: {}",
-                        binary.file_size
-                    ));
+                    result
+                        .details
+                        .push(format!("  binary.file_size: {}", binary.file_size));
                 }
                 if let Some(text) = &metrics.text {
                     result
@@ -2493,7 +2490,6 @@ pub fn find_matching_symbols<'a>(
         .copied()
         .collect()
 }
-
 
 fn evaluate_condition_simple(
     condition: &Condition,

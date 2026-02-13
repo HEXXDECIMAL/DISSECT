@@ -129,20 +129,6 @@ traits:
     conf: 0.7
     size_max: 8192
 
-  # ELF with no section headers (stripped shellcode)
-  # Section header offset at bytes 0x28-0x2f (e_shoff) = 0
-  # and section count at 0x3c-0x3d (e_shnum) = 0
-  - id: elf-no-sections
-    desc: ELF with no section headers
-    crit: notable
-    conf: 0.75
-    if:
-      type: hex
-      # ELF magic + headers where e_shoff is 0 (at offset 0x28 in 64-bit ELF)
-      # This pattern matches 64-bit ELF where section header offset is 0
-      pattern: "7f 45 4c 46 02 [35] 00 00 00 00 00 00 00 00"
-      offset: 0
-
 composite_rules:
   # Helper composite: any jmp/call to register (shellcode execution)
   - id: x64-jmp-register

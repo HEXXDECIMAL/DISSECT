@@ -6,12 +6,27 @@
   "file_type": "javascript",
   "sha256": "f28aa7f4a45dd658977ce84492a51f4382b5ef2b4822b143df2f1c3f40b4d196",
   "size": 11060,
-  "risk": "suspicious",
+  "risk": "notable",
   "counts": {
-    "suspicious": 1,
-    "notable": 8
+    "notable": 7
   },
   "findings": [
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 14 \tfor (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
     {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
@@ -107,35 +122,38 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
       "kind": "capability",
-      "desc": ".proto file extension",
+      "desc": "Low identifier reuse (each variable",
       "conf": 0.7,
       "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Array.prototype.concat.apply"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.reuse_ratio = 0.09"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
       "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
+      "desc": "Many anonymous functions",
+      "conf": 0.75,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
       "evidence": [
         {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 14 \tfor (",
-          "location": "file"
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "functions.anonymous = 31.00"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
@@ -155,11 +173,28 @@
       "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
+      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "kind": "capability",
+      "desc": "Sequential identifiers (a, b, c,",
+      "conf": 0.8,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "identifiers.sequential_names = 23.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+    },
+    {
       "id": "obj/lateral/supply-chain/npm/malicious-patterns::buffer-write-loop",
       "kind": "capability",
       "desc": "Staged buffer payload assembly",
       "conf": 0.85,
-      "crit": "suspicious",
+      "crit": "notable",
       "mbc": "B0032",
       "attack": "T1027",
       "evidence": [
@@ -171,6 +206,40 @@
         }
       ],
       "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "kind": "capability",
+      "desc": "charAt in loop pattern",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fmt.charAt",
+          "location": "import"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
+      "kind": "capability",
+      "desc": "Join using empty string delimiter",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 .join('')",
+          "location": "file"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
       "id": "cap/exec/eval/dynamic::iife-pattern",
@@ -203,91 +272,6 @@
         }
       ],
       "source_file": "cap/data/exploitation/memory/generic.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
-      "kind": "capability",
-      "desc": "Many anonymous functions",
-      "conf": 0.75,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "functions.anonymous = 31.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
-      "kind": "capability",
-      "desc": "charAt in loop pattern",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fmt.charAt",
-          "location": "import"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
-      "kind": "capability",
-      "desc": "Sequential identifiers (a, b, c,",
-      "conf": 0.8,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.sequential_names = 23.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
-      "kind": "capability",
-      "desc": "Join using empty string delimiter",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 .join('')",
-          "location": "file"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
-      "kind": "capability",
-      "desc": "Low identifier reuse (each variable",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "identifiers.reuse_ratio = 0.09"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
       "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
@@ -390,129 +374,44 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "Array.prototype.concat.apply"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::m/_de754",
+      "id": "meta/internal/imported::mlen",
       "kind": "structural",
-      "desc": "calls m._De754",
+      "desc": "calls mLen",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m._De754"
+          "value": "mLen"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::y1",
+      "id": "meta/internal/imported::m/_ellut",
       "kind": "structural",
-      "desc": "calls y1",
+      "desc": "calls m._elLut",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "y1"
+          "value": "m._elLut"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::meta/pos",
+      "id": "meta/internal/imported::fxn",
       "kind": "structural",
-      "desc": "calls meta.pos",
+      "desc": "calls fxn",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "meta.pos"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::v/charcodeat",
-      "kind": "structural",
-      "desc": "calls v.charCodeAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "v.charCodeAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::str/charcodeat",
-      "kind": "structural",
-      "desc": "calls str.charCodeAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "str.charCodeAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/floor",
-      "kind": "structural",
-      "desc": "calls Math.floor",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.floor"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/readint32",
-      "kind": "structural",
-      "desc": "calls m.ReadInt32",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadInt32"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rv/join",
-      "kind": "structural",
-      "desc": "calls rv.join",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rv.join"
+          "value": "fxn"
         }
       ]
     },
@@ -531,34 +430,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::m/readint24",
-      "kind": "structural",
-      "desc": "calls m.ReadInt24",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadInt24"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/readdouble",
-      "kind": "structural",
-      "desc": "calls m.ReadDouble",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadDouble"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::st",
       "kind": "structural",
       "desc": "calls st",
@@ -569,356 +440,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "st"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rv/push",
-      "kind": "structural",
-      "desc": "calls rv.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rv.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/readstring",
-      "kind": "structural",
-      "desc": "calls m.ReadString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_en754",
-      "kind": "structural",
-      "desc": "calls m._En754",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._En754"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::arr/slice",
-      "kind": "structural",
-      "desc": "calls arr.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "arr.slice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/writebyte",
-      "kind": "structural",
-      "desc": "calls m.WriteByte",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.WriteByte"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/unpack",
-      "kind": "structural",
-      "desc": "calls m.Unpack",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.Unpack"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::x3",
-      "kind": "structural",
-      "desc": "calls x3",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "x3"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::st/push",
-      "kind": "structural",
-      "desc": "calls st.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "st.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/slice",
-      "kind": "structural",
-      "desc": "calls a.slice",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.slice"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/readint16",
-      "kind": "structural",
-      "desc": "calls m.ReadInt16",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadInt16"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_enstring",
-      "kind": "structural",
-      "desc": "calls m._EnString",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._EnString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_packseries",
-      "kind": "structural",
-      "desc": "calls m._PackSeries",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._PackSeries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::bbe",
-      "kind": "structural",
-      "desc": "calls bBE",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "bBE"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/packto",
-      "kind": "structural",
-      "desc": "calls m.PackTo",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.PackTo"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_enchar",
-      "kind": "structural",
-      "desc": "calls m._EnChar",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._EnChar"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::re/exec",
-      "kind": "structural",
-      "desc": "calls re.exec",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "re.exec"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mlen",
-      "kind": "structural",
-      "desc": "calls mLen",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mLen"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_spattern",
-      "kind": "structural",
-      "desc": "calls m._sPattern",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._sPattern"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::isnan",
-      "kind": "structural",
-      "desc": "calls isNaN",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "isNaN"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::y2",
-      "kind": "structural",
-      "desc": "calls y2",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "y2"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ebias",
-      "kind": "structural",
-      "desc": "calls eBias",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "eBias"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/writeboxsize",
-      "kind": "structural",
-      "desc": "calls m.WriteBoxSize",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.WriteBoxSize"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mm",
-      "kind": "structural",
-      "desc": "calls mm",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mm"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::rv",
-      "kind": "structural",
-      "desc": "calls rv",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "rv"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::math/abs",
-      "kind": "structural",
-      "desc": "calls Math.abs",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Math.abs"
         }
       ]
     },
@@ -937,212 +458,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::m/readint64",
+      "id": "meta/internal/imported::ebias",
       "kind": "structural",
-      "desc": "calls m.ReadInt64",
+      "desc": "calls eBias",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m.ReadInt64"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::elen",
-      "kind": "structural",
-      "desc": "calls eLen",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "eLen"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::el",
-      "kind": "structural",
-      "desc": "calls el",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "el"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_dechar",
-      "kind": "structural",
-      "desc": "calls m._DeChar",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._DeChar"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_enarray",
-      "kind": "structural",
-      "desc": "calls m._EnArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._EnArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::string/fromcharcode",
-      "kind": "structural",
-      "desc": "calls String.fromCharCode",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "String.fromCharCode"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::a/p",
-      "kind": "structural",
-      "desc": "calls a.p",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "a.p"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_lenlut",
-      "kind": "structural",
-      "desc": "calls m._lenLut",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._lenLut"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_unpackseries",
-      "kind": "structural",
-      "desc": "calls m._UnpackSeries",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._UnpackSeries"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::parseint",
-      "kind": "structural",
-      "desc": "calls parseInt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "parseInt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/prototype/concat/apply",
-      "kind": "structural",
-      "desc": "calls Array.prototype.concat.apply",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.prototype.concat.apply"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::ch",
-      "kind": "structural",
-      "desc": "calls ch",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "ch"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::re/concat",
-      "kind": "structural",
-      "desc": "calls re.concat",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "re.concat"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_dearray",
-      "kind": "structural",
-      "desc": "calls m._DeArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._DeArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::st/reverse",
-      "kind": "structural",
-      "desc": "calls st.reverse",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "st.reverse"
+          "value": "eBias"
         }
       ]
     },
@@ -1175,114 +500,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::emax",
+      "id": "meta/internal/imported::rv/push",
       "kind": "structural",
-      "desc": "calls eMax",
+      "desc": "calls rv.push",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "eMax"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::len",
-      "kind": "structural",
-      "desc": "calls len",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "len"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fxn",
-      "kind": "structural",
-      "desc": "calls fxn",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fxn"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::result",
-      "kind": "structural",
-      "desc": "calls result",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "result"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/readbyte",
-      "kind": "structural",
-      "desc": "calls m.ReadByte",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.ReadByte"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::fmt/charat",
-      "kind": "structural",
-      "desc": "calls fmt.charAt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "fmt.charAt"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/calclength",
-      "kind": "structural",
-      "desc": "calls m.CalcLength",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.CalcLength"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::x1",
-      "kind": "structural",
-      "desc": "calls x1",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "x1"
+          "value": "rv.push"
         }
       ]
     },
@@ -1301,142 +528,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::stop",
+      "id": "meta/internal/imported::m/readint16",
       "kind": "structural",
-      "desc": "calls stop",
+      "desc": "calls m.ReadInt16",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "stop"
+          "value": "m.ReadInt16"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::m/writeflvtimestamp",
+      "id": "meta/internal/imported::y2",
       "kind": "structural",
-      "desc": "calls m.WriteFlvTimestamp",
+      "desc": "calls y2",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m.WriteFlvTimestamp"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::lsb",
-      "kind": "structural",
-      "desc": "calls lsb",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "lsb"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::re",
-      "kind": "structural",
-      "desc": "calls re",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "re"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::hi",
-      "kind": "structural",
-      "desc": "calls hi",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "hi"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::y3",
-      "kind": "structural",
-      "desc": "calls y3",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "y3"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::x2",
-      "kind": "structural",
-      "desc": "calls x2",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "x2"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::mm/push",
-      "kind": "structural",
-      "desc": "calls mm.push",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "mm.push"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/pack",
-      "kind": "structural",
-      "desc": "calls m.Pack",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m.Pack"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::x/unshift",
-      "kind": "structural",
-      "desc": "calls x.unshift",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "x.unshift"
+          "value": "y2"
         }
       ]
     },
@@ -1455,100 +570,72 @@
       ]
     },
     {
-      "id": "meta/internal/imported::m/writeint32",
+      "id": "meta/internal/imported::re/exec",
       "kind": "structural",
-      "desc": "calls m.WriteInt32",
+      "desc": "calls re.exec",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m.WriteInt32"
+          "value": "re.exec"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::rv/i",
+      "id": "meta/internal/imported::m/_enstring",
       "kind": "structural",
-      "desc": "calls rv.i",
+      "desc": "calls m._EnString",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "rv.i"
+          "value": "m._EnString"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::m/writeint24",
+      "id": "meta/internal/imported::st/push",
       "kind": "structural",
-      "desc": "calls m.WriteInt24",
+      "desc": "calls st.push",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m.WriteInt24"
+          "value": "st.push"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::math/pow",
+      "id": "meta/internal/imported::m/_spattern",
       "kind": "structural",
-      "desc": "calls Math.pow",
+      "desc": "calls m._sPattern",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "Math.pow"
+          "value": "m._sPattern"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::m/_destring",
+      "id": "meta/internal/imported::m/calclength",
       "kind": "structural",
-      "desc": "calls m._DeString",
+      "desc": "calls m.CalcLength",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "m._DeString"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_ellut",
-      "kind": "structural",
-      "desc": "calls m._elLut",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._elLut"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::m/_enint",
-      "kind": "structural",
-      "desc": "calls m._EnInt",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "m._EnInt"
+          "value": "m.CalcLength"
         }
       ]
     },
@@ -1567,6 +654,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::m/_enchar",
+      "kind": "structural",
+      "desc": "calls m._EnChar",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._EnChar"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::lo",
       "kind": "structural",
       "desc": "calls lo",
@@ -1577,6 +678,874 @@
           "method": "symbol",
           "source": "ast",
           "value": "lo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::meta/pos",
+      "kind": "structural",
+      "desc": "calls meta.pos",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "meta.pos"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x1",
+      "kind": "structural",
+      "desc": "calls x1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readstring",
+      "kind": "structural",
+      "desc": "calls m.ReadString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::ch",
+      "kind": "structural",
+      "desc": "calls ch",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "ch"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::result",
+      "kind": "structural",
+      "desc": "calls result",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "result"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mm/push",
+      "kind": "structural",
+      "desc": "calls mm.push",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mm.push"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readbyte",
+      "kind": "structural",
+      "desc": "calls m.ReadByte",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadByte"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readint32",
+      "kind": "structural",
+      "desc": "calls m.ReadInt32",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadInt32"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::re/concat",
+      "kind": "structural",
+      "desc": "calls re.concat",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "re.concat"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::re",
+      "kind": "structural",
+      "desc": "calls re",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "re"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/writeflvtimestamp",
+      "kind": "structural",
+      "desc": "calls m.WriteFlvTimestamp",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.WriteFlvTimestamp"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::y3",
+      "kind": "structural",
+      "desc": "calls y3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "y3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x/unshift",
+      "kind": "structural",
+      "desc": "calls x.unshift",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x.unshift"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_de754",
+      "kind": "structural",
+      "desc": "calls m._De754",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._De754"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_enint",
+      "kind": "structural",
+      "desc": "calls m._EnInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._EnInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::st/reverse",
+      "kind": "structural",
+      "desc": "calls st.reverse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "st.reverse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/pack",
+      "kind": "structural",
+      "desc": "calls m.Pack",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.Pack"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/abs",
+      "kind": "structural",
+      "desc": "calls Math.abs",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.abs"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::arr/slice",
+      "kind": "structural",
+      "desc": "calls arr.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "arr.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::len",
+      "kind": "structural",
+      "desc": "calls len",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "len"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/prototype/concat/apply",
+      "kind": "structural",
+      "desc": "calls Array.prototype.concat.apply",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.prototype.concat.apply"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::elen",
+      "kind": "structural",
+      "desc": "calls eLen",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "eLen"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/writeint24",
+      "kind": "structural",
+      "desc": "calls m.WriteInt24",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.WriteInt24"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_lenlut",
+      "kind": "structural",
+      "desc": "calls m._lenLut",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._lenLut"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/pow",
+      "kind": "structural",
+      "desc": "calls Math.pow",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.pow"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::string/fromcharcode",
+      "kind": "structural",
+      "desc": "calls String.fromCharCode",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "String.fromCharCode"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_unpackseries",
+      "kind": "structural",
+      "desc": "calls m._UnpackSeries",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._UnpackSeries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x2",
+      "kind": "structural",
+      "desc": "calls x2",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x2"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rv/join",
+      "kind": "structural",
+      "desc": "calls rv.join",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rv.join"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::fmt/charat",
+      "kind": "structural",
+      "desc": "calls fmt.charAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "fmt.charAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::mm",
+      "kind": "structural",
+      "desc": "calls mm",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "mm"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_destring",
+      "kind": "structural",
+      "desc": "calls m._DeString",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._DeString"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readint24",
+      "kind": "structural",
+      "desc": "calls m.ReadInt24",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadInt24"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_enarray",
+      "kind": "structural",
+      "desc": "calls m._EnArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._EnArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::el",
+      "kind": "structural",
+      "desc": "calls el",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "el"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rv",
+      "kind": "structural",
+      "desc": "calls rv",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rv"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readdouble",
+      "kind": "structural",
+      "desc": "calls m.ReadDouble",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadDouble"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::str/charcodeat",
+      "kind": "structural",
+      "desc": "calls str.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "str.charCodeAt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/packto",
+      "kind": "structural",
+      "desc": "calls m.PackTo",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.PackTo"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::y1",
+      "kind": "structural",
+      "desc": "calls y1",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "y1"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::isnan",
+      "kind": "structural",
+      "desc": "calls isNaN",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "isNaN"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/readint64",
+      "kind": "structural",
+      "desc": "calls m.ReadInt64",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.ReadInt64"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/writeboxsize",
+      "kind": "structural",
+      "desc": "calls m.WriteBoxSize",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.WriteBoxSize"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::emax",
+      "kind": "structural",
+      "desc": "calls eMax",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "eMax"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/writebyte",
+      "kind": "structural",
+      "desc": "calls m.WriteByte",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.WriteByte"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_en754",
+      "kind": "structural",
+      "desc": "calls m._En754",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._En754"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::stop",
+      "kind": "structural",
+      "desc": "calls stop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "stop"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::rv/i",
+      "kind": "structural",
+      "desc": "calls rv.i",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "rv.i"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_dearray",
+      "kind": "structural",
+      "desc": "calls m._DeArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._DeArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::math/floor",
+      "kind": "structural",
+      "desc": "calls Math.floor",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Math.floor"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_packseries",
+      "kind": "structural",
+      "desc": "calls m._PackSeries",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._PackSeries"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/_dechar",
+      "kind": "structural",
+      "desc": "calls m._DeChar",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m._DeChar"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/p",
+      "kind": "structural",
+      "desc": "calls a.p",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.p"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::parseint",
+      "kind": "structural",
+      "desc": "calls parseInt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "parseInt"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/unpack",
+      "kind": "structural",
+      "desc": "calls m.Unpack",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.Unpack"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::hi",
+      "kind": "structural",
+      "desc": "calls hi",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "hi"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::x3",
+      "kind": "structural",
+      "desc": "calls x3",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "x3"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::a/slice",
+      "kind": "structural",
+      "desc": "calls a.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "a.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::m/writeint32",
+      "kind": "structural",
+      "desc": "calls m.WriteInt32",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "m.WriteInt32"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::lsb",
+      "kind": "structural",
+      "desc": "calls lsb",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "lsb"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::bbe",
+      "kind": "structural",
+      "desc": "calls bBE",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "bBE"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::v/charcodeat",
+      "kind": "structural",
+      "desc": "calls v.charCodeAt",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "v.charCodeAt"
         }
       ]
     }

@@ -27,6 +27,21 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
+      "id": "cap/data/text/keywords::payload",
+      "kind": "capability",
+      "desc": "payload keyword",
+      "conf": 0.2,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "payload"
+        }
+      ],
+      "source_file": "cap/data/text/keywords/generic.yaml"
+    },
+    {
       "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
       "kind": "capability",
       "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
@@ -51,19 +66,19 @@
       "source_file": "obj/c2/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::payload",
+      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
       "kind": "capability",
-      "desc": "payload keyword",
-      "conf": 0.2,
-      "crit": "inert",
+      "desc": "chrome.runtime.onMessage listener",
+      "conf": 0.9,
+      "crit": "notable",
       "evidence": [
         {
           "method": "import_symbol",
           "source": "ast",
-          "value": "payload"
+          "value": "browser.runtime.onMessage.addListener"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
       "id": "obj/lateral/supply-chain/chrome-ext/api::browser-namespace",
@@ -96,21 +111,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
-      "kind": "capability",
-      "desc": "chrome.runtime.onMessage listener",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "browser.runtime.onMessage.addListener"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
-    },
-    {
       "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
       "kind": "capability",
       "desc": "File is part of a browser extension",
@@ -126,44 +126,16 @@
       "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "meta/internal/imported::window/addeventlistener",
+      "id": "meta/internal/imported::clearcustomblockednodes",
       "kind": "structural",
-      "desc": "calls window.addEventListener",
+      "desc": "calls clearCustomBlockedNodes",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "window.addEventListener"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::geturlhost",
-      "kind": "structural",
-      "desc": "calls getUrlHost",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "getUrlHost"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::window/top/postmessage",
-      "kind": "structural",
-      "desc": "calls window.top.postMessage",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "window.top.postMessage"
+          "value": "clearCustomBlockedNodes"
         }
       ]
     },
@@ -182,6 +154,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::geturlhost",
+      "kind": "structural",
+      "desc": "calls getUrlHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "getUrlHost"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::setpagedata",
       "kind": "structural",
       "desc": "calls setPageData",
@@ -192,6 +178,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "setPageData"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::window/top/postmessage",
+      "kind": "structural",
+      "desc": "calls window.top.postMessage",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "window.top.postMessage"
         }
       ]
     },
@@ -210,16 +210,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::clearcustomblockednodes",
+      "id": "meta/internal/imported::window/addeventlistener",
       "kind": "structural",
-      "desc": "calls clearCustomBlockedNodes",
+      "desc": "calls window.addEventListener",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "clearCustomBlockedNodes"
+          "value": "window.addEventListener"
         }
       ]
     },

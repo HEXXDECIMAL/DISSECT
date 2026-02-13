@@ -27,34 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::tab/changenexttabcreationallowance",
-      "kind": "structural",
-      "desc": "calls tab.changeNextTabCreationAllowance",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "tab.changeNextTabCreationAllowance"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::popupshownotificationlist/setvaluebyhost",
-      "kind": "structural",
-      "desc": "calls popupShowNotificationList.setValueByHost",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "popupShowNotificationList.setValueByHost"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::popup_options",
       "kind": "structural",
       "desc": "calls POPUP_OPTIONS",
@@ -97,6 +69,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::popupshownotificationlist/setvaluebyhost",
+      "kind": "structural",
+      "desc": "calls popupShowNotificationList.setValueByHost",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "popupShowNotificationList.setValueByHost"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::popupallowedsites/add",
       "kind": "structural",
       "desc": "calls popupAllowedSites.add",
@@ -107,6 +93,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "popupAllowedSites.add"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::tab/changenexttabcreationallowance",
+      "kind": "structural",
+      "desc": "calls tab.changeNextTabCreationAllowance",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "tab.changeNextTabCreationAllowance"
         }
       ]
     }

@@ -27,20 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::data",
-      "kind": "structural",
-      "desc": "calls data",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "data"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::sendmessage",
       "kind": "structural",
       "desc": "calls sendMessage",
@@ -55,16 +41,30 @@
       ]
     },
     {
-      "id": "meta/internal/imported::activetabid",
+      "id": "meta/internal/imported::customcssrules/countrulesontab",
       "kind": "structural",
-      "desc": "calls activeTabId",
+      "desc": "calls customCssRules.countRulesOnTab",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "activeTabId"
+          "value": "customCssRules.countRulesOnTab"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::data",
+      "kind": "structural",
+      "desc": "calls data",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "data"
         }
       ]
     },
@@ -83,16 +83,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::customcssrules/countrulesontab",
+      "id": "meta/internal/imported::activetabid",
       "kind": "structural",
-      "desc": "calls customCssRules.countRulesOnTab",
+      "desc": "calls activeTabId",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "customCssRules.countRulesOnTab"
+          "value": "activeTabId"
         }
       ]
     }

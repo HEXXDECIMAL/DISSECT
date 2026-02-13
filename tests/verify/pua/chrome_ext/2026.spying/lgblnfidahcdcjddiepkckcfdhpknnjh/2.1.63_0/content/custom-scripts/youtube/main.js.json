@@ -8,7 +8,7 @@
   "size": 2072,
   "risk": "notable",
   "counts": {
-    "notable": 12
+    "notable": 10
   },
   "findings": [
     {
@@ -29,28 +29,6 @@
           "source": "string_extractor",
           "value": "JSON.parse",
           "location": "0x5a1"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "cap/data/encoding/charset::json-stringify-js",
-      "kind": "capability",
-      "desc": "JavaScript JSON.stringify",
-      "conf": 0.85,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "JSON.stringify",
-          "location": "0x21"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "JSON.stringify",
-          "location": "0x22"
         }
       ],
       "source_file": "cap/data/encoding/charset/traits.yaml"
@@ -90,50 +68,43 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::proto-extension",
+      "id": "cap/data/encoding/charset::json-stringify-js",
       "kind": "capability",
-      "desc": ".proto file extension",
-      "conf": 0.7,
+      "desc": "JavaScript JSON.stringify",
+      "conf": 0.85,
       "crit": "notable",
       "evidence": [
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x50e"
+          "value": "JSON.stringify",
+          "location": "0x21"
         },
         {
           "method": "string",
           "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x50f"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x547"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x548"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x582"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x583"
+          "value": "JSON.stringify",
+          "location": "0x22"
         }
       ],
       "source_file": "cap/data/encoding/charset/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "kind": "capability",
+      "desc": "Very low comment-to-code ratio (<1%)",
+      "conf": 0.65,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.to_code_ratio = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
@@ -148,6 +119,23 @@
           "method": "metrics",
           "source": "analyzer",
           "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "kind": "capability",
+      "desc": "Very low whitespace ratio (minified/compressed)",
+      "conf": 0.7,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.04"
         }
       ],
       "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
@@ -168,6 +156,28 @@
         }
       ],
       "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+    },
+    {
+      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "kind": "capability",
+      "desc": "JSON.stringify call",
+      "conf": 0.5,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "JSON.stringify",
+          "location": "0x21"
+        },
+        {
+          "method": "string",
+          "source": "string_extractor",
+          "value": "JSON.stringify",
+          "location": "0x22"
+        }
+      ],
+      "source_file": "obj/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
@@ -201,62 +211,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
-      "kind": "capability",
-      "desc": "JSON.stringify call",
-      "conf": 0.5,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "JSON.stringify",
-          "location": "0x21"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "JSON.stringify",
-          "location": "0x22"
-        }
-      ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
-      "kind": "capability",
-      "desc": "Very low comment-to-code ratio (<1%)",
-      "conf": 0.65,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.to_code_ratio = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
-      "kind": "capability",
-      "desc": "Very low whitespace ratio (minified/compressed)",
-      "conf": 0.7,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.04"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
       "id": "obj/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
@@ -277,6 +231,28 @@
         }
       ],
       "source_file": "obj/discovery/host/fingerprint/node.yaml"
+    },
+    {
+      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "kind": "capability",
+      "desc": "Minified/compressed code (multiple indicators)",
+      "conf": 0.9,
+      "crit": "notable",
+      "mbc": "B0032",
+      "attack": "T1027",
+      "evidence": [
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "text.whitespace_ratio = 0.04"
+        },
+        {
+          "method": "metrics",
+          "source": "analyzer",
+          "value": "comments.total = 0.00"
+        }
+      ],
+      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "obj/c2/shells/remote-exec::js-output-command-var",
@@ -347,98 +323,30 @@
       "source_file": "cap/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::protobuf",
-      "kind": "capability",
-      "desc": "Google Protocol Buffers",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x50e"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x50f"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x547"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x548"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x582"
-        },
-        {
-          "method": "string",
-          "source": "string_extractor",
-          "value": "Node.prototype.appendChild",
-          "location": "0x583"
-        }
-      ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
-    },
-    {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
-      "kind": "capability",
-      "desc": "Minified/compressed code (multiple indicators)",
-      "conf": 0.9,
-      "crit": "notable",
-      "mbc": "B0032",
-      "attack": "T1027",
-      "evidence": [
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "text.whitespace_ratio = 0.04"
-        },
-        {
-          "method": "metrics",
-          "source": "analyzer",
-          "value": "comments.total = 0.00"
-        }
-      ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
-    },
-    {
-      "id": "meta/internal/imported::editinboundobject",
+      "id": "meta/internal/imported::preventdombypass",
       "kind": "structural",
-      "desc": "calls editInboundObject",
+      "desc": "calls preventDomBypass",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "editInboundObject"
+          "value": "preventDomBypass"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::jsonprunefetchresponse",
+      "id": "meta/internal/imported::jsoneditfetchrequest",
       "kind": "structural",
-      "desc": "calls jsonPruneFetchResponse",
+      "desc": "calls jsonEditFetchRequest",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "jsonPruneFetchResponse"
+          "value": "jsonEditFetchRequest"
         }
       ]
     },
@@ -457,30 +365,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::modifysettimeout",
+      "id": "meta/internal/imported::replacefetchresponsecontent",
       "kind": "structural",
-      "desc": "calls modifySetTimeout",
+      "desc": "calls replaceFetchResponseContent",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "modifySetTimeout"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::preventdombypass",
-      "kind": "structural",
-      "desc": "calls preventDomBypass",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "preventDomBypass"
+          "value": "replaceFetchResponseContent"
         }
       ]
     },
@@ -499,34 +393,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::prunejson",
-      "kind": "structural",
-      "desc": "calls pruneJson",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pruneJson"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::replacefetchresponsecontent",
-      "kind": "structural",
-      "desc": "calls replaceFetchResponseContent",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "replaceFetchResponseContent"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::defineconstant",
       "kind": "structural",
       "desc": "calls defineConstant",
@@ -541,16 +407,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::jsoneditfetchrequest",
+      "id": "meta/internal/imported::modifysettimeout",
       "kind": "structural",
-      "desc": "calls jsonEditFetchRequest",
+      "desc": "calls modifySetTimeout",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "jsonEditFetchRequest"
+          "value": "modifySetTimeout"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::jsonprunefetchresponse",
+      "kind": "structural",
+      "desc": "calls jsonPruneFetchResponse",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "jsonPruneFetchResponse"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prunejson",
+      "kind": "structural",
+      "desc": "calls pruneJson",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "pruneJson"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::editinboundobject",
+      "kind": "structural",
+      "desc": "calls editInboundObject",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "editInboundObject"
         }
       ]
     }

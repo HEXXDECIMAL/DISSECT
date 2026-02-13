@@ -27,20 +27,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::statistics/incrementblock",
-      "kind": "structural",
-      "desc": "calls statistics.incrementBlock",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "statistics.incrementBlock"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::updateicon",
       "kind": "structural",
       "desc": "calls updateIcon",
@@ -51,6 +37,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "updateIcon"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::statistics/incrementblock",
+      "kind": "structural",
+      "desc": "calls statistics.incrementBlock",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "statistics.incrementBlock"
         }
       ]
     }

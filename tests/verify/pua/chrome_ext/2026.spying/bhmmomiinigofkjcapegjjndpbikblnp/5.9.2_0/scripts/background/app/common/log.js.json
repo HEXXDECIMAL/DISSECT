@@ -12,22 +12,6 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
-      "kind": "capability",
-      "desc": "for loop (AST)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "ast",
-          "source": "tree-sitter",
-          "value": "for",
-          "location": "1:53"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
       "id": "cap/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
@@ -39,6 +23,22 @@
           "source": "raw_content",
           "value": "Found 1 {for(",
           "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
+      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "kind": "capability",
+      "desc": "for loop (AST)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "ast",
+          "source": "tree-sitter",
+          "value": "for",
+          "location": "1:53"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -81,6 +81,20 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "meta/internal/imported::toconsumablearray",
+      "kind": "structural",
+      "desc": "calls toConsumableArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "toConsumableArray"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::array/from",
       "kind": "structural",
       "desc": "calls Array.from",
@@ -91,20 +105,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Array.from"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::log",
-      "kind": "structural",
-      "desc": "calls log",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "log"
         }
       ]
     },
@@ -123,20 +123,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::toconsumablearray",
-      "kind": "structural",
-      "desc": "calls toConsumableArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "toConsumableArray"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::array/isarray",
       "kind": "structural",
       "desc": "calls Array.isArray",
@@ -147,6 +133,20 @@
           "method": "symbol",
           "source": "ast",
           "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::log",
+      "kind": "structural",
+      "desc": "calls log",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "log"
         }
       ]
     },

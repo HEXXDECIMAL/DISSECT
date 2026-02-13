@@ -178,11 +178,19 @@ impl ArchiveAnalyzer {
         let total_traits = Arc::new(Mutex::new(HashSet::new()));
         // Pre-allocate capacity based on expected number of files to reduce reallocations
         let expected_count = classes_to_analyze.len();
-        let collected_traits = Arc::new(Mutex::new(Vec::<Finding>::with_capacity(expected_count * 10)));
+        let collected_traits = Arc::new(Mutex::new(Vec::<Finding>::with_capacity(
+            expected_count * 10,
+        )));
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::with_capacity(50)));
-        let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::with_capacity(expected_count * 50)));
-        let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::with_capacity(expected_count)));
-        let collected_files = Arc::new(Mutex::new(Vec::<FileAnalysis>::with_capacity(expected_count)));
+        let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::with_capacity(
+            expected_count * 50,
+        )));
+        let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::with_capacity(
+            expected_count,
+        )));
+        let collected_files = Arc::new(Mutex::new(Vec::<FileAnalysis>::with_capacity(
+            expected_count,
+        )));
 
         classes_to_analyze.par_iter().for_each(|entry| {
             let relative_path = entry
@@ -542,10 +550,14 @@ impl ArchiveAnalyzer {
         let total_capabilities = Arc::new(Mutex::new(HashSet::new()));
         let total_traits = Arc::new(Mutex::new(HashSet::new()));
         // Pre-allocate capacity based on total file count to reduce reallocations
-        let collected_traits = Arc::new(Mutex::new(Vec::<Finding>::with_capacity(total_files * 10)));
+        let collected_traits =
+            Arc::new(Mutex::new(Vec::<Finding>::with_capacity(total_files * 10)));
         let collected_yara = Arc::new(Mutex::new(Vec::<YaraMatch>::with_capacity(100)));
-        let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::with_capacity(total_files * 50)));
-        let collected_archive_entries = Arc::new(Mutex::new(Vec::<ArchiveEntry>::with_capacity(total_files)));
+        let collected_strings = Arc::new(Mutex::new(Vec::<StringInfo>::with_capacity(
+            total_files * 50,
+        )));
+        let collected_archive_entries =
+            Arc::new(Mutex::new(Vec::<ArchiveEntry>::with_capacity(total_files)));
         let collected_files = Arc::new(Mutex::new(Vec::<FileAnalysis>::with_capacity(total_files)));
         let last_progress = Arc::new(Mutex::new(std::time::Instant::now()));
 
@@ -825,7 +837,7 @@ impl ArchiveAnalyzer {
                         value: format!("timeout:{}s", MAX_FILE_ANALYSIS_TIME_SECS),
                         location: Some(file_path.display().to_string()),
                     }],
-                
+
                     source_file: None,
                 });
 

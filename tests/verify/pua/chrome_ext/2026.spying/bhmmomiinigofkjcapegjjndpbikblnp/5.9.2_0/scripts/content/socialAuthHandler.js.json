@@ -27,22 +27,6 @@
       "source_file": "cap/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::iife-pattern",
-      "kind": "capability",
-      "desc": "Immediately invoked function expression",
-      "conf": 0.9,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 1 (function(t,e){",
-          "location": "file"
-        }
-      ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
-    },
-    {
       "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
       "kind": "capability",
       "desc": "Split to empty-delimiter char array",
@@ -57,6 +41,22 @@
         }
       ],
       "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+    },
+    {
+      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "kind": "capability",
+      "desc": "Immediately invoked function expression",
+      "conf": 0.9,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 1 (function(t,e){",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
     },
     {
       "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
@@ -90,20 +90,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "meta/internal/imported::t/split/reduce",
-      "kind": "structural",
-      "desc": "calls t.split.reduce",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "t.split.reduce"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::window/location/href/match",
       "kind": "structural",
       "desc": "calls window.location.href.match",
@@ -132,20 +118,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::savetoken",
-      "kind": "structural",
-      "desc": "calls saveToken",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "saveToken"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::t/split",
       "kind": "structural",
       "desc": "calls t.split",
@@ -156,6 +128,34 @@
           "method": "symbol",
           "source": "ast",
           "value": "t.split"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::t/split/reduce",
+      "kind": "structural",
+      "desc": "calls t.split.reduce",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "t.split.reduce"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::savetoken",
+      "kind": "structural",
+      "desc": "calls saveToken",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "saveToken"
         }
       ]
     }

@@ -27,6 +27,20 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
+      "id": "meta/internal/imported::browser/notifications/clear",
+      "kind": "structural",
+      "desc": "calls browser.notifications.clear",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "browser.notifications.clear"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::opts",
       "kind": "structural",
       "desc": "calls opts",
@@ -51,20 +65,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "browser.notifications.create"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::browser/notifications/clear",
-      "kind": "structural",
-      "desc": "calls browser.notifications.clear",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "browser.notifications.clear"
         }
       ]
     }

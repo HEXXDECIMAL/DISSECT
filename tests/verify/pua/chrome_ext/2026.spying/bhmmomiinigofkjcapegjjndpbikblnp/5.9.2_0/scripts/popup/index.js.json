@@ -12,6 +12,21 @@
   },
   "findings": [
     {
+      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "kind": "capability",
+      "desc": "Code uses frontend framework patterns",
+      "conf": 0.9,
+      "crit": "notable",
+      "evidence": [
+        {
+          "method": "import_symbol",
+          "source": "ast",
+          "value": "React.createElement"
+        }
+      ],
+      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+    },
+    {
       "id": "meta/library/react::react-dom",
       "kind": "capability",
       "desc": "ReactDOM object reference",
@@ -42,21 +57,6 @@
       "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
-      "kind": "capability",
-      "desc": "Code uses frontend framework patterns",
-      "conf": 0.9,
-      "crit": "notable",
-      "evidence": [
-        {
-          "method": "import_symbol",
-          "source": "ast",
-          "value": "React.createElement"
-        }
-      ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
-    },
-    {
       "id": "meta/internal/imported::reactdom/render",
       "kind": "structural",
       "desc": "calls ReactDOM.render",
@@ -85,16 +85,16 @@
       ]
     },
     {
-      "id": "meta/internal/imported::store/ready/then",
+      "id": "meta/internal/imported::document/getelementbyid",
       "kind": "structural",
-      "desc": "calls store.ready.then",
+      "desc": "calls document.getElementById",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "store.ready.then"
+          "value": "document.getElementById"
         }
       ]
     },
@@ -113,6 +113,20 @@
       ]
     },
     {
+      "id": "meta/internal/imported::store/ready/then",
+      "kind": "structural",
+      "desc": "calls store.ready.then",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "store.ready.then"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::store/ready",
       "kind": "structural",
       "desc": "calls store.ready",
@@ -123,20 +137,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "store.ready"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::document/getelementbyid",
-      "kind": "structural",
-      "desc": "calls document.getElementById",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "document.getElementById"
         }
       ]
     }

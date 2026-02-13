@@ -1425,5 +1425,4 @@ mod tests {
 // VALID FIELD PATHS FOR YAML VALIDATION
 // =============================================================================
 
-
 // Stub implementations - return empty for now, can be filled with actual fields if needed

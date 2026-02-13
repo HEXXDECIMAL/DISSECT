@@ -12,6 +12,22 @@
   },
   "findings": [
     {
+      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "kind": "capability",
+      "desc": "for loop (content)",
+      "conf": 0.3,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "raw",
+          "source": "raw_content",
+          "value": "Found 4  for (",
+          "location": "file"
+        }
+      ],
+      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+    },
+    {
       "id": "cap/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
@@ -41,22 +57,6 @@
           "source": "tree-sitter",
           "value": "for",
           "location": "56:7"
-        }
-      ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
-    },
-    {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
-      "kind": "capability",
-      "desc": "for loop (content)",
-      "conf": 0.3,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "raw",
-          "source": "raw_content",
-          "value": "Found 4  for (",
-          "location": "file"
         }
       ],
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
@@ -147,6 +147,104 @@
       "source_file": "cap/data/control-flow/analysis/generic.yaml"
     },
     {
+      "id": "meta/internal/imported::safeself",
+      "kind": "structural",
+      "desc": "calls safeSelf",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "safeSelf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::next",
+      "kind": "structural",
+      "desc": "calls next",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "next"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::modified",
+      "kind": "structural",
+      "desc": "calls modified",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "modified"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chain/slice",
+      "kind": "structural",
+      "desc": "calls chain.slice",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chain.slice"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::array/isarray",
+      "kind": "structural",
+      "desc": "calls Array.isArray",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "Array.isArray"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::owner",
+      "kind": "structural",
+      "desc": "calls owner",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "owner"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::chain",
+      "kind": "structural",
+      "desc": "calls chain",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "chain"
+        }
+      ]
+    },
+    {
       "id": "meta/internal/imported::safe/object_hasown",
       "kind": "structural",
       "desc": "calls safe.Object_hasOwn",
@@ -175,62 +273,6 @@
       ]
     },
     {
-      "id": "meta/internal/imported::owner",
-      "kind": "structural",
-      "desc": "calls owner",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "owner"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::array/isarray",
-      "kind": "structural",
-      "desc": "calls Array.isArray",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "Array.isArray"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::prop",
-      "kind": "structural",
-      "desc": "calls prop",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "prop"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chain/indexof",
-      "kind": "structural",
-      "desc": "calls chain.indexOf",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chain.indexOf"
-        }
-      ]
-    },
-    {
       "id": "meta/internal/imported::object/keys",
       "kind": "structural",
       "desc": "calls Object.keys",
@@ -241,62 +283,6 @@
           "method": "symbol",
           "source": "ast",
           "value": "Object.keys"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::findobjectowner",
-      "kind": "structural",
-      "desc": "calls findObjectOwner",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "findObjectOwner"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::pos",
-      "kind": "structural",
-      "desc": "calls pos",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "pos"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::modified",
-      "kind": "structural",
-      "desc": "calls modified",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "modified"
-        }
-      ]
-    },
-    {
-      "id": "meta/internal/imported::chain",
-      "kind": "structural",
-      "desc": "calls chain",
-      "conf": 0.95,
-      "crit": "inert",
-      "evidence": [
-        {
-          "method": "symbol",
-          "source": "ast",
-          "value": "chain"
         }
       ]
     },
@@ -315,44 +301,58 @@
       ]
     },
     {
-      "id": "meta/internal/imported::safeself",
+      "id": "meta/internal/imported::pos",
       "kind": "structural",
-      "desc": "calls safeSelf",
+      "desc": "calls pos",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "safeSelf"
+          "value": "pos"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::chain/slice",
+      "id": "meta/internal/imported::findobjectowner",
       "kind": "structural",
-      "desc": "calls chain.slice",
+      "desc": "calls findObjectOwner",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "chain.slice"
+          "value": "findObjectOwner"
         }
       ]
     },
     {
-      "id": "meta/internal/imported::next",
+      "id": "meta/internal/imported::chain/indexof",
       "kind": "structural",
-      "desc": "calls next",
+      "desc": "calls chain.indexOf",
       "conf": 0.95,
       "crit": "inert",
       "evidence": [
         {
           "method": "symbol",
           "source": "ast",
-          "value": "next"
+          "value": "chain.indexOf"
+        }
+      ]
+    },
+    {
+      "id": "meta/internal/imported::prop",
+      "kind": "structural",
+      "desc": "calls prop",
+      "conf": 0.95,
+      "crit": "inert",
+      "evidence": [
+        {
+          "method": "symbol",
+          "source": "ast",
+          "value": "prop"
         }
       ]
     },

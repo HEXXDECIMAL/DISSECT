@@ -1,6 +1,6 @@
 /// Test to ensure binary metrics are always collected, even when radare2 fails
 /// This prevents regression of the bug where metrics were missing from test-rules output
-use dissect::analyzers::{analyzer_for_file_type, Analyzer};
+use dissect::analyzers::analyzer_for_file_type;
 use dissect::FileType;
 use std::path::PathBuf;
 
@@ -24,7 +24,10 @@ fn test_macho_binary_metrics_always_populated() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
+    let report = analyzer
+        .unwrap()
+        .analyze(&test_file)
+        .expect("Analysis should succeed");
 
     // CRITICAL: metrics must always be present
     assert!(report.metrics.is_some(), "Metrics must always be populated");
@@ -32,16 +35,31 @@ fn test_macho_binary_metrics_always_populated() {
     let metrics = report.metrics.unwrap();
 
     // CRITICAL: binary metrics must always be present for Mach-O files
-    assert!(metrics.binary.is_some(), "Binary metrics must always be populated for Mach-O");
+    assert!(
+        metrics.binary.is_some(),
+        "Binary metrics must always be populated for Mach-O"
+    );
 
     let binary_metrics = metrics.binary.unwrap();
 
     // Basic metrics that should ALWAYS be populated (even without radare2):
-    assert!(binary_metrics.file_size > 0, "file_size should be populated: {}", binary_metrics.file_size);
-    assert!(binary_metrics.segment_count > 0, "segment_count should be populated: {}", binary_metrics.segment_count);
+    assert!(
+        binary_metrics.file_size > 0,
+        "file_size should be populated: {}",
+        binary_metrics.file_size
+    );
+    assert!(
+        binary_metrics.segment_count > 0,
+        "segment_count should be populated: {}",
+        binary_metrics.segment_count
+    );
 
     // String count should be populated after string extraction
-    assert!(binary_metrics.string_count > 0, "string_count should be populated: {}", binary_metrics.string_count);
+    assert!(
+        binary_metrics.string_count > 0,
+        "string_count should be populated: {}",
+        binary_metrics.string_count
+    );
 
     // Boolean fields should be set
     // Note: is_stripped and is_pie depend on the file, but they should be evaluated
@@ -55,7 +73,10 @@ fn test_macho_binary_metrics_always_populated() {
 
     // If radare2 succeeded, we should also have these:
     if binary_metrics.code_to_data_ratio > 0.0 {
-        eprintln!("  code_to_data_ratio: {:.2}", binary_metrics.code_to_data_ratio);
+        eprintln!(
+            "  code_to_data_ratio: {:.2}",
+            binary_metrics.code_to_data_ratio
+        );
         eprintln!("Radare2 metrics successfully merged");
     } else {
         eprintln!("  code_to_data_ratio: 0.0 (radare2 may have failed - this is OK)");
@@ -81,27 +102,49 @@ fn test_metrics_accessible_to_rules() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let mut report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
+    let mut report = analyzer
+        .unwrap()
+        .analyze(&test_file)
+        .expect("Analysis should succeed");
 
     // Metrics must be present before rule evaluation
-    assert!(report.metrics.is_some(), "Metrics must be present before rule evaluation");
-    assert!(report.metrics.as_ref().unwrap().binary.is_some(), "Binary metrics must be present");
+    assert!(
+        report.metrics.is_some(),
+        "Metrics must be present before rule evaluation"
+    );
+    assert!(
+        report.metrics.as_ref().unwrap().binary.is_some(),
+        "Binary metrics must be present"
+    );
 
     // Evaluate rules against the report
-    capability_mapper.evaluate_and_merge_findings(&mut report, &std::fs::read(&test_file).unwrap(), None);
+    capability_mapper.evaluate_and_merge_findings(
+        &mut report,
+        &std::fs::read(&test_file).unwrap(),
+        None,
+    );
 
     // The key test: metrics-based rules should be able to evaluate
     // We don't care if they match or not, just that they can access metrics without error
 
     // Verify binary metrics are still present after rule evaluation
-    assert!(report.metrics.is_some(), "Metrics must persist after rule evaluation");
-    assert!(report.metrics.as_ref().unwrap().binary.is_some(), "Binary metrics must persist");
+    assert!(
+        report.metrics.is_some(),
+        "Metrics must persist after rule evaluation"
+    );
+    assert!(
+        report.metrics.as_ref().unwrap().binary.is_some(),
+        "Binary metrics must persist"
+    );
 
     let binary_metrics = report.metrics.unwrap().binary.unwrap();
     eprintln!("Metrics successfully accessible to rules:");
     eprintln!("  binary.file_size: {}", binary_metrics.file_size);
     eprintln!("  binary.string_count: {}", binary_metrics.string_count);
-    eprintln!("  binary.code_to_data_ratio: {:.2}", binary_metrics.code_to_data_ratio);
+    eprintln!(
+        "  binary.code_to_data_ratio: {:.2}",
+        binary_metrics.code_to_data_ratio
+    );
 }
 
 /// Helper to find a test Mach-O file
@@ -128,8 +171,11 @@ fn find_test_macho_file() -> Option<PathBuf> {
                     let magic = u32::from_ne_bytes([data[0], data[1], data[2], data[3]]);
                     // Mach-O magic numbers: 0xfeedface (32-bit), 0xfeedfacf (64-bit),
                     // 0xcefaedfe (32-bit LE), 0xcffaedfe (64-bit LE)
-                    if magic == 0xfeedface || magic == 0xfeedfacf ||
-                       magic == 0xcefaedfe || magic == 0xcffaedfe {
+                    if magic == 0xfeedface
+                        || magic == 0xfeedfacf
+                        || magic == 0xcefaedfe
+                        || magic == 0xcffaedfe
+                    {
                         eprintln!("Using test file: {}", path.display());
                         return Some(path);
                     }
@@ -163,7 +209,10 @@ fn test_radare2_failure_handling() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
+    let report = analyzer
+        .unwrap()
+        .analyze(&test_file)
+        .expect("Analysis should succeed");
 
     // Even if radare2 fails, we must have basic metrics
     assert!(report.metrics.is_some());
@@ -174,11 +223,19 @@ fn test_radare2_failure_handling() {
 
     // These are computed WITHOUT radare2, so they must always be present
     assert!(binary_metrics.file_size > 0);
-    assert!(binary_metrics.segment_count >= 0); // Can be 0 for some files
-    assert!(binary_metrics.string_count >= 0); // Can be 0 for some files
+    // segment_count and string_count are unsigned, so no need to check >= 0
 
     eprintln!("Basic metrics populated regardless of radare2 status:");
-    eprintln!("  file_size: {} (from file metadata)", binary_metrics.file_size);
-    eprintln!("  segment_count: {} (from goblin)", binary_metrics.segment_count);
-    eprintln!("  string_count: {} (from stng)", binary_metrics.string_count);
+    eprintln!(
+        "  file_size: {} (from file metadata)",
+        binary_metrics.file_size
+    );
+    eprintln!(
+        "  segment_count: {} (from goblin)",
+        binary_metrics.segment_count
+    );
+    eprintln!(
+        "  string_count: {} (from stng)",
+        binary_metrics.string_count
+    );
 }
