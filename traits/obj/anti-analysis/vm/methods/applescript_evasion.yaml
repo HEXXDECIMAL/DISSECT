@@ -1,0 +1,57 @@
+# AppleScript Anti-Analysis Detection
+# Detects AppleScript techniques used for anti-analysis and evasion
+# ATT&CK: T1059.002 (AppleScript), T1564.003 (Hidden Window)
+
+defaults:
+  attack: "T1059.002"
+  platforms: [macos]
+  for: [applescript, shell, python, ruby, perl, javascript, elf, macho]
+
+traits:
+  # === Window hiding ===
+  - id: hide-window
+    desc: "AppleScript window hiding"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1564.003"
+    if:
+      type: string
+      regex: "set visible of (the )?front window to false|set visible to false"
+
+  # === Command execution ===
+  - id: osascript
+    desc: "osascript execution"
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "osascript"
+
+  - id: do-shell-script
+    desc: "AppleScript shell command execution"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059.004"
+    if:
+      type: string
+      substr: "do shell script"
+
+  # === Password dialog ===
+  - id: password-dialog
+    desc: "AppleScript password input dialog"
+    crit: suspicious
+    conf: 0.85
+    attack: "T1056.002"
+    if:
+      type: string
+      regex: "display dialog.{0,50}password"
+
+composite_rules:
+  # Hidden execution pattern
+  - id: hidden-execution
+    desc: "Hidden AppleScript execution"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: hide-window
+      - id: do-shell-script

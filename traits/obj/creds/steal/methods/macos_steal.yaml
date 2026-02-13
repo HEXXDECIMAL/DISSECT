@@ -1,0 +1,97 @@
+# macOS Credential Validation Detection
+# Detects macOS-specific credential validation techniques
+# ATT&CK: T1110 (Brute Force), T1078 (Valid Accounts)
+
+defaults:
+  attack: "T1110"
+  platforms: [macos]
+  crit: suspicious
+
+traits:
+  # === dscl authonly atomic indicators ===
+  - id: dscl-dot-authonly
+    desc: dscl . authonly command
+    crit: suspicious
+    conf: 0.85
+    attack: "T1110.001"
+    if:
+      type: string
+      regex: "dscl\\s+\\.\\s+authonly"
+
+  - id: dscl-flag-authonly
+    desc: dscl -authonly flag
+    crit: suspicious
+    conf: 0.85
+    attack: "T1110.001"
+    if:
+      type: string
+      regex: "dscl.{0,30}-authonly"
+
+  # === dscl read atomic indicators ===
+  - id: dscl-dot-read
+    desc: dscl . read command
+    crit: notable
+    conf: 0.6
+    attack: "T1087.001"
+    if:
+      type: string
+      regex: "dscl\\s+\\.\\s+read"
+
+  - id: dscl-flag-read
+    desc: dscl -read flag
+    crit: notable
+    conf: 0.6
+    attack: "T1087.001"
+    if:
+      type: string
+      regex: "dscl.{0,30}-read"
+
+  # === dscl list atomic indicators ===
+  - id: dscl-dot-list
+    desc: dscl . list command
+    crit: notable
+    conf: 0.55
+    attack: "T1087.001"
+    if:
+      type: string
+      regex: "dscl\\s+\\.\\s+list"
+
+  - id: dscl-flag-list
+    desc: dscl . -list command
+    crit: notable
+    conf: 0.55
+    attack: "T1087.001"
+    if:
+      type: string
+      regex: "dscl\\s+\\.\\s+-list"
+
+composite_rules:
+  # dscl authonly composite
+  - id: dscl-authonly
+    desc: macOS password validation
+    crit: suspicious
+    conf: 0.95
+    attack: "T1110.001"
+    any:
+      - id: dscl-dot-authonly
+      - id: dscl-flag-authonly
+
+  # dscl read composite
+  - id: dscl-read
+    desc: macOS user enumeration
+    crit: notable
+    conf: 0.7
+    attack: "T1087.001"
+    any:
+      - id: dscl-dot-read
+      - id: dscl-flag-read
+
+  # dscl list composite
+  - id: dscl-list
+    desc: macOS Directory Services listing
+    crit: notable
+    conf: 0.65
+    attack: "T1087.001"
+    any:
+      - id: dscl-dot-list
+      - id: dscl-flag-list
