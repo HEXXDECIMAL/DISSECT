@@ -13,7 +13,8 @@
 
 **Additional tools**: r2 (radare2), ghidra, nm, readelf
 
-**Traits**: {{.TraitsDir}} | **Docs**: RULES.md, TAXONOMY.md, PRECISION.md
+**Traits**: {{.TraitsDir}}
+**Docs**: RULES.md describes trait rule syntax, TAXONOMY.md describes subdirectories, PRECISION.md describes precision
 
 ---
 
@@ -28,7 +29,7 @@
 | `known/*` | Specific malware/tool signature | any | all tiers |
 
 **Key rules**:
-- Trait IDs use directory paths only (e.g., `cap/comm/http` or `cap/comm/http::get-request`)
+- Trait ID references are either use subdirectory or subdirectory::specific_trait_id - filenames are not part of the trait ID
 - Traits require 3-4 semantic subdirectories (no generic names)
 - Atomic traits belong in their ideal directory, not alongside composites
 - `cap/` traits are atomic (cannot reference `obj/` or use `crit: hostile`)
