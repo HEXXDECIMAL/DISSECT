@@ -418,3 +418,18 @@ composite_rules:
     all:
       - id: browser-names
       - id: browser-data-files
+
+  # Multi-browser profile targeting (Credential Harvesting)
+  - id: multi-browser-profile-targeting
+    desc: Targets profile data for 3+ browsers
+    crit: suspicious
+    conf: 0.9
+    attack: T1555.003
+    needs: 3
+    any:
+      - id: chrome-name
+      - id: edge-name
+      - id: firefox-name
+      - id: safari-name
+      - id: opera-name
+      - id: brave-name

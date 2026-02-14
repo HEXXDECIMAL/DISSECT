@@ -4,7 +4,7 @@
 
 traits:
   - id: tencent-infrastructure-misuse
-    desc: Legitimate Tencent/QQ domain used via non-standard port (8080)
+    desc: Tencent domain used on port 8080
     crit: suspicious
     conf: 0.9
     mbc: C0002
@@ -14,7 +14,7 @@ traits:
       regex: '(?i)(crash\.browser\.qq\.com|qbwupacc\.imtt\.qq\.com):8080'
 
   - id: generic-vendor-port-misuse
-    desc: Known vendor subdomain on non-standard port (8080/8443)
+    desc: Vendor subdomain on non-standard port
     crit: notable
     conf: 0.7
     mbc: C0002

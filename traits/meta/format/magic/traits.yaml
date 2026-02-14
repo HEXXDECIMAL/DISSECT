@@ -272,6 +272,28 @@ traits:
       pattern: "FE FF"
       offset: 0
 
+  # Chromium / V8 Formats
+  - id: v8-snapshot
+    desc: V8 JavaScript engine snapshot
+    crit: inert
+    conf: 0.95
+    for: [all]
+    if:
+      type: hex
+      # V8 snapshot magic (typical for versioned snapshots)
+      pattern: "56 38 53 4E 41 50" # V8SNAP
+      offset: 0
+
+  - id: chromium-pak
+    desc: Chromium resource PAK file
+    crit: inert
+    conf: 0.95
+    for: [all]
+    if:
+      type: hex
+      pattern: "04 00 00 00" # PAK version 4
+      offset: 0
+
   # Suspicious: executable magic NOT at file start (embedded payload)
   # These complement cap/data/embedded but use the new offset constraint syntax
   - id: embedded-elf

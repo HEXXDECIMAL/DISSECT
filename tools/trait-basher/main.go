@@ -1527,8 +1527,6 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
 	}
 
-	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
-
 	counts := make(map[string]int)
 	for _, fd := range f.Findings {
 		counts[strings.ToLower(fd.Crit)]++
@@ -1548,17 +1546,9 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	}
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
-	var lines []string
+	fmt.Fprintln(os.Stderr, "│ Prompt:")
 	for ln := range strings.SplitSeq(prompt, "\n") {
-		lines = append(lines, ln)
-	}
-	for i, ln := range lines {
-		if i < 20 || i >= len(lines)-5 {
-			fmt.Fprintf(os.Stderr, "│   %s\n", ln)
-		} else if i == 20 {
-			fmt.Fprintf(os.Stderr, "│   ... (%d lines of findings JSON) ...\n", len(lines)-25)
-		}
+		fmt.Fprintf(os.Stderr, "│   %s\n", ln)
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr)
@@ -1702,12 +1692,6 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, ">>> Preparing to invoke %s (session: %s)\n", cfg.provider, sid)
-	fmt.Fprintf(os.Stderr, ">>> Source: %s (%d files, %d with concerns)\n", archiveName, len(a.Members), filesWithConcerns)
-	if extractDir != "" {
-		fmt.Fprintf(os.Stderr, ">>> Extracted: %s (%d files)\n", extractDir, extractedCount)
-	}
-
 	// Use extracted directory as the path for dissect commands
 	dissectPath := extractDir
 	if dissectPath == "" {
@@ -1842,17 +1826,9 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
 	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
 	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr, "│ Prompt (abbreviated):")
-	var lines []string
+	fmt.Fprintln(os.Stderr, "│ Prompt:")
 	for ln := range strings.SplitSeq(prompt, "\n") {
-		lines = append(lines, ln)
-	}
-	for i, ln := range lines {
-		if i < 30 || i >= len(lines)-5 {
-			fmt.Fprintf(os.Stderr, "│   %s\n", ln)
-		} else if i == 30 {
-			fmt.Fprintf(os.Stderr, "│   ... (%d lines) ...\n", len(lines)-35)
-		}
+		fmt.Fprintf(os.Stderr, "│   %s\n", ln)
 	}
 	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
 	fmt.Fprintln(os.Stderr)

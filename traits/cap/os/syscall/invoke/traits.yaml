@@ -16,6 +16,23 @@ traits:
       type: string
       substr: "ntdll"
 
+  - id: ntdll-direct-memory-op
+    desc: Direct NT memory manipulation (stealth)
+    crit: suspicious
+    conf: 0.9
+    mbc: C0021
+    if:
+      type: symbol
+      regex: '^Nt(Allocate|Write|Protect|View|Query)VirtualMemory$'
+
+  - id: ntdll-direct-process-op
+    desc: Direct NT process/thread manipulation
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: symbol
+      regex: '^Nt(Create|Open)(Process|Thread)(Ex)?$'
+
   # === Pointer Encoding ===
   - id: encode-pointer
     desc: Pointer value encoding

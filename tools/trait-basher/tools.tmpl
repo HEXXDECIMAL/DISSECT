@@ -1,0 +1,66 @@
+## Available Tools
+
+**Debug Commands**:
+```bash
+{{.DissectBin}} {{.Path}} --format jsonl  # All traits (including inert) + rule paths
+{{.DissectBin}} strings {{.Path}}         # Detected strings, including encoded
+{{.DissectBin}} symbols {{.Path}}         # Detected symbols
+{{.DissectBin}} segments {{.Path}}        # Program segment information
+{{.DissectBin}} metrics {{.Path}}         # Program structure metrics
+{{.DissectBin}} test-rules {{.Path}} --rules "rule-id"
+{{.DissectBin}} test-match {{.Path}} --type string --pattern "X"
+```
+
+**Additional tools**: r2 (radare2), ghidra, nm, readelf
+
+**Traits**: {{.TraitsDir}} | **Docs**: RULES.md, TAXONOMY.md, PRECISION.md
+
+---
+
+## DISSECT Rules Reference
+
+### Taxonomy Structure
+
+| Tier | Purpose | Criticality Range | Can Reference |
+|------|---------|------------------|---------------|
+| `cap/*` | Atomic observable capability | inert → notable → suspicious | `cap/` + `meta/` |
+| `obj/*` | Composed attacker objective | notable → suspicious → hostile | `cap/` + `obj/` + `meta/` |
+| `known/*` | Specific malware/tool signature | any | all tiers |
+
+**Key rules**:
+- Trait IDs use directory paths only (e.g., `cap/comm/http` or `cap/comm/http::get-request`)
+- Traits require 3-4 semantic subdirectories (no generic names)
+- Atomic traits belong in their ideal directory, not alongside composites
+- `cap/` traits are atomic (cannot reference `obj/` or use `crit: hostile`)
+
+### Pattern Types (by precision)
+
+`ast` > `symbol` > `kv` > `string` > `base64` > `xor` > `content` > `hex`
+
+### Criticality Thresholds
+
+| Level | Threshold | Description |
+|-------|-----------|-------------|
+| **Hostile** | ≥4.0 | Unquestionably malicious behavior |
+| **Suspicious** | ≥2.0 | Very surprising in random programs |
+| **Notable** | n/a | Describes program purpose/capabilities |
+| **Inert** | n/a | Common traits, unhelpful for understanding |
+
+### Precision Techniques
+
+Before using `unless:`/`downgrade:`, tighten with:
+- Constraints: `size_min`, `count_min`, `per_kb_min`, `near_min`
+- Scoping: `section`, `for`, `near_bytes`, `near_lines`
+- Filters: `not`
+- Pattern upgrade: raw → string → symbol → ast
+
+### Quality Checklist
+
+- ✓ Search existing traits before creating (avoid duplicates)
+- ✓ Use reusable patterns (not sample-specific fingerprints)
+- ✓ Build atomic `cap/` first, then compose `obj/`
+- ✓ Validate taxonomy placement (semantic directories)
+- ✓ Prefer `downgrade:` over `unless:` (keep detections visible)
+- ✓ Use AST patterns for source code (highest precision)
+
+**Scale**: This tool analyzes millions of open-source packages. Precision is critical.

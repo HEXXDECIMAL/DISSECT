@@ -1,0 +1,88 @@
+# Known-Bad Sample: Malware Analysis & Detection Engineering
+
+{{if .IsArchive}}**Archive**: {{.ArchiveName}} ({{.Count}} files with concerning findings)
+{{range .Files}}- {{.Path}}{{if .Summary}} — {{.Summary}}{{end}}
+{{end}}{{else}}**Sample**: {{.Path}}
+{{end}}
+
+**Your Role**: Senior malware reverse engineer improving DISSECT detection coverage.
+
+**Goal**: Analyze this known-malicious sample, create research documentation, and build reusable high-precision traits to detect it and similar malware.
+
+---
+
+{{if .ReportExists}}
+## Step 1: Review Prior Analysis ✓
+
+Read the existing analysis at `{{.ReportPath}}` to understand the malware, then proceed to Step 2.
+
+{{else}}
+## Step 1: Deep Malware Analysis
+
+**Create research report**: `{{.ReportPath}}`
+
+Start with reconnaissance:
+```bash
+{{.DissectBin}} strings {{.Path}}         # Extract all strings (including encoded)
+{{.DissectBin}} --format jsonl {{.Path}}  # Current DISSECT findings
+```
+
+Use rizin or Ghidra for deeper analysis of control flow, API calls, and obfuscation.
+
+**Report must cover**:
+- Executive summary: What is this malware? What does it do? Threat level?
+- Files accessed/leaked with purpose
+- Persistence mechanisms (method, location)
+- Network C2/exfil (URLs, IPs, protocols, beaconing intervals)
+- Hidden/encoded text (strings, decoding methods)
+- Structural anomalies (unusual program structure)
+- Execution flow (initial execution → final payload)
+- Unique characteristics (obfuscation, syscalls, custom protocols, fingerprints)
+
+{{end}}
+
+## Step 2: Gap Analysis
+
+**Create**: `{{.GapAnalysisPath}}`
+
+Compare DISSECT output against your research findings. Document gaps: Does DISSECT detect the C2 pattern? Persistence method? File exfil? Obfuscation? Structural anomalies?
+
+## Step 3: Build Detection Traits
+
+### Create Atomic Capabilities (`cap/`)
+- Place traits in semantically correct directories per TAXONOMY.md
+- Pattern priority: ast > symbol > string > content (highest precision first)
+- Max criticality: suspicious
+- Search existing traits first to avoid duplicates
+
+### Compose Objectives (`obj/`)
+- Combine capabilities to detect attacker intent
+- Required precision: hostile ≥4.0, suspicious ≥2.0
+- Follow TAXONOMY.md for proper directory placement
+
+### Validate
+```bash
+{{.DissectBin}} --format jsonl {{.Path}}   # Verify traits fire, no YAML warnings
+{{.DissectBin}} --format jsonl /usr/bin/curl  # Test for false positives
+```
+Note: YAML changes take effect immediately, no rebuild needed.
+
+---
+
+{{if .MayBeBenign}}
+**⚠️ Misclassification Check**: If this appears benign after analysis:
+```bash
+touch {{.BenignMarkerPath}}
+```
+
+{{end}}
+
+## Success Criteria
+
+{{if not .ReportExists}}- ✓ Complete research report documenting all malware capabilities
+{{end}}- ✓ Gap analysis identifies significant missing detections
+- ✓ Traits fire on this sample with appropriate criticality
+- ✓ Reusable patterns (not sample-specific fingerprints)
+- ✓ No duplicate traits (searched existing before creating)
+- ✓ No false positives on benign tools
+- ✓ Trait IDs reflect semantic organization per TAXONOMY.md (used by humans and ML pipelines)

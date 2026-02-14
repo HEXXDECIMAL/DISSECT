@@ -1,0 +1,90 @@
+# Known-Good Sample: False Positive Reduction
+
+{{if .IsArchive}}**Archive**: {{.ArchiveName}} ({{.Count}} files with concerning findings)
+{{range .Files}}- {{.Path}}{{if .Summary}} — {{.Summary}}{{end}}
+{{end}}{{else}}**File**: {{.Path}}
+{{end}}
+
+**Your Role**: Security engineer improving DISSECT detection accuracy.
+
+**Goal**: Eliminate inaccurate or misleading detections on this known-benign file while preserving genuinely accurate findings.
+
+---
+
+## Current Status
+
+{{if .HasHostileFindings}}🔴 **Hostile findings present** — These MUST be eliminated. Hostile criticality means unquestionably malicious behavior.
+{{end}}{{if .HasSuspiciousFindings}}🟡 **Suspicious findings present** — Review each one. Some may be legitimate for this tool's purpose.
+{{end}}
+
+{{if .HasRelatedBadReport}}**Context**: This file also appears in a bad collection. Review malware analysis at `{{.RelatedBadReportPath}}` to understand if the file has malicious variants or was misclassified.
+{{end}}
+
+## Your Task
+
+### Step 1: Understand the File
+
+Determine the file's legitimate purpose:
+```bash
+{{.DissectBin}} strings {{.Path}}
+{{.DissectBin}} --format jsonl {{.Path}}
+```
+
+### Step 2: Evaluate Each Finding
+
+For each hostile or suspicious finding:
+
+**Is it technically accurate?**
+- Does the file actually exhibit this behavior?
+- Is the trait detecting what it claims?
+
+**Is it misleading in this context?**
+- Is this behavior expected for this tool type?
+- Example: Process manager killing processes is notable, not hostile
+
+### Step 3: Fix Strategy (choose one)
+
+**A. Downgrade criticality** (preferred - preserves detection):
+```yaml
+downgrade:
+  - id: path/to/trait::specific-trait-id
+    to: notable
+    reason: "legitimate use in system administration tools"
+```
+Use when detection is accurate but severity is wrong.
+
+**B. Tighten the trait** (improves precision):
+- Add constraints: `near`, `count_min`, `size_min`, `for`
+- Upgrade pattern type: raw → string → symbol → ast
+- Move trait to more neutral directory in taxonomy
+Use when trait needs better precision or semantic placement.
+
+**C. Suppress with unless** (use sparingly - hides detection):
+```yaml
+unless:
+  - id: some-exclusion-pattern
+```
+Use only when trait is completely inapplicable.
+
+### Step 4: Validate & Verify
+
+Run `{{.DissectBin}} --format jsonl {{.Path}}` and confirm:
+
+**Required:**
+- ✓ Zero hostile findings
+- ✓ Suspicious findings ≤1 (acceptable for security/admin tools)
+- ✓ Changes don't break malware detection (be precise)
+
+**Quality checks:**
+- ✓ Output accurately describes file capabilities
+- ✓ No legitimate behaviors completely hidden (prefer downgrade over unless)
+- ✓ Context-appropriate criticality (`kill()` syscall: suspicious in game, notable in htop)
+- ✓ No trait duplicates (same evidence, same scenario)
+- ✓ Inert traits are accurate; upgrade important ones to notable
+
+{{if .MayBeBad}}
+**⚠️ Misclassification Check**: If analysis reveals this file is actually malicious:
+```bash
+touch {{.BadMarkerPath}}
+```
+{{end}}
