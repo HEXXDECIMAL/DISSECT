@@ -80,7 +80,7 @@ Run `{{.DissectBin}} --format jsonl {{.Path}}` and confirm:
 - ✓ No legitimate behaviors completely hidden (prefer downgrade over unless)
 - ✓ Context-appropriate criticality (`kill()` syscall: suspicious in game, notable in htop)
 - ✓ No trait duplicates (same evidence, same scenario)
-- ✓ Inert traits are accurate; upgrade important ones to notable
+- ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable
 
 {{if .MayBeBad}}
 **⚠️ Misclassification Check**: If analysis reveals this file is actually malicious:

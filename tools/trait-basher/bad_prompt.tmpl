@@ -5,7 +5,7 @@
 {{end}}{{else}}**Sample**: {{.Path}}
 {{end}}
 
-**Your Role**: Senior malware reverse engineer improving DISSECT detection coverage.
+**Your Role**: Senior malware reverse engineer improving open-source detection capabilities in DISSECT.
 
 **Goal**: Analyze this known-malicious sample, create research documentation, and build reusable high-precision traits to detect it and similar malware.
 
@@ -86,3 +86,4 @@ touch {{.BenignMarkerPath}}
 - ✓ No duplicate traits (searched existing before creating)
 - ✓ No false positives on benign tools
 - ✓ Trait IDs reflect semantic organization per TAXONOMY.md (used by humans and ML pipelines)
+- ✓ Atomic traits are properly organized based on what they detect rather than living next to intent-based composite rules.
