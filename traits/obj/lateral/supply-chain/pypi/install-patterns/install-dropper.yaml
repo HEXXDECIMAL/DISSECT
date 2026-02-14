@@ -63,8 +63,8 @@ traits:
     not:
       - "python.exe"
       - "pip.exe"
-      - regex: '\bwhich\b.*\.exe'
-      - regex: '\bfind\b.*\.exe'
+      - regex: '\bwhich\b.{0,100}\.exe'
+      - regex: '\bfind\b.{0,100}\.exe'
 
   - id: scr-file-extension
     desc: .scr file extension (screensaver/executable)

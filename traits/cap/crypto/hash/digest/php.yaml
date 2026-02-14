@@ -2,7 +2,7 @@
 # MBC: C0029 (Cryptographic Hash)
 
 traits:
-  - id: md5
+  - id: md5-php
     desc: MD5 hash computation
     crit: inert
     conf: 0.7
@@ -12,7 +12,7 @@ traits:
       type: string
       regex: "\\bmd5\\s*\\("
 
-  - id: sha1
+  - id: sha1-php
     desc: SHA1 hash computation
     crit: inert
     conf: 0.7
@@ -22,7 +22,7 @@ traits:
       type: string
       regex: "\\bsha1\\s*\\("
 
-  - id: sha256
+  - id: sha256-php
     desc: SHA256 hash computation
     crit: inert
     conf: 0.7

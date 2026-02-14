@@ -27,6 +27,9 @@ traits:
       type: string
       regex: "/(bin|usr/bin)/(sh|bash|chmod|curl|wget)"
       section: text
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
 
   - id: temp-path-in-text
     desc: Temp directory path in code section

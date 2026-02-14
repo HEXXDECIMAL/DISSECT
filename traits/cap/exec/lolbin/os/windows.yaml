@@ -1,0 +1,27 @@
+# Windows LOLBins (Living-off-the-Land Binaries)
+# MBC: C0049 (Execution - LoLBins)
+# ATT&CK: T1218 (System Binary Proxy Execution)
+
+defaults:
+  platforms: [windows]
+  conf: 0.9
+
+traits:
+  - id: rundll32-execution
+    desc: Execution via rundll32.exe
+    crit: notable
+    for: [javascript, vbs, batch, powershell, python, pe]
+    if:
+      type: raw
+      regex: 'rundll32(\.exe)?'
+      case_insensitive: true
+
+  - id: rundll32-suspicious-export
+    desc: Rundll32 with suspicious export
+    crit: suspicious
+    conf: 0.85
+    for: [javascript, vbs, batch, powershell, python]
+    if:
+      type: raw
+      regex: 'rundll32.{0,20},.{0,20}(qwerty|Run|start)'
+      case_insensitive: true

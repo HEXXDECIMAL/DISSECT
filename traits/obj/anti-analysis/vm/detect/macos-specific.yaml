@@ -37,6 +37,9 @@ composite_rules:
     desc: "macOS hardware profiling (potential VM detection)"
     crit: suspicious
     conf: 0.85
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
     all:
       - id: cap/os/sysinfo/sysctl::sysctlbyname
     any:
@@ -48,6 +51,9 @@ composite_rules:
     desc: "Evasive macOS hardware fingerprinting (CPUID + RDTSC + sysctl)"
     crit: suspicious
     conf: 0.95
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
     all:
       - id: macos-vm-hardware-check
     needs: 1

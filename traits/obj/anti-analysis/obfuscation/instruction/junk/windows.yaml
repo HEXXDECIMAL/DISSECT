@@ -13,3 +13,6 @@ traits:
       pattern: "0F 0B"
       count_min: 20
       # per_kb_min removed - count_min is sufficient for detecting deliberate junk
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple

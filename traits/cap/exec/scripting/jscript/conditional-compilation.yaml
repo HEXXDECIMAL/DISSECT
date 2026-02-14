@@ -30,3 +30,11 @@ traits:
     if:
       type: raw
       regex: '@if\s*\('
+
+  - id: jscript-cc-eval
+    desc: Eval within JScript conditional compilation
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: raw
+      regex: 'eval\(\w+\);\s*@\*/'

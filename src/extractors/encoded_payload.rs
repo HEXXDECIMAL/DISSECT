@@ -1,9 +1,14 @@
 //! Encoded Payload Extractor
 //!
-//! Extracts base64-encoded payloads from files, decodes them (including zlib),
-//! and writes them to temp files for separate analysis.
+//! Extracts encoded payloads from files using stng for detection, handles
+//! compression/decompression, and writes decoded payloads to temp files for analysis.
+//!
+//! **Division of Responsibilities:**
+//! - **stng**: Detects and decodes all encoding types (base64, hex, URL, XOR, etc.)
+//! - **DISSECT**: Handles compression (zlib/gzip), nested encoding, and payload classification
 
 use crate::analyzers::FileType;
+use crate::types::Criticality;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -44,10 +49,40 @@ impl From<PayloadType> for FileType {
 
 /// Maximum recursion depth for nested encoding
 const MAX_RECURSION_DEPTH: usize = 3;
-/// Minimum base64 string length to consider
-const MIN_BASE64_LENGTH: usize = 50;
-/// Minimum hex string length to consider
+/// Minimum decoded payload length to consider (24 bytes)
+const MIN_PAYLOAD_LENGTH: usize = 24;
+/// Minimum hex string length for whole-file hex detection
 const MIN_HEX_LENGTH: usize = 100;
+
+/// Encoding methods from stng that represent decoded content
+const DECODED_METHODS: &[stng::StringMethod] = &[
+    stng::StringMethod::Base64Decode,
+    stng::StringMethod::Base64ObfuscatedDecode,
+    stng::StringMethod::HexDecode,
+    stng::StringMethod::UrlDecode,
+    stng::StringMethod::UnicodeEscapeDecode,
+    stng::StringMethod::Base32Decode,
+    stng::StringMethod::Base85Decode,
+    stng::StringMethod::XorDecode,
+    stng::StringMethod::Utf16LeDecode,
+    stng::StringMethod::Utf16BeDecode,
+];
+
+/// Map stng StringMethod to encoding name for meta tags and encoding chains
+fn method_to_encoding_name(method: stng::StringMethod) -> &'static str {
+    match method {
+        stng::StringMethod::Base64Decode | stng::StringMethod::Base64ObfuscatedDecode => "base64",
+        stng::StringMethod::HexDecode => "hex",
+        stng::StringMethod::UrlDecode => "url",
+        stng::StringMethod::UnicodeEscapeDecode => "unicode-escape",
+        stng::StringMethod::Base32Decode => "base32",
+        stng::StringMethod::Base85Decode => "base85",
+        stng::StringMethod::XorDecode => "xor",
+        stng::StringMethod::Utf16LeDecode => "utf16le",
+        stng::StringMethod::Utf16BeDecode => "utf16be",
+        _ => "unknown",
+    }
+}
 
 /// Check if content is entirely hex-encoded (common obfuscation technique)
 /// Must be at least MIN_HEX_LENGTH characters and 100% hex digits (optionally with whitespace)
@@ -94,10 +129,76 @@ pub fn decode_hex(content: &[u8]) -> Option<Vec<u8>> {
     Some(decoded)
 }
 
-/// Check if a string is a valid base64 candidate
+/// Extract base64 substrings from text (for extracting from Python/JS source)
+/// Returns all base64 patterns found anywhere in the text
+fn extract_base64_from_text(text: &str) -> Vec<String> {
+    let mut results = Vec::new();
+
+    // Method 1: Find base64 between quotes (most reliable for source code)
+    for quote in ['"', '\''] {
+        let mut in_quotes = false;
+        let mut start = 0;
+
+        for (i, ch) in text.char_indices() {
+            if ch == quote {
+                if in_quotes {
+                    // End of quoted string
+                    let candidate = &text[start..i];
+                    if candidate.len() >= MIN_PAYLOAD_LENGTH && is_base64_candidate(candidate) {
+                        results.push(candidate.to_string());
+                    }
+                    in_quotes = false;
+                } else {
+                    // Start of quoted string
+                    in_quotes = true;
+                    start = i + 1;
+                }
+            }
+        }
+    }
+
+    // Method 2: Scan for base64 patterns ANYWHERE in text (like old implementation)
+    // This catches base64 not in quotes
+    let chars: Vec<char> = text.chars().collect();
+    let mut start = None;
+
+    for (i, c) in chars.iter().enumerate() {
+        let is_base64_char = c.is_ascii_alphanumeric() || *c == '+' || *c == '/' || *c == '=';
+
+        if is_base64_char {
+            if start.is_none() {
+                start = Some(i);
+            }
+        } else if let Some(s) = start {
+            let candidate: String = chars[s..i].iter().collect();
+            if candidate.len() >= MIN_PAYLOAD_LENGTH && is_base64_candidate(&candidate) {
+                // Avoid duplicates from quoted strings
+                if !results.contains(&candidate) {
+                    results.push(candidate);
+                }
+            }
+            start = None;
+        }
+    }
+
+    // Check for trailing base64
+    if let Some(s) = start {
+        let candidate: String = chars[s..].iter().collect();
+        if candidate.len() >= MIN_PAYLOAD_LENGTH && is_base64_candidate(&candidate) {
+            if !results.contains(&candidate) {
+                results.push(candidate);
+            }
+        }
+    }
+
+    results
+}
+
+/// Check if a string is a valid base64 candidate (for nested detection)
+/// Uses MIN_PAYLOAD_LENGTH (24 bytes) for nested detection
 pub fn is_base64_candidate(s: &str) -> bool {
-    // Check minimum length
-    if s.len() < MIN_BASE64_LENGTH {
+    // Check minimum length (lower threshold for nested detection)
+    if s.len() < MIN_PAYLOAD_LENGTH {
         return false;
     }
 
@@ -125,65 +226,94 @@ pub fn is_base64_candidate(s: &str) -> bool {
     true
 }
 
+/// Check if a string is hex-encoded (for nested detection)
+fn is_hex_string(s: &str) -> bool {
+    // Must be at least 48 chars (24 bytes when decoded) and all hex digits
+    s.len() >= 48 && s.len().is_multiple_of(2) && s.chars().all(|c| c.is_ascii_hexdigit())
+}
+
+/// Decode hex string (for nested detection)
+fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
+    if !s.len().is_multiple_of(2) {
+        return None;
+    }
+
+    let mut decoded = Vec::with_capacity(s.len() / 2);
+    for i in (0..s.len()).step_by(2) {
+        let byte_str = &s[i..i + 2];
+        if let Ok(byte) = u8::from_str_radix(byte_str, 16) {
+            decoded.push(byte);
+        } else {
+            return None;
+        }
+    }
+
+    Some(decoded)
+}
+
 /// Maximum size for decompressed payloads to prevent decompression bombs
 const MAX_DECOMPRESSED_SIZE: usize = 50 * 1024 * 1024; // 50 MB
 
+/// Check if data is zlib-compressed (magic bytes: 0x78 0x9C/0x01/0xDA)
+fn is_zlib_compressed(data: &[u8]) -> bool {
+    data.len() > 2
+        && data[0] == 0x78
+        && (data[1] == 0x9C || data[1] == 0x01 || data[1] == 0xDA)
+}
+
+/// Check if data is gzip-compressed (magic bytes: 0x1F 0x8B)
+fn is_gzip_compressed(data: &[u8]) -> bool {
+    data.len() > 2 && data[0] == 0x1F && data[1] == 0x8B
+}
+
+/// Decompress data if it's compressed, returns (decompressed_bytes, compression_type)
+fn decompress_if_compressed(data: &[u8]) -> Option<(Vec<u8>, String)> {
+    use flate2::read::{GzDecoder, ZlibDecoder};
+    use std::io::Read;
+
+    if is_zlib_compressed(data) {
+        let decoder = ZlibDecoder::new(data);
+        let mut decompressed = Vec::with_capacity(data.len() * 4);
+
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
+            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
+                Some((decompressed, "zlib".to_string()))
+            }
+            _ => None,
+        }
+    } else if is_gzip_compressed(data) {
+        let decoder = GzDecoder::new(data);
+        let mut decompressed = Vec::with_capacity(data.len() * 4);
+
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
+            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
+                Some((decompressed, "gzip".to_string()))
+            }
+            _ => None,
+        }
+    } else {
+        None
+    }
+}
+
 /// Decode base64 string, checking for and decompressing zlib or gzip if present
 /// Returns the decoded data and the compression algorithm used (if any)
+/// NOTE: This is kept for nested decoding only. Initial base64 detection uses stng.
 pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     // Try base64 decode
     let decoded = STANDARD.decode(encoded).ok()?;
 
-    // Check for zlib magic bytes (78 9C = default compression, or 78 01, 78 DA)
-    if decoded.len() > 2
-        && decoded[0] == 0x78
-        && (decoded[1] == 0x9C || decoded[1] == 0x01 || decoded[1] == 0xDA)
-    {
-        // Try zlib decompression using flate2
-        use flate2::read::ZlibDecoder;
-        use std::io::Read;
-
-        let decoder = ZlibDecoder::new(&decoded[..]);
-        // Pre-allocate with estimated size (typically 3-10x compression)
-        let mut decompressed = Vec::with_capacity(decoded.len() * 4);
-
-        // Read with size limit to prevent decompression bombs
-        match decoder
-            .take(MAX_DECOMPRESSED_SIZE as u64)
-            .read_to_end(&mut decompressed)
-        {
-            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
-                return Some((decompressed, Some("zlib".to_string())));
-            }
-            _ => {
-                // Decompression failed or size exceeded limit
-            }
-        }
-    }
-
-    // Check for Gzip magic bytes (1F 8B)
-    if decoded.len() > 2 && decoded[0] == 0x1F && decoded[1] == 0x8B {
-        use flate2::read::GzDecoder;
-        use std::io::Read;
-
-        let decoder = GzDecoder::new(&decoded[..]);
-        // Pre-allocate with estimated size (typically 3-10x compression)
-        let mut decompressed = Vec::with_capacity(decoded.len() * 4);
-
-        // Read with size limit to prevent decompression bombs
-        match decoder
-            .take(MAX_DECOMPRESSED_SIZE as u64)
-            .read_to_end(&mut decompressed)
-        {
-            Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
-                return Some((decompressed, Some("gzip".to_string())));
-            }
-            _ => {
-                // Decompression failed or size exceeded limit
-            }
-        }
+    // Check for compression using helper function
+    if let Some((decompressed, comp_type)) = decompress_if_compressed(&decoded) {
+        return Some((decompressed, Some(comp_type)));
     }
 
     Some((decoded, None))
@@ -307,6 +437,143 @@ pub fn generate_preview(data: &[u8]) -> String {
     preview.replace('\n', " ").replace('\r', "")
 }
 
+/// Check if payload is executable (ELF/PE/Mach-O)
+fn is_executable_payload(data: &[u8]) -> bool {
+    if data.len() < 4 {
+        return false;
+    }
+
+    // ELF magic: 0x7F 'E' 'L' 'F'
+    if data[0] == 0x7F && data[1] == b'E' && data[2] == b'L' && data[3] == b'F' {
+        return true;
+    }
+
+    // Mach-O magic: 0xFEEDFACE or 0xFEEDFACF or 0xCAFEBABE
+    if (data[0] == 0xFE && data[1] == 0xED && data[2] == 0xFA && (data[3] == 0xCE || data[3] == 0xCF))
+        || (data[0] == 0xCA && data[1] == 0xFE && data[2] == 0xBA && data[3] == 0xBE)
+    {
+        return true;
+    }
+
+    // PE magic: 'M' 'Z'
+    if data[0] == b'M' && data[1] == b'Z' {
+        return true;
+    }
+
+    false
+}
+
+/// Check if payload is script code (Python/Shell/JavaScript)
+fn is_script_payload(data: &[u8]) -> bool {
+    if let Ok(text) = std::str::from_utf8(data) {
+        // Python indicators
+        if text.contains("import ") || text.contains("def ") || text.contains("class ") {
+            return true;
+        }
+
+        // Shell indicators
+        if text.starts_with("#!/bin/") || text.starts_with("#!/usr/bin/") {
+            return true;
+        }
+
+        // JavaScript indicators
+        if text.contains("function ") || text.contains("const ") || text.contains("var ") {
+            return true;
+        }
+    }
+
+    false
+}
+
+/// Classify payload suspicion using stng's classifier
+fn classify_payload_suspicion(final_bytes: &[u8]) -> Criticality {
+    // First try to classify as text using stng's classifier
+    if let Ok(text) = std::str::from_utf8(final_bytes) {
+        let kind = stng::classify_string(text);
+
+        // Map stng's StringKind to DISSECT's Criticality
+        match kind {
+            // Hostile: Active threats
+            stng::StringKind::ShellCmd
+            | stng::StringKind::CommandInjection
+            | stng::StringKind::XSSPayload
+            | stng::StringKind::SQLInjection
+            | stng::StringKind::RansomNote => return Criticality::Hostile,
+
+            // Suspicious: Concerning indicators
+            stng::StringKind::SuspiciousPath
+            | stng::StringKind::Registry
+            | stng::StringKind::CryptoWallet
+            | stng::StringKind::MiningPool
+            | stng::StringKind::TorAddress
+            | stng::StringKind::APIKey
+            | stng::StringKind::XorKey => return Criticality::Suspicious,
+
+            // Notable: Network indicators
+            stng::StringKind::Url
+            | stng::StringKind::IP
+            | stng::StringKind::IPPort
+            | stng::StringKind::Hostname
+            | stng::StringKind::Email => return Criticality::Notable,
+
+            _ => {}
+        }
+    }
+
+    // Check for binary payloads
+    if is_executable_payload(final_bytes) {
+        return Criticality::Hostile;
+    }
+
+    if is_script_payload(final_bytes) {
+        return Criticality::Suspicious;
+    }
+
+    // Default: Encoded payload is suspicious
+    Criticality::Suspicious
+}
+
+/// Recursively decompress and check for nested encodings
+/// This handles compression + nested base64/hex that stng doesn't process
+fn decompress_and_nest(data: &[u8], mut chain: Vec<String>, depth: usize) -> (Vec<u8>, Vec<String>) {
+    if depth >= MAX_RECURSION_DEPTH {
+        return (data.to_vec(), chain);
+    }
+
+    // Check for compression (DISSECT-specific: stng doesn't decompress)
+    if let Some((decompressed, comp_type)) = decompress_if_compressed(data) {
+        chain.push(comp_type);
+        // Recursively check decompressed data
+        return decompress_and_nest(&decompressed, chain, depth + 1);
+    }
+
+    // Check if data contains additional encoding
+    if let Ok(text) = std::str::from_utf8(data) {
+        let text = text.trim();
+
+        // Check for additional base64 (nested)
+        if text.len() >= MIN_PAYLOAD_LENGTH && is_base64_candidate(text) {
+            if let Some((decoded, compression)) = decode_base64(text) {
+                chain.push("base64".to_string());
+                if let Some(comp_type) = compression {
+                    chain.push(comp_type);
+                }
+                return decompress_and_nest(&decoded, chain, depth + 1);
+            }
+        }
+
+        // Check for additional hex (nested)
+        if text.len() >= 48 && is_hex_string(text) {
+            if let Some(decoded) = decode_hex_string(text) {
+                chain.push("hex".to_string());
+                return decompress_and_nest(&decoded, chain, depth + 1);
+            }
+        }
+    }
+
+    (data.to_vec(), chain)
+}
+
 /// Generate virtual filename for extracted payload
 pub fn generate_virtual_filename(original: &str, payload: &ExtractedPayload) -> String {
     let encoding = payload.encoding_chain.join("+");
@@ -314,76 +581,74 @@ pub fn generate_virtual_filename(original: &str, payload: &ExtractedPayload) -> 
     format!("{}!{}#{}", original, encoding, index)
 }
 
-/// Extract all encoded payloads from content
+/// Extract all encoded payloads from content using stng for detection
+/// and DISSECT for compression/nesting
 pub fn extract_encoded_payloads(content: &[u8]) -> Vec<ExtractedPayload> {
     let mut payloads = Vec::new();
-    let content_str = String::from_utf8_lossy(content);
 
-    // Check if entire content is hex-encoded (common for obfuscated files)
-    if is_hex_encoded(content) {
-        if let Some(decoded) = decode_hex(content) {
-            let encoding_chain = vec!["hex".to_string()];
-            let payload_type = detect_payload_type(&decoded);
+    // Use stng for ALL encoding detection
+    let opts = stng::ExtractOptions::new(16)
+        .with_garbage_filter(true) // Filter out garbage strings
+        .with_xor(Some(5)); // Check XOR with up to 5 different keys
 
-            // Write to temp file
-            if let Ok(temp_file) = tempfile::NamedTempFile::new() {
-                let temp_path = temp_file.path().to_path_buf();
+    let stng_strings = stng::extract_strings_with_options(content, &opts);
 
-                if let Ok(mut file) = std::fs::File::create(&temp_path) {
-                    if file.write_all(&decoded).is_ok() {
-                        // Keep temp file (don't drop)
-                        let _ = temp_file.keep();
+    // Filter for decoded strings from ANY encoding method
+    let decoded_strings: Vec<_> = stng_strings
+        .iter()
+        .filter(|s| DECODED_METHODS.contains(&s.method))
+        .filter(|s| s.value.len() >= MIN_PAYLOAD_LENGTH) // Minimum 24 bytes
+        .collect();
 
-                        payloads.push(ExtractedPayload {
-                            temp_path,
-                            encoding_chain,
-                            preview: generate_preview(&decoded),
-                            detected_type: payload_type.into(),
-                            original_offset: 0,
-                        });
+    tracing::debug!(
+        "stng found {} total strings, {} decoded strings, {} meet size threshold",
+        stng_strings.len(),
+        stng_strings.iter().filter(|s| DECODED_METHODS.contains(&s.method)).count(),
+        decoded_strings.len()
+    );
 
-                        // If we found a whole-file hex encoding, return just that
-                        return payloads;
-                    }
-                }
-            }
-        }
+    // Process each decoded string through compression/nesting pipeline
+    for decoded_str in decoded_strings {
+        process_decoded_string(decoded_str, &mut payloads);
     }
 
-    // Find all potential base64 strings
-    let base64_candidates = find_base64_strings(&content_str);
+    // ALSO process RawScan strings for embedded base64 patterns
+    // This handles cases like: exec(base64.b64decode('...'))
+    let raw_strings: Vec<_> = stng_strings
+        .iter()
+        .filter(|s| s.method == stng::StringMethod::RawScan)
+        .collect();
 
-    for (offset, candidate) in base64_candidates {
-        // Try to decode
-        if let Some((decoded, compression)) = decode_base64(&candidate) {
-            // Build initial encoding chain
-            let mut initial_chain = vec!["base64".to_string()];
-            if let Some(alg) = compression {
-                initial_chain.push(alg);
-            }
+    for raw_str in raw_strings {
+        let base64_substrs = extract_base64_from_text(&raw_str.value);
 
-            // Check for nested encoding (up to MAX_RECURSION_DEPTH)
-            let (final_decoded, encoding_chain) = decode_nested(&decoded, initial_chain, 1);
+        for base64_substr in base64_substrs {
+            // Try to decode it
+            if let Some((decoded, compression)) = decode_base64(&base64_substr) {
+                let mut encoding_chain = vec!["base64".to_string()];
+                if let Some(comp_type) = compression {
+                    encoding_chain.push(comp_type);
+                }
 
-            // Detect type
-            let payload_type = detect_payload_type(&final_decoded);
+                // Check for nested encoding
+                let (final_bytes, final_chain) = decompress_and_nest(&decoded, encoding_chain, 0);
 
-            // Write to temp file
-            if let Ok(temp_file) = tempfile::NamedTempFile::new() {
-                let temp_path = temp_file.path().to_path_buf();
+                // Create temp file
+                if let Ok(temp_file) = tempfile::NamedTempFile::new() {
+                    let temp_path = temp_file.path().to_path_buf();
 
-                if let Ok(mut file) = std::fs::File::create(&temp_path) {
-                    if file.write_all(&final_decoded).is_ok() {
-                        // Keep temp file (don't drop)
-                        let _ = temp_file.keep();
+                    if let Ok(mut file) = std::fs::File::create(&temp_path) {
+                        if file.write_all(&final_bytes).is_ok() {
+                            let _ = temp_file.keep();
 
-                        payloads.push(ExtractedPayload {
-                            temp_path,
-                            encoding_chain,
-                            preview: generate_preview(&final_decoded),
-                            detected_type: payload_type.into(),
-                            original_offset: offset,
-                        });
+                            payloads.push(ExtractedPayload {
+                                temp_path,
+                                encoding_chain: final_chain,
+                                preview: generate_preview(&final_bytes),
+                                detected_type: FileType::Unknown,
+                                original_offset: raw_str.data_offset as usize,
+                            });
+                        }
                     }
                 }
             }
@@ -393,62 +658,41 @@ pub fn extract_encoded_payloads(content: &[u8]) -> Vec<ExtractedPayload> {
     payloads
 }
 
-/// Find all base64 strings in content
-fn find_base64_strings(content: &str) -> Vec<(usize, String)> {
-    let mut results = Vec::new();
+/// Process a decoded string from stng and add to payloads
+fn process_decoded_string(
+    decoded_str: &stng::ExtractedString,
+    payloads: &mut Vec<ExtractedPayload>,
+) {
+    let decoded_bytes = decoded_str.value.as_bytes();
 
-    // Simple regex-like scan for base64 patterns
-    let chars: Vec<char> = content.chars().collect();
-    let mut start = None;
+    // Start encoding chain with stng's detection
+    let encoding_chain = vec![method_to_encoding_name(decoded_str.method).to_string()];
 
-    for (i, c) in chars.iter().enumerate() {
-        let is_base64_char = c.is_ascii_alphanumeric() || *c == '+' || *c == '/' || *c == '=';
+    // DISSECT: Check for compression and nested encoding
+    let (final_bytes, final_chain) = decompress_and_nest(decoded_bytes, encoding_chain, 0);
 
-        if is_base64_char {
-            if start.is_none() {
-                start = Some(i);
-            }
-        } else if let Some(s) = start {
-            let candidate: String = chars[s..i].iter().collect();
-            if is_base64_candidate(&candidate) {
-                results.push((s, candidate));
-            }
-            start = None;
-        }
-    }
+    // Re-classify final decoded content for suspicion
+    let _suspicion = classify_payload_suspicion(&final_bytes);
 
-    // Check for trailing base64
-    if let Some(s) = start {
-        let candidate: String = chars[s..].iter().collect();
-        if is_base64_candidate(&candidate) {
-            results.push((s, candidate));
-        }
-    }
+    // Create temp file for recursive analysis
+    if let Ok(temp_file) = tempfile::NamedTempFile::new() {
+        let temp_path = temp_file.path().to_path_buf();
 
-    results
-}
+        if let Ok(mut file) = std::fs::File::create(&temp_path) {
+            if file.write_all(&final_bytes).is_ok() {
+                // Keep temp file (don't drop)
+                let _ = temp_file.keep();
 
-/// Recursively decode nested encoding
-fn decode_nested(data: &[u8], chain: Vec<String>, depth: usize) -> (Vec<u8>, Vec<String>) {
-    if depth >= MAX_RECURSION_DEPTH {
-        return (data.to_vec(), chain);
-    }
-
-    // Try to detect if data is base64 encoded
-    if let Ok(text) = std::str::from_utf8(data) {
-        if is_base64_candidate(text.trim()) {
-            if let Some((decoded, compression)) = decode_base64(text.trim()) {
-                let mut new_chain = chain.clone();
-                new_chain.push("base64".to_string());
-                if let Some(alg) = compression {
-                    new_chain.push(alg);
-                }
-                return decode_nested(&decoded, new_chain, depth + 1);
+                payloads.push(ExtractedPayload {
+                    temp_path,
+                    encoding_chain: final_chain,
+                    preview: generate_preview(&final_bytes),
+                    detected_type: FileType::Unknown, // Will be determined during recursive analysis
+                    original_offset: decoded_str.data_offset as usize,
+                });
             }
         }
     }
-
-    (data.to_vec(), chain)
 }
 
 #[cfg(test)]

@@ -811,6 +811,9 @@ composite_rules:
       - id: cap/anti-static/obfuscation/js::js-split-custom-delimiter
       - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
+    unless:
+      - type: raw
+        substr: "require('../common')"
 
   # Obfuscated JScript Dropper
   - id: obfuscated-js-dropper

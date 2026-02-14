@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      substr: "POST"
+      regex: "POST\\s"
 
   - id: nsurl-http-body
     desc: NSURLRequest HTTP body
@@ -51,7 +51,10 @@ traits:
     for: [macho]
     if:
       type: symbol
-      regex: "launch"
+      regex: "^launch$"
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
 
   - id: command-execution-response
     desc: Command execution response handling

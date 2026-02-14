@@ -13,6 +13,11 @@ composite_rules:
     crit: hostile
     conf: 0.98
     # High-confidence: Direct syscalls PLUS suspicious memory/logic indicators
+    unless:
+      - id: meta/signed/platform::apple
+    none:
+      - id: meta/signed/platform::apple
+      - id: meta/signed/id::com.apple.xpc.launchd
     all:
       - id: cap/exec/syscall/direct::macos-arm64-direct-syscall
     any:

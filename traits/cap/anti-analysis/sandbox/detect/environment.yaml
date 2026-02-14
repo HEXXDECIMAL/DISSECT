@@ -11,7 +11,7 @@ traits:
     desc: Checks for system32/cmd.exe path validation
     crit: notable
     if:
-      type: string
-      # Matches "%SystemRoot%\system32\cmd.ex" or similar parts
-      # The sample has "system32\cmd.ex"
-      regex: 'system32.{0,10}cmd\.ex'
+      type: raw
+      # Matches "system32\\cmd.ex" or parts of it concatenated
+      # The sample has "system32\\cmd."+"ex"+"e"
+      regex: 'system32.{0,20}cmd\.ex'

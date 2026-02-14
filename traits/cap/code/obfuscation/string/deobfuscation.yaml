@@ -19,8 +19,18 @@ traits:
     for: [javascript, powershell, typescript]
     if:
       type: string
-      regex: '%[a-zA-Z]{5,}%'
+      regex: '%[a-zA-Z]{3,}%'
       count_min: 1
+    not:
+      - "%USERNAME%"
+      - "%USERPROFILE%"
+      - "%APPDATA%"
+      - "%LOCALAPPDATA%"
+      - "%TEMP%"
+      - "%TMP%"
+      - "%PATH%"
+      - "%SYSTEMROOT%"
+      - "%COMSPEC%"
 
   - id: powershell-replace-operator
     desc: "PowerShell -replace operator for deobfuscation"

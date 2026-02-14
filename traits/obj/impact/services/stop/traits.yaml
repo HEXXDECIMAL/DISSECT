@@ -30,6 +30,9 @@ traits:
     if:
       type: string
       regex: "service\\s+\\w+\\s+stop"
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
 
   - id: sc-stop
     desc: Windows service control stop

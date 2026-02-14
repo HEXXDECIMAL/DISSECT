@@ -51,6 +51,8 @@ composite_rules:
       - id: cap/exec/load/library::system-lib-marker
       - id: cap/exec/load/library::network-lib-marker
       - id: cap/exec/load/library::debugger-tool-marker
+      - id: meta/signed/platform::apple
+      - id: meta/signed/id::com.apple.xpc.launchd
 
   # Combination 4: Hardware UUID + base64 = fingerprint encoding
   - id: encoded-hardware-fingerprint
