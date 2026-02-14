@@ -250,6 +250,97 @@ impl PEAnalyzer {
             }
         }
 
+        // Analyze overlay data for self-extracting archives
+        // Calculate the actual end of PE sections (not just SizeOfImage)
+        // Many SFX archives embed the archive within the SizeOfImage but after the last section
+        let sections_end = pe
+            .sections
+            .iter()
+            .map(|s| (s.pointer_to_raw_data + s.size_of_raw_data) as u64)
+            .max()
+            .unwrap_or(0);
+
+        if (data.len() as u64) > sections_end && sections_end > 0 {
+            let overlay_start = sections_end as usize;
+            let overlay_data = &data[overlay_start..];
+
+                // Try to analyze overlay as an archive
+                match crate::analyzers::overlay::analyze_overlay(
+                    overlay_data,
+                    &report.target.path,
+                    Some(self.capability_mapper.clone()),
+                    self.yara_engine.clone(),
+                ) {
+                    Ok(Some(overlay_analysis)) => {
+                        // Get PE filename for path encoding
+                        let pe_filename = std::path::Path::new(&report.target.path)
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("binary.exe");
+
+                        // Add SFX finding
+                        report.findings.push(overlay_analysis.sfx_finding);
+
+                        // Merge archive findings into PE report
+                        for mut finding in overlay_analysis.archive_report.findings {
+                            // Update evidence locations to use archive path format
+                            for evidence in &mut finding.evidence {
+                                if let Some(ref loc) = evidence.location {
+                                    // If location already has archive: prefix, update the path
+                                    if let Some(rest) = loc.strip_prefix("archive:") {
+                                        evidence.location = Some(format!(
+                                            "archive:{}{}{}",
+                                            pe_filename,
+                                            crate::types::file_analysis::ARCHIVE_DELIMITER,
+                                            rest
+                                        ));
+                                    } else if !loc.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
+                                        // No archive prefix yet, add it with PE path
+                                        evidence.location = Some(format!(
+                                            "archive:{}{}{}",
+                                            pe_filename,
+                                            crate::types::file_analysis::ARCHIVE_DELIMITER,
+                                            loc
+                                        ));
+                                    }
+                                }
+                            }
+                            report.findings.push(finding);
+                        }
+
+                        // Merge archive contents with proper path encoding
+                        for mut entry in overlay_analysis.archive_report.archive_contents {
+                            // Encode path using standard archive delimiter
+                            if !entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
+                                entry.path = crate::types::file_analysis::encode_archive_path(
+                                    pe_filename,
+                                    &entry.path,
+                                );
+                            }
+                            report.archive_contents.push(entry);
+                        }
+
+                        // Merge strings from archive
+                        report.strings.extend(overlay_analysis.archive_report.strings);
+
+                        // Add tools used from archive analysis
+                        for tool in overlay_analysis.archive_report.metadata.tools_used {
+                            if !tools_used.contains(&tool) {
+                                tools_used.push(tool);
+                            }
+                        }
+
+                    }
+                    Ok(None) => {
+                        // Overlay exists but is not an archive (signature, resources, etc.)
+                    }
+                    Err(_e) => {
+                        // Overlay extraction/analysis failed - silently skip
+                        // (could be corrupted archive, unsupported format, etc.)
+                    }
+                }
+        }
+
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
@@ -501,14 +592,19 @@ impl PEAnalyzer {
             }
         }
 
-        // Check for signature in certificate table (present if overlay data contains signature)
-        // This is approximate - real validation would parse the certificate directory
+        // Check for overlay data (appended after PE image)
+        // This can be:
+        // 1. Code signature (PKCS7)
+        // 2. Self-extracting archive (7z, ZIP, RAR)
+        // 3. Resources or other data
         if let Some(opt_header) = &pe.header.optional_header {
             let image_size = opt_header.windows_fields.size_of_image as u64;
             if (data.len() as u64) > image_size {
-                // Overlay data present - often contains signature
-                // Check if overlay looks like PKCS7 (starts with 0x30)
-                if data.len() > image_size as usize && data[image_size as usize] == 0x30 {
+                let overlay_start = image_size as usize;
+                let overlay_data = &data[overlay_start..];
+
+                // Check if overlay looks like PKCS7 signature (starts with 0x30)
+                if !overlay_data.is_empty() && overlay_data[0] == 0x30 {
                     metrics.has_signature = true;
                 }
             }
@@ -738,4 +834,49 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
         assert!(report.metadata.analysis_duration_ms > 0);
     }
+
+    #[test]
+    fn test_analyze_self_extracting_7z() {
+        // Test with real 7z self-extracting installer if available
+        let test_file = std::path::Path::new("/Users/t/data/dissect/malware/pe/2026.7zip.com/7z2501-x64.exe");
+
+        if !test_file.exists() {
+            eprintln!("Skipping SFX test - file not found: {:?}", test_file);
+            return;
+        }
+
+        let analyzer = PEAnalyzer::new();
+        let report = analyzer.analyze(test_file).unwrap();
+
+        // Should detect the self-extracting archive
+        assert!(
+            report.findings.iter().any(|f| f.id.contains("self-extracting")),
+            "Should detect self-extracting archive"
+        );
+
+        // Should have analyzed the embedded archive contents
+        assert!(
+            !report.archive_contents.is_empty(),
+            "Should have extracted archive contents"
+        );
+
+        // Should have findings from the embedded files
+        eprintln!("SFX analysis found {} files in archive", report.archive_contents.len());
+        eprintln!("SFX analysis found {} total findings", report.findings.len());
+
+        // All archive content paths should use standard archive delimiter
+        for entry in &report.archive_contents {
+            assert!(
+                entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER),
+                "Archive path should use '!!': {}",
+                entry.path
+            );
+            assert!(
+                entry.path.starts_with("7z2501-x64.exe!!"),
+                "Archive path should start with PE filename: {}",
+                entry.path
+            );
+        }
+    }
+
 }

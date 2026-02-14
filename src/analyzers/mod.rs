@@ -46,6 +46,9 @@ pub mod generic;
 // Embedded code detector (analyzes code found in strings)
 pub mod embedded_code_detector;
 
+// Overlay data analyzer (self-extracting archives)
+pub mod overlay;
+
 use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
