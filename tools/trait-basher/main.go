@@ -28,6 +28,7 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	mathrand "math/rand/v2"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -429,6 +430,9 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		dbMode = "good"
 	}
 
+	// Track wall clock time for overall run statistics
+	sessionStartTime := time.Now()
+
 	// Use streaming analysis - process each archive as it completes.
 	// Loop and restart after reviewing N files to catch fixed files.
 	yamlFixAttempts := 0
@@ -447,14 +451,35 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			log.Fatalf("Analysis failed: %v", err)
+			// For dissect or other errors, retry after delay (already slept in streamAnalyzeAndReview)
+			fmt.Fprintf(os.Stderr, "Restarting scan after error...\n")
+			continue
 		}
 		yamlFixAttempts = 0
 
 		if !stats.shouldRestart {
 			// No more files to review
-			fmt.Fprintf(os.Stderr, "\nDone. Reviewed %d archives, %d standalone files. Skipped %d (cached), %d (no review needed).\n",
-				stats.archivesReviewed, stats.standaloneReviewed, stats.skippedCached, stats.skippedNoReview)
+			wallClockTime := time.Since(sessionStartTime)
+			fmt.Fprintf(os.Stderr, "\n=== Session Complete ===\n")
+			fmt.Fprintf(os.Stderr, "Reviewed: %d archives, %d standalone files\n",
+				stats.archivesReviewed, stats.standaloneReviewed)
+			fmt.Fprintf(os.Stderr, "Skipped: %d (cached), %d (no review needed)\n",
+				stats.skippedCached, stats.skippedNoReview)
+
+			// Calculate review rate for standalone files
+			if stats.totalStandaloneFiles > 0 {
+				reviewRate := float64(stats.standaloneReviewed) / float64(stats.totalStandaloneFiles) * 100
+				fmt.Fprintf(os.Stderr, "Standalone file review rate: %d/%d (%.1f%%)\n",
+					stats.standaloneReviewed, stats.totalStandaloneFiles, reviewRate)
+			}
+
+			// Show timing statistics
+			fmt.Fprintf(os.Stderr, "Wall clock time: %v\n", wallClockTime.Round(time.Second))
+			fmt.Fprintf(os.Stderr, "LLM review time: %v\n", stats.reviewTimeTotal.Round(time.Second))
+			if wallClockTime > 0 {
+				reviewPercent := float64(stats.reviewTimeTotal) / float64(wallClockTime) * 100
+				fmt.Fprintf(os.Stderr, "Review time as %% of total: %.1f%%\n", reviewPercent)
+			}
 			break
 		}
 
@@ -473,6 +498,8 @@ type streamStats struct {
 	skippedCached      int
 	skippedNoReview    int
 	totalFiles         int
+	totalStandaloneFiles int  // Total standalone files seen (not in archives)
+	reviewTimeTotal    time.Duration // Total time spent in LLM reviews
 	shouldRestart      bool // Set to true when rescan limit reached
 }
 
@@ -750,11 +777,19 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	}
 
 	if err := scanner.Err(); err != nil {
-		return state.stats, fmt.Errorf("error reading dissect output: %w", err)
+		delay := retryDelay()
+		fmt.Fprintf(os.Stderr, "\n⚠️  Error reading dissect output: %v\n", err)
+		fmt.Fprintf(os.Stderr, "   Retrying in %v...\n", delay.Round(time.Second))
+		time.Sleep(delay)
+		return state.stats, fmt.Errorf("error reading dissect output: %w (will retry)", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
-		return state.stats, fmt.Errorf("dissect failed: %w (check dissect logs for details)", err)
+		delay := retryDelay()
+		fmt.Fprintf(os.Stderr, "\n⚠️  Dissect failed: %v (check dissect logs for details)\n", err)
+		fmt.Fprintf(os.Stderr, "   Retrying in %v...\n", delay.Round(time.Second))
+		time.Sleep(delay)
+		return state.stats, fmt.Errorf("dissect failed: %w (will retry)", err)
 	}
 
 	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", n)
@@ -1014,16 +1049,29 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	}
 	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
 
-	sid := generateSessionID()
-	if err := invokeAIArchive(ctx, st.cfg, archive, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, archive.ArchivePath, err)
-		logCompletion("review_failed",
-			"error", err.Error(),
-			"provider", st.cfg.provider,
-			"session_id", sid,
-			"files_with_concerns", len(filesWithFindings),
-		)
-	} else {
+	// Retry LLM invocations on failure with exponential backoff
+	reviewStartTime := time.Now()
+	for attempt := 1; ; attempt++ {
+		sid := generateSessionID()
+		if err := invokeAIArchive(ctx, st.cfg, archive, sid); err != nil {
+			delay := retryDelay()
+			fmt.Fprintf(os.Stderr, "\n⚠️  All LLM providers failed for %s: %v\n", archive.ArchivePath, err)
+			fmt.Fprintf(os.Stderr, "   Retrying (attempt %d) in %v...\n", attempt, delay.Round(time.Second))
+			logCompletion("review_failed",
+				"error", err.Error(),
+				"provider", st.cfg.provider,
+				"session_id", sid,
+				"files_with_concerns", len(filesWithFindings),
+				"attempt", attempt,
+			)
+			time.Sleep(delay)
+			continue
+		}
+		// Success
+		reviewDuration := time.Since(reviewStartTime)
+		st.stats.reviewTimeTotal += reviewDuration
+		fmt.Fprintf(os.Stderr, "   ✓ Review completed in %v\n", reviewDuration.Round(time.Second))
+
 		if err := markAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
 		}
@@ -1040,7 +1088,9 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 			"session_id", sid,
 			"files_with_concerns", len(filesWithFindings),
 			"total_archives_reviewed", st.stats.archivesReviewed,
+			"review_duration_seconds", reviewDuration.Seconds(),
 		)
+		break
 	}
 }
 
@@ -1051,6 +1101,7 @@ func processRealFile(ctx context.Context, st *streamState) {
 	}
 
 	st.stats.totalFiles++
+	st.stats.totalStandaloneFiles++
 
 	if !realFileNeedsReview(rf, st.cfg.knownGood) {
 		mode := "bad"
@@ -1104,10 +1155,22 @@ func processRealFile(ctx context.Context, st *streamState) {
 	}
 	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
 
-	sid := generateSessionID()
-	if err := invokeAI(ctx, st.cfg, agg, sid); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s failed for %s: %v\n", st.cfg.provider, rf.RealPath, err)
-	} else {
+	// Retry LLM invocations on failure with exponential backoff
+	reviewStartTime := time.Now()
+	for attempt := 1; ; attempt++ {
+		sid := generateSessionID()
+		if err := invokeAI(ctx, st.cfg, agg, sid); err != nil {
+			delay := retryDelay()
+			fmt.Fprintf(os.Stderr, "\n⚠️  All LLM providers failed for %s: %v\n", rf.RealPath, err)
+			fmt.Fprintf(os.Stderr, "   Retrying (attempt %d) in %v...\n", attempt, delay.Round(time.Second))
+			time.Sleep(delay)
+			continue
+		}
+		// Success
+		reviewDuration := time.Since(reviewStartTime)
+		st.stats.reviewTimeTotal += reviewDuration
+		fmt.Fprintf(os.Stderr, "   ✓ Review completed in %v\n", reviewDuration.Round(time.Second))
+
 		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
 		}
@@ -1118,6 +1181,7 @@ func processRealFile(ctx context.Context, st *streamState) {
 		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
 			st.stats.shouldRestart = true
 		}
+		break
 	}
 }
 
@@ -1920,6 +1984,15 @@ func displayStreamEvent(line string) {
 
 // codexDeltaOpen tracks whether we've printed streaming agent deltas and need a newline.
 var codexDeltaOpen bool
+
+// retryDelay returns a duration of 2 minutes plus a random amount up to 60 seconds.
+// Uses crypto/rand for true randomness to avoid patterns in retry timing.
+func retryDelay() time.Duration {
+	baseDelay := 2 * time.Minute
+	// Use math/rand/v2 which is automatically seeded and thread-safe
+	randomDelay := time.Duration(mathrand.Int64N(int64(60 * time.Second)))
+	return baseDelay + randomDelay
+}
 
 // formatProvidersForDisplay collapses gemini:model entries into a single "gemini (4 models)"
 // for cleaner display while showing the full fallback chain.
