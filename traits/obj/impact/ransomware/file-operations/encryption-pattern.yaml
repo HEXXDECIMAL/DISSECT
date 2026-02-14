@@ -25,9 +25,11 @@ composite_rules:
       - id: cap/fs/enumerate/volume::find-first-volume
       - id: cap/fs/enumerate/volume::get-volume-info
 
+  # NOTE: This is an internal helper rule used by ransomware composites.
+  # Set crit: inert so it doesn't show up in user output - it's not suspicious on its own.
   - id: has-file-operations
     desc: Has file operation capabilities
-    crit: notable
+    crit: inert  # Changed from notable - helper rule, not suspicious alone
     conf: 0.8
     for: [pe, dll]
     platforms: [windows]

@@ -262,10 +262,10 @@ traits:
       type: symbol
       exact: "CharPrevW"
 
-  # === Message Box ===
+  # === System Control ===
   - id: exit-windows-ex
     desc: Shutdown/restart system
-    crit: suspicious
+    crit: notable  # Downgraded from suspicious - common in installers
     conf: 0.85
     if:
       type: symbol

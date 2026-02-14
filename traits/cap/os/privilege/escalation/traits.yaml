@@ -9,7 +9,7 @@ traits:
   # === Token Access ===
   - id: open-process-token
     desc: Open process access token
-    crit: suspicious
+    crit: notable  # Downgraded from suspicious - common in installers
     conf: 0.75
     if:
       type: symbol
@@ -22,7 +22,7 @@ traits:
   # === Privilege Operations ===
   - id: lookup-privilege-value
     desc: Lookup privilege name to LUID
-    crit: suspicious
+    crit: notable  # Downgraded from suspicious - common in installers
     conf: 0.75
     if:
       type: symbol
@@ -34,7 +34,7 @@ traits:
 
   - id: adjust-token-privileges
     desc: Enable/disable privileges in access token
-    crit: suspicious
+    crit: notable  # Downgraded from suspicious - common in installers
     conf: 0.80
     if:
       type: symbol

@@ -1222,7 +1222,7 @@ fn analyze_file_with_shared_mapper(
                 payload.encoding_chain.join(" → ")
             ),
             conf: 0.9,
-            crit: types::Criticality::Suspicious,
+            crit: types::Criticality::Notable,  // Downgraded from Suspicious - common in legitimate software
             mbc: None,
             attack: None,
             trait_refs: vec![],

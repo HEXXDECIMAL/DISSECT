@@ -12,8 +12,11 @@ traits:
     conf: 0.85
     if:
       type: section
-      section: "."
-      min: 7.8
+      # Only match executable sections (.text, CODE)
+      # High entropy in .data/.rsrc is normal (compressed resources, archives)
+      regex: '(?i)^(\.|__)(text|code)'
+      entropy_min: 7.8
     unless:
       - id: cap/exec/reflection/invoke::namespace-import
       - id: meta/format/pe/dotnet::dotnet-assembly
+      - id: file/archive/self-extracting # SFX stubs may have compressed code

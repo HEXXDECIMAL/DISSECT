@@ -7,12 +7,15 @@ defaults:
 
 traits:
   - id: high-entropy-generic
-    desc: High entropy section (any name)
+    desc: High entropy executable section (possible packing)
     crit: suspicious
     conf: 0.8
     if:
       type: section
-      section: "." # Matches any section name via regex
-      min: 7.8
+      # Only match executable sections - high entropy in data/resource sections
+      # is normal (compressed resources, embedded archives, lookup tables)
+      regex: '(?i)^(\.|__)(text|code)'
+      entropy_min: 7.8
     unless:
       - id: cap/exec/reflection/invoke::namespace-import
+      - id: file/archive/self-extracting # SFX stubs may have compressed code

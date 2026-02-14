@@ -30,6 +30,7 @@ composite_rules:
       - id: cap/exec/native/api::get-proc-address
     unless:
       - id: meta/sign/certificate::verified # Legitimate stagers are usually signed
+      - id: file/archive/self-extracting # SFX archives are minimalist by design
 
   - id: suspicious-sideloading-host
     desc: Suspicious side-loading host with minimal logic

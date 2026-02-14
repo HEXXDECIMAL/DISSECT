@@ -5,8 +5,8 @@
 traits:
   - id: ud2-junk-code
     desc: Dense undefined instructions (UD2)
-    crit: suspicious
-    conf: 0.85
+    crit: notable  # Downgraded from suspicious - can be compiler padding/alignment
+    conf: 0.75
     for: [pe, elf, macho]
     if:
       type: hex
@@ -16,3 +16,4 @@ traits:
     downgrade:
       any:
         - id: meta/signed/platform::apple
+        - id: file/archive/self-extracting
