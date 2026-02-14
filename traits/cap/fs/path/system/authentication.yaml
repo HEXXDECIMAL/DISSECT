@@ -26,31 +26,3 @@ traits:
     if:
       type: string
       regex: "/etc/group"
-# System Authentication Files
-# Detection of access to sensitive system authentication files
-# ATT&CK: T1003.008 (OS Credential Dumping: /etc/passwd and /etc/shadow)
-
-traits:
-  - id: shadow-file-access
-    desc: Access to /etc/shadow credential file
-    crit: suspicious
-    conf: 0.8
-    if:
-      type: string
-      regex: "/etc/shadow"
-
-  - id: passwd-file-access
-    desc: Access to /etc/passwd file
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/etc/passwd"
-
-  - id: group-file-access
-    desc: Access to /etc/group file
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/etc/group"

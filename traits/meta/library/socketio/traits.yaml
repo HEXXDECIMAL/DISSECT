@@ -7,12 +7,3 @@ traits:
     if:
       type: raw
       regex: 'Socket\.IO\s+v\d+\.\d+\.\d+'
-traits:
-  - id: client
-    desc: Socket.IO client library
-    crit: inert
-    conf: 1.0
-    for: [javascript]
-    if:
-      type: raw
-      regex: 'Socket\.IO\s+v\d+\.\d+\.\d+'

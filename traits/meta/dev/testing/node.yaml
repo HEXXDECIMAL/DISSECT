@@ -28,33 +28,3 @@ traits:
     if:
       type: string
       substr: "Copyright Joyent, Inc. and other Node contributors"
-# Node.js Testing Patterns
-# Detects Node.js core tests and common testing patterns
-
-defaults:
-  for: [javascript, typescript]
-
-traits:
-  - id: node-common-require
-    desc: "Imports Node.js common test helper"
-    if:
-      type: raw
-      regex: "require\\(['\"]\\.\\./common['\"]\\)"
-
-  - id: test-function-def
-    desc: "Defines generic test() function"
-    if:
-      type: raw
-      regex: "function test\\s*\\(\\)\\s*\\{"
-
-  - id: v8-native-syntax-eval
-    desc: "Uses V8 native syntax via eval"
-    if:
-      type: raw
-      regex: "eval\\(['\"]%[A-Z][a-zA-Z]+"
-
-  - id: joyent-copyright
-    desc: "Joyent copyright header (Node.js)"
-    if:
-      type: string
-      substr: "Copyright Joyent, Inc. and other Node contributors"
