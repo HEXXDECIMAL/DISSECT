@@ -1,0 +1,25 @@
+traits:
+  - id: http-client-any
+    criticality: notable
+    description: Any HTTP client usage
+    if:
+      type: string
+      regex: 'MSXML2\.XMLHTTP|Microsoft\.XMLHTTP|Msxml2\.ServerXMLHTTP|MLHTTP'
+
+  - id: http-client-msxml-fragment
+    criticality: notable
+    description: Obfuscated MSXML HTTP fragments
+    platforms: [windows]
+    for: [javascript]
+    if:
+      id: cap/exec/script/wsh::msxml-fragment
+
+composite_rules:
+  - id: http-client-any-obfuscated
+    crit: notable
+    conf: 0.9
+    desc: HTTP client via explicit or obfuscated MSXML
+    for: [javascript]
+    any:
+      - id: http-client-any
+      - id: http-client-msxml-fragment

@@ -2,16 +2,6 @@
 # Detects code inflation via large numbers of unused functions and low identifier reuse
 
 traits:
-  - id: very-low-identifier-reuse
-    desc: "Extremely low identifier reuse ratio"
-    crit: suspicious
-    conf: 0.8
-    for: [javascript, typescript, python]
-    if:
-      type: metrics
-      field: "identifiers.reuse_ratio"
-      max: 0.20
-
   - id: excessive-parameterless-functions
     desc: "Excessive parameterless functions (dead code padding)"
     crit: suspicious
@@ -43,4 +33,3 @@ traits:
       type: metrics
       field: "text.empty_line_ratio"
       min: 0.30
-

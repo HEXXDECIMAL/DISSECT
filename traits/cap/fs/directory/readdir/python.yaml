@@ -8,5 +8,5 @@ traits:
     crit: inert
     conf: 0.66
     if:
-      type: string
+      type: raw
       substr: .listdir(

@@ -280,6 +280,7 @@ composite_rules:
       - id: cap/exec/load/go-runtime/
       - id: cap/exec/load/library::shell-interpreter
       - id: cap/exec/load/library::system-lib-marker
+      - id: obj/persist/shell/config::tcsh-keyword
       # Compiler tools legitimately spawn processes for compilation
       - id: cap/exec/load/library::llvm-project-ref
       - id: meta/lang/compiler::libllvm

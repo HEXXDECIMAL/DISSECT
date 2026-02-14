@@ -1,0 +1,53 @@
+# Obfuscated WSH String Fragments
+# Detects fragmented strings common in JScript obfuscation
+
+defaults:
+  crit: suspicious
+  conf: 0.8
+  for: [javascript]
+
+traits:
+  - id: wscript-shell-fragment
+    desc: WScript.Shell string fragment
+    if:
+      type: string
+      regex: 'WScrip|t\.Shell|t\.She|WScr|\.Shel'
+
+  - id: msxml-fragment
+    desc: MSXML2.XMLHTTP string fragment
+    if:
+      type: string
+      regex: 'MSXML2|MLHTTP|MSXM|XMLH'
+
+  - id: adodb-fragment
+    desc: ADODB.Stream string fragment
+    if:
+      type: string
+      regex: 'ADOD|ADODB|B\.Str|B\.St|DB\.St'
+
+  - id: expand-env-fragment
+    desc: ExpandEnvironmentStrings fragment
+    if:
+      type: string
+      regex: 'xpandE|ronm|entS|nviro'
+
+  - id: response-body-fragment
+    desc: ResponseBody fragment
+    if:
+      type: string
+      regex: 'seBo|Respon'
+
+composite_rules:
+  - id: obfuscated-downloader-fragments
+    desc: Obfuscated WSH downloader fragment cluster
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    platforms: [windows]
+    all:
+      - id: msxml-fragment
+      - id: adodb-fragment
+      - id: response-body-fragment
+    any:
+      - id: wscript-shell-fragment
+      - id: expand-env-fragment

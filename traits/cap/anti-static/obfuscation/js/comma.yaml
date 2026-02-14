@@ -1,0 +1,10 @@
+traits:
+  - id: js-comma-sequence-obfuscation-v2
+    desc: "Useless comma sequence (obfuscation) v2"
+    crit: notable
+    conf: 0.8
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (sequence_expression) @seq

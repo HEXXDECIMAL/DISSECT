@@ -50,6 +50,7 @@ composite_rules:
         - id: cap/exec/reflection/invoke::namespace-import
         - id: cap/exec/reflection/invoke::method-info
         - id: cap/exec/reflection/invoke::property-info
+        - id: meta/signed/platform::apple
 
   - id: sparse-execution-anomaly
     desc: "Sparse execution structural anomaly (possible packer)"

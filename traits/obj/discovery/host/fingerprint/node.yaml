@@ -123,7 +123,7 @@ traits:
 
   - id: internal-filter-keyword
     desc: internal filter keyword
-    crit: notable
+    crit: inert
     conf: 0.5
     for: [javascript, typescript]
     if:

@@ -140,7 +140,7 @@ traits:
 
   - id: crypto-word
     desc: crypto term
-    crit: notable
+    crit: inert
     conf: 0.5
     # Restrict to languages where wallet code appears, exclude system headers (C/C++)
     for: [python, javascript, csharp, java, go, ruby, php]

@@ -139,7 +139,7 @@ composite_rules:
       - id: ssh-dir
       - id: aws-dir
       - id: npmrc-file
-      - id: obj/creds/environment/secret-access::dotenv-file
+      - id: meta/quality/config::dotenv-file
 
   # Send methods
   - id: send-methods

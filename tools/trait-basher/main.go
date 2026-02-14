@@ -55,43 +55,118 @@ type fileEntry struct {
 
 // promptData holds values for prompt templates.
 type promptData struct {
-	Path        string      // Primary file path (extracted dir for archives, file path for standalone)
-	ArchiveName string      // Archive basename for context (empty for standalone)
-	Files       []fileEntry // Top files with findings (sorted by severity)
-	DissectBin  string
-	TraitsDir   string
-	Count       int
-	IsArchive   bool
-	IsBad       bool // true for known-bad mode, false for known-good mode
+	Path                 string      // Primary file path (extracted dir for archives, file path for standalone)
+	ArchiveName          string      // Archive basename for context (empty for standalone)
+	Files                []fileEntry // Top files with findings (sorted by severity)
+	DissectBin           string
+	TraitsDir            string
+	Count                int
+	IsArchive            bool
+	IsBad                bool // true for known-bad mode, false for known-good mode
+	ReportExists         bool   // For bad files: true if research report already exists
+	ReportPath           string // Path to research report (bad files)
+	GapAnalysisPath      string // Path to gap analysis (bad files)
+	RelatedBadReportPath string // For good files: path to report if file exists in bad collection
+	HasRelatedBadReport  bool   // For good files: true if file exists in bad collection
+	BenignMarkerPath     string // Path where ._<filename>.BENIGN marker would be created
+	BadMarkerPath        string // Path where ._<filename>.BAD marker would be created
+	MayBeBenign          bool   // For bad files: suggest checking if it's actually benign
+	MayBeBad             bool   // For good files: suggest checking if it's actually bad
+	HasHostileFindings   bool   // For good files: has hostile findings that need fixing
+	HasSuspiciousFindings bool   // For good files: has suspicious findings to review
 }
 
-//go:embed prompt.tmpl
-var promptTemplateData string
+//go:embed bad_prompt.tmpl
+var badPromptTemplate string
 
-var promptTmpl *template.Template
+//go:embed good_prompt.tmpl
+var goodPromptTemplate string
+
+//go:embed tools.tmpl
+var toolsTemplate string
+
+var (
+	badTmpl   *template.Template
+	goodTmpl  *template.Template
+	toolsTmpl *template.Template
+)
 
 func loadPromptTemplate(repoRoot string) error {
 	var err error
-	promptTmpl, err = template.New("prompt").Parse(promptTemplateData)
+
+	// Parse tools template (shared)
+	toolsTmpl, err = template.New("tools").Parse(toolsTemplate)
 	if err != nil {
-		return fmt.Errorf("parse prompt template: %w", err)
+		return fmt.Errorf("parse tools template: %w", err)
 	}
+
+	// Parse bad prompt template
+	badTmpl, err = template.New("bad").Parse(badPromptTemplate)
+	if err != nil {
+		return fmt.Errorf("parse bad prompt template: %w", err)
+	}
+
+	// Parse good prompt template
+	goodTmpl, err = template.New("good").Parse(goodPromptTemplate)
+	if err != nil {
+		return fmt.Errorf("parse good prompt template: %w", err)
+	}
+
 	return nil
 }
 
-func buildPrompt(isArchive, isBad bool, path, archiveName string, files []fileEntry, count int, root, bin string) string {
-	var b bytes.Buffer
-	_ = promptTmpl.Execute(&b, promptData{ //nolint:errcheck // template is validated after load
-		Path:        path,
-		ArchiveName: archiveName,
-		Files:       files,
-		Count:       count,
-		DissectBin:  bin,
-		TraitsDir:   root + "/traits/",
-		IsArchive:   isArchive,
-		IsBad:       isBad,
-	})
-	return b.String()
+// buildPrompt constructs the full prompt by combining the mode-specific template with shared tools.
+func buildPrompt(data promptData) string {
+	var main bytes.Buffer
+	var tools bytes.Buffer
+
+	// Execute mode-specific template
+	if data.IsBad {
+		_ = badTmpl.Execute(&main, data) //nolint:errcheck // template is validated after load
+	} else {
+		_ = goodTmpl.Execute(&main, data) //nolint:errcheck // template is validated after load
+	}
+
+	// Execute shared tools template
+	_ = toolsTmpl.Execute(&tools, data) //nolint:errcheck // template is validated after load
+
+	// Combine: mode-specific prompt + shared tools section
+	return main.String() + "\n" + tools.String()
+}
+
+// dataDir returns ~/data/<subdir> directory, creating it if needed.
+func dataDir(subdir string) (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	dir := filepath.Join(home, "data", subdir)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+// misclassificationMarkerPath returns the path to a misclassification marker file.
+// markerType should be "BENIGN" or "BAD".
+func misclassificationMarkerPath(filePath, markerType string) string {
+	dir := filepath.Dir(filePath)
+	base := filepath.Base(filePath)
+	return filepath.Join(dir, "._"+base+"."+markerType)
+}
+
+// hasMisclassificationMarker checks if a misclassification marker exists.
+func hasMisclassificationMarker(filePath string) (bool, string) {
+	benignPath := misclassificationMarkerPath(filePath, "BENIGN")
+	badPath := misclassificationMarkerPath(filePath, "BAD")
+
+	if _, err := os.Stat(benignPath); err == nil {
+		return true, "BENIGN"
+	}
+	if _, err := os.Stat(badPath); err == nil {
+		return true, "BAD"
+	}
+	return false, ""
 }
 
 type config struct { //nolint:govet // field alignment optimized for readability, not size
@@ -1342,17 +1417,85 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 }
 
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
-	var prompt, task string
-	if cfg.knownGood {
-		prompt = buildPrompt(false, false, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
-		task = "Review for false positives (known-good collection)"
-	} else {
-		prompt = buildPrompt(false, true, f.Path, "", nil, 0, cfg.repoRoot, cfg.dissectBin)
-		task = "Find missing detections (known-bad collection)"
+	// Check for misclassification marker - skip if present
+	if hasMarker, markerType := hasMisclassificationMarker(f.Path); hasMarker {
+		fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
+			filepath.Base(f.Path), markerType, markerType)
+		return nil
 	}
 
-	// Add suspicious/hostile findings for good files
-	if cfg.knownGood {
+	// Compute file hash for report paths
+	fileHash, err := hashFile(f.Path)
+	if err != nil {
+		fileHash = hashString(f.Path) // Fallback to path hash
+	}
+
+	// Build prompt data
+	data := promptData{
+		Path:              f.Path,
+		DissectBin:        cfg.dissectBin,
+		TraitsDir:         cfg.repoRoot + "/traits/",
+		IsArchive:         false,
+		IsBad:             cfg.knownBad,
+		BenignMarkerPath:  misclassificationMarkerPath(f.Path, "BENIGN"),
+		BadMarkerPath:     misclassificationMarkerPath(f.Path, "BAD"),
+	}
+
+	// Count findings by criticality
+	var hostileCount, suspiciousCount int
+	for _, fd := range f.Findings {
+		switch strings.ToLower(fd.Crit) {
+		case "hostile":
+			hostileCount++
+		case "suspicious":
+			suspiciousCount++
+		}
+	}
+
+	var task string
+	if cfg.knownBad {
+		// Known-bad mode: research report + gap analysis
+		task = "Malware analysis and detection improvement (known-bad collection)"
+		data.MayBeBenign = true
+
+		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
+		reportsDir, err := dataDir("reports")
+		if err != nil {
+			return fmt.Errorf("failed to create reports directory: %w", err)
+		}
+		data.ReportPath = filepath.Join(reportsDir, fileHash+".md")
+
+		gapsDir, err := dataDir("gaps")
+		if err != nil {
+			return fmt.Errorf("failed to create gaps directory: %w", err)
+		}
+		data.GapAnalysisPath = filepath.Join(gapsDir, fileHash+".md")
+
+		// Check if report already exists
+		if _, err := os.Stat(data.ReportPath); err == nil {
+			data.ReportExists = true
+		}
+	} else {
+		// Known-good mode: false positive reduction
+		task = "Review for false positives (known-good collection)"
+		data.MayBeBad = true
+		data.HasHostileFindings = hostileCount > 0
+		data.HasSuspiciousFindings = suspiciousCount > 0
+
+		// Check if file exists in bad collection (can reference report)
+		if reportsDir, err := dataDir("reports"); err == nil {
+			badReportPath := filepath.Join(reportsDir, fileHash+".md")
+			if _, err := os.Stat(badReportPath); err == nil {
+				data.HasRelatedBadReport = true
+				data.RelatedBadReportPath = badReportPath
+			}
+		}
+	}
+
+	prompt := buildPrompt(data)
+
+	// Add findings summary for good files
+	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
 		var susp, host []Finding
 		for _, fd := range f.Findings {
 			switch strings.ToLower(fd.Crit) {
@@ -1363,7 +1506,7 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 			}
 		}
 		if len(host) > 0 || len(susp) > 0 {
-			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
+			prompt += "\n\n## Current Findings\n"
 			if len(host) > 0 {
 				prompt += "**Hostile:**\n"
 				for _, fd := range host {
@@ -1454,6 +1597,13 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 }
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
+	// Check for misclassification marker - skip if present
+	if hasMarker, markerType := hasMisclassificationMarker(a.ArchivePath); hasMarker {
+		fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
+			filepath.Base(a.ArchivePath), markerType, markerType)
+		return nil
+	}
+
 	prob := archiveProblematicMembers(a, cfg.knownGood)
 	archiveName := filepath.Base(a.ArchivePath)
 
@@ -1564,17 +1714,83 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		dissectPath = a.ArchivePath // Fallback if no extraction
 	}
 
-	var prompt, task string
-	if cfg.knownGood {
-		prompt = buildPrompt(true, false, dissectPath, archiveName, fileEntries, filesWithConcerns, cfg.repoRoot, cfg.dissectBin)
-		task = "Review files for false positives (known-good collection)"
-	} else {
-		prompt = buildPrompt(true, true, dissectPath, archiveName, fileEntries, filesWithConcerns, cfg.repoRoot, cfg.dissectBin)
-		task = "Find missing detections (known-bad collection)"
+	// Compute file hash for report paths (use archive path)
+	fileHash, err := hashFile(a.ArchivePath)
+	if err != nil {
+		fileHash = hashString(a.ArchivePath) // Fallback to path hash
 	}
 
-	// Add suspicious/hostile findings summary for good archives
-	if cfg.knownGood {
+	// Build prompt data
+	data := promptData{
+		Path:              dissectPath,
+		ArchiveName:       archiveName,
+		Files:             fileEntries,
+		Count:             filesWithConcerns,
+		DissectBin:        cfg.dissectBin,
+		TraitsDir:         cfg.repoRoot + "/traits/",
+		IsArchive:         true,
+		IsBad:             cfg.knownBad,
+		BenignMarkerPath:  misclassificationMarkerPath(a.ArchivePath, "BENIGN"),
+		BadMarkerPath:     misclassificationMarkerPath(a.ArchivePath, "BAD"),
+	}
+
+	// Count findings by criticality
+	var hostileCount, suspiciousCount int
+	for _, m := range a.Members {
+		for _, fd := range m.Findings {
+			switch strings.ToLower(fd.Crit) {
+			case "hostile":
+				hostileCount++
+			case "suspicious":
+				suspiciousCount++
+			}
+		}
+	}
+
+	var task string
+	if cfg.knownBad {
+		// Known-bad mode: research report + gap analysis
+		task = "Malware analysis and detection improvement (known-bad collection)"
+		data.MayBeBenign = true
+
+		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
+		reportsDir, err := dataDir("reports")
+		if err != nil {
+			return fmt.Errorf("failed to create reports directory: %w", err)
+		}
+		data.ReportPath = filepath.Join(reportsDir, fileHash+".md")
+
+		gapsDir, err := dataDir("gaps")
+		if err != nil {
+			return fmt.Errorf("failed to create gaps directory: %w", err)
+		}
+		data.GapAnalysisPath = filepath.Join(gapsDir, fileHash+".md")
+
+		// Check if report already exists
+		if _, err := os.Stat(data.ReportPath); err == nil {
+			data.ReportExists = true
+		}
+	} else {
+		// Known-good mode: false positive reduction
+		task = "Review for false positives (known-good collection)"
+		data.MayBeBad = true
+		data.HasHostileFindings = hostileCount > 0
+		data.HasSuspiciousFindings = suspiciousCount > 0
+
+		// Check if file exists in bad collection (can reference report)
+		if reportsDir, err := dataDir("reports"); err == nil {
+			badReportPath := filepath.Join(reportsDir, fileHash+".md")
+			if _, err := os.Stat(badReportPath); err == nil {
+				data.HasRelatedBadReport = true
+				data.RelatedBadReportPath = badReportPath
+			}
+		}
+	}
+
+	prompt := buildPrompt(data)
+
+	// Add findings summary for good archives
+	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
 		var susp, host []Finding
 		// Collect ALL hostile/suspicious findings across all members (not just prob)
 		for _, m := range a.Members {
@@ -1588,7 +1804,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 			}
 		}
 		if len(host) > 0 || len(susp) > 0 {
-			prompt += "\n\n## Suspicious/Hostile Findings to Review\n"
+			prompt += "\n\n## Current Findings\n"
 			if len(host) > 0 {
 				prompt += "**Hostile:**\n"
 				for _, fd := range host {
@@ -2029,17 +2245,15 @@ func formatProvidersForDisplay(providers []string) string {
 	return strings.Join(result, " → ")
 }
 
-// getLogFilePath returns the OS-appropriate path for the trait-basher log file.
-//
-// - macOS: ~/Library/Logs/trait-basher/archives.log
-// - Linux: ~/.local/state/trait-basher/archives.log (or ~/.cache/trait-basher/archives.log)
-// - Windows: %LOCALAPPDATA%\trait-basher\logs\archives.log.
-func getLogFilePath(sessionID string) (string, error) {
+// getLogDir returns the platform-appropriate log directory for trait-basher.
+// - macOS: ~/Library/Logs/trait-basher/
+// - Linux: ~/.local/state/trait-basher/ (XDG Base Directory spec)
+// - Windows: %LOCALAPPDATA%\trait-basher\logs\
+func getLogDir() (string, error) {
 	var logDir string
 
 	switch runtime.GOOS {
 	case "darwin":
-		// macOS: ~/Library/Logs/trait-basher/
 		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err
@@ -2047,7 +2261,6 @@ func getLogFilePath(sessionID string) (string, error) {
 		logDir = filepath.Join(home, "Library", "Logs", "trait-basher")
 
 	case "windows":
-		// Windows: %LOCALAPPDATA%\trait-basher\logs\
 		localAppData := os.Getenv("LOCALAPPDATA")
 		if localAppData == "" {
 			home, err := os.UserHomeDir()
@@ -2059,7 +2272,6 @@ func getLogFilePath(sessionID string) (string, error) {
 		logDir = filepath.Join(localAppData, "trait-basher", "logs")
 
 	default:
-		// Linux/Unix: ~/.local/state/trait-basher/ (XDG Base Directory spec)
 		stateHome := os.Getenv("XDG_STATE_HOME")
 		if stateHome == "" {
 			home, err := os.UserHomeDir()
@@ -2071,59 +2283,27 @@ func getLogFilePath(sessionID string) (string, error) {
 		logDir = filepath.Join(stateHome, "trait-basher")
 	}
 
-	// Create directory if it doesn't exist
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
 	}
+	return logDir, nil
+}
 
-	// Use session-specific log file for parallel session support
+// getLogFilePath returns the path for trait-basher's archive review logs.
+func getLogFilePath(sessionID string) (string, error) {
+	logDir, err := getLogDir()
+	if err != nil {
+		return "", err
+	}
 	return filepath.Join(logDir, fmt.Sprintf("archives-%s.log", sessionID)), nil
 }
 
 // getDissectLogFilePath returns the path for dissect's own verbose logs.
 func getDissectLogFilePath(sessionID string) (string, error) {
-	var logDir string
-
-	switch runtime.GOOS {
-	case "darwin":
-		// macOS: ~/Library/Logs/trait-basher/
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		logDir = filepath.Join(home, "Library", "Logs", "trait-basher")
-
-	case "windows":
-		// Windows: %LOCALAPPDATA%\trait-basher\logs\
-		localAppData := os.Getenv("LOCALAPPDATA")
-		if localAppData == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return "", err
-			}
-			localAppData = filepath.Join(home, "AppData", "Local")
-		}
-		logDir = filepath.Join(localAppData, "trait-basher", "logs")
-
-	default:
-		// Linux/Unix: ~/.local/state/trait-basher/ (XDG Base Directory spec)
-		stateHome := os.Getenv("XDG_STATE_HOME")
-		if stateHome == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return "", err
-			}
-			stateHome = filepath.Join(home, ".local", "state")
-		}
-		logDir = filepath.Join(stateHome, "trait-basher")
+	logDir, err := getLogDir()
+	if err != nil {
+		return "", err
 	}
-
-	// Create directory if it doesn't exist
-	if err := os.MkdirAll(logDir, 0755); err != nil {
-		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
-	}
-
-	// Use session-specific log file for parallel session support
 	return filepath.Join(logDir, fmt.Sprintf("dissect-%s.log", sessionID)), nil
 }
 

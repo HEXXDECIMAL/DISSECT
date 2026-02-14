@@ -1,0 +1,8 @@
+traits:
+  - id: wscript-shell
+    criticality: suspicious
+    description: Creates a WScript.Shell object
+    for: [javascript]
+    if:
+      type: string
+      regex: 'WScript\.Shell(\.1)?'

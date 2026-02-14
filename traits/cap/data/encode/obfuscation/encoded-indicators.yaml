@@ -169,6 +169,26 @@ traits:
       substr: "child_process"
     attack: "T1059.007"
 
+  - id: encoded-node-vm
+    desc: "Encoded Node.js vm module"
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: encoded
+      regex: "require\\s*\\([\"']vm[\"']\\)"
+    attack: "T1059.007"
+
+  - id: encoded-node-vm-run
+    desc: "Encoded vm runIn...Context"
+    crit: suspicious
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: encoded
+      regex: "runIn(?:This|New|Context)Context"
+    attack: "T1059.007"
+
   # === Windows Indicators ===
   - id: encoded-cmd-exe
     desc: "Encoded cmd.exe reference"

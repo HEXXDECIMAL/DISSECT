@@ -262,6 +262,10 @@ composite_rules:
     any:
       - id: daemon-umask
       - id: daemon-chdir-root
+    downgrade:
+      any:
+        - id: meta/apple/system-component
+        - id: meta/signed/platform::apple
 
   # GAP #8: Properly link fork + setsid as persistence mechanism
   # The combination of fork + setsid is the standard Unix daemon pattern
@@ -282,3 +286,4 @@ composite_rules:
         - id: meta/format::many-imports
         - id: cap/exec/load/library::system-lib-marker
         - id: meta/apple/system-component
+        - id: meta/signed/platform::apple

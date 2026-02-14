@@ -4,20 +4,6 @@
 # ATT&CK: T1027
 
 traits:
-  # Emoji characters in strings (obfuscation technique)
-  - id: emoji-obfuscation
-    desc: Emoji-based string obfuscation
-    crit: suspicious
-    conf: 0.92
-    mbc: "B0032"
-    attack: "T1027"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "[\\U0001F600-\\U0001F64F]|[\\U0001F300-\\U0001F5FF]|[\\U0001F680-\\U0001F6FF]|[\\U0001F1E0-\\U0001F1FF]"
-      count_min: 3
-      per_kb_min: 0.2
-
   # High density of non-ASCII characters
   - id: dense-non-ascii
     desc: Dense non-ASCII character payload
@@ -109,7 +95,6 @@ composite_rules:
     for: [javascript, typescript]
     needs: 2
     any:
-      - id: emoji-obfuscation
       - id: dense-non-ascii
       - id: international-script-obfuscation
       - id: mixed-unicode-blocks
@@ -128,7 +113,6 @@ composite_rules:
       - id: dense-non-ascii
       - id: mixed-ascii-unicode
     any:
-      - id: emoji-obfuscation
       - id: unicode-variable-names
 
   # International script obfuscation with concatenation

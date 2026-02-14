@@ -1,0 +1,29 @@
+# Header-Based Remote Code Execution (RCE) Backdoor
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059 (Command and Scripting Interpreter)
+# MBC: B0022 (Socket-based communication), E1059 (Code Execution)
+#
+# Pattern: Malicious code reassembles a payload from HTTP headers (often using specific regex)
+# and executes it using vm.runInThisContext or similar.
+
+defaults:
+  for: [javascript, typescript]
+
+composite_rules:
+  - id: npm-header-rce-backdoor
+    desc: HTTP Header-based Remote Code Execution Backdoor
+    crit: hostile
+    conf: 0.98
+    attack: "T1105"
+    mbc: "B0022"
+    all:
+      - id: cap/data/manipulation/buffer::offset-write
+    needs: 2
+    any:
+      - id: cap/net/protocol/http::hex-command-regex
+      - id: cap/net/protocol/http::header-stringify-scan
+      - id: cap/exec/vm/sandbox::vm-runInThisContext
+      - id: cap/data/encode/obfuscation::encoded-node-require
+      - id: cap/data/encode/obfuscation::encoded-node-vm
+      - id: cap/data/encode/obfuscation::encoded-node-vm-run
+      - id: cap/data/manipulation/buffer::buffer-alloc-large
+      - id: cap/data/manipulation/buffer::module-exports-buffer-storage

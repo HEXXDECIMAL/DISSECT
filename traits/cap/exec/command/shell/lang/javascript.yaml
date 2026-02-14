@@ -19,6 +19,9 @@ traits:
     if:
       type: symbol
       exact: "exec"
+    unless:
+      - type: string
+        substr: "@ioredis/commands"
 
   - id: js-spawn
     desc: Spawns a child process

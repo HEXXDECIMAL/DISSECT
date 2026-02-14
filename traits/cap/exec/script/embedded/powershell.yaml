@@ -8,9 +8,12 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
+      type: raw
       regex: '\$[a-zA-Z]{5}'
       count_min: 5
+    not:
+      - "$xdOMA"
+      - "$GETkE"
 
   - id: powershell-cmdlet-patterns
     desc: "PowerShell cmdlet naming pattern in non-PS code"

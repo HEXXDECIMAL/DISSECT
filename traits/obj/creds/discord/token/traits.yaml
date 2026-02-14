@@ -98,6 +98,7 @@ traits:
     if:
       type: string
       substr: "Discord"
+      not: "https?://"
 
   # Discord Canary path
   - id: discord-canary-path

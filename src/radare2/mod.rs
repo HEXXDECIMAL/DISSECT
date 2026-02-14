@@ -576,7 +576,7 @@ impl Radare2Analyzer {
 
         if skip_function_analysis {
             debug!(
-                "File size {} MB > 20 MB, skipping function analysis",
+                "File size {} MB > 20 MB, skipping function analysis but extracting strings for stng",
                 file_size / 1024 / 1024
             );
         }
@@ -588,7 +588,8 @@ impl Radare2Analyzer {
         // - iSj: sections as JSON
         // - izj: strings as JSON
         let command = if skip_function_analysis {
-            // Large binary: skip analysis, just get static data
+            // Large binary: skip function analysis (aa/aflj) but keep string extraction (izj)
+            // String extraction is slow but cached, and provides additional context to stng
             "iSj; echo SEP; izj"
         } else {
             // Small binary: full analysis + all data
@@ -630,7 +631,8 @@ impl Radare2Analyzer {
         };
 
         let (functions, sections, strings) = if skip_function_analysis {
-            // Large binary: sections, strings (no functions)
+            // Large binary: sections and strings (no functions)
+            // String extraction is slow but cached, provides context for stng deduplication
             let sections: Vec<R2Section> = parse_json(parts.first())
                 .and_then(|j| serde_json::from_str(&j).ok())
                 .unwrap_or_default();
@@ -746,6 +748,7 @@ impl Radare2Analyzer {
         }
 
         // Size metrics
+        metrics.file_size = total_size;
         metrics.code_size = code_size;
         if total_size > 0 {
             let data_size = total_size.saturating_sub(code_size);
@@ -917,5 +920,54 @@ mod tests {
         let deserialized: SyscallInfo = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.number, 1);
         assert_eq!(deserialized.name, "write");
+    }
+
+    #[test]
+    fn test_compute_metrics_sets_file_size() {
+        use crate::radare2::models::R2Section;
+
+        let analyzer = Radare2Analyzer::new();
+
+        // Create batched analysis with sections of known sizes
+        let batched = BatchedAnalysis {
+            functions: vec![],
+            sections: vec![
+                R2Section {
+                    name: ".text".to_string(),
+                    size: 1000,
+                    vsize: Some(1000),
+                    perm: Some("r-x".to_string()),
+                    entropy: 6.5,
+                },
+                R2Section {
+                    name: ".data".to_string(),
+                    size: 500,
+                    vsize: Some(500),
+                    perm: Some("rw-".to_string()),
+                    entropy: 4.0,
+                },
+                R2Section {
+                    name: ".rodata".to_string(),
+                    size: 300,
+                    vsize: Some(300),
+                    perm: Some("r--".to_string()),
+                    entropy: 5.0,
+                },
+            ],
+            strings: vec![],
+        };
+
+        let metrics = analyzer.compute_metrics_from_batched(&batched);
+
+        // file_size should be the sum of all section sizes
+        assert_eq!(metrics.file_size, 1800, "file_size should equal sum of section sizes");
+
+        // code_size should be the size of executable sections only
+        assert_eq!(metrics.code_size, 1000, "code_size should equal size of .text section");
+
+        // code_size should never exceed file_size
+        assert!(metrics.code_size <= metrics.file_size,
+            "code_size ({}) should never exceed file_size ({})",
+            metrics.code_size, metrics.file_size);
     }
 }

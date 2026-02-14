@@ -1,0 +1,9 @@
+traits:
+  - id: meta/library/rxjs::ajax-observable
+    desc: "RxJS AjaxObservable"
+    crit: inert
+    conf: 1.0
+    for: [javascript, typescript]
+    if:
+      type: string
+      substr: "AjaxObservable"

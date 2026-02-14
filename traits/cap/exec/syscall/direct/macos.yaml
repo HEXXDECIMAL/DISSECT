@@ -22,3 +22,6 @@ traits:
     if:
       type: hex
       pattern: "0F 05" # syscall
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple

@@ -1,0 +1,26 @@
+# Very Short Obfuscated WSH Fragments
+# Specific for 2016-era JScript malware
+
+defaults:
+  crit: suspicious
+  conf: 1.0
+  for: [javascript]
+
+traits:
+  - id: fragment-msxml-tiny
+    desc: Tiny MSXML2 fragment
+    if:
+      type: string
+      regex: 'MSXM|MLHT'
+
+  - id: fragment-expand-env-tiny
+    desc: Tiny ExpandEnvironmentStrings fragment
+    if:
+      type: string
+      regex: 'Expa|ndEn|ntStr'
+
+  - id: fragment-savetofile-tiny
+    desc: Tiny SaveToFile fragment
+    if:
+      type: string
+      regex: 'aveTo|veToF'

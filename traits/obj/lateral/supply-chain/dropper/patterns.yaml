@@ -610,6 +610,7 @@ composite_rules:
       any:
         - id: meta/library/jquery::library
         - id: meta/library/socketio::client
+        - id: meta/library/rxjs::ajax-observable
 
   # Base64 buffer composite
   - id: base64-buffer
@@ -779,3 +780,64 @@ composite_rules:
       - { id: cap/exec/command/shell }
       - { id: cap/exec/command/direct }
       - { id: cap/exec/scripting/host::wscript-shell-string }
+
+  # === Helper Composites for Obfuscated Dropper ===
+  - id: wsh-creation-mechanism
+    desc: "WScript/ActiveX creation"
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: activex-object
+      - id: obj/exec/script/wsh::wscript-createobject
+
+  - id: wsh-payload-handling
+    desc: "WScript payload handling (Response/Stream)"
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: cap/exec/script/wsh::wsh-response-body
+      - id: adodb-stream
+      - id: cap/exec/script/wsh::wsh-adodb-stream-binary
+
+  - id: js-obfuscation-indicators
+    desc: "JavaScript obfuscation indicators"
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: cap/anti-static/obfuscation/js::js-useless-arithmetic
+      - id: cap/anti-static/obfuscation/js::js-split-custom-delimiter
+      - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
+      - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
+
+  # Obfuscated JScript Dropper
+  - id: obfuscated-js-dropper
+    desc: "Obfuscated JavaScript Dropper (WScript + Obfuscation)"
+    crit: hostile
+    conf: 0.95
+    attack: "T1105"
+    mbc: "B0024"
+    for: [javascript]
+    all:
+      - id: wsh-creation-mechanism
+      - id: wsh-payload-handling
+      - id: js-obfuscation-indicators
+
+  # JScript Dropper using Conditional Compilation
+  - id: jscript-cc-dropper
+    desc: "JScript Dropper using Conditional Compilation"
+    crit: hostile
+    conf: 0.95
+    attack: "T1059.007"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: cap/exec/scripting/jscript::jscript-cc-on
+      - id: cap/exec/command/script::batch-script-execution
+    any:
+      - id: js-obfuscation-indicators
+      - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
+      - id: obj/anti-static/obfuscation/strings/encoding::js-string-split
+

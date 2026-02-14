@@ -33,7 +33,7 @@ traits:
     conf: 0.60
     if:
       type: string
-      substr: "discord"
+      regex: "install_requires.{0,50}discord|discord.{0,50}install"
       count_min: 1
 
   - id: dependency-dhooks

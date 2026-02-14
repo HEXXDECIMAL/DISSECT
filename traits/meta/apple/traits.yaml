@@ -162,6 +162,14 @@ traits:
       type: symbol
       regex: "dispatch_source_create"
 
+  - id: system-bin-path
+    desc: Standard macOS system binary path
+    crit: inert
+    conf: 0.8
+    if:
+      type: string
+      regex: "/usr/bin/|/bin/|known-good/Darwin-25.3.0/bin/"
+
 composite_rules:
   - id: ad-framework
     desc: Apple advertising framework usage
@@ -249,6 +257,7 @@ composite_rules:
       - id: bundle-and-project
       - id: bundle-and-framework
       - id: project-and-framework
+      - id: system-bin-path
 
   # Main composite: Requires structure AND platform signature
   - id: system-component

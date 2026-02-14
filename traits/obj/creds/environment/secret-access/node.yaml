@@ -7,14 +7,6 @@ defaults:
 
 traits:
   # === Config file access atomic indicators ===
-  - id: dotenv-file
-    desc: .env file reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      exact: ".env"
-
   - id: ssh-id-rsa
     desc: SSH private key path
     crit: notable
@@ -368,7 +360,6 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     any:
-      - id: dotenv-file
       - id: ssh-id-rsa
       - id: aws-credentials-file
       - id: kube-config-file

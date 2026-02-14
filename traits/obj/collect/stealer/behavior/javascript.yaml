@@ -52,3 +52,17 @@ composite_rules:
       - id: cap/comm/http/request::axios
       - id: js-defanged-c2
       - id: js-browser-target
+
+  - id: obfuscated-browser-stealer
+    desc: Obfuscated browser/credential stealer
+    crit: hostile
+    conf: 0.95
+    attack: "T1555.003"
+    for: [javascript]
+    all:
+      - id: obj/discovery/host/browser::browser-names
+      - id: obj/anti-static/obfuscation/packing::packed-string-decryptor
+    any:
+      - id: obj/creds/discord/token::appdata-ref
+      - id: obj/collect/messaging/app::discord-ldb-ext
+      - id: obj/impact/ransomware/behavior::writefile-fn

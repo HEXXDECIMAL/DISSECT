@@ -39,25 +39,6 @@ traits:
       type: string
       regex: '(\\x[0-9a-fA-F]{2}){4,}'
 
-  # Buffer.from with encoding (atomic)
-  - id: js-buffer-from-base64
-    desc: Buffer.from base64
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: raw
-      regex: 'Buffer.from\(.{0,50}["\'']base64["\'']\)'
-
-  - id: js-buffer-from-hex
-    desc: Buffer.from hex
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: raw
-      regex: 'Buffer.from\(.{0,50}["\'']hex["\'']\)'
-
   # Hex-encoded require statement - obfuscated module import
   # Pattern: require(Buffer.from("6f73", "hex").toString()) = require("os")
   # This is a strong malware indicator - hiding sensitive imports
@@ -108,7 +89,7 @@ traits:
   # Custom string shuffling/decoding loop pattern
   - id: js-charat-loop
     desc: charAt in loop pattern
-    crit: notable
+    crit: inert
     conf: 0.7
     mbc: "B0032"
     attack: "T1027"
@@ -171,6 +152,16 @@ traits:
     if:
       type: raw
       regex: '\.join\(\s*["'']\s*["'']\s*\)'
+
+  # Array reverse (often used with split/join for string reversal)
+  - id: js-array-reverse
+    desc: Array reverse method
+    crit: notable
+    conf: 0.5
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\.reverse\(\s*\)'
 
   # === Density-Based Obfuscation Detection ===
   # Legitimate code rarely has more than a few escape sequences.
@@ -248,6 +239,19 @@ composite_rules:
       - id: dense-unicode-escapes
       - id: js-dense-hex-escapes
 
+  # String reversal pattern (split + reverse + join)
+  - id: js-reverse-string-obfuscation
+    desc: String reversal obfuscation pattern
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: js-array-join-symbol
+      - id: js-string-split
+      - id: js-array-reverse
+
   # Dynamic exec composite (eval-equivalent patterns)
   - id: js-dynamic-exec
     desc: Dynamic code execution capability
@@ -274,11 +278,34 @@ composite_rules:
       - id: js-require-alias
       - id: js-version-marker
 
+  # JavaScript dictionary string reconstruction
+  - id: js-dict-string-reconstruction
+    desc: JavaScript string reconstructed from dictionary lookup and array iteration
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: cap/data/obfuscation/string_reconstruction::js-string-dict-map
+      - id: cap/data/obfuscation/string_reconstruction::js-string-key-array
+
+  - id: js-dict-reconstruction-eval
+    desc: Dictionary-rebuilt payload executed with eval
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027.002"
+    for: [javascript]
+    all:
+      - id: js-dynamic-exec
+      - id: js-dict-string-reconstruction
+
   # Obfuscated dynamic execution
   - id: js-obfuscated-eval
     desc: Obfuscated dynamic code execution
-    crit: notable
-    conf: 0.95
+    crit: hostile
+    conf: 0.98
     attack: "T1027.002"
     mbc: "B0032"
     for: [javascript]
@@ -291,8 +318,9 @@ composite_rules:
       - id: fromcharcode
       - id: js-unicode-escape
       - id: js-hex-escape
-      - id: js-buffer-from-base64
-      - id: js-buffer-from-hex
+      - id: cap/data/encode/base64::buffer-from-base64
+      - id: cap/data/encode/hex::buffer-from-hex
+      - id: js-dict-string-reconstruction
     unless:
       - type: string
         regex: "MathJax|jquery|jquery-ui"
@@ -308,7 +336,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: js-hex-encoded-require
-      - id: js-buffer-from-hex
+      - id: cap/data/encode/hex::buffer-from-hex
 
   # Strong obfuscation indicators (high density or specific techniques)
   - id: js-strong-obfuscation
@@ -324,6 +352,7 @@ composite_rules:
       - id: js-dense-hex-escapes
       - id: js-hex-encoded-require
       - id: js-string-deobfuscation
+      - id: js-dict-string-reconstruction
 
   # Mixed encoding usage (Hex and Base64) - common in legitimate code
   - id: js-mixed-encoding-usage
@@ -332,5 +361,5 @@ composite_rules:
     conf: 0.6
     for: [javascript]
     all:
-      - id: js-buffer-from-base64
-      - id: js-buffer-from-hex
+      - id: cap/data/encode/base64::buffer-from-base64
+      - id: cap/data/encode/hex::buffer-from-hex

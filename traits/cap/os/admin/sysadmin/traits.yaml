@@ -50,7 +50,7 @@ traits:
           strings:
             // Service management
             $svc1 = "systemctl" ascii
-            $svc2 = "service " ascii
+            $svc2 = /service\s+[a-zA-Z0-9_\-]+\s+(start|stop|restart|status|reload)/ ascii
             $svc3 = "chkconfig" ascii
             // User management
             $usr1 = "useradd" ascii

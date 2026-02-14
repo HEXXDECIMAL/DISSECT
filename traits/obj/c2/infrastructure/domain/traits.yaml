@@ -9,7 +9,15 @@ defaults:
   attack: "T1071.001"
 
 traits:
-  # === Domain detection ===
+  - id: evilpacket-net
+    desc: "Evilpacket.net malicious domain"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "evilpacket.net"
+
   - id: hardcoded-domain-com
     desc: Hardcoded .com/.org/.net domain (excluding known vendors)
     crit: notable

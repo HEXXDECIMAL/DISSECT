@@ -49,18 +49,6 @@ composite_rules:
       - id: cap/exec/activex/com::activex-filesystem
       - id: cap/exec/script/embedded::powershell-cmdlet-patterns
 
-  - id: code-inflation-dropper
-    desc: "Dead code bombing with WSH execution"
-    crit: hostile
-    conf: 0.9
-    for: [javascript, typescript]
-    all:
-      - id: cap/code/obfuscation/metrics::very-low-identifier-reuse
-      - id: cap/exec/activex/com::activex-wshell
-    any:
-      - id: cap/code/obfuscation/string::cyrillic-junk-padding
-      - id: cap/code/obfuscation/string::char-expansion-obfuscation
-
   - id: base64-payload-dropper
     desc: "Base64-encoded payload with WSH execution"
     crit: hostile
@@ -72,3 +60,16 @@ composite_rules:
     any:
       - id: cap/exec/activex/com::activex-wshell
       - id: cap/exec/script/embedded::powershell-vars-in-javascript
+
+  - id: wsh-js-downloader
+    desc: "JScript/WSH Downloader with file write"
+    crit: hostile
+    conf: 0.95
+    for: [javascript]
+    platforms: [windows]
+    all:
+      - id: cap/exec/script/wsh::wsh-save-to-file
+      - id: cap/exec/script/wsh::wsh-response-body
+    any:
+      - id: cap/exec/activex/com::activex-object-create
+      - id: obj/exec/script/wsh::wscript-createobject

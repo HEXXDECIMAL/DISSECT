@@ -1,0 +1,9 @@
+traits:
+  - id: file-execution
+    criticality: suspicious
+    description: Executes a file.
+    platforms: [windows]
+    for: [javascript]
+    if:
+      type: string
+      word: "Run"

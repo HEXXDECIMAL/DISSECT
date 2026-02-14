@@ -43,7 +43,7 @@ traits:
 
   - id: url-tostring
     desc: Converts URL object to string
-    crit: notable
+    crit: inert
     conf: 0.8
     for: [javascript, typescript]
     if:

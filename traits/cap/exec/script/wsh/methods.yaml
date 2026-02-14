@@ -1,0 +1,35 @@
+# WSH Method Calls
+# Detects specific method calls associated with WSH malware
+
+defaults:
+  crit: notable
+  conf: 0.8
+  platforms: [windows]
+  for: [javascript]
+
+traits:
+  - id: wsh-expand-env-strings
+    desc: "Calls ExpandEnvironmentStrings"
+    if:
+      type: string
+      # matches ExpandEnvironmentStrings or its hex encoded form
+      regex: 'ExpandEnvironmentStrings|\\\\x45\\\\x78\\\\x70\\\\x61\\\\x6E\\\\x64\\\\x45\\\\x6E\\\\x76\\\\x69\\\\x72\\\\x6F\\\\x6E\\\\x6D\\\\x65\\\\x6E\\\\x74\\\\x53\\\\x74\\\\x72\\\\x69\\\\x6E\\\\x67\\\\x73'
+      case_insensitive: true
+
+  - id: wsh-save-to-file
+    desc: "Calls saveToFile (often ADODB.Stream)"
+    if:
+      type: string
+      # saveToFile = 73 61 76 65 54 6F 46 69 6C 65
+      # Matches "saveToFile" OR literal "\x73..."
+      regex: 'saveToFile|\\\\x73\\\\x61\\\\x76\\\\x65\\\\x54\\\\x6F\\\\x46\\\\x69\\\\x6C\\\\x65'
+      case_insensitive: true
+
+  - id: wsh-response-body
+    desc: "Accesses responseBody (XMLHTTP)"
+    if:
+      type: string
+      # responseBody = 72 65 73 70 6F 6E 73 65 42 6F 64 79
+      # Matches "responseBody" OR literal "\x72..."
+      regex: 'responseBody|\\\\x72\\\\x65\\\\x73\\\\x70\\\\x6F\\\\x6E\\\\x73\\\\x65\\\\x42\\\\x6F\\\\x64\\\\x79'
+      case_insensitive: true

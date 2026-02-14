@@ -5,7 +5,7 @@
 traits:
   - id: js-sensitive-file-target
     desc: Targets sensitive configuration files
-    crit: notable
+    crit: inert
     conf: 0.8
     if:
       type: raw

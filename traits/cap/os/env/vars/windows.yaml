@@ -15,3 +15,13 @@ traits:
       type: raw
       regex: "__COMPACT_LAYER=RunAsInvoker"
       case_insensitive: true
+
+  - id: comspec-env-var
+    desc: Accesses ComSpec environment variable
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript, vbs, batch, pe, dll]
+    if:
+      type: string
+      substr: "ComSpec"
+

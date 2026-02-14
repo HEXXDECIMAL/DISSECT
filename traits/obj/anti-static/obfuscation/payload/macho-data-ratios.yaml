@@ -16,6 +16,8 @@ traits:
       type: metrics
       field: binary.code_to_data_ratio
       max: 0.1  # Code is less than 10% of data size
+    unless:
+      - id: meta/signed/platform::apple
 
   - id: high-data-dominance
     desc: "Data section dominates file"

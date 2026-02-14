@@ -511,7 +511,7 @@ composite_rules:
 
   # System info exfiltration - small npm package collects system info and sends via HTTP POST
   # This is the classic npm supply-chain telemetry/data exfiltration pattern
-  # Complexity: file_types(+1) + all(+3) = 4 (meets HOSTILE threshold)
+  # Complexity: file_types(+1) + all(+2) + any(+1) = 4 (meets HOSTILE threshold)
   - id: npm-data-exfil
     desc: NPM package exfiltrates system info via HTTP
     crit: hostile
@@ -520,9 +520,11 @@ composite_rules:
     mbc: "E1041"
     for: [javascript]
     all:
-      - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
       - id: cap/comm/http/post::post
       - id: small-file-5k
+    any:
+      - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
+      - id: obj/discovery/host/system/hardware-fingerprint::process-fingerprint-multi
 
   # Victim identification with HTTP POST - slightly less certainty but still hostile
   # Complexity: file_types(+1) + all(+3) = 4

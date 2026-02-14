@@ -1,0 +1,39 @@
+# Obfuscated JScript Dropper Detection
+# Detects combinations of obfuscated WSH components indicating a downloader
+
+defaults:
+  crit: hostile
+  conf: 0.9
+  for: [javascript]
+
+composite_rules:
+  - id: obfuscated-downloader-fragments-strict
+    desc: Obfuscated WSH downloader fragment cluster (Strict)
+    all:
+      - id: cap/exec/script/wsh::msxml-fragment-short
+      - id: cap/exec/script/wsh::wscript-shell-fragment-short
+    any:
+      - id: cap/exec/script/wsh::expand-env-fragment-short
+      - id: cap/exec/script/wsh::response-body-fragment
+      - id: cap/exec/script/wsh::adodb-fragment-short
+
+  - id: obfuscated-downloader-tiny-fragments
+    desc: "Obfuscated WSH downloader (Tiny Fragments)"
+    crit: hostile
+    all:
+      - id: cap/exec/script/wsh::fragment-msxml-tiny
+      - id: cap/exec/script/wsh::wscript-shell-fragment-short
+    any:
+      - id: cap/exec/script/wsh::fragment-savetofile-tiny
+      - id: cap/exec/script/wsh::response-body-fragment
+      - id: cap/exec/script/wsh::adodb-fragment-short
+
+  - id: obfuscated-adodb-dropper
+    desc: "Obfuscated ADODB.Stream payload writer"
+    crit: hostile
+    all:
+      - id: cap/exec/script/wsh::adodb-fragment-short
+      - id: cap/exec/script/wsh::response-body-fragment
+    any:
+      - id: cap/anti-static/obfuscation/js::js-split-string-property
+      - id: obj/anti-static/obfuscation/strings/encoding::fromcharcode
