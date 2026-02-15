@@ -9,6 +9,7 @@
 
 use crate::analyzers::FileType;
 use crate::types::Criticality;
+use regex::Regex;
 use std::io::Write;
 use std::path::PathBuf;
 
@@ -33,6 +34,7 @@ pub enum PayloadType {
     Python,
     Shell,
     Binary,
+    Certificate,
     Unknown,
 }
 
@@ -42,6 +44,7 @@ impl From<PayloadType> for FileType {
             PayloadType::Python => FileType::Python,
             PayloadType::Shell => FileType::Shell,
             PayloadType::Binary => FileType::Unknown, // Binary needs more detection
+            PayloadType::Certificate => FileType::Certificate,
             PayloadType::Unknown => FileType::Unknown,
         }
     }
@@ -308,8 +311,11 @@ fn decompress_if_compressed(data: &[u8]) -> Option<(Vec<u8>, String)> {
 pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
+    // Strip whitespace before decoding
+    let cleaned: String = encoded.chars().filter(|c| !c.is_ascii_whitespace()).collect();
+
     // Try base64 decode
-    let decoded = STANDARD.decode(encoded).ok()?;
+    let decoded = STANDARD.decode(&cleaned).ok()?;
 
     // Check for compression using helper function
     if let Some((decompressed, comp_type)) = decompress_if_compressed(&decoded) {
@@ -321,46 +327,7 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
 
 /// Detect the type of payload from decoded content
 pub fn detect_payload_type(data: &[u8]) -> PayloadType {
-    // Check if it's valid UTF-8 (text) or binary
-    let text = match std::str::from_utf8(data) {
-        Ok(s) => s,
-        Err(_) => return PayloadType::Binary,
-    };
-
-    // Check for Python indicators
-    // Primary indicators (strong signals)
-    if text.contains("import ")
-        && (text.contains("def ")
-            || text.contains("class ")
-            || text.contains("print(")
-            || text.contains("exec(")
-            || text.contains("__name__"))
-    {
-        return PayloadType::Python;
-    }
-
-    // Secondary indicators for exec'd code (no import statement needed)
-    if text.contains("os.system(")
-        || text.contains("os.environ[")
-        || text.contains("sys.platform")
-        || text.contains("subprocess.")
-        || text.contains("open(")
-        || text.contains("sleep(")
-    {
-        return PayloadType::Python;
-    }
-
-    // Check for shell script indicators
-    if text.starts_with("#!/bin/bash")
-        || text.starts_with("#!/bin/sh")
-        || text.starts_with("#!/usr/bin/env bash")
-        || (text.contains("echo ") && text.contains("$"))
-        || text.contains("| ")
-    {
-        return PayloadType::Shell;
-    }
-
-    // Check for binary (ELF, Mach-O, PE)
+    // Check for binary (ELF, Mach-O, PE) or DER certificates first
     if data.len() > 4 {
         // ELF magic: 0x7F 'E' 'L' 'F'
         if data[0] == 0x7F && data[1] == b'E' && data[2] == b'L' && data[3] == b'F' {
@@ -379,11 +346,75 @@ pub fn detect_payload_type(data: &[u8]) -> PayloadType {
         if data[0] == b'M' && data[1] == b'Z' {
             return PayloadType::Binary;
         }
+
+        // Check for DER certificate (X.509)
+        // Starts with 0x30 0x82 (for certs > 256 bytes) or 0x30 0x81
+        if data[0] == 0x30 && (data[1] == 0x82 || data[1] == 0x81) {
+            return PayloadType::Certificate;
+        }
     }
 
-    // High entropy suggests binary
-    if calculate_entropy(data) > 7.5 {
-        return PayloadType::Binary;
+    // Check if it's valid UTF-8 (text) or binary
+    let text = match std::str::from_utf8(data) {
+        Ok(s) => s,
+        Err(_) => {
+            // High entropy suggests binary
+            if calculate_entropy(data) > 7.5 {
+                return PayloadType::Binary;
+            }
+            return PayloadType::Unknown;
+        }
+    };
+
+    // Check for Python indicators
+    // Primary indicators (strong signals) using regex to avoid false positives in text
+    let python_indicators = [
+        r"\bimport\s+\w+",
+        r"\bfrom\s+\w+\s+import\b",
+        r"\bdef\s+\w+\s*\(",
+        r"\bclass\s+\w+",
+        r"\bexec\s*\(",
+        r"\beval\s*\(",
+        r"\bsys\.",
+        r"\bos\.",
+        r#"__name__\s*==\s*['"]__main__['"]"#,
+    ];
+
+    for pattern in &python_indicators {
+        if let Ok(re) = Regex::new(pattern) {
+            if re.is_match(text) {
+                return PayloadType::Python;
+            }
+        }
+    }
+
+    // Check for shell script indicators
+    if text.starts_with("#!/bin/bash")
+        || text.starts_with("#!/bin/sh")
+        || text.starts_with("#!/usr/bin/env bash") 
+    {
+        return PayloadType::Shell;
+    }
+
+    let shell_indicators = [
+        r"\b(curl|wget)\s+", // removed echo/chmod which are common in docs
+        r"\|\s*(grep|sh|bash|python|php|base64|sed|awk)\b",
+        r"\bif\s*\[\s*",
+        r"\bfor\s+\w+\s+in\b",
+        r"\bexport\s+\w+=",
+    ];
+
+    for pattern in &shell_indicators {
+        if let Ok(re) = Regex::new(pattern) {
+            if re.is_match(text) {
+                return PayloadType::Shell;
+            }
+        }
+    }
+    
+    // Fallback for strong shell combos
+    if text.contains("echo ") && (text.contains("$") || text.contains("|")) {
+         return PayloadType::Shell;
     }
 
     PayloadType::Unknown

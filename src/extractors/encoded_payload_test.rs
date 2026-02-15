@@ -251,8 +251,9 @@ exec(data)
 
     #[test]
     fn test_large_payload_performance() {
-        // Create 1MB payload
-        let large_data = vec![b'A'; 1024 * 1024];
+        // Create 1MB payload with high entropy (to pass >96% alphabetic heuristic)
+        // Repeated 'A's (0x41) encode to purely alphabetic base64, which is now rejected
+        let large_data: Vec<u8> = (0..255).cycle().take(1024 * 1024).collect();
         let encoded = general_purpose::STANDARD.encode(&large_data);
         let content = format!("payload = '{}'", encoded);
 
@@ -667,6 +668,20 @@ if __name__ == '__main__':
         for payload in payloads {
             let _ = std::fs::remove_file(&payload.temp_path);
         }
+    }
+
+    #[test]
+    fn test_false_positive_aws_sdk_comments() {
+        // This comment string from AWS SDK Go was falsely detected as base64
+        let content = "// See CreateEncoderConfiguration for more information on using the CreateEncoderConfiguration";
+
+        // Ensure it is NOT detected as base64 candidate
+        // Note: is_base64_candidate ignores whitespace, so we need to be careful if we call it directly with spaces
+        // But extract_encoded_payloads should handle it correctly by splitting on non-base64 chars (like space)
+        
+        // Ensure extraction finds nothing
+        let payloads = extract_encoded_payloads(content.as_bytes());
+        assert!(payloads.is_empty(), "Should not extract payload from comment");
     }
 }
 

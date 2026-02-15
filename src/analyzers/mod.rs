@@ -1029,6 +1029,7 @@ pub enum FileType {
     AppleScript,
     Plist,
     Rtf, // Rich Text Format documents
+    Certificate, // X.509 / DER certificates
     Jpeg,
     Png,
     Unknown,
@@ -1076,7 +1077,7 @@ impl FileType {
             | FileType::AppleScript
             | FileType::Plist
             | FileType::Rtf => true,
-            FileType::Archive | FileType::Unknown | FileType::Jpeg | FileType::Png => false, // Skip images and unknown files by default in dir scans
+            FileType::Archive | FileType::Unknown | FileType::Jpeg | FileType::Png | FileType::Certificate => false, // Skip images and unknown files by default in dir scans
         }
     }
 
@@ -1146,7 +1147,7 @@ impl FileType {
             FileType::Rtf => vec!["rtf", "doc"],
             FileType::Jpeg => vec!["jpeg", "jpg"],
             FileType::Png => vec!["png"],
-            FileType::Unknown => vec![], // No filtering for unknown types
+            FileType::Unknown | FileType::Certificate => vec![], // No filtering for unknown types
         }
     }
 }

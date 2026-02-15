@@ -291,6 +291,14 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Process encoded payloads and analyze them
     for payload in encoded_payloads {
         // Add finding for the encoded payload
+        let crit = match payload.detected_type {
+            FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
+                types::Criticality::Suspicious
+            }
+            FileType::Certificate => types::Criticality::Notable,
+            _ => types::Criticality::Notable,
+        };
+
         report.findings.push(types::Finding {
             id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
             kind: types::FindingKind::Structural,
@@ -299,7 +307,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 payload.encoding_chain.join(" → ")
             ),
             conf: 0.9,
-            crit: types::Criticality::Notable,  // Downgraded from Suspicious - common in legitimate software
+            crit,
             mbc: None,
             attack: None,
             trait_refs: vec![],

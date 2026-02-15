@@ -745,7 +745,9 @@ impl PackageJsonAnalyzer {
             "lodash",
             "axios",
             "babel-core",
+            "babel-polyfill",
             "babel-preset-env",
+            "tslint",
             "eslint-config-airbnb",
             "eslint-config-prettier",
             "webpack",
@@ -898,7 +900,10 @@ impl PackageJsonAnalyzer {
                 return Some(original);
             }
             // Also check for simple character swaps using Levenshtein distance
-            if name != original && self.levenshtein_distance(name, original) == 1 {
+            if name != original
+                && self.levenshtein_distance(name, original) == 1
+                && !self.is_known_legitimate(name)
+            {
                 return Some(original);
             }
         }

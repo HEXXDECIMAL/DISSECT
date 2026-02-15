@@ -20,6 +20,7 @@ pub mod ast_walker;
 pub mod comment_metrics;
 pub mod function_metrics;
 pub mod identifier_metrics;
+pub mod import_metrics;
 pub mod string_metrics;
 pub mod symbol_extraction;
 pub mod text_metrics;
@@ -42,10 +43,17 @@ pub mod unified;
 // Fallback for languages without tree-sitter support
 pub mod generic;
 
+// Embedded code detector (analyzes code found in strings)
+pub mod embedded_code_detector;
+
+// Overlay data analyzer (self-extracting archives)
+pub mod overlay;
+
 use crate::capabilities::CapabilityMapper;
 use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
 use anyhow::Result;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Create an analyzer for the given file type.
 ///
@@ -102,7 +110,7 @@ pub fn analyzer_for_file_type(
         )),
 
         // Python package metadata - use generic analyzer for string/trait matching
-        FileType::PkgInfo => Some(Box::new(
+        FileType::PkgInfo | FileType::Plist => Some(Box::new(
             generic::GenericAnalyzer::new(file_type.clone())
                 .with_capability_mapper(mapper_or_empty),
         )),
@@ -119,6 +127,80 @@ pub fn analyzer_for_file_type(
                 Some(Box::new(
                     generic::GenericAnalyzer::new(file_type.clone())
                         .with_capability_mapper(mapper_or_empty),
+                ))
+            }
+        }
+    }
+}
+
+/// Create an analyzer for the given file type with a shared capability mapper.
+///
+/// Same as `analyzer_for_file_type` but accepts an Arc to avoid cloning.
+pub fn analyzer_for_file_type_arc(
+    file_type: &FileType,
+    mapper: Option<Arc<CapabilityMapper>>,
+) -> Option<Box<dyn Analyzer>> {
+    let mapper_or_empty = mapper.unwrap_or_else(|| Arc::new(CapabilityMapper::empty()));
+
+    match file_type {
+        // Binary formats - need dedicated analyzers
+        FileType::MachO => Some(Box::new(
+            macho::MachOAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::Elf => Some(Box::new(
+            elf::ElfAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::Pe => Some(Box::new(
+            pe::PEAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Java bytecode - not source code
+        FileType::JavaClass | FileType::Jar => Some(Box::new(
+            java_class::JavaClassAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Compiled AppleScript - binary format
+        FileType::AppleScript => Some(Box::new(
+            applescript::AppleScriptAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // RTF documents - parse for embedded OLE objects
+        FileType::Rtf => Some(Box::new(
+            rtf::RtfAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Package manifests - structured data parsers
+        FileType::VsixManifest => Some(Box::new(
+            vsix_manifest::VsixManifestAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::PackageJson => Some(Box::new(
+            package_json::PackageJsonAnalyzer::new().with_capability_mapper_arc(mapper_or_empty),
+        )),
+        FileType::ChromeManifest => Some(Box::new(
+            chrome_manifest::ChromeManifestAnalyzer::new()
+                .with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Python package metadata - use generic analyzer for string/trait matching
+        FileType::PkgInfo | FileType::Plist => Some(Box::new(
+            generic::GenericAnalyzer::new(file_type.clone())
+                .with_capability_mapper_arc(mapper_or_empty),
+        )),
+
+        // Archive needs special handling (depth limits, nested analysis)
+        FileType::Archive => None,
+
+        // All source code languages - use unified analyzer
+        _ => {
+            if let Some(analyzer) = unified::UnifiedSourceAnalyzer::for_file_type(file_type) {
+                Some(Box::new(
+                    analyzer.with_capability_mapper_arc(mapper_or_empty),
+                ))
+            } else {
+                // Fallback to generic for types without tree-sitter (Batch, Unknown)
+                Some(Box::new(
+                    generic::GenericAnalyzer::new(file_type.clone())
+                        .with_capability_mapper_arc(mapper_or_empty),
                 ))
             }
         }
@@ -190,6 +272,8 @@ where
                     value: "parser_crash".to_string(),
                     location: Some("parse".to_string()),
                 }],
+
+                source_file: None,
             });
 
             Err(Box::new(report))
@@ -264,7 +348,7 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
         match ext_str {
             "sh" => return FileType::Shell,
             "py" => return FileType::Python,
-            "js" | "mjs" | "cjs" => return FileType::JavaScript,
+            "js" | "mjs" | "cjs" | "jsx" => return FileType::JavaScript,
             "ts" | "tsx" | "mts" | "cts" => return FileType::TypeScript,
             "go" => return FileType::Go,
             "rs" => return FileType::Rust,
@@ -284,6 +368,7 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
             "zig" => return FileType::Zig,
             "ex" | "exs" => return FileType::Elixir,
             "scpt" | "applescript" => return FileType::AppleScript,
+            "plist" => return FileType::Plist,
             "rtf" => return FileType::Rtf,
             "zip" | "7z" | "rar" | "deb" | "rpm" | "apk" | "ipa" | "xpi" | "epub" | "nupkg"
             | "vsix" | "aar" | "egg" | "whl" | "phar" => return FileType::Archive,
@@ -299,7 +384,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     let file_data = std::fs::read(file_path)?;
 
     if file_data.len() < 4 {
-        return Ok(FileType::Unknown);
+        // Fall back to extension-based detection for tiny/empty files
+        return Ok(detect_file_type_from_path(file_path));
     }
 
     // Check for compiled AppleScript magic bytes "Fasd"
@@ -350,6 +436,19 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
     // Check for PE magic bytes
     if file_data.starts_with(b"MZ") {
         return Ok(FileType::Pe);
+    }
+
+    // Check for Binary Plist
+    if file_data.starts_with(b"bplist") {
+        return Ok(FileType::Plist);
+    }
+
+    // Check for XML Plist
+    let content_start = String::from_utf8_lossy(&file_data[..file_data.len().min(100)]);
+    if (content_start.contains("<?xml") && content_start.contains("<plist"))
+        || content_start.contains("<plist")
+    {
+        return Ok(FileType::Plist);
     }
 
     // Check for shell script shebang (various shells)
@@ -428,6 +527,12 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         }
         if name == "extension.vsixmanifest" || name.ends_with(".vsixmanifest") {
             return Ok(FileType::VsixManifest);
+        }
+        if name == "pkg-info" || name == "metadata" {
+            return Ok(FileType::PkgInfo);
+        }
+        if name.ends_with(".plist") {
+            return Ok(FileType::Plist);
         }
         // Debian/Ubuntu package maintainer scripts (often lack shebang)
         // But only if they don't have a recognized source code extension
@@ -544,6 +649,8 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         || path_str.ends_with(".xpi")
         || path_str.ends_with(".crx")
         || path_str.ends_with(".ipa")
+        || path_str.ends_with(".apk")
+        || path_str.ends_with(".aar")
         || path_str.ends_with(".epub")
         || path_str.ends_with(".7z")
         || path_str.ends_with(".pkg")
@@ -561,7 +668,7 @@ pub fn detect_file_type(file_path: &Path) -> Result<FileType> {
         if ext_str == "py" {
             return Ok(FileType::Python);
         }
-        if matches!(ext_str, "js" | "mjs" | "cjs") {
+        if matches!(ext_str, "js" | "mjs" | "cjs" | "jsx") {
             return Ok(FileType::JavaScript);
         }
         if matches!(ext_str, "ts" | "tsx" | "mts" | "cts") {
@@ -717,6 +824,171 @@ fn looks_like_shell(data: &[u8]) -> bool {
         || first_lines.contains("case $")
 }
 
+/// Check if file content matches its extension's expected magic bytes
+/// Returns (expected_type, actual_type_hint) if mismatch detected
+pub fn check_extension_content_mismatch(
+    file_path: &Path,
+    file_data: &[u8],
+) -> Option<(String, String)> {
+    if file_data.len() < 4 {
+        return None;
+    }
+
+    let _path_lower = file_path.to_string_lossy().to_lowercase();
+    let extension = file_path.extension()?.to_str()?;
+
+    // Define expected magic bytes for extensions commonly spoofed by malware
+    let expected_magic: Option<(&str, &[u8])> = match extension {
+        // Font formats
+        "woff" => Some(("WOFF font", b"wOFF")),
+        "woff2" => Some(("WOFF2 font", b"wOF2")),
+        "ttf" | "ttc" => {
+            // TrueType: version number 0x00010000 or 'true' or 'typ1'
+            if file_data.len() >= 4
+                && (file_data.starts_with(b"\x00\x01\x00\x00")
+                    || file_data.starts_with(b"true")
+                    || file_data.starts_with(b"typ1")
+                    || file_data.starts_with(b"ttcf"))
+            {
+                None // Valid TTF/TTC
+            } else {
+                Some(("TrueType font", &[])) // Trigger mismatch
+            }
+        }
+        "otf" => {
+            // OpenType: 'OTTO' or TrueType signature
+            if file_data.starts_with(b"OTTO")
+                || file_data.starts_with(b"\x00\x01\x00\x00")
+                || file_data.starts_with(b"true")
+            {
+                None // Valid OTF
+            } else {
+                Some(("OpenType font", &[]))
+            }
+        }
+
+        // Image formats
+        "gif" => Some(("GIF image", b"GIF89a")), // Also accepts GIF87a
+        "bmp" => Some(("BMP image", b"BM")),
+        "ico" => Some(("ICO image", b"\x00\x00\x01\x00")),
+        "webp" => Some(("WebP image", b"RIFF")), // Also needs "WEBP" at offset 8
+        "svg" => {
+            // SVG is XML, check for <svg tag
+            let s = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
+            if s.contains("<svg") || s.starts_with("<?xml") {
+                None
+            } else {
+                Some(("SVG image", &[]))
+            }
+        }
+
+        // Audio/Video (less commonly abused, but worth checking)
+        "mp3" => {
+            // MP3: ID3v2 tag or sync word FF Fx
+            if file_data.starts_with(b"ID3")
+                || (file_data[0] == 0xFF && (file_data[1] & 0xE0) == 0xE0)
+            {
+                None
+            } else {
+                Some(("MP3 audio", &[]))
+            }
+        }
+        "wav" => Some(("WAV audio", b"RIFF")), // Also needs "WAVE" at offset 8
+
+        _ => None,
+    };
+
+    let (expected_desc, expected_bytes) = expected_magic?;
+
+    // For complex checks (empty expected_bytes), we already determined there's a mismatch
+    // For simple prefix checks, verify the magic bytes match
+    if !expected_bytes.is_empty() && !file_data.starts_with(expected_bytes) {
+        // Special cases for formats that start with alternate magic
+        if extension == "gif" && file_data.starts_with(b"GIF87a") {
+            return None; // GIF87a is also valid
+        }
+
+        // Try to identify what it actually is
+        let actual_hint = if file_data.starts_with(b"PK") {
+            "ZIP archive"
+        } else if file_data.starts_with(b"\x7fELF") {
+            "ELF binary"
+        } else if file_data.starts_with(b"MZ") {
+            "PE executable"
+        } else if file_data.starts_with(b"wOFF") {
+            "WOFF font"
+        } else if file_data.starts_with(b"wOF2") {
+            "WOFF2 font"
+        } else if file_data.starts_with(b"\x89PNG") {
+            "PNG image"
+        } else if file_data.starts_with(b"\xFF\xD8\xFF") {
+            "JPEG image"
+        } else if file_data.starts_with(b"GIF8") {
+            "GIF image"
+        } else if file_data[0..file_data.len().min(100)]
+            .iter()
+            .all(|&b| b.is_ascii())
+        {
+            // Check if it's hex-encoded data (common obfuscation)
+            let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
+                "hex-encoded data"
+            } else {
+                "ASCII text"
+            }
+        } else {
+            "binary data"
+        };
+
+        return Some((expected_desc.to_string(), actual_hint.to_string()));
+    }
+
+    // For empty expected_bytes (complex validation already done above)
+    if expected_bytes.is_empty() {
+        // Determine actual content type
+        let actual_hint = if file_data.starts_with(b"PK") {
+            "ZIP archive"
+        } else if file_data.starts_with(b"\x7fELF") {
+            "ELF binary"
+        } else if file_data.starts_with(b"MZ") {
+            "PE executable"
+        } else if file_data.starts_with(b"wOFF") {
+            "WOFF font"
+        } else if file_data.starts_with(b"wOF2") {
+            "WOFF2 font"
+        } else if file_data.starts_with(b"\x89PNG") {
+            "PNG image"
+        } else if file_data.starts_with(b"\xFF\xD8\xFF") {
+            "JPEG image"
+        } else if file_data.starts_with(b"GIF8") {
+            "GIF image"
+        } else if file_data[0..file_data.len().min(100)]
+            .iter()
+            .all(|&b| b.is_ascii())
+        {
+            // Check if it's hex-encoded data (common obfuscation)
+            let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
+                "hex-encoded data"
+            } else {
+                "ASCII text"
+            }
+        } else {
+            "binary data"
+        };
+
+        return Some((expected_desc.to_string(), actual_hint.to_string()));
+    }
+
+    None
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum FileType {
     MachO,
@@ -755,6 +1027,7 @@ pub enum FileType {
     PkgInfo,        // Python package metadata (PKG-INFO, METADATA)
     Archive,
     AppleScript,
+    Plist,
     Rtf, // Rich Text Format documents
     Jpeg,
     Png,
@@ -801,6 +1074,7 @@ impl FileType {
             | FileType::ComposerJson
             | FileType::GithubActions
             | FileType::AppleScript
+            | FileType::Plist
             | FileType::Rtf => true,
             FileType::Archive | FileType::Unknown | FileType::Jpeg | FileType::Png => false, // Skip images and unknown files by default in dir scans
         }
@@ -838,7 +1112,7 @@ impl FileType {
             }
             FileType::Batch => vec!["bat", "cmd", "batch"],
             FileType::Python => vec!["py", "pyc"],
-            FileType::JavaScript => vec!["js", "mjs", "cjs", "ts"],
+            FileType::JavaScript => vec!["js", "mjs", "cjs", "jsx", "ts"],
             FileType::TypeScript => vec!["ts", "tsx", "mts", "cts", "js"],
             FileType::Go => vec!["go"],
             FileType::Rust => vec!["rs"],
@@ -868,10 +1142,128 @@ impl FileType {
             FileType::GithubActions => vec!["yaml", "yml", "github-actions"],
             FileType::Archive => vec!["zip", "tar", "gz"],
             FileType::AppleScript => vec!["scpt", "applescript"],
+            FileType::Plist => vec!["plist", "xml", "apple"],
             FileType::Rtf => vec!["rtf", "doc"],
             FileType::Jpeg => vec!["jpeg", "jpg"],
             FileType::Png => vec!["png"],
             FileType::Unknown => vec![], // No filtering for unknown types
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_woff2_mismatch_hex_encoded() {
+        // Hex-encoded JavaScript disguised as WOFF2
+        let hex_js = b"636F6E7374205F3078316331303030";
+        let path = PathBuf::from("fonts/malware.woff2");
+
+        let result = check_extension_content_mismatch(&path, hex_js);
+        assert!(result.is_some());
+        let (expected, actual) = result.unwrap();
+        assert_eq!(expected, "WOFF2 font");
+        assert_eq!(actual, "hex-encoded data");
+    }
+
+    #[test]
+    fn test_woff_mismatch_ascii() {
+        // ASCII text disguised as WOFF
+        let text = b"const _0x1c1000 = function() { /* malware */ };";
+        let path = PathBuf::from("fonts/fake.woff");
+
+        let result = check_extension_content_mismatch(&path, text);
+        assert!(result.is_some());
+        let (expected, actual) = result.unwrap();
+        assert_eq!(expected, "WOFF font");
+        assert_eq!(actual, "ASCII text");
+    }
+
+    #[test]
+    fn test_ttf_mismatch() {
+        // PNG image disguised as TTF
+        let png = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR";
+        let path = PathBuf::from("fonts/fake.ttf");
+
+        let result = check_extension_content_mismatch(&path, png);
+        assert!(result.is_some());
+        let (expected, actual) = result.unwrap();
+        assert_eq!(expected, "TrueType font");
+        assert_eq!(actual, "PNG image");
+    }
+
+    #[test]
+    fn test_valid_woff2() {
+        // Valid WOFF2 file
+        let woff2 = b"wOF2\x00\x01\x00\x00";
+        let path = PathBuf::from("fonts/real.woff2");
+
+        let result = check_extension_content_mismatch(&path, woff2);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_valid_ttf() {
+        // Valid TrueType font
+        let ttf = b"\x00\x01\x00\x00\x00\x0f\x00\x80";
+        let path = PathBuf::from("fonts/real.ttf");
+
+        let result = check_extension_content_mismatch(&path, ttf);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_gif_mismatch() {
+        // JPEG disguised as GIF
+        let jpeg = b"\xFF\xD8\xFF\xE0\x00\x10JFIF";
+        let path = PathBuf::from("images/fake.gif");
+
+        let result = check_extension_content_mismatch(&path, jpeg);
+        assert!(result.is_some());
+        let (expected, actual) = result.unwrap();
+        assert_eq!(expected, "GIF image");
+        assert_eq!(actual, "JPEG image");
+    }
+
+    #[test]
+    fn test_svg_valid() {
+        // Valid SVG
+        let svg = b"<svg xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0,0\"/></svg>";
+        let path = PathBuf::from("images/real.svg");
+
+        let result = check_extension_content_mismatch(&path, svg);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_no_extension() {
+        // File without extension - should return None
+        let data = b"some random data";
+        let path = PathBuf::from("README");
+
+        let result = check_extension_content_mismatch(&path, data);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_unsupported_extension() {
+        // Extension we don't validate - should return None
+        let data = b"some random data";
+        let path = PathBuf::from("data.txt");
+
+        let result = check_extension_content_mismatch(&path, data);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_jsx_extension_support() {
+        // Test that .jsx extension is recognized as JavaScript
+        let path = PathBuf::from("Component.jsx");
+
+        let file_type = detect_file_type_from_path(&path);
+        assert_eq!(file_type, FileType::JavaScript);
     }
 }

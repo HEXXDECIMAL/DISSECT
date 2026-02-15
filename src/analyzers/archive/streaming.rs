@@ -329,8 +329,8 @@ impl ArchiveAnalyzer {
                 // The file content is already extracted and will be processed by the trait matcher
             }
 
-            // Image formats - currently no specific deep analysis beyond YARA/traits
-            FileType::Jpeg | FileType::Png => {}
+            // Image and other data formats - currently no specific deep analysis beyond YARA/traits
+            FileType::Jpeg | FileType::Png | FileType::Certificate => {}
 
             // Unknown files - no specific analyzer, just extract strings/traits
             FileType::Unknown => {}
