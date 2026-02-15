@@ -11,3 +11,12 @@ traits:
     if:
       type: symbol
       regex: DeleteFile|DeleteFileA|DeleteFileW
+  - id: del-command
+    desc: 'File deletion using "del" command.'
+    crit: notable
+    conf: 0.7
+    for: [batch]
+    if:
+      type: string
+      regex: 'del %?[A-Za-z0-9_]+%?(\.exe)?' # Detects "del %var%" or "del filename.exe"
+

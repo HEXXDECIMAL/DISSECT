@@ -188,6 +188,9 @@ composite_rules:
       - id: ditto-ck-flags
       - id: ditto-sequester
       - id: ditto-zip-output
+    downgrade:
+      any:
+        - id: meta/sign/apple::platform
 
   # tar/gzip compression composite
   - id: tar-compress

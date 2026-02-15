@@ -1,7 +1,7 @@
 traits:
   - id: math-alphanum-identifiers
     desc: "Uses math symbols in identifiers"
-    crit: suspicious
+    crit: notable
     conf: 1.0
     for: [python, javascript, typescript, go, rust, c, cpp, java]
     if:

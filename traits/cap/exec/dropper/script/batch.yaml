@@ -18,7 +18,7 @@ traits:
 
   - id: powershell-download
     desc: PowerShell download cradle in batch
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "C0002"
     attack: "T1059.001"
@@ -173,6 +173,38 @@ traits:
     if:
       type: raw
       regex: "(?i)\\bcertutil\\b"
+
+  - id: certutil-urlcache
+    desc: certutil urlcache (LOLBin download)
+    crit: suspicious
+    conf: 0.95
+    mbc: "C0002"
+    attack: "T1105"
+    for: [shell, batch]
+    if:
+      type: raw
+      regex: "(?i)certutil[^\\n]*-urlcache"
+
+  - id: certutil-urlcache-split-force
+    desc: certutil urlcache with split force flags
+    crit: suspicious
+    conf: 0.98
+    mbc: "C0002"
+    attack: "T1105"
+    for: [shell, batch]
+    if:
+      type: raw
+      regex: "(?i)certutil(?:\\.exe)?\\s+[^\\n]{0,120}-urlcache[^\\n]{0,60}-split[^\\n]{0,60}-f"
+
+  - id: wmic-arch-check
+    desc: Check OS architecture via WMIC
+    crit: notable
+    conf: 0.8
+    attack: "T1082"
+    for: [shell, batch]
+    if:
+      type: raw
+      regex: "(?i)wmic[^\\n]*osarchitecture"
 
   - id: bitsadmin-cmd
     desc: bitsadmin command
@@ -331,7 +363,7 @@ composite_rules:
   # PowerShell download cradle in batch (Invoke-WebRequest + OutFile)
   - id: powershell-download-cradle
     desc: PowerShell download cradle
-    crit: suspicious
+    crit: notable
     conf: 0.9
     mbc: "C0002"
     attack: "T1059.001"

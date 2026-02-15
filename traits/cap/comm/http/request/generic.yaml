@@ -82,15 +82,41 @@ traits:
       type: string
       substr: "XMLHttpRequest"
 
+  - id: http-config-method
+    desc: HTTP configuration field (method)
+    crit: inert
+    conf: 0.3
+    if:
+      type: raw
+      regex: '("method"|method:)'
+
+  - id: http-config-body
+    desc: HTTP configuration field (body)
+    crit: inert
+    conf: 0.3
+    if:
+      type: raw
+      regex: '("body"|body:)'
+
+  - id: http-config-headers
+    desc: HTTP configuration field (headers)
+    crit: inert
+    conf: 0.3
+    if:
+      type: raw
+      regex: '("headers"|headers:)'
+
+composite_rules:
   - id: http-config-fields
     desc: HTTP configuration fields (method/body/headers)
     crit: inert
     conf: 0.5
-    if:
-      type: raw
-      regex: '("method"|"body"|"headers")'
+    needs: 2
+    any:
+      - id: http-config-method
+      - id: http-config-body
+      - id: http-config-headers
 
-composite_rules:
   # HTTP request composite (migrated from YARA)
   - id: request
     desc: Makes HTTP requests

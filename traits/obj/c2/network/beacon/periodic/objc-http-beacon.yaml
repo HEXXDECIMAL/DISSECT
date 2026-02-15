@@ -18,6 +18,10 @@ traits:
     if:
       type: string
       regex: "POST\\s"
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
+        - id: cap/comm/download/curl::curl-easy-init
 
   - id: nsurl-http-body
     desc: NSURLRequest HTTP body

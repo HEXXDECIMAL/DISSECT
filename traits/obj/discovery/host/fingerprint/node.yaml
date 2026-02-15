@@ -241,7 +241,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      substr: "tasklist"
+      word: "tasklist"
 
   - id: ps-aux-cmd
     desc: ps aux command

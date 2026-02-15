@@ -8,8 +8,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      exact: "it("
+      type: ast
+      kind: call
+      exact: "it"
 
   - id: before-each-call
     desc: beforeEach hook
@@ -17,8 +18,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      word: "beforeEach"
+      type: ast
+      kind: call
+      exact: "beforeEach"
 
   - id: after-each-call
     desc: afterEach hook
@@ -26,8 +28,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      word: "afterEach"
+      type: ast
+      kind: call
+      exact: "afterEach"
 
   # Mocha test file markers
   - id: before-call
@@ -36,8 +39,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "before("
+      type: ast
+      kind: call
+      exact: "before"
 
   - id: after-call
     desc: after() hook
@@ -45,8 +49,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "after("
+      type: ast
+      kind: call
+      exact: "after"
 
   - id: chai-word
     desc: chai keyword

@@ -180,7 +180,7 @@ traits:
     for: [shell, elf, macho]
     if:
       type: string
-      substr: "/usr/bin/w"
+      regex: "/usr/bin/w\\b"
 
 composite_rules:
   # HOME environment composite
@@ -223,10 +223,10 @@ composite_rules:
       - id: w-cmd
 
   # Passive user lookup functions
-  # NOTE: Go runtime uses these legitimately - downgraded to inert
+  # NOTE: Go runtime and legitimate tools (like ls) use these for user/group name display
   - id: passive-user-lookup
     desc: POSIX user lookup functions
-    crit: notable
+    crit: inert
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]

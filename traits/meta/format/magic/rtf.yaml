@@ -1,0 +1,8 @@
+traits:
+  - id: rtf
+    desc: RTF document magic at file start.
+    crit: inert
+    if:
+      type: hex
+      pattern: "7b 5c 72 74 66"
+      offset: 0

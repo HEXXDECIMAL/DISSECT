@@ -7,3 +7,12 @@ traits:
     if:
       type: string
       substr: "AjaxObservable"
+
+  - id: meta/library/rxjs::generic
+    desc: "RxJS library"
+    crit: inert
+    conf: 1.0
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "RxJS: Back to a better error behavior|no WebSocket constructor can be found|cold observable cannot have subscription offset"

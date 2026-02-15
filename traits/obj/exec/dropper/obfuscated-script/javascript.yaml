@@ -1,0 +1,42 @@
+# Obfuscated JScript Dropper Detection
+# Detects heavily obfuscated JavaScript/JScript droppers using specific techniques
+# ATT&CK: T1027 (Obfuscated Files or Information)
+# MBC: B0032 (Obfuscated Files or Information)
+
+defaults:
+  for: [javascript]
+  crit: hostile
+
+composite_rules:
+  # Obfuscated XOR Dropper (JScript)
+  # Detects JScript code using XOR decryption loops with hex-encoded strings
+  # Complexity: 4
+  - id: js-obfuscated-xor-dropper
+    desc: "Obfuscated JScript XOR dropper"
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: js-xor-decoder-logic
+      - id: js-obfuscated-strings
+
+  - id: js-xor-decoder-logic
+    desc: "JScript XOR decoder logic"
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: cap/data/encode/xor::js-xor-decoder-loop
+      - id: cap/data/encode/xor::js-xor-decoder-ast
+
+  - id: js-obfuscated-strings
+    desc: "JScript obfuscated strings"
+    crit: notable
+    conf: 0.8
+    any:
+      - id: obj/anti-static/obfuscation/strings/encoding::js-interspersed-hex-escapes
+      - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
+      - id: obj/anti-static/obfuscation/strings/encoding::fromcharcode
+    downgrade:
+      any:
+        - type: string
+          regex: "BinaryParser|Jonas Raoni Soares Silva"

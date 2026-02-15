@@ -1,0 +1,39 @@
+# More Tiny Obfuscated WSH Fragments
+# Specific for 2015-era JScript malware
+
+defaults:
+  crit: suspicious
+  conf: 1.0
+  for: [javascript]
+
+traits:
+  - id: wscript-shell-fragment-tiny-2
+    desc: Tiny WScript.Shell fragment (variant 2)
+    if:
+      type: raw
+      # Removed backslash, added t.She, removed hell (FP on powershell)
+      regex: 'WScri|ipt.S|pt.She'
+
+  - id: adodb-fragment-tiny-2
+    desc: Tiny ADODB.Stream fragment (variant 2)
+    if:
+      type: string
+      regex: 'ODB.S|trea'
+
+  - id: xmlhttp-fragment-tiny-2
+    desc: Tiny XMLHTTP fragment (variant 2)
+    if:
+      type: string
+      regex: '.XMLH|TTP'
+
+  - id: savetofile-fragment-tiny-2
+    desc: Tiny SaveToFile fragment (variant 2)
+    if:
+      type: string
+      regex: 'veToF|ile'
+
+  - id: activex-fragment-tiny-2
+    desc: Tiny ActiveXObject fragment (variant 2)
+    if:
+      type: string
+      regex: 'Activ|eXObj|ect'

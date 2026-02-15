@@ -51,7 +51,7 @@ traits:
   # === String Copy ===
   - id: strcpy
     desc: String copy (unsafe)
-    crit: notable
+    crit: inert
     conf: 0.90
     attack: "T1083"
     if:

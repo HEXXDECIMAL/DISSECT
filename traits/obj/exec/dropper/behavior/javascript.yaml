@@ -13,6 +13,12 @@ composite_rules:
       - id: cap/exec/command/shell/lang::js-exec
       - id: cap/exec/command/shell/lang::js-execsync
       - id: cap/exec/command/shell/lang::js-spawn
+    unless:
+      - id: meta/dev/testing::node-common-require
+    downgrade:
+      any:
+        - id: meta/dev/testing::node-common-require
+        - id: obj/lateral/supply-chain/npm/testing::assert-word
 
   - id: obfuscated-local-dropper
     desc: Obfuscated local dropper (Hostile)

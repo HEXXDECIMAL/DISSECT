@@ -76,7 +76,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: '&&\s*rm\s+(-[a-z]+\s+)*(/bin/|/sbin/|/usr/)'
+      regex: '&&\s*rm\s+(-[a-z]+\s+)*(/bin/|/sbin/|/usr/bin/|/usr/sbin/|/usr/local/bin/|/usr/local/sbin/)'
 
   - id: rm-bin-path
     desc: Delete file in /bin directory
@@ -117,7 +117,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: '/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]+[^;]*&&[^;]*rm\s+'
+      regex: '(?:^|[\s;&|])/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]+[^;]*&&[^;]*rm\s+'
 
 composite_rules:
   # Copy to any system bin directory

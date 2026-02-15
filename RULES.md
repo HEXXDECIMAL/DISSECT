@@ -76,7 +76,7 @@ traits:
 | Type | Purpose | Matchers | Modifiers |
 |------|---------|----------|-----------|
 | `string` | Extracted strings | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `exclude_patterns`, `external_ip` |
-| `content` | Raw file bytes | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
+| `raw` | Raw file bytes | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
 | `symbol` | Imports/exports | `exact`, `substr`, `regex` | `platforms` |
 | `hex` | Byte patterns (wildcards always extracted) | pattern string | count, density, `offset`, `offset_range` |
 | `encoded` | **All decoded strings** | `exact`, `substr`, `regex`, `word` | count, density, location, `encoding`, `case_insensitive` |
@@ -114,7 +114,7 @@ traits:
 
 ## Count & Density Constraints
 
-Available on `string`, `content`, `hex`, `encoded`, `base64`, `xor`:
+Available on `string`, `raw`, `hex`, `encoded`, `base64`, `xor`:
 
 | Field | Description |
 |-------|-------------|
@@ -134,7 +134,7 @@ Available on `string`, `content`, `hex`, `encoded`, `base64`, `xor`:
 
 ## Location Constraints
 
-Available on `string`, `content`, `encoded`, `base64`, `xor`. Hex supports `offset` and `offset_range`.
+Available on `string`, `raw`, `encoded`, `base64`, `xor`. Hex supports `offset` and `offset_range`.
 
 | Field | Description |
 |-------|-------------|
@@ -316,9 +316,56 @@ composite_rules:
 |-----------|---------|
 | `not:` | Filter matched strings (list of `exact`/`substr`/`regex`) |
 | `unless:` | Skip if condition matches (trait refs or inline conditions) |
-| `downgrade:` | Reduce criticality if condition matches |
+| `downgrade:` | Reduce criticality by one level if condition matches |
 
 **Proximity:** `near_bytes:`, `near_lines:` - require evidence within N bytes/lines
+
+### Downgrade Behavior
+
+Reduces criticality by **one level** when conditions match:
+
+| Original → Downgraded | Use Case |
+|----------------------|----------|
+| `hostile` → `suspicious` | Known malware signature found in security tool |
+| `suspicious` → `notable` | Anti-debug technique in signed system binary |
+| `notable` → `inert` | Common capability in trusted context (becomes invisible) |
+
+**Syntax** (works on both atomic traits and composite rules):
+
+```yaml
+traits:
+  - id: debugger-check
+    desc: Anti-debugging technique
+    crit: suspicious                    # Suspicious by default
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "ptrace"
+    downgrade:                           # → notable if signed
+      any:
+        - id: meta/signed/platform::apple
+        - id: meta/quality::versioned
+
+composite_rules:
+  - id: process-hollowing
+    desc: Process injection technique
+    crit: hostile                        # Hostile by default
+    conf: 0.95
+    all:
+      - id: cap/process/create
+      - id: cap/mem/allocate/rwx
+    downgrade:                           # → suspicious if debugger
+      any:
+        - id: cap/exec/load/library::debugger-tool-marker
+```
+
+**Note:** Downgrade to `inert` removes the finding from output entirely. Use `unless:` if you want to skip matching instead.
+
+**Debug:** Use `test-rules` to see downgrade evaluation:
+```bash
+dissect test-rules file.bin --rules "debugger-check"
+# Shows: "Downgrade: suspicious -> notable (triggered)"
+```
 
 ## KV Path Syntax
 
@@ -349,7 +396,7 @@ dissect test-match <file> --type string --pattern "eval"  # Test patterns
 
 | Option | Values |
 |--------|--------|
-| `--type` | `string`, `symbol`, `content`, `kv`, `hex`, `encoded`, `base64`, `xor` |
+| `--type` | `string`, `symbol`, `raw`, `kv`, `hex`, `encoded`, `base64`, `xor` |
 | `--method` | `exact`, `contains`, `regex`, `word` |
 | `--pattern` | Search pattern |
 | `--encoding` | Encoding filter for `encoded` type: `base64`, `base64,hex`, etc. |

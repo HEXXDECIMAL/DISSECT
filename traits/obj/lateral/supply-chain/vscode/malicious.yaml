@@ -49,7 +49,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "exec(Sync|Async)?"
+      regex: "exec(Sync|Async)?\\("
 
   # === Atomic indicators for credential-theft ===
   - id: ssh-dir

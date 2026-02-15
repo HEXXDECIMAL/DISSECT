@@ -4,7 +4,7 @@
 traits:
   - id: sysctl
     desc: Query or modify kernel state via sysctl
-    crit: notable
+    crit: inert
     mbc: "E1082"
     attack: "T1082"
     conf: 0.6
@@ -16,7 +16,7 @@ traits:
 
   - id: sysctlbyname
     desc: Read or modify kernel state by name
-    crit: notable
+    crit: inert
     mbc: "E1082"
     attack: "T1082"
     conf: 0.6

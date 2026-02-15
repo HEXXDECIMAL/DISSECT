@@ -310,7 +310,7 @@ composite_rules:
     # (e.g., ReplayKit daemon, plugin systems, framework code)
     downgrade:
       any:
-        - id: meta/apple/system-component
+        - id: meta/apple::system-component
 
   # NOTE: dlopen/dlsym is common in many legitimate programs including shells
   # (bash uses it for loadable builtins), interpreters, plugin systems, and
@@ -328,7 +328,8 @@ composite_rules:
     # Downgrade for system components and known system/video libraries
     downgrade:
       any:
-        - id: meta/apple/system-component
+        - id: meta/apple::system-component
+        - id: meta/sign/apple::platform
         - id: cap/exec/load/library::system-lib-marker
         - id: cap/exec/load/video-lib-marker
         - id: cap/exec/load/library::graphics-lib-marker

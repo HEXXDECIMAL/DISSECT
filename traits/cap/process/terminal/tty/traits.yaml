@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: isatty
     desc: Detect if running in terminal
-    crit: notable
+    crit: inert
     conf: 0.5
     if:
       type: symbol

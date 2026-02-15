@@ -84,11 +84,11 @@ traits:
   # === COM/Object Instantiation ===
   - id: com-dispatch-usage
     desc: COM Dispatch usage
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: raw
-      regex: "\\bDispatch\\(|\\bwin32com\\b|\\bpythoncom\\b"
+      regex: "\\bwin32com\\b|\\bpythoncom\\b"
 
   - id: ctypes-windll-usage
     desc: ctypes windll usage

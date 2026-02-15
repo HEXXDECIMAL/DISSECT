@@ -8,3 +8,7 @@ traits:
       language: javascript
       query: |
         (sequence_expression) @seq
+    downgrade:
+      any:
+        - type: string
+          regex: "BinaryParser"

@@ -1,0 +1,22 @@
+traits:
+  - id: retry-loop
+    desc: Detects retry loop wrapping try-catch (probabilistic loader)
+    crit: notable
+    conf: 1.0
+    attack: T1027
+    mbc: B0032
+    if:
+      type: raw
+      regex: "(?s)while\\s*\\((?:[^()]|\\([^()]*\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
+    not:
+      - regex: "while\\s*\\(_\\)\\s*\\{\\s*try"
+
+  - id: retry-loop-with-success
+    desc: Retry loop with success counter
+    crit: suspicious
+    conf: 1.0
+    attack: T1027
+    mbc: B0032
+    if:
+      type: raw
+      regex: '(?s)while\s*\(\s*\w+\s*<\s*\d+\s*\)\s*\{\s*try\s*\{.*?\+\+\s*;?\s*\}\s*catch'

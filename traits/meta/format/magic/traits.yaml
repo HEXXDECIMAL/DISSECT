@@ -335,4 +335,4 @@ traits:
     if:
       type: hex
       pattern: "50 4B 03 04"
-      
+    

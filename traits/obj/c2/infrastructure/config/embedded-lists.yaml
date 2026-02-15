@@ -13,6 +13,8 @@ composite_rules:
     mbc: "C0002"
     any:
       - id: cap/comm/ip
+    none:
+      - id: meta/signed/platform::apple
 
   - id: hardcoded-c2-infrastructure
     desc: Self-contained C2 with hardcoded addresses

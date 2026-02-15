@@ -1,17 +1,14 @@
-defaults:
-  crit: suspicious
-  attack: "T1027.009"
-  for: [all]
-
 traits:
   - id: appended-zip-trailer
     desc: ZIP central directory at file end
     crit: suspicious
     conf: 0.85
+    attack: "T1027.009"
+    for: [all]
     if:
       type: hex
       pattern: "50 4B 05 06"
-      offset_range: [-1024, null]
+      offset_range: [-1024, ~]
 
   - id: appended-shell-script
     desc: Shell shebang near file end
@@ -21,7 +18,7 @@ traits:
     if:
       type: raw
       regex: "#!/(bin/|usr/bin/)(sh|bash|zsh)"
-      offset_range: [-4096, null]
+      offset_range: [-4096, ~]
 
   - id: appended-python-script
     desc: Python shebang near file end
@@ -31,7 +28,7 @@ traits:
     if:
       type: raw
       regex: "#!/(usr/bin/|bin/)(python|python3)"
-      offset_range: [-4096, null]
+      offset_range: [-4096, ~]
 
   - id: appended-base64-blob
     desc: Large base64 string at file end
@@ -41,7 +38,7 @@ traits:
     if:
       type: string
       regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
-      offset_range: [-8192, null]
+      offset_range: [-8192, ~]
 
   - id: appended-hex-blob
     desc: Hex-encoded data at file end
@@ -51,7 +48,7 @@ traits:
     if:
       type: string
       regex: "^[0-9A-Fa-f]{100,}$"
-      offset_range: [-4096, null]
+      offset_range: [-4096, ~]
 
   - id: appended-elf-binary
     desc: ELF binary appended to file
@@ -62,7 +59,7 @@ traits:
     if:
       type: hex
       pattern: "7F 45 4C 46"
-      offset_range: [1, null]
+      offset_range: [1, ~]
 
   - id: appended-pe-binary
     desc: PE binary appended to file
@@ -72,7 +69,7 @@ traits:
     if:
       type: hex
       pattern: "4D 5A ?? ?? 50 45 00 00"
-      offset_range: [-65536, null]
+      offset_range: [-65536, ~]
 
   - id: jar-polyglot-prefix
     desc: Data before JAR/ZIP header
@@ -82,7 +79,7 @@ traits:
     if:
       type: hex
       pattern: "50 4B 03 04"
-      offset_range: [64, null]
+      offset_range: [64, ~]
 
   - id: jpeg-trailing-data
     desc: Data after JPEG end-of-image

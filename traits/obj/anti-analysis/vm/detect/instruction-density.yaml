@@ -35,7 +35,10 @@ traits:
     if:
       type: metrics
       field: binary.complexity_per_kb
-      max: 0.05
+      max: 0.001
+    unless:
+      - id: meta/signed/platform::apple
+      - id: meta/quality::versioned
 
 composite_rules:
   - id: instruction-based-evasion

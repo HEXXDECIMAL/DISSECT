@@ -1,0 +1,8 @@
+traits:
+  - id: configure-script
+    desc: Build configuration script
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      regex: 'configure.{0,100}\.py$|configure$'

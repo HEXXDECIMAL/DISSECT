@@ -1,0 +1,11 @@
+composite_rules:
+  - id: pervasive-multi-encoding
+    desc: Pervasive multi-encoding obfuscation (XOR and Base64).
+    crit: hostile
+    all:
+      - type: trait
+        id: cap/anti-static/obfuscation/string-pattern::xor-encoded-malware
+        count_min: 5
+      - type: trait
+        id: meta/encoded-payload::base64
+        count_min: 10

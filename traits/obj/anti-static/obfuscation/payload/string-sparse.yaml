@@ -20,6 +20,7 @@ traits:
     if:
       type: section_ratio
       section: "__cstring"
+      compare_to: "total"
       max: 0.0005  # Less than 0.05% of binary
 
   # Very sparse strings
@@ -32,6 +33,7 @@ traits:
     if:
       type: section_ratio
       section: "__cstring"
+      compare_to: "total"
       max: 0.002  # Less than 0.2% of binary
 
   # Large data section (potential encoded payload storage)
@@ -42,7 +44,8 @@ traits:
     for: [macho]
     if:
       type: section_ratio
-      section: "__data"
+      section: "__DATA.__data"
+      compare_to: "total"
       min: 0.03  # At least 3% of binary
 
   # High entropy in data section (encoded/encrypted payload)
@@ -54,8 +57,8 @@ traits:
     attack: "T1027"
     if:
       type: section
-      exact: "__data"
-      min: 6.5  # Elevated entropy suggests encoding
+      exact: "__DATA.__data"
+      entropy_min: 6.5  # Elevated entropy suggests encoding
 
 composite_rules:
   # String sparsity + large data section = obfuscated payload

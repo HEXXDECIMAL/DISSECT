@@ -31,6 +31,8 @@ composite_rules:
         - id: cap/exec/load/library::network-lib-marker
         - id: cap/comm/ssh/connect/connect
         - id: meta/quality/has-help
+        - id: meta/signed/platform::apple
+        - id: cap/comm/dns/tools::dig
 
   - id: root-scanner
     desc: Root exploitation scanner

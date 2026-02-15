@@ -20,7 +20,7 @@ traits:
   - id: chmod-recursive
     desc: chmod -R recursive permission change
     conf: 0.7
-    crit: suspicious
+    crit: notable
     if:
       type: string
       regex: 'chmod\s+\-[rR]'

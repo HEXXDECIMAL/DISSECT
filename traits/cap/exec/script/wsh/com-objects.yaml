@@ -24,3 +24,9 @@ traits:
     if:
       type: string
       regex: 'ExecutionPolicy\s+(Bypass|Unrestricted)'
+    downgrade:
+      any:
+        - type: raw
+          substr: "require('../common')"
+        - type: raw
+          regex: "Copyright.*Node contributors"

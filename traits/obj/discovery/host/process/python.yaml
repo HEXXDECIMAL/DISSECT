@@ -21,7 +21,7 @@ traits:
     for: [python, javascript, shell]
     if:
       type: string
-      substr: "tasklist"
+      word: "tasklist"
 
   - id: pgrep-cmd
     desc: pgrep command for process grep

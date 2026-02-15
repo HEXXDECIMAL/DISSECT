@@ -39,6 +39,20 @@ traits:
       type: string
       regex: '(\\x[0-9a-fA-F]{2}){4,}'
 
+  # Interspersed hex escape sequences (e.g., \x12!\x10) - obfuscation technique
+  # Matches sequences where hex escapes are mixed with small amounts of other chars
+  - id: js-interspersed-hex-escapes
+    desc: Interspersed hex escape sequences
+    crit: notable
+    conf: 0.8
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript, typescript]
+    if:
+      type: string
+      # Matches \xNN followed by up to 3 chars, repeated 4 times
+      regex: '(\\x[0-9a-fA-F]{2}.{0,3}){4,}'
+
   # Hex-encoded require statement - obfuscated module import
   # Pattern: require(Buffer.from("6f73", "hex").toString()) = require("os")
   # This is a strong malware indicator - hiding sensitive imports
@@ -117,7 +131,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\.split\(\s*["'']\s*["'']\s*\)'
+      regex: '\.split\(\s*(?:""|'')\s*\)'
 
   # Dynamic code execution patterns (atomic)
   # Moved to cap/exec/eval/dynamic/eval-call
@@ -151,7 +165,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\.join\(\s*["'']\s*["'']\s*\)'
+      regex: '\.join\(\s*(?:""|'')\s*\)'
 
   # Array reverse (often used with split/join for string reversal)
   - id: js-array-reverse

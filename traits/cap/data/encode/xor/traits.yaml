@@ -150,6 +150,36 @@ traits:
       substr: "\\x00\\x00"
     attack: "T1027"
 
+  # === JavaScript XOR ===
+  - id: js-xor-decoder-loop
+    desc: JavaScript XOR decryption loop
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: string
+      regex: "String.fromCharCode.{0,100}\\^"
+
+  - id: js-xor-decoder-ast
+    desc: JavaScript XOR decryption (AST)
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0032"
+    attack: "T1027"
+    for: [javascript]
+    if:
+      type: ast
+      query: |
+        ((call_expression
+          function: (member_expression property: (property_identifier) @p)
+          (#eq? @p "fromCharCode")
+          arguments: (arguments
+            (binary_expression operator: "^")
+          )
+        ))
+
 composite_rules:
   - id: xor-encoded-strings
     desc: "XOR-encoded strings"

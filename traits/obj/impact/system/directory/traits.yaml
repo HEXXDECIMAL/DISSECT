@@ -23,7 +23,7 @@ traits:
     platforms: [windows]
     if:
       type: string
-      regex: "rd\\s+/s|rmdir\\s+/s.{0,50}Windows|del\\s+/f\\s+/q.{0,50}Windows"
+      regex: "rd\\s+/s.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)|rmdir\\s+/s.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)|del\\s+/f\\s+/q.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)"
 
   # Linux critical directory targeting
   - id: linux-etc-delete
@@ -102,7 +102,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "rmdir.{0,30}(/s|/q)"
+      regex: "(?:rmdir|rd).{0,30}(/s|/q)"
 
   # === System directory atomic indicators ===
   - id: windows-dir-ref

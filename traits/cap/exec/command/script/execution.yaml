@@ -9,8 +9,9 @@ traits:
     conf: 0.7
     attack: T1059.004
     if:
-      type: string
-      regex: "\\.sh$"
+      type: raw
+      # Matches: sh script.sh, ./script.sh, source script.sh, . script.sh
+      regex: '(?:(?:^|[\s;&|])(?:sh|bash|zsh|dash|ash|source|\.)\s+(?:-[a-zA-Z]+\s+)*|(?:^|[\s;&|])\./)[\w./-]+\.sh'
 
   - id: batch-script-execution
     desc: Executes a batch script file (.bat)

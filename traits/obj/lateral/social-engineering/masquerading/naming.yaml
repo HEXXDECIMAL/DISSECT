@@ -40,7 +40,7 @@ composite_rules:
   # Combination of generic bundle ID + unsigned = suspicious
   - id: suspicious-generic-naming
     desc: "Suspicious generic application naming"
-    crit: notable
+    crit: suspicious
     conf: 0.8
     all:
       - id: generic-bundle-id-pattern

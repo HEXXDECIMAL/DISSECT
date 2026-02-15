@@ -1,0 +1,18 @@
+traits:
+  - id: cap/exec/trigger/rtf::objupdate
+    desc: RTF objupdate directive forcing object update/execution.
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: 'objupdate'
+      description: "Match objupdate directive"
+
+  - id: cap/exec/trigger/rtf::objautlink
+    desc: RTF objautlink directive for automatic linking.
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: 'objautlink'
+      description: "Match objautlink directive"

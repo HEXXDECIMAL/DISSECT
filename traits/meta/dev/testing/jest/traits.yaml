@@ -18,8 +18,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "describe("
+      type: ast
+      kind: call
+      exact: "describe"
 
   - id: jest-it
     desc: "it() function"
@@ -27,8 +28,9 @@ traits:
     conf: 0.5
     for: [javascript]
     if:
-      type: string
-      exact: "it("
+      type: ast
+      kind: call
+      exact: "it"
 
   - id: jest-expect
     desc: "expect() function"
@@ -36,8 +38,9 @@ traits:
     conf: 0.5
     for: [javascript]
     if:
-      type: string
-      substr: "expect("
+      type: ast
+      kind: call
+      exact: "expect"
 
   - id: jest-to-be
     desc: "toBe() matcher"

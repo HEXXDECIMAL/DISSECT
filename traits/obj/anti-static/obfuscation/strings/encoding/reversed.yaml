@@ -4,16 +4,15 @@
 # MBC: B0032 (Obfuscated Files or Information)
 # ATT&CK: T1027 (Obfuscated Files or Information)
 
-defaults:
-  attack: "T1027"
-  mbc: "B0032"
-  crit: suspicious
-
 traits:
   # Reversed HTTPS protocol string
   - id: reversed-https-encoded
     desc: Reversed HTTPS URL in encoded data
+    attack: "T1027"
+    mbc: "B0032"
+    crit: suspicious
     conf: 0.92
+    for: [all]
     if:
       type: encoded
       substr: "//:sptth"
@@ -21,7 +20,11 @@ traits:
   # Reversed HTTP protocol string
   - id: reversed-http-encoded
     desc: Reversed HTTP URL in encoded data
+    attack: "T1027"
+    mbc: "B0032"
+    crit: suspicious
     conf: 0.92
+    for: [all]
     if:
       type: encoded
       substr: "//:ptth"

@@ -1,0 +1,21 @@
+composite_rules:
+  - id: probabilistic-loader-loop
+    desc: Probabilistic loader loop pattern
+    crit: notable
+    any:
+      - id: cap/exec/load/probabilistic::retry-loop
+      - id: cap/exec/load/probabilistic::retry-loop-with-success
+
+  - id: probabilistic-js
+    desc: Dropper using probabilistic code generation (random + retry loop)
+    crit: hostile
+    conf: 4.0
+    attack: T1027
+    mbc: B0032
+    all:
+      - id: obj/exec/dropper/behavior::probabilistic-loader-loop
+    any:
+      - id: cap/exec/vm/random-code::random-code-generation
+      - id: cap/exec/vm/random-code::math-random-index
+      - id: cap/data/encoding/hex_xor::fragmented-hex-xor-decoder
+      - id: cap/data/encoding/hex_xor::js-obfuscated-fragment-xor-decode

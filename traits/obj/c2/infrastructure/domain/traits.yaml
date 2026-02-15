@@ -62,7 +62,7 @@ traits:
       regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
     unless:
       - type: raw
-        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru|tbcdn\\.cn"
+        regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru|tbcdn\\.cn|xn--hgi\\.ws"
 
   - id: short-domain-url-pattern
     desc: "Very short domain in URL"
@@ -326,6 +326,15 @@ traits:
     if:
       type: string
       substr: "filedropper.com"
+
+  - id: doko-moe
+    desc: Doko.moe file hosting (commonly abused)
+    crit: notable
+    conf: 0.7
+    attack: "T1105"
+    if:
+      type: string
+      substr: "doko.moe"
 
   - id: openclaw-c2-ip
     desc: OpenClaw C2 IP address
@@ -749,6 +758,7 @@ composite_rules:
       - id: 0x0-st
       - id: file-io
       - id: filedropper-com
+      - id: doko-moe
 
   # PHP collector endpoints
   - id: php-collector

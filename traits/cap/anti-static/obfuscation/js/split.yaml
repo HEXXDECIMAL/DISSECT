@@ -9,8 +9,8 @@ traits:
     if:
       type: raw
       # Matches .split("^") or .split("@") or other non-alphanumeric delimiters
-      # Excludes common delimiters: = , . : ; / _ | -
-      regex: '\.split\(\s*["''][^a-zA-Z0-9\s=,.:;/_|-]["'']\s*\)'
+      # Excludes common delimiters: = , . : ; / _ | - ` \
+      regex: '\.split\(\s*["''][^a-zA-Z0-9\s=,.:;/_|`\\?&-]["'']\s*\)'
 
   - id: js-string-concatenation
     desc: "String concatenation (potential obfuscation)"

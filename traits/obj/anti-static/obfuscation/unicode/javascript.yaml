@@ -7,7 +7,7 @@ traits:
   # High density of non-ASCII characters
   - id: dense-non-ascii
     desc: Dense non-ASCII character payload
-    crit: suspicious
+    crit: notable
     conf: 0.88
     mbc: "B0032"
     attack: "T1027"

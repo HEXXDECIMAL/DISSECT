@@ -1,0 +1,47 @@
+# Presentation Library Detection
+# Detects legitimate presentation libraries (e.g., Apple Keynote export)
+
+defaults:
+  for: [javascript]
+  crit: inert
+
+traits:
+  - id: slide-number-controller
+    desc: "Detects SlideNumberController (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "SlideNumberController|SlideNumberDisplay"
+
+  - id: keynote-slide-manager
+    desc: "Detects SlideManager and KPF (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "SlideManager|getKPFJsonStringForSlideIndex|kSlideDidDownloadEvent"
+
+  - id: keynote-touch-controller
+    desc: "Detects TouchController (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "TouchController:SwipeEvent|TouchController:TapeEvent|kTouchStartEventName"
+
+  - id: keynote-orientation-controller
+    desc: "Detects OrientationController (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "OrientationController:OrientationChangedEvent|kOrientationChangedEvent"
+
+  - id: keynote-display-manager
+    desc: "Detects DisplayManager (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "DisplayManager:StageSizeDidChangeEvent|kPadPortraitModeHorizontalMargin|kMobilePortraitModeTopMargin|kNavigationArrowSize"

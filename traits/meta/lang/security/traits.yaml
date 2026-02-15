@@ -30,7 +30,7 @@ traits:
   # === Stack protector micro-traits ===
   - id: stack-chk-fail
     desc: __stack_chk_fail function
-    crit: notable
+    crit: inert
     conf: 0.9
     if:
       type: symbol
@@ -124,7 +124,7 @@ composite_rules:
   # Stack protector composite
   - id: stack-protector
     desc: Stack protector/canary enabled
-    crit: notable
+    crit: inert
     conf: 0.9
     any:
       - id: stack-chk-fail

@@ -8,8 +8,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "describe\\s*\\(\\s*['\"`]"
+      type: ast
+      kind: call
+      exact: "describe"
 
   - id: it-with-string
     desc: "it() test block with string"
@@ -17,8 +18,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "it\\s*\\(\\s*['\"`]"
+      type: ast
+      kind: call
+      exact: "it"
 
   - id: test-with-string
     desc: "test() block with string"
@@ -26,8 +28,9 @@ traits:
     conf: 0.6
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "test\\s*\\(\\s*['\"`]"
+      type: ast
+      kind: call
+      exact: "test"
 
   - id: assert-method
     desc: assert. method call

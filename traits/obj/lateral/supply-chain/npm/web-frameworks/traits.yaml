@@ -69,6 +69,6 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:inject|provide|@Inject|container\\.resolve|inversify)"
+      regex: "(@Inject|container\\.resolve|inversify|\\.provide|\\.inject)"
 
   # Has CLI argument parsing

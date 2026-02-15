@@ -27,14 +27,26 @@ traits:
       path: "CFBundlePackageType"
       exact: "APPL"
 
+  # Generic "utils" bundle ID used by macOS stealers
+  - id: generic-utils-bundle-id
+    desc: Suspicious generic com.utils.* identifier
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: "CFBundleIdentifier"
+      regex: "^com\\.utils\\.(application|voicemod|wormgpt)$"
+
 composite_rules:
   # Application with placeholder bundle ID = trojanized/repackaged app
   # Precision: 3.8 (meets suspicious >= 2.0 threshold)
   - id: fake-app-identity
-    desc: Application with placeholder bundle identifier
+    desc: Application with placeholder/suspicious bundle identifier
     crit: suspicious
     conf: 0.95
     attack: "T1036.005"
-    all:
+    any:
       - id: example-bundle-id
+      - id: generic-utils-bundle-id
+    all:
       - id: appl-package-type

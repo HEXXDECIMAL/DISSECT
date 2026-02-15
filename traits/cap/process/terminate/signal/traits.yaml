@@ -9,7 +9,7 @@ traits:
   # Signal sending
   - id: kill
     desc: Send signal to process
-    crit: notable
+    crit: inert
     mbc: "E1562"
     attack: "T1562"
     conf: 0.6

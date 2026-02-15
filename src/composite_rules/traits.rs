@@ -892,6 +892,17 @@ impl TraitDefinition {
                             Criticality::Inert
                         }
                     };
+                    tracing::debug!(
+                        "Downgrade applied: trait '{}' from {:?} → {:?}",
+                        self.id,
+                        self.crit,
+                        final_crit
+                    );
+                } else {
+                    tracing::trace!(
+                        "Downgrade NOT applied: trait '{}' downgrade conditions not met",
+                        self.id
+                    );
                 }
 
                 // Record downgrade debug if collector is present

@@ -1,0 +1,8 @@
+traits:
+  - id: is-jscript
+    desc: Checks for JScript file type indicators
+    crit: notable
+    for: [javascript]
+    if:
+      type: raw
+      regex: "WScript|ActiveXObject"

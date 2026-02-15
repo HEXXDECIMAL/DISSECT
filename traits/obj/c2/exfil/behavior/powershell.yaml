@@ -1,0 +1,12 @@
+composite_rules:
+  - id: powershell-network-exfil
+    desc: PowerShell execution with suspicious network patterns.
+    crit: hostile
+    all:
+      - type: trait
+        id: cap/exec/scripting/language::powershell
+    any:
+      - type: trait
+        id: cap/network/c2/behavior::suspicious-url
+      - type: trait
+        id: cap/network/c2/behavior::suspicious-numeric-ip

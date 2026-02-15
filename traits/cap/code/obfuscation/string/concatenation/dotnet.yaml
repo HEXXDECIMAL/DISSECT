@@ -6,7 +6,7 @@ defaults:
   crit: suspicious
   conf: 0.95
   attack: "T1027"
-  for: [powershell, javascript, csharp]
+  for: [powershell, csharp]
 
 traits:
   - id: dotnet-reflection-api-splitting

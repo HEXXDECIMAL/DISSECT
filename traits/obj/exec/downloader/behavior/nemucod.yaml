@@ -1,0 +1,32 @@
+# Nemucod Downloader Detection
+# Detects the Nemucod JScript downloader family via its unique obfuscation patterns
+
+defaults:
+  crit: hostile
+  conf: 0.95
+  for: [javascript]
+
+composite_rules:
+  - id: js-nemucod-downloader-windows4
+    desc: Nemucod JScript Downloader (Split-Join Decoder)
+    all:
+      - id: cap/anti-static/obfuscation/js::js-prototype-extension
+      - id: cap/anti-static/obfuscation/js::js-split-join-empty
+    any:
+      - id: cap/anti-static/obfuscation/js::js-dynamic-global-access-array
+      - id: cap/data/encode/base64::alphabet-script
+      - id: obj/exfil/channel/oob::http-b64
+      - id: cap/exec/script/wsh::adodb-fragment-short
+      - id: cap/exec/script/wsh::wscript-shell-fragment-short
+
+  - id: js-nemucod-downloader-windows
+    desc: Nemucod JScript Downloader (Map-Replace Decoder)
+    all:
+      - id: cap/anti-static/obfuscation/js::js-prototype-extension
+      - id: cap/anti-static/obfuscation/js::js-replace-map
+    any:
+      - id: cap/anti-static/obfuscation/js::js-dynamic-global-access-array
+      - id: cap/data/encode/base64::alphabet-script
+      - id: obj/exfil/channel/oob::http-b64
+      - id: cap/exec/script/wsh::adodb-fragment-short
+      - id: cap/exec/script/wsh::wscript-shell-fragment-short

@@ -392,6 +392,10 @@ composite_rules:
       - id: id-dsa
       - id: id-ecdsa
       - id: id-ed25519
+    downgrade:
+      any:
+        - id: cap/comm/ssh/client::library
+        - id: cap/comm/ssh/client::full-implementation
 
   # === Composite: SSHD password tracing ===
   - id: sshd-password-trace

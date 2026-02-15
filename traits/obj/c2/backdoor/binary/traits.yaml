@@ -267,6 +267,7 @@ composite_rules:
       - id: cap/exec/load/library::graphics-lib-marker
       - id: cap/exec/load/go-runtime/
       - id: cap/exec/load/library::debugger-tool-marker
+      - id: meta/signed/platform::apple
 
   - id: unexpected-process-ops
     desc: Process operations in utility library
@@ -289,6 +290,7 @@ composite_rules:
       # Debuggers legitimately use process control for debugging
       - id: cap/exec/load/library::debugger-tool-marker
       - id: meta/format::many-imports
+      - id: meta/signed/platform::apple
 
   - id: unexpected-crypto
     desc: Cryptographic operations in non-crypto library

@@ -1,0 +1,27 @@
+# Obfuscated JScript Dropper Composite
+# Detects heavily obfuscated JScript droppers using property access and anti-sandbox techniques
+
+defaults:
+  crit: hostile
+  conf: 0.95
+  for: [javascript]
+
+composite_rules:
+  - id: obfuscated-jscript-dropper-composite
+    desc: "Heavily obfuscated JScript dropper with anti-sandbox loop"
+    mbc: "B0032.001" # Property Access Obfuscation
+    attack: "T1027"
+    all:
+      - id: cap/anti-static/obfuscation/js::js-property-concatenation-obfuscation
+    any:
+      - id: cap/anti-analysis/anti-sandbox/loop::large-loop-counter
+      - id: cap/exec/load/probabilistic::retry-loop
+      - id: cap/anti-static/obfuscation/js::comparison-to-obfuscated-property
+
+  - id: obfuscated-payload-check
+    desc: "Obfuscated payload check (MZ header comparison)"
+    mbc: "B0032.001"
+    attack: "T1027"
+    all:
+      - id: cap/anti-static/obfuscation/js::comparison-to-obfuscated-property
+      - id: cap/anti-static/obfuscation/js::js-property-concatenation-obfuscation

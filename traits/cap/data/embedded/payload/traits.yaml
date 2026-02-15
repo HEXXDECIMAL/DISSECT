@@ -218,4 +218,5 @@ composite_rules:
     downgrade:
       any:
         - id: gnu-debugdata-section
+        - id: meta/apple::system-component
 

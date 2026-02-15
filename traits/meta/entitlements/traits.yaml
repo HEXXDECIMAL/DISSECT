@@ -13,7 +13,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.camera
+      id: meta/entitlement::com.apple.security.device.camera
 
   - id: microphone
     desc: Microphone access entitlement
@@ -21,7 +21,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.audio-input
+      id: meta/entitlement::com.apple.security.device.audio-input
 
   - id: location
     desc: Location access entitlement
@@ -29,7 +29,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.personal-information.location
+      id: meta/entitlement::com.apple.security.personal-information.location
 
   - id: photos-library
     desc: Photos library access entitlement
@@ -37,7 +37,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.personal-information.photos-library
+      id: meta/entitlement::com.apple.security.personal-information.photos-library
 
   - id: contacts
     desc: Contacts access entitlement
@@ -45,7 +45,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.personal-information.addressbook
+      id: meta/entitlement::com.apple.security.personal-information.addressbook
 
   - id: calendar
     desc: Calendar access entitlement
@@ -53,16 +53,16 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.personal-information.calendars
+      id: meta/entitlement::com.apple.security.personal-information.calendars
 
   # === Security-Related Entitlements ===
   - id: disable-library-validation
     desc: Disable library validation
-    crit: suspicious
+    crit: notable
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.cs.disable-library-validation
+      id: meta/entitlement::com.apple.security.cs.disable-library-validation
 
   - id: allow-jit
     desc: Allow JIT compilation
@@ -70,15 +70,15 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.cs.allow-jit
+      id: meta/entitlement::com.apple.security.cs.allow-jit
 
   - id: allow-unsigned-executable-memory
     desc: Allow unsigned executable memory
-    crit: suspicious
+    crit: notable
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.cs.allow-unsigned-executable-memory
+      id: meta/entitlement::com.apple.security.cs.allow-unsigned-executable-memory
 
   - id: debugger
     desc: Debugger entitlement
@@ -86,7 +86,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.cs.debugger
+      id: meta/entitlement::com.apple.security.cs.debugger
 
   - id: ptrace
     desc: Process tracing entitlement
@@ -94,7 +94,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.cs.allow-runtime-attributes
+      id: meta/entitlement::com.apple.security.cs.allow-runtime-attributes
 
   # === Network Entitlements ===
   - id: outbound-connections
@@ -103,7 +103,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.network.client
+      id: meta/entitlement::com.apple.security.network.client
 
   - id: incoming-connections
     desc: Allow incoming connections
@@ -111,7 +111,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.network.server
+      id: meta/entitlement::com.apple.security.network.server
 
   - id: local-networking
     desc: Local network access
@@ -119,7 +119,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.network.local
+      id: meta/entitlement::com.apple.security.network.local
 
   - id: multicast
     desc: Multicast networking
@@ -127,7 +127,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.network.multicast
+      id: meta/entitlement::com.apple.security.network.multicast
 
   # === Device Entitlements ===
   - id: usb
@@ -136,7 +136,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.usb
+      id: meta/entitlement::com.apple.security.device.usb
 
   - id: bluetooth
     desc: Bluetooth device access
@@ -144,7 +144,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.bluetooth
+      id: meta/entitlement::com.apple.security.device.bluetooth
 
   - id: printer
     desc: Printer device access
@@ -152,7 +152,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.print
+      id: meta/entitlement::com.apple.security.device.print
 
   - id: serial
     desc: Serial device access
@@ -160,7 +160,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.device.serial
+      id: meta/entitlement::com.apple.security.device.serial
 
   # === File System Entitlements ===
   - id: file-read-all
@@ -169,7 +169,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.files.all
+      id: meta/entitlement::com.apple.security.files.all
 
   - id: file-read-downloads
     desc: Downloads folder read access
@@ -177,7 +177,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.files.downloads.read-only
+      id: meta/entitlement::com.apple.security.files.downloads.read-only
 
   - id: file-write-downloads
     desc: Downloads folder write access
@@ -185,7 +185,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.security.files.downloads.read-write
+      id: meta/entitlement::com.apple.security.files.downloads.read-write
 
   # === Keychain Entitlements ===
   - id: keychain-access
@@ -194,7 +194,7 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/keychain-access-groups
+      id: meta/entitlement::keychain-access-groups
 
   # === Application Identifier ===
   - id: app-identifier
@@ -203,7 +203,23 @@ traits:
     conf: 1.0
     if:
       type: trait
-      id: meta/entitlement/com.apple.application-identifier
+      id: meta/entitlement::com.apple.application-identifier
+
+  - id: temporary-exception-files-read
+    desc: Temporary exception for file read access
+    crit: suspicious
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/entitlement::com.apple.security.temporary-exception.files.absolute-path.read-only
+
+  - id: temporary-exception-mach-lookup
+    desc: Temporary exception for mach lookup
+    crit: suspicious
+    conf: 1.0
+    if:
+      type: trait
+      id: meta/entitlement::com.apple.security.temporary-exception.mach-lookup.global-name
 
 composite_rules:
   - id: privacy-sensitive-access
@@ -233,3 +249,9 @@ composite_rules:
       - id: allow-unsigned-executable-memory
       - id: ptrace
       - id: debugger
+      - id: temporary-exception-files-read
+      - id: temporary-exception-mach-lookup
+    downgrade:
+      any:
+        - id: meta/sign/apple::platform
+        - id: meta/apple/system-component

@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: getenv
     desc: getenv function (read environment variable)
-    crit: notable
+    crit: inert
     conf: 0.3
     if:
       type: symbol
@@ -64,22 +64,17 @@ traits:
 composite_rules:
   - id: env-access
     desc: Environment variable access functions
-    crit: notable
+    crit: inert
     conf: 0.4
     any:
       - id: getenv
       - id: setenv
       - id: putenv
       - id: unsetenv
-    downgrade:
-      any:
-        - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library::graphics-lib-marker
-        - id: cap/exec/load/library::system-lib-marker
 
   - id: set
     desc: Environment variable modification
-    crit: notable
+    crit: inert
     conf: 0.5
     any:
       - id: setenv

@@ -1109,7 +1109,7 @@ impl MachOAnalyzer {
             id: format!("meta/signed/{}::{}", sig_category, signer),
             desc,
             conf: 1.0,
-            crit: Criticality::Notable,
+            crit: Criticality::Inert,
             mbc: None,
             attack: None,
             evidence: vec![Evidence {
@@ -1130,7 +1130,7 @@ impl MachOAnalyzer {
                 id: format!("meta/signed/id::{}", identifier),
                 desc: "Identifier".to_string(),
                 conf: 1.0,
-                crit: Criticality::Notable,
+                crit: Criticality::Inert,
                 mbc: None,
                 attack: None,
                 evidence: vec![Evidence {

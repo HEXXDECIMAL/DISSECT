@@ -38,15 +38,6 @@ traits:
       type: symbol
       exact: "xargs"
 
-  # grep symbol - used for filtering
-  - id: grep-cmd
-    desc: grep command usage
-    crit: notable
-    conf: 0.5
-    for: [shell]
-    if:
-      type: symbol
-      exact: "grep"
 
   # Content-based patterns (raw file search)
   - id: uid-check-content

@@ -201,13 +201,23 @@ traits:
         rule bytecode_self_reader {
           strings:
             $file = "__file__" ascii
-            $open = "open" ascii
-            $read = "read" ascii
-            $exec = "exec" ascii
-            $join = "''.join" ascii
+            $open_self = "open(__file__" ascii
+            $open_self_sp = "open( __file__" ascii
+            $open_self_abs = "open(os.path.abspath(__file__)" ascii
+            $exec = "exec" ascii fullword
+            $eval = "eval" ascii fullword
+            $compile = "compile" ascii fullword
+            $marshal = "marshal" ascii fullword
+            $zlib = "zlib" ascii fullword
+            $b64 = "b64decode" ascii
+            $unhex = "unhexlify" ascii
+            $import = "__import__" ascii
             $setuptools = "setuptools" ascii
           condition:
-            $file and $open and $read and ($exec or $join) and not $setuptools
+            $file and ($open_self or $open_self_sp or $open_self_abs) and
+            1 of ($exec, $eval, $compile) and
+            1 of ($marshal, $zlib, $b64, $unhex, $import) and
+            not $setuptools
         }
 
 composite_rules:

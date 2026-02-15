@@ -19,3 +19,11 @@ traits:
           condition:
             $et or ($elastic and #elastic > 5) or $snort or #cve > 5 or $exploit_db
         }
+
+  - id: sanitized-url-regex
+    desc: Regex for matching sanitized URLs (hXXp://)
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: 'h\.\.p\[s\]\*:\\/\\/'

@@ -29,7 +29,7 @@ traits:
 
   - id: auth-create
     desc: "AuthorizationCreate API for auth context"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: symbol
@@ -37,7 +37,7 @@ traits:
 
   - id: auth-copy-rights
     desc: "AuthorizationCopyRights API for privilege checks"
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: symbol

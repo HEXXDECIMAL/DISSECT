@@ -198,12 +198,6 @@ traits:
       regex: "(?i)(?:port[_-]?scanning|network[_-]?scanning|scanning[_-]?(?:port|target|thread))"
 
 composite_rules:
-  # Helper: SSH protocol indicators
-  - id: ssh-protocol
-    desc: SSH protocol indicators
-    any:
-      - id: cap/comm/ssh/client
-
   # Helper: SSH authentication methods
   - id: ssh-auth-methods
     desc: SSH authentication methods
@@ -237,31 +231,11 @@ composite_rules:
       - id: ssh-port-refs
       - id: cap/comm/socket/connect::connect
 
-  # Helper: Default IoT credentials (all 15)
-  - id: default-creds
-    desc: Default IoT device credentials
-    any:
-      - id: admin-admin-cred
-      - id: root-root-cred
-      - id: admin-1234-cred
-      - id: ubnt-ubnt-cred
-      - id: pi-raspberry-cred
-      - id: admin-password-cred
-      - id: guest-guest-cred
-      - id: support-support-cred
-      - id: root-vizxv-cred
-      - id: root-xc3511-cred
-      - id: root-888888-cred
-      - id: root-juantech-cred
-      - id: admin-admin1234-cred
-      - id: admin-smcadmin-cred
-      - id: user-user-cred
-
   # Helper: SSH protocol with auth methods
   - id: ssh-with-auth
     desc: SSH protocol with authentication methods
     all:
-      - id: ssh-protocol
+      - id: cap/comm/ssh/client::protocol
       - id: ssh-auth-methods
 
   # SSH authentication brute-force
@@ -273,13 +247,17 @@ composite_rules:
     attack: "T1110.001"
     needs: 2
     any:
-      - id: ssh-protocol
+      - id: cap/comm/ssh/client::protocol
       - id: ssh-auth-methods
       - id: ssh-auth-errors
     downgrade:
       any:
         - id: cap/os/pam/auth::module
         - id: cap/os/pam/auth::libpam-string
+        - id: meta/sign/apple::platform
+        - id: meta/apple/system-component
+        - id: cap/comm/ssh/client::library
+        - id: cap/comm/ssh/client::full-implementation
 
   # Default IoT credential lists (requires 3 of 15)
   - id: iot-creds

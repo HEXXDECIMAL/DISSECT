@@ -1,3 +1,6 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
   - id: form-data-new
     desc: Creates FormData object

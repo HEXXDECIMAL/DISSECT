@@ -63,7 +63,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "Function\\s*\\("
+      regex: '(?:^|[^a-zA-Z0-9_\[])Function\s*\('
 
   # Accessing constructor property (common obfuscation)
   - id: constructor-property-access

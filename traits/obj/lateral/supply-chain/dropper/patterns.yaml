@@ -281,9 +281,9 @@ traits:
       regex: "spawn\\([^)]*\\{[^}]*detached:\\s*true"
 
   # Execute downloaded file
-  - id: exec-downloaded
-    desc: Execution of file from temp
-    crit: suspicious
+  - id: exec-downloaded-raw
+    desc: Execution of file from temp (Raw)
+    crit: notable
     conf: 0.85
     attack: "T1059"
     for: [javascript, typescript]
@@ -560,6 +560,25 @@ composite_rules:
     any:
       - id: cap/exec/dropper/archive
 
+  # Execute downloaded file (Composite with downgrade)
+  - id: exec-downloaded
+    desc: Execution of file from temp
+    crit: suspicious
+    conf: 0.85
+    attack: "T1059"
+    for: [javascript, typescript]
+    all:
+      - id: exec-downloaded-raw
+    unless:
+      - id: meta/dev/testing::node-common-require
+      - id: meta/library::commander
+      - id: meta/library::commander-modern
+    downgrade:
+      any:
+        - id: meta/dev/testing::node-common-require
+        - id: obj/lateral/supply-chain/npm/testing::assert-word
+        - id: cap/interface/usage/api::usage-help
+
   # Spawn/exec composite
   - id: spawn-exec
     desc: Process spawn or exec
@@ -611,6 +630,7 @@ composite_rules:
         - id: meta/library/jquery::library
         - id: meta/library/socketio::client
         - id: meta/library/rxjs::ajax-observable
+        - id: meta/library/rxjs::generic
 
   # Base64 buffer composite
   - id: base64-buffer
@@ -723,7 +743,7 @@ composite_rules:
     all:
       - id: download-file
       - id: detached-spawn
-      - id: exec-downloaded
+      - id: exec-downloaded-raw
 
   # ActiveXObject + WScript.Shell/ADODB.Stream/XMLHTTP (Classic Dropper)
   - id: activex-dropper
@@ -811,9 +831,12 @@ composite_rules:
       - id: cap/anti-static/obfuscation/js::js-split-custom-delimiter
       - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
+    needs: 2
     unless:
       - type: raw
         substr: "require('../common')"
+      - id: meta/library/rxjs::generic
+      - id: meta/library::commander
 
   # Obfuscated JScript Dropper
   - id: obfuscated-js-dropper
@@ -843,4 +866,3 @@ composite_rules:
       - id: js-obfuscation-indicators
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
       - id: obj/anti-static/obfuscation/strings/encoding::js-string-split
-

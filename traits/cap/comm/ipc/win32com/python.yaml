@@ -24,4 +24,4 @@ traits:
     conf: 0.85
     if:
       type: raw
-      substr: "Dispatch("
+      regex: "\\b(?:win32com\\.client\\.(?:Dispatch|DispatchEx)|win32com\\.gencache\\.EnsureDispatch|pythoncom\\.CoCreateInstance)\\b"

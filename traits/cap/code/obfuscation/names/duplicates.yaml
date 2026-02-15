@@ -4,7 +4,7 @@
 traits:
   - id: duplicate-function-names
     desc: "Duplicate function names for code inflation"
-    crit: suspicious
+    crit: inert
     conf: 0.9
     for: [javascript, typescript, python]
     if:

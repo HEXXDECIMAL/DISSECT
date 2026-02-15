@@ -1,0 +1,21 @@
+# .NET Obfuscation Indicators
+# Detects patterns common in obfuscated .NET binaries
+
+defaults:
+  crit: notable
+  conf: 0.8
+  for: [pe, dll, csharp]
+  platforms: [windows]
+
+traits:
+  - id: md5-like-symbols
+    desc: "MD5-like (32-char hex) symbol names"
+    if:
+      type: symbol
+      regex: "\b[a-fA-F0-9]{32}\b"
+
+  - id: random-low-entropy-symbols
+    desc: "Random-looking low-entropy symbol names"
+    if:
+      type: symbol
+      regex: "\b[a-zA-Z]{15,}\b"

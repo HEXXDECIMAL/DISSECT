@@ -30,7 +30,6 @@ traits:
             // Network activity
             $net1 = "curl " ascii
             $net2 = "wget " ascii
-            $net3 = "http" ascii
           condition:
             any of ($lib*) and any of ($hook*) and any of ($net*)
         }

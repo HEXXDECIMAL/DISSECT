@@ -75,7 +75,8 @@ composite_rules:
     desc: "HTTP request methods detected"
     any:
       - id: cap/comm/http/post
-      - id: cap/comm/http/request
+      - id: cap/comm/http/request::request
+      - id: cap/comm/http/request::request-python
 
   # High-confidence DDoS capability
   - id: ddos-capability

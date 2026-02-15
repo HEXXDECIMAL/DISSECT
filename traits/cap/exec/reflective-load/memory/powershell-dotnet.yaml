@@ -69,6 +69,30 @@ traits:
       type: string
       substr: "AddScript"
 
+  - id: add-command
+    desc: AddCommand method (PowerShell execution)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: "AddCommand"
+
+  - id: add-parameter
+    desc: AddParameter method (PowerShell execution)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: "AddParameter"
+
+  - id: add-argument
+    desc: AddArgument method (PowerShell execution)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: "AddArgument"
+
   - id: invoke-method
     desc: Invoke method (execute pipeline)
     crit: inert

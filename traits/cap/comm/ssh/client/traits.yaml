@@ -136,3 +136,14 @@ composite_rules:
     any:
       - id: permission-denied-ssh
       - id: auth-failed
+
+  # SSH protocol indicators helper
+  - id: protocol
+    desc: SSH protocol indicators
+    crit: inert
+    any:
+      - id: ssh-version
+      - id: ssh-userauth
+      - id: libssh
+      - id: keyboard-interactive
+      - id: publickey-auth

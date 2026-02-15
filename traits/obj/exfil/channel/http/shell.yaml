@@ -33,6 +33,8 @@ composite_rules:
       - id: cap/os/admin/legitimate/http-tools/package-manager
       - id: cap/os/admin/legitimate/http-tools/ci-cd-pipeline
       - id: cap/os/admin/legitimate/http-tools/backup-script
+      - id: meta/signed/id::com.apple.curl
+      - id: cap/comm/download/curl::curl-easy-init
 
   - id: shell-tool-exfil
     desc: Shell tool exfiltration

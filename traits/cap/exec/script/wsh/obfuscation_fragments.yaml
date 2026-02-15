@@ -29,13 +29,13 @@ traits:
     desc: ExpandEnvironmentStrings fragment
     if:
       type: string
-      regex: 'xpandE|ronm|entS|nviro'
+      regex: 'xpandE|entS|nviro'
 
   - id: response-body-fragment
     desc: ResponseBody fragment
     if:
       type: string
-      regex: 'seBo|Respon'
+      regex: 'nseBody|ResponseB'
 
 composite_rules:
   - id: obfuscated-downloader-fragments

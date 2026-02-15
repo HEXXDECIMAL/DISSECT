@@ -107,18 +107,9 @@ traits:
       substr: "QueryPerformanceCounter"
     platforms: [windows]
 
-  - id: macos-sysctl-debug-check
-    desc: Query debugger status via sysctl
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.7
-    if:
-      type: symbol
-      exact: sysctlbyname
-    platforms: [macos]
-    unless:
-      - id: meta/signed/platform::apple
+  # Removed: duplicate of cap/os/sysinfo/sysctl::sysctlbyname
+  # Just checking for sysctlbyname symbol doesn't prove debugger detection
+  # Real debugger detection would need P_TRACED string or kern.proc checks
 
 composite_rules:
   # Process inspection composite (migrated from YARA)

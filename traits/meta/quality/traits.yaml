@@ -84,7 +84,7 @@ composite_rules:
   # Version information
   - id: versioned
     desc: Contains version information
-    crit: notable
+    crit: inert
     conf: 0.85
     any:
       - { id: meta/quality/versioning::version-word-lower }

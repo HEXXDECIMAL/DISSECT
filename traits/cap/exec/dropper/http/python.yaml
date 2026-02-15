@@ -65,7 +65,8 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: cap/comm/http/request
+      - id: cap/comm/http/request::request
+      - id: cap/comm/http/request::request-python
 
   # Temp directory composite
   - id: python-tmp-dir

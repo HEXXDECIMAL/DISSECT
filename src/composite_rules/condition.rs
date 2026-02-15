@@ -5,6 +5,68 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+/// Custom deserializer for offset ranges that accepts ergonomic formats:
+/// - `[start, end]` - closed range from start to end
+/// - `[start,]` or `[start, null]` or `[start, ~]` - from start to end of file (open-ended end)
+/// - `[null, end]` or `[~, end]` - from beginning of file to end (open-ended start, treated as offset 0)
+mod offset_range_deser {
+    use serde::de::{self, Deserializer, SeqAccess};
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<(i64, Option<i64>)>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct OffsetRangeVisitor;
+
+        impl<'de> de::Visitor<'de> for OffsetRangeVisitor {
+            type Value = Option<(i64, Option<i64>)>;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("an offset range array like [start, end], [start,], or [, end]")
+            }
+
+            fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+            where
+                A: SeqAccess<'de>,
+            {
+                // Get first element (start)
+                let start: Option<i64> = seq.next_element()?
+                    .unwrap_or(None);
+
+                // Get second element (end)
+                let end: Option<i64> = seq.next_element()?
+                    .unwrap_or(None);
+
+                // Both None means empty array - return None
+                if start.is_none() && end.is_none() {
+                    return Ok(None);
+                }
+
+                // Convert to our internal format: (i64, Option<i64>)
+                // where the first i64 is start (0 if not specified)
+                // and the second Option<i64> is end (None if open-ended)
+                Ok(Some((start.unwrap_or(0), end)))
+            }
+
+            fn visit_none<E>(self) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(None)
+            }
+
+            fn visit_unit<E>(self) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(None)
+            }
+        }
+
+        deserializer.deserialize_any(OffsetRangeVisitor)
+    }
+}
+
 /// Encoding specification for encoded string searches
 /// Can be a single encoding, array of encodings (OR), or chain (sequence)
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
@@ -118,13 +180,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
     Structure {
@@ -206,7 +268,7 @@ enum ConditionTagged {
         /// Absolute file offset (negative = from end of file)
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(default)]
@@ -215,7 +277,7 @@ enum ConditionTagged {
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -241,13 +303,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -316,13 +378,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default)]
+        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -664,13 +726,13 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -906,13 +968,13 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -984,13 +1046,13 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -2170,5 +2232,129 @@ mod location_constraint_tests {
             compiled_regex: None,
         };
         assert!(condition.validate().is_ok());
+    }
+
+    #[test]
+    fn test_offset_range_deser_closed_range() {
+        // Test [start, end] format - deserialize as a tuple
+        let yaml = "[100, 200]";
+        let result: Result<Option<(i64, Option<i64>)>, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap(), Some((100, Some(200))));
+    }
+
+    #[test]
+    fn test_offset_range_deser_open_end() {
+        // Test [start,] format - open-ended to end of file
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [-1024,]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((-1024, None)));
+    }
+
+    #[test]
+    fn test_offset_range_deser_open_start() {
+        // Test [~, end] format - open-ended from beginning (YAML null syntax)
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [~, 1024]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        if let Err(ref e) = result {
+            eprintln!("Deserialization error: {}", e);
+        }
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((0, Some(1024))));
+    }
+
+    #[test]
+    fn test_offset_range_deser_null_end() {
+        // Test [start, null] format - compatibility with explicit null
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [100, null]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((100, None)));
+    }
+
+    #[test]
+    fn test_offset_range_deser_tilde_end() {
+        // Test [start, ~] format - YAML null syntax (most ergonomic)
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [100, ~]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((100, None)));
+    }
+
+    #[test]
+    fn test_offset_range_deser_null_start() {
+        // Test [null, end] format - compatibility with explicit null
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [null, 1024]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((0, Some(1024))));
+    }
+
+    #[test]
+    fn test_offset_range_deser_negative_offset() {
+        // Test negative offsets (from end of file)
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "offset_range: [-1024, -512]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.offset_range, Some((-1024, Some(-512))));
+    }
+
+    #[test]
+    fn test_section_offset_range_deser() {
+        // Test section_offset_range with same formats
+        #[derive(Debug, serde::Deserialize, PartialEq)]
+        struct TestStruct {
+            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            section_offset_range: Option<(i64, Option<i64>)>,
+        }
+
+        let yaml = "section_offset_range: [100,]";
+        let result: Result<TestStruct, _> = serde_yaml::from_str(yaml);
+        assert!(result.is_ok());
+        let parsed = result.unwrap();
+        assert_eq!(parsed.section_offset_range, Some((100, None)));
     }
 }

@@ -164,7 +164,7 @@ composite_rules:
   # Full dropper pattern: detect platform, download, execute
   - id: init-dropper
     desc: Supply chain dropper in module init
-    crit: hostile
+    crit: suspicious
     conf: 0.95
     attack: "T1195.002"
     mbc: "B0024"
@@ -184,6 +184,10 @@ composite_rules:
       - id: inline-wget-exec
       - id: nohup-background
       - id: linux-in-platform
+    none:
+      - id: meta/quality::configure-script
+
+
 
   # os.system with wget dropper pattern (Ultralytics-style)
   - id: os-system-wget-dropper

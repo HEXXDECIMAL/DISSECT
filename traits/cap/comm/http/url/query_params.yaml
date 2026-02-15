@@ -1,0 +1,14 @@
+# HTTP Query Parameter Detection
+# Detects specific query parameters often used by droppers and C2 beacons
+
+defaults:
+  crit: notable
+  conf: 0.8
+
+traits:
+  - id: dropper-common-params
+    desc: "Common dropper URL parameters (add, uuid)"
+    if:
+      type: encoded
+      # Matches ?add= or &uuid= or obfuscated concatenation
+      regex: '[?&]add=[a-zA-Z0-9]{10,}|[?&]uuid=[a-zA-Z0-9]{10,}|[?&]\{[^:]+:[''"]a[''"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:[''"]d[''"]\}\.[a-zA-Z0-9_$]+'

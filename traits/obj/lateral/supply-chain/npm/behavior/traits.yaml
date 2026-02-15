@@ -418,7 +418,7 @@ composite_rules:
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks
     desc: Package has install hooks but
-    crit: suspicious
+    crit: notable
     conf: 0.85
     all:
       - id: obj/lateral/supply-chain/npm/metadata::install-hooks

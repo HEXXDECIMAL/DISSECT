@@ -86,8 +86,8 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "process.binding"
+      type: raw
+      regex: "\\bprocess\\.binding\\s*\\("
 
   # Function constructor patterns
   - id: new-function-call

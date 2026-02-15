@@ -37,3 +37,44 @@ composite_rules:
     any:
       - id: cap/anti-static/obfuscation/js::js-split-string-property
       - id: obj/anti-static/obfuscation/strings/encoding::fromcharcode
+
+  - id: wscript-dropper-env-check
+    desc: "WSH Dropper with Environment Checks"
+    crit: hostile
+    all:
+      - id: cap/env/check/wsh::env-check-no-document
+    any:
+      - id: cap/exec/scripting/host::activex-object-obfuscated
+      - id: cap/exec/scripting/host::wscript-shell-obfuscated
+      - id: cap/exec/cmd/obfuscation::cmd-caret-obfuscation
+      - id: cap/fs/path/location::path-suspicious-appdata-exe
+
+  - id: obfuscated-jscript-powershell-dropper
+    desc: "Obfuscated JScript PowerShell dropper"
+    crit: hostile
+    all:
+      - id: cap/exec/scripting/host::wscript-shell-obfuscated
+      - id: cap/exec/cmd/obfuscation::cmd-caret-obfuscation
+      - id: cap/exec/shell/pwsh::pwsh-downloader
+
+  - id: obfuscated-property-access-dropper
+    desc: "Obfuscated JScript Dropper using Property Access Obfuscation"
+    crit: hostile
+    all:
+      - id: cap/anti-static/obfuscation/js::js-property-concatenation-obfuscation
+    any:
+      - id: cap/exec/load/probabilistic::retry-loop
+      - id: obj/anti-analysis/deception/social::fake-error-document-corrupted
+      - id: cap/exec/process/control::start-process
+
+  - id: jscript-array-obfuscated-dropper
+    desc: "Obfuscated JScript Dropper using Array Function Loop"
+    crit: hostile
+    all:
+      - id: cap/exec/script/wsh::jscript-array-function-loop
+      - id: cap/exec/script/wsh::jscript-obfuscated-string-builder
+    any:
+      - id: cap/exec/script/wsh::adodb-fragment-short
+      - id: cap/exec/script/wsh::wscript-shell-fragment
+      - id: cap/exec/script/wsh::response-body-fragment
+      - id: obj/exec/script/dropper::obfuscated-jscript-dynamic-execution

@@ -61,7 +61,7 @@ traits:
     if:
       type: raw
       # Common patterns: for each $1, for i in IPs, while read ip, etc
-      regex: "(?:for\\s+\\$1|while\\s+read|xargs\\s+[^\\n]*\\.)"
+      regex: "(?:while\\s+read\\s+(?:ip|host|target|addr)|for\\s+(?:ip|host|target|addr)\\s+in)"
 
   - id: dotfiles-in-script
     desc: References hidden scripts

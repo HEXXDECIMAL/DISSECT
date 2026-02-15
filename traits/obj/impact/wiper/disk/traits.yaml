@@ -6,7 +6,7 @@ traits:
   # Recursive directory deletion (Node.js)
   - id: recursive-delete
     desc: Recursive directory deletion function
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1485"
     for: [javascript, typescript]

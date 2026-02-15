@@ -56,7 +56,7 @@ traits:
   # Execution policy bypass
   - id: ps-ep-bypass
     desc: Execution policy bypass
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [powershell, batch, shell]
     attack: "T1059.001"
@@ -193,5 +193,4 @@ composite_rules:
     any:
       - id: ps-ep-bypass
       - id: ps-hidden-window
-      - id: ps-noprofile
       - id: ps-encoded-command
