@@ -3064,7 +3064,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stng"
 version = "0.1.0"
-source = "git+https://github.com/HEXXDECIMAL/stng#d311af5862dce8387b5a497f5b4d46b314cfebff"
+source = "git+https://github.com/HEXXDECIMAL/stng#7a385b1e0b1c293e79454cbd0019c4f82c3aeb52"
 dependencies = [
  "aho-corasick",
  "anyhow",
