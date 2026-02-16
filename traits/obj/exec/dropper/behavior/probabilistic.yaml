@@ -17,5 +17,5 @@ composite_rules:
     any:
       - id: cap/exec/vm/random-code::random-code-generation
       - id: cap/exec/vm/random-code::math-random-index
-      - id: cap/data/encoding/hex_xor::fragmented-hex-xor-decoder
-      - id: cap/data/encoding/hex_xor::js-obfuscated-fragment-xor-decode
+      - id: cap/data/encode/hex_xor::fragmented-hex-xor-decoder
+      - id: cap/data/encode/hex_xor::js-obfuscated-fragment-xor-decode

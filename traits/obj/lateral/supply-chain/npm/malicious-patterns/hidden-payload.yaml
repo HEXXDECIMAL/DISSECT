@@ -69,6 +69,10 @@ traits:
     if:
       type: raw
       regex: "eval\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\("
+    downgrade:
+      any:
+        - id: meta/library/syntaxhighlighter::syntaxhighlighter-header-url
+        - id: meta/library/syntaxhighlighter::syntaxhighlighter-core
 
   - id: eval-method-call-arg
     desc: eval() with method call
@@ -146,6 +150,10 @@ composite_rules:
     any:
       - id: eval-function-call-arg
       - id: eval-method-call-arg
+    downgrade:
+      any:
+        - id: meta/library/syntaxhighlighter::syntaxhighlighter-header-url
+        - id: meta/library/syntaxhighlighter::syntaxhighlighter-core
 
   - id: file-read-operation
     desc: File read operation

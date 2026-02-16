@@ -20,3 +20,17 @@ traits:
       # Requires at least 5 elements, where elements are short strings (length 2-5)
       regex: |
         var\s+\w+\s*=\s*new\s+Array\(((?:\s*['"][^"']{2,5}['"]|\s*\w{2,5})\s*,?){5,}\);
+
+  - id: js-nested-array-table-mapping
+    desc: Nested array structure used for table mapping
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (array
+          (array)
+          (array)
+        )

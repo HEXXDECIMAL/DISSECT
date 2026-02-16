@@ -14,32 +14,32 @@ traits:
     crit: notable
     conf: 0.90
     if:
-      type: raw
-      regex: "\\beval\\s*\\("
+      type: symbol
+      regex: "^eval$"
 
   - id: instance-eval
     desc: Ruby instance_eval call
     crit: notable
     conf: 0.90
     if:
-      type: raw
-      regex: "\\.instance_eval\\b"
+      type: symbol
+      regex: "instance_eval"
 
   - id: class-eval
     desc: Ruby class_eval call
     crit: notable
     conf: 0.90
     if:
-      type: raw
-      regex: "\\.class_eval\\b"
+      type: symbol
+      regex: "class_eval"
 
   - id: module-eval
     desc: Ruby module_eval call
     crit: notable
     conf: 0.90
     if:
-      type: raw
-      regex: "\\.module_eval\\b"
+      type: symbol
+      regex: "module_eval"
 
   # === Module Monkey Patching ===
   - id: prepend-module

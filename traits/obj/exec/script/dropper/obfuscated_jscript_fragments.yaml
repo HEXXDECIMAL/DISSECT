@@ -25,3 +25,12 @@ composite_rules:
       - id: obj/anti-static/obfuscation/code-metrics/functions::high-function-density
       - id: obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions
       - id: obj/anti-static/obfuscation/code-metrics/structure::no-comments
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
+      - id: meta/library/d3::d3-detection
+      - id: meta/library/prototype::copyright
+      - id: meta/library/prototype::version-string
+      - id: meta/library/prototype::header-x

@@ -384,6 +384,8 @@ pub(crate) struct RawContentRegexIndex {
 struct FileTypeRegexSet {
     regex_set: RegexSet,
     pattern_to_traits: Vec<Vec<usize>>,
+    /// Original pattern strings for debugging/profiling
+    patterns: Vec<String>,
 }
 
 impl RawContentRegexIndex {
@@ -509,7 +511,8 @@ impl RawContentRegexIndex {
         match RegexSet::new(&pattern_strs) {
             Ok(regex_set) => Ok(Some(FileTypeRegexSet {
                 regex_set,
-                pattern_to_traits,
+                pattern_to_traits: pattern_to_traits.clone(),
+                patterns: pattern_strs,
             })),
             Err(e) => {
                 // RegexSet creation failed. Find invalid patterns and report them as errors.
@@ -556,14 +559,31 @@ impl RawContentRegexIndex {
     }
 
     /// Find matches using only patterns applicable to the given file type
+    ///
+    /// Returns (matching_trait_indices, has_excessive_line_length)
     pub(crate) fn find_matches(
         &self,
         binary_data: &[u8],
         file_type: &RuleFileType,
-    ) -> FxHashSet<usize> {
+    ) -> (FxHashSet<usize>, bool) {
         let mut matching_traits = FxHashSet::default();
 
         let content = String::from_utf8_lossy(binary_data);
+
+        // Check for excessively long lines (potential anti-analysis via regex backtracking)
+        // Threshold: 1MB per line
+        const MAX_LINE_LENGTH: usize = 1_000_000;
+        let has_excessive_line = content
+            .lines()
+            .any(|line| line.len() > MAX_LINE_LENGTH);
+
+        if has_excessive_line {
+            tracing::warn!(
+                "Skipping regex matching due to excessively long line (>{} bytes, potential anti-analysis)",
+                MAX_LINE_LENGTH
+            );
+            return (matching_traits, true);
+        }
 
         // Match universal patterns
         if let Some(ref universal) = self.universal {
@@ -587,7 +607,79 @@ impl RawContentRegexIndex {
             }
         }
 
-        matching_traits
+        (matching_traits, false)
+    }
+
+    /// Test each regex pattern individually to find slow ones
+    /// Returns a list of (pattern, duration_ms, trait_ids)
+    #[allow(dead_code)]
+    pub(crate) fn benchmark_patterns(
+        &self,
+        binary_data: &[u8],
+        file_type: &RuleFileType,
+        timeout_ms: u64,
+    ) -> Vec<(String, u64, Vec<String>)> {
+        use std::time::Instant;
+
+        let mut slow_patterns = Vec::new();
+        let content = String::from_utf8_lossy(binary_data);
+
+        // Test universal patterns
+        if let Some(ref universal) = self.universal {
+            for (pattern_idx, pattern) in universal.patterns.iter().enumerate() {
+                let start = Instant::now();
+
+                // Try to compile and match with timeout check
+                if let Ok(regex) = regex::Regex::new(pattern) {
+                    let _ = regex.find(&content);
+                    let duration = start.elapsed().as_millis() as u64;
+
+                    if duration > timeout_ms {
+                        let trait_ids = universal
+                            .pattern_to_traits
+                            .get(pattern_idx)
+                            .map(|indices| {
+                                indices
+                                    .iter()
+                                    .map(|idx| format!("trait_{}", idx))
+                                    .collect()
+                            })
+                            .unwrap_or_default();
+
+                        slow_patterns.push((pattern.clone(), duration, trait_ids));
+                    }
+                }
+            }
+        }
+
+        // Test file-type-specific patterns
+        if let Some(ft_set) = self.by_file_type.get(file_type) {
+            for (pattern_idx, pattern) in ft_set.patterns.iter().enumerate() {
+                let start = Instant::now();
+
+                if let Ok(regex) = regex::Regex::new(pattern) {
+                    let _ = regex.find(&content);
+                    let duration = start.elapsed().as_millis() as u64;
+
+                    if duration > timeout_ms {
+                        let trait_ids = ft_set
+                            .pattern_to_traits
+                            .get(pattern_idx)
+                            .map(|indices| {
+                                indices
+                                    .iter()
+                                    .map(|idx| format!("trait_{}", idx))
+                                    .collect()
+                            })
+                            .unwrap_or_default();
+
+                        slow_patterns.push((pattern.clone(), duration, trait_ids));
+                    }
+                }
+            }
+        }
+
+        slow_patterns
     }
 }
 
@@ -816,8 +908,9 @@ mod tests {
         let index = RawContentRegexIndex::build(&[]).unwrap();
         let content = b"some content";
 
-        let matches = index.find_matches(content, &RuleFileType::All);
+        let (matches, has_excessive_line) = index.find_matches(content, &RuleFileType::All);
         assert!(matches.is_empty());
+        assert!(!has_excessive_line);
     }
 
     #[test]
@@ -864,7 +957,7 @@ mod tests {
         // Content with invalid UTF-8 and the target string
         let content = &[0xFF, b't', b'e', b's', b't', 0xFE];
 
-        let matches = index.find_matches(content, &RuleFileType::All);
+        let (matches, _) = index.find_matches(content, &RuleFileType::All);
         // Should handle invalid UTF-8 gracefully and find the match
         assert!(!matches.is_empty());
     }

@@ -15,3 +15,27 @@ traits:
     if:
       type: string
       regex: "wmic\\s+path\\s+Win32_VideoController|xrandr\\s+--current|system_profiler\\s+SPDisplaysDataType|CurrentVerticalResolution"
+
+  - id: wmic-video-controller
+    desc: Windows WMIC VideoController query
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "wmic\\s+path\\s+Win32_VideoController"
+
+  - id: xrandr-query
+    desc: Linux xrandr query
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "xrandr\\s+--(current|verbose|prop)"
+
+  - id: macos-system-profiler-display
+    desc: macOS system_profiler display query
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "system_profiler\\s+SPDisplaysDataType"

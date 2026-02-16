@@ -9,6 +9,15 @@ defaults:
   attack: "T1071.001"
 
 traits:
+  - id: iplogger-domain
+    desc: "iplogger.org malicious domain"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1105"
+    if:
+      type: string
+      substr: "iplogger.org"
+
   - id: evilpacket-net
     desc: "Evilpacket.net malicious domain"
     crit: suspicious
@@ -17,6 +26,24 @@ traits:
     if:
       type: string
       substr: "evilpacket.net"
+
+  - id: anti-theft-web-heroku
+    desc: "Anti-theft-web.herokuapp.com malicious domain (phpass malware)"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "anti-theft-web.herokuapp.com"
+
+  - id: communication-sms-c2
+    desc: "C2 domain used by communication-sms malware"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "rt11.ml"
 
   - id: hardcoded-domain-com
     desc: Hardcoded .com/.org/.net domain (excluding known vendors)
@@ -49,6 +76,7 @@ traits:
       - substr: "xiph.org"
       - substr: "translationproject.org"
       - substr: "sourceware.org"
+      - substr: "sage.com"
 
   - id: hardcoded-domain-suspicious-pattern
     desc: "Hardcoded suspicious TLD domain pattern"

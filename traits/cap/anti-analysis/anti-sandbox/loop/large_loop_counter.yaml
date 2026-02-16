@@ -13,6 +13,8 @@ traits:
     attack: "T1497.003" # Virtualization/Sandbox Evasion::Time Based Evasion
     if:
       type: raw
-      # Matches: if (var == 12345678) or while (var < 12345678)
-      # Regex looks for comparison operators followed by at least 8 digits
-      regex: '(?:if|while|for)\s*\([^)]+(?:==|!=|<|>|<=|>=)\s*[1-9][0-9]{7,}'
+      # Matches: if (var == 123456789012345) or while (var < 123456789012345)
+      # Regex looks for comparison operators followed by at least 14 digits
+      regex: '(?:if|while|for)\s*\([^)]+(?:==|!=|<|>|<=|>=)\s*[1-9][0-9]{13,}'
+      not:
+        regex: '.*(?:1099511627776|1073741824).*'

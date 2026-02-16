@@ -133,7 +133,7 @@ traits:
     for: [shell, package.json, ruby]
     if:
       type: string
-      regex: "ruby\\s+-rsocket\\s+-e|TCPSocket\\.open.{0,50}exec"
+      regex: "ruby\\s+-rsocket\\s+-e.{0,100}(exec|spawn|syscall|system|popen|`|/bin/sh|/bin/bash|cmd\\.exe)|TCPSocket\\.open.{0,50}exec"
 
   # PHP reverse shell
   - id: reverse-shell-php

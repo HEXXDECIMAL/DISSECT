@@ -112,7 +112,7 @@ traits:
     desc: "Encoded Python exec() call"
     crit: suspicious
     conf: 0.95
-    for: [python, javascript, shell]
+    for: [python, shell]
     if:
       type: encoded
       regex: "\\bexec\\s*\\("
@@ -156,8 +156,31 @@ traits:
     for: [javascript, typescript]
     if:
       type: encoded
-      regex: "\\bFunction\\s*\\("
+      regex: "\\bFunction\\s*\\([^)]*"
+      not:
+        - 'Function("d",'
+        - 'JSON.stringify(n)+": d["+t+"]"'
+        - 'return {'
+        - 'version:"'
+        - 'Rickshaw'
     attack: "T1059.007"
+    downgrade:
+      any:
+        - id: meta/library/jquery::domain
+        - id: meta/library/jquery::version-string
+        - id: meta/library/jquery::copyright
+        - id: meta/library/jquery::fn-extend
+        - id: meta/library/d3::d3-detection
+        - type: string
+          regex: 'd3\.interpolate[a-zA-Z]+|d3\.scale\.linear|d3\.layout\.force|Bo=\{version:"[0-9.]+"\}|d3\s*=\s*\{version:"[0-9.]+"\}|Rickshaw\.Graph|Rickshaw\.Fixtures\.Time'
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
+      - id: meta/library/d3::d3-detection
+      - type: string
+        regex: 'd3\.interpolate[a-zA-Z]+|d3\.scale\.linear|d3\.layout\.force|Bo=\{version:"[0-9.]+"\}|d3\s*=\s*\{version:"[0-9.]+"\}|Rickshaw\.Graph|Rickshaw\.Fixtures\.Time'
 
   - id: encoded-node-child-process
     desc: "Encoded child_process module"

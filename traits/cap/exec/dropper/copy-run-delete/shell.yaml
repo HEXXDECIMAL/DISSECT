@@ -101,17 +101,17 @@ traits:
   # === Combined patterns ===
   - id: cp-and-rm-chain
     desc: Copy then remove chain
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "B0024"
     attack: "T1059.004"
     if:
       type: raw
-      regex: 'cp\s+[^|&;\n]+&&[^;]*rm\s+'
+      regex: 'cp\s+[^|&;\n]+&&[^;]{0,512}rm\s+'
 
   - id: exec-and-rm-chain
     desc: Execute then remove chain
-    crit: suspicious
+    crit: notable
     conf: 0.85
     mbc: "F0007"
     attack: "T1070.004"

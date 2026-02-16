@@ -562,7 +562,7 @@ fn test_eval_string_min_count() {
     let ctx = create_test_context(&report, &data);
 
     // Test with count_min - should not match since only 1 string exists
-    let result = eval_string_count(Some(2), None, None, &ctx);
+    let result = eval_string_count(Some(2), None, None, None, None, &ctx);
 
     // Only 1 string in total, need 2
     assert!(!result.matched);
@@ -824,10 +824,10 @@ fn test_eval_string_count_min() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_string_count(Some(3), None, None, &ctx);
+    let result = eval_string_count(Some(3), None, None, None, None, &ctx);
     assert!(result.matched);
 
-    let result = eval_string_count(Some(10), None, None, &ctx);
+    let result = eval_string_count(Some(10), None, None, None, None, &ctx);
     assert!(!result.matched);
 }
 
@@ -848,10 +848,10 @@ fn test_eval_string_count_max() {
     let data = vec![];
     let ctx = create_test_context(&report, &data);
 
-    let result = eval_string_count(None, Some(10), None, &ctx);
+    let result = eval_string_count(None, Some(10), None, None, None, &ctx);
     assert!(result.matched);
 
-    let result = eval_string_count(None, Some(3), None, &ctx);
+    let result = eval_string_count(None, Some(3), None, None, None, &ctx);
     assert!(!result.matched);
 }
 
@@ -889,11 +889,11 @@ fn test_eval_string_count_min_length() {
     let ctx = create_test_context(&report, &data);
 
     // Only count strings >= 5 chars
-    let result = eval_string_count(Some(2), None, Some(5), &ctx);
+    let result = eval_string_count(Some(2), None, Some(5), None, None, &ctx);
     assert!(result.matched);
 
     // Only count strings >= 10 chars
-    let result = eval_string_count(Some(2), None, Some(10), &ctx);
+    let result = eval_string_count(Some(2), None, Some(10), None, None, &ctx);
     assert!(!result.matched); // Only 1 string >= 10 chars
 }
 
@@ -915,12 +915,64 @@ fn test_eval_string_count_range() {
     let ctx = create_test_context(&report, &data);
 
     // Count should be exactly 10
-    let result = eval_string_count(Some(5), Some(15), None, &ctx);
+    let result = eval_string_count(Some(5), Some(15), None, None, None, &ctx);
     assert!(result.matched);
 
     // Outside range
-    let result = eval_string_count(Some(15), Some(20), None, &ctx);
+    let result = eval_string_count(Some(15), Some(20), None, None, None, &ctx);
     assert!(!result.matched);
+}
+
+#[test]
+fn test_eval_string_count_with_regex() {
+    let mut report = create_test_report();
+    report.strings.push(StringInfo {
+        value: "VScrollBar1".to_string(),
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
+    });
+    report.strings.push(StringInfo {
+        value: "VScrollBar2".to_string(),
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
+    });
+    report.strings.push(StringInfo {
+        value: "OtherString".to_string(),
+        offset: None,
+        encoding: "utf8".to_string(),
+        string_type: StringType::Plain,
+        section: None,
+        encoding_chain: Vec::new(),
+        fragments: None,
+    });
+    let data = vec![];
+    let ctx = create_test_context(&report, &data);
+
+    let pattern = "VScrollBar[0-9]+".to_string();
+    let re = regex::Regex::new(&pattern).unwrap();
+
+    // Match VScrollBar strings
+    let result = eval_string_count(Some(2), None, None, Some(&pattern), Some(&re), &ctx);
+    assert!(result.matched);
+    assert!(result.evidence[0].value.contains("(2)"));
+
+    // Require 3 VScrollBar strings - should fail
+    let result = eval_string_count(Some(3), None, None, Some(&pattern), Some(&re), &ctx);
+    assert!(!result.matched);
+
+    // Require 1 OtherString - should match
+    let other_pattern = "Other".to_string();
+    let other_re = regex::Regex::new(&other_pattern).unwrap();
+    let result = eval_string_count(Some(1), None, None, Some(&other_pattern), Some(&other_re), &ctx);
+    assert!(result.matched);
 }
 
 // ==================== eval_encoded Tests ====================

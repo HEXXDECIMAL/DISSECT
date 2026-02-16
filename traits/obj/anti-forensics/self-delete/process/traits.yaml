@@ -108,7 +108,7 @@ traits:
   - shell
   if:
     type: string
-    substr: (deleted)
+    regex: sed.{0,100}\(deleted\)
   attack: T1070.004
 - id: sed-deleted-regex-pattern
   desc: Regex for deleted process removal

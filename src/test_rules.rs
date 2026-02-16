@@ -2531,7 +2531,9 @@ fn evaluate_condition_simple(
             min,
             max,
             min_length,
-        } => eval_string_count(*min, *max, *min_length, ctx),
+            regex,
+            compiled_regex,
+        } => eval_string_count(*min, *max, *min_length, regex.as_ref(), compiled_regex.as_ref(), ctx),
         Condition::Basename {
             exact,
             substr,

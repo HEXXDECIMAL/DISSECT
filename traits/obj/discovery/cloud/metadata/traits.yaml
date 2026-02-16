@@ -22,6 +22,11 @@ traits:
     if:
       type: string
       substr: "169.254.169.254"
+    downgrade:
+      any:
+        - id: meta/library::aws-sdk-ruby
+        - id: meta/library::aws-sdk-ruby-constants
+        - id: meta/library::botocore-lib
 
   - id: aws-imds-v2
     desc: AWS IMDSv2 token TTL header
@@ -42,6 +47,11 @@ traits:
     if:
       type: string
       substr: "/latest/meta-data/iam/security-credentials"
+    downgrade:
+      any:
+        - id: meta/library::aws-sdk-ruby
+        - id: meta/library::aws-sdk-ruby-constants
+        - id: meta/library::botocore-lib
 
   - id: aws-user-data
     desc: AWS EC2 user-data endpoint
@@ -146,3 +156,9 @@ composite_rules:
       - id: aws-metadata-endpoint
       - id: gcp-metadata-endpoint
       - id: azure-metadata-endpoint
+    downgrade:
+      any:
+        - id: meta/library::aws-sdk-ruby
+        - id: meta/library::aws-sdk-ruby-constants
+        - id: meta/library::botocore-lib
+

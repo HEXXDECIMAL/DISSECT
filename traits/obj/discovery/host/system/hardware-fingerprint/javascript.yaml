@@ -189,6 +189,14 @@ traits:
       type: raw
       substr: "process.argv"
 
+  - id: js-os-networkinterfaces-to-hex
+    desc: Hex-encodes network interfaces for exfiltration
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: raw
+      regex: 'os\.networkInterfaces\(\)[\s\S]{0,500}toHex'
+
 composite_rules:
   # System profiling: hostname + userinfo + platform (strict)
   - id: js-profiling
@@ -240,7 +248,7 @@ composite_rules:
     all:
       - id: js-sysinfo-multi
       - id: cap/comm/http/post::post
-      - id: cap/data/encoding/charset::json
+      - id: obj/discovery/host/fingerprint::json-stringify-call
 
   # === Process-based fingerprinting (content-based detection) ===
   # Catches fingerprinting via process.* properties in object literals
@@ -288,4 +296,4 @@ composite_rules:
       - id: js-victim-id
       - id: process-fingerprint-multi
       - id: cap/comm/http/post::post
-      - id: cap/data/encoding/charset::json
+      - id: obj/discovery/host/fingerprint::json-stringify-call

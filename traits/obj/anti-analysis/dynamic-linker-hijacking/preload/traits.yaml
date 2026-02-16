@@ -87,7 +87,7 @@ traits:
     regex: (?:LD_PRELOAD\s*=\s*[^\s]*libc(?:\.so|-)|ld\.so\.preload[^\n]{0,80}libc(?:\.so|-))
 - id: glibc-tunables
   desc: GLIBC_TUNABLES environment variable
-  crit: suspicious
+  crit: notable
   conf: 0.85
   for:
   - elf

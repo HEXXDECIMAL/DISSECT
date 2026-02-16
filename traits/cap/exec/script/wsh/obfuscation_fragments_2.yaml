@@ -9,9 +9,15 @@ defaults:
 traits:
   - id: wscript-shell-fragment-short
     desc: WScript.Shell string fragment (short)
+    crit: notable
     if:
       type: string
       regex: 'WScr|\.Shel|ript\.S|hell'
+    unless:
+      - id: meta/builder/autotools::autotools
+      - id: meta/builder/autotools::configure-ac
+      - id: meta/builder/pip::setup-py
+      - id: meta/quality/help::usage-title
 
   - id: msxml-fragment-short
     desc: MSXML2.XMLHTTP string fragment (short)

@@ -25,6 +25,28 @@ traits:
       type: string
       substr: "User-Agent"
 
+  - id: auth-header
+    desc: Authorization header
+    crit: notable
+    conf: 0.5
+    mbc: "C0002"
+    attack: "T1071.001"
+    for: [all]
+    if:
+      type: string
+      regex: 'Authorization|AUTHORIZATION|authorization'
+
+  - id: hardcoded-auth-token
+    desc: Hardcoded Authorization token
+    crit: suspicious
+    conf: 0.7
+    mbc: "C0002"
+    attack: "T1071.001"
+    for: [python, javascript, ruby, go]
+    if:
+      type: raw
+      regex: 'Authorization.:\s*.(Token|Bearer|Basic)\s+[0-9a-fA-F]{16,}'
+
   - id: http-version
     desc: HTTP/1.x version string
     crit: notable

@@ -133,6 +133,9 @@ composite_rules:
       - id: moscow-timezone
       - id: locale-env-checks
       - id: cis-country-codes
+    downgrade:
+      any:
+        - id: known/lib::gnulib-locale-functions
 
   # Full geofencing detection (timezone + locale)
   # Complexity: all(1) + any(3) = 4 traits minimum for hostile

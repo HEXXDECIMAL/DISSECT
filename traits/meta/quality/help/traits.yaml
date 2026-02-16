@@ -57,3 +57,10 @@ traits:
       type: string
       substr: "USAGE:"
 
+  - id: libxslt-configure-js
+    desc: libxslt configure.js script
+    crit: inert
+    conf: 1.0
+    if:
+      type: raw
+      regex: 'Configure script for libxslt, specific for Windows'

@@ -129,13 +129,8 @@ traits:
     conf: 0.85
     if:
       type: string
-      # Require exfil/C2/beacon-like parameter names after .php?
-      # (?:[^'"\s]*&)? handles first param (directly after ?) or subsequent params (after &)
-      regex: "https?://[^/]+/[^'\"\\s]*\\.php\\?(?:[^'\"\\s]*&)?(?:vid|id|uid|token|key|data|payload|info|host|user|pass|cmd|exec|shell|upload|post|send|collect|exfil|live|status|msg|resp|callback|ping|report|log|event|action)="
+      substr: ".php?live="
     unless:
-      # DokuWiki uses doku.php?id=<pagename> as standard URL format
-      - type: raw
-        substr: "doku.php"
 
   - id: version-check-url
     desc: Suspicious version check URL
@@ -440,7 +435,7 @@ composite_rules:
     mbc: "E1041"
     attack: "T1020"
     all:
-      - id: setup-py-file
+      - id: robust-setup-py
       - id: suspicious-php-endpoint
       - id: cap/comm/http/request::request-python
       - id: obj/lateral/supply-chain/pypi/install-patterns::windows-computername-env

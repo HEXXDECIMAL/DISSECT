@@ -272,6 +272,10 @@ composite_rules:
       - id: cap/fs/write/file
       - id: cap/fs/chmod
       - id: cap/exec/command/shell
+    downgrade:
+      any:
+        - id: meta/library::wal-shipper-header
+        - id: meta/library::wal-shipper-config
 
   - id: ruby-reverse-shell
     desc: Reverse shell connection
@@ -282,6 +286,9 @@ composite_rules:
       - id: cap/comm/socket/listen::ruby-tcp-socket
       - id: cap/exec/command/shell
       - id: cap/process/tty/pty::ruby-pty
+    downgrade:
+      any:
+        - id: meta/quality/testing::ruby-test-file
 
   - id: ruby-windows-vbs-dropper
     desc: Windows VBS payload dropper
@@ -300,8 +307,8 @@ composite_rules:
   - id: ruby-binary-dropper
     desc: Downloads and writes binary payload
     conf: 0.94
-    crit: suspicious
+    crit: notable
     needs: 2
     any:
-      - id: cap/comm/http/lib/netlib::http-get-method
-      - id: cap/fs/write/file
+      - id: cap/comm/http/lib/netlib::request-ruby
+      - id: cap/fs/write/file::ruby-file-open-write-binary

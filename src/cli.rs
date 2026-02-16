@@ -161,7 +161,7 @@ pub struct Args {
 
     /// Enable full trait validation (expensive, ~60s+). Enabled by default.
     /// Use --validate=false to disable. Can also set DISSECT_VALIDATE=0 to disable.
-    #[arg(long, default_value_t = true)]
+    #[arg(long, action = clap::ArgAction::Set, default_value_t = true)]
     pub validate: bool,
 
     /// Additional password to try for encrypted zip files (can be specified multiple times)

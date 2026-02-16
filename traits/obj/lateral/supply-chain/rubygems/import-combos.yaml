@@ -24,6 +24,13 @@ traits:
       type: basename
       exact: "extconf.rb"
 
+  - id: in-extension-dir
+    desc: File is in Ruby extension directory
+    crit: inert
+    if:
+      type: raw
+      regex: "ext/.{0,50}"
+
   # === Require patterns ===
   - id: require-net-http
     desc: Requires net/http
@@ -237,10 +244,10 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: meta/import/ruby/net/http
-      - id: meta/import/ruby/faraday
-      - id: meta/import/ruby/httparty
-      - id: meta/import/ruby/rest-client
+      - id: meta/import/ruby::net/http
+      - id: meta/import/ruby::faraday
+      - id: meta/import/ruby::httparty
+      - id: meta/import/ruby::rest-client
       - id: require-net-http
 
   - id: file-imports
@@ -248,7 +255,7 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: meta/import/ruby/fileutils
+      - id: meta/import/ruby::fileutils
       - id: file-read-write
 
   # === NOTABLE: Patterns that define gem purpose ===
@@ -258,7 +265,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: meta/import/ruby/open3
+      - id: meta/import/ruby::open3
       - id: system-call
       - id: backtick-exec
       - id: percent-x-exec
@@ -279,7 +286,7 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: meta/import/ruby/base64
+      - id: meta/import/ruby::base64
       - id: base64-decode
 
   # === SUSPICIOUS: Unusual patterns in gem context ===
@@ -302,6 +309,15 @@ composite_rules:
     any:
       - id: remote-binary-url
       - id: shell-exec-imports
+
+  - id: extconf-tracking-pixel
+    desc: Native extension contacts tracking pixel or logging service
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: extconf-file
+      - id: http-client-imports
+      - id: obj/discovery/network/scan::plaintext-ip-services
 
   - id: network-eval-exec-chain
     desc: Network fetch with eval and exec
@@ -397,3 +413,36 @@ composite_rules:
       - id: extconf-file
       - id: obj/exec/dropper/stealth::ruby-dropper-rename-exec
 
+  # Malicious installer renames and executes dropped payload
+  - id: rubygem-dropper-rename-exec
+    desc: Malicious installer renames and executes dropped payload
+    crit: hostile
+    conf: 0.95
+    attack: "T1059"
+    all:
+      - id: obj/lateral/supply-chain/rubygems::extconf-file
+      - id: cap/exec/dropper/script::ruby-ast-rename-to-exe
+    any:
+      - id: cap/exec/command/shell/lang::ruby-exec
+
+  # Build script fetches remote content and then renames+executes payload.
+  - id: extconf-http-fetch-rename-exec
+    desc: extconf.rb fetches remote content then renames and executes payload
+    crit: hostile
+    conf: 0.98
+    attack: "T1195.002"
+    all:
+      - id: extconf-file
+      - id: cap/exec/script/extconf::extconf-http-fetch
+      - id: cap/exec/dropper/script::ruby-ast-rename-to-exe
+      - id: cap/exec/command/shell/lang::ruby-exec
+
+  # Generic rename and execute in extconf.rb (handles variable arguments)
+  - id: extconf-rename-exec-generic
+    desc: extconf.rb renames a file and executes a command (generic)
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: extconf-file
+      - id: cap/exec/dropper/script::ruby-ast-file-rename
+      - id: cap/exec/command/shell/lang::ruby-exec

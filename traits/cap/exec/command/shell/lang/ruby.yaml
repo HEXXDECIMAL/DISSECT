@@ -12,6 +12,16 @@ traits:
       type: symbol
       regex: "^(_)?exec$"
 
+  - id: ruby-system
+    desc: system() executes command
+    crit: notable
+    conf: 0.95
+    platforms: [all]
+    for: [ruby]
+    if:
+      type: symbol
+      regex: "^(_)?system$"
+
   - id: ruby-spawn
     desc: spawn() creates new process
     crit: notable
@@ -41,36 +51,6 @@ traits:
     if:
       type: symbol
       regex: "`|%x"
-
-  - id: ruby-eval
-    desc: eval() dynamic code execution
-    crit: notable
-    conf: 0.90
-    platforms: [all]
-    for: [ruby]
-    if:
-      type: symbol
-      regex: "^eval$"
-
-  - id: ruby-instance-eval
-    desc: instance_eval dynamic execution
-    crit: notable
-    conf: 0.93
-    platforms: [all]
-    for: [ruby]
-    if:
-      type: symbol
-      regex: "instance_eval"
-
-  - id: ruby-class-eval
-    desc: class/module_eval dynamic execution
-    crit: notable
-    conf: 0.93
-    platforms: [all]
-    for: [ruby]
-    if:
-      type: symbol
-      regex: "(class|module)_eval"
 
   - id: ruby-shell-exec
     desc: Shell execution via exec

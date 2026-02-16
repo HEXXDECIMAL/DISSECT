@@ -275,6 +275,8 @@ traits:
     if:
       type: string
       substr: "Get-Process"
+    unless:
+      - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush
 
 composite_rules:
   # Helper composites
@@ -398,3 +400,5 @@ composite_rules:
       - { id: ps-aux-cmd }
       - { id: ps-ef-cmd }
       - { id: get-process-cmd }
+    unless:
+      - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush

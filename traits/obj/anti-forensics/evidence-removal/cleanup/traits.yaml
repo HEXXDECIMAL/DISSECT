@@ -44,7 +44,8 @@ traits:
   attack: T1070.003
   if:
     type: string
-    regex: (\(deleted\)|grep deleted|\(deleted\))
+    regex: grep\s+deleted
+
 - id: pkill-signal-9
   desc: pkill with kill -9 signal
   crit: notable

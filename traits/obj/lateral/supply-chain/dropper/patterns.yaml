@@ -631,6 +631,9 @@ composite_rules:
         - id: meta/library/socketio::client
         - id: meta/library/rxjs::ajax-observable
         - id: meta/library/rxjs::generic
+        - id: meta/library/prototype::copyright
+        - id: meta/library/prototype::version-string
+        - id: meta/library/prototype::header-x
 
   # Base64 buffer composite
   - id: base64-buffer

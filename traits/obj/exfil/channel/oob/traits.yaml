@@ -11,7 +11,7 @@ traits:
     for: [all]
     if:
       type: string
-      regex: "[a-z0-9]{8,32}\\.interactsh"
+      regex: "[a-z0-9]{8,64}\\.interactsh"
 
   - id: burpcollaborator-domain
     desc: Burp Collaborator OOB domain
@@ -218,14 +218,7 @@ traits:
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
   # === NPM preinstall atomic indicators ===
-  - id: npm-preinstall-script
-    desc: NPM preinstall script entry in
-    crit: notable
-    conf: 0.6
-    for: [javascript]
-    if:
-      type: string
-      regex: "\\s{2,8}\"preinstall\":\\s*\""
+  # Moved to cap/exec/package-manager/npm.yaml
 
 composite_rules:
   # Helper composite for all OOB domain patterns
@@ -267,7 +260,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: npm-preinstall-script }
+      - { id: cap/exec/script/npm/hooks::npm-preinstall-script }
       - { id: oob-domains }
 
   # Migrated from YARA

@@ -7,7 +7,7 @@ composite_rules:
     mbc: "B0032"
     for: [javascript, typescript]
     all:
-      - id: cap/data/encoding/gzip::gzip-header-identifier
+      - id: cap/data/encode/gzip::gzip-header-identifier
       - id: cap/exec/vm/sandbox::base64-long-string
     any:
       - id: obj/anti-static/obfuscation/strings/encoding::js-charat-loop

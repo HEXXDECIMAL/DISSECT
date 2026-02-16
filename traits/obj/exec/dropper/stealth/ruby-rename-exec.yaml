@@ -10,7 +10,7 @@ composite_rules:
     desc: Ruby script renames file to executable and executes it
     all:
       - id: cap/exec/dropper/script::ruby-ast-rename-img-to-exe
-      - id: cap/exec/command/shell/lang::ruby-shell-exec
+      - id: cap/exec/command/shell/lang::ruby-exec
     any:
       - id: cap/exec/dropper/script::ruby-ast-check-windows-regex
       - id: cap/exec/dropper/script::ruby-ast-host-os-access

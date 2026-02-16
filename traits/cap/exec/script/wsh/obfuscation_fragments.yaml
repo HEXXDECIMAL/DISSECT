@@ -16,7 +16,7 @@ traits:
     desc: MSXML2.XMLHTTP string fragment
     if:
       type: raw
-      regex: 'MSXML2|MLHTTP|MSXM|XMLH|XMLHTTP|XML2'
+      regex: 'MSXML2|MLHTTP|MSXM|XML2'
 
   - id: adodb-fragment
     desc: ADODB.Stream string fragment

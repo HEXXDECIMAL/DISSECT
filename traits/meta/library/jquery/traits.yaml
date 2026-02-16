@@ -51,3 +51,4 @@ composite_rules:
       - { id: version-string }
       - { id: domain }
       - { id: copyright }
+      - { id: fn-extend }

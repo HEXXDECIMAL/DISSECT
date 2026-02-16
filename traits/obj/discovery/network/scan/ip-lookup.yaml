@@ -102,6 +102,36 @@ traits:
       type: string
       substr: "ident.me"
 
+  - id: grabify
+    desc: grabify.link IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "grabify.link"
+
+  - id: blasze
+    desc: blasze.com IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "blasze.com"
+
+  - id: yip-su
+    desc: yip.su IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "yip.su"
+
   - id: checkip-amazonaws
     desc: AWS checkip service
     crit: notable
@@ -253,6 +283,9 @@ composite_rules:
       - { id: ifconfig-co }
       - { id: ident-me }
       - { id: checkip-amazonaws }
+      - { id: grabify }
+      - { id: blasze }
+      - { id: yip-su }
 
   # Helper composite for all base64-encoded IP lookup services
   - id: base64-ip-services

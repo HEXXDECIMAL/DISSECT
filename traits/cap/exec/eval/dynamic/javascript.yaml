@@ -195,6 +195,12 @@ composite_rules:
       - id: function-constructor-call
       - id: constructor-property-access
       - id: function-constructor-from-typeof
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
+      - id: meta/library/d3::d3-detection
 
   # Function constructor accessed via obfuscation
 

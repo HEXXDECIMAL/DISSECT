@@ -11,9 +11,13 @@ composite_rules:
     conf: 0.95
     for: [javascript]
     all:
-      - id: cap/data/encoding/arrays::js-hex-char-array
-      - id: cap/data/encoding/arrays::js-large-int-array
+      - id: cap/data/encode/arrays::js-hex-char-array
+      - id: cap/data/encode/arrays::js-large-int-array
       - id: cap/exec/eval/dynamic::eval-call-js
     any:
       - id: cap/data/control-flow/analysis::for-loop-ast
       - id: cap/data/control-flow/analysis::for-loop-content
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/prototype::copyright
+      - id: meta/library/prototype::header-x

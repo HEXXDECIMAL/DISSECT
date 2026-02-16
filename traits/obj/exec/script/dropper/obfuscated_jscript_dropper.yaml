@@ -83,7 +83,7 @@ composite_rules:
     desc: "Obfuscated JScript Dropper using Nested Array Map"
     crit: hostile
     all:
-      - id: cap/data/encoding/map::js-nested-array-table-mapping
+      - id: cap/data/encode/map::js-nested-array-table-mapping
       - id: cap/exec/script/wsh::js-split-string-array
     any:
       - id: cap/exec/scripting/jscript::jscript-cc-on
@@ -122,7 +122,7 @@ composite_rules:
     all:
       - id: cap/exec/scripting/jscript::jscript-cc-on
     any:
-      - id: cap/data/encoding/map::js-nested-array-table-mapping
+      - id: cap/data/encode/map::js-nested-array-table-mapping
       - id: cap/exec/lolbin/os::nemucod-export-fragments
       - id: cap/env/check/wsh::env-check-comspec-cmd
       - id: obj/c2/infrastructure/domain::nemucod-domain

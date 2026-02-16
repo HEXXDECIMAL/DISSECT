@@ -59,11 +59,14 @@ traits:
     desc: "Prompts user to enter password"
     crit: suspicious
     conf: 0.85
-    # Only apply to script types - ELF/Macho binaries legitimately prompt for passwords
-    for: [applescript, shell, python, ruby, perl, javascript]
+    # Only apply to applescript - other languages legitimately prompt for passwords on CLI
+    for: [applescript]
     if:
       type: string
       regex: "(?i)enter.{0,15}password"
+    downgrade:
+      any:
+        - id: meta/import/ruby::highline
 
   # ============================================
   # Keychain Password Prompts
@@ -84,6 +87,7 @@ traits:
     desc: "Asks for admin password"
     crit: suspicious
     conf: 0.85
+    for: [applescript, shell]
     if:
       type: string
       regex: "(?i)\\badmin\\b.{0,30}password"
@@ -111,6 +115,9 @@ composite_rules:
       - id: display-dialog-password
       - id: default-answer-password
       - id: enter-password-prompt
+    downgrade:
+      any:
+        - id: meta/import/ruby::highline
 
   # Fake dialog UI elements group
   - id: fake-dialog-ui

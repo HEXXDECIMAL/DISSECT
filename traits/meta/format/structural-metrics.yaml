@@ -11,6 +11,13 @@ traits:
     for: [elf]
     size_max: 51200
 
+  - id: large-executable
+    desc: "Large executable binary (> 1MB)"
+    crit: notable
+    conf: 0.7
+    for: [pe, elf, macho]
+    size_min: 1048576
+
   # === Function Size Metrics ===
 
   - id: large-functions

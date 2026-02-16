@@ -24,3 +24,6 @@ traits:
       type: string
       regex: 'Out-File|Get-Content|Invoke-Expression|Start-Process'
       count_min: 1
+    unless:
+      - type: string
+        regex: 'SyntaxHighlighter'

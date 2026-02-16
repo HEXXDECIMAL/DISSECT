@@ -38,7 +38,7 @@ composite_rules:
 
   - id: shell-tool-exfil
     desc: Shell tool exfiltration
-    crit: suspicious
+    crit: notable
     conf: 0.85
     attack: "T1048"
     all:

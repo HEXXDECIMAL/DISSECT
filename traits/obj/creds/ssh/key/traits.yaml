@@ -292,6 +292,9 @@ traits:
           exact: "sftp"
         - type: basename
           exact: "rsync"
+        - type: basename
+          regex: "wal_shipper"
+        - id: meta/library::wal-shipper-header
 
   - id: userknownhosts-bypass
     desc: SSH UserKnownHostsFile bypass

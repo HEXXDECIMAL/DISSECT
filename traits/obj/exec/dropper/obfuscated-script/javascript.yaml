@@ -66,5 +66,29 @@ composite_rules:
     all:
       - id: cap/exec/eval/dynamic::js-assign-global-this
       - id: cap/exec/eval/dynamic::bracket-property-access-var
+    downgrade:
+      any:
+        - id: meta/library/prototype::copyright
     unless:
       - id: cap/exec/eval/dynamic::js-assign-common-root
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
+      - id: meta/library/prototype::copyright
+      - id: meta/library/prototype::version-string
+      - id: meta/library/prototype::header-x
+      - id: meta/quality::versioned
+
+  # Obfuscated Hex-Encoded Dropper (Node.js/JS)
+  # Detects Buffer.from(hex) execution combined with known hex-encoded shell commands
+  - id: js-hex-encoded-dropper
+    desc: "Obfuscated JavaScript dropper using hex-encoded commands"
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: obj/anti-static/obfuscation/code::buffer-from-hex-exec
+    any:
+      - id: cap/exec/command/shell/hex # Detects any hex-encoded shell command

@@ -44,3 +44,8 @@ composite_rules:
       - {
           id: hostile-obfuscation,
         }
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend

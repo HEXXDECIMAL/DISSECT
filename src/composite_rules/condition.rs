@@ -151,6 +151,7 @@ enum ConditionTagged {
         /// Regex pattern to match symbol names
         #[serde(default)]
         regex: Option<String>,
+        #[serde(default)]
         platforms: Option<Vec<Platform>>,
     },
     String {
@@ -191,10 +192,13 @@ enum ConditionTagged {
     },
     Structure {
         feature: String,
+        #[serde(default)]
         min_sections: Option<usize>,
     },
     ExportsCount {
+        #[serde(default)]
         min: Option<usize>,
+        #[serde(default)]
         max: Option<usize>,
     },
     Trait {
@@ -206,25 +210,25 @@ enum ConditionTagged {
     Ast {
         /// Abstract node category (e.g., "call", "function", "class")
         /// Maps to language-specific tree-sitter node types automatically
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         kind: Option<String>,
         /// Raw tree-sitter node type (escape hatch, bypasses kind mapping)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         node: Option<String>,
         /// Full match (entire node text must equal this)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
         /// Substring match (appears anywhere in node text)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         substr: Option<String>,
         /// Regex match in node text
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
         /// Tree-sitter S-expression query (advanced mode)
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         query: Option<String>,
         /// Language hint for query validation
-        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
         language: Option<String>,
         /// Case-insensitive matching (default: false)
         #[serde(default)]
@@ -234,38 +238,57 @@ enum ConditionTagged {
         source: String,
     },
     Syscall {
+        #[serde(default)]
         name: Option<Vec<String>>,
+        #[serde(default)]
         number: Option<Vec<u32>>,
+        #[serde(default)]
         arch: Option<Vec<String>>,
     },
     SectionRatio {
         section: String,
         #[serde(default = "default_compare_to")]
         compare_to: String,
+        #[serde(default)]
         min: Option<f64>,
+        #[serde(default)]
         max: Option<f64>,
     },
     ImportCombination {
+        #[serde(default)]
         required: Option<Vec<String>>,
+        #[serde(default)]
         suspicious: Option<Vec<String>>,
+        #[serde(default)]
         min_suspicious: Option<usize>,
+        #[serde(default)]
         max_total: Option<usize>,
     },
     StringCount {
+        #[serde(default)]
         min: Option<usize>,
+        #[serde(default)]
         max: Option<usize>,
+        #[serde(default)]
         min_length: Option<usize>,
+        #[serde(default)]
+        regex: Option<String>,
     },
     Metrics {
         field: String,
+        #[serde(default)]
         min: Option<f64>,
+        #[serde(default)]
         max: Option<f64>,
+        #[serde(default)]
         min_size: Option<u64>,
+        #[serde(default)]
         max_size: Option<u64>,
     },
     Hex {
         pattern: String,
         /// Absolute file offset (negative = from end of file)
+        #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
         #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
@@ -286,10 +309,14 @@ enum ConditionTagged {
     /// searches properly extracted/bounded strings, this searches the raw bytes.
     Raw {
         /// Full match (entire content must equal this - rarely useful)
+        #[serde(default)]
         exact: Option<String>,
         /// Substring match (appears anywhere in content)
+        #[serde(default)]
         substr: Option<String>,
+        #[serde(default)]
         regex: Option<String>,
+        #[serde(default)]
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
@@ -536,10 +563,13 @@ impl From<ConditionDeser> for Condition {
                     min,
                     max,
                     min_length,
+                    regex,
                 } => Condition::StringCount {
                     min,
                     max,
                     min_length,
+                    regex,
+                    compiled_regex: None,
                 },
                 ConditionTagged::Metrics {
                     field,
@@ -885,6 +915,12 @@ pub enum Condition {
         /// Only count strings of this minimum length
         #[serde(skip_serializing_if = "Option::is_none")]
         min_length: Option<usize>,
+        /// Only count strings matching this regex
+        #[serde(skip_serializing_if = "Option::is_none")]
+        regex: Option<String>,
+        /// Pre-compiled regex
+        #[serde(skip)]
+        compiled_regex: Option<regex::Regex>,
     },
 
     /// Check computed metrics for obfuscation/anomaly detection
@@ -1902,6 +1938,20 @@ impl Condition {
                         anyhow::anyhow!("Failed to compile kv regex '{}': {}", regex_pattern, e)
                     })?
                 });
+            }
+            Condition::StringCount {
+                regex: Some(regex_pattern),
+                compiled_regex,
+                ..
+            } => {
+                // Compile string_count regex if present
+                *compiled_regex = Some(regex::Regex::new(regex_pattern).map_err(|e| {
+                    anyhow::anyhow!(
+                        "Failed to compile string_count regex '{}': {}",
+                        regex_pattern,
+                        e
+                    )
+                })?);
             }
             _ => {}
         }

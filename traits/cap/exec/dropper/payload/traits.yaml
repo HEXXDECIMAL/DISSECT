@@ -13,11 +13,11 @@ traits:
   # === Copy Execution ===
   - id: cp-execute
     desc: cp command for execution
-    crit: suspicious
+    crit: notable
     conf: 0.75
     if:
       type: string
-      regex: "cp\\s+-b|cp\\s+.{0,15}exec"
+      regex: "cp\\s+-b|cp\\s+.{0,15}\\bexec(\\s|$)"
 
   # === Compiler Execution ===
   - id: gcc-compile-execute
@@ -97,7 +97,6 @@ composite_rules:
     any:
       - id: gcc-compile-execute
       - id: compiler-payload-build
-      - id: cp-execute
 
   - id: stealth-execution
     desc: Stealth payload execution

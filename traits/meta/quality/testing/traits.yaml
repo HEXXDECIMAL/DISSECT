@@ -48,3 +48,19 @@ traits:
       type: string
       regex: "import\\s+pytest|from\\s+pytest\\s+import"
 
+  - id: ruby-test-file
+    desc: Ruby test file suffix
+    crit: inert
+    conf: 0.7
+    if:
+      type: basename
+      regex: "_test\\.rb$"
+
+  - id: ruby-integration-test
+    desc: IntegrationTest usage
+    crit: inert
+    conf: 0.7
+    if:
+      type: string
+      substr: "ActionController::IntegrationTest"
+

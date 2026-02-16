@@ -812,6 +812,8 @@ pub fn eval_string_count(
     min: Option<usize>,
     max: Option<usize>,
     min_length: Option<usize>,
+    _regex: Option<&String>,
+    compiled_regex: Option<&regex::Regex>,
     ctx: &EvaluationContext,
 ) -> ConditionResult {
     let min_len = min_length.unwrap_or(0);
@@ -819,7 +821,15 @@ pub fn eval_string_count(
         .report
         .strings
         .iter()
-        .filter(|s| s.value.len() >= min_len)
+        .filter(|s| {
+            if s.value.len() < min_len {
+                return false;
+            }
+            if let Some(re) = compiled_regex {
+                return re.is_match(&s.value);
+            }
+            true
+        })
         .map(|s| s.value.as_str())
         .collect();
 

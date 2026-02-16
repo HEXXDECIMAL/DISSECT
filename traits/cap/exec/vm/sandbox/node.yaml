@@ -255,3 +255,9 @@ composite_rules:
     all:
       - id: function-constructors
       - id: http-fetch-methods
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
+      - id: meta/library/d3::d3-detection

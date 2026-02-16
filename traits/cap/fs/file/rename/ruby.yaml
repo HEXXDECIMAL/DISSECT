@@ -6,9 +6,67 @@ defaults:
 
 traits:
   - id: ruby-rename
-    desc: Rename files
+    desc: Rename files (AST)
     crit: notable
     conf: 0.95
     if:
-      type: raw
-      regex: 'File\.rename'
+      type: ast
+      query: |
+        (call
+          receiver: (constant) @class
+          method: (identifier) @method
+          (#eq? @class "File")
+          (#eq? @method "rename")
+        )
+
+  - id: ruby-fileutils-mv
+    desc: Move/Rename files (FileUtils)
+    crit: notable
+    conf: 0.95
+    if:
+      type: ast
+      query: |
+        (call
+          receiver: (constant) @class
+          method: (identifier) @method
+          (#eq? @class "FileUtils")
+          (#match? @method "^(mv|move)$")
+        )
+
+  - id: ruby-rename-to-exe
+    desc: Rename file to .exe (highly suspicious)
+    crit: suspicious
+    conf: 1.0
+    if:
+      type: ast
+      query: |
+        (call
+          receiver: (constant) @class
+          method: (identifier) @method
+          arguments: (argument_list
+            (string)
+            (string (string_content) @target)
+          )
+          (#eq? @class "File")
+          (#eq? @method "rename")
+          (#match? @target "\\.exe$")
+        )
+
+  - id: ruby-fileutils-mv-to-exe
+    desc: Move/Rename file to .exe (highly suspicious)
+    crit: suspicious
+    conf: 1.0
+    if:
+      type: ast
+      query: |
+        (call
+          receiver: (constant) @class
+          method: (identifier) @method
+          arguments: (argument_list
+            (string)
+            (string (string_content) @target)
+          )
+          (#eq? @class "FileUtils")
+          (#match? @method "^(mv|move)$")
+          (#match? @target "\\.exe$")
+        )

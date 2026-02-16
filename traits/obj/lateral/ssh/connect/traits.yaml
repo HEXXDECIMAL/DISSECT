@@ -47,6 +47,19 @@ traits:
     if:
       type: string
       substr: "StrictHostKeyChecking"
+    downgrade:
+      any:
+        - type: basename
+          exact: "ssh"
+        - type: basename
+          exact: "scp"
+        - type: basename
+          exact: "sftp"
+        - type: basename
+          exact: "rsync"
+        - type: basename
+          regex: "wal_shipper"
+        - id: meta/library::wal-shipper-header
 
   - id: known-hosts-bypass
     desc: UserKnownHostsFile reference (bypass known hosts)

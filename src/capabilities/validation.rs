@@ -227,6 +227,7 @@ fn score_condition(condition: &Condition) -> f32 {
             min,
             max,
             min_length,
+            ..
         } => {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
@@ -933,6 +934,198 @@ pub(crate) fn find_duplicate_traits_and_composites(
     }
 
     tracing::debug!("Total duplicate detection took {:?}", start.elapsed());
+}
+
+/// Information about where a pattern was found
+#[derive(Debug, Clone)]
+struct PatternLocation {
+    trait_id: String,
+    file_path: String,
+    condition_type: String,  // "string", "symbol", "raw"
+    match_type: String,      // "exact", "substr", "word", "regex"
+    original_value: String,  // Original pattern before normalization
+    for_types: HashSet<String>,
+}
+
+/// Normalize a regex pattern by stripping anchors (^ and $)
+fn normalize_regex(pattern: &str) -> String {
+    let mut normalized = pattern.to_string();
+    if normalized.starts_with('^') {
+        normalized = normalized[1..].to_string();
+    }
+    if normalized.ends_with('$') && !normalized.ends_with("\\$") {
+        normalized.truncate(normalized.len() - 1);
+    }
+    normalized
+}
+
+/// Extract all searchable patterns from a trait definition
+/// Returns: Vec<(normalized_value, PatternLocation)>
+fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation)> {
+    let mut patterns = Vec::new();
+
+    let for_types: HashSet<String> = trait_def
+        .r#for
+        .iter()
+        .map(|ft| format!("{:?}", ft).to_lowercase())
+        .collect();
+
+    let file_path = trait_def.defined_in.to_string_lossy().to_string();
+
+    // Helper to add a pattern
+    let mut add_pattern = |condition_type: &str, match_type: &str, value: String| {
+        let normalized = if match_type == "regex" {
+            normalize_regex(&value)
+        } else {
+            value.clone()
+        };
+
+        patterns.push((
+            normalized,
+            PatternLocation {
+                trait_id: trait_def.id.clone(),
+                file_path: file_path.clone(),
+                condition_type: condition_type.to_string(),
+                match_type: match_type.to_string(),
+                original_value: value,
+                for_types: for_types.clone(),
+            },
+        ));
+    };
+
+    // Extract patterns from String, Symbol, and Raw conditions
+    match &trait_def.r#if.condition {
+        Condition::String { exact, substr, word, regex, .. } => {
+            if let Some(v) = exact { add_pattern("string", "exact", v.clone()); }
+            if let Some(v) = substr { add_pattern("string", "substr", v.clone()); }
+            if let Some(v) = word { add_pattern("string", "word", v.clone()); }
+            if let Some(v) = regex { add_pattern("string", "regex", v.clone()); }
+        }
+        Condition::Symbol { exact, substr, regex, .. } => {
+            if let Some(v) = exact { add_pattern("symbol", "exact", v.clone()); }
+            if let Some(v) = substr { add_pattern("symbol", "substr", v.clone()); }
+            if let Some(v) = regex { add_pattern("symbol", "regex", v.clone()); }
+        }
+        Condition::Raw { exact, substr, word, regex, .. } => {
+            if let Some(v) = exact { add_pattern("raw", "exact", v.clone()); }
+            if let Some(v) = substr { add_pattern("raw", "substr", v.clone()); }
+            if let Some(v) = word { add_pattern("raw", "word", v.clone()); }
+            if let Some(v) = regex { add_pattern("raw", "regex", v.clone()); }
+        }
+        _ => {} // Skip Encoded, Yara, etc.
+    }
+
+    patterns
+}
+
+/// Check if two pattern locations have overlapping file type coverage
+fn has_filetype_overlap(loc_a: &PatternLocation, loc_b: &PatternLocation) -> bool {
+    // Both have no restrictions -> overlap
+    if loc_a.for_types.is_empty() && loc_b.for_types.is_empty() {
+        return true;
+    }
+
+    // One has no restrictions -> overlaps with everything
+    if loc_a.for_types.is_empty() || loc_b.for_types.is_empty() {
+        return true;
+    }
+
+    // Check intersection
+    !loc_a.for_types.is_disjoint(&loc_b.for_types)
+}
+
+/// Detect string pattern duplicates and overlaps across trait files
+/// Detect duplicate string patterns across trait files
+/// Only detects exact matches of normalized patterns (regex anchors stripped)
+/// Checks string, symbol, and raw condition types (not encoded)
+pub(crate) fn find_string_pattern_duplicates(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+
+    // Build index: normalized_pattern -> Vec<PatternLocation>
+    let mut pattern_index: HashMap<String, Vec<PatternLocation>> = HashMap::new();
+
+    for trait_def in trait_definitions {
+        for (normalized, location) in extract_patterns(trait_def) {
+            pattern_index
+                .entry(normalized)
+                .or_insert_with(Vec::new)
+                .push(location);
+        }
+    }
+
+    // Find duplicates: same normalized pattern in multiple files with overlapping file types
+    let total_patterns = pattern_index.len();
+    let initial_warning_count = warnings.len();
+
+    for (normalized_pattern, locations) in pattern_index {
+        if locations.len() <= 1 {
+            continue;
+        }
+
+        // Group by file
+        let mut by_file: HashMap<String, Vec<&PatternLocation>> = HashMap::new();
+        for loc in &locations {
+            by_file.entry(loc.file_path.clone()).or_default().push(loc);
+        }
+
+        // Only warn about cross-file duplicates
+        if by_file.len() <= 1 {
+            continue;
+        }
+
+        // Check if any pair has overlapping file type coverage
+        let mut has_overlap = false;
+        'outer: for i in 0..locations.len() {
+            for j in (i + 1)..locations.len() {
+                if locations[i].file_path != locations[j].file_path
+                    && has_filetype_overlap(&locations[i], &locations[j])
+                {
+                    has_overlap = true;
+                    break 'outer;
+                }
+            }
+        }
+
+        if !has_overlap {
+            continue;
+        }
+
+        // Format warning message
+        let location_details: Vec<String> = locations
+            .iter()
+            .map(|l| {
+                let for_str = if l.for_types.is_empty() {
+                    "all types".to_string()
+                } else {
+                    let mut types: Vec<_> = l.for_types.iter().cloned().collect();
+                    types.sort();
+                    format!("[{}]", types.join(", "))
+                };
+                format!(
+                    "   {}: {} ({} {}: '{}', for: {})",
+                    l.file_path, l.trait_id, l.condition_type, l.match_type, l.original_value, for_str
+                )
+            })
+            .collect();
+
+        warnings.push(format!(
+            "Duplicate pattern '{}' appears in {} files with overlapping file type coverage:\n{}",
+            normalized_pattern,
+            by_file.len(),
+            location_details.join("\n")
+        ));
+    }
+
+    let duplicates_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "String pattern duplicate detection completed in {:?} ({} patterns checked, {} duplicates found)",
+        start.elapsed(),
+        total_patterns,
+        duplicates_found
+    );
 }
 
 /// Helper function to check if two file type lists have any overlap
@@ -4536,5 +4729,336 @@ mod tests {
         assert!(warnings[0].contains("test::exact_chmod"));
         assert!(warnings[0].contains("Ambiguous regex overlap"));
         assert!(warnings[0].contains("exact: 'chmod'"));
+    }
+
+    #[test]
+    fn test_string_pattern_exact_duplicate_different_files() {
+        // Two traits with identical substr pattern in different files for same file type
+        let mut trait1 = make_string_trait("cap/fs/proc/info::proc-net-tcp", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/cap/fs/proc/info/linux.yaml");
+        trait1.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait1.r#for = vec![RuleFileType::Elf];
+
+        let mut trait2 = make_string_trait("obj/discovery/network/scan::tcp-connections", "", Criticality::Suspicious);
+        trait2.defined_in = std::path::PathBuf::from("traits/obj/discovery/network/scan/proc.yaml");
+        trait2.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait2.r#for = vec![RuleFileType::Elf];
+        trait2.platforms = vec![Platform::Linux];
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("/proc/net/tcp"));
+        assert!(warnings[0].contains("2 files"));
+        assert!(warnings[0].contains("cap/fs/proc/info/linux.yaml"));
+        assert!(warnings[0].contains("obj/discovery/network/scan/proc.yaml"));
+    }
+
+    #[test]
+    fn test_string_pattern_exact_duplicate_no_overlap() {
+        // Two traits with identical pattern but different file types - should NOT warn
+        let mut trait1 = make_string_trait("cap/test::pattern-a", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        trait1.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait1.r#for = vec![RuleFileType::Elf];
+
+        let mut trait2 = make_string_trait("cap/test::pattern-b", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        trait2.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait2.r#for = vec![RuleFileType::Python]; // Different file type
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&traits, &mut warnings);
+
+        // Should NOT warn - no filetype overlap
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_string_pattern_cross_type_duplicate() {
+        // Same pattern in String and Symbol conditions - should warn
+        let mut trait1 = make_string_trait("cap/exec/load::dlsym-import", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/cap/exec/load/unix.yaml");
+        trait1.r#if.condition = Condition::Symbol {
+            exact: Some("dlsym".to_string()),
+            substr: None,
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        };
+        trait1.r#for = vec![RuleFileType::Elf];
+
+        let mut trait2 = make_string_trait("cap/exec/load::dlsym-string", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/cap/exec/load/linux.yaml");
+        trait2.r#if.condition = Condition::String {
+            substr: Some("dlsym".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait2.r#for = vec![RuleFileType::Elf];
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&traits, &mut warnings);
+
+        // Should warn - same normalized pattern "dlsym" in different files
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("dlsym"));
+        assert!(warnings[0].contains("symbol"));
+        assert!(warnings[0].contains("string"));
+    }
+
+    #[test]
+    fn test_string_pattern_regex_anchor_normalization() {
+        // Regex with anchors should match exact pattern
+        let mut trait1 = make_string_trait("cap/test::pattern-regex", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        trait1.r#if.condition = Condition::String {
+            exact: None,
+            substr: None,
+            word: None,
+            regex: Some("^test_pattern$".to_string()),
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait1.r#for = vec![RuleFileType::Elf];
+
+        let mut trait2 = make_string_trait("cap/test::pattern-exact", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        trait2.r#if.condition = Condition::String {
+            exact: Some("test_pattern".to_string()),
+            substr: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait2.r#for = vec![RuleFileType::Elf];
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&traits, &mut warnings);
+
+        // Should warn - ^test_pattern$ normalized to test_pattern matches exact
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("test_pattern"));
+    }
+
+    #[test]
+    fn test_string_pattern_no_restrictions_overlaps_all() {
+        // Trait with no `for:` restrictions should overlap with everything
+        let mut trait1 = make_string_trait("cap/test::unrestricted", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        trait1.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        // No `for:` restriction - applies to all file types
+        trait1.r#for = Vec::new();
+
+        let mut trait2 = make_string_trait("cap/test::elf-only", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        trait2.r#if.condition = Condition::String {
+            substr: Some("/proc/net/tcp".to_string()),
+            exact: None,
+            word: None,
+            regex: None,
+            case_insensitive: false,
+            exclude_patterns: None,
+            external_ip: false,
+            section: None,
+            offset: None,
+            offset_range: None,
+            section_offset: None,
+            section_offset_range: None,
+            compiled_regex: None,
+            compiled_excludes: Vec::new(),
+        };
+        trait2.r#for = vec![RuleFileType::Elf];
+
+        let traits = vec![trait1, trait2];
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&traits, &mut warnings);
+
+        // Should warn - unrestricted overlaps with restricted
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("/proc/net/tcp"));
+    }
+}
+
+/// Detect regex patterns that may cause catastrophic backtracking
+///
+/// Patterns with nested quantifiers or alternations with overlapping prefixes
+/// can cause exponential runtime on certain inputs. This validates patterns
+/// for common backtracking pitfalls.
+pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<String>) {
+    for trait_def in traits {
+        let pattern_opt = match &trait_def.r#if.condition {
+            Condition::Raw {
+                regex: Some(ref regex_str),
+                case_insensitive,
+                ..
+            } => Some((regex_str.clone(), *case_insensitive)),
+            _ => None,
+        };
+
+        if let Some((pattern, _ci)) = pattern_opt {
+            let mut issues = Vec::new();
+
+            // Check for nested quantifiers like (a+)+ or (.*)*
+            if regex::Regex::new(r"\([^)]*[*+]\)[*+]").unwrap().is_match(&pattern) {
+                issues.push("nested quantifiers (e.g., (a+)+) can cause exponential backtracking");
+            }
+
+            // Check for overlapping alternations with wildcards like (a.*|ab.*)
+            if regex::Regex::new(r"\([^)]*\.\*\|[^)]*\.\*\)").unwrap().is_match(&pattern) {
+                issues.push("alternation with multiple .* patterns may cause backtracking");
+            }
+
+            // Check for greedy quantifiers followed by the same character class
+            // e.g., \w+\w or \d+\d
+            if regex::Regex::new(r"\\[wWdDsS]\+\\[wWdDsS]").unwrap().is_match(&pattern) {
+                issues.push("greedy quantifier followed by same character class causes backtracking");
+            }
+
+            // Check for patterns with .{min,max} followed by more complex matching
+            if regex::Regex::new(r"\.\{[0-9]+,[0-9]*\}.+[\|\[\(]").unwrap().is_match(&pattern) {
+                issues.push("greedy range quantifier (.{n,m}) followed by complex patterns may be slow on long lines");
+            }
+
+            // Check for very large ranges that could match huge spans
+            if let Some(caps) = regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").unwrap().captures(&pattern) {
+                if let Ok(min) = caps[1].parse::<usize>() {
+                    if min > 1000 {
+                        issues.push("very large range quantifier (>{1000}) may cause performance issues");
+                    }
+                }
+            }
+
+            if !issues.is_empty() {
+                let source_file = trait_def
+                    .defined_in
+                    .to_str()
+                    .unwrap_or("unknown")
+                    .to_string();
+
+                let line_hint = find_line_number(&source_file, &trait_def.id);
+                let location = if let Some(line) = line_hint {
+                    format!("{}:{}", source_file, line)
+                } else {
+                    source_file
+                };
+
+                warnings.push(format!(
+                    "Regex performance: trait '{}' in {} has potentially slow pattern '{}': {}",
+                    trait_def.id,
+                    location,
+                    pattern,
+                    issues.join(", ")
+                ));
+            }
+        }
     }
 }

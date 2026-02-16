@@ -113,6 +113,13 @@ traits:
       type: string
       substr: "payload"
 
+  - id: isrc
+    desc: ISRC (International Standard Recording Code) keyword
+    if:
+      type: string
+      substr: "isrc"
+      case_insensitive: true
+
   - id: exploit
     desc: exploit keyword
     if:

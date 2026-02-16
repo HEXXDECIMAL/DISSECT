@@ -377,6 +377,17 @@ traits:
       regex: '-m\s+pip'
 
 composite_rules:
+  # === Robust setup.py indicator ===
+  # Combines multiple ways to identify a setup.py file
+  - id: robust-setup-py
+    desc: setup.py installation file
+    crit: inert
+    conf: 1.0
+    any:
+      - id: obj/lateral/supply-chain/pypi/general::setup-py-file
+      - id: obj/lateral/supply-chain/pypi/install-patterns::setuptools-setup-call
+      - id: distutils-import-content
+
   # === Command Execution Composite ===
   - id: python-command-exec
     desc: Python command execution
@@ -395,7 +406,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: python-command-exec
     any:
       - id: pip-install-string
@@ -456,9 +467,24 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/comm/http/request::request-python
       - id: binary-file-write
+      - id: python-command-exec
+
+  # === HOSTILE: PyPI Install-Time Downloader ===
+  # setup.py downloads content and writes it to a file, then executes it.
+  # More generic than pypi-install-dropper (doesn't require 'wb' mode).
+  - id: pypi-install-downloader
+    desc: PyPI install-time downloader and executor
+    crit: hostile
+    conf: 0.95
+    mbc: "E1204"
+    attack: "T1204.002"
+    all:
+      - id: robust-setup-py
+      - id: cap/comm/http/request::request-python
+      - id: setup-py-file-write
       - id: python-command-exec
 
   # === HOSTILE: Download-Execute Chain ===
@@ -481,7 +507,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1204.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: obj/c2/infrastructure/ip::http-raw-ip-url
       - id: binary-file-write
       - id: cap/exec/command/subprocess::methods
@@ -506,7 +532,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
@@ -519,7 +545,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1176"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -558,7 +584,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
       - id: cap/exec/autoinstall/pip::main-call-content
@@ -574,7 +600,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
       - id: setup-py-file-write
       - id: cap/fs/directory/mkdir::mkdir-python
@@ -587,7 +613,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
       - id: cap/exec/background/daemon::powershell-hidden
@@ -600,7 +626,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.001"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: cap/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
       - id: cap/exec/background/daemon::powershell-hidden
@@ -613,7 +639,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1195.002"
     all:
-      - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
+      - id: robust-setup-py
       - id: powershell-download-in-string
       - id: powershell-expand-archive
       - id: cap/exec/vbscript/interpreter::vbs-powershell-launch

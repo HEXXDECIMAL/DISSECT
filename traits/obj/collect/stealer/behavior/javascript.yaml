@@ -66,3 +66,14 @@ composite_rules:
       - id: obj/creds/discord/token::appdata-ref
       - id: obj/collect/messaging/app::discord-ldb-ext
       - id: obj/impact/ransomware/behavior::writefile-fn
+
+  - id: npm-system-stealer-hostile
+    desc: Hostile NPM system stealer (Recon + Evasion + Exfil)
+    crit: hostile
+    conf: 1.0
+    all:
+      - id: obj/lateral/supply-chain/npm/behavior::dangerous-requires
+      - id: obj/recon/evasion/detection::evasion-checks
+    any:
+      - id: obj/lateral/supply-chain/npm/behavior::npm-data-exfil
+      - id: obj/c2/dns/tunneling::js-dns-tunneling-exfil

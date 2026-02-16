@@ -163,6 +163,17 @@ traits:
     if:
       type: string
       regex: "createElement\\(['\"]script['\"]\\)|appendChild\\([^)]{0,30}script|insertBefore\\([^)]{0,30}script"
+    downgrade:
+      any:
+        - id: meta/library/jquery::domain
+        - id: meta/library/jquery::version-string
+        - id: meta/library/jquery::copyright
+        - id: meta/library/jquery::fn-extend
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
 
   - id: inject-iframe
     desc: Injects iframe into page
@@ -172,6 +183,17 @@ traits:
     if:
       type: string
       regex: "createElement\\(['\"]iframe['\"]\\)|appendChild\\([^)]{0,30}iframe"
+    downgrade:
+      any:
+        - id: meta/library/jquery::domain
+        - id: meta/library/jquery::version-string
+        - id: meta/library/jquery::copyright
+        - id: meta/library/jquery::fn-extend
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/jquery::version-string
+      - id: meta/library/jquery::copyright
+      - id: meta/library/jquery::fn-extend
 
   # === External Communication ===
   - id: external-domain-hardcoded

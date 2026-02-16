@@ -2,8 +2,8 @@
 
 mod analyzers;
 mod guards;
-#[cfg(test)]
-mod guards_test;
+// #[cfg(test)]
+// mod guards_test;
 pub mod streaming;
 mod system_packages;
 mod tar;

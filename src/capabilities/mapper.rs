@@ -31,9 +31,10 @@ use super::validation::{
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
     find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
     find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
-    find_single_item_clauses, find_string_content_collisions,
-    precalculate_all_composite_precisions, simple_rule_to_composite_rule,
-    validate_composite_trait_only, validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
+    find_single_item_clauses, find_slow_regex_patterns, find_string_content_collisions,
+    find_string_pattern_duplicates, precalculate_all_composite_precisions,
+    simple_rule_to_composite_rule, validate_composite_trait_only,
+    validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 
 /// Extract relative path from full path (relative to traits directory)
@@ -198,8 +199,8 @@ impl CapabilityMapper {
         let _t_start = std::time::Instant::now();
 
         // Check for DISSECT_VALIDATE env var or passed flag
-        let enable_full_validation =
-            enable_full_validation || std::env::var("DISSECT_VALIDATE").is_ok();
+        let enable_full_validation = enable_full_validation
+            || std::env::var("DISSECT_VALIDATE").is_ok_and(|v| v == "1" || v == "true");
 
         tracing::info!("Loading trait definitions from {}", dir_path.display());
         if enable_full_validation {
@@ -780,6 +781,18 @@ impl CapabilityMapper {
                 &mut warnings,
             );
             tracing::debug!("Step 1c completed in {:?}", step_start.elapsed());
+
+            // Detect string pattern duplicates and overlaps
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1d/15: Detecting string pattern duplicates and overlaps");
+            find_string_pattern_duplicates(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1d completed in {:?}", step_start.elapsed());
+
+            // Detect potentially slow regex patterns that could cause catastrophic backtracking
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1e/15: Detecting potentially slow regex patterns");
+            find_slow_regex_patterns(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1e completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }
@@ -1977,17 +1990,20 @@ impl CapabilityMapper {
             std::process::exit(1);
         }
 
-        // Warnings are fatal - print all and exit if any exist
+        // Warnings are NOT fatal during analysis, just print them if in debug mode
         if !warnings.is_empty() {
-            eprintln!(
-                "\n❌ FATAL: {} trait configuration warning(s) found:\n",
-                warnings.len()
-            );
-            for warning in &warnings {
-                eprintln!("   ⚠️  {}", warning);
+            if debug {
+                eprintln!(
+                    "\n⚠️  WARNING: {} trait configuration warning(s) found:\n",
+                    warnings.len()
+                );
+                for warning in &warnings {
+                    eprintln!("   ⚠️  {}", warning);
+                }
+                eprintln!("\n   Consider fixing these issues in the YAML files.\n");
+            } else {
+                tracing::warn!("{} trait configuration warnings found (set DISSECT_DEBUG=1 to see details)", warnings.len());
             }
-            eprintln!("\n   Fix these issues in the YAML files.\n");
-            std::process::exit(1);
         }
 
         Ok(Self {
@@ -2333,11 +2349,11 @@ impl CapabilityMapper {
             && self
                 .raw_content_regex_index
                 .has_applicable_patterns(&applicable_indices);
-        let raw_regex_matched_traits = if raw_regex_prefilter_enabled {
+        let (raw_regex_matched_traits, _has_excessive_line_length) = if raw_regex_prefilter_enabled {
             self.raw_content_regex_index
                 .find_matches(binary_data, &file_type)
         } else {
-            FxHashSet::default()
+            (FxHashSet::default(), false)
         };
 
         // Evaluate only applicable traits in parallel
@@ -2602,6 +2618,36 @@ impl CapabilityMapper {
             file_type,
         );
 
+        // Add finding for excessive line length (anti-analysis technique)
+        // Check here as well in case composite rules are evaluated without traits
+        const MAX_LINE_LENGTH: usize = 1_000_000;
+        let content = String::from_utf8_lossy(binary_data);
+        let has_excessive_line = content
+            .lines()
+            .any(|line| line.len() > MAX_LINE_LENGTH);
+
+        if has_excessive_line {
+            all_findings.push(Finding {
+                id: "obj/anti-static/excessive-line-length".to_string(),
+                kind: FindingKind::Structural,
+                desc: "File contains excessively long lines (>1MB) that may cause regex backtracking"
+                    .to_string(),
+                conf: 0.9,
+                crit: Criticality::Suspicious,
+                mbc: None,
+                attack: Some("T1027".to_string()), // Obfuscated Files or Information
+                trait_refs: vec![],
+                evidence: vec![Evidence {
+                    method: "line-length-analysis".to_string(),
+                    source: "dissect".to_string(),
+                    value: "Detected line(s) exceeding 1MB (potential anti-analysis technique)"
+                        .to_string(),
+                    location: None,
+                }],
+                source_file: None,
+            });
+        }
+
         all_findings
     }
 
@@ -2706,7 +2752,11 @@ impl CapabilityMapper {
             }
         }
 
-        // Step 3: Evaluate composite rules (which can now access the atomic traits)
+        // Step 2.5: Generate synthetic meta/import findings from discovered imports
+        // This MUST happen before Step 3 so composite rules can reference them
+        Self::generate_import_findings(report);
+
+        // Step 3: Evaluate composite rules (which can now access the atomic traits AND meta/import findings)
         let composite_findings = self.evaluate_composite_rules(report, binary_data, cached_ast);
 
         // Step 4: Merge composite findings into report
@@ -2716,9 +2766,6 @@ impl CapabilityMapper {
                 report.findings.push(finding);
             }
         }
-
-        // Step 5: Generate synthetic meta/import findings from discovered imports
-        Self::generate_import_findings(report);
     }
 
     /// Generate meta/import/ findings from discovered imports.

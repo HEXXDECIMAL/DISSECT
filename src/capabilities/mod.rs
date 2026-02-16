@@ -38,3 +38,6 @@ pub use mapper::CapabilityMapper;
 // Test module needs access to internal types
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod mapper_test;

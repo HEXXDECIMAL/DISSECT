@@ -7,37 +7,13 @@ defaults:
 
 traits:
   # Binary write mode strings
-  - id: wb-single-quote
-    desc: "'wb write mode"
+  - id: ruby-write-mode-binary
+    desc: Binary write mode ('wb', 'wb+')
     crit: inert
-    conf: 0.8
+    conf: 0.9
     if:
       type: string
-      exact: "'wb"
-
-  - id: wb-double-quote
-    desc: '"wb write mode'
-    crit: inert
-    conf: 0.8
-    if:
-      type: string
-      exact: '"wb'
-
-  - id: wb-plus-single
-    desc: "'wb+ write mode"
-    crit: inert
-    conf: 0.8
-    if:
-      type: string
-      exact: "'wb+"
-
-  - id: wb-plus-double
-    desc: '"wb+ write mode'
-    crit: inert
-    conf: 0.8
-    if:
-      type: string
-      exact: '"wb+'
+      regex: '^wb\+?$'
 
   # binmode
   - id: binmode-string
@@ -99,14 +75,6 @@ traits:
       type: string
       substr: "File.unlink"
 
-  - id: delete-symbol
-    desc: delete symbol
-    crit: inert
-    conf: 0.75
-    if:
-      type: symbol
-      regex: "delete"
-
   - id: unlink-symbol
     desc: unlink symbol
     crit: inert
@@ -155,16 +123,7 @@ composite_rules:
     crit: notable
     conf: 0.92
     any:
-      - id: wb-single-quote
-      - id: wb-double-quote
-      - id: wb-plus-single
-      - id: wb-plus-double
-
-  - id: ruby-file-binmode
-    desc: Binary file mode
-    crit: notable
-    conf: 0.90
-    any:
+      - id: ruby-write-mode-binary
       - id: binmode-string
       - id: binmode-symbol
 
@@ -175,8 +134,8 @@ composite_rules:
     any:
       - id: file-delete-string
       - id: file-unlink-string
-      - id: delete-symbol
-      - id: unlink-symbol
+      - id: fileutils-rm-rf-string
+      - id: rm-rf-symbol
 
   - id: ruby-rm-rf
     desc: Recursive directory deletion
