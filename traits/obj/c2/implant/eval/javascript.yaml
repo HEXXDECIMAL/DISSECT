@@ -21,10 +21,10 @@ composite_rules:
     for: [javascript]
     attack: "T1059.007"
     all:
-      - id: cap/exec/eval/dynamic::eval-call-js
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
     any:
       - id: cap/code/metrics/obfuscation::high-entropy-identifiers
       - id: cap/code/metrics/obfuscation::high-entropy-strings
     downgrade:
       any:
-        - id: cap/exec/eval/dynamic::eval-function-definition
+        - id: obj/exec/interpreter/eval/dynamic::eval-function-definition

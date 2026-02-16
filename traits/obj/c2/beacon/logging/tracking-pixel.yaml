@@ -17,8 +17,8 @@ composite_rules:
       - id: obj/discovery/network/scan::iplogger
       - id: obj/discovery/network/scan::iplogger-keyword
       - id: obj/discovery/network/scan::iplogger-b64
-      - id: cap/c2/infrastructure/network::ruby-ast-fragmented-iplogger
-      - id: cap/c2/infrastructure/network::ruby-ast-fragmented-iplogger-alt
+      - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger
+      - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger-alt
 
   - id: python-tracking-pixel-beacon
     desc: Python HTTP request to tracking/logging service (beaconing)

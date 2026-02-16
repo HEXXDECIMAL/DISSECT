@@ -407,14 +407,15 @@ impl ArchiveAnalyzer {
 
         if use_disk {
             // Extract to temp file
-            let sanitized = sanitize_entry_path(entry_name, temp_dir);
-            if sanitized.is_none() {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
-                    entry_name.to_string(),
-                ));
-                return Ok(None);
-            }
-            let out_path = sanitized.unwrap();
+            let out_path = match sanitize_entry_path(entry_name, temp_dir) {
+                Some(path) => path,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                        entry_name.to_string(),
+                    ));
+                    return Ok(None);
+                }
+            };
 
             if let Some(parent) = out_path.parent() {
                 std::fs::create_dir_all(parent)?;
@@ -509,12 +510,13 @@ impl ArchiveAnalyzer {
 
         if use_disk {
             // Extract to temp file
-            let sanitized = sanitize_entry_path(&entry_name, temp_dir);
-            if sanitized.is_none() {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name.clone()));
-                return Ok(None);
-            }
-            let out_path = sanitized.unwrap();
+            let out_path = match sanitize_entry_path(&entry_name, temp_dir) {
+                Some(path) => path,
+                None => {
+                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name.clone()));
+                    return Ok(None);
+                }
+            };
 
             if let Some(parent) = out_path.parent() {
                 std::fs::create_dir_all(parent)?;
@@ -1757,13 +1759,15 @@ fn extract_cpio_streaming<R: Read>(
         }
 
         // Sanitize path
-        let sanitized = sanitize_entry_path(clean_name, temp_dir);
-        if sanitized.is_none() {
-            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
-            let mut sink = std::io::sink();
-            std::io::copy(&mut { entry_reader }, &mut sink).ok();
-            continue;
-        }
+        let out_path = match sanitize_entry_path(clean_name, temp_dir) {
+            Some(path) => path,
+            None => {
+                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+                continue;
+            }
+        };
 
         // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
         let path = std::path::Path::new(clean_name);
@@ -1774,7 +1778,6 @@ fn extract_cpio_streaming<R: Read>(
             || matches!(file_type, FileType::Archive | FileType::Jar);
 
         if use_disk {
-            let out_path = sanitized.unwrap();
             if let Some(parent) = out_path.parent() {
                 std::fs::create_dir_all(parent)?;
             }

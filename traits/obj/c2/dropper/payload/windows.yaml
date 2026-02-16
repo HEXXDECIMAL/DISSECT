@@ -11,7 +11,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1027.002"
     all:
-      - id: cap/exec/command/launch::windows-startfile-exec
+      - id: cap/process/create/launch::windows-startfile-exec
       - id: cap/data/obfuscation/code::b64decode-exec
     any:
       - id: cap/data/obfuscation/payload::exec-decode-pattern

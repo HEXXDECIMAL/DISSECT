@@ -16,6 +16,7 @@ use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 /// YARA-X engine for pattern-based detection
+#[derive(Debug)]
 pub struct YaraEngine {
     rules: Option<yara_x::Rules>,
     capability_mapper: CapabilityMapper,
@@ -377,7 +378,11 @@ impl YaraEngine {
     }
 
     /// Compile a single rule file into the compiler
-    fn compile_rule_file<'a>(&self, compiler: &mut yara_x::Compiler<'a>, path: &Path) -> Result<()> {
+    fn compile_rule_file<'a>(
+        &self,
+        compiler: &mut yara_x::Compiler<'a>,
+        path: &Path,
+    ) -> Result<()> {
         let bytes =
             fs::read(path).context(format!("Failed to read rule file: {}", path.display()))?;
         let source = String::from_utf8_lossy(&bytes);

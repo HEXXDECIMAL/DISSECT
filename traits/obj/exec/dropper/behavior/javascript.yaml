@@ -10,9 +10,9 @@ composite_rules:
     all:
       - id: cap/fs/write/file::js-file-write
     any:
-      - id: cap/exec/command/shell/lang::js-exec
-      - id: cap/exec/command/shell/lang::js-execsync
-      - id: cap/exec/command/shell/lang::js-spawn
+      - id: cap/process/create/shell/lang::js-exec
+      - id: cap/process/create/shell/lang::js-execsync
+      - id: cap/process/create/shell/lang::js-spawn
     unless:
       - id: meta/dev/testing::node-common-require
     downgrade:
@@ -37,4 +37,4 @@ composite_rules:
     attack: "T1105"
     all:
       - id: obj/c2/infrastructure/domain::malware-hosting
-      - id: cap/exec/command/script::powershell-script-execution
+      - id: cap/process/create/script::powershell-script-execution

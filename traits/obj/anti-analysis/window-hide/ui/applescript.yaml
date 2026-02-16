@@ -69,7 +69,7 @@ traits:
       regex: "set frontmost.{0,10}false"
 
   # === Command execution ===
-  # Removed do-shell-script duplicate - use cap/exec/command/script::shell-cmd
+  # Removed do-shell-script duplicate - use cap/process/create/script::shell-cmd
 
   - id: tell-application
     desc: "AppleScript tell application block"
@@ -190,7 +190,7 @@ composite_rules:
     for: [shell, applescript]
     all:
       - id: hide-window
-      - id: cap/exec/command/script::shell-cmd
+      - id: cap/process/create/script::shell-cmd
       - id: tell-application
 
   # Terminal hiding with shell execution
@@ -201,7 +201,7 @@ composite_rules:
     for: [applescript]
     all:
       - id: terminal-hide
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
 
   # Window hiding with credential access
   - id: hidden-cred-access

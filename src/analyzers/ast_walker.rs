@@ -152,7 +152,11 @@ pub fn collect_by_kind<'a>(cursor: &mut TreeCursor<'a>, kinds: &[&str]) -> Vec<N
 }
 
 /// Walk tree and extract text from nodes of specific kinds
-pub fn extract_text_by_kind<'a>(cursor: &mut TreeCursor<'a>, source: &[u8], kinds: &[&str]) -> Vec<String> {
+pub fn extract_text_by_kind<'a>(
+    cursor: &mut TreeCursor<'a>,
+    source: &[u8],
+    kinds: &[&str],
+) -> Vec<String> {
     let mut results = Vec::new();
     let mut depth = 0usize;
 

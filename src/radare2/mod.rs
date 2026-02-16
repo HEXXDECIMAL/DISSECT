@@ -24,13 +24,9 @@ mod models;
 mod parsing;
 
 // Re-export public types from models
-pub use models::{R2Export, R2Function, R2Import, R2Section, R2String, R2Symbol};
+pub use models::{R2Function, R2Import, R2Section, R2String};
 
-// Import parsing utilities for use in this module
-use parsing::{parse_search_results, parse_syscall_number_from_disasm};
-
-use crate::syscall_names::{syscall_description, syscall_name};
-use crate::types::{BinaryMetrics, Function};
+use crate::types::BinaryMetrics;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -78,15 +74,12 @@ pub struct BatchedAnalysis {
 }
 
 /// Radare2 integration for deep binary analysis
-pub struct Radare2Analyzer {
-    timeout_seconds: u64,
-}
+#[derive(Debug)]
+pub struct Radare2Analyzer {}
 
 impl Radare2Analyzer {
     pub fn new() -> Self {
-        Self {
-            timeout_seconds: 30,
-        }
+        Self {}
     }
 
     /// Check if radare2 is available (and not disabled)
@@ -96,85 +89,6 @@ impl Radare2Analyzer {
             return false;
         }
         *RADARE2_AVAILABLE.get_or_init(|| Command::new("rizin").arg("-v").output().is_ok())
-    }
-
-    /// Extract functions with complexity metrics
-    /// Uses 'aa' (basic analysis) instead of 'aaa' (full analysis) for speed
-    pub fn extract_functions(&self, file_path: &Path) -> Result<Vec<Function>> {
-        let r2_functions = self.extract_r2_functions(file_path)?;
-        Ok(r2_functions.into_iter().map(|f| f.into()).collect())
-    }
-
-    /// Extract raw R2Function structs for metrics computation
-    pub fn extract_r2_functions(&self, file_path: &Path) -> Result<Vec<R2Function>> {
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0") // Disable ANSI colors
-            .arg("-e")
-            .arg("log.level=0") // Disable log messages
-            .arg("-c")
-            .arg("aa; aflj") // Basic analysis (faster than aaa), list functions as JSON
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(Vec::new()); // Return empty if analysis fails
-        }
-
-        let json_str = String::from_utf8_lossy(&output.stdout);
-
-        // radare2 might still output warnings/errors before JSON
-        // Find the start of JSON array
-        if let Some(json_start) = json_str.find('[') {
-            let json_only = &json_str[json_start..];
-            let r2_functions: Vec<R2Function> = serde_json::from_str(json_only).unwrap_or_default();
-            return Ok(r2_functions);
-        }
-
-        Ok(Vec::new())
-    }
-
-    /// Extract strings from binary
-    /// For large binaries (>20MB), returns empty to avoid slow r2 startup
-    /// stng already provides good string extraction for Go/Rust binaries
-    pub fn extract_strings(&self, file_path: &Path) -> Result<Vec<R2String>> {
-        // Skip r2 string extraction for large binaries - stng handles these well
-        const MAX_SIZE_FOR_R2_STRINGS: u64 = 20 * 1024 * 1024; // 20MB
-
-        let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
-
-        if file_size > MAX_SIZE_FOR_R2_STRINGS {
-            return Ok(Vec::new());
-        }
-
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg("izj") // List strings as JSON
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(Vec::new());
-        }
-
-        let json_str = String::from_utf8_lossy(&output.stdout);
-
-        // Find JSON start
-        if let Some(json_start) = json_str.find('[') {
-            let json_only = &json_str[json_start..];
-            let strings: Vec<R2String> = serde_json::from_str(json_only).unwrap_or_default();
-            return Ok(strings);
-        }
-
-        Ok(Vec::new())
     }
 
     /// Extract imports
@@ -195,339 +109,6 @@ impl Radare2Analyzer {
         let imports: Vec<R2Import> = serde_json::from_str(&json_str).unwrap_or_default();
 
         Ok(imports)
-    }
-
-    /// Extract exports
-    pub fn extract_exports(&self, file_path: &Path) -> Result<Vec<R2Export>> {
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-c")
-            .arg("iEj") // List exports as JSON
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(Vec::new());
-        }
-
-        let json_str = String::from_utf8_lossy(&output.stdout);
-        let exports: Vec<R2Export> = serde_json::from_str(&json_str).unwrap_or_default();
-
-        Ok(exports)
-    }
-
-    /// Extract section information with entropy
-    pub fn extract_sections(&self, file_path: &Path) -> Result<Vec<R2Section>> {
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-c")
-            .arg("iSj") // List sections as JSON
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(Vec::new());
-        }
-
-        let json_str = String::from_utf8_lossy(&output.stdout);
-        let sections: Vec<R2Section> = serde_json::from_str(&json_str).unwrap_or_default();
-
-        Ok(sections)
-    }
-
-    /// Extract all symbols (imports, exports, and internal symbols) in a single session
-    pub fn extract_all_symbols(
-        &self,
-        file_path: &Path,
-    ) -> Result<(Vec<R2Import>, Vec<R2Export>, Vec<R2Symbol>)> {
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg("iij; echo SEPARATOR; iEj; echo SEPARATOR; isj") // Batched imports, exports, and symbols
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok((Vec::new(), Vec::new(), Vec::new()));
-        }
-
-        let output_str = String::from_utf8_lossy(&output.stdout);
-        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
-
-        let imports = parts
-            .first()
-            .and_then(|p| {
-                let json_start = p.find('[')?;
-                serde_json::from_str(&p[json_start..]).ok()
-            })
-            .unwrap_or_default();
-
-        let exports = parts
-            .get(1)
-            .and_then(|p| {
-                let json_start = p.find('[')?;
-                serde_json::from_str(&p[json_start..]).ok()
-            })
-            .unwrap_or_default();
-
-        let symbols = parts
-            .get(2)
-            .and_then(|p| {
-                let json_start = p.find('[')?;
-                serde_json::from_str(&p[json_start..]).ok()
-            })
-            .unwrap_or_default();
-
-        Ok((imports, exports, symbols))
-    }
-
-    /// Extract syscalls from binary using architecture-aware analysis
-    /// Returns detected syscalls with their numbers and resolved names
-    /// Optimized to use a SINGLE r2 session for all operations
-    pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
-        // Build a batched command that gets arch info and searches for syscall patterns
-        // We'll run a single r2 session and parse all results at once
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            // Batched commands: get arch info, then search for common syscall patterns
-            .arg("iIj; echo SEPARATOR; /x 0f05; echo SEPARATOR; /x cd80; echo SEPARATOR; /x 010000d4")
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(Vec::new());
-        }
-
-        let output_str = String::from_utf8_lossy(&output.stdout);
-        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
-
-        // Parse architecture from first part
-        let arch = if let Some(arch_part) = parts.first() {
-            if let Some(json_start) = arch_part.find('{') {
-                if let Ok(info) =
-                    serde_json::from_str::<serde_json::Value>(&arch_part[json_start..])
-                {
-                    let arch_str = info.get("arch").and_then(|v| v.as_str()).unwrap_or("");
-                    let bits = info.get("bits").and_then(|v| v.as_u64()).unwrap_or(32);
-                    match (arch_str, bits) {
-                        ("x86", 64) => "x86_64",
-                        ("x86", _) => "x86",
-                        ("arm", 64) => "aarch64",
-                        ("arm", _) => "arm",
-                        ("mips", _) => "mips",
-                        ("ppc", _) => "ppc",
-                        _ => "",
-                    }
-                } else {
-                    ""
-                }
-            } else {
-                ""
-            }
-        } else {
-            ""
-        };
-
-        if arch.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        // Parse syscall addresses from search results (parts 1-3)
-        let mut syscall_addrs = Vec::new();
-        for part in parts.iter().skip(1) {
-            syscall_addrs.extend(parse_search_results(part));
-        }
-
-        if syscall_addrs.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        // Deduplicate
-        syscall_addrs.sort_unstable();
-        syscall_addrs.dedup();
-
-        // Limit to first 20 syscalls to avoid excessive analysis time
-        syscall_addrs.truncate(20);
-
-        // Build a second batched command to disassemble around each syscall address
-        let disasm_cmds: Vec<String> =
-            syscall_addrs.iter().map(|addr| format!("pd -10 @ {:#x}", addr)).collect();
-
-        if disasm_cmds.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        let disasm_output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg(disasm_cmds.join("; echo ADDR_SEP; "))
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        let disasm_str = String::from_utf8_lossy(&disasm_output.stdout);
-        let disasm_parts: Vec<&str> = disasm_str.split("ADDR_SEP").collect();
-
-        // Parse syscall numbers from disassembly
-        let mut syscalls = Vec::new();
-        for (i, disasm) in disasm_parts.iter().enumerate() {
-            if i >= syscall_addrs.len() {
-                break;
-            }
-            if let Some(num) = parse_syscall_number_from_disasm(disasm, arch) {
-                let name = syscall_name(arch, num);
-                let description = syscall_description(&name);
-                syscalls.push(SyscallInfo {
-                    address: syscall_addrs[i],
-                    number: num,
-                    name,
-                    desc: description,
-                    arch: arch.to_string(),
-                });
-            }
-        }
-
-        Ok(syscalls)
-    }
-
-    /// Get architecture string from binary
-    fn get_architecture(&self, file_path: &Path) -> Result<String> {
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg("iIj") // Binary info as JSON
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        if !output.status.success() {
-            return Ok(String::new());
-        }
-
-        let json_str = String::from_utf8_lossy(&output.stdout);
-        if let Some(json_start) = json_str.find('{') {
-            if let Ok(info) = serde_json::from_str::<serde_json::Value>(&json_str[json_start..]) {
-                if let Some(arch) = info.get("arch").and_then(|v| v.as_str()) {
-                    // Normalize architecture names
-                    let bits = info.get("bits").and_then(|v| v.as_u64()).unwrap_or(32);
-                    return Ok(match (arch, bits) {
-                        ("x86", 64) => "x86_64".to_string(),
-                        ("x86", _) => "x86".to_string(),
-                        ("arm", 64) => "aarch64".to_string(),
-                        ("arm", _) => "arm".to_string(),
-                        ("mips", _) => "mips".to_string(),
-                        ("ppc", _) => "ppc".to_string(),
-                        (other, _) => other.to_string(),
-                    });
-                }
-            }
-        }
-
-        Ok(String::new())
-    }
-
-    /// Find syscall instruction addresses based on architecture
-    fn find_syscall_instructions(&self, file_path: &Path, arch: &str) -> Result<Vec<u64>> {
-        // Architecture-specific syscall instruction patterns
-        let pattern = match arch {
-            "x86" => "/x cd80",            // int 0x80
-            "x86_64" => "/x 0f05",         // syscall
-            "arm" => "/x 00 00 00 ef",     // svc #0 (ARM mode)
-            "aarch64" => "/x 01 00 00 d4", // svc #0 (AArch64)
-            "mips" => "/x 00 00 00 0c",    // syscall (big-endian)
-            "ppc" => "/x 44 00 00 02",     // sc
-            _ => return Ok(Vec::new()),
-        };
-
-        // Also search for little-endian MIPS variant
-        let le_pattern = if arch == "mips" {
-            Some("/x 0c 00 00 00") // syscall (little-endian)
-        } else if arch == "arm" {
-            Some("/x ef 00 00 00") // svc #0 (Thumb might differ)
-        } else {
-            None
-        };
-
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg(pattern)
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        let mut addrs = parse_search_results(&String::from_utf8_lossy(&output.stdout));
-
-        // Also try alternate pattern if applicable
-        if let Some(alt_pattern) = le_pattern {
-            let alt_output = Command::new("rizin")
-                .arg("-q")
-                .arg("-e")
-                .arg("scr.color=0")
-                .arg("-e")
-                .arg("log.level=0")
-                .arg("-c")
-                .arg(alt_pattern)
-                .arg(file_path)
-                .output()
-                .context("Failed to execute radare2")?;
-
-            addrs.extend(parse_search_results(&String::from_utf8_lossy(
-                &alt_output.stdout,
-            )));
-        }
-
-        // Deduplicate and sort
-        addrs.sort_unstable();
-        addrs.dedup();
-
-        Ok(addrs)
-    }
-
-    /// Find syscall number by backtracking from syscall instruction
-    fn find_syscall_number(&self, file_path: &Path, arch: &str, addr: u64) -> Result<Option<u32>> {
-        // Disassemble backwards to find the register load
-        let output = Command::new("rizin")
-            .arg("-q")
-            .arg("-e")
-            .arg("scr.color=0")
-            .arg("-e")
-            .arg("log.level=0")
-            .arg("-c")
-            .arg(format!("pd -15 @ {:#x}", addr)) // 15 instructions before syscall
-            .arg(file_path)
-            .output()
-            .context("Failed to execute radare2")?;
-
-        let disasm = String::from_utf8_lossy(&output.stdout);
-
-        // Parse based on architecture using parsing module function
-        Ok(parse_syscall_number_from_disasm(&disasm, arch))
     }
 
     /// Extract functions, sections, and strings in a SINGLE r2 session
@@ -858,13 +439,6 @@ impl Radare2Analyzer {
                 metrics.executable_sections as f32 / metrics.section_count as f32;
         }
     }
-
-    /// Compute binary metrics by running fresh radare2 analysis
-    /// Slower than compute_metrics_from_batched - prefer that when possible
-    pub fn compute_binary_metrics(&self, file_path: &Path) -> Result<BinaryMetrics> {
-        let batched = self.extract_batched(file_path)?;
-        Ok(self.compute_metrics_from_batched(&batched))
-    }
 }
 
 impl Default for Radare2Analyzer {
@@ -876,18 +450,6 @@ impl Default for Radare2Analyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_default() {
-        let analyzer = Radare2Analyzer::default();
-        assert_eq!(analyzer.timeout_seconds, 30);
-    }
-
-    #[test]
-    fn test_new() {
-        let analyzer = Radare2Analyzer::new();
-        assert_eq!(analyzer.timeout_seconds, 30);
-    }
 
     #[test]
     fn test_syscall_info_serialize() {

@@ -18,7 +18,7 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/
       - id: cap/fs/write/
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
@@ -111,7 +111,7 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     any:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: obj/anti-static/obfuscation/
       - id: cap/data/user-input/
 
@@ -185,7 +185,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: cap/exec/command/shell/
+      - id: cap/process/create/shell/
     any:
       - id: obj/anti-static/obfuscation/code-metrics::php-obfuscated-vars
       - id: obj/anti-static/obfuscation/code-metrics::php-encoded-strings
@@ -200,7 +200,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: cap/exec/command/shell/
+      - id: cap/process/create/shell/
       - id: obj/anti-static/obfuscation/code-metrics::php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
@@ -223,7 +223,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: cap/data/user-input/request
     any:
       - id: obj/anti-static/obfuscation/
@@ -242,7 +242,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: cap/data/user-input/request
     any:
       - id: cap/fs/read/file
@@ -263,7 +263,7 @@ composite_rules:
     for: [php]
     all:
       - id: obj/c2/webshell/backdoor::dynamic-user-input-call  # $_POST['x']() pattern
-      - id: cap/exec/command/shell   # has shell execution capability
+      - id: cap/process/create/shell   # has shell execution capability
     any:
       - id: cap/data/user-input/request
       - id: cap/fs/write/
@@ -278,10 +278,10 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     all:
-      - id: cap/exec/command/shell/lang::backtick
+      - id: cap/process/create/shell/lang::backtick
       - id: cap/data/user-input/request
     any:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: cap/fs/write/
       - id: obj/persist/session
 
@@ -295,7 +295,7 @@ composite_rules:
     for: [php]
     all:
       - id: obj/c2/webshell/script::wso-version
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
     any:
       - id: cap/data/user-input/request
       - id: cap/fs/write/
@@ -311,12 +311,12 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: cap/exec/command/shell  # shell execution
+      - id: cap/process/create/shell  # shell execution
       - id: cap/data/user-input/request  # user input handling
       - id: cap/fs/write/  # file write capability
       - id: obj/c2/webshell  # webshell family indicators
       - id: obj/c2/webshell/backdoor::dynamic-user-input-call  # variable function backdoor
-      - id: cap/exec/command/shell/lang::backtick  # backtick RCE
+      - id: cap/process/create/shell/lang::backtick  # backtick RCE
 
   # WordPress CMS backdoor - creates admin user with obfuscated code
   - id: php-wordpress-backdoor

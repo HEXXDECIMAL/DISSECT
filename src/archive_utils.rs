@@ -1,35 +1,13 @@
 //! Archive format detection utilities.
 
-use anyhow::{Context, Result};
 use std::path::Path;
-use std::sync::Arc;
 
 use crate::analyzers::{archive::ArchiveAnalyzer, Analyzer};
-use crate::types::AnalysisReport;
-use crate::yara_engine::YaraEngine;
 
 /// Check if a file is an archive based on extension
 pub fn is_archive(path: &Path) -> bool {
     let analyzer = ArchiveAnalyzer::new();
     analyzer.can_analyze(path)
-}
-
-/// Extract and scan an archive, returning reports for all extracted files
-pub fn extract_and_scan_archive(
-    archive_path: &Path,
-    _yara_engine: &Arc<YaraEngine>,
-    _max_depth: usize,
-) -> Result<Vec<AnalysisReport>> {
-    // Use the existing ArchiveAnalyzer to extract and analyze
-    let analyzer = ArchiveAnalyzer::new();
-
-    // The ArchiveAnalyzer already handles extraction and recursive analysis
-    // It returns a single aggregated report with capabilities from all files
-    let report = analyzer.analyze(archive_path).context("Failed to analyze archive")?;
-
-    // For now, return a single report for the archive
-    // In a future iteration, we could modify ArchiveAnalyzer to return individual reports
-    Ok(vec![report])
 }
 
 #[cfg(test)]

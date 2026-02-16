@@ -92,6 +92,6 @@ composite_rules:
     attack: "T1027"
     all:
       - id: data-section-dominant
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
     none:
       - id: meta/signed/platform::apple

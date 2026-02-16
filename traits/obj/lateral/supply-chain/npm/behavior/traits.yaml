@@ -476,7 +476,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: cap/exec/process/spawn::stdio-ignore-string
+      - id: cap/process/spawn::stdio-ignore-string
       - id: stdio-ignore-array
 
   # Multiple OOB exfil domains - migrated from YARA

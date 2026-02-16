@@ -7,8 +7,8 @@ composite_rules:
         id: meta/format/magic::rtf
     any:
       - type: trait
-        id: cap/anti-static/obfuscation/rtf::byte-nibble
+        id: obj/anti-static/obfuscation/rtf::byte-nibble
       - type: trait
-        id: cap/anti-static/obfuscation/rtf::nested-object-in-data
+        id: obj/anti-static/obfuscation/rtf::nested-object-in-data
       - type: trait
-        id: cap/anti-static/obfuscation/rtf::invalid-hex-escape
+        id: obj/anti-static/obfuscation/rtf::invalid-hex-escape

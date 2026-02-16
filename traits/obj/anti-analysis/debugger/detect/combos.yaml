@@ -10,7 +10,7 @@ composite_rules:
     platforms: [windows]
     for: [pe, dll]
     any:
-      - id: cap/exec/native/api::debugger-detect-api
+      - id: obj/exec/native/api::debugger-detect-api
       - id: win-unhandledexception
     downgrade:
       any:
@@ -26,7 +26,7 @@ composite_rules:
     for: [pe, dll]
     needs: 2
     any:
-      - id: cap/exec/native/api::debugger-detect-api
+      - id: obj/exec/native/api::debugger-detect-api
       - id: win-unhandledexception
       - id: win-queryperformance
     downgrade:

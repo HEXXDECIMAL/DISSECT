@@ -118,7 +118,7 @@ composite_rules:
     for: [javascript] # +1 complexity
     all: # +3 complexity
       - id: npm-install-runtime-exec
-      - id: cap/exec/eval/invoke::shell-eval
+      - id: obj/exec/interpreter/eval/invoke::shell-eval
       - id: npm-prefix-install
     # Total complexity: 4 (1 + 3 = 4)
 
@@ -145,7 +145,7 @@ composite_rules:
     all: # +3
       - id: socket-command-handler
       - id: obj/c2/network/http-listener::socket-io
-      - id: cap/exec/command/shell::js-child-process
+      - id: cap/process/create/shell::js-child-process
     # Total complexity: 4 (1 + 3 = 4)
 
   # Advanced RAT with runtime evasion

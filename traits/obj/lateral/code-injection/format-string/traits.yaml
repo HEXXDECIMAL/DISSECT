@@ -11,7 +11,7 @@ composite_rules:
     attack: "T1059"
     for: [c, elf, macho]
     all:
-      - id: cap/exec/command/shell::format-string-injection
-      - id: cap/exec/command/shell::system-call-symbol
+      - id: cap/process/create/shell::format-string-injection
+      - id: cap/process/create/shell::system-call-symbol
       - id: cap/comm/socket/create::create
       - id: cap/comm/socket/connect::connect

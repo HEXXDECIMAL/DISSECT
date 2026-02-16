@@ -13,7 +13,7 @@ use rustc_hash::{FxHashMap, FxHashSet};
 
 /// Index of trait indices by file type for fast lookup.
 /// Maps FileType -> Vec of indices into trait_definitions.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub(crate) struct TraitIndex {
     /// Traits that apply to each specific file type
     by_file_type: FxHashMap<RuleFileType, Vec<usize>>,
@@ -60,19 +60,12 @@ impl TraitIndex {
 
         self.universal.iter().copied().chain(specific.iter().copied())
     }
-
-    /// Get count of applicable traits for a file type
-    pub(crate) fn applicable_count(&self, file_type: &RuleFileType) -> usize {
-        let specific_count =
-            self.by_file_type.get(file_type).map(|v: &Vec<usize>| v.len()).unwrap_or(0);
-        self.universal.len() + specific_count
-    }
 }
 
 /// Index for fast batched string matching using Aho-Corasick.
 /// Pre-computes automatons from all exact string patterns in traits,
 /// enabling single-pass matching across thousands of patterns.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub(crate) struct StringMatchIndex {
     /// Aho-Corasick automaton for case-sensitive exact string patterns
     automaton: Option<AhoCorasick>,
@@ -345,7 +338,7 @@ impl StringMatchIndex {
 
 /// Index for regex patterns from `type: raw` conditions.
 /// Builds per-file-type RegexSets to avoid running irrelevant patterns.
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub(crate) struct RawContentRegexIndex {
     /// Per-file-type regex sets for targeted matching
     by_file_type: FxHashMap<RuleFileType, FileTypeRegexSet>,
@@ -364,6 +357,15 @@ struct FileTypeRegexSet {
     pattern_to_traits: Vec<Vec<usize>>,
     /// Original pattern strings for debugging/profiling
     patterns: Vec<String>,
+}
+
+impl std::fmt::Debug for FileTypeRegexSet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FileTypeRegexSet")
+            .field("pattern_count", &self.patterns.len())
+            .field("patterns", &self.patterns)
+            .finish()
+    }
 }
 
 impl RawContentRegexIndex {
@@ -480,8 +482,10 @@ impl RawContentRegexIndex {
         }
 
         let pattern_strs: Vec<String> = pattern_map.keys().cloned().collect();
-        let pattern_to_traits: Vec<Vec<usize>> =
-            pattern_strs.iter().map(|p| pattern_map.get(p).unwrap().clone()).collect();
+        let pattern_to_traits: Vec<Vec<usize>> = pattern_strs
+            .iter()
+            .filter_map(|p| pattern_map.get(p).cloned())
+            .collect();
 
         // Try to build the regex set.
         match RegexSet::new(&pattern_strs) {
@@ -580,71 +584,6 @@ impl RawContentRegexIndex {
         }
 
         (matching_traits, false)
-    }
-
-    /// Test each regex pattern individually to find slow ones
-    /// Returns a list of (pattern, duration_ms, trait_ids)
-    pub(crate) fn benchmark_patterns(
-        &self,
-        binary_data: &[u8],
-        file_type: &RuleFileType,
-        timeout_ms: u64,
-    ) -> Vec<(String, u64, Vec<String>)> {
-        use std::time::Instant;
-
-        let mut slow_patterns = Vec::new();
-        let content = String::from_utf8_lossy(binary_data);
-
-        // Test universal patterns
-        if let Some(ref universal) = self.universal {
-            for (pattern_idx, pattern) in universal.patterns.iter().enumerate() {
-                let start = Instant::now();
-
-                // Try to compile and match with timeout check
-                if let Ok(regex) = regex::Regex::new(pattern) {
-                    let _ = regex.find(&content);
-                    let duration = start.elapsed().as_millis() as u64;
-
-                    if duration > timeout_ms {
-                        let trait_ids = universal
-                            .pattern_to_traits
-                            .get(pattern_idx)
-                            .map(|indices| {
-                                indices.iter().map(|idx| format!("trait_{}", idx)).collect()
-                            })
-                            .unwrap_or_default();
-
-                        slow_patterns.push((pattern.clone(), duration, trait_ids));
-                    }
-                }
-            }
-        }
-
-        // Test file-type-specific patterns
-        if let Some(ft_set) = self.by_file_type.get(file_type) {
-            for (pattern_idx, pattern) in ft_set.patterns.iter().enumerate() {
-                let start = Instant::now();
-
-                if let Ok(regex) = regex::Regex::new(pattern) {
-                    let _ = regex.find(&content);
-                    let duration = start.elapsed().as_millis() as u64;
-
-                    if duration > timeout_ms {
-                        let trait_ids = ft_set
-                            .pattern_to_traits
-                            .get(pattern_idx)
-                            .map(|indices| {
-                                indices.iter().map(|idx| format!("trait_{}", idx)).collect()
-                            })
-                            .unwrap_or_default();
-
-                        slow_patterns.push((pattern.clone(), duration, trait_ids));
-                    }
-                }
-            }
-        }
-
-        slow_patterns
     }
 }
 

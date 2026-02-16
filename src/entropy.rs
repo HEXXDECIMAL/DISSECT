@@ -54,24 +54,6 @@ impl EntropyLevel {
             EntropyLevel::High
         }
     }
-
-    pub fn as_str(&self) -> &str {
-        match self {
-            EntropyLevel::VeryLow => "very_low",
-            EntropyLevel::Normal => "normal",
-            EntropyLevel::Elevated => "elevated",
-            EntropyLevel::High => "high",
-        }
-    }
-
-    pub fn description(&self) -> &str {
-        match self {
-            EntropyLevel::VeryLow => "Very low entropy (sparse data)",
-            EntropyLevel::Normal => "Normal entropy (typical code/data)",
-            EntropyLevel::Elevated => "Elevated entropy (possibly compressed or obfuscated)",
-            EntropyLevel::High => "High entropy (likely encrypted or packed)",
-        }
-    }
 }
 
 #[cfg(test)]
@@ -113,22 +95,6 @@ mod tests {
         let data = vec![];
         let entropy = calculate_entropy(&data);
         assert_eq!(entropy, 0.0);
-    }
-
-    #[test]
-    fn test_entropy_level_as_str() {
-        assert_eq!(EntropyLevel::VeryLow.as_str(), "very_low");
-        assert_eq!(EntropyLevel::Normal.as_str(), "normal");
-        assert_eq!(EntropyLevel::Elevated.as_str(), "elevated");
-        assert_eq!(EntropyLevel::High.as_str(), "high");
-    }
-
-    #[test]
-    fn test_entropy_level_description() {
-        assert!(EntropyLevel::VeryLow.description().contains("Very low"));
-        assert!(EntropyLevel::Normal.description().contains("Normal"));
-        assert!(EntropyLevel::Elevated.description().contains("Elevated"));
-        assert!(EntropyLevel::High.description().contains("High"));
     }
 
     #[test]

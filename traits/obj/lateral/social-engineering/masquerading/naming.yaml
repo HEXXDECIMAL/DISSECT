@@ -55,8 +55,8 @@ composite_rules:
     all:
       - id: generic-bundle-id-pattern
     any:
-      - id: cap/exec/command/shell::c-popen
-      - id: cap/exec/command/shell::c-system
+      - id: cap/process/create/shell::c-popen
+      - id: cap/process/create/shell::c-system
       - id: obj/persist/daemon/init::daemon-fork
     none:
       - id: meta/signed/platform::apple
@@ -70,4 +70,4 @@ composite_rules:
     all:
       - id: meta/signed/adhoc::unsigned
       - id: generic-executable-name
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution

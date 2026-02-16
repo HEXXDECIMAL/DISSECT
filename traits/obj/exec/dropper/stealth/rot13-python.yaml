@@ -17,7 +17,7 @@ composite_rules:
       - id: obj/discovery/host/system/os-fingerprint::platform-system-call
     any:
       - id: obj/anti-analysis/process-hide/creation-flags::detached-process
-      - id: cap/exec/command/setsid::preexec-fn
+      - id: cap/process/create/setsid::preexec-fn
 
   - id: rot13-exec-dropper
     desc: "Obfuscated Python dropper using ROT13 and dynamic execution"

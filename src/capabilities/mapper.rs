@@ -54,7 +54,7 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
 
 /// Maps symbols (function names, library calls) to capability IDs
 /// Also supports trait definitions and composite rules that combine traits
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CapabilityMapper {
     symbol_map: HashMap<String, TraitInfo>,
     trait_definitions: Vec<TraitDefinition>,
@@ -892,12 +892,19 @@ impl CapabilityMapper {
             eprintln!("   Second-level directories should not be repeated across meta/, cap/, obj/, known/:");
             eprintln!("   This indicates traits are misplaced - objectives should only be in obj/, capabilities in cap/.\n");
             for (dir_name, namespaces) in &duplicate_dirs {
-                eprintln!("   '{}' appears in: {}/{}/ ", dir_name, namespaces.join("/, "), dir_name);
+                eprintln!(
+                    "   '{}' appears in: {}/{}/ ",
+                    dir_name,
+                    namespaces.join("/, "),
+                    dir_name
+                );
             }
             eprintln!("\n   Examples:");
             eprintln!("   - cap/c2/ and obj/c2/ → C2 is an objective, should only be in obj/");
             eprintln!("   - cap/discovery/ and obj/discovery/ → Discovery is an objective, should only be in obj/");
-            eprintln!("   - cap/malware/ and known/malware/ → Malware detection should not be in cap/\n");
+            eprintln!(
+                "   - cap/malware/ and known/malware/ → Malware detection should not be in cap/\n"
+            );
             has_fatal_errors = true;
         }
 

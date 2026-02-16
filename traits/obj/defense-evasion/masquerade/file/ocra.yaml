@@ -4,5 +4,5 @@ composite_rules:
     crit: hostile
     conf: 1.0
     all:
-      - id: cap/anti-analysis/packing/ocra::ocra-packed-executable
+      - id: obj/anti-analysis/packing/ocra::ocra-packed-executable
       - id: obj/defense-evasion/masquerade/file::basename-is-media

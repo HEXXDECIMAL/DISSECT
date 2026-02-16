@@ -7,7 +7,7 @@ composite_rules:
     attack: T1083
     platforms: [macos]
     all:
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
       - id: cap/data/control-flow/analysis::iteration-loop-pattern
     any:
       - id: cap/fs/path/sensitive/browser::login-data

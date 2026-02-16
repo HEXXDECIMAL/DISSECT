@@ -6,7 +6,7 @@ composite_rules:
     mbc: "B0001"
     attack: "T1497"
     all:
-      - id: cap/anti-analysis/packing/ocra::ocra-packed-executable
+      - id: obj/anti-analysis/packing/ocra::ocra-packed-executable
     any:
       - id: obj/anti-analysis/debugger/detect::win-comprehensive
       - id: obj/anti-analysis/vm/detect::instruction-based-evasion

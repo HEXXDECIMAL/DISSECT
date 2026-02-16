@@ -512,7 +512,10 @@ impl<'a> ScptParser<'a> {
             return false;
         }
 
-        let first = s.chars().next().unwrap();
+        let first = match s.chars().next() {
+            Some(c) => c,
+            None => return false,
+        };
         if !first.is_ascii_alphabetic() && first != '_' {
             return false;
         }
@@ -527,7 +530,10 @@ impl<'a> ScptParser<'a> {
         }
 
         // Skip strings that are just repeated characters
-        let first_char = s.chars().next().unwrap();
+        let first_char = match s.chars().next() {
+            Some(c) => c,
+            None => return false,
+        };
         if s.chars().all(|c| c == first_char) {
             return false;
         }

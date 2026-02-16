@@ -14,6 +14,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 /// Analyzer for Windows PE binaries (executables, DLLs, drivers)
+#[derive(Debug)]
 pub struct PEAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
@@ -424,7 +425,12 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections<'a>(&self, pe: &PE<'a>, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_sections<'a>(
+        &self,
+        pe: &PE<'a>,
+        data: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
         for section in &pe.sections {
             let name =
                 String::from_utf8_lossy(&section.name).trim_matches(char::from(0)).to_string();
@@ -529,7 +535,11 @@ impl PEAnalyzer {
     }
 
     /// Compute PE-specific metrics from parsed PE binary
-    fn compute_pe_metrics<'a>(&self, pe: &PE<'a>, data: &[u8]) -> crate::types::binary_metrics::PeMetrics {
+    fn compute_pe_metrics<'a>(
+        &self,
+        pe: &PE<'a>,
+        data: &[u8],
+    ) -> crate::types::binary_metrics::PeMetrics {
         use crate::types::binary_metrics::PeMetrics;
 
         let mut metrics = PeMetrics::default();

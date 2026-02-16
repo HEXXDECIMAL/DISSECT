@@ -231,10 +231,10 @@ composite_rules:
     conf: 0.6
     for: [elf, c]
     all:
-      - id: cap/exec/command/shell::bin-sh
+      - id: cap/process/create/shell::bin-sh
     any:
       - id: cap/process/fd/dup::dup2
-      - id: cap/exec/command/shell::c-execve
+      - id: cap/process/create/shell::c-execve
 
   # Protocol trigger helper
   - id: protocol-trigger

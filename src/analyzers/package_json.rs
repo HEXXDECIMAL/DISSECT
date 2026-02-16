@@ -11,6 +11,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 /// npm package.json analyzer for detecting supply chain attacks
+#[derive(Debug)]
 pub struct PackageJsonAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }
@@ -19,7 +20,9 @@ pub struct PackageJsonAnalyzer {
 struct PackageJson {
     name: Option<String>,
     version: Option<String>,
+    #[allow(dead_code)] // Deserialized from JSON
     desc: Option<String>,
+    #[allow(dead_code)] // Deserialized from JSON
     main: Option<String>,
     #[serde(default)]
     scripts: HashMap<String, String>,
@@ -31,18 +34,25 @@ struct PackageJson {
     peer_dependencies: HashMap<String, String>,
     #[serde(rename = "optionalDependencies", default)]
     optional_dependencies: HashMap<String, String>,
+    #[allow(dead_code)] // Deserialized from JSON
     repository: Option<Repository>,
     author: Option<serde_json::Value>,
+    #[allow(dead_code)] // Deserialized from JSON
     license: Option<String>,
     #[serde(default)]
+    #[allow(dead_code)] // Deserialized from JSON
     bin: serde_json::Value,
 }
 
+#[allow(dead_code)] // Deserialized from JSON
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Repository {
     Url(String),
-    Object { url: Option<String> },
+    Object {
+        #[allow(dead_code)]
+        url: Option<String>,
+    },
 }
 
 impl PackageJsonAnalyzer {

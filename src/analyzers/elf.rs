@@ -17,6 +17,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 /// Analyzer for Linux ELF binaries (executables, shared objects, kernel modules)
+#[derive(Debug)]
 pub struct ElfAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
@@ -422,7 +423,12 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections<'a>(&self, elf: &Elf<'a>, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_sections<'a>(
+        &self,
+        elf: &Elf<'a>,
+        data: &[u8],
+        report: &mut AnalysisReport,
+    ) -> Result<()> {
         for section in &elf.section_headers {
             if let Some(name) = elf.shdr_strtab.get_at(section.sh_name) {
                 let section_offset = section.sh_offset as usize;

@@ -10,13 +10,13 @@ composite_rules:
   - id: ruby-iplogger-dropper
     desc: Ruby script (extconf.rb) drops executable and contacts tracking service
     all:
-      - id: cap/exec/dropper/script::filename-extconf
-      - id: cap/exec/dropper/script::ruby-ast-rename-to-exe
-      - id: cap/exec/command/shell::shell-execution-indicators
+      - id: obj/exec/dropper/script::filename-extconf
+      - id: obj/exec/dropper/script::ruby-ast-rename-to-exe
+      - id: cap/process/create/shell::shell-execution-indicators
     any:
-      - id: cap/c2/domain/tracking::iplogger-http
-      - id: cap/c2/domain/tracking::iplogger-string
-      - id: cap/c2/infrastructure/network::ruby-ast-fragmented-iplogger
-      - id: cap/c2/infrastructure/network::ruby-ast-fragmented-iplogger-alt
-      - id: cap/anti-static/obfuscation/string::ruby-concatenated-iplogger
-      - id: cap/anti-static/obfuscation/string::ruby-concatenated-iplogger-alt
+      - id: obj/c2/domain/tracking::iplogger-http
+      - id: obj/c2/domain/tracking::iplogger-string
+      - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger
+      - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger-alt
+      - id: obj/anti-static/obfuscation/string::ruby-concatenated-iplogger
+      - id: obj/anti-static/obfuscation/string::ruby-concatenated-iplogger-alt

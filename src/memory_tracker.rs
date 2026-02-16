@@ -8,6 +8,7 @@ use std::time::{Duration, Instant};
 use tracing::{info, warn};
 
 /// Global memory statistics tracker
+#[derive(Debug)]
 pub struct MemoryTracker {
     /// Total bytes allocated for file reads
     total_bytes_read: AtomicU64,

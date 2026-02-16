@@ -83,7 +83,7 @@ traits:
 
   # NOTE: MIT-MAGIC-COOKIE-1 is the standard X11 authentication mechanism, not UI manipulation.
   # It's used by all X11 libraries (libX11, libICE, libSM, etc.) for normal authentication.
-  # The x11-auth-protocol trait is defined in cap/exec/load/traits.yaml as inert.
+  # The x11-auth-protocol trait is defined in cap/dylib/load/traits.yaml as inert.
 
   - id: xsession
     desc: Xsession reference
@@ -153,6 +153,6 @@ composite_rules:
     attack: "T1204.001"
     for: [macho, objective-c]
     all:
-      - id: cap/exec/command/shell::open-a-app
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::open-a-app
+      - id: cap/process/create/shell::shell-symbols
       - id: cap/fs/chmod/executable/dangerous::shell-777

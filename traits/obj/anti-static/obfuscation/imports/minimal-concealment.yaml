@@ -38,16 +38,16 @@ composite_rules:
     needs: 3
     any:
       # Dynamic loading
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
       # Execution
-      - id: cap/exec/shell/methods::shell-execute-a
-      - id: cap/exec/shell/methods::shell-execute
-      - id: cap/exec/shell/methods::shell-execute-ex
+      - id: cap/process/create/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute
+      - id: cap/process/create/methods::shell-execute-ex
       # Crypto
       - id: cap/crypto/certificate/store::cert-open-store
       # Memory
-      - id: cap/exec/native/api::heap-alloc
+      - id: obj/exec/native/api::heap-alloc
     unless:
       - type: import_combination
         min_suspicious: 30  # Has many imports, not minimization
@@ -65,12 +65,12 @@ composite_rules:
       - id: very-low-strings
     needs: 4
     any:
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
-      - id: cap/exec/shell/methods::shell-execute-a
-      - id: cap/exec/shell/methods::shell-execute
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
+      - id: cap/process/create/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute
       - id: cap/crypto/certificate/store::cert-open-store
-      - id: cap/exec/native/api::heap-alloc
+      - id: obj/exec/native/api::heap-alloc
       - id: cap/mem/protect/modify::virtualprotect
     unless:
       - type: import_combination
@@ -90,9 +90,9 @@ composite_rules:
       - id: cap/crypto/certificate/store::cert-open-store
     needs: 2
     any:
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
-      - id: cap/exec/shell/methods::shell-execute-a
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
+      - id: cap/process/create/methods::shell-execute-a
       - id: cap/mem/protect/modify::virtualprotect
       - id: cap/fs
     unless:
@@ -109,12 +109,12 @@ composite_rules:
     all:
       - id: extremely-low-strings
       # Must have dynamic loading (API resolution concealment)
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
     needs: 2
     any:
-      - id: cap/exec/shell/methods::shell-execute-a
-      - id: cap/exec/shell/methods::shell-execute
+      - id: cap/process/create/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute
       - id: cap/crypto/certificate/store::cert-open-store
       - id: cap/mem/protect/modify::virtualprotect
       - id: cap/fs

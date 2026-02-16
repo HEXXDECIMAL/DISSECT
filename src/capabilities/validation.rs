@@ -11,6 +11,7 @@ use crate::composite_rules::{
 };
 use crate::types::Criticality;
 use std::collections::{HashMap, HashSet};
+use std::sync::OnceLock;
 
 use super::parsing::parse_file_types;
 
@@ -1075,7 +1076,7 @@ pub(crate) fn find_string_pattern_duplicates(
 
     for trait_def in trait_definitions {
         for (normalized, location) in extract_patterns(trait_def) {
-            pattern_index.entry(normalized).or_insert_with(Vec::new).push(location);
+            pattern_index.entry(normalized).or_default().push(location);
         }
     }
 
@@ -1184,7 +1185,7 @@ pub(crate) fn check_regex_or_overlapping_exact(
         let patterns = extract_patterns(trait_def);
         for (normalized, location) in patterns {
             if location.match_type != "regex" {
-                literal_patterns.entry(normalized).or_insert_with(Vec::new).push(location);
+                literal_patterns.entry(normalized).or_default().push(location);
             }
         }
     }
@@ -1330,9 +1331,9 @@ pub(crate) fn check_same_string_different_types(
 
             pattern_by_type
                 .entry(normalized)
-                .or_insert_with(HashMap::new)
+                .or_default()
                 .entry(location.condition_type.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(location);
         }
     }
@@ -1928,6 +1929,12 @@ pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(Str
             continue;
         }
 
+        // Skip interpreter/<language> paths - language names are expected there
+        // e.g., obj/exec/interpreter/powershell, obj/exec/interpreter/python
+        if dir_path.contains("/interpreter/") {
+            continue;
+        }
+
         // Split the path and check each component
         for component in dir_path.split('/') {
             let lower = component.to_lowercase();
@@ -1945,7 +1952,9 @@ pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(Str
 /// This indicates taxonomy violations - directories should not be repeated across namespaces.
 /// For example, cap/c2/ and obj/c2/ suggests cap/c2/ is misplaced (C2 is an objective, not a capability).
 /// Returns a list of (second_level_dir, namespaces_found_in) violations.
-pub(crate) fn find_duplicate_second_level_directories(trait_dirs: &[String]) -> Vec<(String, Vec<String>)> {
+pub(crate) fn find_duplicate_second_level_directories(
+    trait_dirs: &[String],
+) -> Vec<(String, Vec<String>)> {
     let mut second_level_map: HashMap<String, Vec<String>> = HashMap::new();
 
     for dir_path in trait_dirs {
@@ -1965,7 +1974,7 @@ pub(crate) fn find_duplicate_second_level_directories(trait_dirs: &[String]) -> 
 
         second_level_map
             .entry(second_level.to_string())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(namespace.to_string());
     }
 
@@ -2378,8 +2387,7 @@ pub(crate) fn find_alternation_merge_candidates(
 
     // Regex to extract prefix (first word-like token) and suffix
     // Match patterns like: ^word or ^word\s or ^word[^a-z]
-    let prefix_regex =
-        regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex");
+    let prefix_regex = prefix_regex();
 
     // For each group, find patterns that share a common suffix
     for (_key, traits) in groups {
@@ -2508,64 +2516,6 @@ pub(crate) fn find_banned_directory_segments(trait_dirs: &[String]) -> Vec<(Stri
         }
     }
 
-    violations
-}
-
-/// Find paths with duplicate words across segments.
-/// e.g., "obj/anti-analysis/analysis/" or "cap/exec/execute/"
-/// Returns: Vec<(directory_path, duplicate_word)>
-pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String, String)> {
-    let mut violations = Vec::new();
-
-    for dir_path in trait_dirs {
-        // Exception: firewalld is the actual name of the software
-        if dir_path.contains("firewall/firewalld") {
-            continue;
-        }
-
-        // Split path into segments and extract word stems
-        let segments: Vec<&str> = dir_path.split('/').collect();
-
-        // For each segment, extract "words" (split on - and _)
-        let mut seen_words: HashSet<String> = HashSet::new();
-
-        for segment in &segments {
-            // Split segment into constituent words
-            let words: Vec<&str> = segment.split(['-', '_']).collect();
-
-            for word in words {
-                let lower = word.to_lowercase();
-                // Skip very short words (likely abbreviations or prefixes)
-                if lower.len() < 3 {
-                    continue;
-                }
-
-                // Check for exact duplicates
-                if seen_words.contains(&lower) {
-                    violations.push((dir_path.clone(), word.to_string()));
-                    break;
-                }
-
-                // Check for stem duplicates (e.g., "exec" vs "execute", "analysis" vs "anti-analysis")
-                // Simple heuristic: if one word starts with another (min 4 chars), it's a duplicate
-                for seen in &seen_words {
-                    if seen.len() >= 4
-                        && lower.len() >= 4
-                        && (lower.starts_with(seen) || seen.starts_with(&lower))
-                    {
-                        violations.push((dir_path.clone(), word.to_string()));
-                        break;
-                    }
-                }
-
-                seen_words.insert(lower);
-            }
-        }
-    }
-
-    // Deduplicate violations (same path might trigger multiple times)
-    violations.sort();
-    violations.dedup();
     violations
 }
 
@@ -5299,6 +5249,38 @@ mod tests {
     }
 }
 
+/// Cached regex pattern for extracting prefix from regex patterns
+fn prefix_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex"))
+}
+
+/// Cached regex patterns for slow regex detection
+fn nested_quantifiers_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\([^)]*[*+]\)[*+]").expect("valid regex"))
+}
+
+fn overlapping_alternations_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\([^)]*\.\*\|[^)]*\.\*\)").expect("valid regex"))
+}
+
+fn greedy_quantifier_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\\[wWdDsS]\+\\[wWdDsS]").expect("valid regex"))
+}
+
+fn greedy_range_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\.\{[0-9]+,[0-9]*\}.+[\|\[\(]").expect("valid regex"))
+}
+
+fn large_range_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").expect("valid regex"))
+}
+
 /// Detect regex patterns that may cause catastrophic backtracking
 ///
 /// Patterns with nested quantifiers or alternations with overlapping prefixes
@@ -5319,31 +5301,29 @@ pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<S
             let mut issues = Vec::new();
 
             // Check for nested quantifiers like (a+)+ or (.*)*
-            if regex::Regex::new(r"\([^)]*[*+]\)[*+]").unwrap().is_match(&pattern) {
+            if nested_quantifiers_regex().is_match(&pattern) {
                 issues.push("nested quantifiers (e.g., (a+)+) can cause exponential backtracking");
             }
 
             // Check for overlapping alternations with wildcards like (a.*|ab.*)
-            if regex::Regex::new(r"\([^)]*\.\*\|[^)]*\.\*\)").unwrap().is_match(&pattern) {
+            if overlapping_alternations_regex().is_match(&pattern) {
                 issues.push("alternation with multiple .* patterns may cause backtracking");
             }
 
             // Check for greedy quantifiers followed by the same character class
             // e.g., \w+\w or \d+\d
-            if regex::Regex::new(r"\\[wWdDsS]\+\\[wWdDsS]").unwrap().is_match(&pattern) {
+            if greedy_quantifier_regex().is_match(&pattern) {
                 issues
                     .push("greedy quantifier followed by same character class causes backtracking");
             }
 
             // Check for patterns with .{min,max} followed by more complex matching
-            if regex::Regex::new(r"\.\{[0-9]+,[0-9]*\}.+[\|\[\(]").unwrap().is_match(&pattern) {
+            if greedy_range_regex().is_match(&pattern) {
                 issues.push("greedy range quantifier (.{n,m}) followed by complex patterns may be slow on long lines");
             }
 
             // Check for very large ranges that could match huge spans
-            if let Some(caps) =
-                regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").unwrap().captures(&pattern)
-            {
+            if let Some(caps) = large_range_regex().captures(&pattern) {
                 if let Ok(min) = caps[1].parse::<usize>() {
                     if min > 1000 {
                         issues.push(

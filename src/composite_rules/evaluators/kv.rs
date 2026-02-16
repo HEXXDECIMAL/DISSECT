@@ -246,7 +246,9 @@ pub fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
                         chars.next();
                         break;
                     }
-                    index_str.push(chars.next().unwrap());
+                    if let Some(ch) = chars.next() {
+                        index_str.push(ch);
+                    }
                 }
 
                 if index_str == "*" {

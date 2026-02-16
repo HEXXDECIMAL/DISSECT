@@ -60,13 +60,11 @@ pub fn generate_trait_graph(
         }
 
         // Update source node
-        nodes.entry(source_dir.clone()).or_insert_with(|| GraphNode {
+        let node = nodes.entry(source_dir.clone()).or_insert_with(|| GraphNode {
             trait_count: 0,
             max_criticality: Criticality::Filtered,
             criticality_sum: 0.0,
         });
-
-        let node = nodes.get_mut(&source_dir).unwrap();
         node.trait_count += 1;
         node.criticality_sum += criticality_to_f32(composite.crit);
         if composite.crit > node.max_criticality {
@@ -178,7 +176,7 @@ fn generate_dot(
     output.push_str("  rankdir=LR;\n");
     output.push_str("  node [shape=box, style=\"filled,bold\", penwidth=3, fontname=\"Arial\"];\n");
     output.push_str("  edge [fontname=\"Arial\", fontsize=10];\n");
-    output.push_str("\n");
+    output.push('\n');
 
     // Nodes
     for (path, node) in nodes {
@@ -193,7 +191,7 @@ fn generate_dot(
         ));
     }
 
-    output.push_str("\n");
+    output.push('\n');
 
     // Edges (filtered by min_refs)
     let mut edge_list: Vec<(&(String, String), &usize)> = edges.iter().collect();
@@ -228,9 +226,11 @@ fn shorten_path(path: &str) -> String {
     let segments: Vec<&str> = path.split('/').collect();
     if segments.len() <= 2 {
         path.to_string()
-    } else {
+    } else if let Some(last) = segments.last() {
         // Show first + last segments with ellipsis if too long
-        format!("{}/.../{}", segments[0], segments.last().unwrap())
+        format!("{}/.../{}", segments[0], last)
+    } else {
+        path.to_string()
     }
 }
 

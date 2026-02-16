@@ -82,4 +82,4 @@ composite_rules:
     all:
       - id: extreme-string-sparsity-macos
       - id: high-entropy-data-macos
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell

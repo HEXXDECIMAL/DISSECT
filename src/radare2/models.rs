@@ -167,6 +167,7 @@ pub struct R2Import {
     pub ordinal: Option<u32>,
 }
 
+#[allow(dead_code)] // Deserialized from JSON
 #[derive(Debug, Deserialize, Serialize)]
 pub struct R2Export {
     pub name: String,
@@ -176,6 +177,7 @@ pub struct R2Export {
     pub export_type: Option<String>,
 }
 
+#[allow(dead_code)] // Deserialized from JSON
 #[derive(Debug, Deserialize, Serialize)]
 pub struct R2Symbol {
     pub name: String,

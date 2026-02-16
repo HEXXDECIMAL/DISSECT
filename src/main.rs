@@ -35,7 +35,6 @@ mod cache;
 mod capabilities;
 mod cli;
 mod composite_rules;
-mod constant_decoder;
 mod diff;
 mod entropy;
 mod env_mapper;
@@ -45,7 +44,6 @@ mod output;
 mod path_mapper;
 mod radare2;
 mod rtf;
-mod syscall_names;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
 mod test_rules;

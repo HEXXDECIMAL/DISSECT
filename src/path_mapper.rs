@@ -217,11 +217,12 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
         paths.iter().filter_map(|p| p.access_type.as_ref()).collect();
 
     if access_types.len() == 1 && files.len() > 2 {
-        let op_type = access_types.iter().next().unwrap();
-        return DirectoryAccessPattern::BatchOperation {
-            operation: format!("{:?}", op_type),
-            count: files.len(),
-        };
+        if let Some(op_type) = access_types.iter().next() {
+            return DirectoryAccessPattern::BatchOperation {
+                operation: format!("{:?}", op_type),
+                count: files.len(),
+            };
+        }
     }
 
     DirectoryAccessPattern::MultipleSpecific { count: files.len() }

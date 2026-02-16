@@ -362,7 +362,7 @@ composite_rules:
       - { id: policy-files }
     downgrade:
       any:
-        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/dylib/library::debugger-tool-marker
 
   # Helper: selinux state + enforcing keyword combo
   - id: selinux-state-enforcing

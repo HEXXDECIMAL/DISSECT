@@ -34,6 +34,7 @@ use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 
 /// Diff analyzer for detecting supply chain attacks (xz-utils scenario)
+#[derive(Debug)]
 pub struct DiffAnalyzer {
     baseline_path: PathBuf,
     target_path: PathBuf,
@@ -141,8 +142,10 @@ impl DiffAnalyzer {
         let mut actually_modified = Vec::new();
 
         for relative_path in modified_candidates {
-            let baseline_file = baseline_files.get(&relative_path).unwrap();
-            let target_file = target_files.get(&relative_path).unwrap();
+            let (Some(baseline_file), Some(target_file)) =
+                (baseline_files.get(&relative_path), target_files.get(&relative_path)) else {
+                continue; // Should not happen since these are from intersection
+            };
 
             // Quick check: if sizes match and content matches, skip
             if let (Ok(baseline_meta), Ok(target_meta)) =
@@ -561,8 +564,10 @@ impl DiffAnalyzer {
         let mut aggregate = DiffCounts::default();
 
         for relative_path in modified_candidates {
-            let baseline_file = baseline_files.get(&relative_path).unwrap();
-            let target_file = target_files.get(&relative_path).unwrap();
+            let (Some(baseline_file), Some(target_file)) =
+                (baseline_files.get(&relative_path), target_files.get(&relative_path)) else {
+                continue; // Should not happen since these are from intersection
+            };
 
             if let (Ok(baseline_meta), Ok(target_meta)) =
                 (fs::metadata(baseline_file), fs::metadata(target_file))

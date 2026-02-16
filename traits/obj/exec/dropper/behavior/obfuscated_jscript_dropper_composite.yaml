@@ -12,16 +12,16 @@ composite_rules:
     mbc: "B0032.001" # Property Access Obfuscation
     attack: "T1027"
     all:
-      - id: cap/anti-static/obfuscation/js::js-property-concatenation-obfuscation
+      - id: obj/anti-static/obfuscation/js::js-property-concatenation-obfuscation
     any:
-      - id: cap/anti-analysis/anti-sandbox/loop::large-loop-counter
-      - id: cap/exec/load/probabilistic::retry-loop
-      - id: cap/anti-static/obfuscation/js::comparison-to-obfuscated-property
+      - id: obj/anti-analysis/anti-sandbox/loop::large-loop-counter
+      - id: cap/dylib/probabilistic::retry-loop
+      - id: obj/anti-static/obfuscation/js::comparison-to-obfuscated-property
 
   - id: obfuscated-payload-check
     desc: "Obfuscated payload check (MZ header comparison)"
     mbc: "B0032.001"
     attack: "T1027"
     all:
-      - id: cap/anti-static/obfuscation/js::comparison-to-obfuscated-property
-      - id: cap/anti-static/obfuscation/js::js-property-concatenation-obfuscation
+      - id: obj/anti-static/obfuscation/js::comparison-to-obfuscated-property
+      - id: obj/anti-static/obfuscation/js::js-property-concatenation-obfuscation

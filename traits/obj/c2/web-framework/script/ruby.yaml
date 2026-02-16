@@ -80,7 +80,7 @@ composite_rules:
       - id: rack-sendfile-hook
       - id: http-cookie-access
       - id: cap/data/encode/base64::base64-urlsafe-decode
-      - id: cap/exec/eval/dynamic::eval-call-ruby
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-ruby
       - id: alias-method-call
 
   # === Cookie-Based Code Injection ===
@@ -94,4 +94,4 @@ composite_rules:
       - id: http-cookie-access
       - id: cookie-pattern-extract
       - id: cap/data/encode/base64::base64-urlsafe-decode
-      - id: cap/exec/eval/dynamic::eval-call-ruby
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-ruby

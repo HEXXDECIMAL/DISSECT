@@ -71,4 +71,4 @@ composite_rules:
     any:
       - id: rgb-lsb-nibble-rebuild-alt
       - id: ps1-written-from-decoded-bytes
-      - id: cap/exec/command/script::powershell-script-execution
+      - id: cap/process/create/script::powershell-script-execution

@@ -73,7 +73,7 @@ composite_rules:
       - id: cap/mem/anonymous/create::memfd-create
     any:
       - id: fexecve-symbol
-      - id: cap/exec/command/shell::c-execve
+      - id: cap/process/create/shell::c-execve
       - id: cap/mem/protect/modify::mprotect
 
   - id: python-shellcode

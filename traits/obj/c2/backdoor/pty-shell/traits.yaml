@@ -102,4 +102,4 @@ composite_rules:
       - id: pty-alloc-symbols
       - id: cap/comm/socket/
       - id: cap/process/fd/dup::dup2
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::shell-symbols

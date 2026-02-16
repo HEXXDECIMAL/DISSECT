@@ -28,7 +28,7 @@ traits:
       type: string
       regex: "shell_exec|passthru|popen\\("
     unless:
-      - id: cap/exec/gtfobins/ruby-shell-exec
+      - id: obj/exec/gtfobins/ruby-shell-exec
 
   # === Shell Prompt Pattern ===
   - id: shell-prompt-string
@@ -52,7 +52,7 @@ composite_rules:
       - id: web-shell-cmd-param
       - id: php-shell-function
       - id: cap/data/control-flow/analysis::ruby-while-true
-      - id: cap/exec/command/shell::ruby-system
+      - id: cap/process/create/shell::ruby-system
 
   # === Interactive Shell Client ===
   - id: interactive-shell-client
@@ -67,4 +67,4 @@ composite_rules:
       - id: cap/os/console/io::exit-command-check
       - id: cap/data/control-flow/analysis::ruby-while-true
       - id: cap/comm/http/lib/netlib::open-uri
-      - id: cap/exec/command/shell::ruby-system
+      - id: cap/process/create/shell::ruby-system

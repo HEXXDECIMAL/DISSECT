@@ -16,9 +16,9 @@ traits:
     # Reading env vars is completely normal for system libs, video drivers, etc.
     downgrade:
       any:
-        - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library::graphics-lib-marker
-        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/dylib/load/video-lib-marker
+        - id: cap/dylib/library::graphics-lib-marker
+        - id: cap/dylib/library::system-lib-marker
 
   - id: setenv
     desc: setenv function (set environment variable)

@@ -17,6 +17,7 @@ use std::path::Path;
 const MMAP_THRESHOLD: u64 = 10 * 1024 * 1024; // 10 MB
 
 /// File data that can be either memory-mapped or owned.
+#[derive(Debug)]
 pub enum FileData {
     /// Memory-mapped file (zero-copy, for large files)
     Mapped(Mmap),

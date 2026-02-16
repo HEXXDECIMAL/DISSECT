@@ -48,6 +48,6 @@ composite_rules:
     # Combines ratio anomaly with high entropy and execution capability
     all:
       - id: macho-extreme-data-to-code-ratio
-      - id: cap/exec/command/shell::system-call-symbol
+      - id: cap/process/create/shell::system-call-symbol
     none:
       - id: meta/signed/platform::apple

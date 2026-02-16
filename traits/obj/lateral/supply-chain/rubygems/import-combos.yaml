@@ -82,7 +82,7 @@ traits:
       regex: "Open3\\.(capture|popen)"
 
   # === Eval patterns ===
-  # NOTE: eval-call moved to cap/exec/eval/dynamic (content type, not string)
+  # NOTE: eval-call moved to obj/exec/eval/dynamic (content type, not string)
 
   - id: instance-eval
     desc: instance_eval call
@@ -92,7 +92,7 @@ traits:
       type: string
       word: "instance_eval"
 
-  # Removed class-eval duplicate - use cap/exec/eval/dynamic::class-eval
+  # Removed class-eval duplicate - use obj/exec/interpreter/eval/dynamic::class-eval
 
   # === Base64 patterns ===
   - id: base64-decode
@@ -259,7 +259,7 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: cap/exec/eval/dynamic::eval-call-ruby
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-ruby
       - id: instance-eval
       - id: class-eval
 
@@ -403,9 +403,9 @@ composite_rules:
     attack: "T1059"
     all:
       - id: obj/lateral/supply-chain/rubygems::extconf-file
-      - id: cap/exec/dropper/script::ruby-ast-rename-to-exe
+      - id: obj/exec/dropper/script::ruby-ast-rename-to-exe
     any:
-      - id: cap/exec/command/shell/lang::ruby-exec
+      - id: cap/process/create/shell/lang::ruby-exec
 
   # Build script fetches remote content and then renames+executes payload.
   - id: extconf-http-fetch-rename-exec
@@ -415,9 +415,9 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: extconf-file
-      - id: cap/exec/script/extconf::extconf-http-fetch
-      - id: cap/exec/dropper/script::ruby-ast-rename-to-exe
-      - id: cap/exec/command/shell/lang::ruby-exec
+      - id: obj/exec/interpreter/script/extconf::extconf-http-fetch
+      - id: obj/exec/dropper/script::ruby-ast-rename-to-exe
+      - id: cap/process/create/shell/lang::ruby-exec
 
   # Generic rename and execute in extconf.rb (handles variable arguments)
   - id: extconf-rename-exec-generic
@@ -426,5 +426,5 @@ composite_rules:
     conf: 0.95
     all:
       - id: extconf-file
-      - id: cap/exec/dropper/script::ruby-ast-file-rename
-      - id: cap/exec/command/shell/lang::ruby-exec
+      - id: obj/exec/dropper/script::ruby-ast-file-rename
+      - id: cap/process/create/shell/lang::ruby-exec

@@ -126,7 +126,7 @@ composite_rules:
       - id: cap/comm/socket/create::socket-call
       - id: cap/comm/socket/create::open-call
       - id: cap/comm/socket/create::fd-redirect
-      - id: cap/exec/command/shell::sh-interactive
+      - id: cap/process/create/shell::sh-interactive
 
   - id: mkfifo-netcat-shell
     desc: Reverse shell via mkfifo and
@@ -137,7 +137,7 @@ composite_rules:
     platforms: [linux, macos, unix]
     all:
       - id: cap/fs/pipe/fifo::mkfifo-cmd
-      - id: cap/exec/command/shell::sh-interactive
+      - id: cap/process/create/shell::sh-interactive
       - id: nc-pipe
 
   - id: go-reverse-shell
@@ -149,8 +149,8 @@ composite_rules:
     platforms: [all]
     for: [elf, macho]
     any:
-      - id: cap/exec/command/shell::bin-bash
-      - id: cap/exec/command/shell::bin-sh
+      - id: cap/process/create/shell::bin-bash
+      - id: cap/process/create/shell::bin-sh
     all:
       - id: obj/c2/reverse-shell/socket::exec-cmd-run
       - id: go-child-stdin
@@ -166,5 +166,5 @@ composite_rules:
       - id: reverse-keyword
       - id: cap/data/text/keywords::socket
     any:
-      - id: cap/exec/command/shell::bin-bash
-      - id: cap/exec/command/shell::bin-sh
+      - id: cap/process/create/shell::bin-bash
+      - id: cap/process/create/shell::bin-sh

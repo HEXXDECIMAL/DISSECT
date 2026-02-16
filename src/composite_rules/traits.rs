@@ -997,7 +997,11 @@ impl TraitDefinition {
     }
 
     /// Evaluate a single condition
-    fn eval_condition<'a>(&self, condition: &Condition, ctx: &EvaluationContext<'a>) -> ConditionResult {
+    fn eval_condition<'a>(
+        &self,
+        condition: &Condition,
+        ctx: &EvaluationContext<'a>,
+    ) -> ConditionResult {
         match condition {
             Condition::Symbol {
                 exact,
@@ -1806,7 +1810,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate ALL conditions must match (AND)
-    fn eval_requires_all<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
+    fn eval_requires_all<'a>(
+        &self,
+        conds: &[Condition],
+        ctx: &EvaluationContext<'a>,
+    ) -> ConditionResult {
         let mut all_evidence = Vec::new();
         let mut total_precision = 0.0f32;
 
@@ -1836,7 +1844,11 @@ impl CompositeTrait {
 
     /// Evaluate at least ONE condition must match (OR)
     /// Collects evidence from ALL matching conditions, not just the first
-    fn eval_requires_any<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
+    fn eval_requires_any<'a>(
+        &self,
+        conds: &[Condition],
+        ctx: &EvaluationContext<'a>,
+    ) -> ConditionResult {
         let mut any_matched = false;
         let mut all_evidence = Vec::new();
         let mut min_precision = f32::MAX;
@@ -1910,7 +1922,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate NONE of the conditions can match (NOT)
-    fn eval_requires_none<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
+    fn eval_requires_none<'a>(
+        &self,
+        conds: &[Condition],
+        ctx: &EvaluationContext<'a>,
+    ) -> ConditionResult {
         for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
@@ -1939,7 +1955,11 @@ impl CompositeTrait {
     }
 
     /// Evaluate a single condition
-    fn eval_condition<'a>(&self, condition: &Condition, ctx: &EvaluationContext<'a>) -> ConditionResult {
+    fn eval_condition<'a>(
+        &self,
+        condition: &Condition,
+        ctx: &EvaluationContext<'a>,
+    ) -> ConditionResult {
         match condition {
             Condition::Symbol {
                 exact,

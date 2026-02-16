@@ -9,7 +9,7 @@
 # - Dynamic linker implementations
 #
 # NOTE: Neutral library paths moved to cap/fs/path/library/
-# NOTE: Neutral library names moved to cap/exec/load/library/names
+# NOTE: Neutral library names moved to cap/dylib/load/library/names
 # NOTE: Neutral architecture strings moved to cap/os/platform/architecture/
 
 defaults:
@@ -130,7 +130,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/load/library/ssl
+      - id: cap/dylib/library/ssl
 
   # Library resolver functionality
   - id: lib-resolver-fn

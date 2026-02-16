@@ -70,7 +70,10 @@ impl super::JavaClassAnalyzer {
         self.parse_type_descriptor(&mut chars)
     }
 
-    fn parse_type_descriptor<'a>(&self, chars: &mut std::iter::Peekable<std::str::Chars<'a>>) -> String {
+    fn parse_type_descriptor<'a>(
+        &self,
+        chars: &mut std::iter::Peekable<std::str::Chars<'a>>,
+    ) -> String {
         match chars.next() {
             Some('B') => "byte".to_string(),
             Some('C') => "char".to_string(),
@@ -89,7 +92,9 @@ impl super::JavaClassAnalyzer {
                         chars.next();
                         break;
                     }
-                    class_name.push(chars.next().unwrap());
+                    if let Some(ch) = chars.next() {
+                        class_name.push(ch);
+                    }
                 }
                 class_name.replace('/', ".")
             },

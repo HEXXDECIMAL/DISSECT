@@ -13,17 +13,17 @@ composite_rules:
     mbc: "C0027"
     all:
       # Packing indicator (Rust-generated)
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
       # Crypto capability
       - id: cap/crypto
     needs: 2
     any:
       # Dynamic loading (import obfuscation)
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
       # Execution
-      - id: cap/exec/shell/methods::shell-execute-a
-      - id: cap/exec/shell/methods::shell-execute
+      - id: cap/process/create/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute
       # Specific crypto APIs
       - id: cap/crypto/certificate/store::cert-open-store
 
@@ -36,15 +36,15 @@ composite_rules:
     mbc: "B0032"
     all:
       # High entropy section
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
       # Dominant section (single section is 85%+ of binary)
       - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
       # Dynamic loading capability
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
     any:
       # Additional suspicious capabilities
-      - id: cap/exec/shell/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute-a
       - id: cap/crypto/certificate/store::cert-open-store
       - id: cap/mem/protect/modify::virtualprotect
 
@@ -57,14 +57,14 @@ composite_rules:
     mbc: "B0032"
     all:
       # High entropy executable section
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
       # Tiny string section
       - id: obj/anti-static/obfuscation/strings/encoding::tiny-cstring-section
     needs: 2
     any:
       # Execution capabilities
-      - id: cap/exec/shell
-      - id: cap/exec/native/api::load-library-a
+      - id: cap/process/create/shell
+      - id: obj/exec/native/api::load-library-a
       - id: cap/crypto
 
   - id: minimal-import-high-entropy
@@ -74,7 +74,7 @@ composite_rules:
     for: [pe]
     attack: "T1027"
     all:
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
     any:
       - id: obj/anti-static/obfuscation/payload::shell-exec-minimal-imports
       - id: obj/anti-static/obfuscation/imports::minimal-imports-suspicious-apis

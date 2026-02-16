@@ -39,5 +39,5 @@ composite_rules:
     near_lines: 50
     all:
       - id: cap/fs/file/open::generic
-      - id: cap/exec/command/subprocess::run-call
+      - id: cap/process/create/subprocess::run-call
       - id: temp-dir-reference

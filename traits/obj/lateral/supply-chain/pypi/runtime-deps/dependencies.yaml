@@ -20,5 +20,5 @@ composite_rules:
     desc: Runtime installation of hub-sdk
     conf: 0.9
     all:
-      - id: cap/exec/autoinstall/pip::check-requirements-call
+      - id: obj/exec/autoinstall/pip::check-requirements-call
       - id: hub-sdk-string

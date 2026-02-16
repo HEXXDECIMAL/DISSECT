@@ -10,12 +10,12 @@ composite_rules:
     desc: Counter Dropper URL parameters
     crit: notable
     any:
-      - id: cap/c2/uri/fragment::uri-fragment-counter-id-param
-      - id: cap/c2/uri/fragment::uri-fragment-counter-rnd-param
+      - id: obj/c2/uri/fragment::uri-fragment-counter-id-param
+      - id: obj/c2/uri/fragment::uri-fragment-counter-rnd-param
 
   - id: js-counter-dropper-behavior
     desc: JScript Counter-Dropper behavior (obfuscated + C2 fragments)
     all:
-      - id: cap/c2/uri/fragment::uri-fragment-counter-path-unte
+      - id: obj/c2/uri/fragment::uri-fragment-counter-path-unte
       - id: obj/exec/downloader/behavior::js-counter-dropper-params
-      - id: cap/exec/script/wsh
+      - id: obj/exec/interpreter/script/wsh

@@ -48,7 +48,7 @@ composite_rules:
     any:
       - id: meta/format::tiny-elf
       - id: meta/hardening::stripped-binary
-      - id: cap/exec/command/shell::system-call-symbol
+      - id: cap/process/create/shell::system-call-symbol
       - id: cap/process/terminate/tool::killall
 
   - id: web-server-killer

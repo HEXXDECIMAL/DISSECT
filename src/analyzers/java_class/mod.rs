@@ -12,6 +12,7 @@ mod helpers;
 mod parsing;
 mod tests;
 
+#[derive(Debug)]
 pub struct JavaClassAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }

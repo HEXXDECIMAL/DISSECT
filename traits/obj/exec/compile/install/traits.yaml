@@ -13,7 +13,7 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: cap/exec/command/shell::gcc-invocation
+      - id: cap/process/create/shell::gcc-invocation
       - id: obj/anti-forensics/self-delete/file::rm-install-artifacts
 
   - id: installer-multipart-compile
@@ -24,6 +24,6 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: cap/exec/command/shell::gcc-invocation
+      - id: cap/process/create/shell::gcc-invocation
       - id: cap/fs/file/read::read
       - id: obj/impact/system/directory::recursive-delete-cmd

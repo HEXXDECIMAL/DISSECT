@@ -73,6 +73,7 @@ pub fn create_language_feature(
 /// 11. Record analysis duration
 ///
 /// See individual language analyzers for examples (python, ruby, php, etc.)
+#[derive(Debug)]
 pub struct AnalysisPipeline;
 
 #[cfg(test)]

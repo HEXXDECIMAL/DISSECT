@@ -73,7 +73,7 @@ composite_rules:
       - id: large-data-absolute-macos
     any:
       - id: obj/anti-static/obfuscation/payload::high-entropy-data-macos
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
 
   # ELF version
   - id: obfuscated-data-payload-elf

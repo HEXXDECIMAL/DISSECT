@@ -11,8 +11,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/command/launch::python-start-process
-      - id: cap/exec/command/launch::os-startfile-call
+      - id: cap/process/create/launch::python-start-process
+      - id: cap/process/create/launch::os-startfile-call
 
   # Helper: Any network activity
   - id: python-network-combo

@@ -11,6 +11,6 @@ composite_rules:
   - id: ruby-os-dependent-dropper
     desc: OS-dependent execution with file manipulation (generic dropper behavior)
     all:
-      - id: cap/exec/command/shell/lang::ruby-exec
+      - id: cap/process/create/shell/lang::ruby-exec
       - id: obj/exec/dropper/behavior::ruby-os-check
       - id: obj/exec/dropper/behavior::ruby-file-manipulation

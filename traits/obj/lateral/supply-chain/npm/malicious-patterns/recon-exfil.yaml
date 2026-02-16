@@ -8,9 +8,9 @@ composite_rules:
       - id: obj/lateral/supply-chain/npm/metadata::postinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::preinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::install-hook-key
-      - id: cap/exec/script/npm/hooks::npm-postinstall-script
-      - id: cap/exec/script/npm/hooks::npm-preinstall-script
-      - id: cap/exec/script/npm/hooks::npm-install-script
+      - id: obj/exec/interpreter/script/npm/hooks::npm-postinstall-script
+      - id: obj/exec/interpreter/script/npm/hooks::npm-preinstall-script
+      - id: obj/exec/interpreter/script/npm/hooks::npm-install-script
 
   - id: npm-exfil-method
     desc: Exfiltration method for npm scripts
@@ -22,7 +22,7 @@ composite_rules:
       - id: obj/c2/dns-tunnel/exfil::subdomain-encode
       - id: obj/lateral/supply-chain/npm/install::script-curl
       - id: obj/lateral/supply-chain/npm/install::script-wget
-      - id: cap/exec/shell/methods::curl-pipe-sh
+      - id: cap/process/create/methods::curl-pipe-sh
       - id: obj/exfil/channel/http::curl-upload-file
 
   - id: npm-recon-commands
@@ -30,9 +30,9 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: cap/exec/shell/recon::sys-info-discovery
-      - id: cap/exec/shell/recon::process-discovery
-      - id: cap/exec/shell/recon::npm-config-discovery
+      - id: cap/process/create/shell/recon::sys-info-discovery
+      - id: cap/process/create/shell/recon::process-discovery
+      - id: cap/process/create/shell/recon::npm-config-discovery
 
   - id: npm-install-recon-exfil
     desc: NPM install hook performs system reconnaissance and exfiltration

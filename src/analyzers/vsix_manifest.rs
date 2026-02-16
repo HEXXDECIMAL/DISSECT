@@ -11,6 +11,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 /// VSCode extension.vsixmanifest analyzer
+#[derive(Debug)]
 pub struct VsixManifestAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }

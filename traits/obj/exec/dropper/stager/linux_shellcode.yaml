@@ -6,5 +6,5 @@ composite_rules:
     attack: T1055
     mbc: B0004
     conditions:
-      - id: cap/anti-analysis/obfuscation/code::fpu-getpc
-      - id: cap/exec/dropper/loader::elf-mmap-wx
+      - id: obj/anti-analysis/obfuscation/code::fpu-getpc
+      - id: obj/exec/dropper/loader::elf-mmap-wx

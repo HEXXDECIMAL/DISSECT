@@ -148,7 +148,7 @@ composite_rules:
     for: [shell, package.json]
     all:
       - id: cap/fs/pipe/fifo::mkfifo-cmd
-      - id: cap/exec/command/shell::sh-interactive
+      - id: cap/process/create/shell::sh-interactive
       - id: nc-pipe
 
   # Netcat reverse shell variants

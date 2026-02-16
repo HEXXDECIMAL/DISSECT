@@ -83,13 +83,16 @@ impl ArchiveAnalyzer {
                 if let Ok(matches) = yara_engine.scan_file(entry.path()) {
                     if !matches.is_empty() {
                         // This class triggered YARA rules - mark for full analysis
-                        yara_flagged_classes.lock().unwrap().insert(entry.path().to_path_buf());
+                        if let Ok(mut flagged) = yara_flagged_classes.lock() {
+                            flagged.insert(entry.path().to_path_buf());
+                        }
 
                         // Record the YARA matches
-                        let mut all_matches = yara_matches.lock().unwrap();
-                        for yara_match in matches {
-                            if !all_matches.iter().any(|m: &YaraMatch| m.rule == yara_match.rule) {
-                                all_matches.push(yara_match);
+                        if let Ok(mut all_matches) = yara_matches.lock() {
+                            for yara_match in matches {
+                                if !all_matches.iter().any(|m: &YaraMatch| m.rule == yara_match.rule) {
+                                    all_matches.push(yara_match);
+                                }
                             }
                         }
                     }
@@ -102,13 +105,13 @@ impl ArchiveAnalyzer {
         }
 
         let flagged_classes = Arc::try_unwrap(yara_flagged_classes)
-            .expect("YARA scan should be done")
+            .map_err(|_| anyhow::anyhow!("YARA scan Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("YARA flagged classes lock poisoned"))?;
         let collected_yara_matches = Arc::try_unwrap(yara_matches)
-            .expect("YARA scan should be done")
+            .map_err(|_| anyhow::anyhow!("YARA matches Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("YARA matches lock poisoned"))?;
 
         // Add collected YARA matches to report
         for ym in collected_yara_matches {
@@ -204,19 +207,25 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries.lock().unwrap().push(entry_metadata);
+                if let Ok(mut entries) = collected_archive_entries.lock() {
+                    entries.push(entry_metadata);
+                }
             }
 
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-                let mut caps = total_capabilities.lock().unwrap();
-                let mut traits = total_traits.lock().unwrap();
-                let mut all_traits = collected_traits.lock().unwrap();
-                let mut all_yara = collected_yara.lock().unwrap();
-                let mut all_strings = collected_strings.lock().unwrap();
-                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_files = collected_files.lock().unwrap();
+                let (Ok(mut caps), Ok(mut traits), Ok(mut all_traits), Ok(mut all_yara), Ok(mut all_strings), Ok(mut all_archive_entries), Ok(mut all_files)) = (
+                    total_capabilities.lock(),
+                    total_traits.lock(),
+                    collected_traits.lock(),
+                    collected_yara.lock(),
+                    collected_strings.lock(),
+                    collected_archive_entries.lock(),
+                    collected_files.lock(),
+                ) else {
+                    return; // Skip this file if any lock is poisoned
+                };
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -318,16 +327,19 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries.lock().unwrap().push(entry_metadata);
+                if let Ok(mut entries) = collected_archive_entries.lock() {
+                    entries.push(entry_metadata);
+                }
             }
 
             // Run YARA on non-class files
             if let Some(ref yara_engine) = self.yara_engine {
                 if let Ok(matches) = yara_engine.scan_file(entry.path()) {
-                    let mut all_yara = collected_yara.lock().unwrap();
-                    for yara_match in matches {
-                        if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
-                            all_yara.push(yara_match);
+                    if let Ok(mut all_yara) = collected_yara.lock() {
+                        for yara_match in matches {
+                            if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
+                                all_yara.push(yara_match);
+                            }
                         }
                     }
                 }
@@ -337,13 +349,17 @@ impl ArchiveAnalyzer {
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-                let mut caps = total_capabilities.lock().unwrap();
-                let mut traits = total_traits.lock().unwrap();
-                let mut all_traits = collected_traits.lock().unwrap();
-                let mut all_yara = collected_yara.lock().unwrap();
-                let mut all_strings = collected_strings.lock().unwrap();
-                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_files = collected_files.lock().unwrap();
+                let (Ok(mut caps), Ok(mut traits), Ok(mut all_traits), Ok(mut all_yara), Ok(mut all_strings), Ok(mut all_archive_entries), Ok(mut all_files)) = (
+                    total_capabilities.lock(),
+                    total_traits.lock(),
+                    collected_traits.lock(),
+                    collected_yara.lock(),
+                    collected_strings.lock(),
+                    collected_archive_entries.lock(),
+                    collected_files.lock(),
+                ) else {
+                    return; // Skip this file if any lock is poisoned
+                };
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -410,34 +426,51 @@ impl ArchiveAnalyzer {
 
         // Merge collected results into the report
         let total_capabilities = Arc::try_unwrap(total_capabilities)
-            .expect("All parallel tasks should be done")
+            .map_err(|_| anyhow::anyhow!("total_capabilities Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("total_capabilities lock poisoned"))?;
         let total_traits = Arc::try_unwrap(total_traits)
-            .expect("All parallel tasks should be done")
+            .map_err(|_| anyhow::anyhow!("total_traits Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("total_traits lock poisoned"))?;
         let files_analyzed = files_analyzed.load(std::sync::atomic::Ordering::Relaxed);
 
-        for t in Arc::try_unwrap(collected_traits).expect("done").into_inner().unwrap() {
+        for t in Arc::try_unwrap(collected_traits)
+            .map_err(|_| anyhow::anyhow!("collected_traits Arc unwrap failed"))?
+            .into_inner()
+            .map_err(|_| anyhow::anyhow!("collected_traits lock poisoned"))?
+        {
             if !report.findings.iter().any(|existing| existing.id == t.id) {
                 report.findings.push(t);
             }
         }
-        for ym in Arc::try_unwrap(collected_yara).expect("done").into_inner().unwrap() {
+        for ym in Arc::try_unwrap(collected_yara)
+            .map_err(|_| anyhow::anyhow!("collected_yara Arc unwrap failed"))?
+            .into_inner()
+            .map_err(|_| anyhow::anyhow!("collected_yara lock poisoned"))?
+        {
             if !report.yara_matches.iter().any(|m| m.rule == ym.rule) {
                 report.yara_matches.push(ym);
             }
         }
-        report
-            .strings
-            .extend(Arc::try_unwrap(collected_strings).expect("done").into_inner().unwrap());
-        report.archive_contents.extend(
-            Arc::try_unwrap(collected_archive_entries).expect("done").into_inner().unwrap(),
+        report.strings.extend(
+            Arc::try_unwrap(collected_strings)
+                .map_err(|_| anyhow::anyhow!("collected_strings Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_strings lock poisoned"))?,
         );
-        report
-            .files
-            .extend(Arc::try_unwrap(collected_files).expect("done").into_inner().unwrap());
+        report.archive_contents.extend(
+            Arc::try_unwrap(collected_archive_entries)
+                .map_err(|_| anyhow::anyhow!("collected_archive_entries Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_archive_entries lock poisoned"))?,
+        );
+        report.files.extend(
+            Arc::try_unwrap(collected_files)
+                .map_err(|_| anyhow::anyhow!("collected_files Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_files lock poisoned"))?,
+        );
 
         // Add metadata about archive contents
         report.metadata.errors.push(format!(
@@ -564,16 +597,19 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries.lock().unwrap().push(entry_metadata);
+                if let Ok(mut entries) = collected_archive_entries.lock() {
+                    entries.push(entry_metadata);
+                }
             }
 
             // Run YARA scan on extracted file if engine is available
             if let Some(ref yara_engine) = self.yara_engine {
                 if let Ok(matches) = yara_engine.scan_file(entry.path()) {
-                    let mut all_yara = collected_yara.lock().unwrap();
-                    for yara_match in matches {
-                        if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
-                            all_yara.push(yara_match);
+                    if let Ok(mut all_yara) = collected_yara.lock() {
+                        for yara_match in matches {
+                            if !all_yara.iter().any(|m| m.rule == yara_match.rule) {
+                                all_yara.push(yara_match);
+                            }
                         }
                     }
                 }
@@ -582,13 +618,27 @@ impl ArchiveAnalyzer {
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-                let mut caps = total_capabilities.lock().unwrap();
-                let mut traits = total_traits.lock().unwrap();
-                let mut all_traits = collected_traits.lock().unwrap();
-                let mut all_yara = collected_yara.lock().unwrap();
-                let mut all_strings = collected_strings.lock().unwrap();
-                let mut all_archive_entries = collected_archive_entries.lock().unwrap();
-                let mut all_files = collected_files.lock().unwrap();
+                let Ok(mut caps) = total_capabilities.lock() else {
+                    return;
+                };
+                let Ok(mut traits) = total_traits.lock() else {
+                    return;
+                };
+                let Ok(mut all_traits) = collected_traits.lock() else {
+                    return;
+                };
+                let Ok(mut all_yara) = collected_yara.lock() else {
+                    return;
+                };
+                let Ok(mut all_strings) = collected_strings.lock() else {
+                    return;
+                };
+                let Ok(mut all_archive_entries) = collected_archive_entries.lock() else {
+                    return;
+                };
+                let Ok(mut all_files) = collected_files.lock() else {
+                    return;
+                };
 
                 // Aggregate findings
                 for f in &file_report.findings {
@@ -656,34 +706,51 @@ impl ArchiveAnalyzer {
 
         // Merge collected results into the report
         let total_capabilities = Arc::try_unwrap(total_capabilities)
-            .expect("All parallel tasks should be done")
+            .map_err(|_| anyhow::anyhow!("total_capabilities Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("total_capabilities lock poisoned"))?;
         let total_traits = Arc::try_unwrap(total_traits)
-            .expect("All parallel tasks should be done")
+            .map_err(|_| anyhow::anyhow!("total_traits Arc unwrap failed"))?
             .into_inner()
-            .unwrap();
+            .map_err(|_| anyhow::anyhow!("total_traits lock poisoned"))?;
         let files_analyzed = files_analyzed.load(std::sync::atomic::Ordering::Relaxed);
 
-        for t in Arc::try_unwrap(collected_traits).expect("done").into_inner().unwrap() {
+        for t in Arc::try_unwrap(collected_traits)
+            .map_err(|_| anyhow::anyhow!("collected_traits Arc unwrap failed"))?
+            .into_inner()
+            .map_err(|_| anyhow::anyhow!("collected_traits lock poisoned"))?
+        {
             if !report.findings.iter().any(|existing| existing.id == t.id) {
                 report.findings.push(t);
             }
         }
-        for ym in Arc::try_unwrap(collected_yara).expect("done").into_inner().unwrap() {
+        for ym in Arc::try_unwrap(collected_yara)
+            .map_err(|_| anyhow::anyhow!("collected_yara Arc unwrap failed"))?
+            .into_inner()
+            .map_err(|_| anyhow::anyhow!("collected_yara lock poisoned"))?
+        {
             if !report.yara_matches.iter().any(|m| m.rule == ym.rule) {
                 report.yara_matches.push(ym);
             }
         }
-        report
-            .strings
-            .extend(Arc::try_unwrap(collected_strings).expect("done").into_inner().unwrap());
-        report.archive_contents.extend(
-            Arc::try_unwrap(collected_archive_entries).expect("done").into_inner().unwrap(),
+        report.strings.extend(
+            Arc::try_unwrap(collected_strings)
+                .map_err(|_| anyhow::anyhow!("collected_strings Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_strings lock poisoned"))?,
         );
-        report
-            .files
-            .extend(Arc::try_unwrap(collected_files).expect("done").into_inner().unwrap());
+        report.archive_contents.extend(
+            Arc::try_unwrap(collected_archive_entries)
+                .map_err(|_| anyhow::anyhow!("collected_archive_entries Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_archive_entries lock poisoned"))?,
+        );
+        report.files.extend(
+            Arc::try_unwrap(collected_files)
+                .map_err(|_| anyhow::anyhow!("collected_files Arc unwrap failed"))?
+                .into_inner()
+                .map_err(|_| anyhow::anyhow!("collected_files lock poisoned"))?,
+        );
 
         // Add metadata about archive contents
         report.metadata.errors.push(format!(

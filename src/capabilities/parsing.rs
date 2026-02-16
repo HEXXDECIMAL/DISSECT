@@ -11,11 +11,6 @@ use std::collections::HashSet;
 
 use super::models::{RawCompositeRule, RawTraitDefinition, TraitDefaults};
 
-/// Check if a string value is the special "none" keyword to unset a default
-pub(crate) fn is_unset(value: &Option<String>) -> bool {
-    value.as_ref().map(|v| v.eq_ignore_ascii_case("none")).unwrap_or(false)
-}
-
 /// Apply default for Option<String> fields, supporting "none" to unset
 /// - If raw is Some("none"), return None (explicit unset)
 /// - If raw is Some(value), return Some(value)

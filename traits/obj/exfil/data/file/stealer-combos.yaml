@@ -48,9 +48,9 @@ composite_rules:
       - id: cap/comm/download/curl::libcurl-http
       - id: cap/comm/socket/create
     none:
-      - id: cap/exec/load/library::system-lib-marker
-      - id: cap/exec/load/library::network-lib-marker
-      - id: cap/exec/load/library::debugger-tool-marker
+      - id: cap/dylib/library::system-lib-marker
+      - id: cap/dylib/library::network-lib-marker
+      - id: cap/dylib/library::debugger-tool-marker
       - id: meta/signed/platform::apple
       - id: meta/signed/id::com.apple.xpc.launchd
 
@@ -117,7 +117,7 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: cap/exec/dropper/script::curl-download
+      - id: obj/exec/dropper/script::curl-download
       - id: obj/creds/browser/chromium::cookies-path
-      - id: cap/exec/dropper/payload::cp-execute
+      - id: obj/exec/dropper/payload::cp-execute
       - id: cap/comm/http/upload::curl-upload-file

@@ -15,8 +15,16 @@ use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, YaraMatch}
 use anyhow::Result;
 use colored::Colorize;
 use std::collections::HashMap;
+use std::sync::OnceLock;
+
+/// Cached regex for stripping ANSI escape codes
+fn ansi_strip_regex() -> &'static regex::Regex {
+    static RE: OnceLock<regex::Regex> = OnceLock::new();
+    RE.get_or_init(|| regex::Regex::new(r"\x1b\[[0-9;]*m").expect("valid regex"))
+}
 
 /// Program summary for quick classification
+#[derive(Debug)]
 pub struct ProgramSummary {
     /// Classification: "infostealer", "ransomware", "backdoor", "cryptominer", "legitimate", "unknown"
     pub classification: String,
@@ -482,7 +490,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 
     // Compile ANSI strip regex once, outside all loops
-    let ansi_re = regex::Regex::new(r"\x1b\[[0-9;]*m").unwrap();
+    let ansi_re = ansi_strip_regex();
 
     // Iterate over files that have findings
     for file in &report.files {
@@ -574,7 +582,9 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
 
         // Render each namespace
         for ns in &namespaces {
-            let findings = by_namespace.get(ns).unwrap();
+            let Some(findings) = by_namespace.get(ns) else {
+                continue;
+            };
             output.push_str(&format!("│ ◇ {}\n", &namespace_long_name(ns)));
 
             let mut sorted_findings = findings.clone();

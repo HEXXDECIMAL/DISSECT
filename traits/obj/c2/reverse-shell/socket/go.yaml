@@ -81,7 +81,7 @@ traits:
       substr: "Stderr ="
 
   # === Shell path micro-traits ===
-  # NOTE: cmd-exe moved to cap/exec/script/indicators/windows.yaml to avoid duplication
+  # NOTE: cmd-exe moved to obj/exec/interpreter/script/indicators/windows.yaml to avoid duplication
 
   - id: cmd-plain
     desc: Windows cmd shell reference
@@ -109,7 +109,7 @@ composite_rules:
       - id: os-exec-command
       - id: exec-cmd-start
       - id: exec-cmd-run
-      - id: cap/exec/command/direct::exec-command
+      - id: cap/process/create/direct::exec-command
 
   # Go pipe composite
   - id: go-pipe
@@ -130,9 +130,9 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: cap/exec/command/shell::bin-sh
-      - id: cap/exec/command/shell::bin-bash
-      - id: cap/exec/command/shell::cmd-exe
+      - id: cap/process/create/shell::bin-sh
+      - id: cap/process/create/shell::bin-bash
+      - id: cap/process/create/shell::cmd-exe
       - id: cmd-plain
 
   # Go reverse shell (migrated from YARA)

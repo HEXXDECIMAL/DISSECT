@@ -12,7 +12,7 @@ traits:
     platforms: [windows]
     for: [javascript]
     if:
-      id: cap/exec/script/wsh::msxml-fragment
+      id: obj/exec/interpreter/script/wsh::msxml-fragment
 
 composite_rules:
   - id: http-client-any-obfuscated

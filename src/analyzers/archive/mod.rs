@@ -28,6 +28,7 @@ use utils::{calculate_sha256, detect_archive_type};
 /// Default maximum file size to keep in memory (100 MB)
 pub const DEFAULT_MAX_MEMORY_FILE_SIZE: u64 = 100 * 1024 * 1024;
 
+#[derive(Debug)]
 pub struct ArchiveAnalyzer {
     max_depth: usize,
     current_depth: usize,
@@ -245,18 +246,20 @@ impl ArchiveAnalyzer {
             }
 
             if let Some(risk) = &file.risk {
-                let mut max_risk = max_risk_clone.lock().unwrap();
-                *max_risk = Some(match *max_risk {
-                    Some(current) if current > *risk => current,
-                    _ => *risk,
-                });
+                if let Ok(mut max_risk) = max_risk_clone.lock() {
+                    *max_risk = Some(match *max_risk {
+                        Some(current) if current > *risk => current,
+                        _ => *risk,
+                    });
+                }
             }
 
             if let Some(file_counts) = &file.counts {
-                let mut counts = counts_clone.lock().unwrap();
-                counts.hostile += file_counts.hostile;
-                counts.suspicious += file_counts.suspicious;
-                counts.notable += file_counts.notable;
+                if let Ok(mut counts) = counts_clone.lock() {
+                    counts.hostile += file_counts.hostile;
+                    counts.suspicious += file_counts.suspicious;
+                    counts.notable += file_counts.notable;
+                }
             }
         };
 
@@ -440,17 +443,29 @@ impl ArchiveAnalyzer {
         });
 
         // Create summary from incrementally computed aggregates (no files accumulated)
+        let final_counts = match std::sync::Arc::try_unwrap(counts) {
+            Ok(mutex) => mutex
+                .into_inner()
+                .map_err(|e| anyhow::anyhow!("Failed to unwrap counts mutex: {}", e))?,
+            Err(arc) => arc
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Failed to lock counts: {}", e))?
+                .clone(),
+        };
+        let final_max_risk = match std::sync::Arc::try_unwrap(max_risk) {
+            Ok(mutex) => mutex
+                .into_inner()
+                .map_err(|e| anyhow::anyhow!("Failed to unwrap max_risk mutex: {}", e))?,
+            Err(arc) => *arc
+                .lock()
+                .map_err(|e| anyhow::anyhow!("Failed to lock max_risk: {}", e))?,
+        };
+
         report.summary = Some(ReportSummary {
             files_analyzed: files_analyzed.load(std::sync::atomic::Ordering::Relaxed),
             max_depth: max_depth.load(std::sync::atomic::Ordering::Relaxed),
-            counts: match std::sync::Arc::try_unwrap(counts) {
-                Ok(mutex) => mutex.into_inner().unwrap(),
-                Err(arc) => arc.lock().unwrap().clone(),
-            },
-            max_risk: match std::sync::Arc::try_unwrap(max_risk) {
-                Ok(mutex) => mutex.into_inner().unwrap(),
-                Err(arc) => *arc.lock().unwrap(),
-            },
+            counts: final_counts,
+            max_risk: final_max_risk,
         });
         // Keep files empty in streaming mode to save memory
         report.files = Vec::new();

@@ -65,8 +65,10 @@ fn is_env_var_name(s: &str) -> bool {
     }
 
     // Must not start with a digit
-    if s.chars().next().unwrap().is_ascii_digit() {
-        return false;
+    if let Some(first) = s.chars().next() {
+        if first.is_ascii_digit() {
+            return false;
+        }
     }
 
     // Check against known environment variables

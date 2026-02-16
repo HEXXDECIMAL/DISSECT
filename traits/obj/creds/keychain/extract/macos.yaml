@@ -7,5 +7,5 @@ composite_rules:
     attack: T1555.001
     platforms: [macos]
     all:
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
       - id: cap/os/security/mac/keychain

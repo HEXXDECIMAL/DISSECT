@@ -20,4 +20,4 @@ composite_rules:
     conf: 1.0
     all:
       - id: ruby-rename-to-exe-any
-      - id: cap/exec/command/shell/lang
+      - id: cap/process/create/shell/lang

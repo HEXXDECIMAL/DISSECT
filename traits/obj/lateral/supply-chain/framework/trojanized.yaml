@@ -293,4 +293,4 @@ composite_rules:
     for: [macho, dylib, ipa]
     all:
       - id: nanopb-framework
-      - id: cap/exec/inject/code::cbinjection-framework
+      - id: obj/defense-evasion/process/injection/code::cbinjection-framework

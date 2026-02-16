@@ -6,7 +6,7 @@ composite_rules:
     for: [ruby]
     all:
       - id: obj/lateral/supply-chain/rubygems::extconf-file
-      - id: cap/exec/command/shell/lang::ruby-exec
+      - id: cap/process/create/shell/lang::ruby-exec
 
   - id: extconf-shell-exec
     desc: "extconf.rb performs shell execution (suspicious in build scripts)"
@@ -15,7 +15,7 @@ composite_rules:
     all:
       - id: obj/lateral/supply-chain/rubygems::extconf-file
     any:
-      - id: cap/exec/command/shell/lang::ruby-system
+      - id: cap/process/create/shell/lang::ruby-system
       - id: obj/lateral/supply-chain/rubygems::backtick-exec
       - id: obj/lateral/supply-chain/rubygems::percent-x-exec
       - id: obj/lateral/supply-chain/rubygems::io-popen-exec

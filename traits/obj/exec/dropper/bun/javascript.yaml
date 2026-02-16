@@ -27,10 +27,10 @@ composite_rules:
     attack: "T1105"
     for: [javascript]
     all:
-      - id: cap/exec/command/shell/lang::js-bun-exec
+      - id: cap/process/create/shell/lang::js-bun-exec
     any:
       - id: bun-install-url
-      - id: cap/exec/dropper/script::curl-download
-      - id: cap/exec/dropper/script::wget-download
-      - id: cap/exec/dropper/script::curl-silent-stdout
+      - id: obj/exec/dropper/script::curl-download
+      - id: obj/exec/dropper/script::wget-download
+      - id: obj/exec/dropper/script::curl-silent-stdout
       - id: powershell-bun-install

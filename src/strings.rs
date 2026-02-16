@@ -7,23 +7,11 @@
 
 use crate::radare2::R2String;
 use crate::types::{StringInfo, StringType};
-use goblin::elf::Elf;
 use goblin::mach::MachO;
-use goblin::pe::PE;
 use regex::Regex;
-use rustc_hash::{FxHashSet, FxHasher};
 use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
+use std::sync::OnceLock;
 use stng::{ExtractOptions, ExtractedString, StringKind, StringMethod};
-
-/// Compute a fast hash of a string for deduplication.
-/// Uses FxHasher which is ~10x faster than SipHash for short strings.
-#[inline]
-fn hash_str(s: &str) -> u64 {
-    let mut hasher = FxHasher::default();
-    s.hash(&mut hasher);
-    hasher.finish()
-}
 
 /// Convert stng StringMethod to a string for encoding_chain tracking
 /// Only tracks actual string construction/encoding methods, not extraction sources
@@ -54,14 +42,49 @@ fn stng_method_to_string(method: StringMethod) -> String {
     .to_string()
 }
 
+// Static regex patterns compiled once
+static URL_REGEX: OnceLock<Regex> = OnceLock::new();
+static IP_REGEX: OnceLock<Regex> = OnceLock::new();
+static VERSION_IP_REGEX: OnceLock<Regex> = OnceLock::new();
+static EMAIL_REGEX: OnceLock<Regex> = OnceLock::new();
+static BASE64_REGEX: OnceLock<Regex> = OnceLock::new();
+
+fn url_regex() -> &'static Regex {
+    URL_REGEX.get_or_init(|| {
+        Regex::new(r"(?i)(https?|ftp)://[^\s<>]{1,2048}").expect("url regex is valid")
+    })
+}
+
+fn ip_regex() -> &'static Regex {
+    IP_REGEX.get_or_init(|| {
+        Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").expect("ip regex is valid")
+    })
+}
+
+fn version_ip_regex() -> &'static Regex {
+    VERSION_IP_REGEX.get_or_init(|| {
+        Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+")
+            .expect("version_ip regex is valid")
+    })
+}
+
+fn email_regex() -> &'static Regex {
+    EMAIL_REGEX.get_or_init(|| {
+        Regex::new(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}")
+            .expect("email regex is valid")
+    })
+}
+
+fn base64_regex() -> &'static Regex {
+    BASE64_REGEX.get_or_init(|| {
+        Regex::new(r"^[A-Za-z0-9+/]{16,65536}={0,2}$").expect("base64 regex is valid")
+    })
+}
+
 /// Extract and classify strings from binary data
+#[derive(Debug)]
 pub struct StringExtractor {
     min_length: usize,
-    url_regex: Regex,
-    ip_regex: Regex,
-    version_ip_regex: Regex,
-    email_regex: Regex,
-    base64_regex: Regex,
     // Unified map for O(1) classification: normalized_name -> (Type, Optional Library)
     symbol_map: HashMap<String, (StringType, Option<String>)>,
 }
@@ -70,13 +93,6 @@ impl StringExtractor {
     pub fn new() -> Self {
         Self {
             min_length: 4,
-            url_regex: Regex::new(r"(?i)(https?|ftp)://[^\s<>]{1,2048}").unwrap(),
-            // Basic IP pattern for initial detection
-            ip_regex: Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").unwrap(),
-            // Pattern to detect version strings that look like IPs (e.g., Chrome/100.0.0.0)
-            version_ip_regex: Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+").unwrap(),
-            email_regex: Regex::new(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}").unwrap(),
-            base64_regex: Regex::new(r"^[A-Za-z0-9+/]{16,65536}={0,2}$").unwrap(),
             symbol_map: HashMap::new(),
         }
     }
@@ -87,52 +103,6 @@ impl StringExtractor {
             .trim_start_matches("fcn.")
             .trim_start_matches('_')
             .to_string()
-    }
-
-    pub fn with_min_length(mut self, min_length: usize) -> Self {
-        self.min_length = min_length;
-        self
-    }
-
-    pub fn with_symbols(mut self, functions: HashSet<String>) -> Self {
-        for func in &functions {
-            let normalized = Self::normalize_symbol(func);
-            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
-        }
-        self
-    }
-
-    pub fn with_functions(mut self, functions: HashSet<String>) -> Self {
-        for func in &functions {
-            let normalized = Self::normalize_symbol(func);
-            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
-        }
-        self
-    }
-
-    pub fn with_imports(mut self, imports: HashSet<String>) -> Self {
-        for imp in &imports {
-            let normalized = Self::normalize_symbol(imp);
-            self.symbol_map.insert(normalized, (StringType::Import, None));
-        }
-        self
-    }
-
-    pub fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
-        // Update existing imports in symbol_map with library info
-        for (imp, lib) in import_libraries {
-            let normalized = Self::normalize_symbol(&imp);
-            self.symbol_map.insert(normalized, (StringType::Import, Some(lib)));
-        }
-        self
-    }
-
-    pub fn with_exports(mut self, exports: HashSet<String>) -> Self {
-        for exp in &exports {
-            let normalized = Self::normalize_symbol(exp);
-            self.symbol_map.insert(normalized, (StringType::Export, None));
-        }
-        self
     }
 
     /// Extract all strings from binary data
@@ -294,90 +264,6 @@ impl StringExtractor {
         strings
     }
 
-    /// Extract strings from a pre-parsed ELF binary with optional r2 strings.
-    ///
-    /// DEPRECATED: This method doesn't find all special string types (e.g., StackStrings).
-    /// Use `extract_smart_with_r2` instead for comprehensive extraction.
-    ///
-    /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    pub fn extract_from_elf<'a>(
-        &self,
-        elf: &Elf<'a>,
-        data: &[u8],
-        r2_strings: Option<Vec<R2String>>,
-    ) -> Vec<StringInfo> {
-        let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts =
-            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
-        if let Some(r2) = stng_r2 {
-            opts = opts.with_r2_strings(r2);
-        }
-
-        let (lang_strings, basic_strings) = rayon::join(
-            || stng::extract_from_elf(elf, data, &opts),
-            || self.extract(data, None),
-        );
-
-        self.merge_strings(lang_strings, basic_strings, data.len())
-    }
-
-    /// Extract strings from a pre-parsed PE binary with optional r2 strings.
-    ///
-    /// DEPRECATED: This method doesn't find all special string types (e.g., StackStrings).
-    /// Use `extract_smart_with_r2` instead for comprehensive extraction.
-    ///
-    /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    pub fn extract_from_pe<'a>(
-        &self,
-        pe: &PE<'a>,
-        data: &[u8],
-        r2_strings: Option<Vec<R2String>>,
-    ) -> Vec<StringInfo> {
-        let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts =
-            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
-        if let Some(r2) = stng_r2 {
-            opts = opts.with_r2_strings(r2);
-        }
-
-        let (lang_strings, basic_strings) = rayon::join(
-            || stng::extract_from_pe(pe, data, &opts),
-            || self.extract(data, None),
-        );
-
-        self.merge_strings(lang_strings, basic_strings, data.len())
-    }
-
-    /// Merge language-aware strings with basic extraction, deduplicating by value.
-    fn merge_strings(
-        &self,
-        lang_strings: Vec<ExtractedString>,
-        basic_strings: Vec<StringInfo>,
-        data_len: usize,
-    ) -> Vec<StringInfo> {
-        let estimated_count = data_len / 20;
-        // Use hash-based deduplication to avoid cloning strings into the seen set.
-        let mut seen: FxHashSet<u64> =
-            FxHashSet::with_capacity_and_hasher(estimated_count, Default::default());
-        let mut strings = Vec::with_capacity(estimated_count);
-
-        for es in lang_strings {
-            let hash = hash_str(&es.value);
-            if seen.insert(hash) {
-                strings.push(self.convert_extracted_string(es));
-            }
-        }
-
-        for s in basic_strings {
-            let hash = hash_str(&s.value);
-            if seen.insert(hash) {
-                strings.push(s);
-            }
-        }
-
-        strings
-    }
-
     /// Convert an ExtractedString from stng to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
         // Use stng's classification directly (StringType is now an alias for StringKind)
@@ -421,15 +307,15 @@ impl StringExtractor {
         let (stype, _lib_info) = match self.symbol_map.get(&normalized) {
             Some((t, l)) => (*t, l.clone()),
             None => {
-                let t = if self.url_regex.is_match(&value) {
+                let t = if url_regex().is_match(&value) {
                     StringType::Url
                 } else if self.is_real_ip(&value) {
                     StringType::IP
-                } else if self.email_regex.is_match(&value) {
+                } else if email_regex().is_match(&value) {
                     StringType::Email
                 } else if self.is_path(&value) {
                     StringType::Path
-                } else if value.len() >= 16 && self.base64_regex.is_match(&value) {
+                } else if value.len() >= 16 && base64_regex().is_match(&value) {
                     StringType::Base64
                 } else {
                     StringType::Const
@@ -456,15 +342,15 @@ impl StringExtractor {
             return *stype;
         }
 
-        if self.url_regex.is_match(value) {
+        if url_regex().is_match(value) {
             StringType::Url
         } else if self.is_real_ip(value) {
             StringType::IP
-        } else if self.email_regex.is_match(value) {
+        } else if email_regex().is_match(value) {
             StringType::Email
         } else if self.is_path(value) {
             StringType::Path
-        } else if value.len() >= 16 && self.base64_regex.is_match(value) {
+        } else if value.len() >= 16 && base64_regex().is_match(value) {
             StringType::Base64
         } else {
             StringType::Const
@@ -480,11 +366,11 @@ impl StringExtractor {
             return *stype;
         }
 
-        if self.url_regex.is_match(value) {
+        if url_regex().is_match(value) {
             StringType::Url
         } else if self.is_real_ip(value) {
             StringType::IP
-        } else if self.email_regex.is_match(value) {
+        } else if email_regex().is_match(value) {
             StringType::Email
         } else if self.is_path(value) {
             StringType::Path
@@ -512,15 +398,15 @@ impl StringExtractor {
     /// Check if string contains a real IP address (not a version string)
     fn is_real_ip(&self, s: &str) -> bool {
         // Must contain IP-like pattern
-        if !self.ip_regex.is_match(s) {
+        if !ip_regex().is_match(s) {
             return false;
         }
         // Exclude version strings like "Chrome/100.0.0.0", "Safari/537.36.0.0"
-        if self.version_ip_regex.is_match(s) {
+        if version_ip_regex().is_match(s) {
             return false;
         }
         // Validate that IP octets are in valid range (0-255)
-        if let Some(caps) = self.ip_regex.find(s) {
+        if let Some(caps) = ip_regex().find(s) {
             let ip_str = caps.as_str();
             let octets: Vec<&str> = ip_str.split('.').collect();
             if octets.len() == 4 {

@@ -28,8 +28,8 @@ traits:
         }
     downgrade:
       any:
-        - id: cap/exec/load/library::debugger-tool-marker
-        - id: cap/exec/load/compiler-tool-marker
+        - id: cap/dylib/library::debugger-tool-marker
+        - id: cap/dylib/load/compiler-tool-marker
 
   - id: rc4-strings
     desc: "RC4 encryption strings"

@@ -67,10 +67,10 @@ composite_rules:
       - id: cap/os/time/query::gettimeofday
     downgrade:
       any:
-        - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library::graphics-lib-marker
-        - id: cap/exec/load/library::system-lib-marker
-        - id: cap/exec/load/async-io-lib-marker
+        - id: cap/dylib/load/video-lib-marker
+        - id: cap/dylib/library::graphics-lib-marker
+        - id: cap/dylib/library::system-lib-marker
+        - id: cap/dylib/load/async-io-lib-marker
 
   # Delay with network = evasion or C2 beaconing
   # NOTE: nanosleep + socket is extremely common in any network program.

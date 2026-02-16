@@ -47,6 +47,6 @@ composite_rules:
     all:
       - id: tiny-cstring-section
     any:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: cap/comm/socket/create
       - id: cap/fs/file/operations::binary-file-ops

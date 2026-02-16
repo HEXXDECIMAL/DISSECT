@@ -217,7 +217,7 @@ composite_rules:
     all:
       - id: self-replication-symbols
       - id: obj/discovery/host/software::spotlight-app-enum
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::shell-symbols
 
   - id: pkill-ledger
     desc: "Kill Ledger Live process"

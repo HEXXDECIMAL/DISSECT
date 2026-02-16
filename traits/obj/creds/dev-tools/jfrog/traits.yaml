@@ -17,6 +17,6 @@ composite_rules:
 
     all:
 
-      - id: cap/exec/command/shell::jfrog-cli-export
+      - id: cap/process/create/shell::jfrog-cli-export
 
       - id: cap/data/encode/base64

@@ -27,4 +27,4 @@ composite_rules:
       - id: cap/comm/socket/create::socket-call
       - id: cap/comm/socket/create::open-call
       - id: perl-redir
-      - id: cap/exec/command/shell::sh-interactive
+      - id: cap/process/create/shell::sh-interactive

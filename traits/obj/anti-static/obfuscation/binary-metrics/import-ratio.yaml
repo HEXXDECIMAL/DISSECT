@@ -45,10 +45,10 @@ composite_rules:
       - id: max-30-imports
     any:
       # Has dynamic loading (hiding real imports)
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
-      - id: cap/exec/dylib/load::dlopen
-      - id: cap/exec/dylib/load::dlsym
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
+      - id: cap/dylib/load::dlopen
+      - id: cap/dylib/load::dlsym
 
   - id: huge-file-tiny-imports
     desc: Huge binary with minimal imports
@@ -62,10 +62,10 @@ composite_rules:
       - id: max-25-imports
     needs: 2
     any:
-      - id: cap/exec/native/api::load-library-a
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/exec/native/api::load-library-a
+      - id: obj/exec/native/api::get-proc-address
       - id: cap/crypto
-      - id: cap/exec/shell
+      - id: cap/process/create/shell
 
   - id: embedded-payload-binary
     desc: Binary with suspected embedded payload
@@ -78,12 +78,12 @@ composite_rules:
       - id: max-50-imports
     needs: 2
     any:
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
       - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
-      - id: cap/exec/shell
+      - id: cap/process/create/shell
       - id: cap/crypto
     downgrade:
       any:
-        - id: cap/exec/reflection/invoke::namespace-import
-        - id: cap/exec/reflection/invoke::method-info
-        - id: cap/exec/reflection/invoke::property-info
+        - id: obj/exec/reflection/invoke::namespace-import
+        - id: obj/exec/reflection/invoke::method-info
+        - id: obj/exec/reflection/invoke::property-info

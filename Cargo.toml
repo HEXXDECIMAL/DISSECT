@@ -17,7 +17,7 @@ members = [".", "crates/scpt", "dissect-macros"]
 [workspace.lints.rust]
 # Deny unsafe patterns and correctness issues
 unsafe_op_in_unsafe_fn = "deny"
-rust_2018_idioms = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }
 unused_must_use = "deny"
 unused_imports = "deny"
 unused_mut = "deny"
@@ -28,12 +28,12 @@ missing_docs = "warn"
 
 [workspace.lints.clippy]
 # Deny common mistakes and antipatterns
-all = "deny"
-correctness = "deny"
-suspicious = "deny"
-style = "warn"
-complexity = "warn"
-perf = "warn"
+all = { level = "deny", priority = -1 }
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "deny", priority = -1 }
+style = { level = "warn", priority = -1 }
+complexity = { level = "warn", priority = -1 }
+perf = { level = "warn", priority = -1 }
 
 # Deny specific dangerous patterns
 unwrap_used = "deny"

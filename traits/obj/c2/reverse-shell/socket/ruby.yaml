@@ -126,7 +126,7 @@ composite_rules:
     attack: "T1059"
     all:
       - id: cap/comm/socket/listen::ruby-tcp-socket
-      - id: cap/exec/command/shell::bin-sh-interactive
+      - id: cap/process/create/shell::bin-sh-interactive
 
   # Ruby reverse shell with command loop
   - id: ruby-cmd-loop-shell
@@ -153,7 +153,7 @@ composite_rules:
     attack: "T1059"
     all:
       - id: cap/os/kernel/syscall::ruby-syscall
-      - id: cap/exec/command/shell::sh-interactive
+      - id: cap/process/create/shell::sh-interactive
       - id: obj/lateral/scan/port::sym-connect
 
   # Ruby reverse shell (migrated from YARA)

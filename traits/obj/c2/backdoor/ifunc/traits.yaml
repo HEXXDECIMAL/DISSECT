@@ -17,8 +17,8 @@ composite_rules:
     all:
       - id: meta/format/elf::ifunc
     none:
-      - id: cap/exec/load/library::system-lib-marker  # Exclude glibc/libm
-      - id: cap/exec/load/go-runtime/
+      - id: cap/dylib/library::system-lib-marker  # Exclude glibc/libm
+      - id: cap/dylib/go-runtime/
 
   # === Sensitive Target Functions ===
   - id: ifunc-security-resolver
@@ -40,7 +40,7 @@ composite_rules:
       - id: meta/format/elf::ifunc
       - id: cap/os/env/vars::env-access
     none:
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::system-lib-marker
 
   - id: ifunc-with-process-discovery
     desc: IFUNC resolver combined with process discovery
@@ -50,4 +50,4 @@ composite_rules:
       - id: meta/format/elf::ifunc
       - id: cap/process/identity/query::get-pid
     none:
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::system-lib-marker

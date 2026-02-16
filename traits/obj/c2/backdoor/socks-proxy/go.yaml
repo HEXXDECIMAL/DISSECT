@@ -116,7 +116,7 @@ composite_rules:
     for: [elf, macho, go]
     all:
       - id: go-pty-strings
-      - id: cap/exec/command/shell::bin-sh
+      - id: cap/process/create/shell::bin-sh
 
   # Main detection: Go reverse shell with SOCKS proxy
   - id: go-reverse-socks

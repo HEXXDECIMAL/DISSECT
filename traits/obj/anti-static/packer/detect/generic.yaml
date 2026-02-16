@@ -92,4 +92,4 @@ composite_rules:
     all:
       - id: upx-marker
       - id: meta/format::few-sections
-      - id: cap/exec/dylib/load::webkit-framework
+      - id: cap/dylib/load::webkit-framework

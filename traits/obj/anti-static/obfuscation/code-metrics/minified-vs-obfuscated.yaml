@@ -39,7 +39,7 @@ composite_rules:
           id: minification-pattern,
         }
     any:
-      - { id: cap/exec/activex/com::activex-object-create }
+      - { id: obj/exec/activex/com::activex-object-create }
       - { id: obj/c2/rat/script::socket-command-handler }
       - {
           id: hostile-obfuscation,

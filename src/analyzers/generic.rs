@@ -19,6 +19,7 @@ use tree_sitter::Language;
 ///
 /// For languages with tree-sitter support, extracts symbols via AST.
 /// For all files, extracts strings and runs trait matching.
+#[derive(Debug)]
 pub struct GenericAnalyzer {
     file_type: FileType,
     capability_mapper: Arc<CapabilityMapper>,

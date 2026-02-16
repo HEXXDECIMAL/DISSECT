@@ -10,7 +10,7 @@ traits:
   # === Command Execution in Python ===
   # os.system, subprocess.call, etc.
 
-  # Removed os-system-string duplicate - use cap/exec/command/shell::python-os-system
+  # Removed os-system-string duplicate - use cap/process/create/shell::python-os-system
 
   # === Windows Execution Patterns ===
   # Windows-specific command execution (start command, cmd.exe)
@@ -388,8 +388,8 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: cap/exec/command/shell::python-os-system
-      - id: cap/exec/command/subprocess::methods
+      - id: cap/process/create/shell::python-os-system
+      - id: cap/process/create/subprocess::methods
 
   # === HOSTILE: PyPI Auto-Install Dropper ===
   - id: pypi-install-autoinstall-dropper
@@ -404,7 +404,7 @@ composite_rules:
     any:
       - id: pip-install-string
       - id: pip-module-string
-      - id: cap/exec/autoinstall/pip::pip-install-pattern
+      - id: obj/exec/autoinstall/pip::pip-install-pattern
 
   # === Windows Command Execution ===
   - id: windows-start-exec
@@ -503,7 +503,7 @@ composite_rules:
       - id: robust-setup-py
       - id: obj/c2/infrastructure/ip::http-raw-ip-url
       - id: binary-file-write
-      - id: cap/exec/command/subprocess::methods
+      - id: cap/process/create/subprocess::methods
 
   # === Windows File Rename-Execute-Delete Dropper ===
   - id: windows-rename-execute-delete
@@ -513,7 +513,7 @@ composite_rules:
     mbc: "E1204"
     attack: "T1059.003"
     all:
-      - id: cap/exec/command/shell::cmd-exe
+      - id: cap/process/create/shell::cmd-exe
       - id: cmd-move-rename
       - id: cmd-del-cleanup
 
@@ -526,7 +526,7 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: cap/exec/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
 
@@ -539,7 +539,7 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: cap/exec/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
 
@@ -580,7 +580,7 @@ composite_rules:
       - id: robust-setup-py
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
-      - id: cap/exec/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -607,9 +607,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: cap/exec/dropper/stealth::subprocess-popen
+      - id: obj/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
-      - id: cap/exec/background/daemon::powershell-hidden
+      - id: obj/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
   - id: pypi-powershell-encoded-dropper
@@ -620,9 +620,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: cap/exec/dropper/stealth::subprocess-popen
+      - id: obj/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
-      - id: cap/exec/background/daemon::powershell-hidden
+      - id: obj/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
   - id: pypi-powershell-stager
@@ -635,7 +635,7 @@ composite_rules:
       - id: robust-setup-py
       - id: powershell-download-in-string
       - id: powershell-expand-archive
-      - id: cap/exec/vbscript/interpreter::vbs-powershell-launch
+      - id: obj/exec/interpreter/vbscript/interpreter::vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
   - id: pypi-extension-dropper-admin-gated

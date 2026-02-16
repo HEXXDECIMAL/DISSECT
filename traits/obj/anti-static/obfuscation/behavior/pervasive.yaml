@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     all:
       - type: trait
-        id: cap/anti-static/obfuscation/string-pattern::xor-encoded-malware
+        id: obj/anti-static/obfuscation/string-pattern::xor-encoded-malware
         count_min: 5
       - type: trait
         id: meta/encoded-payload::base64

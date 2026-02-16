@@ -465,8 +465,8 @@ composite_rules:
     # "qwerty" appears legitimately in X11/graphics libraries (keyboard layouts, test strings)
     downgrade:
       any:
-        - id: cap/exec/load/library::graphics-lib-marker
-        - id: cap/exec/load/x11-ref
+        - id: cap/dylib/library::graphics-lib-marker
+        - id: cap/dylib/load/x11-ref
 
   # Root exploitation terminology
   - id: root-exploit-ref

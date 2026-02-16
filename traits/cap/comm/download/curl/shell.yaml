@@ -67,7 +67,7 @@ composite_rules:
     conf: 0.66
     any:
       - id: curl-cmd
-      - id: cap/exec/load/library::libcurl-ref
+      - id: cap/dylib/library::libcurl-ref
       - id: curlopt-ref
 
   - id: wget

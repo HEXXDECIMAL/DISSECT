@@ -55,7 +55,6 @@ pub struct CodeSignature {
 const SUPERBLOB_MAGIC: u32 = 0xFADE0CC0;
 const CODE_DIRECTORY_MAGIC: u32 = 0xFADE0C02;
 const ENTITLEMENTS_BLOB_MAGIC: u32 = 0xFADE7171;
-const REQUIREMENTS_MAGIC: u32 = 0xFADE0C01;
 const CMS_SIGNATURE_MAGIC: u32 = 0xFADE0B01;
 
 /// Parse code signature from binary data

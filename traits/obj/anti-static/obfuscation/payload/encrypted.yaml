@@ -223,7 +223,7 @@ composite_rules:
       - id: tiny-cstring
     any:
       - id: obj/persist/daemon/init::macos-double-fork-daemon
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
 
   - id: obfuscated-elf-daemon-dropper
     desc: "Obfuscated ELF daemon dropper (embedded payload"
@@ -242,8 +242,8 @@ composite_rules:
       - id: cap/data/embedded/payload::lzma-magic
       - id: obj/persist/daemon/init::daemon-fork
     any:
-      - id: cap/exec/command/shell::shell-execution
-      - id: cap/exec/command/shell::shell-execution-indicators
+      - id: cap/process/create/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution-indicators
     unless:
       - type: string
         regex: "findutils|libtsan|sanitizer"

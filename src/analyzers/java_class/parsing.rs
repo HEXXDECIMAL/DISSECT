@@ -5,33 +5,14 @@ use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct ClassInfo {
-    pub this_class: Option<String>,
-    pub super_class: Option<String>,
-    pub interfaces: Vec<String>,
     pub strings: HashSet<String>,
     pub class_refs: HashSet<String>,
     pub methods: Vec<MethodInfo>,
-    pub fields: Vec<FieldInfo>,
-    pub access_flags: u16,
 }
 
 #[derive(Debug)]
 pub struct MethodInfo {
     pub name: String,
-    pub descriptor: String,
-    pub is_public: bool,
-    pub is_static: bool,
-    pub is_native: bool,
-    pub is_synchronized: bool,
-    pub code_length: u32,
-    pub max_stack: u16,
-    pub max_locals: u16,
-}
-
-#[derive(Debug)]
-pub struct FieldInfo {
-    pub name: String,
-    pub descriptor: String,
 }
 
 #[derive(Debug, Clone)]
@@ -39,13 +20,13 @@ pub enum ConstantPoolEntry {
     Empty,
     Utf8(String),
     Class(u16),
-    MethodRef(u16, u16),
-    NameAndType(u16, u16),
-    Integer(i32),
-    Float(f32),
-    Long(i64),
-    Double(f64),
-    String(u16),
+    MethodRef((), ()),
+    NameAndType((), ()),
+    Integer(()),
+    Float(()),
+    Long(()),
+    Double(()),
+    String(()),
 }
 
 impl super::JavaClassAnalyzer {
@@ -107,8 +88,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 2 > data.len() {
                         bail!("Truncated string entry");
                     }
-                    let string_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
-                    constant_pool[i] = ConstantPoolEntry::String(string_index);
+                    constant_pool[i] = ConstantPoolEntry::String(());
                     pos += 2;
                 },
                 10 => {
@@ -116,9 +96,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated methodref entry");
                     }
-                    let class_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
-                    let name_type_index = u16::from_be_bytes([data[pos + 2], data[pos + 3]]);
-                    constant_pool[i] = ConstantPoolEntry::MethodRef(class_index, name_type_index);
+                    constant_pool[i] = ConstantPoolEntry::MethodRef((), ());
                     pos += 4;
                 },
                 12 => {
@@ -126,9 +104,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated name and type entry");
                     }
-                    let name_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
-                    let descriptor_index = u16::from_be_bytes([data[pos + 2], data[pos + 3]]);
-                    constant_pool[i] = ConstantPoolEntry::NameAndType(name_index, descriptor_index);
+                    constant_pool[i] = ConstantPoolEntry::NameAndType((), ());
                     pos += 4;
                 },
                 3 => {
@@ -136,13 +112,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated integer entry");
                     }
-                    let value = i32::from_be_bytes([
-                        data[pos],
-                        data[pos + 1],
-                        data[pos + 2],
-                        data[pos + 3],
-                    ]);
-                    constant_pool[i] = ConstantPoolEntry::Integer(value);
+                    constant_pool[i] = ConstantPoolEntry::Integer(());
                     pos += 4;
                 },
                 4 => {
@@ -150,13 +120,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 4 > data.len() {
                         bail!("Truncated float entry");
                     }
-                    let value = f32::from_be_bytes([
-                        data[pos],
-                        data[pos + 1],
-                        data[pos + 2],
-                        data[pos + 3],
-                    ]);
-                    constant_pool[i] = ConstantPoolEntry::Float(value);
+                    constant_pool[i] = ConstantPoolEntry::Float(());
                     pos += 4;
                 },
                 5 => {
@@ -164,17 +128,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 8 > data.len() {
                         bail!("Truncated long entry");
                     }
-                    let value = i64::from_be_bytes([
-                        data[pos],
-                        data[pos + 1],
-                        data[pos + 2],
-                        data[pos + 3],
-                        data[pos + 4],
-                        data[pos + 5],
-                        data[pos + 6],
-                        data[pos + 7],
-                    ]);
-                    constant_pool[i] = ConstantPoolEntry::Long(value);
+                    constant_pool[i] = ConstantPoolEntry::Long(());
                     pos += 8;
                     i += 1; // Long takes 2 slots
                     if i < constant_pool_count {
@@ -186,17 +140,7 @@ impl super::JavaClassAnalyzer {
                     if pos + 8 > data.len() {
                         bail!("Truncated double entry");
                     }
-                    let value = f64::from_be_bytes([
-                        data[pos],
-                        data[pos + 1],
-                        data[pos + 2],
-                        data[pos + 3],
-                        data[pos + 4],
-                        data[pos + 5],
-                        data[pos + 6],
-                        data[pos + 7],
-                    ]);
-                    constant_pool[i] = ConstantPoolEntry::Double(value);
+                    constant_pool[i] = ConstantPoolEntry::Double(());
                     pos += 8;
                     i += 1; // Double takes 2 slots
                     if i < constant_pool_count {
@@ -238,14 +182,9 @@ impl super::JavaClassAnalyzer {
         }
 
         Ok(ClassInfo {
-            this_class: None,
-            super_class: None,
-            interfaces: Vec::new(),
             strings,
             class_refs,
             methods: Vec::new(),
-            fields: Vec::new(),
-            access_flags: 0,
         })
     }
 }

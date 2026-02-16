@@ -24,12 +24,12 @@ composite_rules:
       # Plus server capabilities or shell execution
       - id: cap/comm/socket/bind::bind
       - id: cap/comm/socket/listen::accept-sym
-      - id: cap/exec/command/shell::c-popen
-      - id: cap/exec/command/shell::c-system
+      - id: cap/process/create/shell::c-popen
+      - id: cap/process/create/shell::c-system
     # Exclude system network libraries
     none:
-      - id: cap/exec/load/library::network-lib-marker
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::network-lib-marker
+      - id: cap/dylib/library::system-lib-marker
       - id: meta/format::many-imports
       - id: cap/os/bpf
 
@@ -47,8 +47,8 @@ composite_rules:
       - id: obj/persist/shell/config::bash-files
       - id: obj/persist/shell/config::profile
     none:
-      - id: cap/exec/load/library::shell-interpreter
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::shell-interpreter
+      - id: cap/dylib/library::system-lib-marker
 
   # Shared library with C2 infrastructure
   # .so with suspicious domain + network operations
@@ -62,7 +62,7 @@ composite_rules:
       - id: cap/comm/socket/connect::connect
       - id: cap/comm/socket/bind::bind
     none:
-      - id: cap/exec/load/library::network-lib-marker
+      - id: cap/dylib/library::network-lib-marker
 
   # Shared library with rootkit capabilities
   # LD_PRELOAD + shell execution in a library is highly suspicious
@@ -74,9 +74,9 @@ composite_rules:
     all:
       - id: cap/os/linker/env::ld-preload
     any:
-      - id: cap/exec/command/shell
-      - id: cap/exec/command/shell::c-popen
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/process/create/shell
+      - id: cap/process/create/shell::c-popen
+      - id: cap/dylib/load::dlsym
 
   # Full supply chain backdoor pattern
   # Combines multiple suspicious behaviors into hostile indicator
@@ -90,7 +90,7 @@ composite_rules:
     all:
       # Must have network + shell execution
       - id: cap/comm/socket/connect::connect
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
     any:
       # Plus credential targeting or C2 infrastructure
       - id: so-credential-targeting
@@ -98,9 +98,9 @@ composite_rules:
       - id: obj/c2/infrastructure/domain::c2-domain
       - id: obj/creds/ssh/key::dot-ssh-path
     none:
-      - id: cap/exec/load/library::system-lib-marker
-      - id: cap/exec/load/library::network-lib-marker
-      - id: cap/exec/load/library::shell-interpreter
+      - id: cap/dylib/library::system-lib-marker
+      - id: cap/dylib/library::network-lib-marker
+      - id: cap/dylib/library::shell-interpreter
 
   # Alternative: Network + credential + rootkit pattern
   # Complexity: all(3) + for: = 4
@@ -111,13 +111,13 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/comm/socket/connect::connect
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
       - id: cap/os/linker/env::ld-preload
     any:
       - id: obj/creds/ssh/key::dot-ssh-path
       - id: obj/persist/shell/config::bash-files
     none:
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::system-lib-marker
 
   # Simpler pattern: socket + shell + credential paths
   # Complexity: all(3) + any(1 via count_min) = still need more
@@ -129,11 +129,11 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/comm/socket/connect::connect
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
     any:
       - id: obj/creds/ssh/key::dot-ssh-path
       - id: obj/persist/shell/config::bash-files
       - id: obj/c2/infrastructure/domain::c2-domain
     none:
-      - id: cap/exec/load/library::system-lib-marker
-      - id: cap/exec/load/library::shell-interpreter
+      - id: cap/dylib/library::system-lib-marker
+      - id: cap/dylib/library::shell-interpreter

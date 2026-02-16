@@ -51,7 +51,7 @@ composite_rules:
     conf: 0.95
     file_types: [powershell]
     all:
-      - id: cap/exec/eval/invoke::iex
+      - id: obj/exec/interpreter/eval/invoke::iex
       - id: ps1-from-base64
     any:
       - id: ps1-mass-int-assignment

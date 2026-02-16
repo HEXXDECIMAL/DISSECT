@@ -16,6 +16,7 @@ use std::sync::Arc;
 use crate::rtf::RtfParser;
 
 /// RTF document analyzer
+#[derive(Debug)]
 pub struct RtfAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     rtf_parser: RtfParser,

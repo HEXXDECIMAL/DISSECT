@@ -61,7 +61,7 @@ composite_rules:
     mbc: "B0024"
     for: [go]
     all:
-      - id: cap/exec/command/direct::exec-command
+      - id: cap/process/create/direct::exec-command
       - id: cap/comm/socket/connect::dial
       - id: many-init-functions
 
@@ -76,6 +76,6 @@ composite_rules:
     all:
       - id: many-init-functions
     any:
-      - id: cap/exec/command/direct::exec-command
+      - id: cap/process/create/direct::exec-command
       - id: cap/comm/socket/connect::dial
       - id: cap/comm/http/post::http-post

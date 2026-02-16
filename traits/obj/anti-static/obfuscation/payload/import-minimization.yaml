@@ -144,8 +144,8 @@ composite_rules:
     conf: 0.8
     for: [macho]
     any:
-      - id: cap/exec/dylib/load::dlsym
-      - id: cap/exec/syscall/direct::macos-arm64-direct-syscall
+      - id: cap/dylib/load::dlsym
+      - id: cap/process/create::macos-arm64-direct-syscall
 
   # === Mach-O Dropper/Ransomware Patterns ===
 
@@ -160,7 +160,7 @@ composite_rules:
       - id: macho-stealth-resolution
     any:
       - id: obj/anti-static/obfuscation/payload::math-cipher-imports
-      - id: cap/exec/command/shell::system-call-symbol
+      - id: cap/process/create/shell::system-call-symbol
 
   # === PE Ransomware/Dropper Patterns ===
 

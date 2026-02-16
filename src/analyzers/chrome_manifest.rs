@@ -17,6 +17,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 /// Chrome extension manifest.json analyzer
+#[derive(Debug)]
 pub struct ChromeManifestAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }
@@ -28,10 +29,12 @@ struct ChromeManifest {
     manifest_version: Option<u8>,
     name: Option<String>,
     version: Option<String>,
+    #[allow(dead_code)] // Deserialized from JSON
     description: Option<String>,
     #[serde(default)]
     permissions: Vec<serde_json::Value>,
     #[serde(default)]
+    #[allow(dead_code)] // Deserialized from JSON
     optional_permissions: Vec<serde_json::Value>,
     #[serde(default)]
     host_permissions: Vec<String>,
@@ -49,6 +52,7 @@ struct ContentScript {
     #[serde(default)]
     matches: Vec<String>,
     #[serde(default)]
+    #[allow(dead_code)] // Deserialized from JSON
     js: Vec<String>,
     run_at: Option<String>,
     #[serde(default)]
@@ -57,8 +61,10 @@ struct ContentScript {
 
 #[derive(Deserialize, Default, Debug)]
 struct Background {
+    #[allow(dead_code)] // Deserialized from JSON
     service_worker: Option<String>,
     #[serde(default)]
+    #[allow(dead_code)] // Deserialized from JSON
     scripts: Vec<String>,
     persistent: Option<bool>,
 }

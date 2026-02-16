@@ -51,6 +51,6 @@ composite_rules:
     size_max: 500000
     all:
       - id: cpp-exception-control-flow
-      - id: cap/exec/command/shell::system-call-symbol
+      - id: cap/process/create/shell::system-call-symbol
     none:
       - id: meta/signed/platform::apple

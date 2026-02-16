@@ -16,15 +16,6 @@ pub struct FileRename {
     pub similarity_score: f64,
 }
 
-/// Change type for a file
-#[derive(Debug, Clone)]
-pub enum ChangeType {
-    Added,
-    Removed,
-    Modified,
-    Renamed(FileRename),
-}
-
 /// Compute set difference for items with an id-like field
 pub(super) fn compute_added_removed<T, F>(
     baseline: &[T],
@@ -247,7 +238,7 @@ pub(super) fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRe
                     }
 
                     let score = calculate_file_similarity(removed_file, added_file);
-                    if score >= 0.9 && (best_match.is_none() || score > best_match.unwrap().1) {
+                    if score >= 0.9 && best_match.is_none_or(|(_, s)| score > s) {
                         best_match = Some((added_file, score));
                     }
                 }

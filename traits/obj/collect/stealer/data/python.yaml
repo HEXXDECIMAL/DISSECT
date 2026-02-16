@@ -29,7 +29,7 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/strings
       - id: obj/lateral/supply-chain
-      - id: cap/exec/
+      - id: obj/exec/
 
   - id: evasive-profiler
     desc: "Evasive Python system profiler"

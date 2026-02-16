@@ -56,7 +56,7 @@ composite_rules:
     for: [shell]
     all:
       - id: cap/fs/attributes/xattr::xattr-clear
-      - id: cap/exec/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
 
   # Full dropper chain: download + quarantine bypass + execute
   # Complexity: all(4) = 4 -> hostile
@@ -66,7 +66,7 @@ composite_rules:
     conf: 0.95
     for: [shell]
     all:
-      - id: cap/exec/dropper/script::curl-download
+      - id: obj/exec/dropper/script::curl-download
       - id: cap/fs/attributes/xattr::xattr-clear
-      - id: cap/exec/dropper/script::chmod-plus-x-cmd
-      - id: cap/exec/dropper/script::execute-dot-slash
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::execute-dot-slash

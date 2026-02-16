@@ -14,5 +14,5 @@ composite_rules:
     attack: "T1497.001"
     all:
       - id: cap/os/env/vars::comspec-env-var
-      - id: cap/anti-analysis/sandbox/detect::js-check-cmd-path
-      - id: cap/exec/script/wsh::wscript-quit-obfuscated
+      - id: obj/anti-analysis/sandbox/detect::js-check-cmd-path
+      - id: obj/exec/interpreter/script/wsh::wscript-quit-obfuscated

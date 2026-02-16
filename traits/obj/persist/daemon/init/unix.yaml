@@ -235,7 +235,7 @@ composite_rules:
     for: [elf, macho, c, objective-c]
     all:
       - id: cap/process/fork/clone::fork
-      - id: cap/exec/command/shell::sleep-format-exec
+      - id: cap/process/create/shell::sleep-format-exec
       - id: cap/os/random/crypto::seeded-random
 
   # macOS double-fork daemon pattern
@@ -276,6 +276,6 @@ composite_rules:
     downgrade:
       any:
         - id: meta/format::many-imports
-        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/dylib/library::system-lib-marker
         - id: meta/apple/system-component
         - id: meta/signed/platform::apple

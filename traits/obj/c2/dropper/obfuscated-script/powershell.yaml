@@ -14,8 +14,8 @@ composite_rules:
     attack: "T1059.001"
     for: [batch, shell, powershell]
     all:
-      - id: cap/exec/eval/invoke::iex
-      - id: cap/exec/dropper/script::powershell-exe
+      - id: obj/exec/interpreter/eval/invoke::iex
+      - id: obj/exec/dropper/script::powershell-exe
       - id: obj/anti-static/obfuscation/strings/concatenation::ps-chararray-obfuscation
 
   # Evasive PowerShell dropper (bypass + obfuscation)
@@ -29,11 +29,11 @@ composite_rules:
     for: [batch, shell, powershell]
     all:
       - id: obj/anti-static/obfuscation/strings/concatenation::ps-ep-bypass
-      - id: cap/exec/eval/invoke::iex
-      - id: cap/exec/dropper/script::powershell-exe
+      - id: obj/exec/interpreter/eval/invoke::iex
+      - id: obj/exec/dropper/script::powershell-exe
     any:
       - id: obj/anti-static/obfuscation/strings/concatenation::ps-chararray-obfuscation
-      - id: cap/exec/dropper/script::powershell-download-cradle
+      - id: obj/exec/dropper/script::powershell-download-cradle
 
   # PowerShell dropper with cleanup (download + execute + self-delete)
   # Complexity: all(3) + any(1) = 4
@@ -46,8 +46,8 @@ composite_rules:
     for: [batch, shell, powershell]
     all:
       - id: obj/anti-forensics/self-delete/file::remove-item
-      - id: cap/exec/dropper/script::powershell-exe
-      - id: cap/exec/eval/invoke::iex
+      - id: obj/exec/dropper/script::powershell-exe
+      - id: obj/exec/interpreter/eval/invoke::iex
     any:
-      - id: cap/exec/dropper/script::powershell-download-cradle
+      - id: obj/exec/dropper/script::powershell-download-cradle
       - id: cap/comm/http/lib/invoke-webrequest::download

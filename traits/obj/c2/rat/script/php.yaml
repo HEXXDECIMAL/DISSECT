@@ -141,7 +141,7 @@ composite_rules:
     for: [php]
     all:
       - id: stream-socket-connect
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: sh-interactive
 
   # PHP RAT with process masquerading
@@ -169,7 +169,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/encoding
       - id: stream-socket-connect
     any:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: function-exists-exec
     none:
       - id: localhost-socket-uri
@@ -203,7 +203,7 @@ composite_rules:
     all:
       - id: stream-socket-connect
       - id: obj/anti-static/obfuscation/encoding
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
     any:
       - id: kworker-masquerade
       - id: cap/process/control/signal::cli-set-process-title
@@ -218,7 +218,7 @@ composite_rules:
     for: [php]
     needs: 3
     any:
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       - id: function-exists-exec
       - id: socket-to-proc-descriptor
       - id: sh-interactive

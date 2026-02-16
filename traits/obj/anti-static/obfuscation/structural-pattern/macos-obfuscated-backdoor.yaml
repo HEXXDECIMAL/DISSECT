@@ -22,13 +22,13 @@ composite_rules:
       # Structural obfuscation
       - id: obj/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       # Command execution capability
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
       # Persistence mechanism
       - id: obj/persist/daemon/init::daemon-fork
       - id: obj/persist/daemon/init::daemon-setsid
     # Additional obfuscation or execution indicators
     any:
-      - id: cap/exec/command/shell::excessive-popen
+      - id: cap/process/create/shell::excessive-popen
       - id: obj/anti-static/obfuscation/payload::high-entropy-data-macos
       - id: meta/binary/structure::many-high-entropy-strings
     # Must be unsigned (legitimate apps are signed)
@@ -49,9 +49,9 @@ composite_rules:
       - id: obj/anti-static/obfuscation/payload::extreme-string-sparsity-macos
     # Execution capability
     any:
-      - id: cap/exec/command/shell::excessive-popen
-      - id: cap/exec/command/shell::extreme-popen
-      - id: cap/exec/command/shell::capture-command-output
+      - id: cap/process/create/shell::excessive-popen
+      - id: cap/process/create/shell::extreme-popen
+      - id: cap/process/create/shell::capture-command-output
     needs: 2  # At least 2 execution indicators
     # Must be unsigned
     none:
@@ -66,7 +66,7 @@ composite_rules:
     attack: "T1027,T1059"
     all:
       - id: obj/anti-static/obfuscation/payload::string-obfuscated-malware
-      - id: cap/exec/command/shell::excessive-popen
+      - id: cap/process/create/shell::excessive-popen
 
   # SUSPICIOUS: High-density execution in small binary
   - id: dense-execution-small-binary
@@ -76,7 +76,7 @@ composite_rules:
     attack: "T1059"
     size_max: 300000  # Less than 300KB
     all:
-      - id: cap/exec/command/shell::excessive-popen
+      - id: cap/process/create/shell::excessive-popen
     any:
       - id: obj/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       - id: meta/binary/structure::extreme-minimal-strings
@@ -89,7 +89,7 @@ composite_rules:
     attack: "T1027,T1059"
     all:
       - id: meta/binary/structure::structural-anomaly-pattern
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
     any:
       - id: obj/persist/daemon/init::unix-daemon-persistence
       - id: obj/lateral/social-engineering/masquerading::suspicious-generic-naming
@@ -109,7 +109,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       - id: obj/anti-static/obfuscation/payload::high-entropy-data-macos
       # Execution
-      - id: cap/exec/command/shell::excessive-popen
+      - id: cap/process/create/shell::excessive-popen
       # Persistence
       - id: obj/persist/daemon/init::unix-daemon-persistence
       # Masquerading

@@ -39,7 +39,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: cap/exec/eval/dynamic/
+      - id: obj/exec/eval/dynamic/
 
   # NPM preinstall/postinstall abuse with dropper behavior
   - id: lifecycle-dropper
@@ -71,4 +71,4 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: lifecycle-hook
-      - id: cap/exec/command/shell/lang::child-process-require
+      - id: cap/process/create/shell/lang::child-process-require

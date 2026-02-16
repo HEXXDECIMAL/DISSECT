@@ -23,6 +23,6 @@ composite_rules:
     attack: "T1059.003"
     all:
       - id: cap/comm/http/lib/axios::js-axios-get
-      - id: cap/exec/command/shell/lang::js-execsync
+      - id: cap/process/create/shell/lang::js-execsync
       - id: cap/comm/http/lib/axios::js-axios-post
       - id: js-output-command-var

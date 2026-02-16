@@ -4,6 +4,6 @@ composite_rules:
     crit: suspicious
     for: [javascript, typescript, shell, python]
     any:
-      - id: cap/anti-analysis/sandbox/detect
+      - id: obj/anti-analysis/sandbox/detect
     unless:
       - id: meta/quality/libxslt::libxslt-configure-js

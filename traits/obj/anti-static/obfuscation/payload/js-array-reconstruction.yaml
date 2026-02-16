@@ -13,7 +13,7 @@ composite_rules:
     all:
       - id: cap/data/encode/arrays::js-hex-char-array
       - id: cap/data/encode/arrays::js-large-int-array
-      - id: cap/exec/eval/dynamic::eval-call-js
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
     any:
       - id: cap/data/control-flow/analysis::for-loop-ast
       - id: cap/data/control-flow/analysis::for-loop-content

@@ -12,8 +12,8 @@ composite_rules:
     mbc: "B0022"
     for: [elf, macho, pe]
     all:
-      - id: cap/exec/command/direct::cpp-stdlib
-      - id: cap/exec/command/direct::cpp-string
-      - id: cap/exec/command/direct::cpp-exception
-      - id: cap/exec/command/direct::cpp-command-capture
+      - id: cap/process/create/direct::cpp-stdlib
+      - id: cap/process/create/direct::cpp-string
+      - id: cap/process/create/direct::cpp-exception
+      - id: cap/process/create/direct::cpp-command-capture
       - id: obj/anti-static/obfuscation/strings/encoding::string-concealment

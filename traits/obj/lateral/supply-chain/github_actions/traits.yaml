@@ -64,9 +64,9 @@ composite_rules:
     all:
       - id: github-actions-targeting
       - id: github-actions-secret-marker-helper
-      - id: cap/exec/command/shell::shell-platform-check
+      - id: cap/process/create/shell::shell-platform-check
     any:
-      - id: cap/exec/command/shell::curl-pipe-exec
-      - id: cap/exec/command/shell::sudo-piped-exec
+      - id: cap/process/create/shell::curl-pipe-exec
+      - id: cap/process/create/shell::sudo-piped-exec
       - id: double-base64-encode
       - id: python-sudo-execution

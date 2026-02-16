@@ -253,7 +253,7 @@ composite_rules:
     any:
       - { id: var-url }
       - { id: var-server }
-      - { id: cap/exec/command/shell::shell-execution }
+      - { id: cap/process/create/shell::shell-execution }
 
   # ============================================
   # Wallet Theft
@@ -269,4 +269,4 @@ composite_rules:
     any:
       - { id: var-save-path }
       - { id: var-output-path }
-      - { id: cap/exec/command/shell::shell-execution }
+      - { id: cap/process/create/shell::shell-execution }

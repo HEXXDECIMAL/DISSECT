@@ -18,9 +18,9 @@ composite_rules:
     crit: inert
     conf: 0.8
     any:
-      - id: cap/exec/command/shell::shell-execution
-      - id: cap/exec/command/shell::shell-execution-indicators
-      - id: cap/exec/dropper/http::python-exec-any
+      - id: cap/process/create/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution-indicators
+      - id: obj/exec/dropper/http::python-exec-any
       - id: obj/exec/condition/platform::has-execution-capability
 
   # Main Hostile Rule: Discord Dropper (Loose Correlation)
@@ -33,11 +33,11 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     all:
-      - id: cap/c2/channel/discord::discord-string
+      - id: obj/c2/channel/discord::discord-string
       - id: python-write-capability
       - id: python-exec-capability
     any:
-      - id: cap/c2/channel/discord::discord-cdn-executable
+      - id: obj/c2/channel/discord::discord-cdn-executable
       - id: obj/c2/infrastructure/domain::http-url-script
 
   # Main Suspicious Rule: Discord Dropper (Generic)
@@ -47,7 +47,7 @@ composite_rules:
     conf: 0.9
     attack: "T1105"
     all:
-      - id: cap/c2/channel/discord::discord-string
+      - id: obj/c2/channel/discord::discord-string
       - id: cap/comm/http/lib/requests::requests-python
       - id: python-write-capability
       - id: python-exec-capability

@@ -123,7 +123,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/dylib/load::dlsym
     any:
       - id: readdir-hook
       - id: getdents-hook

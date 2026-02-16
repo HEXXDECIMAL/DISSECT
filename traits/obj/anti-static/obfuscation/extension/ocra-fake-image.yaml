@@ -18,5 +18,5 @@ composite_rules:
   - id: ocra-masked-as-image
     desc: OCRA packed executable disguised with an image extension
     all:
-      - id: cap/anti-analysis/packing/ocra::ocra-packed-executable
+      - id: obj/anti-analysis/packing/ocra::ocra-packed-executable
       - id: basename-is-image

@@ -127,8 +127,12 @@ pub fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
         }
 
         // Repeated character names (aaa, xxx, etc.)
-        if len >= 3 && s.chars().all(|c| c == s.chars().next().unwrap()) {
-            repeated_char += 1;
+        if len >= 3 {
+            if let Some(first_char) = s.chars().next() {
+                if s.chars().all(|c| c == first_char) {
+                    repeated_char += 1;
+                }
+            }
         }
 
         // Entropy calculation
@@ -261,8 +265,8 @@ fn is_sequential(s: &str) -> bool {
 
     // Pattern like var1, var2, item3
     if s.len() >= 2 {
-        let last = s.chars().last().unwrap();
-        if last.is_ascii_digit() {
+        if let Some(last) = s.chars().last() {
+            if last.is_ascii_digit() {
             let prefix: String = s.chars().take(s.len() - 1).collect();
             // Common sequential prefixes
             let common = [
@@ -270,6 +274,7 @@ fn is_sequential(s: &str) -> bool {
             ];
             if common.iter().any(|p| prefix.eq_ignore_ascii_case(p)) {
                 return true;
+            }
             }
         }
     }
@@ -307,9 +312,10 @@ pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
             current.push(c);
         } else if !current.is_empty() {
             // Filter out pure numbers and very common keywords
-            let first = current.chars().next().unwrap();
-            if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
-                identifiers.push(current.clone());
+            if let Some(first) = current.chars().next() {
+                if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
+                    identifiers.push(current.clone());
+                }
             }
             current.clear();
         }
@@ -318,9 +324,10 @@ pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
 
     // Don't forget the last identifier
     if !current.is_empty() {
-        let first = current.chars().next().unwrap();
-        if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
-            identifiers.push(current);
+        if let Some(first) = current.chars().next() {
+            if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
+                identifiers.push(current);
+            }
         }
     }
 

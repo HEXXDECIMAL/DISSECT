@@ -15,8 +15,8 @@ traits:
       substr: "LD_LIBRARY_PATH"
 
   # === Hooking infrastructure micro-traits ===
-  # NOTE: dlsym-call moved to cap/exec/dylib/load/dlsym (proper taxonomy).
-  # This file retains references to cap/exec/dylib/load/dlsym for composite rules.
+  # NOTE: dlsym-call moved to cap/dylib/load/dlsym (proper taxonomy).
+  # This file retains references to cap/dylib/load/dlsym for composite rules.
 
   - id: rtld-next-ref
     desc: RTLD_NEXT macro reference
@@ -94,16 +94,16 @@ traits:
     # System libraries, compiler tools, and debuggers may have these for legitimate wrapper/forwarding purposes
     # Note: Must reference atomic traits (not composites) since traits are evaluated before composites
     unless:
-      - id: cap/exec/load/gnu-coreutils-ref
-      - id: cap/exec/load/glibc-ref
-      - id: cap/exec/load/systemd-ref
-      - id: cap/exec/load/libc-characteristic-symbols
-      - id: cap/exec/load/library::llvm-project-ref
+      - id: cap/dylib/load/gnu-coreutils-ref
+      - id: cap/dylib/load/glibc-ref
+      - id: cap/dylib/load/systemd-ref
+      - id: cap/dylib/load/libc-characteristic-symbols
+      - id: cap/dylib/library::llvm-project-ref
       - id: meta/lang/compiler::libllvm
-      - id: cap/exec/load/library::gcc-project-ref
-      - id: cap/exec/load/gdb-debugger-ref
-      - id: cap/exec/load/lldb-debugger-ref
-      - id: cap/exec/load/debugger-ptrace-marker
+      - id: cap/dylib/library::gcc-project-ref
+      - id: cap/dylib/load/gdb-debugger-ref
+      - id: cap/dylib/load/lldb-debugger-ref
+      - id: cap/dylib/load/debugger-ptrace-marker
 
   - id: real-prefix
     desc: real_ function prefix (hook backup)
@@ -117,16 +117,16 @@ traits:
     # System libraries, compiler tools, and debuggers may have these for legitimate wrapper/forwarding purposes
     # Note: Must reference atomic traits (not composites) since traits are evaluated before composites
     unless:
-      - id: cap/exec/load/gnu-coreutils-ref
-      - id: cap/exec/load/glibc-ref
-      - id: cap/exec/load/systemd-ref
-      - id: cap/exec/load/libc-characteristic-symbols
-      - id: cap/exec/load/library::llvm-project-ref
+      - id: cap/dylib/load/gnu-coreutils-ref
+      - id: cap/dylib/load/glibc-ref
+      - id: cap/dylib/load/systemd-ref
+      - id: cap/dylib/load/libc-characteristic-symbols
+      - id: cap/dylib/library::llvm-project-ref
       - id: meta/lang/compiler::libllvm
-      - id: cap/exec/load/library::gcc-project-ref
-      - id: cap/exec/load/gdb-debugger-ref
-      - id: cap/exec/load/lldb-debugger-ref
-      - id: cap/exec/load/debugger-ptrace-marker
+      - id: cap/dylib/library::gcc-project-ref
+      - id: cap/dylib/load/gdb-debugger-ref
+      - id: cap/dylib/load/lldb-debugger-ref
+      - id: cap/dylib/load/debugger-ptrace-marker
 
   # === /proc hiding micro-traits ===
   # NOTE: Generic /proc path observations moved to cap/fs/proc/info/ (proper taxonomy)
@@ -277,7 +277,7 @@ composite_rules:
     any:
       - id: dlsym-rtld-next-pattern
     all:
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/dylib/load::dlsym
       - id: rtld-next-ref
 
   # dlsym RTLD_NEXT pattern (migrated from YARA)
@@ -298,12 +298,12 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/dylib/load::dlsym
       - id: rtld-next-ref
       - id: cap/os/linker/env::ld-preload
       - id: dlsym-rtld-next-pattern
     unless:
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/library::system-lib-marker
 
   # Hook prefix composite
   - id: hook-prefixes

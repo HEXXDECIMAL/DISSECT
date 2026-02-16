@@ -336,8 +336,8 @@ traits:
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
   # === WScript/XMLHTTP atomic indicators ===
-  # Removed msxml2-xmlhttp duplicate - use cap/exec/activex/com::activex-xmlhttp-msxml2
-  # Removed microsoft-xmlhttp duplicate - use cap/exec/scripting/host/windows::microsoft-xmlhttp-string
+  # Removed msxml2-xmlhttp duplicate - use obj/exec/activex/com::activex-xmlhttp-msxml2
+  # Removed microsoft-xmlhttp duplicate - use obj/exec/interpreter/scripting/host/windows::microsoft-xmlhttp-string
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -393,7 +393,7 @@ traits:
       type: string
       substr: "bin.base64"
 
-  # Removed fso duplicate - use cap/exec/activex/com::activex-filesystem
+  # Removed fso duplicate - use obj/exec/activex/com::activex-filesystem
 
   # Batch escape function
   - id: batch-escape
@@ -536,7 +536,7 @@ composite_rules:
     all:
       - id: temp-dir-ref
     any:
-      - id: cap/exec/dropper/archive
+      - id: obj/exec/dropper/archive
 
   # Execute downloaded file (Composite with downgrade)
   - id: exec-downloaded
@@ -565,7 +565,7 @@ composite_rules:
     for: [javascript, typescript]
     any:
       - id: spawn-paren
-      - id: cap/exec/eval/invoke::exec-call-shell
+      - id: obj/exec/interpreter/eval/invoke::exec-call-shell
       - id: execfile-paren
 
   # Spawn executable after extraction
@@ -578,8 +578,8 @@ composite_rules:
     all:
       - id: spawn-exec
     any:
-      - id: cap/exec/dropper/archive
-      - id: cap/exec/dropper/binary-files
+      - id: obj/exec/dropper/archive
+      - id: obj/exec/dropper/binary-files
 
   # Python exec composite
   - id: python-exec-call
@@ -590,7 +590,7 @@ composite_rules:
     for: [python]
     any:
       - id: py-os-system
-      - id: cap/exec/eval/invoke::exec-call-python
+      - id: obj/exec/interpreter/eval/invoke::exec-call-python
       - id: py-subprocess
 
   # WScript/XMLHTTP composite
@@ -600,9 +600,9 @@ composite_rules:
     conf: 0.85
     for: [javascript]
     any:
-      - id: cap/exec/scripting/host::wscript-shell-string
-      - id: cap/exec/activex/com::activex-xmlhttp-msxml2
-      - id: cap/exec/scripting/host/windows::microsoft-xmlhttp-string
+      - id: obj/exec/interpreter/scripting/host::wscript-shell-string
+      - id: obj/exec/activex/com::activex-xmlhttp-msxml2
+      - id: obj/exec/interpreter/scripting/host/windows::microsoft-xmlhttp-string
     downgrade:
       any:
         - id: meta/library/jquery::library
@@ -642,10 +642,10 @@ composite_rules:
     mbc: "B0024"
     for: [javascript, typescript]
     all:
-      - id: cap/exec/dropper/archive::download-zip
+      - id: obj/exec/dropper/archive::download-zip
       - id: extract-execute
     any:
-      - id: cap/exec/dropper/binary-files
+      - id: obj/exec/dropper/binary-files
 
   # Complete dropper lifecycle (Fetch + Write + Execute)
   - id: fetch-write-execute
@@ -778,9 +778,9 @@ composite_rules:
     all:
       - { id: activex-object }
     any:
-      - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/direct }
-      - { id: cap/exec/scripting/host::wscript-shell-string }
+      - { id: cap/process/create/shell }
+      - { id: cap/process/create/direct }
+      - { id: obj/exec/interpreter/scripting/host::wscript-shell-string }
 
   # === Helper Composites for Obfuscated Dropper ===
   - id: wsh-creation-mechanism
@@ -790,7 +790,7 @@ composite_rules:
     for: [javascript]
     any:
       - id: activex-object
-      - id: obj/exec/script/wsh::wscript-createobject
+      - id: obj/exec/interpreter/script/wsh::wscript-createobject
 
   - id: wsh-payload-handling
     desc: "WScript payload handling (Response/Stream)"
@@ -798,9 +798,9 @@ composite_rules:
     conf: 0.8
     for: [javascript]
     any:
-      - id: cap/exec/script/wsh::wsh-response-body
+      - id: obj/exec/interpreter/script/wsh::wsh-response-body
       - id: adodb-stream
-      - id: cap/exec/script/wsh::wsh-adodb-stream-binary
+      - id: obj/exec/interpreter/script/wsh::wsh-adodb-stream-binary
 
   - id: js-obfuscation-indicators
     desc: "JavaScript obfuscation indicators"
@@ -808,8 +808,8 @@ composite_rules:
     conf: 0.8
     for: [javascript]
     any:
-      - id: cap/anti-static/obfuscation/js::js-useless-arithmetic
-      - id: cap/anti-static/obfuscation/js::js-split-custom-delimiter
+      - id: obj/anti-static/obfuscation/js::js-useless-arithmetic
+      - id: obj/anti-static/obfuscation/js::js-split-custom-delimiter
       - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
     needs: 2
@@ -841,8 +841,8 @@ composite_rules:
     mbc: "B0032"
     for: [javascript]
     all:
-      - id: cap/exec/scripting/jscript::jscript-cc-on
-      - id: cap/exec/command/script::batch-script-execution
+      - id: obj/exec/interpreter/scripting/jscript::jscript-cc-on
+      - id: cap/process/create/script::batch-script-execution
     any:
       - id: js-obfuscation-indicators
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation

@@ -15,5 +15,5 @@ composite_rules:
       - id: cap/data/embedded/payload::png-lsb-script-extractor
       - id: cap/data/embedded/payload::ps1-written-from-decoded-bytes
     any:
-      - id: cap/exec/command/script::powershell-script-execution
+      - id: cap/process/create/script::powershell-script-execution
       - id: cap/data/embedded/payload::chr-stream-from-int-array

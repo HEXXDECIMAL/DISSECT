@@ -11,7 +11,7 @@ composite_rules:
     for: ["pe", "dll"]
     all:
       - id: cap/process/terminate/kill::terminate-process
-      - id: cap/exec/module/load::get-current-process
+      - id: cap/dylib/load::get-current-process
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -24,9 +24,9 @@ composite_rules:
     for: ["pe", "dll"]
     size_max: 200000
     all:
-      - id: cap/exec/native/api::debugger-detect-api
+      - id: obj/exec/native/api::debugger-detect-api
       - id: cap/process/terminate/kill::terminate-process
-      - id: cap/exec/native/api::load-library-a
+      - id: obj/exec/native/api::load-library-a
     downgrade:
       any:
         - id: meta/quality/versioned

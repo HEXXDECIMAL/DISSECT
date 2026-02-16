@@ -26,8 +26,8 @@ composite_rules:
     conf: 0.8
     all:
       - id: meta/format::few-functions
-      - id: cap/anti-analysis/packing/entropy::high-entropy-section
-      - id: cap/exec/native/api::get-proc-address
+      - id: obj/anti-analysis/packing/entropy::high-entropy-section
+      - id: obj/exec/native/api::get-proc-address
     unless:
       - id: meta/sign/certificate::verified # Legitimate stagers are usually signed
       - id: file/archive/self-extracting # SFX archives are minimalist by design

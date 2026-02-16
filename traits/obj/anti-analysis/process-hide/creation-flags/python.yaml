@@ -68,7 +68,7 @@ composite_rules:
     conf: 0.7
     crit: notable
     any:
-      - id: cap/exec/command/subprocess/
+      - id: cap/process/create/subprocess/
 
   # hidden window flag composite
   - id: hidden-window-flag

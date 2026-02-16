@@ -127,7 +127,7 @@ composite_rules:
       - id: getgroups
     downgrade:
       any:
-        - id: cap/exec/load/video-lib-marker
-        - id: cap/exec/load/library::graphics-lib-marker
-        - id: cap/exec/load/library::system-lib-marker
-        - id: cap/exec/load/library::x11-ipc-lib-marker
+        - id: cap/dylib/load/video-lib-marker
+        - id: cap/dylib/library::graphics-lib-marker
+        - id: cap/dylib/library::system-lib-marker
+        - id: cap/dylib/library::x11-ipc-lib-marker

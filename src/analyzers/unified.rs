@@ -27,7 +27,7 @@ use std::sync::Arc;
 use tree_sitter::{Language, Parser};
 
 /// Configuration for a language analyzer.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct LanguageConfig {
     /// Language identifier (e.g., "python", "javascript")
     pub name: &'static str,
@@ -311,21 +311,23 @@ pub struct UnifiedSourceAnalyzer {
 
 impl UnifiedSourceAnalyzer {
     /// Create a new analyzer for the given language configuration.
-    pub fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> Self {
+    pub fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> anyhow::Result<Self> {
         let mut parser = Parser::new();
-        parser.set_language(&config.language).expect("Failed to load language grammar");
+        parser.set_language(&config.language)
+            .map_err(|e| anyhow::anyhow!("Failed to load language grammar: {:?}", e))?;
 
-        Self {
+        Ok(Self {
             config,
             file_type,
             parser: RefCell::new(parser),
             capability_mapper: Arc::new(CapabilityMapper::empty()),
-        }
+        })
     }
 
     /// Create an analyzer for the given file type.
     pub fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
-        config_for_file_type(file_type).map(|config| Self::new(config, file_type.clone()))
+        config_for_file_type(file_type)
+            .and_then(|config| Self::new(config, file_type.clone()).ok())
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
@@ -752,7 +754,11 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_function_name<'a>(&self, node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
+    fn extract_function_name<'a>(
+        &self,
+        node: &tree_sitter::Node<'a>,
+        source: &[u8],
+    ) -> Option<String> {
         // Try the configured field name first
         if let Some(name_node) = node.child_by_field_name(self.config.function_name_field) {
             if let Ok(name) = name_node.utf8_text(source) {
@@ -906,7 +912,11 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_string_values<'a>(&self, root: &tree_sitter::Node<'a>, source: &[u8]) -> Vec<String> {
+    fn extract_string_values<'a>(
+        &self,
+        root: &tree_sitter::Node<'a>,
+        source: &[u8],
+    ) -> Vec<String> {
         let mut strings = Vec::new();
         let mut cursor = root.walk();
 
@@ -944,7 +954,11 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_function_info<'a>(&self, root: &tree_sitter::Node<'a>, source: &[u8]) -> Vec<FunctionInfo> {
+    fn extract_function_info<'a>(
+        &self,
+        root: &tree_sitter::Node<'a>,
+        source: &[u8],
+    ) -> Vec<FunctionInfo> {
         let mut functions = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_function_info(&mut cursor, source, &mut functions, 0);

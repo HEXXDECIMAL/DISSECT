@@ -169,7 +169,7 @@ composite_rules:
     any:
       - id: meta/import/python/os/system
       - id: meta/import/python/subprocess/
-      - id: cap/exec/eval/
+      - id: obj/exec/eval/
 
   # setup.py with clipboard + network = clipper malware
   # Precision: all(3) + any(1) = 4.0 (meets hostile threshold)

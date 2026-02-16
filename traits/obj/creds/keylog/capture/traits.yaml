@@ -339,7 +339,7 @@ traits:
       type: string
       substr: "run-applescript"
 
-  # Removed exec-sync duplicate - use cap/exec/command/shell/lang::js-execsync
+  # Removed exec-sync duplicate - use cap/process/create/shell/lang::js-execsync
 
 composite_rules:
   # === Helper composites (case variants) ===

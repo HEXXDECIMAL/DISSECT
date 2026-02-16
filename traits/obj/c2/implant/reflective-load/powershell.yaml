@@ -11,8 +11,8 @@ composite_rules:
     mbc: "E1620"
     attack: "T1620"
     all:
-      - id: cap/exec/reflective-load/memory::ps-assembly-load
-      - id: cap/exec/reflective-load/memory::ps-b64-decode
+      - id: obj/exec/reflective-load/memory::ps-assembly-load
+      - id: obj/exec/reflective-load/memory::ps-b64-decode
 
   - id: ps-reflective-load
     desc: PowerShell reflective assembly loading
@@ -22,5 +22,5 @@ composite_rules:
     mbc: "E1620"
     attack: "T1620"
     all:
-      - id: cap/exec/reflective-load/memory::ps-assembly-load
-      - id: cap/exec/reflective-load/memory::ps-assembly-invoke
+      - id: obj/exec/reflective-load/memory::ps-assembly-load
+      - id: obj/exec/reflective-load/memory::ps-assembly-invoke

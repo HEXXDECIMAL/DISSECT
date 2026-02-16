@@ -66,14 +66,14 @@ composite_rules:
       - id: cap/comm/socket/connect::connect
       - id: obj/c2/reverse-shell/socket::python-dup2
     any:
-      - id: cap/exec/command/shell::bin-sh
-      - id: cap/exec/command/shell::bin-bash
+      - id: cap/process/create/shell::bin-sh
+      - id: cap/process/create/shell::bin-bash
     # Downgrade for legitimate system libraries and shell interpreters
     downgrade:
       any:
-        - id: cap/exec/load/library::system-lib-marker
-        - id: cap/exec/load/library::shell-interpreter
-        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/dylib/library::system-lib-marker
+        - id: cap/dylib/library::shell-interpreter
+        - id: cap/dylib/library::debugger-tool-marker
 
   - id: bind-shell
     desc: Bind shell pattern (socket +
@@ -85,16 +85,16 @@ composite_rules:
       - id: cap/comm/socket/bind::bind
       - id: cap/comm/socket/listen::listen
     any:
-      - id: cap/exec/command/shell::bin-sh
-      - id: cap/exec/command/shell::bin-bash
+      - id: cap/process/create/shell::bin-sh
+      - id: cap/process/create/shell::bin-bash
     none:
       - id: meta/signed/platform::apple
     # Downgrade for legitimate network servers/debuggers/system libraries
     downgrade:
       any:
-        - id: cap/exec/load/library::debugger-tool-marker
-        - id: cap/exec/load/library::system-lib-marker
-        - id: cap/exec/load/library::shell-interpreter
+        - id: cap/dylib/library::debugger-tool-marker
+        - id: cap/dylib/library::system-lib-marker
+        - id: cap/dylib/library::shell-interpreter
 
   - id: python-redirection
     desc: "Python shell redirection (pty/dup2)"

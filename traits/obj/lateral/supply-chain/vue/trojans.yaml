@@ -16,7 +16,7 @@ composite_rules:
     all:
       - { id: meta/library/vue::library }
       - { id: meta/library/vue::version-string }
-      - { id: cap/exec/activex/com::activex-object-create }
+      - { id: obj/exec/activex/com::activex-object-create }
 
   # Vue + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
@@ -59,8 +59,8 @@ composite_rules:
       - { id: meta/library/vue::library }
       - { id: meta/library/vue::version-string }
     any:
-      - { id: cap/exec/command/shell }
-      - { id: cap/exec/command/shell/lang::child-process-exec }
+      - { id: cap/process/create/shell }
+      - { id: cap/process/create/shell/lang::child-process-exec }
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor

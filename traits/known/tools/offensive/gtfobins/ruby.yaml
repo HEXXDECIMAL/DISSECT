@@ -48,8 +48,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/dylib/load::ruby-ffi-dlopen
-      - id: cap/exec/dylib/load::fiddle-dlopen
+      - id: cap/dylib/load::ruby-ffi-dlopen
+      - id: cap/dylib/load::fiddle-dlopen
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-ruby-privesc
@@ -95,7 +95,7 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: cap/exec/command/shell/lang::ruby-shell-exec
+      - id: cap/process/create/shell/lang::ruby-shell-exec
 
   # === GTFOBins Downloader ===
   - id: gtfobins-ruby-downloader

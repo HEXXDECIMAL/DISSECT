@@ -338,5 +338,5 @@ composite_rules:
     size_max: 1500000
     all:
       - id: direct-http-c2
-      - id: cap/exec/command/
+      - id: cap/process/create/
       - id: cap/comm/socket/

@@ -159,7 +159,7 @@ composite_rules:
       - id: darwin-string-check
       - id: arch-string-check
     all:
-      - id: cap/exec/dropper/tmp-run::tmp-path
+      - id: obj/exec/dropper/tmp-run::tmp-path
 
   # Full dropper pattern: detect platform, download, execute
   - id: init-dropper
@@ -178,7 +178,7 @@ composite_rules:
       - id: download-with-delete
       - id: safe-run-call
       - id: import-safe-download
-      - id: cap/exec/dropper/tmp-run::tmp-path
+      - id: obj/exec/dropper/tmp-run::tmp-path
       - id: os-system-call
       - id: platform-os-system-combo
       - id: inline-wget-exec

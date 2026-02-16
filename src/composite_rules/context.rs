@@ -16,6 +16,7 @@ fn hash_str(s: &str) -> u64 {
 }
 
 /// Context for evaluating composite rules
+#[derive(Debug)]
 pub struct EvaluationContext<'a> {
     pub report: &'a AnalysisReport,
     pub binary_data: &'a [u8],

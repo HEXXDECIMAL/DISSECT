@@ -10,7 +10,7 @@
 use serde::Deserialize;
 
 /// Internal trait information for symbol lookups
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub(crate) struct TraitInfo {
     pub(crate) id: String,
     pub(crate) desc: String,

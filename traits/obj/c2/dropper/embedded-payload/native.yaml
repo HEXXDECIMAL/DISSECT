@@ -61,7 +61,7 @@ composite_rules:
     size_max: 500000
     all:
       - id: cap/comm/download/curl::libcurl-http
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
       - id: cap/fs/file/operations::binary-file-ops
       - id: cap/fs/proc/info::process-pid-exe
 
@@ -77,7 +77,7 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/comm/download/curl::libcurl-http
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
       - id: obj/anti-static/obfuscation/payload::minimal-imports
 
   # Hex-encoded dropper: large hex blob + system() + minimal imports
@@ -93,7 +93,7 @@ composite_rules:
     all:
       - id: large-hex-payload
       - id: obj/anti-static/obfuscation/payload::minimal-imports
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution
 
   # Obfuscated payload dropper: custom encoding + large payload + exec
   # This pattern is common in macOS malware like FakeZoom/AMOS stealer
@@ -109,4 +109,4 @@ composite_rules:
     all:
       - id: large-hex-payload
       - id: custom-encoding-alphabet
-      - id: cap/exec/command/shell::shell-execution
+      - id: cap/process/create/shell::shell-execution

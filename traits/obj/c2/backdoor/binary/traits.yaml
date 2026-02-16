@@ -155,7 +155,7 @@ composite_rules:
     conf: 0.7
     for: [elf]
     all:
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/dylib/load::dlsym
     any:
       - id: rtld-next-ref
       - id: meta/format/elf::rtld-default-ref
@@ -232,7 +232,7 @@ composite_rules:
     for: [elf]
     all:
       # Require basic dynamic loading
-      - id: cap/exec/dylib/load::dlsym
+      - id: cap/dylib/load::dlsym
     any:
       # Plus at least one actual hijacking indicator (not just dlopen)
       - id: rtld-global-ref
@@ -243,7 +243,7 @@ composite_rules:
     downgrade:
       any:
         - id: meta/library/graphics-lib-marker
-        - id: cap/exec/load/library::system-lib-marker
+        - id: cap/dylib/library::system-lib-marker
 
   # === Unexpected capability combinations ===
   # References external traits for socket/process operations
@@ -261,12 +261,12 @@ composite_rules:
       - id: cap/comm/socket/create::create
       - id: cap/comm/socket/connect::connect
     none:
-      - id: cap/exec/load/library::network-lib-marker
-      - id: cap/exec/load/library::system-lib-marker
-      - id: cap/exec/load/library::x11-ipc-lib-marker
-      - id: cap/exec/load/library::graphics-lib-marker
-      - id: cap/exec/load/go-runtime/
-      - id: cap/exec/load/library::debugger-tool-marker
+      - id: cap/dylib/library::network-lib-marker
+      - id: cap/dylib/library::system-lib-marker
+      - id: cap/dylib/library::x11-ipc-lib-marker
+      - id: cap/dylib/library::graphics-lib-marker
+      - id: cap/dylib/go-runtime/
+      - id: cap/dylib/library::debugger-tool-marker
       - id: meta/signed/platform::apple
 
   - id: unexpected-process-ops
@@ -276,19 +276,19 @@ composite_rules:
     needs: 2
     any:
       - id: cap/process/fork/clone::fork
-      - id: cap/exec/command/shell
+      - id: cap/process/create/shell
     none:
-      - id: cap/exec/load/go-runtime/
-      - id: cap/exec/load/library::shell-interpreter
-      - id: cap/exec/load/library::system-lib-marker
+      - id: cap/dylib/go-runtime/
+      - id: cap/dylib/library::shell-interpreter
+      - id: cap/dylib/library::system-lib-marker
       - id: obj/persist/shell/config::tcsh-keyword
       # Compiler tools legitimately spawn processes for compilation
-      - id: cap/exec/load/library::llvm-project-ref
+      - id: cap/dylib/library::llvm-project-ref
       - id: meta/lang/compiler::libllvm
-      - id: cap/exec/load/library::gcc-project-ref
-      - id: cap/exec/load/library::cmake-build-ref
+      - id: cap/dylib/library::gcc-project-ref
+      - id: cap/dylib/library::cmake-build-ref
       # Debuggers legitimately use process control for debugging
-      - id: cap/exec/load/library::debugger-tool-marker
+      - id: cap/dylib/library::debugger-tool-marker
       - id: meta/format::many-imports
       - id: meta/signed/platform::apple
 

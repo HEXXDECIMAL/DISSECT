@@ -72,7 +72,7 @@ traits:
 
   # NOTE: dup2, execve, and protocol constants are defined in their canonical locations:
   # - cap/process/fd/dup::dup2
-  # - cap/exec/command/shell/c-execve
+  # - cap/process/create/shell/c-execve
   # - cap/comm/ip/services::ipproto-icmp
   # Composite rules below reference them using full paths.
 

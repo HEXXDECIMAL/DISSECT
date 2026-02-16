@@ -11,5 +11,5 @@ composite_rules:
   - id: ruby-os-check
     desc: Ruby OS check detected
     any:
-      - id: cap/exec/dropper/script::ruby-ast-check-windows-regex
-      - id: cap/exec/dropper/script::ruby-ast-host-os-access
+      - id: obj/exec/dropper/script::ruby-ast-check-windows-regex
+      - id: obj/exec/dropper/script::ruby-ast-host-os-access

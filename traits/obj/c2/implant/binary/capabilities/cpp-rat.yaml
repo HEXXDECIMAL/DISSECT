@@ -156,7 +156,7 @@ composite_rules:
     all:
       - id: rshell-function
       - id: heartbeat-function
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::shell-symbols
 
   # C++ RAT with registration and victim profiling
   # Complexity: all(4) + for(1) = 5 >= 4 ✓ HOSTILE
@@ -171,7 +171,7 @@ composite_rules:
       - id: heartbeat-function
       - id: register-to-server
       - id: basic-info-gather-class
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::shell-symbols
 
   # C++ RAT with heartbeat and C2 registration
   # Complexity: all(3) + for(1) = 4 >= 4 ✓ HOSTILE

@@ -50,9 +50,9 @@ composite_rules:
       - id: multiple-rdtsc-instr
     downgrade:
       any:
-        - id: cap/exec/reflection/invoke::namespace-import
-        - id: cap/exec/reflection/invoke::method-info
-        - id: cap/exec/reflection/invoke::property-info
+        - id: obj/exec/reflection/invoke::namespace-import
+        - id: obj/exec/reflection/invoke::method-info
+        - id: obj/exec/reflection/invoke::property-info
         - id: meta/signed/platform::apple
         - id: file/archive/self-extracting
 

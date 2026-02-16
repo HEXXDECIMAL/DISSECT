@@ -48,7 +48,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     all:
-      - id: cap/exec/vm/sandbox::http-protocol-string
+      - id: obj/exec/vm/sandbox::http-protocol-string
     any:
       - id: http-method-get
       - id: http-method-post
@@ -58,7 +58,7 @@ composite_rules:
     crit: suspicious
     conf: 0.65
     all:
-      - id: cap/exec/vm/sandbox::http-protocol-string
+      - id: obj/exec/vm/sandbox::http-protocol-string
       - id: http-delimiter
     any:
       - id: cap/comm/http/request::user-agent-header

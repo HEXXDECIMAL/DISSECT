@@ -16,7 +16,7 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: cap/exec/activex/com::activex-object-create}
+      - {id: obj/exec/activex/com::activex-object-create}
   # React + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
     desc: "React library with reverse shell"
@@ -55,8 +55,8 @@ composite_rules:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
     any:
-      - {id: cap/exec/command/shell}
-      - {id: cap/exec/command/shell/lang::child-process-exec}
+      - {id: cap/process/create/shell}
+      - {id: cap/process/create/shell/lang::child-process-exec}
   # React + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
     desc: "React library with network backdoor"

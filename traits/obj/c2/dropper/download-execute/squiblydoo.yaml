@@ -14,9 +14,9 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: cap/exec/command/tool::regsvr32
+      - id: cap/process/create/tool::regsvr32
     any:
-      - id: cap/exec/load/library::scrobj
+      - id: cap/dylib/library::scrobj
       - id: obj/c2/dropper/download-execute::url-arg
 
   - id: squiblydoo-encoded
@@ -24,9 +24,9 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: cap/exec/command/tool::regsvr32-encoded
+      - id: cap/process/create/tool::regsvr32-encoded
     any:
-      - id: cap/exec/load/library::scrobj-encoded
+      - id: cap/dylib/library::scrobj-encoded
       - id: obj/c2/dropper/download-execute::url-arg-encoded
 
   - id: squiblydoo-raw-hex
@@ -34,9 +34,9 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: cap/exec/command/tool::regsvr32-raw-hex
+      - id: cap/process/create/tool::regsvr32-raw-hex
     any:
-      - id: cap/exec/load/library::scrobj-raw-hex
+      - id: cap/dylib/library::scrobj-raw-hex
       - id: obj/c2/dropper/download-execute::url-arg-raw-hex
 
 traits:

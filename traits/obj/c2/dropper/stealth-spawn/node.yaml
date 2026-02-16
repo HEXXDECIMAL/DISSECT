@@ -16,8 +16,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     any:
-      - id: cap/exec/process/spawn::stdio-ignore-array
-      - id: cap/exec/process/spawn::stdio-ignore-string
+      - id: cap/process/spawn::stdio-ignore-array
+      - id: cap/process/spawn::stdio-ignore-string
 
   # === Stealth dropper composite ===
 
@@ -31,9 +31,9 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: cap/exec/process/spawn::detached-true
+      - id: cap/process/spawn::detached-true
       - id: stdio-suppressed
-      - id: cap/exec/process/spawn::child-unref-call
+      - id: cap/process/spawn::child-unref-call
     unless:
       - id: meta/dev/testing::node-core-test
       - id: obj/lateral/supply-chain/npm/testing::test-filename-pattern
@@ -48,10 +48,10 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: cap/exec/process/spawn::process-execpath-spawn
-      - id: cap/exec/process/spawn::detached-true
+      - id: cap/process/spawn::process-execpath-spawn
+      - id: cap/process/spawn::detached-true
       - id: stdio-suppressed
-      - id: cap/exec/process/spawn::child-unref-call
+      - id: cap/process/spawn::child-unref-call
     unless:
       - id: meta/dev/testing::node-core-test
       - id: obj/lateral/supply-chain/npm/testing::test-filename-pattern
@@ -66,5 +66,5 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: cap/exec/command/shell/lang::child-process-require
+      - id: cap/process/create/shell/lang::child-process-require
       - id: stealth-spawn

@@ -142,7 +142,7 @@ composite_rules:
     for: [elf]
     all:
       - id: cap/comm/socket/create
-      - id: cap/exec/command/shell::shell-symbols
+      - id: cap/process/create/shell::shell-symbols
     any:
       - id: fake-smartd
       - id: fake-syslogd

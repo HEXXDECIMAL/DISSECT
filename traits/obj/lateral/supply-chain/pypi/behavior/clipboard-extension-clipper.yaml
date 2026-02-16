@@ -15,5 +15,5 @@ composite_rules:
     mbc: "E1204"
     all:
       - id: obj/lateral/supply-chain/pypi/install-patterns::robust-setup-py
-      - id: cap/anti-static/obfuscation/code::python-getattr-oct-hex-obfuscation
+      - id: obj/anti-static/obfuscation/code::python-getattr-oct-hex-obfuscation
       - id: cap/comm/ipc/win32com::import-win32com

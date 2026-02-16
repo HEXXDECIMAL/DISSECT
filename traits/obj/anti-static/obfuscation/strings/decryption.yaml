@@ -23,5 +23,5 @@ composite_rules:
     crit: hostile
     conf: 0.9
     all:
-      - id: cap/exec/command/tool::exec-r2
+      - id: cap/process/create/tool::exec-r2
       - id: cap/data/encode/xor::xor-decoding-loop

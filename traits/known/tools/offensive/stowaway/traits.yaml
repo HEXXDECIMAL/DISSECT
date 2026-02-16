@@ -116,7 +116,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: stowaway-module-path
-      - id: cap/exec/command/shell::go-shell-strings
+      - id: cap/process/create/shell::go-shell-strings
 
   # Stowaway with SSH tunneling
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -130,7 +130,7 @@ composite_rules:
     all:
       - id: stowaway-handlers
       - id: stowaway-managers
-      - id: cap/exec/command/shell::go-shell-strings
+      - id: cap/process/create/shell::go-shell-strings
 
   # Stowaway with SOCKS proxy and agent startup
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -144,7 +144,7 @@ composite_rules:
     all:
       - id: stowaway-agent-startup
       - id: stowaway-proto-messages
-      - id: cap/exec/command/shell::go-shell-strings
+      - id: cap/process/create/shell::go-shell-strings
 
   # Stowaway with iptables manipulation (advanced evasion)
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
@@ -158,4 +158,4 @@ composite_rules:
     all:
       - id: stowaway-iptables
       - id: stowaway-port-reuse
-      - id: cap/exec/command/shell::go-shell-strings
+      - id: cap/process/create/shell::go-shell-strings

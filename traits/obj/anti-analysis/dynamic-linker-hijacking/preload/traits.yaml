@@ -44,7 +44,7 @@ traits:
     type: string
     substr: dlopen
   attack: T1574.006
-# Removed duplicate - use cap/exec/dylib/lookup::dlsym-string or dlsym-symbol
+# Removed duplicate - use cap/dylib/lookup::dlsym-string or dlsym-symbol
 - id: libc-preload
   desc: Preload libc library
   crit: suspicious
@@ -88,7 +88,7 @@ composite_rules:
   attack: T1574.006
   all:
   - id: dlopen-call
-  - id: cap/exec/dylib/lookup::dlsym-symbol
+  - id: cap/dylib/lookup::dlsym-symbol
 - id: ld-environment-hijacking
   desc: LD environment variable hijacking
   crit: suspicious
