@@ -89,6 +89,10 @@ var (
 	badTmpl   *template.Template
 	goodTmpl  *template.Template
 	toolsTmpl *template.Template
+
+	// validatedProviders tracks which providers have been successfully validated
+	validatedProviders   = make(map[string]bool)
+	validatedProvidersMu sync.Mutex
 )
 
 func loadPromptTemplate(repoRoot string) error {
@@ -1396,6 +1400,13 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
 		}
 
+		// Validate provider is responsive before running main task
+		if err := validateProvider(ctx, cfg); err != nil {
+			lastErr = err
+			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			continue
+		}
+
 		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
 		err := runAIWithStreaming(tctx, cfg, prompt, sid)
 		cancel()
@@ -1560,6 +1571,14 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 		if i > 0 {
 			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
 		}
+
+		// Validate provider is responsive before running main task
+		if err := validateProvider(ctx, cfg); err != nil {
+			lastErr = err
+			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			continue
+		}
+
 		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
 		fmt.Fprintln(os.Stderr)
 
@@ -1840,6 +1859,14 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		if i > 0 {
 			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
 		}
+
+		// Validate provider is responsive before running main task
+		if err := validateProvider(ctx, cfg); err != nil {
+			lastErr = err
+			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			continue
+		}
+
 		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
 		fmt.Fprintln(os.Stderr)
 
@@ -1864,6 +1891,39 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 	}
 
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
+}
+
+// validateProvider tests if the AI provider is responsive with a simple test prompt.
+// Returns an error if the provider doesn't respond within 1 minute.
+// Only validates each provider once per program execution.
+func validateProvider(ctx context.Context, cfg *config) error {
+	// Fast path: check without lock
+	validatedProvidersMu.Lock()
+	if validatedProviders[cfg.provider] {
+		validatedProvidersMu.Unlock()
+		return nil
+	}
+	validatedProvidersMu.Unlock()
+
+	fmt.Fprintf(os.Stderr, ">>> Validating provider %s (60s timeout)...\n", cfg.provider)
+
+	testCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+
+	testCfg := *cfg
+	testCfg.timeout = 60 * time.Second
+
+	if err := runAIWithStreaming(testCtx, &testCfg, "Say OK", "validation"); err != nil {
+		return fmt.Errorf("provider validation failed: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, ">>> Provider %s validated successfully\n", cfg.provider)
+
+	validatedProvidersMu.Lock()
+	validatedProviders[cfg.provider] = true
+	validatedProvidersMu.Unlock()
+
+	return nil
 }
 
 func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
