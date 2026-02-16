@@ -24,10 +24,7 @@ fn test_macho_binary_metrics_always_populated() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let report = analyzer
-        .unwrap()
-        .analyze(&test_file)
-        .expect("Analysis should succeed");
+    let report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
 
     // CRITICAL: metrics must always be present
     assert!(report.metrics.is_some(), "Metrics must always be populated");
@@ -102,10 +99,7 @@ fn test_metrics_accessible_to_rules() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let mut report = analyzer
-        .unwrap()
-        .analyze(&test_file)
-        .expect("Analysis should succeed");
+    let mut report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
 
     // Metrics must be present before rule evaluation
     assert!(
@@ -209,10 +203,7 @@ fn test_radare2_failure_handling() {
     assert!(analyzer.is_some(), "Should have Mach-O analyzer");
 
     // Analyze the file
-    let report = analyzer
-        .unwrap()
-        .analyze(&test_file)
-        .expect("Analysis should succeed");
+    let report = analyzer.unwrap().analyze(&test_file).expect("Analysis should succeed");
 
     // Even if radare2 fails, we must have basic metrics
     assert!(report.metrics.is_some());

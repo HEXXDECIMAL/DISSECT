@@ -27,8 +27,7 @@ fn test_utf16le_wsh_dropper_analysis() {
     }
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(&sample, &options)
-        .expect("Failed to analyze UTF-16 LE file");
+    let report = analyze_file(&sample, &options).expect("Failed to analyze UTF-16 LE file");
 
     // Should successfully analyze the file
     assert!(
@@ -37,10 +36,8 @@ fn test_utf16le_wsh_dropper_analysis() {
     );
 
     // Should detect hostile or suspicious findings
-    let has_hostile = report
-        .findings
-        .iter()
-        .any(|f| matches!(f.crit, dissect::Criticality::Hostile));
+    let has_hostile =
+        report.findings.iter().any(|f| matches!(f.crit, dissect::Criticality::Hostile));
     let has_suspicious = report
         .findings
         .iter()
@@ -52,8 +49,22 @@ fn test_utf16le_wsh_dropper_analysis() {
     );
 
     println!("✓ UTF-16 LE analysis successful:");
-    println!("  - Hostile findings: {}", report.findings.iter().filter(|f| matches!(f.crit, dissect::Criticality::Hostile)).count());
-    println!("  - Suspicious findings: {}", report.findings.iter().filter(|f| matches!(f.crit, dissect::Criticality::Suspicious)).count());
+    println!(
+        "  - Hostile findings: {}",
+        report
+            .findings
+            .iter()
+            .filter(|f| matches!(f.crit, dissect::Criticality::Hostile))
+            .count()
+    );
+    println!(
+        "  - Suspicious findings: {}",
+        report
+            .findings
+            .iter()
+            .filter(|f| matches!(f.crit, dissect::Criticality::Suspicious))
+            .count()
+    );
     println!("  - Total findings: {}", report.findings.len());
     println!("  - File type: {}", report.target.file_type);
 }
@@ -72,8 +83,7 @@ fn test_utf16le_raw_searches() {
     }
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(&sample, &options)
-        .expect("Failed to analyze UTF-16 LE file");
+    let report = analyze_file(&sample, &options).expect("Failed to analyze UTF-16 LE file");
 
     // Check for findings that rely on raw content searches
     let raw_findings: Vec<_> = report
@@ -118,8 +128,7 @@ fn test_utf16le_ast_searches() {
     }
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(&sample, &options)
-        .expect("Failed to analyze UTF-16 LE file");
+    let report = analyze_file(&sample, &options).expect("Failed to analyze UTF-16 LE file");
 
     // Check for findings that rely on AST parsing
     let ast_findings: Vec<_> = report
@@ -167,8 +176,7 @@ fn test_utf16le_string_extraction() {
     }
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(&sample, &options)
-        .expect("Failed to analyze UTF-16 LE file");
+    let report = analyze_file(&sample, &options).expect("Failed to analyze UTF-16 LE file");
 
     // Check for findings that rely on string extraction
     let string_findings: Vec<_> = report
@@ -197,10 +205,8 @@ fn test_utf16be_support() {
     use tempfile::Builder;
 
     // Create a simple UTF-16 BE JavaScript file with .js extension
-    let mut temp_file = Builder::new()
-        .suffix(".js")
-        .tempfile()
-        .expect("Failed to create temp file");
+    let mut temp_file =
+        Builder::new().suffix(".js").tempfile().expect("Failed to create temp file");
 
     // UTF-16 BE BOM (FE FF) + "console.log('test');" in UTF-16 BE
     let utf16be_js = vec![
@@ -227,14 +233,12 @@ fn test_utf16be_support() {
         0x00, 0x3B, // ;
     ];
 
-    temp_file
-        .write_all(&utf16be_js)
-        .expect("Failed to write UTF-16 BE test file");
+    temp_file.write_all(&utf16be_js).expect("Failed to write UTF-16 BE test file");
     temp_file.flush().expect("Failed to flush temp file");
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(temp_file.path(), &options)
-        .expect("Failed to analyze UTF-16 BE file");
+    let report =
+        analyze_file(temp_file.path(), &options).expect("Failed to analyze UTF-16 BE file");
 
     // Should successfully parse as JavaScript
     assert_eq!(
@@ -254,18 +258,15 @@ fn test_utf8_passthrough() {
     use tempfile::Builder;
 
     // Create a regular UTF-8 JavaScript file with .js extension
-    let mut temp_file = Builder::new()
-        .suffix(".js")
-        .tempfile()
-        .expect("Failed to create temp file");
+    let mut temp_file =
+        Builder::new().suffix(".js").tempfile().expect("Failed to create temp file");
     temp_file
         .write_all(b"console.log('Hello, world!');\n")
         .expect("Failed to write UTF-8 test file");
     temp_file.flush().expect("Failed to flush temp file");
 
     let options = AnalysisOptions::default();
-    let report = analyze_file(temp_file.path(), &options)
-        .expect("Failed to analyze UTF-8 file");
+    let report = analyze_file(temp_file.path(), &options).expect("Failed to analyze UTF-8 file");
 
     // Should successfully parse as JavaScript
     assert_eq!(

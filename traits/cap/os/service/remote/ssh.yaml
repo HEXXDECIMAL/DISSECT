@@ -6,9 +6,10 @@ traits:
     desc: sshd daemon reference
     crit: inert
     conf: 0.4
+    for: [all]
     if:
       type: string
-      exact: "sshd"
+      word: "sshd"
 
   - id: sshd-path
     desc: sshd daemon path

@@ -55,7 +55,6 @@ impl EntropyLevel {
         }
     }
 
-    #[allow(dead_code)]
     pub fn as_str(&self) -> &str {
         match self {
             EntropyLevel::VeryLow => "very_low",
@@ -65,7 +64,6 @@ impl EntropyLevel {
         }
     }
 
-    #[allow(dead_code)]
     pub fn description(&self) -> &str {
         match self {
             EntropyLevel::VeryLow => "Very low entropy (sparse data)",

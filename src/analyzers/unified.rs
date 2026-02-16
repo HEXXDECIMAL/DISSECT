@@ -313,9 +313,7 @@ impl UnifiedSourceAnalyzer {
     /// Create a new analyzer for the given language configuration.
     pub fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> Self {
         let mut parser = Parser::new();
-        parser
-            .set_language(&config.language)
-            .expect("Failed to load language grammar");
+        parser.set_language(&config.language).expect("Failed to load language grammar");
 
         Self {
             config,
@@ -347,7 +345,12 @@ impl UnifiedSourceAnalyzer {
         self.analyze_source_with_original(file_path, content, content.as_bytes())
     }
 
-    pub fn analyze_source_with_original(&self, file_path: &Path, content: &str, original_bytes: &[u8]) -> Result<AnalysisReport> {
+    pub fn analyze_source_with_original(
+        &self,
+        file_path: &Path,
+        content: &str,
+        original_bytes: &[u8],
+    ) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse the source
@@ -371,13 +374,11 @@ impl UnifiedSourceAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report
-            .structure
-            .push(crate::analyzers::utils::create_language_feature(
-                self.config.name,
-                &format!("tree-sitter-{}", self.config.name),
-                self.config.description,
-            ));
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            self.config.name,
+            &format!("tree-sitter-{}", self.config.name),
+            self.config.description,
+        ));
 
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -387,9 +388,7 @@ impl UnifiedSourceAnalyzer {
 
         // Also run stng extraction to get fuzzy base64 and other decoded content
         // Use original_bytes (UTF-16 if present) so stng can detect BOM and use fuzzy base64
-        let opts = stng::ExtractOptions::new(4)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let opts = stng::ExtractOptions::new(4).with_garbage_filter(true).with_xor(None);
         let stng_strings = stng::extract_strings_with_options(original_bytes, &opts);
 
         // Convert stng strings to StringInfo and add to report
@@ -407,7 +406,7 @@ impl UnifiedSourceAnalyzer {
                 let string_type = match es.kind {
                     stng::StringKind::ShellCmd => crate::types::StringType::ShellCmd,
                     stng::StringKind::Url => crate::types::StringType::Url,
-                    _ => crate::types::StringType::Plain,
+                    _ => crate::types::StringType::Const,
                 };
 
                 let encoding_method = match es.method {
@@ -437,7 +436,9 @@ impl UnifiedSourceAnalyzer {
         }
 
         // Extract and analyze base64/zlib encoded payloads (same treatment as archives)
-        let extracted_payloads = crate::extractors::extract_encoded_payloads(content.as_bytes());
+        let opts = stng::ExtractOptions::new(16).with_garbage_filter(true);
+        let stng_strings = stng::extract_strings_with_options(content.as_bytes(), &opts);
+        let extracted_payloads = crate::extractors::extract_encoded_payloads(&stng_strings);
         for (idx, payload) in extracted_payloads.iter().enumerate() {
             // Create virtual path with encoding info using ## delimiter for decoded content
             let virtual_path = crate::types::encode_decoded_path(
@@ -474,7 +475,7 @@ impl UnifiedSourceAnalyzer {
                     } else {
                         None
                     }
-                }
+                },
                 FileType::Shell => {
                     if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
                         analyzer
@@ -487,11 +488,11 @@ impl UnifiedSourceAnalyzer {
                     } else {
                         None
                     }
-                }
+                },
                 _ => {
                     // For binary or unknown, create basic report
                     None
-                }
+                },
             };
 
             // Process payload report - convert to FileAnalysis for v2 flat files array
@@ -508,11 +509,11 @@ impl UnifiedSourceAnalyzer {
                         match &evidence.location {
                             None => {
                                 evidence.location = Some(format!("extracted:{}", virtual_path));
-                            }
+                            },
                             Some(loc) => {
                                 evidence.location =
                                     Some(format!("extracted:{}:{}", virtual_path, loc));
-                            }
+                            },
                         }
                     }
                 }
@@ -564,7 +565,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    }
+                    },
                     FileType::Python => {
                         if let Some(analyzer) =
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
@@ -579,7 +580,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    }
+                    },
                     FileType::Shell => {
                         if let Some(analyzer) =
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Shell)
@@ -594,7 +595,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    }
+                    },
                     _ => None,
                 };
 
@@ -611,11 +612,11 @@ impl UnifiedSourceAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(format!("decrypted:{}", virtual_path));
-                                }
+                                },
                                 Some(loc) => {
                                     evidence.location =
                                         Some(format!("decrypted:{}:{}", virtual_path, loc));
-                                }
+                                },
                             }
                         }
                     }
@@ -683,9 +684,9 @@ impl UnifiedSourceAnalyzer {
         Ok(report)
     }
 
-    fn extract_functions(
+    fn extract_functions<'a>(
         &self,
-        root: &tree_sitter::Node,
+        root: &tree_sitter::Node<'a>,
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
@@ -693,9 +694,9 @@ impl UnifiedSourceAnalyzer {
         self.walk_for_functions(&mut cursor, source, report, 0);
     }
 
-    fn walk_for_functions(
+    fn walk_for_functions<'a>(
         &self,
-        cursor: &mut tree_sitter::TreeCursor,
+        cursor: &mut tree_sitter::TreeCursor<'a>,
         source: &[u8],
         report: &mut AnalysisReport,
         mut depth: u32,
@@ -751,7 +752,7 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_function_name(&self, node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+    fn extract_function_name<'a>(&self, node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
         // Try the configured field name first
         if let Some(name_node) = node.child_by_field_name(self.config.function_name_field) {
             if let Ok(name) = name_node.utf8_text(source) {
@@ -781,9 +782,9 @@ impl UnifiedSourceAnalyzer {
         None
     }
 
-    fn extract_strings(
+    fn extract_strings<'a>(
         &self,
-        root: &tree_sitter::Node,
+        root: &tree_sitter::Node<'a>,
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
@@ -791,9 +792,9 @@ impl UnifiedSourceAnalyzer {
         self.walk_for_strings(&mut cursor, source, report);
     }
 
-    fn walk_for_strings(
+    fn walk_for_strings<'a>(
         &self,
-        cursor: &mut tree_sitter::TreeCursor,
+        cursor: &mut tree_sitter::TreeCursor<'a>,
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
@@ -821,7 +822,7 @@ impl UnifiedSourceAnalyzer {
                         report.strings.push(StringInfo {
                             value: s.to_string(),
                             offset: Some(node.start_byte() as u64),
-                            string_type: StringType::Literal,
+                            string_type: StringType::Const,
                             encoding: "utf-8".to_string(),
                             section: Some("ast".to_string()),
                             encoding_chain: Vec::new(),
@@ -845,7 +846,7 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn compute_metrics(&self, root: &tree_sitter::Node, content: &str) -> Metrics {
+    fn compute_metrics<'a>(&self, root: &tree_sitter::Node<'a>, content: &str) -> Metrics {
         let source = content.as_bytes();
         let total_lines = content.lines().count() as u32;
 
@@ -874,7 +875,7 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_identifiers(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    fn extract_identifiers<'a>(&self, root: &tree_sitter::Node<'a>, source: &[u8]) -> Vec<String> {
         let mut identifiers = Vec::new();
         let mut cursor = root.walk();
 
@@ -905,7 +906,7 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_string_values(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<String> {
+    fn extract_string_values<'a>(&self, root: &tree_sitter::Node<'a>, source: &[u8]) -> Vec<String> {
         let mut strings = Vec::new();
         let mut cursor = root.walk();
 
@@ -943,16 +944,16 @@ impl UnifiedSourceAnalyzer {
         }
     }
 
-    fn extract_function_info(&self, root: &tree_sitter::Node, source: &[u8]) -> Vec<FunctionInfo> {
+    fn extract_function_info<'a>(&self, root: &tree_sitter::Node<'a>, source: &[u8]) -> Vec<FunctionInfo> {
         let mut functions = Vec::new();
         let mut cursor = root.walk();
         self.walk_for_function_info(&mut cursor, source, &mut functions, 0);
         functions
     }
 
-    fn walk_for_function_info(
+    fn walk_for_function_info<'a>(
         &self,
-        cursor: &mut tree_sitter::TreeCursor,
+        cursor: &mut tree_sitter::TreeCursor<'a>,
         source: &[u8],
         functions: &mut Vec<FunctionInfo>,
         mut depth: u32,
@@ -1267,10 +1268,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
             "Expected cap/exec/command/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1287,10 +1285,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/exec/command/direct::syscall-exec"),
+            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::syscall-exec"),
             "Expected cap/exec/command/direct::syscall-exec, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1309,18 +1304,12 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/socket/connect::dial"),
+            report.findings.iter().any(|c| c.id == "cap/comm/socket/connect::dial"),
             "Expected cap/comm/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
             "Expected cap/exec/command/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1337,10 +1326,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/socket/listen::listen-go"),
+            report.findings.iter().any(|c| c.id == "cap/comm/socket/listen::listen-go"),
             "Expected cap/comm/socket/listen::listen-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1357,10 +1343,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/socket/connect::dial"),
+            report.findings.iter().any(|c| c.id == "cap/comm/socket/connect::dial"),
             "Expected cap/comm/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1377,10 +1360,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/http/get::http-get"),
+            report.findings.iter().any(|c| c.id == "cap/comm/http/get::http-get"),
             "Expected cap/comm/http/get::http-get, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1397,10 +1377,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/http/server::server-go"),
+            report.findings.iter().any(|c| c.id == "cap/comm/http/server::server-go"),
             "Expected cap/comm/http/server::server-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1460,10 +1437,7 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/fs/file/operations::os-create"),
+            report.findings.iter().any(|c| c.id == "cap/fs/file/operations::os-create"),
             "Expected cap/fs/file/operations::os-create, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1473,10 +1447,7 @@ func main() {
     fn test_go_structural_feature() {
         let code = "package main\nfunc main() {}";
         let report = analyze_go_code(code);
-        assert!(report
-            .structure
-            .iter()
-            .any(|s| s.id == "source/language/go"));
+        assert!(report.structure.iter().any(|s| s.id == "source/language/go"));
     }
 
     #[test]
@@ -1517,17 +1488,11 @@ func main() {
             report.findings.len()
         );
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/exec/command/direct::exec-command"),
+            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
             "Expected cap/exec/command/direct::exec-command"
         );
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "cap/comm/http/get::http-get"),
+            report.findings.iter().any(|c| c.id == "cap/comm/http/get::http-get"),
             "Expected cap/comm/http/get::http-get"
         );
     }

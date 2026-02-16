@@ -32,12 +32,15 @@ const SCPT_TERMINATOR: [u8; 4] = [0xfa, 0xde, 0xde, 0xad];
 /// Errors that can occur during scpt parsing
 #[derive(Error, Debug)]
 pub enum ScptError {
+    /// Invalid magic bytes - not a compiled AppleScript file
     #[error("invalid magic bytes - not a compiled AppleScript file")]
     InvalidMagic,
 
+    /// File too small to be a valid scpt
     #[error("file too small to be a valid scpt")]
     FileTooSmall,
 
+    /// Malformed data at offset
     #[error("malformed data at offset {0}")]
     MalformedData(usize),
 }
@@ -103,9 +106,13 @@ impl AppleEventClass {
 /// Known Apple Event IDs and their meanings
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AppleEventInfo {
+    /// The Apple Event class category
     pub class: AppleEventClass,
+    /// The four-character class code (e.g., "syso", "aevt")
     pub class_code: String,
+    /// The four-character event code (e.g., "exec", "oapp")
     pub event_code: String,
+    /// Human-readable description of the event
     pub desc: &'static str,
 }
 
@@ -157,6 +164,7 @@ impl AppleEventInfo {
 }
 
 /// Parser for compiled AppleScript (.scpt) files
+#[derive(Debug)]
 pub struct ScptParser<'a> {
     data: &'a [u8],
     version: String,
@@ -175,9 +183,7 @@ impl<'a> ScptParser<'a> {
 
         // Extract version string (bytes 8-16)
         let version_bytes = &data[8..16];
-        let version = String::from_utf8_lossy(version_bytes)
-            .trim_end_matches('\0')
-            .to_string();
+        let version = String::from_utf8_lossy(version_bytes).trim_end_matches('\0').to_string();
 
         Ok(Self { data, version })
     }
@@ -511,8 +517,7 @@ impl<'a> ScptParser<'a> {
             return false;
         }
 
-        s.chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+        s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
     }
 
     fn is_interesting_string(s: &str) -> bool {

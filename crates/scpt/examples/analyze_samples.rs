@@ -2,9 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 
 fn main() {
-    let dir = std::env::args()
-        .nth(1)
-        .unwrap_or_else(|| "/Users/t/src/mbdl/scpt".to_string());
+    let dir = std::env::args().nth(1).unwrap_or_else(|| "/Users/t/src/mbdl/scpt".to_string());
     let mut all_symbols: HashMap<String, Vec<String>> = HashMap::new();
     let mut all_events: HashMap<String, Vec<String>> = HashMap::new();
     let mut all_apps: HashSet<String> = HashSet::new();
@@ -38,22 +36,22 @@ fn main() {
                                 .entry(sym.name.clone())
                                 .or_default()
                                 .push(short_name.to_string());
-                        }
+                        },
                         scpt::SymbolKind::AppleEvent => {
                             all_events
                                 .entry(sym.name.clone())
                                 .or_default()
                                 .push(short_name.to_string());
-                        }
+                        },
                         scpt::SymbolKind::Application => {
                             all_apps.insert(sym.name.clone());
-                        }
+                        },
                         scpt::SymbolKind::StringLiteral => {
                             if sym.name.len() > 5 {
                                 all_strings.insert(sym.name.clone());
                             }
-                        }
-                        _ => {}
+                        },
+                        _ => {},
                     }
                 }
             }

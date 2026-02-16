@@ -29,10 +29,7 @@ pub(crate) fn extract_compressed_safe(
     let compressed_size = file.metadata()?.len();
 
     // Determine output filename by stripping the compression extension
-    let stem = archive_path
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("extracted");
+    let stem = archive_path.file_stem().and_then(|s| s.to_str()).unwrap_or("extracted");
     let output_path = dest_dir.join(stem);
 
     if !guard.check_file_count() {
@@ -47,25 +44,25 @@ pub(crate) fn extract_compressed_safe(
             let decoder = xz2::read::XzDecoder::new(file);
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
             std::io::copy(&mut limited, &mut output_file).context("Failed to decompress XZ file")?
-        }
+        },
         "gzip" => {
             let decoder = flate2::read::GzDecoder::new(file);
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
             std::io::copy(&mut limited, &mut output_file).context("Failed to decompress GZ file")?
-        }
+        },
         "bzip2" => {
             let decoder = bzip2::read::BzDecoder::new(file);
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
             std::io::copy(&mut limited, &mut output_file)
                 .context("Failed to decompress BZ2 file")?
-        }
+        },
         "zstd" => {
             let decoder =
                 zstd::stream::read::Decoder::new(file).context("Failed to create zstd decoder")?;
             let mut limited = LimitedReader::new(decoder, MAX_FILE_SIZE);
             std::io::copy(&mut limited, &mut output_file)
                 .context("Failed to decompress ZSTD file")?
-        }
+        },
         _ => anyhow::bail!("Unsupported compression: {}", compression),
     };
 
@@ -120,7 +117,7 @@ pub(crate) fn extract_7z_safe(
             None => {
                 guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.to_string()));
                 return Ok(true); // Continue extraction
-            }
+            },
         };
 
         // Check if entry is a directory
@@ -190,7 +187,7 @@ pub(crate) fn extract_pkg_safe(
             None => {
                 guard.add_hostile_reason(HostileArchiveReason::PathTraversal(path.clone()));
                 continue;
-            }
+            },
         };
 
         // Check file size
@@ -419,7 +416,7 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path, guard: &ExtractionGuard
                     break;
                 }
                 return Err(e.into());
-            }
+            },
         };
 
         let entry = entry_reader.entry();
@@ -453,7 +450,7 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path, guard: &ExtractionGuard
                 let mut sink = std::io::sink();
                 std::io::copy(&mut { entry_reader }, &mut sink).ok();
                 continue;
-            }
+            },
         };
 
         let mode = entry.mode();
@@ -553,7 +550,7 @@ pub(crate) fn extract_rar(
                             ));
                             archive = file_archive.skip().context("Failed to skip RAR entry")?;
                             continue;
-                        }
+                        },
                     };
 
                     // Create parent directories
@@ -579,16 +576,14 @@ pub(crate) fn extract_rar(
                             ));
                             archive = file_archive.skip().context("Failed to skip RAR entry")?;
                             continue;
-                        }
+                        },
                     };
                     fs::create_dir_all(&dir_path)?;
-                    archive = file_archive
-                        .skip()
-                        .context("Failed to skip RAR directory")?;
+                    archive = file_archive.skip().context("Failed to skip RAR directory")?;
                 } else {
                     archive = file_archive.skip().context("Failed to skip RAR entry")?;
                 }
-            }
+            },
             Ok(None) => break, // No more entries
             Err(e) => return Err(e.into()),
         }

@@ -6,14 +6,7 @@ defaults:
 
 traits:
   # === PAM library (strings - library names) ===
-  - id: libpam-so
-    desc: libpam.so library
-    crit: notable
-    conf: 0.7
-    for: [c, cpp, elf, so]
-    if:
-      type: string
-      substr: "libpam.so"
+  # Removed libpam-so duplicate - use cap/os/pam/auth::libpam-so-string
 
   - id: libpam-so-versioned
     desc: libpam.so.0 versioned library
@@ -122,7 +115,7 @@ composite_rules:
     desc: PAM library references
     for: [c, cpp, elf, so]
     any:
-      - { id: libpam-so }
+      - { id: cap/os/pam/auth::libpam-so-string }
       - { id: libpam-so-versioned }
 
   - id: pam-token-access

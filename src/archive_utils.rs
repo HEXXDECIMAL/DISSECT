@@ -15,7 +15,6 @@ pub fn is_archive(path: &Path) -> bool {
 }
 
 /// Extract and scan an archive, returning reports for all extracted files
-#[allow(dead_code)]
 pub fn extract_and_scan_archive(
     archive_path: &Path,
     _yara_engine: &Arc<YaraEngine>,
@@ -26,9 +25,7 @@ pub fn extract_and_scan_archive(
 
     // The ArchiveAnalyzer already handles extraction and recursive analysis
     // It returns a single aggregated report with capabilities from all files
-    let report = analyzer
-        .analyze(archive_path)
-        .context("Failed to analyze archive")?;
+    let report = analyzer.analyze(archive_path).context("Failed to analyze archive")?;
 
     // For now, return a single report for the archive
     // In a future iteration, we could modify ArchiveAnalyzer to return individual reports

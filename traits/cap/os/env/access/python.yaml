@@ -11,12 +11,7 @@ defaults:
   attack: "T1082"
 
 traits:
-  - id: os-getenv-symbol
-    desc: os.getenv method
-    conf: 0.6
-    if:
-      type: symbol
-      exact: "getenv"
+  # Removed os-getenv-symbol duplicate - use cap/os/env/vars::getenv (symbol works across all platforms)
 
   - id: os-environ-symbol
     desc: os.environ attribute

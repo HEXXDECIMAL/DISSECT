@@ -120,11 +120,7 @@ impl Analyzer for VsixManifestAnalyzer {
     fn can_analyze(&self, file_path: &Path) -> bool {
         file_path
             .file_name()
-            .map(|n| {
-                n.to_string_lossy()
-                    .to_lowercase()
-                    .ends_with(".vsixmanifest")
-            })
+            .map(|n| n.to_string_lossy().to_lowercase().ends_with(".vsixmanifest"))
             .unwrap_or(false)
     }
 }

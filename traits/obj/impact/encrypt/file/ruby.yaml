@@ -79,13 +79,7 @@ traits:
       regex: '████|卐|hackend'
 
   # === System Clear Screen ===
-  - id: clear-screen
-    desc: Clear terminal screen
-    crit: notable
-    conf: 0.50
-    if:
-      type: string
-      regex: "system.{0,50}clear|system.{0,50}'clear'|system.{0,50}\"clear\""
+  # Removed clear-screen duplicate - use cap/exec/interactive/terminal/ruby::cli-clear-screen
 
   # === Interactive Menu ===
   - id: interactive-menu

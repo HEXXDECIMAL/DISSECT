@@ -8,21 +8,10 @@ traits:
     conf: 1.0
     attack: "T1055"
     platforms: [linux, macos, unix]
-    for: [elf, macho, so, dylib, c]
+    for: [all]
     if:
       type: symbol
       regex: "^_?mprotect$"
-
-  - id: mprotect-string
-    desc: mprotect reference in source/script
-    crit: notable
-    conf: 0.7
-    attack: "T1055"
-    platforms: [linux, macos, unix]
-    for: [python, shell, c]
-    if:
-      type: string
-      substr: "mprotect"
 
   - id: rwx-prot-bytes
     desc: RWX protection bytes (PROT_READ|WRITE|EXEC =

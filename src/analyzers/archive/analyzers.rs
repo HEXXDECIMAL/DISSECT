@@ -83,18 +83,12 @@ impl ArchiveAnalyzer {
                 if let Ok(matches) = yara_engine.scan_file(entry.path()) {
                     if !matches.is_empty() {
                         // This class triggered YARA rules - mark for full analysis
-                        yara_flagged_classes
-                            .lock()
-                            .unwrap()
-                            .insert(entry.path().to_path_buf());
+                        yara_flagged_classes.lock().unwrap().insert(entry.path().to_path_buf());
 
                         // Record the YARA matches
                         let mut all_matches = yara_matches.lock().unwrap();
                         for yara_match in matches {
-                            if !all_matches
-                                .iter()
-                                .any(|m: &YaraMatch| m.rule == yara_match.rule)
-                            {
+                            if !all_matches.iter().any(|m: &YaraMatch| m.rule == yara_match.rule) {
                                 all_matches.push(yara_match);
                             }
                         }
@@ -165,10 +159,8 @@ impl ArchiveAnalyzer {
             .take(20) // Limit to 20 non-flagged classes
             .collect();
 
-        let classes_to_analyze: Vec<_> = interesting_classes
-            .into_iter()
-            .chain(sample_classes)
-            .collect();
+        let classes_to_analyze: Vec<_> =
+            interesting_classes.into_iter().chain(sample_classes).collect();
 
         eprintln!("  Full analysis on {} classes", classes_to_analyze.len());
 
@@ -212,10 +204,7 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries
-                    .lock()
-                    .unwrap()
-                    .push(entry_metadata);
+                collected_archive_entries.lock().unwrap().push(entry_metadata);
             }
 
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
@@ -243,12 +232,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                }
+                                },
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                }
-                                _ => {} // Already has archive: prefix from nested analysis
+                                },
+                                _ => {}, // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -266,7 +255,7 @@ impl ArchiveAnalyzer {
                 for string in &file_report.strings {
                     if matches!(
                         string.string_type,
-                        StringType::Url | StringType::Ip | StringType::Base64
+                        StringType::Url | StringType::IP | StringType::Base64
                     ) {
                         all_strings.push(string.clone());
                     }
@@ -329,10 +318,7 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries
-                    .lock()
-                    .unwrap()
-                    .push(entry_metadata);
+                collected_archive_entries.lock().unwrap().push(entry_metadata);
             }
 
             // Run YARA on non-class files
@@ -370,12 +356,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                }
+                                },
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                }
-                                _ => {} // Already has archive: prefix from nested analysis
+                                },
+                                _ => {}, // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -393,7 +379,7 @@ impl ArchiveAnalyzer {
                 for string in &file_report.strings {
                     if matches!(
                         string.string_type,
-                        StringType::Url | StringType::Ip | StringType::Base64
+                        StringType::Url | StringType::IP | StringType::Base64
                     ) {
                         all_strings.push(string.clone());
                     }
@@ -433,42 +419,25 @@ impl ArchiveAnalyzer {
             .unwrap();
         let files_analyzed = files_analyzed.load(std::sync::atomic::Ordering::Relaxed);
 
-        for t in Arc::try_unwrap(collected_traits)
-            .expect("done")
-            .into_inner()
-            .unwrap()
-        {
+        for t in Arc::try_unwrap(collected_traits).expect("done").into_inner().unwrap() {
             if !report.findings.iter().any(|existing| existing.id == t.id) {
                 report.findings.push(t);
             }
         }
-        for ym in Arc::try_unwrap(collected_yara)
-            .expect("done")
-            .into_inner()
-            .unwrap()
-        {
+        for ym in Arc::try_unwrap(collected_yara).expect("done").into_inner().unwrap() {
             if !report.yara_matches.iter().any(|m| m.rule == ym.rule) {
                 report.yara_matches.push(ym);
             }
         }
-        report.strings.extend(
-            Arc::try_unwrap(collected_strings)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
-        );
+        report
+            .strings
+            .extend(Arc::try_unwrap(collected_strings).expect("done").into_inner().unwrap());
         report.archive_contents.extend(
-            Arc::try_unwrap(collected_archive_entries)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
+            Arc::try_unwrap(collected_archive_entries).expect("done").into_inner().unwrap(),
         );
-        report.files.extend(
-            Arc::try_unwrap(collected_files)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
-        );
+        report
+            .files
+            .extend(Arc::try_unwrap(collected_files).expect("done").into_inner().unwrap());
 
         // Add metadata about archive contents
         report.metadata.errors.push(format!(
@@ -595,10 +564,7 @@ impl ArchiveAnalyzer {
                     sha256: calculate_sha256(&file_data),
                     size_bytes: file_data.len() as u64,
                 };
-                collected_archive_entries
-                    .lock()
-                    .unwrap()
-                    .push(entry_metadata);
+                collected_archive_entries.lock().unwrap().push(entry_metadata);
             }
 
             // Run YARA scan on extracted file if engine is available
@@ -635,12 +601,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                }
+                                },
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                }
-                                _ => {} // Already has archive: prefix from nested analysis
+                                },
+                                _ => {}, // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -658,7 +624,7 @@ impl ArchiveAnalyzer {
                 for string in &file_report.strings {
                     if matches!(
                         string.string_type,
-                        StringType::Url | StringType::Ip | StringType::Base64
+                        StringType::Url | StringType::IP | StringType::Base64
                     ) {
                         all_strings.push(string.clone());
                     }
@@ -699,42 +665,25 @@ impl ArchiveAnalyzer {
             .unwrap();
         let files_analyzed = files_analyzed.load(std::sync::atomic::Ordering::Relaxed);
 
-        for t in Arc::try_unwrap(collected_traits)
-            .expect("done")
-            .into_inner()
-            .unwrap()
-        {
+        for t in Arc::try_unwrap(collected_traits).expect("done").into_inner().unwrap() {
             if !report.findings.iter().any(|existing| existing.id == t.id) {
                 report.findings.push(t);
             }
         }
-        for ym in Arc::try_unwrap(collected_yara)
-            .expect("done")
-            .into_inner()
-            .unwrap()
-        {
+        for ym in Arc::try_unwrap(collected_yara).expect("done").into_inner().unwrap() {
             if !report.yara_matches.iter().any(|m| m.rule == ym.rule) {
                 report.yara_matches.push(ym);
             }
         }
-        report.strings.extend(
-            Arc::try_unwrap(collected_strings)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
-        );
+        report
+            .strings
+            .extend(Arc::try_unwrap(collected_strings).expect("done").into_inner().unwrap());
         report.archive_contents.extend(
-            Arc::try_unwrap(collected_archive_entries)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
+            Arc::try_unwrap(collected_archive_entries).expect("done").into_inner().unwrap(),
         );
-        report.files.extend(
-            Arc::try_unwrap(collected_files)
-                .expect("done")
-                .into_inner()
-                .unwrap(),
-        );
+        report
+            .files
+            .extend(Arc::try_unwrap(collected_files).expect("done").into_inner().unwrap());
 
         // Add metadata about archive contents
         report.metadata.errors.push(format!(
@@ -842,10 +791,10 @@ impl ArchiveAnalyzer {
                 });
 
                 Ok(report)
-            }
+            },
             Err(mpsc::RecvTimeoutError::Disconnected) => {
                 Err(anyhow::anyhow!("Analysis thread crashed"))
-            }
+            },
         }
     }
 
@@ -879,10 +828,7 @@ impl ArchiveAnalyzer {
             }
 
             // Build the prefix for nested paths
-            let file_name = file_path
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("nested");
+            let file_name = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("nested");
             let nested_prefix = match &self.archive_path_prefix {
                 Some(prefix) => format!("{}!{}", prefix, file_name),
                 None => file_name.to_string(),

@@ -69,18 +69,17 @@ impl RtfAnalyzer {
                 // Record tools used
                 report.metadata.tools_used.push("rtf-parser".to_string());
                 // Structural analysis is complete; YAML traits will handle pattern detection
-            }
+            },
             Err(_e) => {
                 // Parsing errors are noted but don't abort analysis
                 // YAML traits will still evaluate the raw content
                 report.metadata.tools_used.push("rtf-parser".to_string());
-            }
+            },
         }
 
         // All pattern detection is delegated to capability mapper
         // which evaluates YAML traits against the file content
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         Ok(report)
     }

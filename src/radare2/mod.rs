@@ -79,7 +79,6 @@ pub struct BatchedAnalysis {
 
 /// Radare2 integration for deep binary analysis
 pub struct Radare2Analyzer {
-    #[allow(dead_code)]
     timeout_seconds: u64,
 }
 
@@ -101,14 +100,12 @@ impl Radare2Analyzer {
 
     /// Extract functions with complexity metrics
     /// Uses 'aa' (basic analysis) instead of 'aaa' (full analysis) for speed
-    #[allow(dead_code)]
     pub fn extract_functions(&self, file_path: &Path) -> Result<Vec<Function>> {
         let r2_functions = self.extract_r2_functions(file_path)?;
         Ok(r2_functions.into_iter().map(|f| f.into()).collect())
     }
 
     /// Extract raw R2Function structs for metrics computation
-    #[allow(dead_code)]
     pub fn extract_r2_functions(&self, file_path: &Path) -> Result<Vec<R2Function>> {
         let output = Command::new("rizin")
             .arg("-q")
@@ -142,7 +139,6 @@ impl Radare2Analyzer {
     /// Extract strings from binary
     /// For large binaries (>20MB), returns empty to avoid slow r2 startup
     /// stng already provides good string extraction for Go/Rust binaries
-    #[allow(dead_code)]
     pub fn extract_strings(&self, file_path: &Path) -> Result<Vec<R2String>> {
         // Skip r2 string extraction for large binaries - stng handles these well
         const MAX_SIZE_FOR_R2_STRINGS: u64 = 20 * 1024 * 1024; // 20MB
@@ -202,7 +198,6 @@ impl Radare2Analyzer {
     }
 
     /// Extract exports
-    #[allow(dead_code)]
     pub fn extract_exports(&self, file_path: &Path) -> Result<Vec<R2Export>> {
         let output = Command::new("rizin")
             .arg("-q")
@@ -223,7 +218,6 @@ impl Radare2Analyzer {
     }
 
     /// Extract section information with entropy
-    #[allow(dead_code)]
     pub fn extract_sections(&self, file_path: &Path) -> Result<Vec<R2Section>> {
         let output = Command::new("rizin")
             .arg("-q")
@@ -244,7 +238,6 @@ impl Radare2Analyzer {
     }
 
     /// Extract all symbols (imports, exports, and internal symbols) in a single session
-    #[allow(dead_code)]
     pub fn extract_all_symbols(
         &self,
         file_path: &Path,
@@ -298,7 +291,6 @@ impl Radare2Analyzer {
     /// Extract syscalls from binary using architecture-aware analysis
     /// Returns detected syscalls with their numbers and resolved names
     /// Optimized to use a SINGLE r2 session for all operations
-    #[allow(dead_code)]
     pub fn extract_syscalls(&self, file_path: &Path) -> Result<Vec<SyscallInfo>> {
         // Build a batched command that gets arch info and searches for syscall patterns
         // We'll run a single r2 session and parse all results at once
@@ -371,10 +363,8 @@ impl Radare2Analyzer {
         syscall_addrs.truncate(20);
 
         // Build a second batched command to disassemble around each syscall address
-        let disasm_cmds: Vec<String> = syscall_addrs
-            .iter()
-            .map(|addr| format!("pd -10 @ {:#x}", addr))
-            .collect();
+        let disasm_cmds: Vec<String> =
+            syscall_addrs.iter().map(|addr| format!("pd -10 @ {:#x}", addr)).collect();
 
         if disasm_cmds.is_empty() {
             return Ok(Vec::new());
@@ -418,7 +408,6 @@ impl Radare2Analyzer {
     }
 
     /// Get architecture string from binary
-    #[allow(dead_code)]
     fn get_architecture(&self, file_path: &Path) -> Result<String> {
         let output = Command::new("rizin")
             .arg("-q")
@@ -459,7 +448,6 @@ impl Radare2Analyzer {
     }
 
     /// Find syscall instruction addresses based on architecture
-    #[allow(dead_code)]
     fn find_syscall_instructions(&self, file_path: &Path, arch: &str) -> Result<Vec<u64>> {
         // Architecture-specific syscall instruction patterns
         let pattern = match arch {
@@ -522,7 +510,6 @@ impl Radare2Analyzer {
     }
 
     /// Find syscall number by backtracking from syscall instruction
-    #[allow(dead_code)]
     fn find_syscall_number(&self, file_path: &Path, arch: &str, addr: u64) -> Result<Option<u32>> {
         // Disassemble backwards to find the register load
         let output = Command::new("rizin")
@@ -874,7 +861,6 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics by running fresh radare2 analysis
     /// Slower than compute_metrics_from_batched - prefer that when possible
-    #[allow(dead_code)]
     pub fn compute_binary_metrics(&self, file_path: &Path) -> Result<BinaryMetrics> {
         let batched = self.extract_batched(file_path)?;
         Ok(self.compute_metrics_from_batched(&batched))
@@ -960,14 +946,23 @@ mod tests {
         let metrics = analyzer.compute_metrics_from_batched(&batched);
 
         // file_size should be the sum of all section sizes
-        assert_eq!(metrics.file_size, 1800, "file_size should equal sum of section sizes");
+        assert_eq!(
+            metrics.file_size, 1800,
+            "file_size should equal sum of section sizes"
+        );
 
         // code_size should be the size of executable sections only
-        assert_eq!(metrics.code_size, 1000, "code_size should equal size of .text section");
+        assert_eq!(
+            metrics.code_size, 1000,
+            "code_size should equal size of .text section"
+        );
 
         // code_size should never exceed file_size
-        assert!(metrics.code_size <= metrics.file_size,
+        assert!(
+            metrics.code_size <= metrics.file_size,
             "code_size ({}) should never exceed file_size ({})",
-            metrics.code_size, metrics.file_size);
+            metrics.code_size,
+            metrics.file_size
+        );
     }
 }

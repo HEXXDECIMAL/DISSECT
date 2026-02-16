@@ -486,10 +486,7 @@ fn has_code_patterns(s: &str) -> bool {
     ];
 
     let lower = s.to_lowercase();
-    let count = patterns
-        .iter()
-        .filter(|p| lower.contains(&p.to_lowercase()))
-        .count();
+    let count = patterns.iter().filter(|p| lower.contains(&p.to_lowercase())).count();
 
     // Multiple code patterns suggest actual code
     count >= 2

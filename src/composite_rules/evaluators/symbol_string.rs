@@ -32,14 +32,14 @@ fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
 // Helper functions moved to mod.rs
 
 /// Evaluate symbol condition - matches symbols in imports/exports.
-pub fn eval_symbol(
+pub fn eval_symbol<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     pattern: Option<&String>,
     platforms: Option<&Vec<Platform>>,
     compiled_regex: Option<&regex::Regex>,
     not: Option<&Vec<NotException>>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     // Check platform constraint
     // Match if: trait allows All platforms, OR context includes All (no --platforms filter),
@@ -177,10 +177,10 @@ fn symbol_matches_condition(
 /// as well as imports and exports if they match the string criteria.
 ///
 /// For searching raw file content, use `eval_raw()` instead.
-pub fn eval_string(
-    params: &StringParams,
+pub fn eval_string<'a, 'b>(
+    params: &StringParams<'a>,
     trait_not: Option<&Vec<NotException>>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'b>,
 ) -> ConditionResult {
     let profile = std::env::var("DISSECT_PROFILE").is_ok();
     let t_start = if profile {
@@ -219,7 +219,7 @@ pub fn eval_string(
                         off as u64
                     };
                     Some((resolved, resolved + 1))
-                }
+                },
                 (None, Some((start, end_opt))) => {
                     let file_size = ctx.binary_data.len() as i64;
                     let resolved_start = if start < 0 {
@@ -233,7 +233,7 @@ pub fn eval_string(
                         None => file_size as u64,
                     };
                     Some((resolved_start, resolved_end))
-                }
+                },
                 _ => None, // Section constraints without SectionMap - no filtering
             }
         }
@@ -401,7 +401,7 @@ pub fn eval_string(
 /// Used by `type: raw` conditions to search raw file content rather than extracted strings.
 /// Use for cross-boundary patterns or when string extraction is insufficient.
 #[allow(clippy::too_many_arguments)]
-pub fn eval_raw(
+pub fn eval_raw<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     _regex: Option<&String>,
@@ -411,7 +411,7 @@ pub fn eval_raw(
     compiled_regex: Option<&regex::Regex>,
     not: Option<&Vec<NotException>>,
     location: &ContentLocationParams,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let profile = std::env::var("DISSECT_PROFILE").is_ok();
     let t_start = if profile {
@@ -638,7 +638,7 @@ pub fn eval_raw(
 /// # Pattern Matching
 /// Supports exact, substr, regex, and word boundary matching
 #[allow(clippy::too_many_arguments)]
-pub fn eval_encoded(
+pub fn eval_encoded<'a>(
     encoding: Option<&crate::composite_rules::condition::EncodingSpec>,
     exact: Option<&String>,
     substr: Option<&String>,
@@ -647,7 +647,7 @@ pub fn eval_encoded(
     case_insensitive: bool,
     compiled_regex: Option<&regex::Regex>,
     location: &ContentLocationParams,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     use crate::composite_rules::condition::EncodingSpec;
 
@@ -692,15 +692,15 @@ pub fn eval_encoded(
             None => {
                 // No filter: match ANY encoded string (non-empty encoding_chain)
                 !enc_chain.is_empty()
-            }
+            },
             Some(EncodingSpec::Single(enc)) => {
                 // Single encoding: must be in the chain
                 enc_chain.contains(enc)
-            }
+            },
             Some(EncodingSpec::Multiple(encodings)) => {
                 // Multiple encodings: match if ANY encoding is in the chain (OR logic)
                 encodings.iter().any(|enc| enc_chain.contains(enc))
-            }
+            },
         }
     };
 
@@ -731,10 +731,7 @@ pub fn eval_encoded(
         if !matches {
             if let Some(substr_str) = substr {
                 matches = if case_insensitive {
-                    string_info
-                        .value
-                        .to_lowercase()
-                        .contains(&substr_str.to_lowercase())
+                    string_info.value.to_lowercase().contains(&substr_str.to_lowercase())
                 } else {
                     string_info.value.contains(substr_str.as_str())
                 };
@@ -808,13 +805,13 @@ pub fn eval_encoded(
 /// Helper to search encoded strings (with given encoding in chain) for patterns.
 #[allow(clippy::too_many_arguments)]
 /// Evaluate string count condition - check if string count is within bounds.
-pub fn eval_string_count(
+pub fn eval_string_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
     min_length: Option<usize>,
     _regex: Option<&String>,
     compiled_regex: Option<&regex::Regex>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let min_len = min_length.unwrap_or(0);
     let matching_strings: Vec<&str> = ctx
@@ -863,16 +860,13 @@ pub fn eval_string_count(
 
 /// Evaluate layer_path condition - match strings by their encoding layer path.
 /// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
-pub fn eval_layer_path(value: &str, ctx: &EvaluationContext) -> ConditionResult {
+pub fn eval_layer_path<'a>(value: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     let mut evidence = Vec::new();
 
     for string_info in &ctx.report.strings {
         // Compute layer path from string's section and encoding_chain
-        let section = string_info
-            .section
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(|| "content".to_string());
+        let section =
+            string_info.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
         let layer_path = if string_info.encoding_chain.is_empty() {
             // No encoding layers - not a layered string, skip
             continue;

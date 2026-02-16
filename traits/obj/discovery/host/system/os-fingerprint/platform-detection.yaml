@@ -86,13 +86,7 @@ traits:
       type: string
       substr: "ipconfig"
 
-  - id: unix-ifconfig
-    desc: Unix ifconfig command
-    crit: notable
-    conf: 0.50
-    if:
-      type: string
-      substr: "ifconfig"
+  # Removed unix-ifconfig duplicate - use cap/os/network/interface::ifconfig
 
 composite_rules:
   # === Platform Detection Composites ===

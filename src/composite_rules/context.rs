@@ -121,13 +121,13 @@ impl std::fmt::Display for AnalysisWarning {
         match self {
             Self::AstTooDeep { max_depth } => {
                 write!(f, "AST nesting limit hit (depth: {})", max_depth)
-            }
+            },
             Self::NestingTooDeep { max_depth } => {
                 write!(f, "Control flow nesting limit hit (depth: {})", max_depth)
-            }
+            },
             Self::ArchiveTooDeep { max_depth } => {
                 write!(f, "Archive nesting limit hit (depth: {})", max_depth)
-            }
+            },
             Self::RuleTimeout {
                 rule_id,
                 duration_ms,
@@ -138,13 +138,12 @@ impl std::fmt::Display for AnalysisWarning {
                     "Rule evaluation timeout for '{}' ({}ms > {}ms limit)",
                     rule_id, duration_ms, timeout_ms
                 )
-            }
+            },
         }
     }
 }
 
 /// Result of evaluating a condition
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ConditionResult {
     pub matched: bool,
@@ -168,7 +167,6 @@ impl Default for ConditionResult {
     }
 }
 
-#[allow(dead_code)]
 impl ConditionResult {
     pub fn no_match() -> Self {
         Self {

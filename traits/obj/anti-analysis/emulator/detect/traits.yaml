@@ -3,17 +3,7 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 traits:
-  # Single VM vendor strings are notable - network tools legitimately know about VMware
-  # Multiple vendor checks indicate deliberate VM detection (see combos.yaml)
-  - id: vmware-string
-    desc: VMware vendor string detection
-    crit: notable
-    mbc: "B0009"
-    attack: "T1497.001"
-    conf: 0.6
-    if:
-      type: string
-      substr: "VMware"
+  # Removed vmware-string duplicate - use obj/anti-analysis/vm/detect::vendor-vmware
 
   # === VirtualBox atomic indicators ===
   - id: virtualbox-word
@@ -38,15 +28,7 @@ traits:
       regex: "(?i)\\bvbox\\b"
 
   # === QEMU atomic indicators ===
-  - id: qemu-upper
-    desc: QEMU uppercase string
-    crit: notable
-    mbc: "B0009"
-    attack: "T1497.001"
-    conf: 0.5
-    if:
-      type: string
-      exact: "QEMU"
+  # Removed qemu-upper duplicate - use obj/anti-analysis/vm/detect::vendor-qemu
 
   - id: qemu-lower
     desc: qemu lowercase string
@@ -131,7 +113,7 @@ composite_rules:
     attack: "T1497.001"
     conf: 0.5
     any:
-      - id: qemu-upper
+      - id: obj/anti-analysis/vm/detect::vendor-qemu
       - id: qemu-lower
 
   # VM hardware composite

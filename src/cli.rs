@@ -40,7 +40,7 @@ pub fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
             unknown => {
                 eprintln!("⚠️  Unknown platform '{}', ignoring", unknown);
                 None
-            }
+            },
         })
         .collect();
 
@@ -80,7 +80,7 @@ impl DisabledComponents {
                 "radare2" => disabled.radare2 = true,
                 "upx" => disabled.upx = true,
                 "third-party" => disabled.third_party = true,
-                _ => {} // Ignore unknown components
+                _ => {}, // Ignore unknown components
             }
         }
         disabled
@@ -95,7 +95,7 @@ impl DisabledComponents {
                 "radare2" => disabled.radare2 = true,
                 "upx" => disabled.upx = true,
                 "third-party" => disabled.third_party = true,
-                _ => {}
+                _ => {},
             }
         }
         disabled
@@ -254,11 +254,9 @@ impl Args {
 
     /// Parse --error-if flag into a set of criticality levels
     pub fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
-        self.error_if.as_ref().map(|s| {
-            s.split(',')
-                .map(|level| parse_criticality_level(level.trim()))
-                .collect()
-        })
+        self.error_if
+            .as_ref()
+            .map(|s| s.split(',').map(|level| parse_criticality_level(level.trim())).collect())
     }
 
     /// Parse --platforms flag into a vector of Platform values
@@ -278,7 +276,7 @@ fn parse_criticality_level(s: &str) -> crate::types::Criticality {
         _ => {
             eprintln!("⚠️  Unknown criticality level '{}', treating as 'inert'", s);
             crate::types::Criticality::Inert
-        }
+        },
     }
 }
 
@@ -467,6 +465,25 @@ pub enum Command {
         /// Maximum file size in bytes (for metrics searches)
         #[arg(long)]
         max_size: Option<u64>,
+    },
+
+    /// Generate a graph visualization of trait relationships
+    Graph {
+        /// Directory depth level (2 = cap/comm, 3 = cap/comm/socket, etc.)
+        #[arg(short, long, default_value = "3")]
+        depth: usize,
+
+        /// Output file (default: stdout)
+        #[arg(short, long)]
+        output: Option<String>,
+
+        /// Minimum reference count to show edge (filters weak relationships)
+        #[arg(short, long, default_value = "1")]
+        min_refs: usize,
+
+        /// Show only these top-level namespaces (comma-separated: cap,obj,known,meta)
+        #[arg(long)]
+        namespaces: Option<String>,
     },
 }
 

@@ -24,11 +24,7 @@ fn analyze_file_for_traits(file_path: &str) -> serde_json::Value {
     }
 
     let mut files = Vec::new();
-    for line in stdout
-        .lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-    {
+    for line in stdout.lines().map(str::trim).filter(|line| !line.is_empty()) {
         if let Ok(json) = serde_json::from_str::<serde_json::Value>(line) {
             if json.get("type").and_then(|t| t.as_str()) == Some("file") {
                 files.push(json);
@@ -49,9 +45,7 @@ fn analyze_file_for_traits(file_path: &str) -> serde_json::Value {
 
 /// Get the first file from the v2 files array
 fn get_first_file(json: &serde_json::Value) -> Option<&serde_json::Value> {
-    json.get("files")
-        .and_then(|f| f.as_array())
-        .and_then(|arr| arr.first())
+    json.get("files").and_then(|f| f.as_array()).and_then(|arr| arr.first())
 }
 
 /// Check if the file was detected as the expected type
@@ -128,9 +122,7 @@ eval("code")
 
     // Check for security-relevant symbols (may include module prefix like os.system)
     assert!(
-        symbols
-            .iter()
-            .any(|s| s.contains("system") || s == "os.system"),
+        symbols.iter().any(|s| s.contains("system") || s == "os.system"),
         "Should extract system call, got: {:?}",
         symbols
     );

@@ -24,13 +24,7 @@ traits:
       type: string
       substr: "board_serial"
 
-  - id: fp-dmidecode-cmd
-    desc: dmidecode command
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "dmidecode"
+  # Removed fp-dmidecode-cmd duplicate - use cap/os/sysinfo/dmi::dmidecode
 
 composite_rules:
   # DMI fields helper
@@ -54,7 +48,7 @@ composite_rules:
     conf: 0.75
     any:
       - id: dmi-fields
-      - id: fp-dmidecode-cmd
+      - id: cap/os/sysinfo/dmi::dmidecode
 
   # CPU info helper
   - id: cpu-fields

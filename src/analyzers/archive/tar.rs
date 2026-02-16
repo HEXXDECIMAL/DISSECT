@@ -58,7 +58,7 @@ pub(crate) fn extract_tar_safe(
             None => {
                 guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
                 continue;
-            }
+            },
         };
 
         // Check for symlinks
@@ -124,7 +124,7 @@ pub(crate) fn extract_tar_entries_safe<R: Read>(
             None => {
                 guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
                 continue;
-            }
+            },
         };
 
         let entry_type = entry.header().entry_type();

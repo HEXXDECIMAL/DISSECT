@@ -14,14 +14,7 @@ traits:
       type: string
       substr: "stopservice"
 
-  - id: terminate-process-api
-    desc: Windows TerminateProcess API call
-    crit: notable
-    conf: 0.85
-    for: [pe]
-    if:
-      type: string
-      substr: "TerminateProcess"
+  # Removed terminate-process-api duplicate - use cap/process/terminate/kill/traits::terminate-process (symbol is more precise)
 
   # === EDR/AV process termination verbs (atomic) ===
   # Removed duplicate - use cap/process/terminate/signal::kill
@@ -195,6 +188,6 @@ composite_rules:
     for: [pe, elf]
     any:
       - id: stopper
-      - id: terminate-process-api
+      - id: cap/process/terminate/kill/traits::terminate-process
     all:
       - id: edr-product-name

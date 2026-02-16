@@ -16,7 +16,7 @@
 //! }
 //! ```
 
-mod amos_cipher;
+// mod amos_cipher; // Temporarily disabled during lint strictness update
 mod archive_utils;
 mod cache;
 mod constant_decoder;
@@ -24,6 +24,7 @@ pub mod decoders;
 mod entropy;
 pub mod extractors;
 pub mod file_io;
+pub mod graph;
 pub mod ip_validator;
 pub mod memory_tracker;
 mod radare2;
@@ -81,10 +82,7 @@ impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
             enable_third_party_yara: false,
-            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
+            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS.iter().map(|s| s.to_string()).collect(),
             disable_yara: false,
             disable_radare2: false,
             disable_upx: false,
@@ -183,8 +181,12 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Check for extension/content mismatch
     let mismatch = analyzers::check_extension_content_mismatch(path, file_data);
 
-    // Check for encoded payloads (hex, base64, etc.)
-    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(file_data);
+    // Extract strings with stng ONCE
+    let opts = stng::ExtractOptions::new(16).with_garbage_filter(true);
+    let stng_strings = stng::extract_strings_with_options(file_data, &opts);
+
+    // Check for encoded payloads (hex, base64, etc.) using stng results
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
 
     // Load YARA rules if not disabled
     let mut yara_engine = if options.disable_yara {
@@ -211,7 +213,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Elf => {
             let mut analyzer = analyzers::elf::ElfAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
@@ -219,7 +221,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Pe => {
             let mut analyzer =
                 analyzers::pe::PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
@@ -227,12 +229,12 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::Jar | FileType::Archive => {
             let mut analyzer = analyzers::archive::ArchiveAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone())
@@ -241,17 +243,17 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
@@ -261,7 +263,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        }
+        },
     };
 
     // Add finding for extension/content mismatch if detected
@@ -294,7 +296,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         let crit = match payload.detected_type {
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
-            }
+            },
             FileType::Certificate => types::Criticality::Notable,
             _ => types::Criticality::Notable,
         };

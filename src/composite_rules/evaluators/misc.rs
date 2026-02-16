@@ -10,10 +10,10 @@ use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 
 /// Evaluate structure condition
-pub fn eval_structure(
+pub fn eval_structure<'a>(
     feature: &str,
     min_sections: Option<usize>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let mut count = 0;
     let mut evidence = Vec::new();
@@ -58,7 +58,7 @@ pub fn eval_structure(
 ///   e.g., "terminate" matches "exec/process::terminate"
 /// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory
 ///   e.g., "anti-static/obfuscation" matches "anti-static/obfuscation::python-hex"
-pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
+pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Check if this is a specific trait reference (contains ::)
     let is_specific = id.contains("::");
 
@@ -109,10 +109,7 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
             .collect();
 
         if !matching.is_empty() {
-            let evidence = matching
-                .iter()
-                .flat_map(|f| f.evidence.iter().cloned())
-                .collect();
+            let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
 
             return ConditionResult {
                 matched: true,
@@ -138,10 +135,7 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
             .collect();
 
         if !matching.is_empty() {
-            let evidence = matching
-                .iter()
-                .flat_map(|f| f.evidence.iter().cloned())
-                .collect();
+            let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
 
             return ConditionResult {
                 matched: true,
@@ -163,10 +157,10 @@ pub fn eval_trait(id: &str, ctx: &EvaluationContext) -> ConditionResult {
 }
 
 /// Evaluate a filesize condition
-pub fn eval_filesize(
+pub fn eval_filesize<'a>(
     min: Option<usize>,
     max: Option<usize>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let size = ctx.binary_data.len();
     let matched = min.is_none_or(|m| size >= m) && max.is_none_or(|m| size <= m);
@@ -199,19 +193,16 @@ pub fn eval_filesize(
 }
 
 /// Evaluate a basename condition - match against the final path component
-pub fn eval_basename(
+pub fn eval_basename<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
     case_insensitive: bool,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     // Extract basename from path
     let path = &ctx.report.target.path;
-    let basename = std::path::Path::new(path)
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("");
+    let basename = std::path::Path::new(path).file_name().and_then(|s| s.to_str()).unwrap_or("");
 
     // Match against the basename
     let (compare_basename, compare_exact, compare_substr) = if case_insensitive {
@@ -234,9 +225,7 @@ pub fn eval_basename(
         } else {
             regex_str.clone()
         };
-        regex::Regex::new(&pattern)
-            .map(|re| re.is_match(basename))
-            .unwrap_or(false)
+        regex::Regex::new(&pattern).map(|re| re.is_match(basename)).unwrap_or(false)
     } else {
         false
     };
@@ -275,18 +264,15 @@ pub fn eval_basename(
 }
 
 /// Evaluate a trait glob condition - match multiple traits by glob pattern
-pub fn eval_trait_glob(
+pub fn eval_trait_glob<'a>(
     pattern: &str,
     match_mode: &str,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     // Convert glob pattern to regex (simple: * -> .*, ? -> .)
     let regex_pattern = format!(
         "^{}$",
-        pattern
-            .replace('.', "\\.")
-            .replace('*', ".*")
-            .replace('?', ".")
+        pattern.replace('.', "\\.").replace('*', ".*").replace('?', ".")
     );
 
     let re = match regex::Regex::new(&regex_pattern) {
@@ -299,7 +285,7 @@ pub fn eval_trait_glob(
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     // Find all matching trait IDs from the report's findings
@@ -345,13 +331,11 @@ pub fn eval_trait_glob(
             // Since we don't know the total set, we treat "all" as "at least 1"
             // For true "all" semantics, users should list traits explicitly
             count >= 1
-        }
+        },
         n => {
             // Parse as number
-            n.parse::<usize>()
-                .map(|required| count >= required)
-                .unwrap_or(false)
-        }
+            n.parse::<usize>().map(|required| count >= required).unwrap_or(false)
+        },
     };
 
     // Calculate precision: use 1.0 base for glob pattern matching

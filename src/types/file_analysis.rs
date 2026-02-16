@@ -198,7 +198,7 @@ impl FileAnalysis {
                 Criticality::Hostile => counts.hostile += 1,
                 Criticality::Suspicious => counts.suspicious += 1,
                 Criticality::Notable => counts.notable += 1,
-                _ => {}
+                _ => {},
             }
             if finding.crit > max_crit {
                 max_crit = finding.crit;

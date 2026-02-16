@@ -3,7 +3,7 @@
 # ATT&CK: T1222
 
 defaults:
-  for: [elf, macho, so, dylib, c]
+  for: [all]
 
 traits:
   - id: symlink-create

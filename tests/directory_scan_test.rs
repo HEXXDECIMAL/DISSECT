@@ -97,8 +97,7 @@ fn test_analyze_directory_with_archive() {
     header.set_path("test.sh").unwrap();
     header.set_size(19);
     header.set_cksum();
-    tar.append(&header, b"#!/bin/bash\necho 'x'".as_ref())
-        .unwrap();
+    tar.append(&header, b"#!/bin/bash\necho 'x'".as_ref()).unwrap();
     tar.finish().unwrap();
 
     #[allow(deprecated)]

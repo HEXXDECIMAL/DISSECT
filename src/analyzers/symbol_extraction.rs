@@ -7,10 +7,43 @@ use crate::analyzers::FileType;
 use crate::types::{AnalysisReport, Import};
 
 /// Function type for extracting imports from a syntax tree node
-type ImportExtractFn = fn(&tree_sitter::Node, &[u8]) -> Option<String>;
+type ImportExtractFn = for<'a> fn(&tree_sitter::Node<'a>, &[u8]) -> Option<String>;
+
+/// Extract imports from a pre-parsed tree (avoids re-parsing)
+pub fn extract_imports_from_tree(
+    tree: &tree_sitter::Tree,
+    source: &str,
+    file_type: &FileType,
+    report: &mut AnalysisReport,
+) {
+    let import_fn: ImportExtractFn = match file_type {
+        FileType::Ruby => extract_ruby_import,
+        FileType::Python => extract_python_import,
+        FileType::JavaScript | FileType::TypeScript => extract_js_import,
+        FileType::Lua => extract_lua_import,
+        FileType::Go => extract_go_import,
+        FileType::Perl => extract_perl_import,
+        _ => return, // Other languages don't have import extraction yet
+    };
+
+    let mut imports = std::collections::HashSet::new();
+    let mut cursor = tree.walk();
+    walk_for_imports(&mut cursor, source.as_bytes(), import_fn, &mut imports);
+
+    for module in imports {
+        if module.len() >= 2 {
+            report.imports.push(Import {
+                symbol: module,
+                library: None,
+                source: "import".to_string(),
+            });
+        }
+    }
+}
 
 /// Extract actual module imports from source code (e.g., require in Ruby, import in Python)
 /// This is separate from function call extraction for capability matching.
+/// NOTE: This parses internally - prefer extract_imports_from_tree() if you already have a tree
 pub fn extract_imports(source: &str, file_type: &FileType, report: &mut AnalysisReport) {
     let (lang, import_fn): (tree_sitter::Language, ImportExtractFn) = match file_type {
         FileType::Ruby => (tree_sitter_ruby::LANGUAGE.into(), extract_ruby_import),
@@ -22,7 +55,7 @@ pub fn extract_imports(source: &str, file_type: &FileType, report: &mut Analysis
                 tree_sitter_javascript::LANGUAGE.into()
             };
             (lang, extract_js_import)
-        }
+        },
         FileType::Lua => (tree_sitter_lua::LANGUAGE.into(), extract_lua_import),
         FileType::Go => (tree_sitter_go::LANGUAGE.into(), extract_go_import),
         FileType::Perl => (tree_sitter_perl::LANGUAGE.into(), extract_perl_import),
@@ -55,10 +88,10 @@ pub fn extract_imports(source: &str, file_type: &FileType, report: &mut Analysis
 }
 
 /// Walk AST to find import statements
-fn walk_for_imports(
-    cursor: &mut tree_sitter::TreeCursor,
+fn walk_for_imports<'a>(
+    cursor: &mut tree_sitter::TreeCursor<'a>,
     source: &[u8],
-    import_fn: fn(&tree_sitter::Node, &[u8]) -> Option<String>,
+    import_fn: fn(&tree_sitter::Node<'a>, &[u8]) -> Option<String>,
     imports: &mut std::collections::HashSet<String>,
 ) {
     loop {
@@ -85,7 +118,7 @@ fn walk_for_imports(
 }
 
 /// Extract Ruby require/require_relative statements
-fn extract_ruby_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_ruby_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     // Ruby require is: call with method name "require" or "require_relative"
     if node.kind() != "call" && node.kind() != "method_call" {
         return None;
@@ -107,24 +140,24 @@ fn extract_ruby_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String
 }
 
 /// Extract Python import statements
-fn extract_python_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_python_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     match node.kind() {
         "import_statement" => {
             // import foo.bar -> extract "foo.bar"
             let name_node = node.child_by_field_name("name")?;
             name_node.utf8_text(source).ok().map(|s| s.to_string())
-        }
+        },
         "import_from_statement" => {
             // from foo.bar import baz -> extract "foo.bar"
             let module_node = node.child_by_field_name("module_name")?;
             module_node.utf8_text(source).ok().map(|s| s.to_string())
-        }
+        },
         _ => None,
     }
 }
 
 /// Extract JavaScript/TypeScript import statements
-fn extract_js_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_js_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     if node.kind() != "import_statement" && node.kind() != "import_declaration" {
         return None;
     }
@@ -140,7 +173,7 @@ fn extract_js_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> 
 }
 
 /// Extract Lua require statements
-fn extract_lua_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_lua_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     if node.kind() != "function_call" {
         return None;
     }
@@ -156,7 +189,7 @@ fn extract_lua_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String>
 }
 
 /// Extract Go import declarations
-fn extract_go_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_go_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     if node.kind() != "import_spec" {
         return None;
     }
@@ -165,7 +198,7 @@ fn extract_go_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> 
 }
 
 /// Extract Perl use/require statements
-fn extract_perl_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_perl_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     if node.kind() != "use_statement" && node.kind() != "require_statement" {
         return None;
     }
@@ -181,7 +214,7 @@ fn extract_perl_import(node: &tree_sitter::Node, source: &[u8]) -> Option<String
 }
 
 /// Extract string content from a string literal node
-fn extract_string_content(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_string_content<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     let text = node.utf8_text(source).ok()?;
     // Strip quotes if present
     let trimmed = text
@@ -199,22 +232,13 @@ fn extract_string_content(node: &tree_sitter::Node, source: &[u8]) -> Option<Str
 /// Extract function calls from source code and add to report.imports
 /// NOTE: This is primarily for capability matching, not module imports.
 /// Use extract_imports() for actual module imports like require/import.
-pub fn extract_symbols(
+/// Extract symbols from a pre-parsed tree (avoids re-parsing)
+pub fn extract_symbols_from_tree(
+    tree: &tree_sitter::Tree,
     source: &str,
-    lang: tree_sitter::Language,
     call_types: &[&str],
     report: &mut AnalysisReport,
 ) {
-    let mut parser = tree_sitter::Parser::new();
-    if parser.set_language(&lang).is_err() {
-        return;
-    }
-
-    let tree = match parser.parse(source, None) {
-        Some(t) => t,
-        None => return,
-    };
-
     let mut symbols = std::collections::HashSet::new();
     let mut cursor = tree.walk();
     extract_calls(&mut cursor, source.as_bytes(), call_types, &mut symbols);
@@ -233,9 +257,30 @@ pub fn extract_symbols(
     }
 }
 
+/// Extract symbols from source code by parsing with tree-sitter
+/// NOTE: This parses internally - prefer extract_symbols_from_tree() if you already have a tree
+pub fn extract_symbols(
+    source: &str,
+    lang: tree_sitter::Language,
+    call_types: &[&str],
+    report: &mut AnalysisReport,
+) {
+    let mut parser = tree_sitter::Parser::new();
+    if parser.set_language(&lang).is_err() {
+        return;
+    }
+
+    let tree = match parser.parse(source, None) {
+        Some(t) => t,
+        None => return,
+    };
+
+    extract_symbols_from_tree(&tree, source, call_types, report);
+}
+
 /// Walk AST iteratively to find function calls (avoids stack overflow on deep nesting)
-fn extract_calls(
-    cursor: &mut tree_sitter::TreeCursor,
+fn extract_calls<'a>(
+    cursor: &mut tree_sitter::TreeCursor<'a>,
     source: &[u8],
     call_types: &[&str],
     symbols: &mut std::collections::HashSet<String>,
@@ -250,10 +295,7 @@ fn extract_calls(
         if call_types.contains(&node_type) {
             if let Some(func_name) = extract_function_name(&node, source) {
                 // Clean up the function name
-                let clean_name = func_name
-                    .trim()
-                    .trim_start_matches('_')
-                    .trim_start_matches('$');
+                let clean_name = func_name.trim().trim_start_matches('_').trim_start_matches('$');
                 if !clean_name.is_empty() && clean_name.len() < 100 {
                     symbols.insert(clean_name.to_string());
                 }
@@ -280,7 +322,7 @@ fn extract_calls(
 }
 
 /// Extract the function name or identifier from a call, assignment, or declaration
-fn extract_function_name(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn extract_function_name<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     let kind = node.kind();
 
     if kind == "assignment_expression" {
@@ -305,7 +347,7 @@ fn extract_function_name(node: &tree_sitter::Node, source: &[u8]) -> Option<Stri
 }
 
 /// Recursively extract a full identifier from member expressions (e.g., "os.Open")
-fn get_full_identifier(node: &tree_sitter::Node, source: &[u8]) -> Option<String> {
+fn get_full_identifier<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Option<String> {
     let kind = node.kind();
 
     // Base case: simple identifiers

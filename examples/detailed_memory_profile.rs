@@ -84,11 +84,8 @@ fn main() -> anyhow::Result<()> {
     println!();
 
     // Estimate memory per component
-    let string_mem: usize = report
-        .strings
-        .iter()
-        .map(|s| s.value.len() + std::mem::size_of_val(s))
-        .sum();
+    let string_mem: usize =
+        report.strings.iter().map(|s| s.value.len() + std::mem::size_of_val(s)).sum();
     println!("String memory: {}", format_bytes(string_mem as u64));
 
     let func_mem = report.functions.len() * std::mem::size_of::<dissect::types::Function>();

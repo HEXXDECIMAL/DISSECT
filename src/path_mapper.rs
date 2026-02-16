@@ -159,12 +159,7 @@ pub fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
 
         let files: Vec<String> = dir_paths
             .iter()
-            .map(|p| {
-                p.path
-                    .trim_start_matches(&dir)
-                    .trim_start_matches('/')
-                    .to_string()
-            })
+            .map(|p| p.path.trim_start_matches(&dir).trim_start_matches('/').to_string())
             .collect();
 
         let file_count = files.len();
@@ -218,10 +213,8 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
     }
 
     // Check for batch operations (all same operation)
-    let access_types: std::collections::HashSet<_> = paths
-        .iter()
-        .filter_map(|p| p.access_type.as_ref())
-        .collect();
+    let access_types: std::collections::HashSet<_> =
+        paths.iter().filter_map(|p| p.access_type.as_ref()).collect();
 
     if access_types.len() == 1 && files.len() > 2 {
         let op_type = access_types.iter().next().unwrap();
@@ -515,11 +508,7 @@ pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
     let mut updated_directories = directories;
     for dir in &mut updated_directories {
         for trait_obj in &new_traits {
-            if trait_obj
-                .evidence
-                .iter()
-                .any(|e| e.location.as_ref() == Some(&dir.directory))
-            {
+            if trait_obj.evidence.iter().any(|e| e.location.as_ref() == Some(&dir.directory)) {
                 dir.generated_traits.push(trait_obj.id.clone());
             }
         }
@@ -688,7 +677,7 @@ mod tests {
             },
             StringInfo {
                 value: "not a path".to_string(),
-                string_type: StringType::Plain,
+                string_type: StringType::Const,
                 offset: None,
                 encoding: "ascii".to_string(),
                 section: None,
@@ -740,9 +729,7 @@ mod tests {
 
         let traits = detect_platform_from_paths(&paths);
 
-        assert!(traits
-            .iter()
-            .any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
+        assert!(traits.iter().any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
     }
 
     #[test]

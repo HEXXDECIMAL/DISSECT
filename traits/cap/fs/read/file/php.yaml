@@ -50,11 +50,4 @@ traits:
       type: string
       regex: "\\bfopen\\s*\\("
 
-  - id: realpath
-    desc: Resolve real file path
-    crit: inert
-    conf: 0.6
-    for: [php]
-    if:
-      type: string
-      substr: realpath
+  # Removed realpath duplicate - use cap/fs/link/symlink/unix::symlink-resolve (symbol works for all file types)

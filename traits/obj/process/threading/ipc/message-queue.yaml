@@ -3,17 +3,7 @@
 # Generic indicator for RATs, command servers
 
 traits:
-  - id: peek-message-api
-    desc: Message queue polling (PeekMessageA)
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "PeekMessageA"
-    attack: "T1129"
-    mbc: "C0019"
+  # Removed peek-message-api duplicate - use cap/os/message/queue::peek-message-a (same pattern, canonical location)
 
   - id: cap/os/message/queue::post-thread-message-a  # not-dupe (threading IPC context)
     desc: Message queue posting (PostThreadMessageA)
@@ -52,7 +42,7 @@ composite_rules:
       - id: cap/process/create
       - id: cap/process/threading
     any:
-      - id: peek-message-api
+      - id: cap/os/message/queue::peek-message-a
       - id: cap/os/message/queue::get-message-a  # not-dupe (threading IPC context)
     needs: 1
 

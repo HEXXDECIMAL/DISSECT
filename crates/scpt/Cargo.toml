@@ -9,6 +9,9 @@ repository = "https://github.com/dissect/scpt"
 keywords = ["applescript", "scpt", "parser", "macos", "binary"]
 categories = ["parsing", "development-tools"]
 
+[lints]
+workspace = true
+
 [dependencies]
 thiserror = "1.0"
 

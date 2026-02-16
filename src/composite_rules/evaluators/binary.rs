@@ -12,11 +12,11 @@ use crate::types::Evidence;
 use regex::Regex;
 
 /// Evaluate imports count condition
-pub fn eval_imports_count(
+pub fn eval_imports_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
     filter: Option<&String>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let matching_imports: Vec<&str> = if let Some(filter_pattern) = filter {
         ctx.report
@@ -26,11 +26,7 @@ pub fn eval_imports_count(
             .map(|imp| imp.symbol.as_str())
             .collect()
     } else {
-        ctx.report
-            .imports
-            .iter()
-            .map(|imp| imp.symbol.as_str())
-            .collect()
+        ctx.report.imports.iter().map(|imp| imp.symbol.as_str()).collect()
     };
 
     let count = matching_imports.len();
@@ -72,10 +68,10 @@ pub fn eval_imports_count(
 }
 
 /// Evaluate exports count condition
-pub fn eval_exports_count(
+pub fn eval_exports_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let count = ctx.report.exports.len();
     let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
@@ -93,12 +89,8 @@ pub fn eval_exports_count(
         matched,
         evidence: if matched {
             // Deduplicate and take first few for display
-            let mut symbols: Vec<&str> = ctx
-                .report
-                .exports
-                .iter()
-                .map(|exp| exp.symbol.as_str())
-                .collect();
+            let mut symbols: Vec<&str> =
+                ctx.report.exports.iter().map(|exp| exp.symbol.as_str()).collect();
             symbols.sort();
             symbols.dedup();
             let sample: Vec<&str> = symbols.into_iter().take(5).collect();
@@ -118,12 +110,12 @@ pub fn eval_exports_count(
 }
 
 /// Evaluate section ratio condition - check if section size is within ratio bounds
-pub fn eval_section_ratio(
+pub fn eval_section_ratio<'a>(
     section_pattern: &str,
     compare_to: &str,
     min_ratio: Option<f64>,
     max_ratio: Option<f64>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let section_re = match Regex::new(section_pattern) {
         Ok(re) => re,
@@ -135,7 +127,7 @@ pub fn eval_section_ratio(
                 warnings: Vec::new(),
                 precision: 0.0,
             }
-        }
+        },
     };
 
     // Find matching section(s) and sum their sizes
@@ -172,7 +164,7 @@ pub fn eval_section_ratio(
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
-            }
+            },
         };
         ctx.report
             .sections
@@ -235,7 +227,7 @@ pub fn eval_section_ratio(
 /// Evaluate section condition - match sections by name, size, and entropy
 /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
 #[allow(clippy::too_many_arguments)]
-pub fn eval_section(
+pub fn eval_section<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
@@ -245,7 +237,7 @@ pub fn eval_section(
     length_max: Option<u64>,
     entropy_min: Option<f64>,
     entropy_max: Option<f64>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
 
@@ -382,19 +374,14 @@ pub fn eval_section(
 }
 
 /// Evaluate import combination condition - check for required + suspicious import patterns
-pub fn eval_import_combination(
+pub fn eval_import_combination<'a>(
     required: Option<&Vec<String>>,
     suspicious: Option<&Vec<String>>,
     min_suspicious: Option<usize>,
     max_total: Option<usize>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
-    let import_symbols: Vec<&str> = ctx
-        .report
-        .imports
-        .iter()
-        .map(|i| i.symbol.as_str())
-        .collect();
+    let import_symbols: Vec<&str> = ctx.report.imports.iter().map(|i| i.symbol.as_str()).collect();
     let mut evidence = Vec::new();
 
     // Check required imports - all must be present
@@ -496,11 +483,11 @@ pub fn eval_import_combination(
 }
 
 /// Evaluate syscall condition - matches syscalls detected via radare2 analysis
-pub fn eval_syscall(
+pub fn eval_syscall<'a>(
     name: Option<&Vec<String>>,
     number: Option<&Vec<u32>>,
     arch: Option<&Vec<String>>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
     let mut match_count = 0;
@@ -509,9 +496,7 @@ pub fn eval_syscall(
         let name_match = name.is_none_or(|names| names.contains(&syscall.name));
         let number_match = number.is_none_or(|nums| nums.contains(&syscall.number));
         let arch_match = arch.is_none_or(|archs| {
-            archs
-                .iter()
-                .any(|a| syscall.arch.to_lowercase().contains(&a.to_lowercase()))
+            archs.iter().any(|a| syscall.arch.to_lowercase().contains(&a.to_lowercase()))
         });
 
         if name_match && number_match && arch_match {

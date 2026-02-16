@@ -94,7 +94,7 @@ where
     impl<'de> Visitor<'de> for HexOrIntVisitor {
         type Value = Option<u64>;
 
-        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        fn expecting<'a>(&self, formatter: &mut std::fmt::Formatter<'a>) -> std::fmt::Result {
             formatter.write_str("a hex string like '0x1234' or an integer")
         }
 
@@ -138,7 +138,6 @@ where
 /// Decoded string (base64, xor-decoded, etc.)
 /// Deprecated: Use StringInfo with encoding_chain instead.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[allow(dead_code)]
 pub struct DecodedString {
     /// The decoded plaintext value
     #[serde(serialize_with = "serialize_truncated_string")]
@@ -181,29 +180,10 @@ pub struct StringInfo {
     pub fragments: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
-pub enum StringType {
-    Url,
-    Ip,
-    Path,
-    Email,
-    Base64,
-    Import,
-    Export,
-    Function,
-    Plain,
-    /// String literal from source code
-    Literal,
-    /// Comment from source code
-    Comment,
-    /// Docstring/documentation comment
-    Docstring,
-    /// Stack-constructed string (character-by-character assembly)
-    StackString,
-    /// Shell command (pipes, redirects, common commands)
-    ShellCmd,
-}
+// Re-export stng's StringKind as StringType for compatibility
+// DISSECT-specific source code types (Literal, Comment, Docstring) map to stng::StringKind::Const
+// StackString is detected via StringMethod, not as a separate kind
+pub use stng::StringKind as StringType;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Section {
@@ -221,10 +201,7 @@ pub struct Section {
 /// Examples: "_malloc" -> "malloc", "__libc_start_main" -> "libc_start_main"
 #[inline]
 pub fn normalize_symbol(symbol: &str) -> String {
-    symbol
-        .trim_start_matches('_')
-        .trim_start_matches('_')
-        .to_string()
+    symbol.trim_start_matches('_').trim_start_matches('_').to_string()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -479,39 +456,43 @@ mod tests {
     #[test]
     fn test_string_type_equality() {
         assert_eq!(StringType::Url, StringType::Url);
-        assert_ne!(StringType::Url, StringType::Ip);
+        assert_ne!(StringType::Url, StringType::IP);
     }
 
     #[test]
     fn test_string_type_copy() {
-        let st = StringType::Plain;
+        let st = StringType::Const;
         let st2 = st; // Copy
         assert_eq!(st, st2);
     }
 
     #[test]
     fn test_string_type_all_variants_distinct() {
+        // Since StringType is now stng::StringKind, test the common malware-relevant variants
+        // Note: Plain, Literal, Comment, Docstring all map to Const
+        // StackString is detected via StringMethod, not as a separate kind
         let variants = vec![
             StringType::Url,
-            StringType::Ip,
+            StringType::IP,
             StringType::Path,
             StringType::Email,
             StringType::Base64,
             StringType::Import,
             StringType::Export,
-            StringType::Function,
-            StringType::Plain,
-            StringType::Literal,
-            StringType::Comment,
-            StringType::Docstring,
-            StringType::StackString,
+            StringType::FuncName,
+            StringType::Const,
+            StringType::ShellCmd,
         ];
         for (i, v1) in variants.iter().enumerate() {
             for (j, v2) in variants.iter().enumerate() {
                 if i == j {
-                    assert_eq!(v1, v2);
+                    assert_eq!(v1, v2, "Variant at index {} should equal itself", i);
                 } else {
-                    assert_ne!(v1, v2);
+                    assert_ne!(
+                        v1, v2,
+                        "Variants at index {} and {} should be distinct",
+                        i, j
+                    );
                 }
             }
         }
@@ -562,7 +543,7 @@ mod tests {
             value: "decoded text".to_string(),
             offset: None,
             encoding: "utf-8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: vec!["base64".to_string(), "zlib".to_string()],
             fragments: None,

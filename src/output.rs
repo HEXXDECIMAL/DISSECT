@@ -89,7 +89,7 @@ pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
                         matched_traits: vec![finding.id.clone()],
                     },
                 );
-            }
+            },
             Some(agg) => {
                 // Add this trait ID to the list
                 if !agg.matched_traits.contains(&finding.id) {
@@ -104,7 +104,7 @@ pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
                 if should_replace {
                     agg.best = finding.clone();
                 }
-            }
+            },
         }
     }
 
@@ -250,7 +250,7 @@ fn namespace_long_name(ns: &str) -> String {
         None => {
             // Full uppercase and replace hyphens with spaces for unknown namespaces
             ns.replace('-', " ").to_uppercase()
-        }
+        },
     }
 }
 
@@ -351,9 +351,7 @@ pub fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
 
     let entry = JsonlSummary {
         entry_type: "summary",
-        files_analyzed: summary
-            .map(|s| s.files_analyzed)
-            .unwrap_or(report.files.len() as u32),
+        files_analyzed: summary.map(|s| s.files_analyzed).unwrap_or(report.files.len() as u32),
         hostile: counts.map(|c| c.hostile).unwrap_or(0),
         suspicious: counts.map(|c| c.suspicious).unwrap_or(0),
         notable: counts.map(|c| c.notable).unwrap_or(0),
@@ -401,7 +399,7 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                 // Parse as FileAnalysis
                 let file: crate::types::FileAnalysis = serde_json::from_value(value)?;
                 files.push(file);
-            }
+            },
             Some("summary") => {
                 // Extract summary metadata
                 if let Some(sv) = value.get("schema_version").and_then(|v| v.as_str()) {
@@ -418,16 +416,12 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                     scanned_path = sp.as_str().map(|s| s.to_string());
                 }
                 if let Some(tools) = value.get("tools_used").and_then(|v| v.as_array()) {
-                    metadata.tools_used = tools
-                        .iter()
-                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                        .collect();
+                    metadata.tools_used =
+                        tools.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect();
                 }
                 if let Some(errors) = value.get("errors").and_then(|v| v.as_array()) {
-                    metadata.errors = errors
-                        .iter()
-                        .filter_map(|v| v.as_str().map(|s| s.to_string()))
-                        .collect();
+                    metadata.errors =
+                        errors.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect();
                 }
                 if let Some(duration) = value.get("analysis_duration_ms").and_then(|v| v.as_u64()) {
                     metadata.analysis_duration_ms = duration;
@@ -440,18 +434,16 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                     max_depth: 0,
                     counts: crate::types::FindingCounts {
                         hostile: value.get("hostile").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
-                        suspicious: value
-                            .get("suspicious")
-                            .and_then(|v| v.as_u64())
-                            .unwrap_or(0) as u32,
+                        suspicious: value.get("suspicious").and_then(|v| v.as_u64()).unwrap_or(0)
+                            as u32,
                         notable: value.get("notable").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
                     },
                     max_risk: None,
                 });
-            }
+            },
             _ => {
                 // Unknown entry type, skip
-            }
+            },
         }
     }
 
@@ -532,7 +524,7 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 Criticality::Hostile => hostile_count += 1,
                 Criticality::Suspicious => suspicious_count += 1,
                 Criticality::Notable => notable_count += 1,
-                _ => {}
+                _ => {},
             }
         }
 
@@ -615,10 +607,10 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                 let content = match finding.crit {
                     Criticality::Hostile => {
                         format!("{} {} — {}", emoji, trait_id, desc).bright_red()
-                    }
+                    },
                     Criticality::Suspicious => {
                         format!("{} {} — {}", emoji, trait_id, desc).bright_yellow()
-                    }
+                    },
                     _ => format!("{} {} — {}", emoji, trait_id, desc).bright_cyan(),
                 };
 
@@ -626,9 +618,8 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
                     output.push_str(&format!("│   {}\n", content));
                 } else {
                     // Strip ANSI codes for accurate length measurement
-                    let display_len = ansi_re
-                        .replace_all(&format!("{}: {}", content, evidence), "")
-                        .len();
+                    let display_len =
+                        ansi_re.replace_all(&format!("{}: {}", content, evidence), "").len();
                     if display_len > 120 {
                         output.push_str(&format!("│   {}\n", content));
                         output.push_str(&format!("│      {}\n", evidence.bright_black()));
@@ -785,7 +776,7 @@ fn format_capability_short(id: &str) -> String {
                 } else {
                     "Malware".to_string()
                 }
-            }
+            },
             _ => parts.join(" "),
         }
     } else {

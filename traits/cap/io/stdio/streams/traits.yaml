@@ -40,21 +40,8 @@ traits:
       exact: "vprintf"
 
   # === Raw I/O ===
-  - id: fwrite
-    desc: Write raw data to file
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "fwrite"
-
-  - id: fread
-    desc: Read raw data from file
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "fread"
+  # Removed fwrite duplicate - use cap/fs/file/binary/traits::fwrite-func (symbol works across all platforms)
+  # Removed fread duplicate - use cap/fs/file/binary/traits::fread-func (symbol works across all platforms)
 
   - id: fopen
     desc: Open file for stdio

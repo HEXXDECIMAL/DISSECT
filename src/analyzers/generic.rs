@@ -8,7 +8,6 @@ use crate::analyzers::symbol_extraction;
 use crate::analyzers::Analyzer;
 use crate::analyzers::FileType;
 use crate::capabilities::CapabilityMapper;
-use crate::strings::StringExtractor;
 use crate::types::*;
 use anyhow::{Context, Result};
 use std::fs;
@@ -23,7 +22,6 @@ use tree_sitter::Language;
 pub struct GenericAnalyzer {
     file_type: FileType,
     capability_mapper: Arc<CapabilityMapper>,
-    string_extractor: StringExtractor,
 }
 
 impl GenericAnalyzer {
@@ -31,7 +29,6 @@ impl GenericAnalyzer {
         Self {
             file_type,
             capability_mapper: Arc::new(CapabilityMapper::empty()),
-            string_extractor: StringExtractor::new(),
         }
     }
 
@@ -87,8 +84,31 @@ impl GenericAnalyzer {
         }
     }
 
+    /// Analyze source with pre-extracted stng strings (avoids duplicate string extraction)
+    pub fn analyze_source_with_stng(
+        &self,
+        file_path: &Path,
+        content: &str,
+        stng_strings: &[stng::ExtractedString],
+    ) -> Result<AnalysisReport> {
+        self.analyze_source_internal(file_path, content, Some(stng_strings))
+    }
+
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+        self.analyze_source_internal(file_path, content, None)
+    }
+
+    fn analyze_source_internal(
+        &self,
+        file_path: &Path,
+        content: &str,
+        stng_strings: Option<&[stng::ExtractedString]>,
+    ) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
+        tracing::info!(
+            "GenericAnalyzer: Starting analysis of {}",
+            file_path.display()
+        );
 
         let target = TargetInfo {
             path: file_path.display().to_string(),
@@ -97,6 +117,7 @@ impl GenericAnalyzer {
             sha256: crate::analyzers::utils::calculate_sha256(content.as_bytes()),
             architectures: None,
         };
+        tracing::info!("GenericAnalyzer: Target created in {:?}", start.elapsed());
 
         let mut report = AnalysisReport::new(target);
 
@@ -113,51 +134,97 @@ impl GenericAnalyzer {
             )
         };
 
-        report
-            .structure
-            .push(crate::analyzers::utils::create_language_feature(
-                self.file_type_str(),
-                &parser_name,
-                &description,
-            ));
+        report.structure.push(crate::analyzers::utils::create_language_feature(
+            self.file_type_str(),
+            &parser_name,
+            &description,
+        ));
 
-        // Try tree-sitter extraction if available
+        // Parse with tree-sitter ONCE (don't parse multiple times for the same content)
+        let t_tree = std::time::Instant::now();
         let tree = if let Some((language, node_types)) = self.treesitter_config() {
-            // Extract function calls for capability matching (type: symbol conditions)
-            symbol_extraction::extract_symbols(content, language.clone(), node_types, &mut report);
-            // Also extract actual module imports for meta/import/ findings
-            symbol_extraction::extract_imports(content, &self.file_type, &mut report);
-
-            // Also parse for string extraction
+            // Parse once and reuse for symbols, imports, and strings
             let mut parser = tree_sitter::Parser::new();
             if parser.set_language(&language).is_ok() {
-                parser.parse(content, None)
+                if let Some(tree) = parser.parse(content, None) {
+                    // Extract function calls for capability matching (type: symbol conditions)
+                    symbol_extraction::extract_symbols_from_tree(
+                        &tree,
+                        content,
+                        node_types,
+                        &mut report,
+                    );
+                    // Also extract actual module imports for meta/import/ findings
+                    symbol_extraction::extract_imports_from_tree(
+                        &tree,
+                        content,
+                        &self.file_type,
+                        &mut report,
+                    );
+                    Some(tree)
+                } else {
+                    None
+                }
             } else {
                 None
             }
         } else {
             None
         };
+        tracing::info!(
+            "GenericAnalyzer: Tree-sitter parsing completed in {:?}",
+            t_tree.elapsed()
+        );
 
-        // Extract strings (AST-based if we have a tree, regex-based otherwise)
-        self.extract_strings(content, tree.as_ref(), &mut report);
+        // Extract strings (AST-based if we have a tree, stng-based otherwise)
+        let t_strings = std::time::Instant::now();
+        if tree.is_some() {
+            // Tree-sitter available: use AST-based extraction (more accurate)
+            self.extract_strings(content, tree.as_ref(), &mut report);
+            tracing::info!(
+                "GenericAnalyzer: Tree-sitter string extraction completed in {:?}",
+                t_strings.elapsed()
+            );
+        } else if let Some(stng_results) = stng_strings {
+            // No tree-sitter: use stng results (passed from caller)
+            for es in stng_results {
+                // Convert stng fragments to our format (just record offsets, we don't need to reconstruct values)
+                let fragments = es.fragments.as_ref().map(|frags| {
+                    frags.iter().map(|f| format!("{:#x}+{}", f.offset, f.length)).collect()
+                });
 
-        // Also use stng to extract strings with encoding detection (catches hex/base64 encoded data)
-        let stng_strings = self.string_extractor.extract_smart(content.as_bytes());
-
-        // Merge stng strings into report, avoiding duplicates
-        for stng_string in stng_strings {
-            // Only add if not already present (stng might find encoded data that AST/regex missed)
-            if !report
-                .strings
-                .iter()
-                .any(|s| s.value == stng_string.value && s.offset == stng_string.offset)
-            {
-                report.strings.push(stng_string);
+                report.strings.push(crate::types::binary::StringInfo {
+                    value: es.value.clone(),
+                    offset: Some(es.data_offset),
+                    string_type: match es.kind {
+                        stng::StringKind::FuncName => crate::types::binary::StringType::FuncName,
+                        stng::StringKind::Import => crate::types::binary::StringType::Import,
+                        stng::StringKind::Url => crate::types::binary::StringType::Url,
+                        stng::StringKind::Path | stng::StringKind::FilePath => {
+                            crate::types::binary::StringType::Path
+                        },
+                        stng::StringKind::EnvVar => crate::types::binary::StringType::EnvVar,
+                        _ => crate::types::binary::StringType::Const,
+                    },
+                    encoding: "utf-8".to_string(),
+                    section: es.section.clone(),
+                    encoding_chain: Vec::new(),
+                    fragments,
+                });
             }
+            tracing::info!(
+                "GenericAnalyzer: Used {} stng strings in {:?}",
+                stng_results.len(),
+                t_strings.elapsed()
+            );
+        } else {
+            // No tree-sitter and no stng: fallback to regex (inefficient, shouldn't happen)
+            self.extract_strings(content, tree.as_ref(), &mut report);
+            tracing::warn!("GenericAnalyzer: Fallback regex string extraction in {:?} (stng strings should be passed)", t_strings.elapsed());
         }
 
         // Analyze embedded code in strings
+        let t_embedded = std::time::Instant::now();
         let (encoded_layers, plain_findings) =
             crate::analyzers::embedded_code_detector::process_all_strings(
                 &file_path.display().to_string(),
@@ -167,19 +234,38 @@ impl GenericAnalyzer {
             );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
+        tracing::info!(
+            "GenericAnalyzer: Embedded code analysis completed in {:?}",
+            t_embedded.elapsed()
+        );
 
         // Analyze paths and environment variables
+        let t_paths = std::time::Instant::now();
         crate::path_mapper::analyze_and_link_paths(&mut report);
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
+        tracing::info!(
+            "GenericAnalyzer: Path/env analysis completed in {:?}",
+            t_paths.elapsed()
+        );
 
         // Compute basic metrics
+        let t_metrics = std::time::Instant::now();
         report.metrics = Some(self.compute_metrics(content));
+        tracing::info!(
+            "GenericAnalyzer: Metrics computed in {:?}",
+            t_metrics.elapsed()
+        );
 
         // Evaluate all rules (atomic + composite) and merge into report
+        let t_eval = std::time::Instant::now();
         self.capability_mapper.evaluate_and_merge_findings(
             &mut report,
             content.as_bytes(),
             tree.as_ref(),
+        );
+        tracing::info!(
+            "GenericAnalyzer: Rule evaluation completed in {:?}",
+            t_eval.elapsed()
         );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
@@ -203,9 +289,9 @@ impl GenericAnalyzer {
         }
     }
 
-    fn extract_strings_ast(
+    fn extract_strings_ast<'a>(
         &self,
-        root: &tree_sitter::Node,
+        root: &tree_sitter::Node<'a>,
         source: &[u8],
         report: &mut AnalysisReport,
     ) {
@@ -232,7 +318,7 @@ impl GenericAnalyzer {
                         report.strings.push(StringInfo {
                             value: s.to_string(),
                             offset: Some(node.start_byte() as u64),
-                            string_type: StringType::Literal,
+                            string_type: StringType::Const,
                             encoding: "utf-8".to_string(),
                             section: Some("ast".to_string()),
                             encoding_chain: Vec::new(),
@@ -267,7 +353,7 @@ impl GenericAnalyzer {
                 report.strings.push(StringInfo {
                     value: s.to_string(),
                     offset: Some(cap.start() as u64),
-                    string_type: StringType::Literal,
+                    string_type: StringType::Const,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),
                     encoding_chain: Vec::new(),
@@ -282,7 +368,7 @@ impl GenericAnalyzer {
                 report.strings.push(StringInfo {
                     value: s.to_string(),
                     offset: Some(cap.start() as u64),
-                    string_type: StringType::Literal,
+                    string_type: StringType::Const,
                     encoding: "utf-8".to_string(),
                     section: Some("regex".to_string()),
                     encoding_chain: Vec::new(),

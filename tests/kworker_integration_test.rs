@@ -106,7 +106,7 @@ fn test_layer_path_computation() {
         value: "kworker".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".text".to_string()),
         encoding_chain: vec!["stack".to_string()],
         fragments: None,
@@ -114,11 +114,7 @@ fn test_layer_path_computation() {
 
     // Helper to compute layer path
     let compute_layer_path = |s: &StringInfo| {
-        let section = s
-            .section
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(|| "content".to_string());
+        let section = s.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
         if !s.encoding_chain.is_empty() {
             format!("meta/layers/{}/{}", section, s.encoding_chain.join("/"))
         } else {
@@ -150,7 +146,7 @@ fn test_layer_path_computation() {
         value: "hello".to_string(),
         offset: Some(0x3000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".text".to_string()),
         encoding_chain: vec![], // No encoding
         fragments: None,

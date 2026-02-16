@@ -376,9 +376,7 @@ fn is_domain(s: &str) -> bool {
     let lower = s.to_lowercase();
     if tlds.iter().any(|tld| lower.ends_with(tld)) {
         // Basic domain character check
-        return s
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-');
+        return s.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-');
     }
 
     false

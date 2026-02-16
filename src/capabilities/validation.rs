@@ -70,7 +70,7 @@ fn score_condition(condition: &Condition) -> f32 {
                     score += score_string_value(&format!("{:?}", platform).to_lowercase());
                 }
             }
-        }
+        },
         Condition::String {
             exact,
             substr,
@@ -107,7 +107,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
+        },
         Condition::Raw {
             exact,
             substr,
@@ -138,21 +138,21 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
+        },
         Condition::Structure {
             feature,
             min_sections,
         } => {
             score += score_string_value(feature);
             score += score_presence(min_sections.as_ref());
-        }
+        },
         Condition::ExportsCount { min, max } => {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
-        }
+        },
         Condition::Trait { id } => {
             score += score_string_value(id);
-        }
+        },
         Condition::Ast {
             kind,
             node,
@@ -173,10 +173,10 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
+        },
         Condition::Yara { source, .. } => {
             score += score_regex_value(source);
-        }
+        },
         Condition::Syscall { name, number, arch } => {
             if let Some(names) = name {
                 for value in names {
@@ -192,7 +192,7 @@ fn score_condition(condition: &Condition) -> f32 {
                 }
             }
             // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
-        }
+        },
         Condition::SectionRatio {
             section,
             compare_to,
@@ -203,7 +203,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_regex_value(compare_to);
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
-        }
+        },
         Condition::ImportCombination {
             required,
             suspicious,
@@ -222,7 +222,7 @@ fn score_condition(condition: &Condition) -> f32 {
             }
             score += score_presence(min_suspicious.as_ref());
             score += score_presence(max_total.as_ref());
-        }
+        },
         Condition::StringCount {
             min,
             max,
@@ -232,7 +232,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
             score += score_presence(min_length.as_ref());
-        }
+        },
         Condition::Metrics {
             field,
             min,
@@ -245,7 +245,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(max.as_ref());
             score += score_presence(min_size.as_ref());
             score += score_presence(max_size.as_ref());
-        }
+        },
         Condition::Hex {
             pattern,
             offset,
@@ -261,7 +261,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += section.as_deref().map(score_string_value).unwrap_or(0.0);
             score += score_presence(section_offset.as_ref());
             score += score_presence(section_offset_range.as_ref());
-        }
+        },
         Condition::Section {
             exact,
             substr,
@@ -292,7 +292,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if entropy_max.is_some() {
                 score += PARAM_UNIT;
             }
-        }
+        },
         Condition::Encoded {
             exact,
             substr,
@@ -319,7 +319,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
+        },
         Condition::Basename {
             exact,
             substr,
@@ -339,7 +339,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        }
+        },
     }
 
     score
@@ -351,7 +351,7 @@ fn score_not_exceptions(exceptions: &[crate::composite_rules::condition::NotExce
         match exception {
             crate::composite_rules::condition::NotException::Shorthand(value) => {
                 score += score_string_value(value);
-            }
+            },
             crate::composite_rules::condition::NotException::Structured {
                 exact,
                 substr,
@@ -360,7 +360,7 @@ fn score_not_exceptions(exceptions: &[crate::composite_rules::condition::NotExce
                 score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
                 score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
                 score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
-            }
+            },
         }
     }
     score
@@ -389,11 +389,7 @@ pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
         precision += score_string_value(&format!("{:?}", platform).to_lowercase());
     }
 
-    for file_type in trait_def
-        .r#for
-        .iter()
-        .filter(|f| !matches!(f, RuleFileType::All))
-    {
+    for file_type in trait_def.r#for.iter().filter(|f| !matches!(f, RuleFileType::All)) {
         precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
     }
 
@@ -465,11 +461,7 @@ pub fn calculate_composite_precision(
     if let Some(rule) = rule {
         let mut precision = 0.0f32;
 
-        for file_type in rule
-            .r#for
-            .iter()
-            .filter(|f| !matches!(f, RuleFileType::All))
-        {
+        for file_type in rule.r#for.iter().filter(|f| !matches!(f, RuleFileType::All)) {
             let score = score_string_value(&format!("{:?}", file_type).to_lowercase());
             precision += score;
             if debug {
@@ -498,14 +490,14 @@ pub fn calculate_composite_precision(
                                 rule_id, id, score
                             );
                         }
-                    }
+                    },
                     _ => {
                         let score = score_condition(cond);
                         precision += score;
                         if debug {
                             eprintln!("  [DEBUG] {} all condition score: {:.2}", rule_id, score);
                         }
-                    }
+                    },
                 }
             }
         }
@@ -532,7 +524,7 @@ pub fn calculate_composite_precision(
                                 );
                             }
                             s
-                        }
+                        },
                         _ => {
                             let s = score_condition(cond);
                             if debug {
@@ -542,7 +534,7 @@ pub fn calculate_composite_precision(
                                 );
                             }
                             s
-                        }
+                        },
                     };
                     score
                 })
@@ -689,10 +681,8 @@ pub(crate) fn precalculate_all_composite_precisions(
     // Build lookup tables (immutable borrow)
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composite_rules.iter().map(|r| (r.id.as_str(), r)).collect();
-    let trait_lookup: HashMap<&str, &TraitDefinition> = trait_definitions
-        .iter()
-        .map(|t| (t.id.as_str(), t))
-        .collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> =
+        trait_definitions.iter().map(|t| (t.id.as_str(), t)).collect();
 
     // First pass: Calculate precisions for rules that don't have them (immutable borrow)
     let calculated_precisions: Vec<(String, f32)> = composite_rules
@@ -752,12 +742,12 @@ pub(crate) fn validate_hostile_composite_precision(
             Criticality::Hostile if precision < min_hostile_precision => {
                 // Silently downgrade - the precision calculation handles this automatically
                 rule.crit = Criticality::Suspicious;
-            }
+            },
             Criticality::Suspicious if precision < min_suspicious_precision => {
                 // Silently downgrade - the precision calculation handles this automatically
                 rule.crit = Criticality::Notable;
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 }
@@ -941,9 +931,9 @@ pub(crate) fn find_duplicate_traits_and_composites(
 struct PatternLocation {
     trait_id: String,
     file_path: String,
-    condition_type: String,  // "string", "symbol", "raw"
-    match_type: String,      // "exact", "substr", "word", "regex"
-    original_value: String,  // Original pattern before normalization
+    condition_type: String, // "string", "symbol", "raw"
+    match_type: String,     // "exact", "substr", "word", "regex"
+    original_value: String, // Original pattern before normalization
     for_types: HashSet<String>,
 }
 
@@ -964,11 +954,8 @@ fn normalize_regex(pattern: &str) -> String {
 fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation)> {
     let mut patterns = Vec::new();
 
-    let for_types: HashSet<String> = trait_def
-        .r#for
-        .iter()
-        .map(|ft| format!("{:?}", ft).to_lowercase())
-        .collect();
+    let for_types: HashSet<String> =
+        trait_def.r#for.iter().map(|ft| format!("{:?}", ft).to_lowercase()).collect();
 
     let file_path = trait_def.defined_in.to_string_lossy().to_string();
 
@@ -995,24 +982,63 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
 
     // Extract patterns from String, Symbol, and Raw conditions
     match &trait_def.r#if.condition {
-        Condition::String { exact, substr, word, regex, .. } => {
-            if let Some(v) = exact { add_pattern("string", "exact", v.clone()); }
-            if let Some(v) = substr { add_pattern("string", "substr", v.clone()); }
-            if let Some(v) = word { add_pattern("string", "word", v.clone()); }
-            if let Some(v) = regex { add_pattern("string", "regex", v.clone()); }
-        }
-        Condition::Symbol { exact, substr, regex, .. } => {
-            if let Some(v) = exact { add_pattern("symbol", "exact", v.clone()); }
-            if let Some(v) = substr { add_pattern("symbol", "substr", v.clone()); }
-            if let Some(v) = regex { add_pattern("symbol", "regex", v.clone()); }
-        }
-        Condition::Raw { exact, substr, word, regex, .. } => {
-            if let Some(v) = exact { add_pattern("raw", "exact", v.clone()); }
-            if let Some(v) = substr { add_pattern("raw", "substr", v.clone()); }
-            if let Some(v) = word { add_pattern("raw", "word", v.clone()); }
-            if let Some(v) = regex { add_pattern("raw", "regex", v.clone()); }
-        }
-        _ => {} // Skip Encoded, Yara, etc.
+        Condition::String {
+            exact,
+            substr,
+            word,
+            regex,
+            ..
+        } => {
+            if let Some(v) = exact {
+                add_pattern("string", "exact", v.clone());
+            }
+            if let Some(v) = substr {
+                add_pattern("string", "substr", v.clone());
+            }
+            if let Some(v) = word {
+                add_pattern("string", "word", v.clone());
+            }
+            if let Some(v) = regex {
+                add_pattern("string", "regex", v.clone());
+            }
+        },
+        Condition::Symbol {
+            exact,
+            substr,
+            regex,
+            ..
+        } => {
+            if let Some(v) = exact {
+                add_pattern("symbol", "exact", v.clone());
+            }
+            if let Some(v) = substr {
+                add_pattern("symbol", "substr", v.clone());
+            }
+            if let Some(v) = regex {
+                add_pattern("symbol", "regex", v.clone());
+            }
+        },
+        Condition::Raw {
+            exact,
+            substr,
+            word,
+            regex,
+            ..
+        } => {
+            if let Some(v) = exact {
+                add_pattern("raw", "exact", v.clone());
+            }
+            if let Some(v) = substr {
+                add_pattern("raw", "substr", v.clone());
+            }
+            if let Some(v) = word {
+                add_pattern("raw", "word", v.clone());
+            }
+            if let Some(v) = regex {
+                add_pattern("raw", "regex", v.clone());
+            }
+        },
+        _ => {}, // Skip Encoded, Yara, etc.
     }
 
     patterns
@@ -1049,10 +1075,7 @@ pub(crate) fn find_string_pattern_duplicates(
 
     for trait_def in trait_definitions {
         for (normalized, location) in extract_patterns(trait_def) {
-            pattern_index
-                .entry(normalized)
-                .or_insert_with(Vec::new)
-                .push(location);
+            pattern_index.entry(normalized).or_insert_with(Vec::new).push(location);
         }
     }
 
@@ -1106,7 +1129,12 @@ pub(crate) fn find_string_pattern_duplicates(
                 };
                 format!(
                     "   {}: {} ({} {}: '{}', for: {})",
-                    l.file_path, l.trait_id, l.condition_type, l.match_type, l.original_value, for_str
+                    l.file_path,
+                    l.trait_id,
+                    l.condition_type,
+                    l.match_type,
+                    l.original_value,
+                    for_str
                 )
             })
             .collect();
@@ -1125,6 +1153,249 @@ pub(crate) fn find_string_pattern_duplicates(
         start.elapsed(),
         total_patterns,
         duplicates_found
+    );
+}
+
+/// Check for regex patterns with | (OR) that overlap with standalone exact/word/substr patterns
+/// This indicates poor organization - prefer splitting into separate exact matches for better ML signal
+pub(crate) fn check_regex_or_overlapping_exact(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+    let initial_warning_count = warnings.len();
+
+    // First pass: collect all regex patterns with | (OR operators)
+    let mut regex_patterns: Vec<(String, PatternLocation)> = Vec::new();
+
+    for trait_def in trait_definitions {
+        let patterns = extract_patterns(trait_def);
+        for (_, location) in patterns {
+            if location.match_type == "regex" && location.original_value.contains('|') {
+                regex_patterns.push((location.original_value.clone(), location));
+            }
+        }
+    }
+
+    // Second pass: collect all exact/word/substr patterns
+    let mut literal_patterns: HashMap<String, Vec<PatternLocation>> = HashMap::new();
+
+    for trait_def in trait_definitions {
+        let patterns = extract_patterns(trait_def);
+        for (normalized, location) in patterns {
+            if location.match_type != "regex" {
+                literal_patterns.entry(normalized).or_insert_with(Vec::new).push(location);
+            }
+        }
+    }
+
+    // Check each regex OR pattern against all literals
+    for (regex_value, regex_loc) in regex_patterns {
+        // Split the regex by | to get alternatives
+        let alternatives: Vec<&str> = regex_value.split('|').collect();
+
+        let mut overlapping_literals: Vec<(String, Vec<String>)> = Vec::new();
+
+        for alternative in alternatives {
+            // Normalize the alternative (strip anchors)
+            let normalized_alt = normalize_regex(alternative);
+
+            // Check if this alternative exists as a literal pattern elsewhere
+            if let Some(literal_locs) = literal_patterns.get(&normalized_alt) {
+                // Only report if the literal is in a different file AND has file type overlap
+                let overlapping_files: Vec<String> = literal_locs
+                    .iter()
+                    .filter(|loc| {
+                        loc.file_path != regex_loc.file_path
+                            && has_filetype_overlap(loc, &regex_loc)
+                    })
+                    .map(|loc| format!("{}::{}", loc.file_path, loc.trait_id))
+                    .collect();
+
+                if !overlapping_files.is_empty() {
+                    overlapping_literals.push((normalized_alt, overlapping_files));
+                }
+            }
+        }
+
+        if !overlapping_literals.is_empty() {
+            let details: Vec<String> = overlapping_literals
+                .iter()
+                .map(|(pattern, files)| format!("   '{}' found in: {}", pattern, files.join(", ")))
+                .collect();
+
+            warnings.push(format!(
+                "Regex OR pattern overlaps with exact/word/substr patterns (prefer splitting for better ML signal):\n   Regex: {} (in {}::{})\n{}",
+                regex_value,
+                regex_loc.file_path,
+                regex_loc.trait_id,
+                details.join("\n")
+            ));
+        }
+    }
+
+    let overlaps_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "Regex OR overlap detection completed in {:?} ({} overlaps found)",
+        start.elapsed(),
+        overlaps_found
+    );
+}
+
+/// Check for regex patterns that are just ^word$ and should use exact instead
+/// Regex should only be used when there are actual variations or special characters
+pub(crate) fn check_regex_should_be_exact(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+    let initial_warning_count = warnings.len();
+
+    for trait_def in trait_definitions {
+        let patterns = extract_patterns(trait_def);
+
+        for (_, location) in patterns {
+            if location.match_type != "regex" {
+                continue;
+            }
+
+            let regex_value = &location.original_value;
+
+            // Check if this is a simple anchored pattern: ^word$
+            // Allow common variations like ? * + but flag pure anchored words
+            if regex_value.starts_with('^') && regex_value.ends_with('$') {
+                let inner = &regex_value[1..regex_value.len() - 1];
+
+                // Check if inner contains only word characters (no regex operators)
+                // Allow backslash escaping but flag if there are no actual regex features
+                let has_regex_operators = inner.chars().any(|c| {
+                    matches!(
+                        c,
+                        '?' | '*' | '+' | '|' | '[' | ']' | '(' | ')' | '{' | '}' | '.'
+                    )
+                });
+
+                if !has_regex_operators {
+                    // Additional check: if it's just a simple word or escaped word, flag it
+                    let is_simple_word = inner.chars().all(|c| c.is_alphanumeric() || c == '_');
+                    let is_escaped_word =
+                        inner.replace("\\\\", "").chars().filter(|&c| c == '\\').count() <= 2;
+
+                    if is_simple_word || (is_escaped_word && inner.len() < 50) {
+                        warnings.push(format!(
+                            "Regex pattern '{}' is just ^word$ and should use exact: '{}' instead ({}::{})",
+                            regex_value,
+                            inner,
+                            location.file_path,
+                            location.trait_id
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    let simple_regexes_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "Simple regex detection completed in {:?} ({} simple regexes found)",
+        start.elapsed(),
+        simple_regexes_found
+    );
+}
+
+/// Check for the same pattern appearing with different types across {string, symbol, raw}
+/// This indicates poor organization - pick one canonical type and extend language support
+pub(crate) fn check_same_string_different_types(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+    let initial_warning_count = warnings.len();
+
+    // Build index: normalized_pattern -> Vec<PatternLocation> grouped by type
+    let mut pattern_by_type: HashMap<String, HashMap<String, Vec<PatternLocation>>> =
+        HashMap::new();
+
+    for trait_def in trait_definitions {
+        let patterns = extract_patterns(trait_def);
+
+        for (normalized, location) in patterns {
+            // Only check string, symbol, and raw types
+            if !matches!(
+                location.condition_type.as_str(),
+                "string" | "symbol" | "raw"
+            ) {
+                continue;
+            }
+
+            pattern_by_type
+                .entry(normalized)
+                .or_insert_with(HashMap::new)
+                .entry(location.condition_type.clone())
+                .or_insert_with(Vec::new)
+                .push(location);
+        }
+    }
+
+    // Find patterns that appear with multiple types
+    for (pattern, types_map) in pattern_by_type {
+        if types_map.len() < 2 {
+            continue; // Only one type, no issue
+        }
+
+        // Check if any pair of different types has file type overlap
+        let all_locations: Vec<&PatternLocation> = types_map.values().flatten().collect();
+
+        let mut has_overlap = false;
+        'outer: for i in 0..all_locations.len() {
+            for j in (i + 1)..all_locations.len() {
+                // Only check if they have different condition types
+                if all_locations[i].condition_type != all_locations[j].condition_type
+                    && has_filetype_overlap(all_locations[i], all_locations[j])
+                {
+                    has_overlap = true;
+                    break 'outer;
+                }
+            }
+        }
+
+        if !has_overlap {
+            continue; // No file type overlap, patterns won't conflict
+        }
+
+        // We have the same pattern with different types AND file type overlap
+        let type_details: Vec<String> = types_map
+            .iter()
+            .map(|(type_name, locations)| {
+                let location_strs: Vec<String> = locations
+                    .iter()
+                    .map(|loc| {
+                        let for_str = if loc.for_types.is_empty() {
+                            "all".to_string()
+                        } else {
+                            let mut types: Vec<_> = loc.for_types.iter().cloned().collect();
+                            types.sort();
+                            types.join(", ")
+                        };
+                        format!("{}::{} (for: {})", loc.file_path, loc.trait_id, for_str)
+                    })
+                    .collect();
+                format!("   type: {} in: {}", type_name, location_strs.join(", "))
+            })
+            .collect();
+
+        warnings.push(format!(
+            "Pattern '{}' appears with multiple types and overlapping file type coverage (choose one canonical type):\n{}",
+            pattern,
+            type_details.join("\n")
+        ));
+    }
+
+    let type_conflicts_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "Type conflict detection completed in {:?} ({} conflicts found)",
+        start.elapsed(),
+        type_conflicts_found
     );
 }
 
@@ -1204,7 +1475,7 @@ fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            }
+            },
             Condition::String {
                 substr: Some(s), ..
             } => {
@@ -1215,7 +1486,7 @@ fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            }
+            },
             Condition::Symbol { exact: Some(s), .. } => {
                 literal_patterns.push((
                     s.clone(),
@@ -1224,7 +1495,7 @@ fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            }
+            },
             Condition::Symbol {
                 substr: Some(s), ..
             } => {
@@ -1235,8 +1506,8 @@ fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -1402,10 +1673,7 @@ pub(crate) fn find_redundant_any_refs(
                 // Only flag external directories (different from rule's directory)
                 // Skip meta/ paths since those are auto-generated and can't use directory notation
                 if trait_dir != rule_dir && !trait_dir.starts_with("meta/") {
-                    dir_refs
-                        .entry(trait_dir.to_string())
-                        .or_default()
-                        .push(id.clone());
+                    dir_refs.entry(trait_dir.to_string()).or_default().push(id.clone());
                 }
             }
             // If no ::, it's a directory reference - these are always fine
@@ -1673,6 +1941,52 @@ pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(Str
     violations
 }
 
+/// Check for duplicate second-level directories across meta/, cap/, obj/, and known/.
+/// This indicates taxonomy violations - directories should not be repeated across namespaces.
+/// For example, cap/c2/ and obj/c2/ suggests cap/c2/ is misplaced (C2 is an objective, not a capability).
+/// Returns a list of (second_level_dir, namespaces_found_in) violations.
+pub(crate) fn find_duplicate_second_level_directories(trait_dirs: &[String]) -> Vec<(String, Vec<String>)> {
+    let mut second_level_map: HashMap<String, Vec<String>> = HashMap::new();
+
+    for dir_path in trait_dirs {
+        // Split path: "cap/comm/http" -> ["cap", "comm", "http"]
+        let parts: Vec<&str> = dir_path.split('/').collect();
+        if parts.len() < 2 {
+            continue; // Need at least namespace/second-level
+        }
+
+        let namespace = parts[0]; // "cap", "obj", "known", "meta"
+        let second_level = parts[1]; // "comm", "c2", "discovery", etc.
+
+        // Only check the four main namespaces
+        if !matches!(namespace, "cap" | "obj" | "known" | "meta") {
+            continue;
+        }
+
+        second_level_map
+            .entry(second_level.to_string())
+            .or_insert_with(Vec::new)
+            .push(namespace.to_string());
+    }
+
+    // Find second-level directories that appear in multiple namespaces
+    let mut violations = Vec::new();
+    for (second_level, mut namespaces) in second_level_map {
+        // Deduplicate and sort namespaces
+        namespaces.sort();
+        namespaces.dedup();
+
+        if namespaces.len() > 1 {
+            violations.push((second_level, namespaces));
+        }
+    }
+
+    // Sort by directory name for consistent output
+    violations.sort_by(|a, b| a.0.cmp(&b.0));
+
+    violations
+}
+
 /// Check if YAML file paths in cap/ or obj/ are at the correct depth.
 /// Valid depths are 3 or 4 subdirectories: cap/a/b/c/x.yaml or cap/a/b/c/d/x.yaml
 /// Returns (path, depth, "shallow" or "deep") for violations.
@@ -1709,8 +2023,7 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
 /// Valid characters are: alphanumerics, dashes, and underscores.
 /// Returns None if valid, Some(invalid_char) if invalid.
 fn validate_trait_id_chars(id: &str) -> Option<char> {
-    id.chars()
-        .find(|&c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
+    id.chars().find(|&c| !c.is_ascii_alphanumeric() && c != '-' && c != '_')
 }
 
 /// Find trait and composite rule IDs that contain invalid characters.
@@ -1938,10 +2251,7 @@ pub(crate) fn find_string_content_collisions(
             let platforms_key = format!("{:?}", t.platforms);
             let key = (sig, crit_key, for_key, platforms_key);
 
-            groups
-                .entry(key)
-                .or_default()
-                .push((t.id.clone(), is_string));
+            groups.entry(key).or_default().push((t.id.clone(), is_string));
         }
     }
 
@@ -1992,10 +2302,7 @@ pub(crate) fn find_for_only_duplicates(
             "{:?}:{:?}:{:.2}:{:?}:{:?}:{:?}:{:?}:{:?}",
             t.r#if, t.crit, t.conf, t.platforms, t.r#if.size_min, t.r#if.size_max, t.not, t.unless
         );
-        groups
-            .entry(signature)
-            .or_default()
-            .push((t.id.clone(), t.r#for.clone()));
+        groups.entry(signature).or_default().push((t.id.clone(), t.r#for.clone()));
     }
 
     // Find groups with multiple traits (different `for:` values)
@@ -2207,7 +2514,6 @@ pub(crate) fn find_banned_directory_segments(trait_dirs: &[String]) -> Vec<(Stri
 /// Find paths with duplicate words across segments.
 /// e.g., "obj/anti-analysis/analysis/" or "cap/exec/execute/"
 /// Returns: Vec<(directory_path, duplicate_word)>
-#[allow(dead_code)]
 pub(crate) fn find_duplicate_words_in_path(trait_dirs: &[String]) -> Vec<(String, String)> {
     let mut violations = Vec::new();
 
@@ -4734,7 +5040,8 @@ mod tests {
     #[test]
     fn test_string_pattern_exact_duplicate_different_files() {
         // Two traits with identical substr pattern in different files for same file type
-        let mut trait1 = make_string_trait("cap/fs/proc/info::proc-net-tcp", "", Criticality::Notable);
+        let mut trait1 =
+            make_string_trait("cap/fs/proc/info::proc-net-tcp", "", Criticality::Notable);
         trait1.defined_in = std::path::PathBuf::from("traits/cap/fs/proc/info/linux.yaml");
         trait1.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
@@ -4754,7 +5061,11 @@ mod tests {
         };
         trait1.r#for = vec![RuleFileType::Elf];
 
-        let mut trait2 = make_string_trait("obj/discovery/network/scan::tcp-connections", "", Criticality::Suspicious);
+        let mut trait2 = make_string_trait(
+            "obj/discovery/network/scan::tcp-connections",
+            "",
+            Criticality::Suspicious,
+        );
         trait2.defined_in = std::path::PathBuf::from("traits/obj/discovery/network/scan/proc.yaml");
         trait2.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
@@ -5020,7 +5331,8 @@ pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<S
             // Check for greedy quantifiers followed by the same character class
             // e.g., \w+\w or \d+\d
             if regex::Regex::new(r"\\[wWdDsS]\+\\[wWdDsS]").unwrap().is_match(&pattern) {
-                issues.push("greedy quantifier followed by same character class causes backtracking");
+                issues
+                    .push("greedy quantifier followed by same character class causes backtracking");
             }
 
             // Check for patterns with .{min,max} followed by more complex matching
@@ -5029,20 +5341,20 @@ pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<S
             }
 
             // Check for very large ranges that could match huge spans
-            if let Some(caps) = regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").unwrap().captures(&pattern) {
+            if let Some(caps) =
+                regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").unwrap().captures(&pattern)
+            {
                 if let Ok(min) = caps[1].parse::<usize>() {
                     if min > 1000 {
-                        issues.push("very large range quantifier (>{1000}) may cause performance issues");
+                        issues.push(
+                            "very large range quantifier (>{1000}) may cause performance issues",
+                        );
                     }
                 }
             }
 
             if !issues.is_empty() {
-                let source_file = trait_def
-                    .defined_in
-                    .to_str()
-                    .unwrap_or("unknown")
-                    .to_string();
+                let source_file = trait_def.defined_in.to_str().unwrap_or("unknown").to_string();
 
                 let line_hint = find_line_number(&source_file, &trait_def.id);
                 let location = if let Some(line) = line_hint {

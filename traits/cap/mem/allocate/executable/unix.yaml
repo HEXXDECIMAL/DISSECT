@@ -7,7 +7,7 @@ traits:
     crit: inert
     conf: 0.5
     platforms: [linux, macos, unix]
-    for: [elf, macho]
+    for: [all]
     if:
       type: symbol
       exact: "mmap"

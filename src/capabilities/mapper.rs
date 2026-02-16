@@ -24,8 +24,10 @@ use super::indexes::{RawContentRegexIndex, StringMatchIndex, TraitIndex};
 use super::models::{TraitInfo, TraitMappings};
 use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
-    autoprefix_trait_refs, collect_trait_refs_from_rule, find_alternation_merge_candidates,
-    find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
+    autoprefix_trait_refs, check_regex_or_overlapping_exact, check_regex_should_be_exact,
+    check_same_string_different_types, collect_trait_refs_from_rule,
+    find_alternation_merge_candidates, find_banned_directory_segments, find_cap_obj_violations,
+    find_depth_violations, find_duplicate_second_level_directories,
     find_duplicate_traits_and_composites, find_empty_condition_clauses, find_for_only_duplicates,
     find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
@@ -47,9 +49,7 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
         return Some(relative.to_string());
     }
     // Fallback: return the file name only if we can't find "traits/"
-    path.file_name()
-        .and_then(|n| n.to_str())
-        .map(|s| s.to_string())
+    path.file_name().and_then(|n| n.to_str()).map(|s| s.to_string())
 }
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -121,7 +121,7 @@ impl CapabilityMapper {
         ) {
             Ok(mapper) => {
                 return mapper;
-            }
+            },
             Err(e) => {
                 // Check if this is a YAML parse error or invalid configuration
                 // These are fatal and should exit immediately with clear error message
@@ -129,7 +129,7 @@ impl CapabilityMapper {
                 if error_chain.contains("Failed to parse YAML")
                     || error_chain.contains("invalid condition")
                 {
-                    eprintln!("\n❌ FATAL: Invalid trait configuration file\n");
+                    eprintln!("\n❌ ERROR: Invalid trait configuration file\n");
                     eprintln!("   {}", error_chain);
                     eprintln!();
                     std::process::exit(1);
@@ -140,7 +140,7 @@ impl CapabilityMapper {
                     traits_dir.display(),
                     e
                 );
-            }
+            },
         }
 
         match Self::from_yaml_with_precision_thresholds(
@@ -151,12 +151,12 @@ impl CapabilityMapper {
         ) {
             Ok(mapper) => {
                 return mapper;
-            }
+            },
             Err(e) => {
                 // Check if this is a YAML parse error - fatal
                 let error_chain = format!("{:#}", e);
                 if error_chain.contains("Failed to parse") {
-                    eprintln!("\n❌ FATAL: Invalid capabilities.yaml file\n");
+                    eprintln!("\n❌ ERROR: Invalid capabilities.yaml file\n");
                     for (i, cause) in e.chain().enumerate() {
                         if i == 0 {
                             eprintln!("   Error: {}", cause);
@@ -169,10 +169,10 @@ impl CapabilityMapper {
                 }
                 // Always show non-parse errors
                 eprintln!("⚠️  Failed to load from capabilities.yaml: {:#}", e);
-            }
+            },
         }
 
-        eprintln!("\n❌ FATAL: Failed to load capabilities from any source");
+        eprintln!("\n❌ ERROR: Failed to load capabilities from any source");
         eprintln!("   Tried: traits/ directory, capabilities.yaml\n");
         std::process::exit(1);
     }
@@ -297,7 +297,7 @@ impl CapabilityMapper {
                     // Format error with full chain (includes filename from context)
                     parse_errors.push(format!("{:#}", e));
                     continue;
-                }
+                },
             };
             files_processed += 1;
 
@@ -413,9 +413,8 @@ impl CapabilityMapper {
                 }
 
                 // Check for short case-insensitive patterns (high collision risk)
-                if let Some(warning) = trait_def
-                    .r#if
-                    .check_short_case_insensitive(trait_def.r#for.len())
+                if let Some(warning) =
+                    trait_def.r#if.check_short_case_insensitive(trait_def.r#for.len())
                 {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
@@ -504,9 +503,8 @@ impl CapabilityMapper {
                 }
 
                 // Check for useless case_insensitive
-                if let Some(warning) = trait_def
-                    .r#if
-                    .check_case_insensitive_on_non_alpha(&trait_def.id)
+                if let Some(warning) =
+                    trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id)
                 {
                     warnings.push(format!(
                         "trait '{}' in {:?}: {}",
@@ -582,16 +580,14 @@ impl CapabilityMapper {
                 {
                     // If exact is specified, add it directly
                     if let Some(exact_val) = exact {
-                        symbol_map
-                            .entry(exact_val.clone())
-                            .or_insert_with(|| TraitInfo {
-                                id: trait_def.id.clone(),
-                                desc: trait_def.desc.clone(),
-                                conf: trait_def.conf,
-                                crit: trait_def.crit,
-                                mbc: trait_def.mbc.clone(),
-                                attack: trait_def.attack.clone(),
-                            });
+                        symbol_map.entry(exact_val.clone()).or_insert_with(|| TraitInfo {
+                            id: trait_def.id.clone(),
+                            desc: trait_def.desc.clone(),
+                            conf: trait_def.conf,
+                            crit: trait_def.crit,
+                            mbc: trait_def.mbc.clone(),
+                            attack: trait_def.attack.clone(),
+                        });
                     }
 
                     // For each regex pattern (may contain "|" for alternatives)
@@ -698,10 +694,8 @@ impl CapabilityMapper {
         }
 
         // Check for unknown file types across all files
-        let file_type_errors: Vec<&String> = warnings
-            .iter()
-            .filter(|w| w.contains("Unknown file type"))
-            .collect();
+        let file_type_errors: Vec<&String> =
+            warnings.iter().filter(|w| w.contains("Unknown file type")).collect();
         if !file_type_errors.is_empty() {
             // Sort and display errors (already include file paths)
             let mut sorted_errors: Vec<&str> =
@@ -753,6 +747,9 @@ impl CapabilityMapper {
 
         let _t_validate = std::time::Instant::now();
 
+        // Track whether any fatal errors occurred (for deferred exit)
+        let mut has_fatal_errors = false;
+
         // Pre-calculate precision for ALL composite rules once
         // Atomic trait precisions are already calculated during parsing
         tracing::debug!("Validating trait definitions and composite rules");
@@ -788,11 +785,29 @@ impl CapabilityMapper {
             find_string_pattern_duplicates(&trait_definitions, &mut warnings);
             tracing::debug!("Step 1d completed in {:?}", step_start.elapsed());
 
+            // Check for regex OR patterns overlapping with exact matches
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1e/15: Checking for regex OR patterns overlapping exact matches");
+            check_regex_or_overlapping_exact(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1e completed in {:?}", step_start.elapsed());
+
+            // Check for simple regex that should be exact
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1f/15: Checking for regex patterns that should be exact");
+            check_regex_should_be_exact(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1f completed in {:?}", step_start.elapsed());
+
+            // Check for same pattern with different types
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1g/15: Checking for patterns with conflicting types");
+            check_same_string_different_types(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1g completed in {:?}", step_start.elapsed());
+
             // Detect potentially slow regex patterns that could cause catastrophic backtracking
             let step_start = std::time::Instant::now();
-            tracing::debug!("Step 1e/15: Detecting potentially slow regex patterns");
+            tracing::debug!("Step 1h/15: Detecting potentially slow regex patterns");
             find_slow_regex_patterns(&trait_definitions, &mut warnings);
-            tracing::debug!("Step 1e completed in {:?}", step_start.elapsed());
+            tracing::debug!("Step 1h completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }
@@ -847,7 +862,7 @@ impl CapabilityMapper {
         let platform_dir_violations = find_platform_named_directories(&dir_list);
         if !platform_dir_violations.is_empty() {
             eprintln!(
-                    "\n⚠️  WARNING: {} directories are named after platforms/languages (TAXONOMY.md violation)",
+                    "\n❌ ERROR: {} directories are named after platforms/languages (TAXONOMY.md violation)",
                     platform_dir_violations.len()
                 );
             eprintln!("   Languages and platforms should be YAML filenames, not directories:\n");
@@ -865,12 +880,33 @@ impl CapabilityMapper {
             ));
         }
 
+        // Check for duplicate second-level directories across namespaces
+        // According to TAXONOMY.md, directories should not be repeated across meta/, cap/, obj/, known/
+        tracing::debug!("Step 3b/15: Checking for duplicate second-level directories");
+        let duplicate_dirs = find_duplicate_second_level_directories(&dir_list);
+        if !duplicate_dirs.is_empty() {
+            eprintln!(
+                "\n❌ ERROR: {} second-level directories are duplicated across namespaces (TAXONOMY.md violation)",
+                duplicate_dirs.len()
+            );
+            eprintln!("   Second-level directories should not be repeated across meta/, cap/, obj/, known/:");
+            eprintln!("   This indicates traits are misplaced - objectives should only be in obj/, capabilities in cap/.\n");
+            for (dir_name, namespaces) in &duplicate_dirs {
+                eprintln!("   '{}' appears in: {}/{}/ ", dir_name, namespaces.join("/, "), dir_name);
+            }
+            eprintln!("\n   Examples:");
+            eprintln!("   - cap/c2/ and obj/c2/ → C2 is an objective, should only be in obj/");
+            eprintln!("   - cap/discovery/ and obj/discovery/ → Discovery is an objective, should only be in obj/");
+            eprintln!("   - cap/malware/ and known/malware/ → Malware detection should not be in cap/\n");
+            has_fatal_errors = true;
+        }
+
         // Check for banned meaningless directory segments
         tracing::debug!("Step 4/15: Checking for banned directory segments");
         let banned_segment_violations = find_banned_directory_segments(&dir_list);
         if !banned_segment_violations.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} directories contain meaningless segment names",
+                "\n❌ ERROR: {} directories contain meaningless segment names",
                 banned_segment_violations.len()
             );
             eprintln!("   These segments add no semantic value and hurt taxonomy clarity:\n");
@@ -892,7 +928,7 @@ impl CapabilityMapper {
         let parent_dup_violations = find_parent_duplicate_segments(&dir_list);
         if !parent_dup_violations.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} directories duplicate their parent segment",
+                "\n❌ ERROR: {} directories duplicate their parent segment",
                 parent_dup_violations.len()
             );
             eprintln!("   Child directories should not repeat parent names:\n");
@@ -918,18 +954,14 @@ impl CapabilityMapper {
             .collect();
         let depth_violations = find_depth_violations(&relative_paths);
         if !depth_violations.is_empty() {
-            let shallow: Vec<_> = depth_violations
-                .iter()
-                .filter(|(_, _, kind)| *kind == "shallow")
-                .collect();
-            let deep: Vec<_> = depth_violations
-                .iter()
-                .filter(|(_, _, kind)| *kind == "deep")
-                .collect();
+            let shallow: Vec<_> =
+                depth_violations.iter().filter(|(_, _, kind)| *kind == "shallow").collect();
+            let deep: Vec<_> =
+                depth_violations.iter().filter(|(_, _, kind)| *kind == "deep").collect();
 
             if !shallow.is_empty() {
                 eprintln!(
-                    "\n⚠️  WARNING: {} files are too shallow (need 3-4 subdirectories in cap/obj)",
+                    "\n❌ ERROR: {} files are too shallow (need 3-4 subdirectories in cap/obj)",
                     shallow.len()
                 );
                 for (path, depth, _) in &shallow {
@@ -938,7 +970,7 @@ impl CapabilityMapper {
             }
             if !deep.is_empty() {
                 eprintln!(
-                    "\n⚠️  WARNING: {} files are too deep (max 4 subdirectories in cap/obj)",
+                    "\n❌ ERROR: {} files are too deep (max 4 subdirectories in cap/obj)",
                     deep.len()
                 );
                 for (path, depth, _) in &deep {
@@ -957,7 +989,7 @@ impl CapabilityMapper {
             find_invalid_trait_ids(&trait_definitions, &composite_rules, &rule_source_files);
         if !invalid_ids.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} trait/rule IDs contain invalid characters",
+                "\n❌ ERROR: {} trait/rule IDs contain invalid characters",
                 invalid_ids.len()
             );
             if debug {
@@ -1032,7 +1064,7 @@ impl CapabilityMapper {
 
         if !invalid_refs.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} invalid trait references found in composite rules",
+                "\n❌ ERROR: {} invalid trait references found in composite rules",
                 invalid_refs.len()
             );
             if debug {
@@ -1105,10 +1137,8 @@ impl CapabilityMapper {
             let trait_refs = collect_trait_refs_from_rule(rule);
             for (ref_id, rule_id) in trait_refs {
                 if ref_id.starts_with("meta/internal/") {
-                    let source_file = rule_source_files
-                        .get(&rule_id)
-                        .map(|s| s.as_str())
-                        .unwrap_or("unknown");
+                    let source_file =
+                        rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                     internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
                 }
             }
@@ -1116,7 +1146,7 @@ impl CapabilityMapper {
 
         if !internal_refs.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} composite rules reference internal paths",
+                "\n❌ ERROR: {} composite rules reference internal paths",
                 internal_refs.len()
             );
             eprintln!("   Internal paths (meta/internal/) are for ML usage only and cannot be used in composite rules:\n");
@@ -1150,7 +1180,7 @@ impl CapabilityMapper {
 
         if !cap_obj_violations.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} cap/ rules reference obj/ rules",
+                "\n❌ ERROR: {} cap/ rules reference obj/ rules",
                 cap_obj_violations.len()
             );
             eprintln!("   Cap rules (micro-behaviors) should not depend on obj rules (larger behaviors):\n");
@@ -1183,7 +1213,7 @@ impl CapabilityMapper {
 
         if !hostile_cap_rules.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} cap/ rules have hostile criticality",
+                "\n❌ ERROR: {} cap/ rules have hostile criticality",
                 hostile_cap_rules.len()
             );
             eprintln!("   Cap contains micro-behaviors (atomic capabilities) which are generally neutral.");
@@ -1216,7 +1246,7 @@ impl CapabilityMapper {
         //
         // if !inert_obj_rules.is_empty() {
         //     eprintln!(
-        //         "\n❌ FATAL: {} obj/known rules have inert criticality",
+        //         "\n❌ ERROR: {} obj/known rules have inert criticality",
         //         inert_obj_rules.len()
         //     );
         //     eprintln!("   Obj/known contain behaviors with malicious or suspicious intent.");
@@ -1246,17 +1276,15 @@ impl CapabilityMapper {
         for rule in &composite_rules {
             let violations = find_redundant_any_refs(rule);
             for (rule_id, dir, count, trait_ids) in violations {
-                let source_file = rule_source_files
-                    .get(&rule_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source_file =
+                    rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                 redundant_any_refs.push((rule_id, dir, count, trait_ids, source_file.to_string()));
             }
         }
 
         if !redundant_any_refs.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} composite rules have redundant any: clauses",
+                "\n❌ ERROR: {} composite rules have redundant any: clauses",
                 redundant_any_refs.len()
             );
             eprintln!("   Rules with 4+ trait references from the same directory should use directory notation:\n");
@@ -1289,17 +1317,15 @@ impl CapabilityMapper {
         for rule in &composite_rules {
             let violations = find_single_item_clauses(rule);
             for (rule_id, clause_type, trait_id) in violations {
-                let source_file = rule_source_files
-                    .get(&rule_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source_file =
+                    rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                 single_item_clauses.push((rule_id, clause_type, trait_id, source_file.to_string()));
             }
         }
 
         if !single_item_clauses.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} composite rules have single-item any:/all: clauses",
+                "\n❌ ERROR: {} composite rules have single-item any:/all: clauses",
                 single_item_clauses.len()
             );
             eprintln!(
@@ -1331,16 +1357,14 @@ impl CapabilityMapper {
         let collisions = find_string_content_collisions(&trait_definitions);
         if !collisions.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} trait pairs have string/content type collisions",
+                "\n❌ ERROR: {} trait pairs have string/content type collisions",
                 collisions.len()
             );
             eprintln!("   When both `type: string` and `type: raw` exist for the same pattern,");
             eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
             for (string_id, content_id, pattern) in &collisions {
-                let string_source = rule_source_files
-                    .get(string_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let string_source =
+                    rule_source_files.get(string_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(string_source, string_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1366,7 +1390,7 @@ impl CapabilityMapper {
         let for_duplicates = find_for_only_duplicates(&trait_definitions);
         if !for_duplicates.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} trait groups differ only in `for:` field",
+                "\n❌ ERROR: {} trait groups differ only in `for:` field",
                 for_duplicates.len()
             );
             eprintln!("   These traits have identical logic (same criticality, condition, etc.) but different file types.");
@@ -1374,10 +1398,8 @@ impl CapabilityMapper {
             for (trait_ids, _pattern) in &for_duplicates {
                 // Find source file for the first trait
                 let first_id = &trait_ids[0];
-                let source = rule_source_files
-                    .get(first_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source =
+                    rule_source_files.get(first_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, first_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
@@ -1400,17 +1422,15 @@ impl CapabilityMapper {
             find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
         if !alternation_candidates.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} trait groups have regex patterns that should use alternation",
+                "\n❌ ERROR: {} trait groups have regex patterns that should use alternation",
                 alternation_candidates.len()
             );
             eprintln!("   These traits have identical criticality and regex patterns where the first token differs only in case.");
             eprintln!("   Merge them into a single trait using alternation syntax:\n");
             for (trait_ids, _suffix, suggested) in &alternation_candidates {
                 let first_id = &trait_ids[0];
-                let source = rule_source_files
-                    .get(first_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source =
+                    rule_source_files.get(first_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, first_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
@@ -1429,15 +1449,13 @@ impl CapabilityMapper {
         let impossible_needs = find_impossible_needs(&composite_rules);
         if !impossible_needs.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} composite rules have impossible `needs` values",
+                "\n❌ ERROR: {} composite rules have impossible `needs` values",
                 impossible_needs.len()
             );
             eprintln!("   The `needs` value exceeds the number of items in `any:`:\n");
             for (rule_id, needs, any_len) in &impossible_needs {
-                let source = rule_source_files
-                    .get(rule_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source =
+                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1463,15 +1481,12 @@ impl CapabilityMapper {
             find_impossible_size_constraints(&trait_definitions, &composite_rules);
         if !impossible_sizes.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} rules have impossible size constraints (size_min > size_max)",
+                "\n❌ ERROR: {} rules have impossible size constraints (size_min > size_max)",
                 impossible_sizes.len()
             );
             for (id, min, max, is_composite) in &impossible_sizes {
                 let kind = if *is_composite { "composite" } else { "trait" };
-                let source = rule_source_files
-                    .get(id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1496,14 +1511,11 @@ impl CapabilityMapper {
         let impossible_counts = find_impossible_count_constraints(&trait_definitions);
         if !impossible_counts.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} traits have impossible count constraints (count_min > count_max)",
+                "\n❌ ERROR: {} traits have impossible count constraints (count_min > count_max)",
                 impossible_counts.len()
             );
             for (id, min, max) in &impossible_counts {
-                let source = rule_source_files
-                    .get(id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1528,15 +1540,13 @@ impl CapabilityMapper {
         let empty_clauses = find_empty_condition_clauses(&composite_rules);
         if !empty_clauses.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} composite rules have empty condition clauses",
+                "\n❌ ERROR: {} composite rules have empty condition clauses",
                 empty_clauses.len()
             );
             eprintln!("   Empty `any:` or `all:` clauses make rules meaningless:\n");
             for (rule_id, clause_type) in &empty_clauses {
-                let source = rule_source_files
-                    .get(rule_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source =
+                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1561,17 +1571,14 @@ impl CapabilityMapper {
         let missing_patterns = find_missing_search_patterns(&trait_definitions);
         if !missing_patterns.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} traits have no search pattern",
+                "\n❌ ERROR: {} traits have no search pattern",
                 missing_patterns.len()
             );
             eprintln!(
                 "   String/content conditions need at least one of: exact, substr, regex, word:\n"
             );
             for id in &missing_patterns {
-                let source = rule_source_files
-                    .get(id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: '{}'", source, line, id);
@@ -1590,15 +1597,13 @@ impl CapabilityMapper {
         let redundant_needs = find_redundant_needs_one(&composite_rules);
         if !redundant_needs.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} composite rules have redundant `needs: 1`",
+                "\n❌ ERROR: {} composite rules have redundant `needs: 1`",
                 redundant_needs.len()
             );
             eprintln!("   `needs: 1` is the default when only `any:` exists - remove it:\n");
             for rule_id in &redundant_needs {
-                let source = rule_source_files
-                    .get(rule_id)
-                    .map(|s| s.as_str())
-                    .unwrap_or("unknown");
+                let source =
+                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: '{}'", source, line, rule_id);
@@ -1617,7 +1622,7 @@ impl CapabilityMapper {
         let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
         if !oversized_dirs.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} directories have more than {} traits",
+                "\n❌ ERROR: {} directories have more than {} traits",
                 oversized_dirs.len(),
                 MAX_TRAITS_PER_DIRECTORY
             );
@@ -1674,10 +1679,8 @@ impl CapabilityMapper {
                             ref_id, rule_id
                         );
                     }
-                    let source_file = rule_source_files
-                        .get(&rule_id)
-                        .map(|s| s.as_str())
-                        .unwrap_or("unknown");
+                    let source_file =
+                        rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
                     broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
                 }
             }
@@ -1685,7 +1688,7 @@ impl CapabilityMapper {
 
         if !broken_refs.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} broken trait references found in composite rules",
+                "\n❌ ERROR: {} broken trait references found in composite rules",
                 broken_refs.len()
             );
             eprintln!("   Composite rules reference trait IDs that don't exist:\n");
@@ -1729,7 +1732,7 @@ impl CapabilityMapper {
 
         if !invalid_metric_refs.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} unknown metric field references found in traits",
+                "\n❌ ERROR: {} unknown metric field references found in traits",
                 invalid_metric_refs.len()
             );
             eprintln!("   Traits reference metric fields that don't exist:\n");
@@ -1776,16 +1779,13 @@ impl CapabilityMapper {
         // Strict mode is the default - composite rules must only reference traits
         let mut inline_errors = Vec::new();
         for rule in &composite_rules {
-            let source = rule_source_files
-                .get(&rule.id)
-                .map(|s| s.as_str())
-                .unwrap_or("unknown");
+            let source = rule_source_files.get(&rule.id).map(|s| s.as_str()).unwrap_or("unknown");
             inline_errors.extend(validate_composite_trait_only(rule, source));
         }
 
         if !inline_errors.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} composite rules have inline primitives\n",
+                "\n❌ ERROR: {} composite rules have inline primitives\n",
                 inline_errors.len()
             );
             for err in &inline_errors {
@@ -1795,7 +1795,7 @@ impl CapabilityMapper {
             eprintln!(
                 "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.\n"
             );
-            std::process::exit(1);
+            has_fatal_errors = true;
         }
 
         // Validate single-rule composites with identical file types
@@ -1905,7 +1905,7 @@ impl CapabilityMapper {
 
         if !redundant_composites.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} single-trait composites add no value",
+                "\n❌ ERROR: {} single-trait composites add no value",
                 redundant_composites.len()
             );
             eprintln!(
@@ -1927,12 +1927,12 @@ impl CapabilityMapper {
                 }
             }
             eprintln!();
-            std::process::exit(1);
+            has_fatal_errors = true;
         }
 
         if !unless_only_composites.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} single-trait composites only add 'unless' clauses",
+                "\n❌ ERROR: {} single-trait composites only add 'unless' clauses",
                 unless_only_composites.len()
             );
             eprintln!("   Instead of creating a composite with only an unless clause:");
@@ -1953,7 +1953,7 @@ impl CapabilityMapper {
                 }
             }
             eprintln!();
-            std::process::exit(1);
+            has_fatal_errors = true;
         }
 
         tracing::debug!("Validation complete");
@@ -1974,27 +1974,27 @@ impl CapabilityMapper {
             Ok(index) => index,
             Err(errors) => {
                 return Err(anyhow::anyhow!(errors.join("\n")));
-            }
+            },
         };
 
         // Parse errors are fatal - print all and exit if any exist
         if !parse_errors.is_empty() {
             eprintln!(
-                "\n❌ FATAL: {} YAML parsing error(s) found:\n",
+                "\n❌ ERROR: {} YAML parsing error(s) found:\n",
                 parse_errors.len()
             );
             for error in &parse_errors {
                 eprintln!("   {}", error);
             }
             eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
-            std::process::exit(1);
+            has_fatal_errors = true;
         }
 
         // Warnings are NOT fatal during analysis, just print them if in debug mode
         if !warnings.is_empty() {
             if debug {
                 eprintln!(
-                    "\n⚠️  WARNING: {} trait configuration warning(s) found:\n",
+                    "\n❌ ERROR: {} trait configuration warning(s) found:\n",
                     warnings.len()
                 );
                 for warning in &warnings {
@@ -2002,8 +2002,17 @@ impl CapabilityMapper {
                 }
                 eprintln!("\n   Consider fixing these issues in the YAML files.\n");
             } else {
-                tracing::warn!("{} trait configuration warnings found (set DISSECT_DEBUG=1 to see details)", warnings.len());
+                tracing::warn!(
+                    "{} trait configuration warnings found (set DISSECT_DEBUG=1 to see details)",
+                    warnings.len()
+                );
             }
+        }
+
+        // Exit if any fatal errors occurred
+        if has_fatal_errors {
+            eprintln!("\n==> Fix all validation errors before continuing.\n");
+            std::process::exit(1);
         }
 
         Ok(Self {
@@ -2127,16 +2136,13 @@ impl CapabilityMapper {
         // Validate trait and composite conditions and warn about problematic patterns
         validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
 
-        // Warnings are fatal
+        // Final error check - exit if any validation errors occurred
         if !warnings.is_empty() {
-            eprintln!(
-                "\n❌ FATAL: {} trait configuration warning(s) found:\n",
-                warnings.len()
-            );
+            eprintln!("\n❌ ERROR: {} validation errors:\n", warnings.len());
             for warning in &warnings {
-                eprintln!("   ⚠️  {}", warning);
+                eprintln!("   {}", warning);
             }
-            eprintln!("\n   Fix these issues in the YAML files.\n");
+            eprintln!("\n==> Fix all validation errors before continuing.\n");
             std::process::exit(1);
         }
 
@@ -2151,7 +2157,7 @@ impl CapabilityMapper {
             Ok(index) => index,
             Err(errors) => {
                 return Err(anyhow::anyhow!(errors.join("\n")));
-            }
+            },
         };
 
         Ok(Self {
@@ -2227,7 +2233,7 @@ impl CapabilityMapper {
                 } else {
                     Some("anti-analysis/obfuscation".to_string())
                 }
-            }
+            },
             (Some(&"fs"), sub) => Some(format!("fs/{}", sub.unwrap_or(&"generic"))),
             (Some(category), sub) => Some(format!("{}/{}", category, sub.unwrap_or(&"generic"))),
             _ => None,
@@ -2242,6 +2248,11 @@ impl CapabilityMapper {
     /// Get the number of loaded composite rules
     pub fn composite_rules_count(&self) -> usize {
         self.composite_rules.len()
+    }
+
+    /// Get a reference to the composite rules (for graph generation and analysis)
+    pub fn composite_rules(&self) -> &[CompositeTrait] {
+        &self.composite_rules
     }
 
     /// Get the number of loaded trait definitions
@@ -2333,8 +2344,7 @@ impl CapabilityMapper {
         }
 
         let (string_matched_traits, cached_evidence) = if self.string_match_index.has_patterns() {
-            self.string_match_index
-                .find_matches_with_evidence(&all_strings)
+            self.string_match_index.find_matches_with_evidence(&all_strings)
         } else {
             (FxHashSet::default(), FxHashMap::default())
         };
@@ -2346,12 +2356,10 @@ impl CapabilityMapper {
         // Only run if any applicable traits have content regex patterns
         let _t_raw_regex = std::time::Instant::now();
         let raw_regex_prefilter_enabled = self.raw_content_regex_index.has_patterns()
-            && self
-                .raw_content_regex_index
-                .has_applicable_patterns(&applicable_indices);
-        let (raw_regex_matched_traits, _has_excessive_line_length) = if raw_regex_prefilter_enabled {
-            self.raw_content_regex_index
-                .find_matches(binary_data, &file_type)
+            && self.raw_content_regex_index.has_applicable_patterns(&applicable_indices);
+        let (raw_regex_matched_traits, _has_excessive_line_length) = if raw_regex_prefilter_enabled
+        {
+            self.raw_content_regex_index.find_matches(binary_data, &file_type)
         } else {
             (FxHashSet::default(), false)
         };
@@ -2467,10 +2475,8 @@ impl CapabilityMapper {
 
         // Deduplicate findings (keep first occurrence of each ID)
         let mut seen = std::collections::HashSet::new();
-        let mut unique_findings: Vec<Finding> = all_findings
-            .into_iter()
-            .filter(|f| seen.insert(f.id.clone()))
-            .collect();
+        let mut unique_findings: Vec<Finding> =
+            all_findings.into_iter().filter(|f| seen.insert(f.id.clone())).collect();
 
         // Free excess capacity to reduce memory footprint
         unique_findings.shrink_to_fit();
@@ -2522,10 +2528,8 @@ impl CapabilityMapper {
         }
 
         // Split rules into two groups: those with negative conditions and those without
-        let (negative_rules, positive_rules): (Vec<&CompositeTrait>, Vec<&CompositeTrait>) = self
-            .composite_rules
-            .iter()
-            .partition(|r| r.has_negative_conditions());
+        let (negative_rules, positive_rules): (Vec<&CompositeTrait>, Vec<&CompositeTrait>) =
+            self.composite_rules.iter().partition(|r| r.has_negative_conditions());
 
         // Build section map once for location-constrained matching
         let section_map = SectionMap::from_binary(binary_data);
@@ -2622,16 +2626,15 @@ impl CapabilityMapper {
         // Check here as well in case composite rules are evaluated without traits
         const MAX_LINE_LENGTH: usize = 1_000_000;
         let content = String::from_utf8_lossy(binary_data);
-        let has_excessive_line = content
-            .lines()
-            .any(|line| line.len() > MAX_LINE_LENGTH);
+        let has_excessive_line = content.lines().any(|line| line.len() > MAX_LINE_LENGTH);
 
         if has_excessive_line {
             all_findings.push(Finding {
                 id: "obj/anti-static/excessive-line-length".to_string(),
                 kind: FindingKind::Structural,
-                desc: "File contains excessively long lines (>1MB) that may cause regex backtracking"
-                    .to_string(),
+                desc:
+                    "File contains excessively long lines (>1MB) that may cause regex backtracking"
+                        .to_string(),
                 conf: 0.9,
                 crit: Criticality::Suspicious,
                 mbc: None,
@@ -2664,11 +2667,8 @@ impl CapabilityMapper {
         use rustc_hash::FxHashMap;
 
         // Build a map of rule ID to rule for quick lookup
-        let composite_map: FxHashMap<&str, &CompositeTrait> = self
-            .composite_rules
-            .iter()
-            .map(|r| (r.id.as_str(), r))
-            .collect();
+        let composite_map: FxHashMap<&str, &CompositeTrait> =
+            self.composite_rules.iter().map(|r| (r.id.as_str(), r)).collect();
 
         // First pass: collect new criticalities (can't mutate while borrowing for context)
         let updates: Vec<(usize, Criticality)> = {
@@ -2929,7 +2929,7 @@ impl CapabilityMapper {
                     let desc = match &import.library {
                         Some(lib) if !lib.is_empty() => {
                             format!("imports {} from {}", import.symbol, lib)
-                        }
+                        },
                         _ => format!("imports {}", import.symbol),
                     };
 
@@ -2969,7 +2969,7 @@ impl CapabilityMapper {
             "go" | "go.mod" => return "gomod",
             "maven" | "gradle" | "pom.xml" => return "maven",
             "composer" => return "composer",
-            _ => {}
+            _ => {},
         }
 
         // For binary formats, use the binary type as ecosystem
@@ -2977,7 +2977,7 @@ impl CapabilityMapper {
             "elf" | "so" => return "elf",
             "macho" | "dylib" => return "macho",
             "pe" | "exe" | "dll" => return "pe",
-            _ => {}
+            _ => {},
         }
 
         // For source code, detect language from file type
@@ -3026,20 +3026,20 @@ impl CapabilityMapper {
                 c if c.is_ascii_alphanumeric() || c == '_' => {
                     result.push(c);
                     prev_sep = false;
-                }
+                },
                 '.' | '/' => {
                     // Both dots and slashes become path separators
                     if !prev_sep {
                         result.push('/');
                         prev_sep = true;
                     }
-                }
+                },
                 _ => {
                     if !prev_sep {
                         result.push('-');
                         prev_sep = true;
                     }
-                }
+                },
             }
         }
 
@@ -3178,7 +3178,7 @@ fn check_condition(
 
     if let Condition::Raw { exact: Some(_), .. } = condition {
         eprintln!(
-            "⚠️  WARNING: Trait '{}' in {} uses 'type: raw' with 'exact' match. \
+            "❌ ERROR: Trait '{}' in {} uses 'type: raw' with 'exact' match. \
             This requires the entire file content to exactly match the pattern, \
             which is rarely useful. Consider using 'substr' instead.",
             trait_id,
@@ -3206,9 +3206,7 @@ fn collect_metric_refs_from_condition(condition: &Condition, fields: &mut Vec<St
 fn get_valid_metric_fields() -> FxHashSet<String> {
     // Use the auto-generated field paths from the ValidFieldPaths derive macro
     // This ensures the validation always stays in sync with actual struct definitions
-    crate::types::field_paths::all_valid_metric_paths()
-        .into_iter()
-        .collect()
+    crate::types::field_paths::all_valid_metric_paths().into_iter().collect()
 }
 
 /// Suggest a similar metric field for typos (simple Levenshtein distance)

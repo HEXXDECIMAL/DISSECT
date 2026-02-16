@@ -15,13 +15,7 @@ traits:
       type: string
       regex: "com\\.apple\\.TCC.{0,20}as\\s+alias|/TCC\\.db.{0,20}as\\s+alias"
 
-  - id: notes-group-alias
-    desc: Apple Notes group container via AppleScript
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      substr: "group.com.apple.notes"
+  # Removed notes-group-alias duplicate - use obj/collect/notes/app/macos::notes-container
 
   - id: tccclickjack-string
     desc: TccClickJack tooling reference

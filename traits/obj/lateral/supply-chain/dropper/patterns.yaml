@@ -337,15 +337,7 @@ traits:
 
   # === WScript/XMLHTTP atomic indicators ===
   # Removed msxml2-xmlhttp duplicate - use cap/exec/activex/com::activex-xmlhttp-msxml2
-
-  - id: microsoft-xmlhttp
-    desc: Microsoft.XMLHTTP object
-    crit: notable
-    conf: 0.7
-    for: [javascript]
-    if:
-      type: string
-      substr: "Microsoft.XMLHTTP"
+  # Removed microsoft-xmlhttp duplicate - use cap/exec/scripting/host/windows::microsoft-xmlhttp-string
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -401,14 +393,7 @@ traits:
       type: string
       substr: "bin.base64"
 
-  # Scripting.FileSystemObject
-  - id: fso
-    desc: Scripting.FileSystemObject usage
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "Scripting.FileSystemObject"
+  # Removed fso duplicate - use cap/exec/activex/com::activex-filesystem
 
   # Batch escape function
   - id: batch-escape
@@ -617,7 +602,7 @@ composite_rules:
     any:
       - id: cap/exec/scripting/host::wscript-shell-string
       - id: cap/exec/activex/com::activex-xmlhttp-msxml2
-      - id: microsoft-xmlhttp
+      - id: cap/exec/scripting/host/windows::microsoft-xmlhttp-string
     downgrade:
       any:
         - id: meta/library/jquery::library

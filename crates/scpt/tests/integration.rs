@@ -71,19 +71,13 @@ fn test_tell_app_events() {
     let events = parser.apple_events();
 
     // Check for activate event
-    assert!(events
-        .iter()
-        .any(|e| e.class_code == "misc" && e.event_code == "actv"));
+    assert!(events.iter().any(|e| e.class_code == "misc" && e.event_code == "actv"));
 
     // Check for count event
-    assert!(events
-        .iter()
-        .any(|e| e.class_code == "core" && e.event_code == "cnte"));
+    assert!(events.iter().any(|e| e.class_code == "core" && e.event_code == "cnte"));
 
     // Check for folder reference
-    assert!(events
-        .iter()
-        .any(|e| e.class_code == "ears" && e.event_code == "ffdr"));
+    assert!(events.iter().any(|e| e.class_code == "ears" && e.event_code == "ffdr"));
 }
 
 #[test]
@@ -91,10 +85,7 @@ fn test_tell_app_applications() {
     let parser = ScptParser::new(TELL_APP_SCPT).unwrap();
     let symbols = parser.symbols();
 
-    let apps: Vec<_> = symbols
-        .iter()
-        .filter(|s| s.kind == SymbolKind::Application)
-        .collect();
+    let apps: Vec<_> = symbols.iter().filter(|s| s.kind == SymbolKind::Application).collect();
 
     assert!(apps.iter().any(|s| s.name == "Finder"));
     assert!(apps.iter().any(|s| s.name == "System Events"));
@@ -133,10 +124,7 @@ fn test_four_char_codes() {
     let parser = ScptParser::new(TELL_APP_SCPT).unwrap();
     let symbols = parser.symbols();
 
-    let fourccs: Vec<_> = symbols
-        .iter()
-        .filter(|s| s.kind == SymbolKind::FourCharCode)
-        .collect();
+    let fourccs: Vec<_> = symbols.iter().filter(|s| s.kind == SymbolKind::FourCharCode).collect();
 
     // "desk" (desktop) and "prcs" (processes) should be present
     assert!(fourccs.iter().any(|s| s.name == "desk"));

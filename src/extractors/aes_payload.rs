@@ -206,10 +206,7 @@ fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u
     let cipher = Aes256CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher
-        .decrypt_padded_mut::<Pkcs7>(&mut buf)
-        .ok()
-        .map(|pt| pt.to_vec())
+    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(|pt| pt.to_vec())
 }
 
 /// Decrypt AES-128-CBC ciphertext
@@ -227,10 +224,7 @@ fn decrypt_aes_128_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u
     let cipher = Aes128CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher
-        .decrypt_padded_mut::<Pkcs7>(&mut buf)
-        .ok()
-        .map(|pt| pt.to_vec())
+    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(|pt| pt.to_vec())
 }
 
 /// Try to decrypt ciphertext with given params

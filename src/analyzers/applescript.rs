@@ -137,8 +137,7 @@ impl Analyzer for AppleScriptAnalyzer {
         report.findings.extend(plain_findings);
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, &data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None);
 
         Ok(report)
     }

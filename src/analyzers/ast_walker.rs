@@ -51,18 +51,18 @@ impl WalkStats {
 /// Returns early if depth exceeds MAX_AST_DEPTH.
 ///
 /// The visitor receives (node, depth) and can return `false` to skip children.
-pub fn walk_tree<F>(cursor: &mut TreeCursor, visitor: F)
+pub fn walk_tree<'a, F>(cursor: &mut TreeCursor<'a>, visitor: F)
 where
-    F: FnMut(Node, usize) -> bool,
+    F: FnMut(Node<'a>, usize) -> bool,
 {
     let _ = walk_tree_with_stats(cursor, visitor);
 }
 
 /// Like walk_tree but returns stats including whether depth limits were hit.
 /// Use this when you need to detect potential anti-analysis techniques.
-pub fn walk_tree_with_stats<F>(cursor: &mut TreeCursor, mut visitor: F) -> WalkStats
+pub fn walk_tree_with_stats<'a, F>(cursor: &mut TreeCursor<'a>, mut visitor: F) -> WalkStats
 where
-    F: FnMut(Node, usize) -> bool,
+    F: FnMut(Node<'a>, usize) -> bool,
 {
     let mut stats = WalkStats::default();
     let mut depth = 0usize;
@@ -108,7 +108,7 @@ where
 /// More efficient than walk_tree when you only need to collect specific nodes.
 pub fn collect_nodes<'a, F>(cursor: &mut TreeCursor<'a>, mut predicate: F) -> Vec<Node<'a>>
 where
-    F: FnMut(&Node) -> bool,
+    F: FnMut(&Node<'a>) -> bool,
 {
     let mut results = Vec::new();
     let mut depth = 0usize;
@@ -152,7 +152,7 @@ pub fn collect_by_kind<'a>(cursor: &mut TreeCursor<'a>, kinds: &[&str]) -> Vec<N
 }
 
 /// Walk tree and extract text from nodes of specific kinds
-pub fn extract_text_by_kind(cursor: &mut TreeCursor, source: &[u8], kinds: &[&str]) -> Vec<String> {
+pub fn extract_text_by_kind<'a>(cursor: &mut TreeCursor<'a>, source: &[u8], kinds: &[&str]) -> Vec<String> {
     let mut results = Vec::new();
     let mut depth = 0usize;
 
@@ -330,9 +330,7 @@ mod tests {
 
     fn parse_js(code: &str) -> tree_sitter::Tree {
         let mut parser = tree_sitter::Parser::new();
-        parser
-            .set_language(&tree_sitter_javascript::LANGUAGE.into())
-            .unwrap();
+        parser.set_language(&tree_sitter_javascript::LANGUAGE.into()).unwrap();
         parser.parse(code, None).unwrap()
     }
 

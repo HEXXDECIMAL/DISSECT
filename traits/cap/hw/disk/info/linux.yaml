@@ -2,15 +2,8 @@
 # ATT&CK: T1082 (System Information Discovery)
 
 traits:
-  - id: dmidecode
-    desc: Hardware info via dmidecode
-    crit: notable
-    conf: 0.75
-    attack: "T1082"
-    platforms: [linux]
-    if:
-      type: string
-      regex: "dmidecode[\\s-]"
+  # Removed dmidecode duplicate - use cap/os/sysinfo/dmi::dmidecode
+  # NOTE: dmidecode is a DMI/SMBIOS tool, not specific to disk information
 
   - id: gopsutil
     desc: Go disk info via gopsutil

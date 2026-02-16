@@ -7,7 +7,7 @@ defaults:
 
 traits:
   - id: receive
-    desc: Receive a message from a
+    desc: Receive a message from a socket
     crit: inert
     conf: 0.66
     mbc: "C0001"

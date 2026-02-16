@@ -3,7 +3,7 @@
 # ATT&CK: T1070.004
 
 defaults:
-  for: [elf, macho, so, dylib, c]
+  for: [all]
 
 traits:
   # NOTE: Go runtime and standard library use unlink/remove for temp file

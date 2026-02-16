@@ -2,20 +2,10 @@
 # Patterns for avoiding disk-based detection
 # ATT&CK: T1055, T1620
 # NOTE: memfd_create is defined in mem/anonymous/create/linux.yaml
+# NOTE: dev-shm is defined in cap/fs/path/device/linux.yaml
 
 traits:
-  - id: dev-shm
-    desc: "/dev/shm staging (fileless execution)"
-    crit: notable
-    conf: 0.85
-    mbc: "F0012"
-    attack: "T1055"
-    for: [elf]
-    platforms: [linux]
-    size_max: 2097152
-    if:
-      type: string
-      substr: "/dev/shm/"
+  # Removed dev-shm duplicate - use cap/fs/path/device/linux::dev-shm
 
   - id: proc-self-fd
     desc: "Access /proc/self/fd for file descriptor"

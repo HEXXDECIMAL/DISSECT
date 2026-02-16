@@ -58,17 +58,10 @@ pub fn most_recent_yara_mtime() -> Result<SystemTime> {
     // Check traits directory
     let traits_dir = traits_path();
     if traits_dir.exists() {
-        for entry in WalkDir::new(&traits_dir)
-            .follow_links(false)
-            .into_iter()
-            .flatten()
-        {
+        for entry in WalkDir::new(&traits_dir).follow_links(false).into_iter().flatten() {
             let path = entry.path();
             if path.is_file()
-                && path
-                    .extension()
-                    .map(|ext| ext == "yar" || ext == "yara")
-                    .unwrap_or(false)
+                && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)
             {
                 if let Ok(metadata) = fs::metadata(path) {
                     if let Ok(mtime) = metadata.modified() {
@@ -83,17 +76,10 @@ pub fn most_recent_yara_mtime() -> Result<SystemTime> {
 
     // Check third_party/yara directory
     if Path::new("third_party/yara").exists() {
-        for entry in WalkDir::new("third_party/yara")
-            .follow_links(false)
-            .into_iter()
-            .flatten()
-        {
+        for entry in WalkDir::new("third_party/yara").follow_links(false).into_iter().flatten() {
             let path = entry.path();
             if path.is_file()
-                && path
-                    .extension()
-                    .map(|ext| ext == "yar" || ext == "yara")
-                    .unwrap_or(false)
+                && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)
             {
                 if let Ok(metadata) = fs::metadata(path) {
                     if let Ok(mtime) = metadata.modified() {
@@ -119,9 +105,7 @@ pub fn binary_mtime() -> Result<SystemTime> {
 
     let metadata = fs::metadata(&exe_path).context("Failed to read binary metadata")?;
 
-    metadata
-        .modified()
-        .context("Failed to get binary modification time")
+    metadata.modified().context("Failed to get binary modification time")
 }
 
 /// Returns the appropriate timestamp for cache invalidation
@@ -249,10 +233,10 @@ mod tests {
         match result {
             Ok(path) => {
                 assert!(path.to_string_lossy().contains("dissect"));
-            }
+            },
             Err(_) => {
                 // Some environments may not have cache dir
-            }
+            },
         }
     }
 

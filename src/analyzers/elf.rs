@@ -100,7 +100,7 @@ impl ElfAnalyzer {
 
                 // Analyze sections and entropy
                 self.analyze_sections(&elf, data, &mut report)?;
-            }
+            },
             Err(e) => {
                 // Parsing failed - this is a strong indicator of malformed/hostile binary
                 report.findings.push(Finding {
@@ -117,11 +117,8 @@ impl ElfAnalyzer {
                     source_file: None,
                 });
 
-                report
-                    .metadata
-                    .errors
-                    .push(format!("ELF parse error: {}", e));
-            }
+                report.metadata.errors.push(format!("ELF parse error: {}", e));
+            },
         }
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
@@ -196,9 +193,7 @@ impl ElfAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
         let _t_stng = std::time::Instant::now();
-        report.strings = self
-            .string_extractor
-            .extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings
@@ -253,20 +248,16 @@ impl ElfAnalyzer {
                                 });
                             }
                         }
-                    }
+                    },
                     Err(e) => {
-                        report
-                            .metadata
-                            .errors
-                            .push(format!("YARA scan failed: {}", e));
-                    }
+                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
+                    },
                 }
             }
         }
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         // Analyze paths and generate path-based traits
         crate::path_mapper::analyze_and_link_paths(&mut report);
@@ -287,7 +278,7 @@ impl ElfAnalyzer {
         Ok(report)
     }
 
-    fn analyze_structure(&self, elf: &Elf, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_structure<'a>(&self, elf: &Elf<'a>, report: &mut AnalysisReport) -> Result<()> {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/elf".to_string(),
@@ -344,9 +335,9 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn analyze_dynamic_symbols(
+    fn analyze_dynamic_symbols<'a>(
         &self,
-        elf: &Elf,
+        elf: &Elf<'a>,
         _data: &[u8],
         report: &mut AnalysisReport,
     ) -> Result<()> {
@@ -431,7 +422,7 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections(&self, elf: &Elf, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_sections<'a>(&self, elf: &Elf<'a>, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
         for section in &elf.section_headers {
             if let Some(name) = elf.shdr_strtab.get_at(section.sh_name) {
                 let section_offset = section.sh_offset as usize;
@@ -470,7 +461,7 @@ impl ElfAnalyzer {
         Ok(())
     }
 
-    fn arch_name(&self, elf: &Elf) -> String {
+    fn arch_name<'a>(&self, elf: &Elf<'a>) -> String {
         match elf.header.e_machine {
             goblin::elf::header::EM_X86_64 => "x86_64".to_string(),
             goblin::elf::header::EM_386 => "i386".to_string(),
@@ -486,10 +477,7 @@ impl ElfAnalyzer {
     fn merge_reports(&self, packed: &mut AnalysisReport, unpacked: AnalysisReport) {
         // Merge findings by ID, keeping highest criticality
         for unpacked_finding in unpacked.findings {
-            if let Some(existing) = packed
-                .findings
-                .iter_mut()
-                .find(|f| f.id == unpacked_finding.id)
+            if let Some(existing) = packed.findings.iter_mut().find(|f| f.id == unpacked_finding.id)
             {
                 // Merge evidence
                 existing.evidence.extend(unpacked_finding.evidence);
@@ -546,7 +534,7 @@ impl ElfAnalyzer {
     }
 
     /// Compute ELF-specific metrics from parsed ELF binary
-    fn compute_elf_metrics(&self, elf: &Elf) -> ElfMetrics {
+    fn compute_elf_metrics<'a>(&self, elf: &Elf<'a>) -> ElfMetrics {
         use goblin::elf::dynamic::*;
         use goblin::elf::program_header::*;
         use goblin::elf::sym::STB_LOCAL;
@@ -595,10 +583,10 @@ impl ElfAnalyzer {
                         if metrics.relro.is_some() {
                             metrics.relro = Some("full".to_string());
                         }
-                    }
+                    },
                     DT_INIT_ARRAYSZ => init_arraysz = dyn_entry.d_val,
                     DT_FINI_ARRAYSZ => fini_arraysz = dyn_entry.d_val,
-                    _ => {}
+                    _ => {},
                 }
             }
 
@@ -626,12 +614,12 @@ impl ElfAnalyzer {
                     if metrics.relro.is_none() {
                         metrics.relro = Some("partial".to_string());
                     }
-                }
+                },
                 PT_GNU_STACK => {
                     // Check if stack is executable
                     metrics.nx_enabled = (ph.p_flags & PF_X) == 0;
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
 
@@ -677,7 +665,7 @@ impl ElfAnalyzer {
                     ".got" | ".got.plt" => metrics.has_got = true,
                     ".eh_frame" => metrics.has_eh_frame = true,
                     n if n.starts_with(".note") => metrics.has_note = true,
-                    _ => {}
+                    _ => {},
                 }
             }
         }
@@ -687,7 +675,7 @@ impl ElfAnalyzer {
 
     /// Calculate code size from ELF section headers using SHF_EXECINSTR flag
     /// This is more accurate than radare2's section classification
-    fn compute_code_size(&self, elf: &Elf) -> u64 {
+    fn compute_code_size<'a>(&self, elf: &Elf<'a>) -> u64 {
         const SHF_EXECINSTR: u64 = 0x4; // Section contains executable code
 
         let mut code_size: u64 = 0;
@@ -760,12 +748,12 @@ impl Analyzer for ElfAnalyzer {
                 }
 
                 report.metadata.tools_used.push("upx".to_string());
-            }
+            },
             Err(e) => {
                 let description = match e {
                     UPXError::DecompressionFailed(msg) => {
                         format!("UPX decompression failed (possibly tampered): {}", msg)
-                    }
+                    },
                     _ => format!("UPX decompression failed: {}", e),
                 };
                 report.findings.push(
@@ -776,7 +764,7 @@ impl Analyzer for ElfAnalyzer {
                     )
                     .with_criticality(Criticality::Suspicious),
                 );
-            }
+            },
         }
 
         // Update binary metrics with final counts and compute ratios
@@ -1090,7 +1078,7 @@ mod tests {
             value: "hello".to_string(),
             offset: Some(0x100),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,
@@ -1101,7 +1089,7 @@ mod tests {
             value: "hello".to_string(),
             offset: Some(0x200),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,
@@ -1112,7 +1100,7 @@ mod tests {
             value: "world".to_string(),
             offset: Some(0x300),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,

@@ -29,7 +29,7 @@ pub fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
         // RAR5: Rar!\x1A\x07\x01\x00
         [0x52, 0x61, 0x72, 0x21] if data.len() >= 8 && data[4..8] == [0x1A, 0x07, 0x01, 0x00] => {
             Some("rar")
-        }
+        },
         // Gzip: \x1F\x8B
         [0x1F, 0x8B, _, _] => Some("gz"),
         // XZ: \xFD7zXZ\x00
@@ -105,10 +105,7 @@ pub fn analyze_overlay(
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
                 id: format!("file/archive/self-extracting/{}", archive_type),
-                desc: format!(
-                    "Self-extracting archive ({})",
-                    archive_type.to_uppercase()
-                ),
+                desc: format!("Self-extracting archive ({})", archive_type.to_uppercase()),
                 conf: 1.0, // We're certain based on magic bytes
                 crit: Criticality::Notable,
                 mbc: None,
@@ -128,18 +125,18 @@ pub fn analyze_overlay(
                 sfx_finding,
                 archive_report,
             }))
-        }
+        },
         Err(e) => {
             // Archive extraction failed - still emit a finding about the SFX
-            eprintln!(
-                "  WARNING: Failed to extract overlay archive: {}",
-                e
-            );
+            eprintln!("  WARNING: Failed to extract overlay archive: {}", e);
 
             let sfx_finding = Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: format!("file/archive/self-extracting/{}/extraction-failed", archive_type),
+                id: format!(
+                    "file/archive/self-extracting/{}/extraction-failed",
+                    archive_type
+                ),
                 desc: format!(
                     "Self-extracting archive ({}) - extraction failed",
                     archive_type.to_uppercase()
@@ -177,7 +174,7 @@ pub fn analyze_overlay(
                     architectures: None,
                 }),
             }))
-        }
+        },
     }
 }
 

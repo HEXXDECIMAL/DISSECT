@@ -132,10 +132,7 @@ fn test_compare_reports_removed_capabilities() {
 
     let analysis = analyzer.compare_reports("file", &baseline, &target);
     assert_eq!(analysis.removed_capabilities.len(), 1);
-    assert!(analysis
-        .removed_capabilities
-        .iter()
-        .any(|c| c.id == "fs/write"));
+    assert!(analysis.removed_capabilities.iter().any(|c| c.id == "fs/write"));
     assert_eq!(analysis.capability_delta, -1);
 }
 
@@ -147,10 +144,7 @@ fn test_compare_reports_risk_increase() {
 
     let analysis = analyzer.compare_reports("file", &baseline, &target);
     assert!(analysis.risk_increase);
-    assert!(analysis
-        .new_capabilities
-        .iter()
-        .any(|c| c.id == "exec/shell"));
+    assert!(analysis.new_capabilities.iter().any(|c| c.id == "exec/shell"));
 }
 
 fn make_test_cap(id: &str) -> Finding {
@@ -502,16 +496,10 @@ fn test_detect_renames_library_version_match() {
     assert_eq!(renames.len(), 2);
 
     // Both should be detected as library version changes
-    let ssl_rename = renames
-        .iter()
-        .find(|r| r.baseline_path.contains("libssl"))
-        .unwrap();
+    let ssl_rename = renames.iter().find(|r| r.baseline_path.contains("libssl")).unwrap();
     assert_eq!(ssl_rename.similarity_score, 0.95);
 
-    let crypto_rename = renames
-        .iter()
-        .find(|r| r.baseline_path.contains("libcrypto"))
-        .unwrap();
+    let crypto_rename = renames.iter().find(|r| r.baseline_path.contains("libcrypto")).unwrap();
     assert_eq!(crypto_rename.similarity_score, 0.95);
 }
 
@@ -637,9 +625,7 @@ fn test_detect_renames_mixed_scenarios() {
 
     // Verify each type was matched
     assert!(renames.iter().any(|r| r.baseline_path == "dir1/file1.txt"));
-    assert!(renames
-        .iter()
-        .any(|r| r.baseline_path == "lib/libssl.so.1.0.0"));
+    assert!(renames.iter().any(|r| r.baseline_path == "lib/libssl.so.1.0.0"));
 }
 
 #[test]

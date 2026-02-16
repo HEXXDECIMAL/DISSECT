@@ -195,14 +195,8 @@ fn test_generic_rules_never_filtered() {
         if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Generic rules (no filetype) should never be filtered
             for yara_match in yara_matches {
-                let rule = yara_match
-                    .get("rule")
-                    .and_then(|r| r.as_str())
-                    .unwrap_or("");
-                let severity = yara_match
-                    .get("severity")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("");
+                let rule = yara_match.get("rule").and_then(|r| r.as_str()).unwrap_or("");
+                let severity = yara_match.get("severity").and_then(|s| s.as_str()).unwrap_or("");
 
                 // If a rule matches generic network patterns, it shouldn't be filtered
                 if rule.contains("http") || rule.contains("curl") || rule.contains("wget") {
@@ -345,17 +339,11 @@ fn test_filtered_criticality_level() {
         if let Some(yara_matches) = file.get("yara_matches").and_then(|v| v.as_array()) {
             // Look for filtered matches
             for yara_match in yara_matches {
-                let severity = yara_match
-                    .get("severity")
-                    .and_then(|s| s.as_str())
-                    .unwrap_or("");
+                let severity = yara_match.get("severity").and_then(|s| s.as_str()).unwrap_or("");
 
                 // If severity is "filtered", verify it's properly documented
                 if severity == "filtered" {
-                    let rule = yara_match
-                        .get("rule")
-                        .and_then(|r| r.as_str())
-                        .unwrap_or("");
+                    let rule = yara_match.get("rule").and_then(|r| r.as_str()).unwrap_or("");
                     eprintln!("Found filtered match: {}", rule);
 
                     // Filtered matches should still have all required fields

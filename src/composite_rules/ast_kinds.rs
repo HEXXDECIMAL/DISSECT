@@ -40,7 +40,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
                     "arrow_function",
                     "function_expression",
                 ]
-            }
+            },
             FileType::Ruby => vec!["method", "singleton_method"],
             FileType::Go => vec!["function_declaration", "method_declaration"],
             FileType::C | FileType::ObjectiveC => vec!["function_definition"],
@@ -86,7 +86,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
             FileType::Python => vec!["import_statement", "import_from_statement"],
             FileType::JavaScript | FileType::TypeScript => {
                 vec!["import_statement", "import_declaration"]
-            }
+            },
             FileType::Ruby => vec!["call"], // require/require_relative are function calls
             FileType::Go => vec!["import_declaration"],
             FileType::C | FileType::ObjectiveC => vec!["preproc_include", "preproc_import"],
@@ -154,7 +154,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
             FileType::Python => vec!["assignment", "augmented_assignment"],
             FileType::JavaScript | FileType::TypeScript => {
                 vec!["assignment_expression", "variable_declaration"]
-            }
+            },
             FileType::Ruby => vec!["assignment"],
             FileType::Go => vec!["short_var_declaration", "assignment_statement"],
             FileType::C | FileType::ObjectiveC => vec!["assignment_expression"],
@@ -288,7 +288,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
             FileType::Python => vec!["if_statement", "conditional_expression"],
             FileType::JavaScript | FileType::TypeScript => {
                 vec!["if_statement", "ternary_expression"]
-            }
+            },
             FileType::Ruby => vec!["if", "unless", "if_modifier", "unless_modifier"],
             FileType::Go => vec!["if_statement"],
             FileType::C | FileType::ObjectiveC => vec!["if_statement", "conditional_expression"],
@@ -317,12 +317,12 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
                     "for_in_statement",
                     "for_of_statement",
                 ]
-            }
+            },
             FileType::Ruby => vec!["for", "while", "until", "while_modifier", "until_modifier"],
             FileType::Go => vec!["for_statement"],
             FileType::C | FileType::ObjectiveC => {
                 vec!["for_statement", "while_statement", "do_statement"]
-            }
+            },
             FileType::Rust => vec!["for_expression", "while_expression", "loop_expression"],
             FileType::Java => vec![
                 "for_statement",
@@ -337,7 +337,7 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
                     "while_statement",
                     "do_statement",
                 ]
-            }
+            },
             FileType::Php => vec!["for_statement", "foreach_statement", "while_statement"],
             FileType::Shell => vec!["for_statement", "while_statement"],
             FileType::Lua => vec!["for_statement", "while_statement", "repeat_statement"],

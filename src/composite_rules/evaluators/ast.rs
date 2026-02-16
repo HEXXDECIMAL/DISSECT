@@ -44,7 +44,7 @@ fn supports_ast(file_type: FileType) -> bool {
 /// Evaluate unified AST condition
 /// Handles both simple mode (kind/node + exact/substr/regex) and advanced mode (query)
 #[allow(clippy::too_many_arguments)]
-pub fn eval_ast(
+pub fn eval_ast<'a>(
     kind: Option<&str>,
     node: Option<&str>,
     exact: Option<&str>,
@@ -52,7 +52,7 @@ pub fn eval_ast(
     regex: Option<&str>,
     query: Option<&str>,
     case_insensitive: bool,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     // Skip AST evaluation for file types that don't support tree-sitter parsing
     if !supports_ast(ctx.file_type) {
@@ -118,7 +118,7 @@ pub fn eval_ast(
                 warnings: Vec::new(),
                 precision: 0.0,
             }
-        }
+        },
     };
 
     if let Some(cached_tree) = ctx.cached_ast {
@@ -176,7 +176,7 @@ pub fn eval_ast(
                 warnings: Vec::new(),
                 precision: 0.0,
             }
-        }
+        },
     };
 
     let mut parser = tree_sitter::Parser::new();
@@ -200,7 +200,7 @@ pub fn eval_ast(
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     eval_ast_pattern_multi(
@@ -245,7 +245,7 @@ fn eval_ast_pattern_multi(
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
-            }
+            },
         },
         MatchMode::Exact => {
             let pattern_owned = pattern.to_string();
@@ -254,7 +254,7 @@ fn eval_ast_pattern_multi(
             } else {
                 Box::new(move |s: &str| s == pattern_owned)
             }
-        }
+        },
         MatchMode::Substr => {
             let pattern_owned = pattern.to_string();
             if case_insensitive {
@@ -263,7 +263,7 @@ fn eval_ast_pattern_multi(
             } else {
                 Box::new(move |s: &str| s.contains(&pattern_owned))
             }
-        }
+        },
     };
 
     // Walk the AST and find matching nodes
@@ -309,8 +309,8 @@ fn eval_ast_pattern_multi(
 }
 
 /// Iteratively walk AST looking for nodes matching any of the target types
-fn walk_ast_for_pattern_multi(
-    cursor: &mut tree_sitter::TreeCursor,
+fn walk_ast_for_pattern_multi<'a>(
+    cursor: &mut tree_sitter::TreeCursor<'a>,
     source: &[u8],
     target_node_types: &[&str],
     matcher: &dyn Fn(&str) -> bool,
@@ -340,7 +340,7 @@ fn walk_ast_for_pattern_multi(
 }
 
 /// Evaluate full tree-sitter query condition
-pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResult {
+pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Only works for source code files
     let source = match std::str::from_utf8(ctx.binary_data) {
         Ok(s) => s,
@@ -352,7 +352,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     // Get the appropriate parser and language based on file type
@@ -385,7 +385,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     let mut parser = tree_sitter::Parser::new();
@@ -409,7 +409,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     // Skip query execution if the tree has errors (malformed input)
@@ -434,7 +434,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     // Execute the query with safety limits
@@ -456,7 +456,7 @@ pub fn eval_ast_query(query_str: &str, ctx: &EvaluationContext) -> ConditionResu
     struct SourceTextProvider<'a>(&'a [u8]);
     impl<'a> tree_sitter::TextProvider<&'a [u8]> for SourceTextProvider<'a> {
         type I = std::iter::Once<&'a [u8]>;
-        fn text(&mut self, node: tree_sitter::Node) -> Self::I {
+        fn text<'b>(&mut self, node: tree_sitter::Node<'b>) -> Self::I {
             let start = node.byte_range().start;
             let end = node.byte_range().end.min(self.0.len());
             std::iter::once(&self.0[start..end])

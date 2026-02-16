@@ -92,13 +92,7 @@ traits:
   # Removed duplicate - use cap/process/control/signal::posix-setsid
 
   # === Process Fork ===
-  - id: pcntl-fork
-    desc: Process forking
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      substr: "pcntl_fork"
+  # Removed pcntl-fork duplicate - use cap/process/control/signal/php::pcntl-fork (symbol is more precise)
 
   # === Windows COM Shell Execution ===
   - id: com-wscript-shell

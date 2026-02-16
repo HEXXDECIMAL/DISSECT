@@ -9,14 +9,7 @@ defaults:
 
 traits:
   # === Window hiding ===
-  - id: hide-window
-    desc: "AppleScript window hiding"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1564.003"
-    if:
-      type: string
-      regex: "set visible of (the )?front window to false|set visible to false"
+  # Removed hide-window duplicate - use obj/anti-analysis/window-hide/ui/applescript::hide-window
 
   # === Command execution ===
   - id: osascript
@@ -39,5 +32,5 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: hide-window
+      - id: obj/anti-analysis/window-hide/ui/applescript::hide-window
       - id: cap/exec/command/script::shell-cmd

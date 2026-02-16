@@ -124,11 +124,11 @@ pub(crate) fn sanitize_entry_path(entry_name: &str, dest_dir: &Path) -> Option<P
     for component in path.components() {
         match component {
             Component::Normal(c) => result.push(c),
-            Component::CurDir => {} // Skip "."
+            Component::CurDir => {}, // Skip "."
             Component::ParentDir | Component::Prefix(_) | Component::RootDir => {
                 // Reject "..", drive prefixes, and root
                 return None;
-            }
+            },
         }
     }
 

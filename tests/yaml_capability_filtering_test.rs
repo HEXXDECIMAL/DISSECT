@@ -40,11 +40,7 @@ fn test_windows_keylog_capability_filtered_for_elf() {
             // Get traits that are capabilities (capability: true)
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
 
             // Windows-specific traits should NOT appear in ELF analysis
@@ -100,11 +96,7 @@ fn test_universal_capabilities_match_all_files() {
         if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
             eprintln!("Found {} capabilities for shell script", capabilities.len());
         } else {
@@ -146,11 +138,7 @@ fn test_python_capabilities_for_python_files() {
         if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
             eprintln!("Found {} traits for Python file", capabilities.len());
 
@@ -220,11 +208,7 @@ fn test_javascript_capabilities_for_js_files() {
         if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
             eprintln!(
                 "Found {} capabilities for JavaScript file",
@@ -274,11 +258,7 @@ fn test_shell_capabilities_for_shell_scripts() {
         if let Some(traits) = file.get("traits").and_then(|v| v.as_array()) {
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
             eprintln!("Found {} traits for shell script", capabilities.len());
 
@@ -348,11 +328,7 @@ fn test_rules_without_filetype_are_universal() {
             if let Some(traits) = file_entry.get("traits").and_then(|v| v.as_array()) {
                 let capabilities: Vec<_> = traits
                     .iter()
-                    .filter(|t| {
-                        t.get("capability")
-                            .and_then(|c| c.as_bool())
-                            .unwrap_or(false)
-                    })
+                    .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                     .collect();
                 eprintln!(
                     "File {:?} has {} capabilities",
@@ -403,11 +379,7 @@ fn test_composite_trait_file_type_filtering() {
             // Check that Python file gets appropriate capabilities
             let capabilities: Vec<_> = traits
                 .iter()
-                .filter(|t| {
-                    t.get("capability")
-                        .and_then(|c| c.as_bool())
-                        .unwrap_or(false)
-                })
+                .filter(|t| t.get("capability").and_then(|c| c.as_bool()).unwrap_or(false))
                 .collect();
             eprintln!(
                 "Found {} traits for Python file with suspicious patterns",

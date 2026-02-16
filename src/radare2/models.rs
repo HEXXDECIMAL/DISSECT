@@ -176,7 +176,6 @@ pub struct R2Export {
     pub export_type: Option<String>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize, Serialize)]
 pub struct R2Symbol {
     pub name: String,

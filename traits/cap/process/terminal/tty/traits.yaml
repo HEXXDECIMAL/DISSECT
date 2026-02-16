@@ -2,7 +2,7 @@
 # System calls for terminal/TTY detection
 
 defaults:
-  for: [elf, macho, so, dylib, c]
+  for: [all]
   platforms: [all]
 
 traits:

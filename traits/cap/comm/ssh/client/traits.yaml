@@ -58,13 +58,7 @@ traits:
       type: string
       substr: "Authentication failed"
 
-  - id: permission-denied-ssh
-    desc: SSH permission denied message
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      substr: "Permission denied"
+  # Removed permission-denied-ssh duplicate - use cap/os/message/error/posix::permission-denied
 
   # JavaScript/Node.js SSH libraries
   - id: ssh2-js
@@ -134,7 +128,7 @@ composite_rules:
     all:
       - id: library
     any:
-      - id: permission-denied-ssh
+      - id: cap/os/message/error/posix::permission-denied
       - id: auth-failed
 
   # SSH protocol indicators helper

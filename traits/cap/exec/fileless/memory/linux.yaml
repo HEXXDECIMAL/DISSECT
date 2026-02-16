@@ -246,14 +246,7 @@ traits:
       type: string
       substr: "shm_open"
 
-  - id: mmap-fn
-    desc: mmap function
-    crit: inert
-    conf: 0.4
-    for: [python, c]
-    if:
-      type: string
-      exact: "mmap"
+  # Removed mmap-fn duplicate - use cap/mem/allocate/executable/unix::mmap-symbol (system calls should use symbol)
 
   - id: dev-shm
     desc: /dev/shm path
@@ -379,7 +372,7 @@ composite_rules:
     needs: 2
     any:
       - id: shm-open
-      - id: mmap-fn
+      - id: cap/mem/allocate/executable/unix::mmap-symbol
       - id: dev-shm
       - id: execv-fn
 

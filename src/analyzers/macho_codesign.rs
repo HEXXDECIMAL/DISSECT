@@ -55,7 +55,6 @@ pub struct CodeSignature {
 const SUPERBLOB_MAGIC: u32 = 0xFADE0CC0;
 const CODE_DIRECTORY_MAGIC: u32 = 0xFADE0C02;
 const ENTITLEMENTS_BLOB_MAGIC: u32 = 0xFADE7171;
-#[allow(dead_code)]
 const REQUIREMENTS_MAGIC: u32 = 0xFADE0C01;
 const CMS_SIGNATURE_MAGIC: u32 = 0xFADE0B01;
 
@@ -197,7 +196,7 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
         Err(e) => {
             tracing::debug!("Failed to convert plist to UTF-8: {}", e);
             return Err(anyhow!("Failed to convert plist to UTF-8: {}", e));
-        }
+        },
     };
 
     // roxmltree doesn't support DTDs, so strip the DOCTYPE declaration
@@ -216,7 +215,7 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
         Err(e) => {
             tracing::debug!("Failed to parse XML: {}", e);
             return Err(anyhow!("Failed to parse plist XML: {}", e));
-        }
+        },
     };
     let mut entitlements = HashMap::new();
 
@@ -256,21 +255,21 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
                         "key" => {
                             current_key = child.text().map(|s| s.to_string());
                             tracing::debug!("Found key: {:?}", current_key);
-                        }
+                        },
                         "true" => {
                             if let Some(key) = current_key.take() {
                                 tracing::debug!("Adding boolean entitlement: {} = true", key);
                                 entitlements.insert(key, EntitlementValue::Boolean(true));
                                 key_count += 1;
                             }
-                        }
+                        },
                         "false" => {
                             if let Some(key) = current_key.take() {
                                 tracing::debug!("Adding boolean entitlement: {} = false", key);
                                 entitlements.insert(key, EntitlementValue::Boolean(false));
                                 key_count += 1;
                             }
-                        }
+                        },
                         "string" => {
                             if let Some(key) = current_key.take() {
                                 if let Some(text) = child.text() {
@@ -284,7 +283,7 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
                                     key_count += 1;
                                 }
                             }
-                        }
+                        },
                         "array" => {
                             if let Some(key) = current_key.take() {
                                 let mut array_values = Vec::new();
@@ -305,10 +304,10 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
                                 entitlements.insert(key, EntitlementValue::Array(array_values));
                                 key_count += 1;
                             }
-                        }
+                        },
                         _ => {
                             tracing::debug!("Skipping unexpected element: {}", tag_name);
-                        }
+                        },
                     }
                 }
                 tracing::debug!("Parsed dict with {} entitlements", key_count);
@@ -452,9 +451,7 @@ fn extract_der_string(data: &[u8], tag: &[u8]) -> Option<String> {
             // Try to parse as UTF-8 string
             if let Ok(s) = std::str::from_utf8(&data[str_pos..str_pos + length]) {
                 // Verify it looks like a valid string (printable ASCII mostly)
-                if s.chars()
-                    .all(|c| c.is_ascii_graphic() || c.is_ascii_whitespace())
-                {
+                if s.chars().all(|c| c.is_ascii_graphic() || c.is_ascii_whitespace()) {
                     return Some(s.to_string());
                 }
             }
@@ -566,10 +563,7 @@ mod tests {
         let data = vec![0xBA, 0xD0, 0xBA, 0xD0, 0x00, 0x00, 0x00, 0x10];
         let result = parse_superblob(&data);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid superblob magic"));
+        assert!(result.unwrap_err().to_string().contains("Invalid superblob magic"));
     }
 
     #[test]

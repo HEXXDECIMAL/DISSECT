@@ -4,13 +4,7 @@
 
 traits:
   # === BPF Socket Attachment ===
-  - id: so-attach-filter
-    desc: SO_ATTACH_FILTER socket option
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "SO_ATTACH_FILTER"
+  # Removed so-attach-filter duplicate - use cap/comm/socket/options/unix::options-filter
 
   - id: so-attach-bpf
     desc: SO_ATTACH_BPF socket option

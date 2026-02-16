@@ -24,7 +24,6 @@ pub struct ChromeManifestAnalyzer {
 /// Chrome extension manifest structure
 /// Note: Some fields are only used for deserialization tolerance
 #[derive(Deserialize, Default, Debug)]
-#[allow(dead_code)]
 struct ChromeManifest {
     manifest_version: Option<u8>,
     name: Option<String>,
@@ -46,7 +45,6 @@ struct ChromeManifest {
 }
 
 #[derive(Deserialize, Default, Debug)]
-#[allow(dead_code)]
 struct ContentScript {
     #[serde(default)]
     matches: Vec<String>,
@@ -58,7 +56,6 @@ struct ContentScript {
 }
 
 #[derive(Deserialize, Default, Debug)]
-#[allow(dead_code)]
 struct Background {
     service_worker: Option<String>,
     #[serde(default)]
@@ -94,7 +91,11 @@ impl ChromeManifestAnalyzer {
         self
     }
 
-    fn analyze_manifest(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+    pub(crate) fn analyze_manifest(
+        &self,
+        file_path: &Path,
+        content: &str,
+    ) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         let manifest: ChromeManifest =
@@ -172,7 +173,7 @@ impl ChromeManifestAnalyzer {
                         location: Some("manifest_version".to_string()),
                     }]),
                 );
-            }
+            },
             Some(3) => {
                 report.add_finding(
                     Finding::indicator(
@@ -188,8 +189,8 @@ impl ChromeManifestAnalyzer {
                         location: Some("manifest_version".to_string()),
                     }]),
                 );
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -356,10 +357,8 @@ impl ChromeManifestAnalyzer {
             .iter()
             .filter(|(_, r, _)| *r == PermissionRisk::Critical)
             .count();
-        let high_count = dangerous_perms
-            .iter()
-            .filter(|(_, r, _)| *r == PermissionRisk::High)
-            .count();
+        let high_count =
+            dangerous_perms.iter().filter(|(_, r, _)| *r == PermissionRisk::High).count();
 
         for (perm, risk, desc) in &dangerous_perms {
             let (crit, finding_id) = match risk {
@@ -522,12 +521,7 @@ impl ChromeManifestAnalyzer {
                 .with_evidence(vec![Evidence {
                     method: "heuristic".to_string(),
                     source: "manifest.json".to_string(),
-                    value: all_hosts
-                        .iter()
-                        .take(5)
-                        .cloned()
-                        .collect::<Vec<_>>()
-                        .join(", "),
+                    value: all_hosts.iter().take(5).cloned().collect::<Vec<_>>().join(", "),
                     location: Some("host_permissions".to_string()),
                 }]),
             );
@@ -706,9 +700,7 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer
-            .analyze_manifest(Path::new("manifest.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
 
         assert_eq!(report.target.file_type, "chrome-manifest");
     }
@@ -723,19 +715,11 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer
-            .analyze_manifest(Path::new("manifest.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
 
         // Should have findings for dangerous permissions
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("permission-critical")));
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("overprivileged")));
+        assert!(report.findings.iter().any(|f| f.id.contains("permission-critical")));
+        assert!(report.findings.iter().any(|f| f.id.contains("overprivileged")));
     }
 
     #[test]
@@ -748,14 +732,9 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer
-            .analyze_manifest(Path::new("manifest.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
 
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.desc.contains("ALL websites")));
+        assert!(report.findings.iter().any(|f| f.desc.contains("ALL websites")));
     }
 
     #[test]
@@ -773,14 +752,9 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer
-            .analyze_manifest(Path::new("manifest.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
 
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("targets-shopping")));
+        assert!(report.findings.iter().any(|f| f.id.contains("targets-shopping")));
     }
 
     #[test]
@@ -793,13 +767,8 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer
-            .analyze_manifest(Path::new("manifest.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
 
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("external-update-url")));
+        assert!(report.findings.iter().any(|f| f.id.contains("external-update-url")));
     }
 }

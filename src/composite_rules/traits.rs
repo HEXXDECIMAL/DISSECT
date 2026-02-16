@@ -33,9 +33,7 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
         return Some(relative.to_string());
     }
     // Fallback: return the file name only if we can't find "traits/"
-    path.file_name()
-        .and_then(|n| n.to_str())
-        .map(|s| s.to_string())
+    path.file_name().and_then(|n| n.to_str()).map(|s| s.to_string())
 }
 
 /// Wrapper for conditions with common filters applied at trait level.
@@ -409,7 +407,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with symbol exact match - consider using 'unless:' instead for deterministic patterns".to_string()
                 );
-            }
+            },
             Condition::Symbol {
                 substr: Some(search_substr),
                 regex: None,
@@ -425,7 +423,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        }
+                        },
                         NotException::Structured {
                             exact: Some(exc_str),
                             ..
@@ -436,7 +434,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        }
+                        },
                         NotException::Structured {
                             substr: Some(exc_substr),
                             ..
@@ -449,11 +447,11 @@ impl TraitDefinition {
                                     exc_substr, search_substr
                                 ));
                             }
-                        }
-                        _ => {}
+                        },
+                        _ => {},
                     }
                 }
-            }
+            },
             Condition::Symbol {
                 regex: Some(pattern),
                 ..
@@ -469,7 +467,7 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        }
+                        },
                         // Validate exact exceptions - check if the exact string matches the regex
                         NotException::Structured {
                             exact: Some(exc_str),
@@ -481,12 +479,12 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        }
+                        },
                         // For substr and regex exceptions, validation is complex - allow them
-                        _ => {}
+                        _ => {},
                     }
                 }
-            }
+            },
             // Exact matches should use `unless:` instead of `not:`
             Condition::String {
                 exact: Some(_),
@@ -497,7 +495,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with exact match - consider using 'unless:' instead for deterministic patterns".to_string()
                 );
-            }
+            },
             // For Content exact matches, not: doesn't make sense
             Condition::Raw {
                 exact: Some(_),
@@ -508,7 +506,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with content/exact match - this doesn't make sense. Content exact matches the entire file content.".to_string()
                 );
-            }
+            },
             // For String substr matches, validate that not: exceptions could match strings containing the substr
             Condition::String {
                 substr: Some(search_substr),
@@ -529,7 +527,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        }
+                        },
                         NotException::Structured {
                             exact: Some(exc_str),
                             ..
@@ -541,7 +539,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        }
+                        },
                         NotException::Structured {
                             substr: Some(exc_substr),
                             ..
@@ -556,7 +554,7 @@ impl TraitDefinition {
                                     exc_substr, search_substr
                                 ));
                             }
-                        }
+                        },
                         NotException::Structured {
                             regex: Some(_exc_regex),
                             ..
@@ -564,11 +562,11 @@ impl TraitDefinition {
                             // For regex exceptions with substr search, we can't easily validate
                             // The regex might match strings containing the substr
                             // We'll allow this without validation
-                        }
-                        _ => {}
+                        },
+                        _ => {},
                     }
                 }
-            }
+            },
             // For Content substr matches, not: is unclear - content searches don't extract individual strings
             Condition::Raw {
                 substr: Some(_),
@@ -579,7 +577,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with content/substr match - behavior is unclear because content searches on binary data don't extract individual strings for filtering. Use regex instead, or use 'string' type with substr.".to_string()
                 );
-            }
+            },
             // For regex matches, validate that exceptions could potentially match
             Condition::String {
                 regex: Some(pattern),
@@ -599,7 +597,7 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        }
+                        },
                         // Validate exact exceptions - check if the exact string matches the regex
                         NotException::Structured {
                             exact: Some(exc_str),
@@ -611,12 +609,12 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        }
+                        },
                         // For substr and regex exceptions, validation is complex - allow them
-                        _ => {}
+                        _ => {},
                     }
                 }
-            }
+            },
             // For hex patterns, validate exceptions match
             Condition::Hex { pattern: _, .. } => {
                 // For hex patterns, we should validate that not: exceptions make sense
@@ -633,22 +631,22 @@ impl TraitDefinition {
                             // The matched bytes need to be converted to string representation first
                             // This is a valid but potentially confusing use case
                             // We'll allow it but note it in the debug logs if needed
-                        }
+                        },
                         NotException::Structured { regex: Some(_), .. } => {
                             // Regex-based exceptions for hex matches are fine
-                        }
-                        _ => {}
+                        },
+                        _ => {},
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
 
         None
     }
 
     /// Evaluate this trait definition against the analysis context
-    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
+    pub fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
         use super::debug::{ConditionDebug, DowngradeDebug, SkipReason};
 
         // Check platform match
@@ -890,7 +888,7 @@ impl TraitDefinition {
                         Criticality::Suspicious => Criticality::Notable,
                         Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                             Criticality::Inert
-                        }
+                        },
                     };
                     tracing::debug!(
                         "Downgrade applied: trait '{}' from {:?} → {:?}",
@@ -951,10 +949,10 @@ impl TraitDefinition {
     }
 
     /// Evaluate a single downgrade condition set
-    fn eval_downgrade_conditions(
+    fn eval_downgrade_conditions<'a>(
         &self,
         conditions: &DowngradeConditions,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> bool {
         let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
 
@@ -999,7 +997,7 @@ impl TraitDefinition {
     }
 
     /// Evaluate a single condition
-    fn eval_condition(&self, condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_condition<'a>(&self, condition: &Condition, ctx: &EvaluationContext<'a>) -> ConditionResult {
         match condition {
             Condition::Symbol {
                 exact,
@@ -1049,7 +1047,7 @@ impl TraitDefinition {
                     section_offset_range: *section_offset_range,
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
-            }
+            },
             Condition::Structure {
                 feature,
                 min_sections,
@@ -1077,10 +1075,10 @@ impl TraitDefinition {
             ),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
-            }
+            },
             Condition::Syscall { name, number, arch } => {
                 eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
-            }
+            },
             Condition::SectionRatio {
                 section,
                 compare_to,
@@ -1105,7 +1103,14 @@ impl TraitDefinition {
                 min_length,
                 regex,
                 compiled_regex,
-            } => eval_string_count(*min, *max, *min_length, regex.as_ref(), compiled_regex.as_ref(), ctx),
+            } => eval_string_count(
+                *min,
+                *max,
+                *min_length,
+                regex.as_ref(),
+                compiled_regex.as_ref(),
+                ctx,
+            ),
             Condition::Metrics {
                 field,
                 min,
@@ -1165,7 +1170,7 @@ impl TraitDefinition {
                     &location,
                     ctx,
                 )
-            }
+            },
             Condition::Section {
                 exact,
                 substr,
@@ -1221,7 +1226,7 @@ impl TraitDefinition {
                     &location,
                     ctx,
                 )
-            }
+            },
             Condition::Basename {
                 exact,
                 substr,
@@ -1244,7 +1249,7 @@ impl TraitDefinition {
                 } else {
                     ConditionResult::no_match()
                 }
-            }
+            },
         }
     }
 }
@@ -1429,7 +1434,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate this rule against the analysis context
-    pub fn evaluate(&self, ctx: &EvaluationContext) -> Option<Finding> {
+    pub fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
         use super::debug::{DowngradeDebug, ProximityDebug, SkipReason};
 
         // Check platform match
@@ -1540,7 +1545,7 @@ impl CompositeTrait {
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
-            }
+            },
             (Some(conds), None) => self.eval_requires_all(conds, ctx),
             (None, Some(conds)) => {
                 // Handle needs constraint on `any` conditions
@@ -1549,7 +1554,7 @@ impl CompositeTrait {
                 } else {
                     self.eval_requires_any(conds, ctx)
                 }
-            }
+            },
             (None, None) => {
                 // No positive conditions - will check none below
                 ConditionResult {
@@ -1559,7 +1564,7 @@ impl CompositeTrait {
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
-            }
+            },
         };
 
         if !positive_result.matched {
@@ -1641,7 +1646,7 @@ impl CompositeTrait {
                         Criticality::Suspicious => Criticality::Notable,
                         Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                             Criticality::Inert
-                        }
+                        },
                     };
                 }
 
@@ -1734,11 +1739,11 @@ impl CompositeTrait {
     /// Evaluate downgrade conditions and return final criticality.
     /// Public so that mapper can re-evaluate downgrades after all findings are collected.
     /// When matched, drops one level: hostile→suspicious→notable→inert
-    pub fn evaluate_downgrade(
+    pub fn evaluate_downgrade<'a>(
         &self,
         conditions: &DowngradeConditions,
         base_crit: &Criticality,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> Criticality {
         if self.eval_downgrade_conditions(conditions, ctx) {
             return match base_crit {
@@ -1746,17 +1751,17 @@ impl CompositeTrait {
                 Criticality::Suspicious => Criticality::Notable,
                 Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                     Criticality::Inert
-                }
+                },
             };
         }
         *base_crit
     }
 
     /// Evaluate a single downgrade condition set
-    fn eval_downgrade_conditions(
+    fn eval_downgrade_conditions<'a>(
         &self,
         conditions: &DowngradeConditions,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> bool {
         let debug_downgrade = std::env::var("DEBUG_DOWNGRADE").is_ok();
 
@@ -1801,7 +1806,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate ALL conditions must match (AND)
-    fn eval_requires_all(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_all<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
         let mut all_evidence = Vec::new();
         let mut total_precision = 0.0f32;
 
@@ -1831,7 +1836,7 @@ impl CompositeTrait {
 
     /// Evaluate at least ONE condition must match (OR)
     /// Collects evidence from ALL matching conditions, not just the first
-    fn eval_requires_any(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_any<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
         let mut any_matched = false;
         let mut all_evidence = Vec::new();
         let mut min_precision = f32::MAX;
@@ -1857,13 +1862,13 @@ impl CompositeTrait {
     }
 
     /// Evaluate with count constraints: exact count, min_count, max_count
-    fn eval_count_constraints(
+    fn eval_count_constraints<'a>(
         &self,
         conds: &[Condition],
         exact: Option<usize>,
         min: Option<usize>,
         max: Option<usize>,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> ConditionResult {
         let mut matched_count = 0;
         let mut all_evidence = Vec::new();
@@ -1905,7 +1910,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate NONE of the conditions can match (NOT)
-    fn eval_requires_none(&self, conds: &[Condition], ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_requires_none<'a>(&self, conds: &[Condition], ctx: &EvaluationContext<'a>) -> ConditionResult {
         for condition in conds {
             let result = self.eval_condition(condition, ctx);
             if result.matched {
@@ -1934,7 +1939,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate a single condition
-    fn eval_condition(&self, condition: &Condition, ctx: &EvaluationContext) -> ConditionResult {
+    fn eval_condition<'a>(&self, condition: &Condition, ctx: &EvaluationContext<'a>) -> ConditionResult {
         match condition {
             Condition::Symbol {
                 exact,
@@ -1983,7 +1988,7 @@ impl CompositeTrait {
                     section_offset_range: *section_offset_range,
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
-            }
+            },
             Condition::Structure {
                 feature,
                 min_sections,
@@ -2011,10 +2016,10 @@ impl CompositeTrait {
             ),
             Condition::Yara { source, compiled } => {
                 eval_yara_inline(source, compiled.as_ref(), ctx)
-            }
+            },
             Condition::Syscall { name, number, arch } => {
                 eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
-            }
+            },
             Condition::SectionRatio {
                 section,
                 compare_to,
@@ -2039,7 +2044,14 @@ impl CompositeTrait {
                 min_length,
                 regex,
                 compiled_regex,
-            } => eval_string_count(*min, *max, *min_length, regex.as_ref(), compiled_regex.as_ref(), ctx),
+            } => eval_string_count(
+                *min,
+                *max,
+                *min_length,
+                regex.as_ref(),
+                compiled_regex.as_ref(),
+                ctx,
+            ),
             Condition::Metrics {
                 field,
                 min,
@@ -2099,7 +2111,7 @@ impl CompositeTrait {
                     &location,
                     ctx,
                 )
-            }
+            },
             Condition::Section {
                 exact,
                 substr,
@@ -2155,7 +2167,7 @@ impl CompositeTrait {
                     &location,
                     ctx,
                 )
-            }
+            },
             Condition::Basename {
                 exact,
                 substr,
@@ -2178,19 +2190,19 @@ impl CompositeTrait {
                 } else {
                     ConditionResult::no_match()
                 }
-            }
+            },
         }
     }
 
     /// Evaluate symbol condition
-    fn eval_symbol(
+    fn eval_symbol<'a>(
         &self,
         exact: Option<&String>,
         substr: Option<&String>,
         pattern: Option<&String>,
         platforms: Option<&Vec<Platform>>,
         compiled_regex: Option<&regex::Regex>,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> ConditionResult {
         // Check platform constraint
         // Match if: trait allows All platforms, OR context includes All (no --platforms filter),
@@ -2214,21 +2226,21 @@ impl CompositeTrait {
     }
 
     /// Evaluate structure condition
-    fn eval_structure(
+    fn eval_structure<'a>(
         &self,
         feature: &str,
         min_sections: Option<usize>,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> ConditionResult {
         eval_structure(feature, min_sections, ctx)
     }
 
     /// Evaluate exports count condition
-    fn eval_exports_count(
+    fn eval_exports_count<'a>(
         &self,
         min: Option<usize>,
         max: Option<usize>,
-        ctx: &EvaluationContext,
+        ctx: &EvaluationContext<'a>,
     ) -> ConditionResult {
         let count = ctx.report.exports.len();
         let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
@@ -2292,9 +2304,7 @@ impl CompositeTrait {
             .iter()
             .filter_map(|e| {
                 e.location.as_ref().and_then(|loc| {
-                    loc.split(':')
-                        .next()
-                        .and_then(|line_str| line_str.parse::<usize>().ok())
+                    loc.split(':').next().and_then(|line_str| line_str.parse::<usize>().ok())
                 })
             })
             .collect();
@@ -2343,9 +2353,7 @@ impl CompositeTrait {
                         return Some(offset);
                     }
                     // Otherwise try "line:column" format - column is often byte position within line
-                    loc.split(':')
-                        .nth(1)
-                        .and_then(|col_str| col_str.parse::<usize>().ok())
+                    loc.split(':').nth(1).and_then(|col_str| col_str.parse::<usize>().ok())
                 })
             })
             .collect();

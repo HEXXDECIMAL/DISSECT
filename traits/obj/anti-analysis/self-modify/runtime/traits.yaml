@@ -7,29 +7,10 @@ defaults:
 
 traits:
   # === Memory protection (atomic) ===
-  - id: mprotect-unix
-    desc: Unix mprotect system call
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "mprotect"
+  # Removed mprotect-unix duplicate - use cap/mem/protect/modify/unix::mprotect (system calls should use symbol type)
 
-  - id: virtualprotect-win
-    desc: Windows VirtualProtect API
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: VirtualProtect
-
-  - id: virtualprotectex-win
-    desc: Windows VirtualProtectEx API
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: VirtualProtectEx
+  # Removed virtualprotect-win duplicate - use cap/mem/protect/modify/traits::virtual-protect (symbol is more precise)
+  # Removed virtualprotectex-win duplicate - use cap/mem/protect/modify/traits::virtual-protect-ex (symbol is more precise)
 
   - id: prot-write
     desc: PROT_WRITE memory protection constant
@@ -58,14 +39,9 @@ traits:
       type: string
       substr: /proc/self/mem
 
-  - id: proc-self-maps
-    desc: /proc/self/maps memory map access
-    crit: notable
-    conf: 0.5
-    for: [elf, shell]
-    if:
-      type: string
-      substr: /proc/self/maps
+  # Removed proc-self-maps duplicate - use cap/fs/proc/info/linux::process-self-maps
+  # Note: proc-self-maps is commonly used by legitimate software (Go/Rust runtimes,
+  # crash reporters, profilers) so it's no longer used in self-modify detection.
 
   # Removed duplicate - use cap/exec/inject/code::write-process-memory
 
@@ -247,9 +223,9 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: mprotect-unix
-      - id: virtualprotect-win
-      - id: virtualprotectex-win
+      - id: cap/mem/protect/modify/unix::mprotect
+      - id: cap/mem/protect/modify/traits::virtual-protect
+      - id: cap/mem/protect/modify/traits::virtual-protect-ex
       - id: prot-write
       - id: cap/mem/allocate/executable/unix::prot-exec-const
       - id: page-rwx

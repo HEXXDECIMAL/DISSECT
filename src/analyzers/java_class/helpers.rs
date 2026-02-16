@@ -1,7 +1,6 @@
 //! Helper functions for Java class analysis.
 
 impl super::JavaClassAnalyzer {
-    #[allow(dead_code)]
     pub(super) fn major_to_java_version(major: u16) -> String {
         match major {
             45 => "1.1".to_string(),
@@ -66,14 +65,12 @@ impl super::JavaClassAnalyzer {
     }
 
     /// Format a Java type descriptor into human-readable form
-    #[allow(dead_code)]
     fn format_type_descriptor(&self, desc: &str) -> String {
         let mut chars = desc.chars().peekable();
         self.parse_type_descriptor(&mut chars)
     }
 
-    #[allow(dead_code)]
-    fn parse_type_descriptor(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> String {
+    fn parse_type_descriptor<'a>(&self, chars: &mut std::iter::Peekable<std::str::Chars<'a>>) -> String {
         match chars.next() {
             Some('B') => "byte".to_string(),
             Some('C') => "char".to_string(),
@@ -95,13 +92,12 @@ impl super::JavaClassAnalyzer {
                     class_name.push(chars.next().unwrap());
                 }
                 class_name.replace('/', ".")
-            }
+            },
             _ => "unknown".to_string(),
         }
     }
 
     /// Format a method signature into human-readable form
-    #[allow(dead_code)]
     fn format_method_signature(&self, name: &str, desc: &str) -> String {
         let mut chars = desc.chars().peekable();
 
@@ -121,7 +117,6 @@ impl super::JavaClassAnalyzer {
     }
 
     /// Count parameters from method descriptor
-    #[allow(dead_code)]
     fn count_parameters(&self, desc: &str) -> u32 {
         let mut chars = desc.chars().peekable();
         if chars.next() != Some('(') {
@@ -139,11 +134,11 @@ impl super::JavaClassAnalyzer {
                     // Object type - skip until ';'
                     while chars.next() != Some(';') {}
                     count += 1;
-                }
+                },
                 Some('B' | 'C' | 'D' | 'F' | 'I' | 'J' | 'S' | 'Z') => {
                     chars.next();
                     count += 1;
-                }
+                },
                 _ => break,
             }
         }

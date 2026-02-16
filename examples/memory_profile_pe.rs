@@ -102,11 +102,8 @@ fn main() -> anyhow::Result<()> {
     println!();
 
     // Estimate memory per component
-    let strings_memory: usize = report
-        .strings
-        .iter()
-        .map(|s| s.value.len() + std::mem::size_of_val(s))
-        .sum();
+    let strings_memory: usize =
+        report.strings.iter().map(|s| s.value.len() + std::mem::size_of_val(s)).sum();
     println!(
         "Estimated string storage: {}",
         format_bytes(strings_memory as u64)

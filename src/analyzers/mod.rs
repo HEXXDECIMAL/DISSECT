@@ -129,7 +129,7 @@ pub fn analyzer_for_file_type(
                         .with_capability_mapper(mapper_or_empty),
                 ))
             }
-        }
+        },
     }
 }
 
@@ -203,7 +203,7 @@ pub fn analyzer_for_file_type_arc(
                         .with_capability_mapper_arc(mapper_or_empty),
                 ))
             }
-        }
+        },
     }
 }
 
@@ -277,7 +277,7 @@ where
             });
 
             Err(Box::new(report))
-        }
+        },
     }
 }
 
@@ -372,7 +372,7 @@ pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
             "rtf" => return FileType::Rtf,
             "zip" | "7z" | "rar" | "deb" | "rpm" | "apk" | "ipa" | "xpi" | "epub" | "nupkg"
             | "vsix" | "aar" | "egg" | "whl" | "phar" => return FileType::Archive,
-            _ => {}
+            _ => {},
         }
     }
 
@@ -755,10 +755,8 @@ fn looks_like_python(data: &[u8]) -> bool {
         "if __name__",
         "print(",
     ];
-    let strong_count = strong_indicators
-        .iter()
-        .filter(|&&pattern| content.contains(pattern))
-        .count();
+    let strong_count =
+        strong_indicators.iter().filter(|&&pattern| content.contains(pattern)).count();
 
     // Secondary Python indicators
     let secondary_indicators = [
@@ -854,7 +852,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("TrueType font", &[])) // Trigger mismatch
             }
-        }
+        },
         "otf" => {
             // OpenType: 'OTTO' or TrueType signature
             if file_data.starts_with(b"OTTO")
@@ -865,7 +863,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("OpenType font", &[]))
             }
-        }
+        },
 
         // Image formats
         "gif" => Some(("GIF image", b"GIF89a")), // Also accepts GIF87a
@@ -880,7 +878,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("SVG image", &[]))
             }
-        }
+        },
 
         // Audio/Video (less commonly abused, but worth checking)
         "mp3" => {
@@ -892,7 +890,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("MP3 audio", &[]))
             }
-        }
+        },
         "wav" => Some(("WAV audio", b"RIFF")), // Also needs "WAVE" at offset 8
 
         _ => None,
@@ -925,16 +923,10 @@ pub fn check_extension_content_mismatch(
             "JPEG image"
         } else if file_data.starts_with(b"GIF8") {
             "GIF image"
-        } else if file_data[0..file_data.len().min(100)]
-            .iter()
-            .all(|&b| b.is_ascii())
-        {
+        } else if file_data[0..file_data.len().min(100)].iter().all(|&b| b.is_ascii()) {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview
-                .chars()
-                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
-            {
+            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
                 "hex-encoded data"
             } else {
                 "ASCII text"
@@ -965,16 +957,10 @@ pub fn check_extension_content_mismatch(
             "JPEG image"
         } else if file_data.starts_with(b"GIF8") {
             "GIF image"
-        } else if file_data[0..file_data.len().min(100)]
-            .iter()
-            .all(|&b| b.is_ascii())
-        {
+        } else if file_data[0..file_data.len().min(100)].iter().all(|&b| b.is_ascii()) {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview
-                .chars()
-                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
-            {
+            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
                 "hex-encoded data"
             } else {
                 "ASCII text"
@@ -1028,7 +1014,7 @@ pub enum FileType {
     Archive,
     AppleScript,
     Plist,
-    Rtf, // Rich Text Format documents
+    Rtf,         // Rich Text Format documents
     Certificate, // X.509 / DER certificates
     Jpeg,
     Png,
@@ -1077,7 +1063,11 @@ impl FileType {
             | FileType::AppleScript
             | FileType::Plist
             | FileType::Rtf => true,
-            FileType::Archive | FileType::Unknown | FileType::Jpeg | FileType::Png | FileType::Certificate => false, // Skip images and unknown files by default in dir scans
+            FileType::Archive
+            | FileType::Unknown
+            | FileType::Jpeg
+            | FileType::Png
+            | FileType::Certificate => false, // Skip images and unknown files by default in dir scans
         }
     }
 
@@ -1110,7 +1100,7 @@ impl FileType {
             FileType::Pe => vec!["pe", "exe", "dll", "bat", "ps1"],
             FileType::Shell => {
                 vec!["sh", "bash", "zsh", "application/x-sh", "application/x-zsh"]
-            }
+            },
             FileType::Batch => vec!["bat", "cmd", "batch"],
             FileType::Python => vec!["py", "pyc"],
             FileType::JavaScript => vec!["js", "mjs", "cjs", "jsx", "ts"],

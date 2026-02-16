@@ -12,10 +12,10 @@ use crate::types::Evidence;
 use std::sync::Arc;
 
 /// Evaluate YARA match condition
-pub fn eval_yara_match(
+pub fn eval_yara_match<'a>(
     namespace: &str,
     rule: Option<&String>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
 
@@ -74,8 +74,8 @@ pub fn eval_yara_match(
 }
 
 /// Collect evidence from YARA scan results.
-pub(crate) fn collect_yara_evidence(
-    results: yara_x::ScanResults,
+pub(crate) fn collect_yara_evidence<'a, 'b>(
+    results: yara_x::ScanResults<'a, 'b>,
     binary_data: &[u8],
 ) -> Vec<Evidence> {
     let mut evidence = Vec::new();
@@ -97,7 +97,7 @@ pub(crate) fn collect_yara_evidence(
                         } else {
                             pattern.identifier().to_string()
                         }
-                    }
+                    },
                     None => pattern.identifier().to_string(),
                 };
 
@@ -115,10 +115,10 @@ pub(crate) fn collect_yara_evidence(
 
 /// Evaluate inline YARA rule condition.
 /// Uses thread-local Scanner caching for pre-compiled rules (~5x speedup).
-pub fn eval_yara_inline(
+pub fn eval_yara_inline<'a>(
     source: &str,
     compiled: Option<&Arc<yara_x::Rules>>,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let scan_start = std::time::Instant::now();
 
@@ -210,17 +210,14 @@ fn parse_hex_pattern(pattern: &str) -> Result<Vec<HexSegment>, String> {
             }
             let inner = &token[1..token.len() - 1];
             if let Some(dash_pos) = inner.find('-') {
-                let min: usize = inner[..dash_pos]
-                    .parse()
-                    .map_err(|_| format!("invalid gap min: {}", inner))?;
+                let min: usize =
+                    inner[..dash_pos].parse().map_err(|_| format!("invalid gap min: {}", inner))?;
                 let max: usize = inner[dash_pos + 1..]
                     .parse()
                     .map_err(|_| format!("invalid gap max: {}", inner))?;
                 segments.push(HexSegment::Gap { min, max });
             } else {
-                let n: usize = inner
-                    .parse()
-                    .map_err(|_| format!("invalid gap: {}", inner))?;
+                let n: usize = inner.parse().map_err(|_| format!("invalid gap: {}", inner))?;
                 segments.push(HexSegment::Gap { min: n, max: n });
             }
         } else {
@@ -269,13 +266,13 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
                     return false;
                 }
                 offset += bytes.len();
-            }
+            },
             HexSegment::Wildcard => {
                 if offset >= data.len() {
                     return false;
                 }
                 offset += 1;
-            }
+            },
             HexSegment::Gap { min, max } => {
                 // For gaps, we need to try all possible lengths
                 if *min == *max {
@@ -291,7 +288,7 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
                     }
                     return false;
                 }
-            }
+            },
         }
     }
 
@@ -307,13 +304,13 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
         match segment {
             HexSegment::Bytes(bytes) => {
                 offset += bytes.len();
-            }
+            },
             HexSegment::Wildcard => {
                 if offset < data.len() {
                     extracted.push(data[offset]);
                     offset += 1;
                 }
-            }
+            },
             HexSegment::Gap { min, max } => {
                 if min == max {
                     offset += min;
@@ -327,7 +324,7 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
                         }
                     }
                 }
-            }
+            },
         }
     }
     Some(extracted)
@@ -339,10 +336,10 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 /// 2. Use fast memmem search to find atom candidates
 /// 3. Verify full pattern only at candidate positions
 #[allow(clippy::too_many_arguments)]
-pub fn eval_hex(
+pub fn eval_hex<'a>(
     pattern: &str,
     location: &super::ContentLocationParams,
-    ctx: &EvaluationContext,
+    ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let data = ctx.binary_data;
 
@@ -362,7 +359,7 @@ pub fn eval_hex(
                 warnings: Vec::new(),
                 precision: 0.0,
             };
-        }
+        },
     };
 
     if segments.is_empty() {
@@ -541,7 +538,7 @@ mod tests {
             HexSegment::Gap { min, max } => {
                 assert_eq!(*min, 4);
                 assert_eq!(*max, 4);
-            }
+            },
             _ => panic!("expected Gap"),
         }
     }
@@ -554,7 +551,7 @@ mod tests {
             HexSegment::Gap { min, max } => {
                 assert_eq!(*min, 2);
                 assert_eq!(*max, 8);
-            }
+            },
             _ => panic!("expected Gap"),
         }
     }

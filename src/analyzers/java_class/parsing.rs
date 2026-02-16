@@ -3,7 +3,6 @@
 use anyhow::{bail, Result};
 use std::collections::HashSet;
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct ClassInfo {
     pub this_class: Option<String>,
@@ -16,7 +15,6 @@ pub struct ClassInfo {
     pub access_flags: u16,
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct MethodInfo {
     pub name: String,
@@ -30,14 +28,12 @@ pub struct MethodInfo {
     pub max_locals: u16,
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 pub struct FieldInfo {
     pub name: String,
     pub descriptor: String,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum ConstantPoolEntry {
     Empty,
@@ -96,7 +92,7 @@ impl super::JavaClassAnalyzer {
                     let s = String::from_utf8_lossy(&data[pos..pos + length]).to_string();
                     constant_pool[i] = ConstantPoolEntry::Utf8(s);
                     pos += length;
-                }
+                },
                 7 => {
                     // Class
                     if pos + 2 > data.len() {
@@ -105,7 +101,7 @@ impl super::JavaClassAnalyzer {
                     let name_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
                     constant_pool[i] = ConstantPoolEntry::Class(name_index);
                     pos += 2;
-                }
+                },
                 8 => {
                     // String
                     if pos + 2 > data.len() {
@@ -114,7 +110,7 @@ impl super::JavaClassAnalyzer {
                     let string_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
                     constant_pool[i] = ConstantPoolEntry::String(string_index);
                     pos += 2;
-                }
+                },
                 10 => {
                     // Methodref
                     if pos + 4 > data.len() {
@@ -124,7 +120,7 @@ impl super::JavaClassAnalyzer {
                     let name_type_index = u16::from_be_bytes([data[pos + 2], data[pos + 3]]);
                     constant_pool[i] = ConstantPoolEntry::MethodRef(class_index, name_type_index);
                     pos += 4;
-                }
+                },
                 12 => {
                     // NameAndType
                     if pos + 4 > data.len() {
@@ -134,7 +130,7 @@ impl super::JavaClassAnalyzer {
                     let descriptor_index = u16::from_be_bytes([data[pos + 2], data[pos + 3]]);
                     constant_pool[i] = ConstantPoolEntry::NameAndType(name_index, descriptor_index);
                     pos += 4;
-                }
+                },
                 3 => {
                     // Integer
                     if pos + 4 > data.len() {
@@ -148,7 +144,7 @@ impl super::JavaClassAnalyzer {
                     ]);
                     constant_pool[i] = ConstantPoolEntry::Integer(value);
                     pos += 4;
-                }
+                },
                 4 => {
                     // Float
                     if pos + 4 > data.len() {
@@ -162,7 +158,7 @@ impl super::JavaClassAnalyzer {
                     ]);
                     constant_pool[i] = ConstantPoolEntry::Float(value);
                     pos += 4;
-                }
+                },
                 5 => {
                     // Long (takes 2 slots)
                     if pos + 8 > data.len() {
@@ -184,7 +180,7 @@ impl super::JavaClassAnalyzer {
                     if i < constant_pool_count {
                         constant_pool[i] = ConstantPoolEntry::Empty;
                     }
-                }
+                },
                 6 => {
                     // Double (takes 2 slots)
                     if pos + 8 > data.len() {
@@ -206,7 +202,7 @@ impl super::JavaClassAnalyzer {
                     if i < constant_pool_count {
                         constant_pool[i] = ConstantPoolEntry::Empty;
                     }
-                }
+                },
                 _ => {
                     // Skip unknown types
                     pos += match tag {
@@ -216,7 +212,7 @@ impl super::JavaClassAnalyzer {
                         18 => 4,     // InvokeDynamic
                         _ => 0,
                     };
-                }
+                },
             }
             i += 1;
         }
@@ -231,13 +227,13 @@ impl super::JavaClassAnalyzer {
                     if self.is_interesting_string(s) {
                         strings.insert(s.clone());
                     }
-                }
+                },
                 ConstantPoolEntry::Class(idx) => {
                     if let Some(ConstantPoolEntry::Utf8(name)) = constant_pool.get(*idx as usize) {
                         class_refs.insert(name.clone());
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
 

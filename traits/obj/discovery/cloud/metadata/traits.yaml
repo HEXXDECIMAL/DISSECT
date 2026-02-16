@@ -74,15 +74,7 @@ traits:
       type: string
       substr: "Metadata-Flavor"
 
-  - id: gcp-metadata-endpoint
-    desc: GCP metadata endpoint
-    crit: suspicious
-    conf: 0.85
-    attack: "T1552.005"
-    for: [all]
-    if:
-      type: string
-      substr: "metadata.google.internal"
+  # Removed gcp-metadata-endpoint duplicate - use obj/creds/cloud/token::gcp-metadata-host
 
   - id: gcp-access-token
     desc: GCP service account access token
@@ -154,7 +146,7 @@ composite_rules:
     for: [all]
     any:
       - id: aws-metadata-endpoint
-      - id: gcp-metadata-endpoint
+      - id: obj/creds/cloud/token::gcp-metadata-host
       - id: azure-metadata-endpoint
     downgrade:
       any:

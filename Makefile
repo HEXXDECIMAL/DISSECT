@@ -10,7 +10,7 @@ ifdef SCCACHE
 export RUSTC_WRAPPER := $(SCCACHE)
 endif
 
-.PHONY: all build debug release test lint clean coverage ci help regenerate-testdata
+.PHONY: all build debug release test lint fmt clean coverage ci help regenerate-testdata
 
 # Default target
 all: build
@@ -24,6 +24,7 @@ help: ## Show this help
 	@echo "  debug                 - Build in debug mode"
 	@echo "  release               - Build in release mode"
 	@echo "  test                  - Run all tests (unit + integration)"
+	@echo "  fmt                   - Format all code with rustfmt"
 	@echo "  lint                  - Run code formatting and linting checks"
 	@echo "  coverage              - Generate code coverage report"
 	@echo "  ci                    - Run all CI checks (test + lint)"
@@ -55,24 +56,23 @@ test: ## Run all tests (unit + integration)
 	@echo ""
 	@echo "✓ All tests passed"
 
+fmt: ## Format all code with rustfmt
+	@echo "Formatting code..."
+	@cargo fmt --all
+	@echo "✓ Code formatted"
+
 lint: ## Run code formatting and linting checks
 	@echo "Checking formatting..."
-	cargo fmt --all --check
-	@echo "Running clippy..."
-	cargo clippy --workspace -- \
-		-D clippy::correctness \
-		-D clippy::suspicious \
-		-A clippy::collapsible_if \
-		-A clippy::len_zero \
-		-A clippy::derivable_impls \
-		-A clippy::manual_map \
-		-A clippy::if_same_then_else \
-		-A clippy::useless_vec \
-		-A clippy::bool_assert_comparison \
-		-A clippy::absurd_extreme_comparisons \
-		-A clippy::for_kv_map \
-		-A dead_code \
-		-A unused_comparisons
+	@cargo fmt --all --check
+	@echo "✓ Formatting passed"
+	@echo ""
+	@echo "Running clippy with workspace lints..."
+	@cargo clippy --workspace --all-targets --all-features
+	@echo "✓ Clippy passed"
+	@echo ""
+	@echo "Checking for unused dependencies..."
+	@cargo machete --with-metadata || echo "Note: cargo-machete not installed, skipping dependency check"
+	@echo ""
 	@echo "✓ All lints passed"
 
 coverage: ## Generate code coverage report

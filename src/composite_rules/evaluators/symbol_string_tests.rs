@@ -17,7 +17,6 @@ fn create_test_report() -> AnalysisReport {
     AnalysisReport::new(target)
 }
 
-#[allow(dead_code)]
 fn create_test_report_with_encoded_strings() -> AnalysisReport {
     let mut report = create_test_report();
 
@@ -26,7 +25,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
         value: "secret_password".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Plain,
+        string_type: crate::types::StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["base64".to_string()],
         fragments: None,
@@ -46,7 +45,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
         value: "192.168.1.1".to_string(),
         offset: Some(0x3000),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Ip,
+        string_type: crate::types::StringType::IP,
         section: Some(".data".to_string()),
         encoding_chain: vec!["base64".to_string()],
         fragments: None,
@@ -56,7 +55,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
         value: "malware".to_string(),
         offset: Some(0x4000),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Plain,
+        string_type: crate::types::StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["xor".to_string()],
         fragments: None,
@@ -66,7 +65,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
         value: "secret1".to_string(),
         offset: Some(0x5000),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Plain,
+        string_type: crate::types::StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["xor".to_string()],
         fragments: None,
@@ -76,7 +75,7 @@ fn create_test_report_with_encoded_strings() -> AnalysisReport {
         value: "MALWARE_UPPERCASE".to_string(),
         offset: Some(0x6000),
         encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Plain,
+        string_type: crate::types::StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["xor".to_string()],
         fragments: None,
@@ -438,7 +437,7 @@ fn test_eval_string_regex_match() {
         value: "192.168.1.100".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Ip,
+        string_type: StringType::IP,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -477,7 +476,7 @@ fn test_eval_string_case_insensitive() {
         value: "CreateRemoteThread".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -514,7 +513,7 @@ fn test_eval_string_exclude_patterns() {
         value: "test_function".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -553,7 +552,7 @@ fn test_eval_string_min_count() {
         value: "suspicious".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -642,7 +641,6 @@ fn test_eval_string_in_imports() {
 }
 
 /// Helper to create an empty report (no strings extracted)
-#[allow(dead_code)]
 fn create_empty_report() -> AnalysisReport {
     let target = TargetInfo {
         path: "/test/binary".to_string(),
@@ -815,7 +813,7 @@ fn test_eval_string_count_min() {
             value: format!("string_{}", i),
             offset: Some((i * 0x100) as u64),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,
@@ -839,7 +837,7 @@ fn test_eval_string_count_max() {
             value: format!("string_{}", i),
             offset: Some((i * 0x100) as u64),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,
@@ -862,7 +860,7 @@ fn test_eval_string_count_min_length() {
         value: "ab".to_string(), // 2 chars
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -871,7 +869,7 @@ fn test_eval_string_count_min_length() {
         value: "abcdefgh".to_string(), // 8 chars
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -880,7 +878,7 @@ fn test_eval_string_count_min_length() {
         value: "abcdefghijklmnop".to_string(), // 16 chars
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -905,7 +903,7 @@ fn test_eval_string_count_range() {
             value: format!("string_{}", i),
             offset: None,
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: Vec::new(),
             fragments: None,
@@ -930,7 +928,7 @@ fn test_eval_string_count_with_regex() {
         value: "VScrollBar1".to_string(),
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -939,7 +937,7 @@ fn test_eval_string_count_with_regex() {
         value: "VScrollBar2".to_string(),
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -948,7 +946,7 @@ fn test_eval_string_count_with_regex() {
         value: "OtherString".to_string(),
         offset: None,
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: None,
         encoding_chain: Vec::new(),
         fragments: None,
@@ -971,7 +969,14 @@ fn test_eval_string_count_with_regex() {
     // Require 1 OtherString - should match
     let other_pattern = "Other".to_string();
     let other_re = regex::Regex::new(&other_pattern).unwrap();
-    let result = eval_string_count(Some(1), None, None, Some(&other_pattern), Some(&other_re), &ctx);
+    let result = eval_string_count(
+        Some(1),
+        None,
+        None,
+        Some(&other_pattern),
+        Some(&other_re),
+        &ctx,
+    );
     assert!(result.matched);
 }
 
@@ -985,7 +990,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "password123".to_string(),
         offset: Some(0x1000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["base64".to_string()],
         fragments: None,
@@ -1006,7 +1011,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "secret_key".to_string(),
         offset: Some(0x2000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".text".to_string()),
         encoding_chain: vec!["hex".to_string()],
         fragments: None,
@@ -1016,7 +1021,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "admin".to_string(),
         offset: Some(0x2100),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".text".to_string()),
         encoding_chain: vec!["hex".to_string()],
         fragments: None,
@@ -1027,7 +1032,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "malware".to_string(),
         offset: Some(0x3000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["xor".to_string()],
         fragments: None,
@@ -1038,7 +1043,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "command.exe arg1 arg2".to_string(),
         offset: Some(0x4000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec!["url".to_string()],
         fragments: None,
@@ -1049,7 +1054,7 @@ fn create_test_report_with_multiple_encodings() -> AnalysisReport {
         value: "plain_text".to_string(),
         offset: Some(0x5000),
         encoding: "utf8".to_string(),
-        string_type: StringType::Plain,
+        string_type: StringType::Const,
         section: Some(".data".to_string()),
         encoding_chain: vec![],
         fragments: None,

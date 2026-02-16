@@ -44,7 +44,7 @@ pub(super) fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Opti
                     }
                 }
             }
-        }
+        },
         "x86" | "x86_64" => {
             // x86: syscall number in eax/rax
             for line in disasm.lines().rev() {
@@ -59,7 +59,7 @@ pub(super) fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Opti
                     }
                 }
             }
-        }
+        },
         "arm" | "aarch64" => {
             let reg = if arch == "arm" { "r7" } else { "x8" };
             for line in disasm.lines().rev() {
@@ -72,7 +72,7 @@ pub(super) fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Opti
                     }
                 }
             }
-        }
+        },
         "ppc" => {
             for line in disasm.lines().rev() {
                 let line_lower = line.to_lowercase();
@@ -84,8 +84,8 @@ pub(super) fn parse_syscall_number_from_disasm(disasm: &str, arch: &str) -> Opti
                     }
                 }
             }
-        }
-        _ => {}
+        },
+        _ => {},
     }
     None
 }

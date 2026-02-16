@@ -96,7 +96,7 @@ impl KvMatcher {
             Value::Array(arr) => {
                 // For arrays, check if any element matches
                 arr.iter().any(|v| self.scalar_matches(v))
-            }
+            },
             _ => self.scalar_matches(value),
         }
     }
@@ -232,7 +232,7 @@ pub fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
                     segments.push(PathSegment::Key(current_key.clone()));
                     current_key.clear();
                 }
-            }
+            },
             '[' => {
                 if !current_key.is_empty() {
                     segments.push(PathSegment::Key(current_key.clone()));
@@ -256,10 +256,10 @@ pub fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
                 } else {
                     return Err(format!("invalid array index: [{}]", index_str));
                 }
-            }
+            },
             _ => {
                 current_key.push(c);
-            }
+            },
         }
     }
 
@@ -293,7 +293,7 @@ pub fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value
                 }
             }
             Vec::new()
-        }
+        },
         PathSegment::Index(idx) => {
             if let Value::Array(arr) = value {
                 if let Some(v) = arr.get(*idx) {
@@ -301,7 +301,7 @@ pub fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value
                 }
             }
             Vec::new()
-        }
+        },
         PathSegment::Wildcard => {
             if let Value::Array(arr) = value {
                 let mut results = Vec::new();
@@ -311,7 +311,7 @@ pub fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value
                 return results;
             }
             Vec::new()
-        }
+        },
     }
 }
 
@@ -376,12 +376,12 @@ fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: String, v
         match existing {
             Value::Array(arr) => {
                 arr.push(Value::String(value));
-            }
+            },
             Value::String(s) => {
                 let old = s.clone();
                 *existing = Value::Array(vec![Value::String(old), Value::String(value)]);
-            }
-            _ => {}
+            },
+            _ => {},
         }
     } else {
         map.insert(normalized_key, Value::String(value));
@@ -412,7 +412,7 @@ pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> O
         StructuredFormat::Toml => {
             let s = std::str::from_utf8(content).ok()?;
             toml::from_str(s).ok()?
-        }
+        },
         StructuredFormat::Plist => plist::from_bytes(content).ok()?,
         StructuredFormat::PkgInfo => parse_pkginfo(content)?,
         StructuredFormat::Unknown => return None, // Don't parse unknown formats
@@ -458,7 +458,7 @@ fn format_evidence_value(value: &Value) -> String {
             // Format array elements
             let items: Vec<String> = arr.iter().map(value_to_string).collect();
             format!("[{}]", items.join(", "))
-        }
+        },
         _ => value_to_string(value),
     };
 

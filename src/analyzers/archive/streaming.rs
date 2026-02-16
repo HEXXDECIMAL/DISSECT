@@ -123,10 +123,10 @@ impl ArchiveAnalyzer {
             match yara_engine.scan_bytes(data) {
                 Ok(matches) => {
                     file_analysis.yara_matches = matches;
-                }
+                },
                 Err(e) => {
                     tracing::debug!("YARA scan failed for {}: {}", relative_path, e);
-                }
+                },
             }
         }
 
@@ -177,7 +177,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            }
+            },
 
             // Binary files - need temp file for goblin parsing
             FileType::Elf | FileType::MachO | FileType::Pe => {
@@ -200,7 +200,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            }
+            },
 
             // Java class files
             FileType::JavaClass => {
@@ -216,7 +216,7 @@ impl ArchiveAnalyzer {
                         file_analysis.imports = report.imports;
                     }
                 }
-            }
+            },
 
             // Nested archives - need recursive handling
             FileType::Archive | FileType::Jar => {
@@ -260,7 +260,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            }
+            },
 
             // Package manifests
             FileType::PackageJson => {
@@ -274,7 +274,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            }
+            },
 
             FileType::VsixManifest => {
                 if let Some(mapper) = &self.capability_mapper {
@@ -287,7 +287,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            }
+            },
 
             FileType::ChromeManifest => {
                 if let Some(mapper) = &self.capability_mapper {
@@ -300,7 +300,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            }
+            },
 
             // Python package metadata - use generic analyzer
             FileType::PkgInfo | FileType::Plist => {
@@ -318,7 +318,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            }
+            },
 
             // Other manifest files - use kv condition matching via trait evaluation
             FileType::CargoToml
@@ -327,13 +327,13 @@ impl ArchiveAnalyzer {
             | FileType::GithubActions => {
                 // These manifest types are handled via kv conditions in trait evaluation
                 // The file content is already extracted and will be processed by the trait matcher
-            }
+            },
 
             // Image and other data formats - currently no specific deep analysis beyond YARA/traits
-            FileType::Jpeg | FileType::Png | FileType::Certificate => {}
+            FileType::Jpeg | FileType::Png | FileType::Certificate => {},
 
             // Unknown files - no specific analyzer, just extract strings/traits
-            FileType::Unknown => {}
+            FileType::Unknown => {},
         }
 
         // Compute summary
@@ -366,8 +366,8 @@ impl ArchiveAnalyzer {
     ///
     /// If the entry is larger than `max_memory_file_size` or is a nested archive,
     /// it will be written to a temp file instead.
-    pub(crate) fn extract_tar_entry_to_memory<R: Read>(
-        entry: &mut tar::Entry<R>,
+    pub(crate) fn extract_tar_entry_to_memory<'a, R: Read>(
+        entry: &mut tar::Entry<'a, R>,
         entry_name: &str,
         temp_dir: &Path,
         guard: &ExtractionGuard,
@@ -648,7 +648,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to read TAR entry: {}", e);
                         continue;
-                    }
+                    },
                 };
 
                 let entry_name = match entry.path() {
@@ -656,7 +656,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to get entry path: {}", e);
                         continue;
-                    }
+                    },
                 };
 
                 // Extract to memory or disk
@@ -673,13 +673,13 @@ impl ArchiveAnalyzer {
                             // Receiver dropped, stop extraction
                             break;
                         }
-                    }
+                    },
                     Ok(None) => {
                         // Skipped (directory, symlink, etc.)
-                    }
+                    },
                     Err(e) => {
                         tracing::debug!("Failed to extract {}: {}", entry_name, e);
-                    }
+                    },
                 }
             }
 
@@ -710,7 +710,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                }
+                },
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -721,10 +721,10 @@ impl ArchiveAnalyzer {
                         Ok(data) => {
                             total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                             analyzer_ref.analyze_in_memory(path, &data, file_type)
-                        }
+                        },
                         Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                     }
-                }
+                },
             };
 
             match result {
@@ -736,23 +736,23 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
-                            _ => {}
+                            },
+                            _ => {},
                         }
                     }
 
                     // Invoke callback for streaming output
                     on_file_ref(file_result);
-                }
+                },
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                }
+                },
             }
         });
 
@@ -836,7 +836,7 @@ impl ArchiveAnalyzer {
                         Ok(_) => {
                             // Successfully read entry without password means not encrypted (or dir)
                             tracing::debug!("Entry {} read successfully without password", i);
-                        }
+                        },
                         Err(e) => {
                             // Check if it's a password error
                             let error_msg = e.to_string();
@@ -847,7 +847,7 @@ impl ArchiveAnalyzer {
                             }
                             // Other errors might be corruption or other issues
                             tracing::debug!("Error reading entry {}: {}", i, e);
-                        }
+                        },
                     }
                 }
                 tracing::info!("ZIP archive is_encrypted: {}", found_encrypted);
@@ -872,17 +872,11 @@ impl ArchiveAnalyzer {
                     let mut password_works = false;
                     for i in 0..test_archive.len() {
                         // Check if it's a directory without holding a borrow
-                        let is_dir = test_archive
-                            .by_index(i)
-                            .ok()
-                            .map(|e| e.is_dir())
-                            .unwrap_or(false);
+                        let is_dir =
+                            test_archive.by_index(i).ok().map(|e| e.is_dir()).unwrap_or(false);
                         if !is_dir {
                             // Try to decrypt this file
-                            if test_archive
-                                .by_index_decrypt(i, password.as_bytes())
-                                .is_ok()
-                            {
+                            if test_archive.by_index_decrypt(i, password.as_bytes()).is_ok() {
                                 password_works = true;
                             }
                             break;
@@ -925,14 +919,14 @@ impl ArchiveAnalyzer {
                         Err(e) => {
                             tracing::debug!("Failed to decrypt ZIP entry {}: {}", i, e);
                             continue;
-                        }
+                        },
                     },
                     None => match archive.by_index(i) {
                         Ok(e) => e,
                         Err(e) => {
                             tracing::debug!("Failed to read ZIP entry {}: {}", i, e);
                             continue;
-                        }
+                        },
                     },
                 };
 
@@ -947,11 +941,11 @@ impl ArchiveAnalyzer {
                         if tx.send(extracted).is_err() {
                             break;
                         }
-                    }
-                    Ok(None) => {}
+                    },
+                    Ok(None) => {},
                     Err(e) => {
                         tracing::debug!("Failed to extract ZIP entry: {}", e);
-                    }
+                    },
                 }
             }
 
@@ -979,7 +973,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                }
+                },
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -988,7 +982,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    }
+                    },
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1001,22 +995,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
-                            _ => {}
+                            },
+                            _ => {},
                         }
                     }
 
                     on_file_ref(file_result);
-                }
+                },
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                }
+                },
             }
         });
 
@@ -1093,7 +1087,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to read AR entry: {}", e);
                         continue;
-                    }
+                    },
                 };
 
                 let name = String::from_utf8_lossy(entry.header().identifier()).to_string();
@@ -1117,7 +1111,7 @@ impl ArchiveAnalyzer {
                             Err(e) => {
                                 tracing::debug!("Failed to create zstd decoder: {}", e);
                                 continue;
-                            }
+                            },
                         }
                     } else if name.ends_with(".bz2") {
                         Box::new(bzip2::read::BzDecoder::new(entry))
@@ -1137,7 +1131,7 @@ impl ArchiveAnalyzer {
                             Err(e) => {
                                 tracing::debug!("Failed to read TAR entry: {}", e);
                                 continue;
-                            }
+                            },
                         };
 
                         let entry_name = match tar_entry.path() {
@@ -1156,11 +1150,11 @@ impl ArchiveAnalyzer {
                                 if tx.send(extracted).is_err() {
                                     break;
                                 }
-                            }
-                            Ok(None) => {}
+                            },
+                            Ok(None) => {},
                             Err(e) => {
                                 tracing::debug!("Failed to extract {}: {}", entry_name, e);
-                            }
+                            },
                         }
                     }
                 }
@@ -1190,7 +1184,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                }
+                },
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1199,7 +1193,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    }
+                    },
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1212,22 +1206,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
-                            _ => {}
+                            },
+                            _ => {},
                         }
                     }
 
                     on_file_ref(file_result);
-                }
+                },
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                }
+                },
             }
         });
 
@@ -1377,7 +1371,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                }
+                },
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1386,7 +1380,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    }
+                    },
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1399,22 +1393,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
-                            _ => {}
+                            },
+                            _ => {},
                         }
                     }
 
                     on_file_ref(file_result);
-                }
+                },
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                }
+                },
             }
         });
 
@@ -1604,7 +1598,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                }
+                },
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1613,7 +1607,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    }
+                    },
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1626,22 +1620,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
+                            },
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            }
-                            _ => {}
+                            },
+                            _ => {},
                         }
                     }
 
                     on_file_ref(file_result);
-                }
+                },
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                }
+                },
             }
         });
 
@@ -1713,7 +1707,7 @@ fn extract_cpio_streaming<R: Read>(
                     break;
                 }
                 return Err(e.into());
-            }
+            },
         };
 
         let entry = entry_reader.entry();
@@ -1889,7 +1883,7 @@ fn detect_file_type_from_magic(data: &[u8]) -> Option<FileType> {
         [b'P', b'K', 0x03, 0x04] | [b'P', b'K', 0x05, 0x06] => {
             // Could be ZIP or JAR - check extension or contents
             Some(FileType::Archive)
-        }
+        },
         // Gzip
         [0x1f, 0x8b, ..] => Some(FileType::Archive),
         // XZ
@@ -1965,10 +1959,7 @@ mod tests {
         let mut cursor = std::io::Cursor::new(header);
         let result = skip_rpm_header(&mut cursor);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid RPM header magic"));
+        assert!(result.unwrap_err().to_string().contains("Invalid RPM header magic"));
     }
 
     type StreamingAnalyzerFn =

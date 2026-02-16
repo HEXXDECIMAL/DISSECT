@@ -220,11 +220,11 @@ impl RtfParser {
                             max: self.max_depth,
                         });
                     }
-                }
+                },
                 '}' => {
                     current_depth = current_depth.saturating_sub(1);
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
 
@@ -233,11 +233,7 @@ impl RtfParser {
 
     /// Extract RTF version from control words
     fn extract_version(&self, words: &[ControlWord]) -> u32 {
-        words
-            .iter()
-            .find(|w| w.name == "rtf")
-            .and_then(|w| w.parameter)
-            .unwrap_or(0) as u32
+        words.iter().find(|w| w.name == "rtf").and_then(|w| w.parameter).unwrap_or(0) as u32
     }
 
     /// Extract charset from control words
@@ -338,9 +334,7 @@ mod tests {
     #[test]
     fn test_extract_control_words() {
         let parser = RtfParser::new();
-        let words = parser
-            .extract_control_words("{\\rtf1\\ansi\\deff0}")
-            .unwrap();
+        let words = parser.extract_control_words("{\\rtf1\\ansi\\deff0}").unwrap();
         assert!(words.iter().any(|w| w.name == "rtf"));
         assert!(words.iter().any(|w| w.name == "ansi"));
     }

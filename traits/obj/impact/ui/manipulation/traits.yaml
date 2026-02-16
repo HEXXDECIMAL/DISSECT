@@ -79,15 +79,7 @@ traits:
         - type: string
           regex: "@\\(#\\)PROGRAM:[a-z]+\\s+PROJECT:[A-Za-z]+-[0-9]+"
 
-  - id: screen-locked
-    desc: macOS screen lock detection
-    crit: suspicious
-    conf: 0.8
-    attack: "T1010"
-    for: [macho]
-    if:
-      type: string
-      substr: "CGSSessionScreenIsLocked"
+  # Removed screen-locked duplicate - use cap/discovery/system/hardware/macos::ioreg-screen-lock
 
   # NOTE: MIT-MAGIC-COOKIE-1 is the standard X11 authentication mechanism, not UI manipulation.
   # It's used by all X11 libraries (libX11, libICE, libSM, etc.) for normal authentication.
@@ -142,7 +134,7 @@ composite_rules:
     for: [macho]
     needs: 2
     any:
-      - id: screen-locked
+      - id: cap/discovery/system/hardware/macos::ioreg-screen-lock
       - id: hid-idle-time
       - id: window-watcher
       - id: process-identifier

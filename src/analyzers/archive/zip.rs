@@ -55,12 +55,12 @@ pub(crate) fn extract_zip_safe(
                     } else {
                         trace!("Entry {} is directory, skipping encryption check", i);
                     }
-                }
+                },
                 Err(_) => {
                     debug!("Cannot read entry {}, assuming encrypted", i);
                     found_encrypted = true;
                     break;
-                }
+                },
             }
         }
         found_encrypted
@@ -98,11 +98,11 @@ pub(crate) fn extract_zip_safe(
                     info!("✓ Decrypted with password: {}", password);
                     eprintln!("  Decrypted with password: {}", password);
                     return Ok(());
-                }
+                },
                 Err(e) => {
                     debug!("Password '{}' failed: {}", password, e);
                     continue;
-                }
+                },
             }
         }
         anyhow::bail!(
@@ -149,11 +149,11 @@ pub(crate) fn extract_zip_entries_safe<R: Read + Seek>(
                 Ok(file) => {
                     trace!("Entry {} decrypted successfully", i);
                     file
-                }
+                },
                 Err(e) => {
                     debug!("Failed to decrypt entry {}: {}", i, e);
                     return Err(e.into());
-                }
+                },
             },
             None => archive.by_index(i)?,
         };
@@ -167,7 +167,7 @@ pub(crate) fn extract_zip_entries_safe<R: Read + Seek>(
             None => {
                 guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
                 continue; // Skip this file but continue extraction
-            }
+            },
         };
 
         // Check for symlinks (zip files can contain them via external attributes)

@@ -1,6 +1,5 @@
 //! Mach-O binary analyzer for macOS executables.
 
-use crate::amos_cipher::AMOSCipherAnalyzer;
 use crate::analyzers::macho_codesign;
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
@@ -64,7 +63,7 @@ impl MachOAnalyzer {
             Mach::Binary(m) => m,
             Mach::Fat(_) => {
                 anyhow::bail!("Fat binaries should be handled separately");
-            }
+            },
         };
 
         // Create target info
@@ -167,8 +166,7 @@ impl MachOAnalyzer {
             ..Default::default()
         });
 
-        // AMOS cipher detection and decryption
-        self.analyze_amos_cipher(data, &mut report, &mut tools_used);
+        // AMOS cipher detection now handled by stng library internally
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
         let _t_r2 = std::time::Instant::now();
@@ -261,9 +259,7 @@ impl MachOAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust)
         // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
-        report.strings = self
-            .string_extractor
-            .extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Update binary metrics with string count
@@ -328,21 +324,17 @@ impl MachOAnalyzer {
                                 });
                             }
                         }
-                    }
+                    },
                     Err(e) => {
-                        report
-                            .metadata
-                            .errors
-                            .push(format!("YARA scan failed: {}", e));
-                    }
+                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
+                    },
                 }
             }
         }
 
         // Evaluate all rules (atomic + composite) and merge into report
         let _t_eval = std::time::Instant::now();
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         // Update binary metrics with data from report (import/export/string counts and entropy)
         Self::update_binary_metrics(&mut report);
@@ -426,11 +418,8 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section
-                            .permissions
-                            .as_ref()
-                            .map(|p| p.contains('x'))
-                            .unwrap_or(false);
+                        let has_exec_perm =
+                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_size += section.size;
@@ -478,11 +467,8 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section
-                            .permissions
-                            .as_ref()
-                            .map(|p| p.contains('x'))
-                            .unwrap_or(false);
+                        let has_exec_perm =
+                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_entropies.push(entropy);
@@ -604,11 +590,8 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm = section
-                            .permissions
-                            .as_ref()
-                            .map(|p| p.contains('x'))
-                            .unwrap_or(false);
+                        let has_exec_perm =
+                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_size += section.size;
@@ -639,10 +622,9 @@ impl MachOAnalyzer {
     }
 
     /// Generate structural traits (file format, architecture, signing, etc.)
-    #[allow(dead_code)]
-    fn generate_structural_traits(
+    fn generate_structural_traits<'a>(
         &self,
-        macho: &MachO,
+        macho: &MachO<'a>,
         _data: &[u8],
         report: &mut AnalysisReport,
     ) -> Result<()> {
@@ -774,11 +756,8 @@ impl MachOAnalyzer {
 
                     // Extract library name without path/version
                     let lib_name = lib.split('/').next_back().unwrap_or(lib);
-                    let base_name = lib_name
-                        .split('.')
-                        .next()
-                        .unwrap_or(lib_name)
-                        .trim_start_matches("lib");
+                    let base_name =
+                        lib_name.split('.').next().unwrap_or(lib_name).trim_start_matches("lib");
 
                     report.findings.push(Finding {
                         kind: FindingKind::Capability,
@@ -828,18 +807,12 @@ impl MachOAnalyzer {
         }
 
         // 8. High complexity functions
-        let high_complexity: Vec<_> = report
-            .functions
-            .iter()
-            .filter(|f| f.complexity.unwrap_or(0) > 50)
-            .collect();
+        let high_complexity: Vec<_> =
+            report.functions.iter().filter(|f| f.complexity.unwrap_or(0) > 50).collect();
 
         if !high_complexity.is_empty() {
-            let func_names: Vec<String> = high_complexity
-                .iter()
-                .map(|f| f.name.clone())
-                .take(3)
-                .collect();
+            let func_names: Vec<String> =
+                high_complexity.iter().map(|f| f.name.clone()).take(3).collect();
 
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
@@ -864,9 +837,9 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_structure_with_signature(
+    fn analyze_structure_with_signature<'a>(
         &self,
-        macho: &MachO,
+        macho: &MachO<'a>,
         report: &mut AnalysisReport,
         _codesig: Option<&macho_codesign::CodeSignature>,
     ) -> Result<()> {
@@ -919,10 +892,10 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_imports(
+    fn analyze_imports<'a>(
         &self,
         file_path: &Path,
-        macho: &MachO,
+        macho: &MachO<'a>,
         report: &mut AnalysisReport,
     ) -> Result<()> {
         let imports = macho.imports()?;
@@ -958,9 +931,7 @@ impl MachOAnalyzer {
                         let clean_name = crate::types::binary::normalize_symbol(name);
                         // Only add if not already added by radare2
                         if !report.imports.iter().any(|i| i.symbol == clean_name) {
-                            report
-                                .imports
-                                .push(Import::new(name, None, "goblin_symtab"));
+                            report.imports.push(Import::new(name, None, "goblin_symtab"));
                         }
                     }
                 }
@@ -985,7 +956,7 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_exports(&self, macho: &MachO, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_exports<'a>(&self, macho: &MachO<'a>, report: &mut AnalysisReport) -> Result<()> {
         for exp in &macho.exports()? {
             report.exports.push(Export::new(
                 &exp.name,
@@ -997,9 +968,9 @@ impl MachOAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections(
+    fn analyze_sections<'a>(
         &self,
-        macho: &MachO,
+        macho: &MachO<'a>,
         data: &[u8],
         report: &mut AnalysisReport,
     ) -> Result<()> {
@@ -1088,19 +1059,19 @@ impl MachOAnalyzer {
                     })
                     .unwrap_or_else(|| team_id.to_string());
                 ("developer", team_id, format!("Developer ID: {}", company))
-            }
+            },
             macho_codesign::SignatureType::AppStore => {
                 ("app-store", team_id, "Mac App Store".to_string())
-            }
+            },
             macho_codesign::SignatureType::Platform => {
                 ("platform", "apple", "macOS Platform Binary".to_string())
-            }
+            },
             macho_codesign::SignatureType::Adhoc => {
                 ("adhoc", "unsigned", "Ad-hoc Signature".to_string())
-            }
+            },
             macho_codesign::SignatureType::Unknown => {
                 ("unknown", "unknown", "Unknown Signature".to_string())
-            }
+            },
         };
 
         report.findings.push(Finding {
@@ -1191,7 +1162,7 @@ impl MachOAnalyzer {
         }
     }
 
-    fn arch_name(&self, macho: &MachO) -> String {
+    fn arch_name<'a>(&self, macho: &MachO<'a>) -> String {
         self.arch_name_from_cputype(macho.header.cputype)
     }
 
@@ -1204,177 +1175,7 @@ impl MachOAnalyzer {
         }
     }
 
-    /// Analyze for AMOS cipher encryption and attempt decryption
-    fn analyze_amos_cipher(
-        &self,
-        data: &[u8],
-        report: &mut AnalysisReport,
-        tools_used: &mut Vec<String>,
-    ) {
-        let amos_analyzer = AMOSCipherAnalyzer::new();
-
-        // Detect AMOS cipher
-        let detection = match amos_analyzer.detect(data) {
-            Ok(d) => d,
-            Err(_) => return,
-        };
-
-        if !detection.detected {
-            return;
-        }
-
-        tools_used.push("amos_cipher".to_string());
-
-        // Add detection finding
-        let variant_name = match &detection.variant {
-            Some(crate::amos_cipher::CipherVariant::TripleLookupTable) => {
-                "Triple Lookup Table (Variant A)"
-            }
-            Some(crate::amos_cipher::CipherVariant::PRNGStreamCipher) => {
-                "PRNG Stream Cipher (Variant B)"
-            }
-            None => "Unknown",
-        };
-
-        // Build evidence from detection
-        let mut evidence: Vec<Evidence> = detection
-            .evidence
-            .iter()
-            .map(|e| Evidence {
-                method: e.indicator.clone(),
-                source: "amos_cipher".to_string(),
-                value: e.value.clone(),
-                location: e.offset.map(|o| format!("0x{:x}", o)),
-            })
-            .collect();
-
-        // Add payload location evidence
-        for (offset, size) in &detection.payload_locations {
-            evidence.push(Evidence {
-                method: "payload_location".to_string(),
-                source: "amos_cipher".to_string(),
-                value: format!("{} bytes", size),
-                location: Some(format!("0x{:x}", offset)),
-            });
-        }
-
-        report.findings.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "malware/stealer/amos/encrypted".to_string(),
-            desc: format!(
-                "AMOS stealer encrypted payload detected ({}), conf: {:.0}%",
-                variant_name,
-                detection.conf * 100.0
-            ),
-            conf: detection.conf,
-            crit: Criticality::Hostile,
-            mbc: Some("C0027".to_string()), // Obfuscated Files or Information
-            attack: Some("T1027".to_string()),
-            evidence: evidence.clone(),
-
-            source_file: None,
-        });
-
-        // Attempt decryption
-        match amos_analyzer.decrypt(data) {
-            Ok(payloads) => {
-                for payload in payloads {
-                    // Add decrypted payload finding
-                    let quality_str = match payload.quality() {
-                        crate::amos_cipher::DecryptionQuality::High => "high",
-                        crate::amos_cipher::DecryptionQuality::Medium => "medium",
-                        crate::amos_cipher::DecryptionQuality::Low => "low",
-                    };
-
-                    let mut decrypt_evidence = vec![
-                        Evidence {
-                            method: "decryption".to_string(),
-                            source: "amos_cipher".to_string(),
-                            value: format!(
-                                "{} bytes decrypted (quality: {})",
-                                payload.plaintext.len(),
-                                quality_str
-                            ),
-                            location: Some(format!("0x{:x}", payload.source_offset)),
-                        },
-                        Evidence {
-                            method: "variant".to_string(),
-                            source: "amos_cipher".to_string(),
-                            value: format!("{:?}", payload.variant),
-                            location: None,
-                        },
-                    ];
-
-                    // Identify payload type based on content
-                    let payload_type = identify_payload_type(&payload.plaintext);
-                    decrypt_evidence.push(Evidence {
-                        method: "payload_type".to_string(),
-                        source: "amos_cipher".to_string(),
-                        value: payload_type.clone(),
-                        location: None,
-                    });
-
-                    // Add decrypted string preview if available
-                    if let Some(ref script) = payload.as_string {
-                        let preview: String = script.chars().take(500).collect();
-                        decrypt_evidence.push(Evidence {
-                            method: "decrypted_content".to_string(),
-                            source: "amos_cipher".to_string(),
-                            value: if script.len() > 500 {
-                                format!("{}...", preview)
-                            } else {
-                                preview
-                            },
-                            location: None,
-                        });
-                    }
-
-                    // Extract strings from decrypted payload using standard extractor
-                    // This enables full trait analysis on the decrypted content
-                    let decrypted_strings = self
-                        .string_extractor
-                        .extract(&payload.plaintext, Some("AMOS decrypted".to_string()));
-
-                    for mut string_info in decrypted_strings {
-                        // Mark strings as from decrypted content
-                        string_info.offset = Some(payload.source_offset as u64);
-                        string_info.section = Some("AMOS_decrypted".to_string());
-                        if !report.strings.iter().any(|s| s.value == string_info.value) {
-                            report.strings.push(string_info);
-                        }
-                    }
-
-                    report.findings.push(Finding {
-                        kind: FindingKind::Capability,
-                        trait_refs: vec![],
-                        id: "malware/stealer/amos/decrypted".to_string(),
-                        desc: format!(
-                            "AMOS payload decrypted successfully ({} bytes)",
-                            payload.plaintext.len()
-                        ),
-                        conf: match payload.quality() {
-                            crate::amos_cipher::DecryptionQuality::High => 0.95,
-                            crate::amos_cipher::DecryptionQuality::Medium => 0.75,
-                            crate::amos_cipher::DecryptionQuality::Low => 0.5,
-                        },
-                        crit: Criticality::Hostile,
-                        mbc: Some("C0027".to_string()),
-                        attack: Some("T1027".to_string()),
-                        evidence: decrypt_evidence,
-
-                        source_file: None,
-                    });
-                }
-            }
-            Err(e) => {
-                report
-                    .metadata
-                    .errors
-                    .push(format!("AMOS decryption failed: {}", e));
-            }
-        }
-    }
+    // AMOS cipher detection/decryption removed - now handled by stng library internally
 }
 
 /// Determine criticality of an entitlement based on its key
@@ -1441,11 +1242,7 @@ fn describe_entitlement(key: &str) -> String {
     }
 
     // Fallback: clean up the key name for readability
-    let short_name = key
-        .split('.')
-        .next_back()
-        .unwrap_or(key)
-        .replace(['-', '_'], " ");
+    let short_name = key.split('.').next_back().unwrap_or(key).replace(['-', '_'], " ");
 
     // Capitalize first letter
     let mut chars = short_name.chars();
@@ -1511,10 +1308,8 @@ impl Analyzer for MachOAnalyzer {
                     let mut report = self.analyze_single(file_path, arch_data)?;
 
                     // Update report with all architectures from fat binary
-                    let arch_names: Vec<String> = arches
-                        .iter()
-                        .map(|a| self.arch_name_from_cputype(a.cputype))
-                        .collect();
+                    let arch_names: Vec<String> =
+                        arches.iter().map(|a| self.arch_name_from_cputype(a.cputype)).collect();
                     report.target.architectures = Some(arch_names.clone());
 
                     // Update macho metrics for universal binary
@@ -1531,7 +1326,7 @@ impl Analyzer for MachOAnalyzer {
                 } else {
                     anyhow::bail!("No architectures found in fat binary");
                 }
-            }
+            },
         }
     }
 
@@ -1918,11 +1713,8 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check if any entitlement findings are present
-        let entitlement_findings: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.id.contains("entitlement"))
-            .collect();
+        let entitlement_findings: Vec<_> =
+            report.findings.iter().filter(|f| f.id.contains("entitlement")).collect();
 
         // If the binary has entitlements, verify they're properly extracted
         if !entitlement_findings.is_empty() {
@@ -1930,10 +1722,7 @@ mod tests {
                 // Entitlements should have proper evidence
                 assert!(!finding.evidence.is_empty());
                 // Method should be "entitlements_plist"
-                assert!(finding
-                    .evidence
-                    .iter()
-                    .any(|e| e.method == "entitlements_plist"));
+                assert!(finding.evidence.iter().any(|e| e.method == "entitlements_plist"));
             }
         }
     }
@@ -1950,11 +1739,8 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for team ID findings
-        let team_findings: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.id.contains("signed/team"))
-            .collect();
+        let team_findings: Vec<_> =
+            report.findings.iter().filter(|f| f.id.contains("signed/team")).collect();
 
         // If team findings exist, verify they have proper structure
         for finding in &team_findings {
@@ -1975,10 +1761,7 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for hardened-runtime finding
-        let hardened = report
-            .findings
-            .iter()
-            .find(|f| f.id == "meta/hardened-runtime");
+        let hardened = report.findings.iter().find(|f| f.id == "meta/hardened-runtime");
 
         if let Some(finding) = hardened {
             assert_eq!(finding.evidence[0].method, "code_directory_flags");
@@ -1998,11 +1781,8 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Signature type findings should have Notable criticality
-        let sig_type_findings: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.id.contains("signed/type"))
-            .collect();
+        let sig_type_findings: Vec<_> =
+            report.findings.iter().filter(|f| f.id.contains("signed/type")).collect();
 
         for finding in &sig_type_findings {
             assert_eq!(finding.crit, Criticality::Notable);
@@ -2022,11 +1802,8 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // All entitlement findings should have high confidence
-        let ent_findings: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.id.contains("entitlement"))
-            .collect();
+        let ent_findings: Vec<_> =
+            report.findings.iter().filter(|f| f.id.contains("entitlement")).collect();
 
         for finding in &ent_findings {
             assert_eq!(finding.conf, 1.0); // Entitlements from signature have 100% confidence
@@ -2193,11 +1970,8 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for identifier findings
-        let identifier_findings: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.id.contains("signed/id"))
-            .collect();
+        let identifier_findings: Vec<_> =
+            report.findings.iter().filter(|f| f.id.contains("signed/id")).collect();
 
         // If identifier findings exist, they should have proper evidence
         for finding in &identifier_findings {

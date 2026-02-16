@@ -33,15 +33,7 @@ traits:
       type: string
       substr: "ActiveXObject"
 
-  # Shell.Application (explorer shell)
-  - id: shell-application-string
-    desc: Shell.Application string reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "Shell.Application"
+  # Removed shell-application-string duplicate - use cap/exec/activex/com::activex-shell-app
 
   # Removed msxml2-xmlhttp-string duplicate - use cap/exec/activex/com::activex-xmlhttp-msxml2
 
@@ -73,14 +65,7 @@ traits:
       type: string
       substr: "winmgmts:"
 
-  - id: wbemscripting-locator-string
-    desc: WbemScripting.SWbemLocator string reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript, powershell]
-    if:
-      type: string
-      substr: "WbemScripting.SWbemLocator"
+  # Removed wbemscripting-locator-string duplicate - use cap/exec/activex/com::activex-wmi
 
   # ADODB stream (file operations)
   - id: adodb-stream-string
@@ -212,7 +197,7 @@ composite_rules:
     for: [javascript, typescript, powershell]
     any:
       - id: winmgmts-string
-      - id: wbemscripting-locator-string
+      - id: cap/exec/activex/com::activex-wmi
 
 
   # Schedule.Service variants

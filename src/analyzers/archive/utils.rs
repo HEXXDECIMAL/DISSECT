@@ -107,7 +107,8 @@ pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
     if path_str.ends_with(".tar.gz")
         || path_str.ends_with(".tgz")
         || path_str.ends_with(".crate")
-        || path_str.ends_with(".apk") // Alpine APK (gzipped tar)
+        || path_str.ends_with(".apk")
+    // Alpine APK (gzipped tar)
     {
         Some("gzip".to_string())
     } else if path_str.ends_with(".tar.bz2")
@@ -228,7 +229,7 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
             } else {
                 Ok("zip") // Android APK (default)
             }
-        }
+        },
         "pkg" => {
             // macOS PKG: XAR ("xar!" at offset 0)
             // FreeBSD pkg: usually starts with xz or zstd magic
@@ -247,7 +248,7 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
             } else {
                 Ok("pkg") // Default to macOS
             }
-        }
+        },
         other => Ok(other),
     }
 }

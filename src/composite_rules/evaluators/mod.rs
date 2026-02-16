@@ -161,9 +161,9 @@ pub struct ContentLocationParams {
 
 /// Resolve the effective byte range for content search based on location constraints.
 /// Returns (start, end) as absolute offsets into binary data.
-pub fn resolve_effective_range(
+pub fn resolve_effective_range<'a>(
     location: &ContentLocationParams,
-    ctx: &crate::composite_rules::context::EvaluationContext,
+    ctx: &crate::composite_rules::context::EvaluationContext<'a>,
 ) -> (usize, usize) {
     let file_size = ctx.binary_data.len();
 
@@ -200,7 +200,7 @@ pub fn resolve_effective_range(
                 off as usize
             };
             (resolved, file_size)
-        }
+        },
         (None, Some((start, end_opt))) => {
             let file_size_i64 = file_size as i64;
             let resolved_start = if *start < 0 {
@@ -214,16 +214,16 @@ pub fn resolve_effective_range(
                 None => file_size,
             };
             (resolved_start, resolved_end)
-        }
+        },
         _ => (0, file_size), // Section constraints without SectionMap - no filtering
     }
 }
 
 /// Resolve effective range as Option for string offset filtering.
 /// Returns None if no location constraints (no filtering needed).
-pub fn resolve_effective_range_opt(
+pub fn resolve_effective_range_opt<'a>(
     location: &ContentLocationParams,
-    ctx: &crate::composite_rules::context::EvaluationContext,
+    ctx: &crate::composite_rules::context::EvaluationContext<'a>,
 ) -> Option<(u64, u64)> {
     // If no location constraints, return None (no filtering)
     if location.section.is_none()

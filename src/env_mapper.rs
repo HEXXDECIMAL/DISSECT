@@ -59,9 +59,7 @@ fn is_env_var_name(s: &str) -> bool {
     }
 
     // Must be all uppercase with underscores or numbers
-    let valid_chars = s
-        .chars()
-        .all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
+    let valid_chars = s.chars().all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
     if !valid_chars {
         return false;
     }
@@ -359,10 +357,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     }
 
     // LD_PRELOAD injection detection
-    let injection_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.category == EnvVarCategory::Injection)
-        .collect();
+    let injection_vars: Vec<_> =
+        env_vars.iter().filter(|e| e.category == EnvVarCategory::Injection).collect();
 
     for var in injection_vars {
         let (trait_id, description, attack_id) = match var.name.as_str() {
@@ -405,10 +401,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     }
 
     // User discovery
-    let user_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.category == EnvVarCategory::User)
-        .collect();
+    let user_vars: Vec<_> =
+        env_vars.iter().filter(|e| e.category == EnvVarCategory::User).collect();
 
     if user_vars.len() >= 2 {
         traits.push(Finding {
@@ -434,10 +428,8 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     }
 
     // System discovery
-    let system_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.category == EnvVarCategory::System)
-        .collect();
+    let system_vars: Vec<_> =
+        env_vars.iter().filter(|e| e.category == EnvVarCategory::System).collect();
 
     if system_vars.len() >= 2 {
         traits.push(Finding {
@@ -492,10 +484,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     }
 
     // Platform detection
-    let android_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.name.starts_with("ANDROID_"))
-        .collect();
+    let android_vars: Vec<_> = env_vars.iter().filter(|e| e.name.starts_with("ANDROID_")).collect();
 
     if !android_vars.is_empty() {
         traits.push(Finding {
@@ -553,10 +542,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     }
 
     // SSH check (remote session detection)
-    let ssh_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.name.starts_with("SSH_"))
-        .collect();
+    let ssh_vars: Vec<_> = env_vars.iter().filter(|e| e.name.starts_with("SSH_")).collect();
 
     if !ssh_vars.is_empty() {
         traits.push(Finding {

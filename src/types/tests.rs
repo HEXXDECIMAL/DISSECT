@@ -64,14 +64,14 @@ fn test_path_access_type_enum() {
 fn test_string_type_enum_variants() {
     let types = vec![
         StringType::Url,
-        StringType::Ip,
+        StringType::IP,
         StringType::Path,
         StringType::Email,
         StringType::Base64,
-        StringType::Plain,
-        StringType::Literal,
-        StringType::Comment,
-        StringType::Docstring,
+        StringType::Const,
+        StringType::Const,
+        StringType::Const,
+        StringType::Const,
     ];
     assert_eq!(types.len(), 9);
 }

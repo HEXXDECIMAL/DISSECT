@@ -140,11 +140,7 @@ traits:
       substr: "exploit"
 
   # === Network Terms ===
-  - id: socket
-    desc: socket keyword
-    if:
-      type: string
-      substr: "socket"
+  # Removed socket duplicate - use obj/c2/reverse-shell/pty::python-socket or cap/comm/socket patterns
 
   - id: connect
     desc: connect keyword
@@ -187,18 +183,10 @@ traits:
       substr: "powershell"
       case_insensitive: true
 
-  - id: cmd
-    desc: cmd keyword
-    if:
-      type: string
-      exact: "cmd"
+  # Removed cmd duplicate - use obj/c2/reverse-shell/socket/go::cmd-plain or specific patterns
 
   # === Misc Generic Terms ===
-  - id: runtime
-    desc: runtime keyword
-    if:
-      type: string
-      substr: "runtime"
+  # Removed runtime duplicate - use meta/hardening::hardened-runtime or specific patterns
 
   - id: tmp
     desc: tmp keyword

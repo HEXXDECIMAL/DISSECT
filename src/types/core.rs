@@ -450,9 +450,7 @@ mod tests {
 
         assert_eq!(report.findings.len(), 1);
         assert_eq!(report.findings[0].trait_refs.len(), 2);
-        assert!(report.findings[0]
-            .trait_refs
-            .contains(&"trait1".to_string()));
+        assert!(report.findings[0].trait_refs.contains(&"trait1".to_string()));
     }
 
     // ==================== add_trait Tests ====================
@@ -536,7 +534,7 @@ mod tests {
             value: "test_string".to_string(),
             offset: Some(0x100),
             encoding: "utf8".to_string(),
-            string_type: StringType::Plain,
+            string_type: StringType::Const,
             section: None,
             encoding_chain: vec![],
             fragments: None,

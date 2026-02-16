@@ -154,10 +154,11 @@ pub fn read_file_normalized(path: &Path) -> Result<FileData> {
     // Check if encoding normalization is needed
     if raw_bytes.len() >= 2
         && ((raw_bytes[0] == 0xFF && raw_bytes[1] == 0xFE)  // UTF-16 LE
-            || (raw_bytes[0] == 0xFE && raw_bytes[1] == 0xFF))  // UTF-16 BE
+            || (raw_bytes[0] == 0xFE && raw_bytes[1] == 0xFF))
+    // UTF-16 BE
     {
-        let normalized = normalize_text_encoding(raw_bytes)
-            .context("Failed to normalize text encoding")?;
+        let normalized =
+            normalize_text_encoding(raw_bytes).context("Failed to normalize text encoding")?;
         Ok(FileData::Owned(normalized))
     } else {
         // No conversion needed, return original data

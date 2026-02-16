@@ -12,12 +12,8 @@ use std::collections::HashSet;
 use super::models::{RawCompositeRule, RawTraitDefinition, TraitDefaults};
 
 /// Check if a string value is the special "none" keyword to unset a default
-#[allow(dead_code)]
 pub(crate) fn is_unset(value: &Option<String>) -> bool {
-    value
-        .as_ref()
-        .map(|v| v.eq_ignore_ascii_case("none"))
-        .unwrap_or(false)
+    value.as_ref().map(|v| v.eq_ignore_ascii_case("none")).unwrap_or(false)
 }
 
 /// Apply default for Option<String> fields, supporting "none" to unset
@@ -76,7 +72,7 @@ pub(crate) fn apply_trait_defaults(
             Err(e) => {
                 warnings.push(format!("Trait '{}': {}", raw.id, e));
                 Criticality::Inert
-            }
+            },
         },
         None => match defaults.crit.as_deref() {
             Some(v) => match parse_criticality(v) {
@@ -84,7 +80,7 @@ pub(crate) fn apply_trait_defaults(
                 Err(e) => {
                     warnings.push(format!("Default criticality: {}", e));
                     Criticality::Inert
-                }
+                },
             },
             None => Criticality::Inert,
         },
@@ -119,21 +115,20 @@ pub(crate) fn apply_trait_defaults(
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
     let mut condition_with_filters =
-        raw.condition
-            .unwrap_or_else(|| crate::composite_rules::ConditionWithFilters {
-                condition: crate::composite_rules::Condition::Basename {
-                    exact: None,
-                    substr: None,
-                    regex: Some(".".to_string()),
-                    case_insensitive: false,
-                },
-                size_min: None,
-                size_max: None,
-                count_min: None,
-                count_max: None,
-                per_kb_min: None,
-                per_kb_max: None,
-            });
+        raw.condition.unwrap_or_else(|| crate::composite_rules::ConditionWithFilters {
+            condition: crate::composite_rules::Condition::Basename {
+                exact: None,
+                substr: None,
+                regex: Some(".".to_string()),
+                case_insensitive: false,
+            },
+            size_min: None,
+            size_max: None,
+            count_min: None,
+            count_max: None,
+            per_kb_min: None,
+            per_kb_max: None,
+        });
 
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
@@ -198,7 +193,7 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
                     } else {
                         vec![RuleFileType::All]
                     }
-                }
+                },
                 // Groups
                 "binaries" => vec![
                     RuleFileType::Elf,
@@ -281,7 +276,7 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
                     // Unknown file type - add warning (file path will be added by caller)
                     warnings.push(format!("Unknown file type: '{}'", name));
                     vec![]
-                }
+                },
             };
 
             if name == "*" || name.eq_ignore_ascii_case("all") {
@@ -392,7 +387,7 @@ pub(crate) fn apply_composite_defaults(
             Err(e) => {
                 warnings.push(format!("Composite rule '{}': {}", raw.id, e));
                 Criticality::Inert
-            }
+            },
         },
         None => match defaults.crit.as_deref() {
             Some(v) => match parse_criticality(v) {
@@ -400,7 +395,7 @@ pub(crate) fn apply_composite_defaults(
                 Err(e) => {
                     warnings.push(format!("Default criticality: {}", e));
                     Criticality::Inert
-                }
+                },
             },
             None => Criticality::Inert,
         },
@@ -477,7 +472,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        }
+        },
         Condition::Raw {
             regex: regex_opt,
             substr,
@@ -490,7 +485,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        }
+        },
         Condition::Symbol {
             regex: regex_opt,
             substr,
@@ -503,7 +498,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        }
+        },
         Condition::Basename {
             regex: regex_opt,
             substr,
@@ -516,8 +511,8 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        }
-        _ => {}
+        },
+        _ => {},
     }
 }
 

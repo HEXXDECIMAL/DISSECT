@@ -75,13 +75,7 @@ traits:
       type: string
       substr: "File.unlink"
 
-  - id: unlink-symbol
-    desc: unlink symbol
-    crit: inert
-    conf: 0.75
-    if:
-      type: symbol
-      regex: "unlink"
+  # Removed unlink-symbol duplicate - use cap/fs/file/delete/unix::delete (POSIX unlink should be in unix.yaml, not ruby-specific)
 
   # FileUtils.rm_rf
   - id: fileutils-rm-rf-string

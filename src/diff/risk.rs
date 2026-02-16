@@ -4,7 +4,6 @@
 //! review of suspicious changes.
 
 /// Check if a capability ID indicates high risk
-#[allow(dead_code)]
 pub(super) fn is_high_risk_id(id: &str) -> bool {
     id.starts_with("exec/")
         || id.starts_with("anti-analysis/")
@@ -18,7 +17,6 @@ pub(super) fn is_high_risk_id(id: &str) -> bool {
 }
 
 /// Check if a capability ID indicates medium risk
-#[allow(dead_code)]
 pub(super) fn is_medium_risk_id(id: &str) -> bool {
     id.starts_with("net/")
         || id.starts_with("credential/")

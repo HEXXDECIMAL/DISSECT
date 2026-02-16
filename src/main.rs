@@ -27,9 +27,8 @@
 //! - YARA matches and syscalls
 //! - Archive contents (if applicable)
 
-#![allow(dead_code)]
-
-mod amos_cipher;
+// AMOS cipher detection now handled by stng library internally
+// mod amos_cipher;
 mod analyzers;
 mod archive_utils;
 mod cache;
@@ -161,14 +160,10 @@ fn main() -> Result<()> {
 
         // Create or append to log file
         let file = Arc::new(Mutex::new(
-            OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(log_file)
-                .unwrap_or_else(|e| {
-                    eprintln!("Failed to open log file {}: {}", log_file, e);
-                    std::process::exit(1);
-                }),
+            OpenOptions::new().create(true).append(true).open(log_file).unwrap_or_else(|e| {
+                eprintln!("Failed to open log file {}: {}", log_file, e);
+                std::process::exit(1);
+            }),
         ));
 
         if format == cli::OutputFormat::Terminal {
@@ -270,10 +265,8 @@ fn main() -> Result<()> {
     let zip_passwords: Vec<String> = if args.no_zip_passwords {
         Vec::new()
     } else {
-        let mut passwords: Vec<String> = cli::DEFAULT_ZIP_PASSWORDS
-            .iter()
-            .map(|s| s.to_string())
-            .collect();
+        let mut passwords: Vec<String> =
+            cli::DEFAULT_ZIP_PASSWORDS.iter().map(|s| s.to_string()).collect();
         passwords.extend(args.zip_passwords.clone());
         passwords
     };
@@ -363,7 +356,7 @@ fn main() -> Result<()> {
                     args.validate,
                 )?
             }
-        }
+        },
         Some(cli::Command::Scan {
             paths,
             third_party_yara: cmd_third_party,
@@ -386,7 +379,7 @@ fn main() -> Result<()> {
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
             extract_strings(&target, min_length, &format)?
-        }
+        },
         Some(cli::Command::Symbols { target }) => extract_symbols(&target, &format)?,
         Some(cli::Command::Sections { target }) => extract_sections(&target, &format)?,
         Some(cli::Command::Metrics { target }) => extract_metrics(&target, &format, &disabled)?,
@@ -457,6 +450,17 @@ fn main() -> Result<()> {
             args.min_hostile_precision,
             args.min_suspicious_precision,
         )?,
+        Some(cli::Command::Graph {
+            depth,
+            output,
+            min_refs,
+            namespaces,
+        }) => dissect::graph::generate_trait_graph(
+            depth,
+            output.as_deref(),
+            min_refs,
+            namespaces.as_deref(),
+        )?,
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -482,7 +486,7 @@ fn main() -> Result<()> {
                 max_memory_file_size,
                 args.validate,
             )?
-        }
+        },
     };
 
     // Output results
@@ -616,26 +620,26 @@ fn analyze_file(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Elf => {
             let mut analyzer = ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Pe => {
             let mut analyzer = PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
@@ -649,17 +653,17 @@ fn analyze_file(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone())
@@ -681,7 +685,7 @@ fn analyze_file(
             } else {
                 analyzer.analyze(path)?
             }
-        }
+        },
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
@@ -691,7 +695,7 @@ fn analyze_file(
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        }
+        },
     };
 
     // Run YARA universally for file types that didn't handle it internally
@@ -721,10 +725,10 @@ fn analyze_file(
                     if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
                         report.metadata.tools_used.push("yara-x".to_string());
                     }
-                }
+                },
                 Err(e) => {
                     eprintln!("⚠️  YARA scan failed: {}", e);
-                }
+                },
             }
         }
     }
@@ -866,16 +870,16 @@ fn scan_paths(
                             Ok(report) => match output::format_terminal(&report) {
                                 Ok(formatted) => {
                                     print!("{}", formatted);
-                                }
+                                },
                                 Err(e) => {
                                     eprintln!("Error formatting report for {}: {}", path_str, e);
-                                }
+                                },
                             },
                             Err(e) => {
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                            }
+                            },
                         }
-                    }
+                    },
                     cli::OutputFormat::Jsonl => {
                         // For JSONL, stream each file immediately
                         match output::parse_jsonl(&json) {
@@ -885,14 +889,14 @@ fn scan_paths(
                                         println!("{}", line);
                                     }
                                 }
-                            }
+                            },
                             Err(e) => {
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                            }
+                            },
                         }
-                    }
+                    },
                 }
-            }
+            },
             Err(e) => {
                 let err_str = e.to_string();
                 // Check if this is an --error-if failure - stop processing
@@ -907,7 +911,7 @@ fn scan_paths(
                 }
 
                 eprintln!("✗ {}: {}", path_str, e);
-            }
+            },
         }
 
         Ok(())
@@ -946,10 +950,10 @@ fn scan_paths(
                     ) {
                         Ok(()) => {
                             // Files were already streamed via callback
-                        }
+                        },
                         Err(e) => {
                             eprintln!("✗ {}: {}", path_str, e);
-                        }
+                        },
                     }
                     return Ok(());
                 }
@@ -973,13 +977,13 @@ fn scan_paths(
                                     Ok(report) => match output::format_terminal(&report) {
                                         Ok(formatted) => {
                                             print!("{}", formatted);
-                                        }
+                                        },
                                         Err(e) => {
                                             eprintln!(
                                                 "Error formatting report for {}: {}",
                                                 path_str, e
                                             );
-                                        }
+                                        },
                                     },
                                     Err(e) => {
                                         eprintln!("DEBUG: JSON parse error: {}", e);
@@ -988,15 +992,15 @@ fn scan_paths(
                                             &json[..json.len().min(500)]
                                         );
                                         eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                                    }
+                                    },
                                 }
-                            }
+                            },
                             cli::OutputFormat::Jsonl => {
                                 // Should not reach here - JSONL uses streaming path above
                                 unreachable!("JSONL should use streaming path");
-                            }
+                            },
                         }
-                    }
+                    },
                     Err(e) => {
                         let err_str = e.to_string();
                         // Check if this is an --error-if failure - stop processing
@@ -1011,7 +1015,7 @@ fn scan_paths(
                         }
 
                         eprintln!("✗ {}: {}", path_str, e);
-                    }
+                    },
                 }
 
                 Ok(())
@@ -1040,7 +1044,7 @@ fn scan_paths(
             // JSONL already streamed files above via analyze_archive_streaming_jsonl
             // Don't emit a summary - the individual file lines were already printed
             Ok(String::new())
-        }
+        },
         cli::OutputFormat::Terminal => Ok(String::new()),
     }
 }
@@ -1095,8 +1099,21 @@ fn analyze_file_with_shared_mapper(
     // Check for extension/content mismatch
     let mismatch = analyzers::check_extension_content_mismatch(path, file_data);
 
-    // Check for encoded payloads (hex, base64, etc.)
-    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(file_data);
+    // Extract strings with stng ONCE (don't call I/O-bound functions multiple times)
+    // Use these results for both encoded payload extraction AND analyzer string extraction
+    tracing::info!("Extracting strings with stng");
+    let opts = stng::ExtractOptions::new(16).with_garbage_filter(true); // Filter out garbage strings
+                                                                        // NOTE: XOR disabled - causes performance issues on large files
+    let t_stng = std::time::Instant::now();
+    let stng_strings = stng::extract_strings_with_options(file_data, &opts);
+    tracing::info!(
+        "stng extraction completed in {:?} ({} strings)",
+        t_stng.elapsed(),
+        stng_strings.len()
+    );
+
+    // Check for encoded payloads (hex, base64, etc.) using the stng results
+    let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
 
     let _t_analyze = std::time::Instant::now();
 
@@ -1111,7 +1128,7 @@ fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Elf => {
             let mut analyzer =
                 ElfAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
@@ -1119,7 +1136,7 @@ fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::Pe => {
             let mut analyzer =
                 PEAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
@@ -1127,12 +1144,12 @@ fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
@@ -1146,22 +1163,22 @@ fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::AppleScript => {
             let analyzer = analyzers::applescript::AppleScriptAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        }
+        },
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone())
@@ -1174,17 +1191,30 @@ fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        }
+        },
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
-            if let Some(analyzer) =
+            // For file types that use GenericAnalyzer (Batch, Unknown, etc.),
+            // pass stng strings to avoid wasteful duplicate string extraction
+            if matches!(
+                file_type,
+                FileType::Batch | FileType::Unknown | FileType::PkgInfo | FileType::Plist
+            ) {
+                let analyzer = analyzers::generic::GenericAnalyzer::new(file_type.clone())
+                    .with_capability_mapper_arc(capability_mapper.clone());
+                analyzer.analyze_source_with_stng(
+                    path,
+                    &String::from_utf8_lossy(file_data),
+                    &stng_strings,
+                )?
+            } else if let Some(analyzer) =
                 analyzers::analyzer_for_file_type_arc(&file_type, Some(capability_mapper.clone()))
             {
                 analyzer.analyze(path)?
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        }
+        },
     };
 
     // Add finding for extension/content mismatch if detected
@@ -1217,7 +1247,7 @@ fn analyze_file_with_shared_mapper(
         let crit = match payload.detected_type {
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
-            }
+            },
             FileType::Certificate => types::Criticality::Notable,
             _ => types::Criticality::Notable,
         };
@@ -1281,10 +1311,10 @@ fn analyze_file_with_shared_mapper(
                     if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
                         report.metadata.tools_used.push("yara-x".to_string());
                     }
-                }
+                },
                 Err(e) => {
                     eprintln!("⚠️  YARA scan failed: {}", e);
-                }
+                },
             }
         }
     }
@@ -1355,11 +1385,7 @@ fn analyze_archive_streaming_jsonl(
         .as_ref()
         .and_then(|s| s.max_risk)
         .unwrap_or(types::Criticality::Inert);
-    let mut counts = report
-        .summary
-        .as_ref()
-        .map(|s| s.counts.clone())
-        .unwrap_or_default();
+    let mut counts = report.summary.as_ref().map(|s| s.counts.clone()).unwrap_or_default();
 
     // Include archive-level findings (zip-bomb, path traversal, etc.)
     for finding in &report.findings {
@@ -1370,7 +1396,7 @@ fn analyze_archive_streaming_jsonl(
             types::Criticality::Hostile => counts.hostile += 1,
             types::Criticality::Suspicious => counts.suspicious += 1,
             types::Criticality::Notable => counts.notable += 1,
-            _ => {}
+            _ => {},
         }
     }
 
@@ -1424,12 +1450,12 @@ fn diff_analysis(old: &str, new: &str, format: &cli::OutputFormat) -> Result<Str
             // Use full diff for JSONL - comprehensive ML-ready output
             let report = diff_analyzer.analyze_full()?;
             Ok(serde_json::to_string_pretty(&report)?)
-        }
+        },
         cli::OutputFormat::Terminal => {
             // Use simple diff for terminal display
             let report = diff_analyzer.analyze()?;
             Ok(diff::format_diff_terminal(&report))
-        }
+        },
     }
 }
 
@@ -1557,8 +1583,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                         }
                     }
                 }
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -1595,19 +1621,16 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                     current_section = section;
                 }
 
-                let offset = s
-                    .offset
-                    .map(|o| format!("{}", o))
-                    .unwrap_or_else(|| "-".to_string());
+                let offset = s.offset.map(|o| format!("{}", o)).unwrap_or_else(|| "-".to_string());
 
                 // Use stng-style type labels
                 let stype_str = match s.string_type {
                     crate::types::StringType::Import => "import",
                     crate::types::StringType::Export => "export",
-                    crate::types::StringType::Function => "func",
+                    crate::types::StringType::FuncName => "func",
                     crate::types::StringType::StackString => "stack",
                     crate::types::StringType::Url => "url",
-                    crate::types::StringType::Ip => "ip",
+                    crate::types::StringType::IP => "ip",
                     crate::types::StringType::Email => "email",
                     crate::types::StringType::Path => "path",
                     crate::types::StringType::Base64 => "base64",
@@ -1623,11 +1646,8 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 };
 
                 // Escape control characters for display
-                let mut val_display = s
-                    .value
-                    .replace('\n', "\\n")
-                    .replace('\r', "\\r")
-                    .replace('\t', "\\t");
+                let mut val_display =
+                    s.value.replace('\n', "\\n").replace('\r', "\\r").replace('\t', "\\t");
 
                 if s.string_type == crate::types::StringType::Base64 {
                     use base64::{engine::general_purpose, Engine as _};
@@ -1656,7 +1676,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 ));
             }
             Ok(output)
-        }
+        },
     }
 }
 
@@ -1676,11 +1696,8 @@ fn extract_strings_from_ast(
     };
 
     // Filter strings by min_length
-    let filtered_strings: Vec<_> = report
-        .strings
-        .into_iter()
-        .filter(|s| s.value.len() >= min_length)
-        .collect();
+    let filtered_strings: Vec<_> =
+        report.strings.into_iter().filter(|s| s.value.len() >= min_length).collect();
 
     match format {
         cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&filtered_strings)?),
@@ -1691,13 +1708,17 @@ fn extract_strings_from_ast(
                 filtered_strings.len(),
                 path.display()
             ));
-            output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", "OFFSET", "TYPE", "ENCODING", "VALUE"));
-            output.push_str(&format!("{:-<10} {:-<14} {:-<12} {:-<20}\n", "", "", "", ""));
+            output.push_str(&format!(
+                "{:<10} {:<14} {:<12} {}\n",
+                "OFFSET", "TYPE", "ENCODING", "VALUE"
+            ));
+            output.push_str(&format!(
+                "{:-<10} {:-<14} {:-<12} {:-<20}\n",
+                "", "", "", ""
+            ));
             for s in filtered_strings {
-                let offset = s
-                    .offset
-                    .map(|o| format!("{:#x}", o))
-                    .unwrap_or_else(|| "unknown".to_string());
+                let offset =
+                    s.offset.map(|o| format!("{:#x}", o)).unwrap_or_else(|| "unknown".to_string());
                 let stype_str = format!("{:?}", s.string_type);
 
                 // Format encoding chain like binary strings output
@@ -1707,10 +1728,13 @@ fn extract_strings_from_ast(
                     s.encoding_chain.join("+")
                 };
 
-                output.push_str(&format!("{:<10} {:<14} {:<12} {}\n", offset, stype_str, encoding_str, s.value));
+                output.push_str(&format!(
+                    "{:<10} {:<14} {:<12} {}\n",
+                    offset, stype_str, encoding_str, s.value
+                ));
             }
             Ok(output)
-        }
+        },
     }
 }
 
@@ -1849,7 +1873,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         });
                     }
                 }
-            }
+            },
             _ => {
                 // Source file or script - analyze for symbols using unified analyzer
                 let report =
@@ -1894,7 +1918,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         source: func.source,
                     });
                 }
-            }
+            },
         }
     } else {
         anyhow::bail!("Unable to detect file type for: {}", target);
@@ -1910,7 +1934,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                 let num_a = parse_addr(addr_a);
                 let num_b = parse_addr(addr_b);
                 num_a.cmp(&num_b)
-            }
+            },
             (Some(_), None) => std::cmp::Ordering::Less,
             (None, Some(_)) => std::cmp::Ordering::Greater,
             (None, None) => a.name.cmp(&b.name),
@@ -1946,7 +1970,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
             }
 
             Ok(output)
-        }
+        },
     }
 }
 
@@ -1971,9 +1995,9 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
                     FileType::MachO => MachOAnalyzer::new()
                         .with_capability_mapper(capability_mapper)
                         .analyze(path)?,
-                    FileType::Pe => PEAnalyzer::new()
-                        .with_capability_mapper(capability_mapper)
-                        .analyze(path)?,
+                    FileType::Pe => {
+                        PEAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
+                    },
                     _ => unreachable!(),
                 };
 
@@ -1987,13 +2011,13 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
                         permissions: section.permissions,
                     });
                 }
-            }
+            },
             _ => {
                 anyhow::bail!(
                     "Unsupported file type for section extraction: {:?}. Only ELF, PE, and Mach-O binaries are supported.",
                     file_type
                 );
-            }
+            },
         }
     } else {
         anyhow::bail!("Unable to detect file type for: {}", target);
@@ -2009,7 +2033,7 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
                 let num_a = parse_addr(addr_a);
                 let num_b = parse_addr(addr_b);
                 num_a.cmp(&num_b)
-            }
+            },
             (Some(_), None) => std::cmp::Ordering::Less,
             (None, Some(_)) => std::cmp::Ordering::Greater,
             (None, None) => a.name.cmp(&b.name),
@@ -2045,7 +2069,7 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
             }
 
             Ok(output)
-        }
+        },
     }
 }
 
@@ -2066,16 +2090,16 @@ fn flatten_json_to_metrics(
                 };
                 flatten_json_to_metrics(val, &new_prefix, result);
             }
-        }
+        },
         serde_json::Value::Null => {
             // Skip null values
-        }
+        },
         _ => {
             // Leaf value - add to result
             if !prefix.is_empty() {
                 result.push((prefix.to_string(), value.clone()));
             }
-        }
+        },
     }
 }
 
@@ -2100,15 +2124,15 @@ fn extract_metrics(
     // analyzers to compute metrics. Radare2 analysis can be slow, but it's controlled
     // by the --disable flag (already in disabled)
     let report = match file_type {
-        FileType::Elf => ElfAnalyzer::new()
-            .with_capability_mapper(capability_mapper)
-            .analyze(path)?,
-        FileType::MachO => MachOAnalyzer::new()
-            .with_capability_mapper(capability_mapper)
-            .analyze(path)?,
-        FileType::Pe => PEAnalyzer::new()
-            .with_capability_mapper(capability_mapper)
-            .analyze(path)?,
+        FileType::Elf => {
+            ElfAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
+        },
+        FileType::MachO => {
+            MachOAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
+        },
+        FileType::Pe => {
+            PEAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
+        },
         _ => {
             // Use the generic analyzer for source code
             if let Some(analyzer) = analyzers::analyzer_for_file_type(&file_type, None) {
@@ -2119,7 +2143,7 @@ fn extract_metrics(
                     file_type
                 );
             }
-        }
+        },
     };
 
     // Extract metrics from report and update binary metrics with report data
@@ -2136,11 +2160,8 @@ fn extract_metrics(
         // Calculate string metrics
         if !report.strings.is_empty() {
             use crate::entropy::calculate_entropy;
-            let entropies: Vec<f64> = report
-                .strings
-                .iter()
-                .map(|s| calculate_entropy(s.value.as_bytes()))
-                .collect();
+            let entropies: Vec<f64> =
+                report.strings.iter().map(|s| calculate_entropy(s.value.as_bytes())).collect();
 
             let total_entropy: f64 = entropies.iter().sum();
             binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
@@ -2182,11 +2203,8 @@ fn extract_metrics(
 
                 // Track code vs data section entropy
                 let name_lower = section.name.to_lowercase();
-                let is_executable = section
-                    .permissions
-                    .as_ref()
-                    .map(|p| p.contains('x'))
-                    .unwrap_or(false);
+                let is_executable =
+                    section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
 
                 if name_lower.contains("text") || name_lower.contains("code") || is_executable {
                     code_entropies.push(entropy);
@@ -2265,7 +2283,7 @@ fn extract_metrics(
         cli::OutputFormat::Jsonl => {
             // JSON output - just serialize the metrics
             Ok(serde_json::to_string_pretty(&metrics)?)
-        }
+        },
         cli::OutputFormat::Terminal => {
             // Convert metrics to JSON value, then flatten to get all field paths
             let json_value = serde_json::to_value(&metrics)?;
@@ -2297,7 +2315,7 @@ fn extract_metrics(
                         } else {
                             n.to_string()
                         }
-                    }
+                    },
                     serde_json::Value::String(s) => s.clone(),
                     serde_json::Value::Bool(b) => b.to_string(),
                     _ => value.to_string(),
@@ -2307,7 +2325,7 @@ fn extract_metrics(
             }
 
             Ok(output)
-        }
+        },
     }
 }
 
@@ -2328,10 +2346,8 @@ fn test_rules_debug(
     eprintln!("Analyzing: {}", target);
 
     // Parse rule IDs, stripping trailing slashes
-    let rule_ids: Vec<String> = rules
-        .split(',')
-        .map(|s| s.trim().trim_end_matches('/').to_string())
-        .collect();
+    let rule_ids: Vec<String> =
+        rules.split(',').map(|s| s.trim().trim_end_matches('/').to_string()).collect();
     eprintln!("Debugging {} rule(s): {:?}", rule_ids.len(), rule_ids);
 
     // Detect file type
@@ -2649,7 +2665,7 @@ fn test_match_debug(
                         ));
                     }
                     return Ok(out);
-                }
+                },
             };
 
             // Filter strings by offset range if location constraints are specified
@@ -2813,7 +2829,7 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
-        }
+        },
         cli::SearchType::Symbol => {
             let symbols: Vec<&str> = report
                 .imports
@@ -2876,7 +2892,7 @@ fn test_match_debug(
             }
 
             (matched, matched_symbols.len(), out)
-        }
+        },
         cli::SearchType::Raw => {
             // Resolve effective range for content search
             let effective_range = resolve_effective_range(
@@ -2902,7 +2918,7 @@ fn test_match_debug(
                         ));
                     }
                     return Ok(out);
-                }
+                },
             };
 
             // Slice binary data to effective range
@@ -2926,7 +2942,7 @@ fn test_match_debug(
                     } else {
                         0
                     }
-                }
+                },
                 cli::MatchMethod::Contains => {
                     if external_ip {
                         // For external_ip, we need to check context around each match
@@ -2947,7 +2963,7 @@ fn test_match_debug(
                     } else {
                         content.matches(pattern).count()
                     }
-                }
+                },
                 cli::MatchMethod::Regex => regex::Regex::new(pattern)
                     .map(|re| {
                         if external_ip {
@@ -2972,7 +2988,7 @@ fn test_match_debug(
                             }
                         })
                         .unwrap_or(0)
-                }
+                },
             };
 
             // Use effective range size for density calculations
@@ -3068,7 +3084,7 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
-        }
+        },
         cli::SearchType::Kv => {
             let kv_path_str = kv_path.unwrap(); // Safe: validated above
 
@@ -3148,7 +3164,7 @@ fn test_match_debug(
 
                 (false, 0, out)
             }
-        }
+        },
         cli::SearchType::Hex => {
             use composite_rules::evaluators::eval_hex;
             use composite_rules::SectionMap;
@@ -3351,7 +3367,7 @@ fn test_match_debug(
             }
 
             (result.matched, match_count, out)
-        }
+        },
         cli::SearchType::Encoded => {
             // Search in encoded/decoded strings with optional encoding filter
             // Parse encoding parameter: single ("base64"), multiple ("base64,hex"), or None (all)
@@ -3371,7 +3387,7 @@ fn test_match_debug(
                         Some(filters) => {
                             // Accept if ANY filter matches (OR logic)
                             filters.iter().any(|enc| s.encoding_chain.contains(enc))
-                        }
+                        },
                     }
                 })
                 .map(|s| s.value.as_str())
@@ -3491,7 +3507,7 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
-        }
+        },
         cli::SearchType::Section => {
             // Search for sections by name, size, and/or entropy
             // count_min/count_max = number of matching sections
@@ -3524,7 +3540,7 @@ fn test_match_debug(
                         } else {
                             false
                         }
-                    }
+                    },
                     cli::MatchMethod::Word => {
                         // Word boundary match
                         let word_pattern = format!(r"\b{}\b", regex::escape(&pat));
@@ -3533,7 +3549,7 @@ fn test_match_debug(
                         } else {
                             false
                         }
-                    }
+                    },
                 }
             };
 
@@ -3660,7 +3676,7 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
-        }
+        },
         cli::SearchType::Metrics => {
             // Test metrics conditions using eval_metrics
             let field = pattern;
@@ -3776,7 +3792,7 @@ fn test_match_debug(
             }
 
             (matched, match_count, out)
-        }
+        },
     };
 
     // If not matched, provide suggestions
@@ -3819,16 +3835,16 @@ fn test_match_debug(
                     cli::MatchMethod::Contains => content.contains(pattern),
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                    }
+                    },
                     cli::MatchMethod::Word => {
                         let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                         regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
-                    }
+                    },
                 };
                 if content_matched {
                     output.push_str("  💡 Found in content - try `--type raw`\n");
                 }
-            }
+            },
             cli::SearchType::Symbol => {
                 // Check if pattern exists in strings (try exact first, then contains)
                 let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
@@ -3890,16 +3906,16 @@ fn test_match_debug(
                     cli::MatchMethod::Contains => content.contains(pattern),
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                    }
+                    },
                     cli::MatchMethod::Word => {
                         let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                         regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
-                    }
+                    },
                 };
                 if content_matched {
                     output.push_str("  💡 Found in content - try `--type raw`\n");
                 }
-            }
+            },
             cli::SearchType::Raw => {
                 // Check if pattern exists in strings
                 let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
@@ -3953,19 +3969,19 @@ fn test_match_debug(
                         symbol_matches.len()
                     ));
                 }
-            }
+            },
             cli::SearchType::Kv => {
                 // No cross-search suggestions for kv - it's a different paradigm
                 output.push_str("  💡 Check that the path exists in the file structure\n");
                 output.push_str("  💡 Try without a pattern for existence check\n");
-            }
+            },
             cli::SearchType::Hex => {
                 // Suggest content search as alternative
                 output.push_str("  💡 Try --type raw for string-based search\n");
                 output.push_str("  💡 Ensure hex pattern has correct format: \"7F 45 4C 46\"\n");
                 output
                     .push_str("  💡 Try --offset or --offset-range to target specific locations\n");
-            }
+            },
             cli::SearchType::Encoded => {
                 output.push_str(
                     "  💡 Encoded search looks for decoded strings (base64, hex, xor, etc.)\n",
@@ -3973,7 +3989,7 @@ fn test_match_debug(
                 output.push_str("  💡 Use --encoding to filter by type: --encoding base64\n");
                 output.push_str("  💡 Try `--type string` for regular strings\n");
                 output.push_str("  💡 Try `--type raw` for raw content search\n");
-            }
+            },
             cli::SearchType::Section => {
                 output.push_str("  💡 Section search matches binary section metadata\n");
                 if pattern.is_empty()
@@ -4005,7 +4021,7 @@ fn test_match_debug(
                             .join(", ")
                     ));
                 }
-            }
+            },
             cli::SearchType::Metrics => {
                 output.push_str(
                     "  💡 Metrics search tests computed file metrics against thresholds\n",
@@ -4035,7 +4051,7 @@ fn test_match_debug(
                 } else {
                     output.push_str("  ⚠️  No metrics available for this file type\n");
                 }
-            }
+            },
         }
 
         // Suggest alternative match methods
@@ -4044,19 +4060,19 @@ fn test_match_debug(
             cli::MatchMethod::Exact => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method regex (pattern match)\n");
-            }
+            },
             cli::MatchMethod::Contains => {
                 output.push_str("    --method exact (exact match)\n");
                 output.push_str("    --method regex (pattern match)\n");
-            }
+            },
             cli::MatchMethod::Regex => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method exact (exact match)\n");
-            }
+            },
             cli::MatchMethod::Word => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method regex (pattern match)\n");
-            }
+            },
         }
 
         // Check if pattern would match with different file types
@@ -4092,11 +4108,8 @@ fn test_match_debug(
                     // Quick check if search would work with this type
                     let would_match = match search_type {
                         cli::SearchType::String => {
-                            let strings: Vec<&str> = alt_report
-                                .strings
-                                .iter()
-                                .map(|s| s.value.as_str())
-                                .collect();
+                            let strings: Vec<&str> =
+                                alt_report.strings.iter().map(|s| s.value.as_str()).collect();
                             let exact = if method == cli::MatchMethod::Exact {
                                 Some(pattern.to_string())
                             } else {
@@ -4126,7 +4139,7 @@ fn test_match_debug(
                                 case_insensitive,
                             );
                             !matches.is_empty()
-                        }
+                        },
                         cli::SearchType::Symbol => {
                             let symbols: Vec<&str> = alt_report
                                 .imports
@@ -4148,7 +4161,7 @@ fn test_match_debug(
                             let matches =
                                 find_matching_symbols(&symbols, &exact, &None, &regex, false);
                             !matches.is_empty()
-                        }
+                        },
                         cli::SearchType::Raw => {
                             let content = String::from_utf8_lossy(&binary_data);
                             match method {
@@ -4156,34 +4169,34 @@ fn test_match_debug(
                                 cli::MatchMethod::Contains => content.contains(pattern),
                                 cli::MatchMethod::Regex => {
                                     regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                                }
+                                },
                                 cli::MatchMethod::Word => {
                                     let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                                     regex::Regex::new(&word_pattern)
                                         .is_ok_and(|re| re.is_match(&content))
-                                }
+                                },
                             }
-                        }
+                        },
                         cli::SearchType::Kv => {
                             // kv searches don't benefit from file type changes
                             false
-                        }
+                        },
                         cli::SearchType::Hex => {
                             // hex searches don't benefit from file type changes
                             false
-                        }
+                        },
                         cli::SearchType::Encoded => {
                             // encoded string searches depend on string extraction
                             false
-                        }
+                        },
                         cli::SearchType::Section => {
                             // Section searches are binary-specific
                             false
-                        }
+                        },
                         cli::SearchType::Metrics => {
                             // Metrics searches depend on metrics availability for the file type
                             false
-                        }
+                        },
                     };
 
                     if would_match {

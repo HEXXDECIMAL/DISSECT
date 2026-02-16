@@ -1,8 +1,6 @@
 //! Decoders for extracting hidden content (base64, xor, etc.)
 //! Note: This module is deprecated. Use StringInfo with encoding_chain instead.
 
-#![allow(dead_code)]
-
 use crate::types::DecodedString;
 
 /// Extract and decode base64 strings from binary data
@@ -28,11 +26,9 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
                 }
 
                 // Check if decoded string contains printable ASCII (heuristic for real content)
-                let printable_ratio = decoded_str
-                    .chars()
-                    .filter(|c| c.is_ascii() && !c.is_control())
-                    .count() as f32
-                    / decoded_str.len() as f32;
+                let printable_ratio =
+                    decoded_str.chars().filter(|c| c.is_ascii() && !c.is_control()).count() as f32
+                        / decoded_str.len() as f32;
 
                 if printable_ratio > 0.7 {
                     let encoded_preview = if encoded.len() > 100 {

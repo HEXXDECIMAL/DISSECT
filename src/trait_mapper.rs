@@ -153,7 +153,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                     }],
                     source_file: None,
                 });
-            }
+            },
             "int3" | "int 3" => {
                 capabilities.push(Finding {
                     kind: FindingKind::Capability,
@@ -172,7 +172,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                     }],
                     source_file: None,
                 });
-            }
+            },
             "rdtsc" | "rdtscp" => {
                 capabilities.push(Finding {
                     kind: FindingKind::Capability,
@@ -191,7 +191,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                     }],
                     source_file: None,
                 });
-            }
+            },
             s if s.contains("cpuid") => {
                 capabilities.push(Finding {
                     kind: FindingKind::Capability,
@@ -210,7 +210,7 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                     }],
                     source_file: None,
                 });
-            }
+            },
             s if s.starts_with("fx") => {
                 // FPU instructions in suspicious context
                 capabilities.push(Finding {
@@ -230,8 +230,8 @@ fn analyze_instructions(instr: &InstructionAnalysis, func_name: &str) -> Vec<Fin
                     }],
                     source_file: None,
                 });
-            }
-            _ => {}
+            },
+            _ => {},
         }
     }
 
@@ -372,7 +372,7 @@ fn analyze_constants(
                         }],
                         source_file: None,
                     });
-                }
+                },
                 "port" => {
                     capabilities.push(Finding {
                         kind: FindingKind::Capability,
@@ -391,8 +391,8 @@ fn analyze_constants(
                         }],
                         source_file: None,
                     });
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
     }
@@ -564,9 +564,7 @@ mod tests {
         let caps = analyze_control_flow(&cf, "obfuscated_func");
 
         // Should detect obfuscation
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/obfuscation/control-flow"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/obfuscation/control-flow"));
         assert_eq!(
             caps.iter()
                 .find(|c| c.id == "anti-analysis/obfuscation/control-flow")
@@ -621,9 +619,7 @@ mod tests {
         let caps = analyze_instructions(&instr, "debug_trap");
 
         // Should detect debug trap
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/anti-debug/debugger-detect"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-debug/debugger-detect"));
         let cap = caps
             .iter()
             .find(|c| c.id == "anti-analysis/anti-debug/debugger-detect")
@@ -655,13 +651,8 @@ mod tests {
         let caps = analyze_instructions(&instr, "breakpoint_func");
 
         // Should detect breakpoint
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/anti-debug/breakpoint"));
-        let cap = caps
-            .iter()
-            .find(|c| c.id == "anti-analysis/anti-debug/breakpoint")
-            .unwrap();
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-debug/breakpoint"));
+        let cap = caps.iter().find(|c| c.id == "anti-analysis/anti-debug/breakpoint").unwrap();
         assert_eq!(cap.conf, 0.8);
     }
 
@@ -689,14 +680,9 @@ mod tests {
         let caps = analyze_instructions(&instr, "timing_check");
 
         // Should detect timing check
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/anti-debug/timing"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-debug/timing"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "anti-analysis/anti-debug/timing")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "anti-analysis/anti-debug/timing").unwrap().conf,
             0.8
         );
     }
@@ -725,14 +711,9 @@ mod tests {
         let caps = analyze_instructions(&instr, "vm_detect");
 
         // Should detect VM detection
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/anti-vm/cpu-detect"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-vm/cpu-detect"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "anti-analysis/anti-vm/cpu-detect")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "anti-analysis/anti-vm/cpu-detect").unwrap().conf,
             0.7
         );
     }
@@ -856,10 +837,7 @@ mod tests {
         // Should detect privileged instructions
         assert!(caps.iter().any(|c| c.id == "privilege/escalate"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "privilege/escalate")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "privilege/escalate").unwrap().conf,
             0.7
         );
     }
@@ -932,10 +910,7 @@ mod tests {
         // Should detect no security features
         assert!(caps.iter().any(|c| c.id == "binary/security/none"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "binary/security/none")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "binary/security/none").unwrap().conf,
             1.0
         );
     }
@@ -965,10 +940,7 @@ mod tests {
         // Should detect stripped binary
         assert!(caps.iter().any(|c| c.id == "anti-analysis/stripped"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "anti-analysis/stripped")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "anti-analysis/stripped").unwrap().conf,
             1.0
         );
     }
@@ -1026,14 +998,9 @@ mod tests {
         let caps = analyze_binary_properties(&props);
 
         // Should detect anomaly
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/format/overlapping"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/format/overlapping"));
         assert_eq!(
-            caps.iter()
-                .find(|c| c.id == "anti-analysis/format/overlapping")
-                .unwrap()
-                .conf,
+            caps.iter().find(|c| c.id == "anti-analysis/format/overlapping").unwrap().conf,
             0.8
         );
     }
@@ -1111,9 +1078,7 @@ mod tests {
         // Should detect multiple capabilities
         assert!(caps.len() >= 5); // complexity/high, data/encode, timing, xor, syscall, c2
         assert!(caps.iter().any(|c| c.id == "complexity/high"));
-        assert!(caps
-            .iter()
-            .any(|c| c.id == "anti-analysis/anti-debug/timing"));
+        assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-debug/timing"));
         assert!(caps.iter().any(|c| c.id == "crypto/xor"));
         assert!(caps.iter().any(|c| c.id == "net/c2/address"));
     }

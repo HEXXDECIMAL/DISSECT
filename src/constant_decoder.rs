@@ -2,8 +2,6 @@
 //!
 //! Decodes numeric constants to identify syscalls, flags, and permissions.
 
-#![allow(dead_code)]
-
 use crate::ip_validator::is_external_ip;
 use crate::types::DecodedValue;
 use std::net::Ipv4Addr;
@@ -193,15 +191,11 @@ impl ConstantDecoder {
 
         // Check for base64-encoded data
         if s.len() >= 8
-            && s.chars()
-                .all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=')
+            && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '/' || c == '=')
         {
             if let Ok(decoded) = BASE64.decode(s) {
                 if let Ok(utf8) = String::from_utf8(decoded.clone()) {
-                    if utf8
-                        .chars()
-                        .all(|c| c.is_ascii_graphic() || c.is_whitespace())
-                    {
+                    if utf8.chars().all(|c| c.is_ascii_graphic() || c.is_whitespace()) {
                         results.push(DecodedValue {
                             value_type: "base64_decoded".to_string(),
                             decoded_value: utf8,
@@ -276,9 +270,7 @@ mod tests {
         let value = 80_u32;
         let decoded = ConstantDecoder::decode_dword(value);
 
-        assert!(decoded
-            .iter()
-            .any(|d| d.value_type == "port" && d.decoded_value == "80"));
+        assert!(decoded.iter().any(|d| d.value_type == "port" && d.decoded_value == "80"));
     }
 
     #[test]
@@ -307,9 +299,7 @@ mod tests {
         let value = 443_u64;
         let decoded = ConstantDecoder::decode_qword(value);
 
-        assert!(decoded
-            .iter()
-            .any(|d| d.value_type == "port" && d.decoded_value == "443"));
+        assert!(decoded.iter().any(|d| d.value_type == "port" && d.decoded_value == "443"));
     }
 
     #[test]
@@ -320,10 +310,7 @@ mod tests {
 
         assert!(decoded.iter().any(|d| d.value_type == "timestamp"));
 
-        let timestamp_entry = decoded
-            .iter()
-            .find(|d| d.value_type == "timestamp")
-            .unwrap();
+        let timestamp_entry = decoded.iter().find(|d| d.value_type == "timestamp").unwrap();
         assert!(timestamp_entry.decoded_value.contains("2020-01-01"));
     }
 

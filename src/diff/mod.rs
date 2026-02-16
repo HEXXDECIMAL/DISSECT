@@ -115,18 +115,12 @@ impl DiffAnalyzer {
         let baseline_set: HashSet<_> = baseline_files.keys().collect();
         let target_set: HashSet<_> = target_files.keys().collect();
 
-        let mut added: Vec<String> = target_set
-            .difference(&baseline_set)
-            .map(|s| s.to_string())
-            .collect();
-        let mut removed: Vec<String> = baseline_set
-            .difference(&target_set)
-            .map(|s| s.to_string())
-            .collect();
-        let modified_candidates: Vec<String> = baseline_set
-            .intersection(&target_set)
-            .map(|s| s.to_string())
-            .collect();
+        let mut added: Vec<String> =
+            target_set.difference(&baseline_set).map(|s| s.to_string()).collect();
+        let mut removed: Vec<String> =
+            baseline_set.difference(&target_set).map(|s| s.to_string()).collect();
+        let modified_candidates: Vec<String> =
+            baseline_set.intersection(&target_set).map(|s| s.to_string()).collect();
 
         // Detect renames using similarity scoring
         let renames = detect_renames(&removed, &added);
@@ -180,10 +174,10 @@ impl DiffAnalyzer {
                         actually_modified.push(relative_path.clone());
                         modified_analysis.push(analysis);
                     }
-                }
+                },
                 _ => {
                     // Failed to analyze, skip
-                }
+                },
             }
         }
 
@@ -540,18 +534,12 @@ impl DiffAnalyzer {
         let baseline_set: HashSet<_> = baseline_files.keys().collect();
         let target_set: HashSet<_> = target_files.keys().collect();
 
-        let mut added: Vec<String> = target_set
-            .difference(&baseline_set)
-            .map(|s| s.to_string())
-            .collect();
-        let mut removed: Vec<String> = baseline_set
-            .difference(&target_set)
-            .map(|s| s.to_string())
-            .collect();
-        let modified_candidates: Vec<String> = baseline_set
-            .intersection(&target_set)
-            .map(|s| s.to_string())
-            .collect();
+        let mut added: Vec<String> =
+            target_set.difference(&baseline_set).map(|s| s.to_string()).collect();
+        let mut removed: Vec<String> =
+            baseline_set.difference(&target_set).map(|s| s.to_string()).collect();
+        let modified_candidates: Vec<String> =
+            baseline_set.intersection(&target_set).map(|s| s.to_string()).collect();
 
         let renames = detect_renames(&removed, &added);
 
@@ -685,21 +673,13 @@ impl DiffAnalyzer {
         // Check if new capabilities are high-risk
         let new_high_risk_count = new_caps
             .iter()
-            .filter(|cap| {
-                high_risk_prefixes
-                    .iter()
-                    .any(|prefix| cap.id.starts_with(prefix))
-            })
+            .filter(|cap| high_risk_prefixes.iter().any(|prefix| cap.id.starts_with(prefix)))
             .count();
 
         // Check if removed capabilities were high-risk
         let removed_high_risk_count = removed_caps
             .iter()
-            .filter(|cap| {
-                high_risk_prefixes
-                    .iter()
-                    .any(|prefix| cap.id.starts_with(prefix))
-            })
+            .filter(|cap| high_risk_prefixes.iter().any(|prefix| cap.id.starts_with(prefix)))
             .count();
 
         // Risk increases if:

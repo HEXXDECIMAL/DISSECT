@@ -47,51 +47,51 @@ impl std::fmt::Display for SkipReason {
                     "Platform mismatch: rule requires {:?}, context has {:?}",
                     rule, context
                 )
-            }
+            },
             SkipReason::FileTypeMismatch { rule, context } => {
                 write!(
                     f,
                     "File type mismatch: rule requires {:?}, file is {:?}",
                     rule, context
                 )
-            }
+            },
             SkipReason::SizeTooSmall { actual, min } => {
                 write!(
                     f,
                     "Size too small (actual: {} bytes, min: {} bytes)",
                     actual, min
                 )
-            }
+            },
             SkipReason::SizeTooLarge { actual, max } => {
                 write!(
                     f,
                     "Size too large (actual: {} bytes, max: {} bytes)",
                     actual, max
                 )
-            }
+            },
             SkipReason::UnlessConditionMatched { condition_desc } => {
                 write!(f, "Skipped by 'unless' condition: {}", condition_desc)
-            }
+            },
             SkipReason::CountBelowMinimum { actual, min } => {
                 write!(f, "Match count too low (actual: {}, min: {})", actual, min)
-            }
+            },
             SkipReason::CountAboveMaximum { actual, max } => {
                 write!(f, "Match count too high (actual: {}, max: {})", actual, max)
-            }
+            },
             SkipReason::DensityBelowMinimum { actual, min } => {
                 write!(
                     f,
                     "Match density too low (actual: {:.2}/KB, min: {:.2}/KB)",
                     actual, min
                 )
-            }
+            },
             SkipReason::DensityAboveMaximum { actual, max } => {
                 write!(
                     f,
                     "Match density too high (actual: {:.2}/KB, max: {:.2}/KB)",
                     actual, max
                 )
-            }
+            },
         }
     }
 }

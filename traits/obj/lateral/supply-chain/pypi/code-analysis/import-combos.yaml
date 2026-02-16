@@ -32,13 +32,7 @@ traits:
       type: string
       substr: ".mozilla/firefox"
 
-  - id: chrome-macos-path
-    desc: Chrome macOS data path
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: "Application Support/Google/Chrome"
+  # Removed chrome-macos-path duplicate - use obj/lateral/supply-chain/npm/install/import-combos::chrome-macos-support
 
   # === Shellcode/memory execution patterns ===
   - id: prot-exec-string
@@ -136,7 +130,7 @@ composite_rules:
       - id: chrome-windows-path
       - id: edge-windows-path
       - id: firefox-unix-path
-      - id: chrome-macos-path
+      - id: obj/lateral/supply-chain/npm/install/import-combos::chrome-macos-support
 
   # setup.py accessing browser data paths
   - id: setup-py-browser-paths

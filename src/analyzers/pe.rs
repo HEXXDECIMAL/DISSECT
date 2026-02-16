@@ -159,9 +159,7 @@ impl PEAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust)
         // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
-        report.strings = self
-            .string_extractor
-            .extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings
@@ -186,9 +184,8 @@ impl PEAnalyzer {
                         report.yara_matches = matches.clone();
 
                         for yara_match in &matches {
-                            if let Some(cap_id) = self
-                                .capability_mapper
-                                .yara_rule_to_capability(&yara_match.rule)
+                            if let Some(cap_id) =
+                                self.capability_mapper.yara_rule_to_capability(&yara_match.rule)
                             {
                                 report.findings.push(Finding {
                                     kind: FindingKind::Capability,
@@ -210,17 +207,16 @@ impl PEAnalyzer {
                                 });
                             }
                         }
-                    }
+                    },
                     Err(e) => {
                         eprintln!("YARA scan error: {:?}", e);
-                    }
+                    },
                 }
             }
         }
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         // Update binary metrics with final counts and compute ratios
         if let Some(ref mut metrics) = report.metrics {
@@ -264,81 +260,82 @@ impl PEAnalyzer {
             let overlay_start = sections_end as usize;
             let overlay_data = &data[overlay_start..];
 
-                // Try to analyze overlay as an archive
-                match crate::analyzers::overlay::analyze_overlay(
-                    overlay_data,
-                    &report.target.path,
-                    Some(self.capability_mapper.clone()),
-                    self.yara_engine.clone(),
-                ) {
-                    Ok(Some(overlay_analysis)) => {
-                        // Get PE filename for path encoding
-                        let pe_filename = std::path::Path::new(&report.target.path)
-                            .file_name()
-                            .and_then(|n| n.to_str())
-                            .unwrap_or("binary.exe");
+            // Try to analyze overlay as an archive
+            match crate::analyzers::overlay::analyze_overlay(
+                overlay_data,
+                &report.target.path,
+                Some(self.capability_mapper.clone()),
+                self.yara_engine.clone(),
+            ) {
+                Ok(Some(overlay_analysis)) => {
+                    // Get PE filename for path encoding
+                    let pe_filename = std::path::Path::new(&report.target.path)
+                        .file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("binary.exe");
 
-                        // Add SFX finding
-                        report.findings.push(overlay_analysis.sfx_finding);
+                    // Add SFX finding
+                    report.findings.push(overlay_analysis.sfx_finding);
 
-                        // Merge archive findings into PE report
-                        for mut finding in overlay_analysis.archive_report.findings {
-                            // Update evidence locations to use archive path format
-                            for evidence in &mut finding.evidence {
-                                if let Some(ref loc) = evidence.location {
-                                    // If location already has archive: prefix, update the path
-                                    if let Some(rest) = loc.strip_prefix("archive:") {
-                                        evidence.location = Some(format!(
-                                            "archive:{}{}{}",
-                                            pe_filename,
-                                            crate::types::file_analysis::ARCHIVE_DELIMITER,
-                                            rest
-                                        ));
-                                    } else if !loc.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
-                                        // No archive prefix yet, add it with PE path
-                                        evidence.location = Some(format!(
-                                            "archive:{}{}{}",
-                                            pe_filename,
-                                            crate::types::file_analysis::ARCHIVE_DELIMITER,
-                                            loc
-                                        ));
-                                    }
+                    // Merge archive findings into PE report
+                    for mut finding in overlay_analysis.archive_report.findings {
+                        // Update evidence locations to use archive path format
+                        for evidence in &mut finding.evidence {
+                            if let Some(ref loc) = evidence.location {
+                                // If location already has archive: prefix, update the path
+                                if let Some(rest) = loc.strip_prefix("archive:") {
+                                    evidence.location = Some(format!(
+                                        "archive:{}{}{}",
+                                        pe_filename,
+                                        crate::types::file_analysis::ARCHIVE_DELIMITER,
+                                        rest
+                                    ));
+                                } else if !loc
+                                    .contains(crate::types::file_analysis::ARCHIVE_DELIMITER)
+                                {
+                                    // No archive prefix yet, add it with PE path
+                                    evidence.location = Some(format!(
+                                        "archive:{}{}{}",
+                                        pe_filename,
+                                        crate::types::file_analysis::ARCHIVE_DELIMITER,
+                                        loc
+                                    ));
                                 }
                             }
-                            report.findings.push(finding);
                         }
+                        report.findings.push(finding);
+                    }
 
-                        // Merge archive contents with proper path encoding
-                        for mut entry in overlay_analysis.archive_report.archive_contents {
-                            // Encode path using standard archive delimiter
-                            if !entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
-                                entry.path = crate::types::file_analysis::encode_archive_path(
-                                    pe_filename,
-                                    &entry.path,
-                                );
-                            }
-                            report.archive_contents.push(entry);
+                    // Merge archive contents with proper path encoding
+                    for mut entry in overlay_analysis.archive_report.archive_contents {
+                        // Encode path using standard archive delimiter
+                        if !entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
+                            entry.path = crate::types::file_analysis::encode_archive_path(
+                                pe_filename,
+                                &entry.path,
+                            );
                         }
+                        report.archive_contents.push(entry);
+                    }
 
-                        // Merge strings from archive
-                        report.strings.extend(overlay_analysis.archive_report.strings);
+                    // Merge strings from archive
+                    report.strings.extend(overlay_analysis.archive_report.strings);
 
-                        // Add tools used from archive analysis
-                        for tool in overlay_analysis.archive_report.metadata.tools_used {
-                            if !tools_used.contains(&tool) {
-                                tools_used.push(tool);
-                            }
+                    // Add tools used from archive analysis
+                    for tool in overlay_analysis.archive_report.metadata.tools_used {
+                        if !tools_used.contains(&tool) {
+                            tools_used.push(tool);
                         }
-
                     }
-                    Ok(None) => {
-                        // Overlay exists but is not an archive (signature, resources, etc.)
-                    }
-                    Err(_e) => {
-                        // Overlay extraction/analysis failed - silently skip
-                        // (could be corrupted archive, unsupported format, etc.)
-                    }
-                }
+                },
+                Ok(None) => {
+                    // Overlay exists but is not an archive (signature, resources, etc.)
+                },
+                Err(_e) => {
+                    // Overlay extraction/analysis failed - silently skip
+                    // (could be corrupted archive, unsupported format, etc.)
+                },
+            }
         }
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
@@ -347,16 +344,13 @@ impl PEAnalyzer {
         Ok(report)
     }
 
-    fn analyze_structure(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_structure<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
         report.structure.push(StructuralFeature {
             id: "pe/header".to_string(),
             desc: format!(
                 "PE file (machine: {}, subsystem: {:?})",
                 self.arch_name(pe),
-                pe.header
-                    .optional_header
-                    .as_ref()
-                    .map(|h| h.windows_fields.subsystem)
+                pe.header.optional_header.as_ref().map(|h| h.windows_fields.subsystem)
             ),
             evidence: vec![Evidence {
                 method: "header".to_string(),
@@ -397,7 +391,7 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn analyze_imports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_imports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
         for import in &pe.imports {
             report.imports.push(Import::new(
                 import.name.as_ref(),
@@ -416,7 +410,7 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn analyze_exports(&self, pe: &PE, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_exports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
         for export in &pe.exports {
             if let Some(name) = export.name {
                 report.exports.push(Export::new(
@@ -430,11 +424,10 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn analyze_sections(&self, pe: &PE, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_sections<'a>(&self, pe: &PE<'a>, data: &[u8], report: &mut AnalysisReport) -> Result<()> {
         for section in &pe.sections {
-            let name = String::from_utf8_lossy(&section.name)
-                .trim_matches(char::from(0))
-                .to_string();
+            let name =
+                String::from_utf8_lossy(&section.name).trim_matches(char::from(0)).to_string();
             let size = section.size_of_raw_data as u64;
             let offset = section.pointer_to_raw_data as u64;
 
@@ -525,7 +518,7 @@ impl PEAnalyzer {
         Ok(())
     }
 
-    fn arch_name(&self, pe: &PE) -> String {
+    fn arch_name<'a>(&self, pe: &PE<'a>) -> String {
         match pe.header.coff_header.machine {
             0x014c => "x86".to_string(),
             0x8664 => "x86_64".to_string(),
@@ -536,7 +529,7 @@ impl PEAnalyzer {
     }
 
     /// Compute PE-specific metrics from parsed PE binary
-    fn compute_pe_metrics(&self, pe: &PE, data: &[u8]) -> crate::types::binary_metrics::PeMetrics {
+    fn compute_pe_metrics<'a>(&self, pe: &PE<'a>, data: &[u8]) -> crate::types::binary_metrics::PeMetrics {
         use crate::types::binary_metrics::PeMetrics;
 
         let mut metrics = PeMetrics::default();
@@ -646,7 +639,7 @@ impl PEAnalyzer {
 
     /// Calculate code size from PE section headers using IMAGE_SCN_MEM_EXECUTE characteristic
     /// This is more accurate than radare2's section classification
-    fn compute_code_size(&self, pe: &PE) -> u64 {
+    fn compute_code_size<'a>(&self, pe: &PE<'a>) -> u64 {
         const IMAGE_SCN_MEM_EXECUTE: u32 = 0x20000000; // Section contains executable code
 
         let mut code_size: u64 = 0;
@@ -838,7 +831,8 @@ mod tests {
     #[test]
     fn test_analyze_self_extracting_7z() {
         // Test with real 7z self-extracting installer if available
-        let test_file = std::path::Path::new("/Users/t/data/dissect/malware/pe/2026.7zip.com/7z2501-x64.exe");
+        let test_file =
+            std::path::Path::new("/Users/t/data/dissect/malware/pe/2026.7zip.com/7z2501-x64.exe");
 
         if !test_file.exists() {
             eprintln!("Skipping SFX test - file not found: {:?}", test_file);
@@ -861,8 +855,14 @@ mod tests {
         );
 
         // Should have findings from the embedded files
-        eprintln!("SFX analysis found {} files in archive", report.archive_contents.len());
-        eprintln!("SFX analysis found {} total findings", report.findings.len());
+        eprintln!(
+            "SFX analysis found {} files in archive",
+            report.archive_contents.len()
+        );
+        eprintln!(
+            "SFX analysis found {} total findings",
+            report.findings.len()
+        );
 
         // All archive content paths should use standard archive delimiter
         for entry in &report.archive_contents {
@@ -878,5 +878,4 @@ mod tests {
             );
         }
     }
-
 }

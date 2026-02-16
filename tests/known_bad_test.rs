@@ -14,12 +14,7 @@ fn get_highest_criticality(file_result: &Value) -> String {
         if counts.get("hostile").and_then(|h| h.as_u64()).unwrap_or(0) > 0 {
             return "hostile".to_string();
         }
-        if counts
-            .get("suspicious")
-            .and_then(|s| s.as_u64())
-            .unwrap_or(0)
-            > 0
-        {
+        if counts.get("suspicious").and_then(|s| s.as_u64()).unwrap_or(0) > 0 {
             return "suspicious".to_string();
         }
         if counts.get("notable").and_then(|n| n.as_u64()).unwrap_or(0) > 0 {
@@ -89,10 +84,7 @@ fn extract_file_result(json_str: &str) -> Result<Value, Box<dyn std::error::Erro
 }
 
 fn value_key(v: &Value, field: &str) -> String {
-    v.get(field)
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string()
+    v.get(field).and_then(Value::as_str).unwrap_or("").to_string()
 }
 
 fn normalize_file_result(v: &mut Value) {
@@ -248,9 +240,7 @@ fn test_known_bad_integrity() {
 
         let mut criticality_counts = std::collections::HashMap::new();
         for stat in &stats {
-            *criticality_counts
-                .entry(stat.highest_criticality.clone())
-                .or_insert(0) += 1;
+            *criticality_counts.entry(stat.highest_criticality.clone()).or_insert(0) += 1;
         }
 
         println!("\nHighest criticality distribution:");

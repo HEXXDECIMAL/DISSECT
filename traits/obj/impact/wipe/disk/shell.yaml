@@ -49,14 +49,7 @@ traits:
       type: raw
       regex: '"\$\{UID\}"\s*==\s*0'
 
-  - id: proc-mounts-content
-    desc: /proc/mounts reference
-    crit: notable
-    conf: 0.7
-    for: [shell]
-    if:
-      type: raw
-      substr: "/proc/mounts"
+  # Removed proc-mounts-content duplicate - use cap/fs/proc/mounts/linux::mounts (string type works for file paths)
 
   - id: dd-devzero-content
     desc: dd with /dev/zero

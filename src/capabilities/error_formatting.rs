@@ -246,13 +246,13 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                 return Some(match field_name {
                     "exclude_patterns" if condition_type != "string" => {
                         "exclude_patterns".to_string()
-                    }
+                    },
                     "min_ratio" if condition_type == "section_ratio" => "min_ratio".to_string(),
                     "max_ratio" if condition_type == "section_ratio" => "max_ratio".to_string(),
                     "needs" => "needs".to_string(),
                     "pattern" if condition_type != "hex" && condition_type != "ast" => {
                         "pattern".to_string()
-                    }
+                    },
                     "match" => "match".to_string(),
                     "value" if condition_type != "kv" => "value".to_string(),
                     "search" => "search".to_string(),
@@ -267,7 +267,7 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
                             return Some(other.to_string());
                         }
                         continue;
-                    }
+                    },
                 });
             }
         }
@@ -459,7 +459,7 @@ fn provide_error_guidance(
                     );
                     guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
                     found_hallucination = true;
-                }
+                },
                 ("min_ratio" | "max_ratio", Some("section_ratio")) => {
                     guidance.push_str(&format!(
                         "\n   Field '{}' is not valid for 'type: section_ratio'.\n",
@@ -470,7 +470,7 @@ fn provide_error_guidance(
                     );
                     guidance.push_str("   💡 The field names are consistent with other conditions like 'exports_count'.\n");
                     found_hallucination = true;
-                }
+                },
                 ("count_min" | "count_max" | "per_kb_min" | "per_kb_max", Some("ast")) => {
                     guidance.push_str(&format!(
                         "\n   Field '{}' is not valid for 'type: ast'.\n",
@@ -481,7 +481,7 @@ fn provide_error_guidance(
                         "   💡 AST patterns match structural code patterns, not occurrences.\n",
                     );
                     found_hallucination = true;
-                }
+                },
                 ("needs", _) => {
                     guidance.push_str(&format!(
                         "\n   Field '{}' is not valid in atomic trait conditions.\n",
@@ -492,7 +492,7 @@ fn provide_error_guidance(
                         "   💡 For atomic traits, use 'count_min' to require multiple matches.\n",
                     );
                     found_hallucination = true;
-                }
+                },
                 (field_name, Some(cond_type)) => {
                     guidance.push_str(&format!(
                         "\n   Field '{}' is not valid for 'type: {}'.\n",
@@ -503,14 +503,14 @@ fn provide_error_guidance(
                         cond_type
                     ));
                     found_hallucination = true;
-                }
+                },
                 (field_name, None) => {
                     guidance.push_str(&format!(
                         "\n   Unknown field '{}' in condition.\n",
                         field_name
                     ));
                     found_hallucination = true;
-                }
+                },
             }
         }
     }
@@ -585,11 +585,11 @@ fn provide_error_guidance(
                 match field_name {
                     "match" => {
                         guidance.push_str("   💡 Did you mean 'exact', 'substr', or 'regex'?\n")
-                    }
+                    },
                     "pattern" => guidance.push_str("   💡 Did you mean 'regex' or 'substr'?\n"),
                     "value" => guidance.push_str("   💡 Did you mean 'exact' or 'word'?\n"),
                     "name" => guidance.push_str("   💡 Did you mean 'id' for trait references?\n"),
-                    _ => {}
+                    _ => {},
                 }
             }
         }

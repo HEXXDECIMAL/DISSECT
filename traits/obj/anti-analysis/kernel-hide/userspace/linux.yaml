@@ -35,15 +35,7 @@ traits:
       substr: "hide_file"
 
   # === LD_PRELOAD Injection ===
-  - id: ld-preload-file
-    desc: /etc/ld.so.preload injection target
-    crit: suspicious
-    conf: 0.85
-    mbc: "B0003"
-    attack: "T1574.006"
-    if:
-      type: string
-      substr: "/etc/ld.so.preload"
+  # Removed ld-preload-file duplicate - use obj/anti-analysis/kernel-hide/userspace/ld-preload::ld-so-preload-file
 
   # === Directory listing hooking ===
   # Note: Rootkit libraries EXPORT malicious readdir/getdents to intercept calls.
@@ -148,7 +140,7 @@ composite_rules:
       - id: rootkit-string
       - id: hide-pid
       - id: hide-file
-      - id: ld-preload-file
+      - id: obj/anti-analysis/kernel-hide/userspace/ld-preload::ld-so-preload-file
       - id: readdir-hook
       - id: getdents-hook
 

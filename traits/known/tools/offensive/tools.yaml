@@ -148,14 +148,7 @@ traits:
       type: symbol
       regex: "^_?system$"
 
-  - id: go-exec-cmd-run
-    desc: Go exec.Cmd.Run method
-    crit: inert
-    conf: 0.8
-    platforms: [all]
-    if:
-      type: string
-      substr: "exec.(*Cmd).Run"
+  # Removed go-exec-cmd-run duplicate - use obj/c2/reverse-shell/socket/go::exec-cmd-run
 
   # === Atomic: Tunneling Tools ===
 
@@ -308,7 +301,7 @@ composite_rules:
     any:
       - id: execve-symbol
       - id: system-symbol
-      - id: go-exec-cmd-run
+      - id: obj/c2/reverse-shell/socket/go::exec-cmd-run
 
   - id: metasploit-payload
     desc: Metasploit payload detected

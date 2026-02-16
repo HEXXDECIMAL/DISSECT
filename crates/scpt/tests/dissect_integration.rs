@@ -67,11 +67,11 @@ fn test_dissect_integration_shell_script() {
         && source == "scpt_event"));
 
     // Check command descriptions are extracted
-    assert!(imports
-        .iter()
-        .any(|(name, lib, source)| name == "do shell script"
+    assert!(
+        imports.iter().any(|(name, lib, source)| name == "do shell script"
             && lib.as_deref() == Some("AppleScript")
-            && source == "scpt_command"));
+            && source == "scpt_command")
+    );
     assert!(imports.iter().any(|(name, lib, source)| name == "delay"
         && lib.as_deref() == Some("AppleScript")
         && source == "scpt_command"));
@@ -93,11 +93,11 @@ fn test_dissect_integration_tell_app() {
     assert!(imports.iter().any(|(name, lib, source)| name == "Finder"
         && lib.as_deref() == Some("Applications")
         && source == "scpt_app"));
-    assert!(imports
-        .iter()
-        .any(|(name, lib, source)| name == "System Events"
+    assert!(
+        imports.iter().any(|(name, lib, source)| name == "System Events"
             && lib.as_deref() == Some("Applications")
-            && source == "scpt_app"));
+            && source == "scpt_app")
+    );
 
     // Check Apple Events
     assert!(imports.iter().any(|(name, _, _)| name == "misc.actv"));

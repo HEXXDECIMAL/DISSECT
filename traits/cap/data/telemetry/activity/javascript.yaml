@@ -1,15 +1,7 @@
 # Generic Telemetry Patterns - JavaScript
+# Removed telemetry-send duplicate - use cap/data/telemetry/logging::telemetry-send
 
 traits:
-  - id: telemetry-send
-    desc: Generic telemetry/analytics send message
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'analytics\.send|telemetry\.send|track\.event'
-
   - id: activity-tracker
     desc: User activity tracking library reference
     crit: notable
@@ -18,10 +10,4 @@ traits:
       type: string
       regex: 'ClientFactory|AnalyticsLibrary'
 
-  - id: tracking-identifiers
-    desc: Unique identifiers in telemetry context
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: 'hwid|guid|localAppHWID'
+  # Removed tracking-identifiers duplicate - use cap/data/telemetry/logging::hardware-id-context

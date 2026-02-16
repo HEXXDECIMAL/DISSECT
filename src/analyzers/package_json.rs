@@ -15,7 +15,6 @@ pub struct PackageJsonAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }
 
-#[allow(dead_code)]
 #[derive(Deserialize, Default)]
 struct PackageJson {
     name: Option<String>,
@@ -39,7 +38,6 @@ struct PackageJson {
     bin: serde_json::Value,
 }
 
-#[allow(dead_code)]
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum Repository {
@@ -361,10 +359,8 @@ impl PackageJsonAnalyzer {
             // Check for hidden file references (dotfiles)
             if script.contains("/.") {
                 // Extract the hidden file path
-                let hidden_files: Vec<&str> = script
-                    .split_whitespace()
-                    .filter(|s| s.contains("/."))
-                    .collect();
+                let hidden_files: Vec<&str> =
+                    script.split_whitespace().filter(|s| s.contains("/.")).collect();
                 if !hidden_files.is_empty() {
                     report.add_finding(
                         Finding::indicator(
@@ -678,7 +674,7 @@ impl PackageJsonAnalyzer {
                     value: ip,
                     offset: None,
                     encoding: "utf8".to_string(),
-                    string_type: StringType::Ip,
+                    string_type: StringType::IP,
                     section: Some(format!("scripts.{}", name)),
                     encoding_chain: Vec::new(),
                     fragments: None,
@@ -951,10 +947,7 @@ impl PackageJsonAnalyzer {
 
     fn extract_urls(&self, text: &str) -> Vec<String> {
         let url_pattern = regex::Regex::new(r#"https?://[^\s'")\]}>]{1,2048}"#).unwrap();
-        url_pattern
-            .find_iter(text)
-            .map(|m| m.as_str().to_string())
-            .collect()
+        url_pattern.find_iter(text).map(|m| m.as_str().to_string()).collect()
     }
 
     fn extract_ips(&self, text: &str) -> Vec<String> {
@@ -999,10 +992,7 @@ impl Analyzer for PackageJsonAnalyzer {
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {
-        file_path
-            .file_name()
-            .map(|n| n == "package.json")
-            .unwrap_or(false)
+        file_path.file_name().map(|n| n == "package.json").unwrap_or(false)
     }
 }
 
@@ -1021,9 +1011,7 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer
-            .analyze_package(Path::new("package.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
 
         assert_eq!(report.target.file_type, "package.json");
         assert!(!report.imports.is_empty());
@@ -1040,15 +1028,10 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer
-            .analyze_package(Path::new("package.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
 
         // Should detect both the install hook and the network operation
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("install-hook")));
+        assert!(report.findings.iter().any(|f| f.id.contains("install-hook")));
         assert!(report.findings.iter().any(|f| f.id.contains("net/")));
     }
 
@@ -1072,14 +1055,9 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer
-            .analyze_package(Path::new("package.json"), content)
-            .unwrap();
+        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
 
-        assert!(report
-            .findings
-            .iter()
-            .any(|f| f.id.contains("git-dependency")));
+        assert!(report.findings.iter().any(|f| f.id.contains("git-dependency")));
     }
 
     #[test]

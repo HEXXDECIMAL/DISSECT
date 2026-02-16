@@ -1,10 +1,3 @@
 # Filesystem file opening
 traits:
-  - id: open-go
-    desc: "Open file"
-    crit: inert
-    conf: 0.9
-    for: [go]
-    if:
-      type: string
-      substr: "os.Open"
+  # Removed open-go duplicate - use cap/fs/file/operations/go::os-open (symbol is more precise)

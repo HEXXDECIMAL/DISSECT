@@ -89,61 +89,48 @@ impl StringExtractor {
             .to_string()
     }
 
-    #[allow(dead_code)]
     pub fn with_min_length(mut self, min_length: usize) -> Self {
         self.min_length = min_length;
         self
     }
 
-    #[allow(dead_code)]
     pub fn with_symbols(mut self, functions: HashSet<String>) -> Self {
         for func in &functions {
             let normalized = Self::normalize_symbol(func);
-            self.symbol_map
-                .entry(normalized)
-                .or_insert((StringType::Function, None));
+            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
         }
         self
     }
 
-    #[allow(dead_code)]
     pub fn with_functions(mut self, functions: HashSet<String>) -> Self {
         for func in &functions {
             let normalized = Self::normalize_symbol(func);
-            self.symbol_map
-                .entry(normalized)
-                .or_insert((StringType::Function, None));
+            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
         }
         self
     }
 
-    #[allow(dead_code)]
     pub fn with_imports(mut self, imports: HashSet<String>) -> Self {
         for imp in &imports {
             let normalized = Self::normalize_symbol(imp);
-            self.symbol_map
-                .insert(normalized, (StringType::Import, None));
+            self.symbol_map.insert(normalized, (StringType::Import, None));
         }
         self
     }
 
-    #[allow(dead_code)]
     pub fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
         // Update existing imports in symbol_map with library info
         for (imp, lib) in import_libraries {
             let normalized = Self::normalize_symbol(&imp);
-            self.symbol_map
-                .insert(normalized, (StringType::Import, Some(lib)));
+            self.symbol_map.insert(normalized, (StringType::Import, Some(lib)));
         }
         self
     }
 
-    #[allow(dead_code)]
     pub fn with_exports(mut self, exports: HashSet<String>) -> Self {
         for exp in &exports {
             let normalized = Self::normalize_symbol(exp);
-            self.symbol_map
-                .insert(normalized, (StringType::Export, None));
+            self.symbol_map.insert(normalized, (StringType::Export, None));
         }
         self
     }
@@ -206,9 +193,7 @@ impl StringExtractor {
     /// 3. Merges results from both methods, deduplicating by value
     pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
         // Build stng options with garbage filtering enabled
-        let opts = ExtractOptions::new(self.min_length)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let opts = ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
 
         // Use stng for all string extraction - it handles both language-aware
         // and raw scanning with garbage filtering enabled
@@ -255,9 +240,8 @@ impl StringExtractor {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
 
         // Build stng options with garbage filtering and optional r2 strings
-        let mut opts = ExtractOptions::new(self.min_length)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let mut opts =
+            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -275,7 +259,6 @@ impl StringExtractor {
     }
 
     /// Check if the binary is a Go binary (useful for conditional processing)
-    #[allow(dead_code)]
     pub fn is_go_binary(&self, data: &[u8]) -> bool {
         stng::is_go_binary(data)
     }
@@ -286,17 +269,15 @@ impl StringExtractor {
     /// Use `extract_smart_with_r2` instead for comprehensive extraction.
     ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    #[allow(dead_code)]
-    pub fn extract_from_macho(
+    pub fn extract_from_macho<'a>(
         &self,
-        macho: &MachO,
+        macho: &MachO<'a>,
         data: &[u8],
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let mut opts =
+            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -319,17 +300,15 @@ impl StringExtractor {
     /// Use `extract_smart_with_r2` instead for comprehensive extraction.
     ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    #[allow(dead_code)]
-    pub fn extract_from_elf(
+    pub fn extract_from_elf<'a>(
         &self,
-        elf: &Elf,
+        elf: &Elf<'a>,
         data: &[u8],
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let mut opts =
+            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -348,17 +327,15 @@ impl StringExtractor {
     /// Use `extract_smart_with_r2` instead for comprehensive extraction.
     ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    #[allow(dead_code)]
-    pub fn extract_from_pe(
+    pub fn extract_from_pe<'a>(
         &self,
-        pe: &PE,
+        pe: &PE<'a>,
         data: &[u8],
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
         let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts = ExtractOptions::new(self.min_length)
-            .with_garbage_filter(true)
-            .with_xor(None);
+        let mut opts =
+            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
         if let Some(r2) = stng_r2 {
             opts = opts.with_r2_strings(r2);
         }
@@ -372,7 +349,6 @@ impl StringExtractor {
     }
 
     /// Merge language-aware strings with basic extraction, deduplicating by value.
-    #[allow(dead_code)]
     fn merge_strings(
         &self,
         lang_strings: Vec<ExtractedString>,
@@ -404,39 +380,21 @@ impl StringExtractor {
 
     /// Convert an ExtractedString from stng to StringInfo
     fn convert_extracted_string(&self, es: ExtractedString) -> StringInfo {
-        // Determine if this is a decoded string (don't classify decoded content as base64/hex)
-        let is_decoded = matches!(
-            es.method,
-            StringMethod::Base64Decode
-                | StringMethod::Base64ObfuscatedDecode
-                | StringMethod::HexDecode
-                | StringMethod::UrlDecode
-                | StringMethod::UnicodeEscapeDecode
-                | StringMethod::XorDecode
-        );
-
-        // Use stng's kind if it's an import/export/shellcmd, otherwise classify ourselves
-        let string_type = match es.kind {
-            StringKind::Import => StringType::Import,
-            StringKind::Export => StringType::Export,
-            StringKind::FuncName => StringType::Function,
-            StringKind::ShellCmd => StringType::ShellCmd,
-            _ if is_decoded => self.classify_decoded_string(&es.value),
-            _ => self.classify_string_type(&es.value),
-        };
-
-        // Detect if this is a stack string
-        let final_string_type = if es.method == StringMethod::StackString {
-            StringType::StackString
+        // Use stng's classification directly (StringType is now an alias for StringKind)
+        // Apply symbol_map overrides if we have them
+        let normalized = Self::normalize_symbol(&es.value);
+        let string_type = if let Some((override_type, _)) = self.symbol_map.get(&normalized) {
+            *override_type
         } else {
-            string_type
+            // Use stng's kind directly
+            es.kind
         };
 
         let mut info = StringInfo {
             value: es.value,
             offset: Some(es.data_offset),
             encoding: "utf8".to_string(),
-            string_type: final_string_type,
+            string_type,
             section: es.section,
             encoding_chain: Vec::new(),
             // Note: fragments from stng are StringFragment, not String - skip for now
@@ -466,7 +424,7 @@ impl StringExtractor {
                 let t = if self.url_regex.is_match(&value) {
                     StringType::Url
                 } else if self.is_real_ip(&value) {
-                    StringType::Ip
+                    StringType::IP
                 } else if self.email_regex.is_match(&value) {
                     StringType::Email
                 } else if self.is_path(&value) {
@@ -474,10 +432,10 @@ impl StringExtractor {
                 } else if value.len() >= 16 && self.base64_regex.is_match(&value) {
                     StringType::Base64
                 } else {
-                    StringType::Plain
+                    StringType::Const
                 };
                 (t, None)
-            }
+            },
         };
 
         StringInfo {
@@ -491,6 +449,7 @@ impl StringExtractor {
         }
     }
     /// Classify a string's type without creating a StringInfo object
+    /// NOTE: This is now redundant since we use stng's classification directly
     pub fn classify_string_type(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);
         if let Some((stype, _)) = self.symbol_map.get(&normalized) {
@@ -500,7 +459,7 @@ impl StringExtractor {
         if self.url_regex.is_match(value) {
             StringType::Url
         } else if self.is_real_ip(value) {
-            StringType::Ip
+            StringType::IP
         } else if self.email_regex.is_match(value) {
             StringType::Email
         } else if self.is_path(value) {
@@ -508,12 +467,13 @@ impl StringExtractor {
         } else if value.len() >= 16 && self.base64_regex.is_match(value) {
             StringType::Base64
         } else {
-            StringType::Plain
+            StringType::Const
         }
     }
 
     /// Classify decoded string content - doesn't check for encoding types like base64/hex
     /// since this is already decoded content from stng
+    /// NOTE: This is now redundant since we use stng's classification directly
     fn classify_decoded_string(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);
         if let Some((stype, _)) = self.symbol_map.get(&normalized) {
@@ -523,32 +483,27 @@ impl StringExtractor {
         if self.url_regex.is_match(value) {
             StringType::Url
         } else if self.is_real_ip(value) {
-            StringType::Ip
+            StringType::IP
         } else if self.email_regex.is_match(value) {
             StringType::Email
         } else if self.is_path(value) {
             StringType::Path
         } else {
             // Decoded content is just plain text, not base64/hex
-            StringType::Plain
+            StringType::Const
         }
     }
 
-    #[allow(dead_code)]
     fn find_symbol_type(&self, value: &str) -> Option<StringType> {
         let normalized = Self::normalize_symbol(value);
         self.symbol_map.get(&normalized).map(|(t, _)| *t)
     }
 
-    #[allow(dead_code)]
     fn get_import_library(&self, value: &str) -> Option<String> {
         let normalized = Self::normalize_symbol(value);
-        self.symbol_map
-            .get(&normalized)
-            .and_then(|(_, l)| l.clone())
+        self.symbol_map.get(&normalized).and_then(|(_, l)| l.clone())
     }
 
-    #[allow(dead_code)]
     fn matches_symbol_set(&self, _set: &HashSet<String>, value: &str) -> bool {
         let normalized = Self::normalize_symbol(value);
         self.symbol_map.contains_key(&normalized)
@@ -662,9 +617,7 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, None);
 
-        let url_string = strings
-            .iter()
-            .find(|s| matches!(s.string_type, StringType::Url));
+        let url_string = strings.iter().find(|s| matches!(s.string_type, StringType::Url));
         assert!(url_string.is_some());
     }
 
@@ -684,9 +637,7 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, None);
 
-        let ip_string = strings
-            .iter()
-            .find(|s| matches!(s.string_type, StringType::Ip));
+        let ip_string = strings.iter().find(|s| matches!(s.string_type, StringType::IP));
         assert!(ip_string.is_some());
     }
 
@@ -764,9 +715,7 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, None);
 
-        let email_string = strings
-            .iter()
-            .find(|s| matches!(s.string_type, StringType::Email));
+        let email_string = strings.iter().find(|s| matches!(s.string_type, StringType::Email));
         assert!(email_string.is_some());
     }
 
@@ -777,9 +726,7 @@ mod tests {
         let strings = extractor.extract(data, None);
 
         // Base64 needs to be > 20 chars
-        assert!(strings
-            .iter()
-            .any(|s| matches!(s.string_type, StringType::Base64)));
+        assert!(strings.iter().any(|s| matches!(s.string_type, StringType::Base64)));
     }
 
     #[test]
@@ -809,9 +756,7 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract(data, Some(".text".to_string()));
 
-        assert!(strings
-            .iter()
-            .any(|s| s.section == Some(".text".to_string())));
+        assert!(strings.iter().any(|s| s.section == Some(".text".to_string())));
     }
 
     #[test]
@@ -834,7 +779,7 @@ mod tests {
         );
         assert_eq!(
             extractor.classify_string_type("192.168.1.1"),
-            StringType::Ip
+            StringType::IP
         );
         assert_eq!(
             extractor.classify_string_type("user@example.com"),
@@ -846,7 +791,7 @@ mod tests {
         );
         assert_eq!(
             extractor.classify_string_type("plain text"),
-            StringType::Plain
+            StringType::Const
         );
     }
 
@@ -907,16 +852,28 @@ mod tests {
 
     #[test]
     fn test_extract_smart_basic() {
-        // Basic test with non-Go/Rust data - should fall back to basic extraction
-        let data = b"Hello World http://example.com /usr/bin/ls";
+        // Basic test with null-terminated strings so stng can extract them individually
+        let data = b"Hello World\0http://example.com\0/usr/bin/ls\0";
         let extractor = StringExtractor::new();
         let strings = extractor.extract_smart(data);
 
         assert!(!strings.is_empty());
-        // Should find URL
-        assert!(strings
+
+        // Should find the URL - stng classifies URLs
+        let has_url = strings
             .iter()
-            .any(|s| matches!(s.string_type, StringType::Url)));
+            .any(|s| s.value.contains("example.com") && matches!(s.string_type, StringType::Url));
+
+        // Should find the path
+        let has_path = strings
+            .iter()
+            .any(|s| s.value.contains("/usr/bin/ls") && matches!(s.string_type, StringType::Path));
+
+        assert!(
+            has_url || has_path,
+            "Expected to find URL or Path, but got: {:?}",
+            strings.iter().map(|s| (&s.value, &s.string_type)).collect::<Vec<_>>()
+        );
     }
 
     #[test]

@@ -62,13 +62,7 @@ traits:
       regex: 'exec\(|eval\('
 
   # === Decoding function atomic indicators ===
-  - id: b64decode-call
-    desc: base64 b64decode function
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "b64decode"
+  # Removed b64decode-call duplicate - use cap/data/encode/base64/python::b64decode-string
 
   - id: fromhex-call
     desc: fromhex function
@@ -94,21 +88,8 @@ traits:
       type: string
       substr: "bz2.decompress"
 
-  - id: zlib-decompress-call
-    desc: zlib.decompress function
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "zlib.decompress"
-
-  - id: marshal-loads-call
-    desc: marshal.loads function
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "marshal.loads"
+  # Removed zlib-decompress-call duplicate - use cap/data/compression/library/traits::zlib-decompress-symbol (symbol is more precise)
+  # Removed marshal-loads-call duplicate - use cap/data/serialization/unsafe/python::marshal-loads-symbol (symbol is more precise)
 
   # Reverse byte order in encoded/hex data - anti-analysis technique
   # Avoid false positives from legitimate slice operations by requiring context
@@ -212,12 +193,12 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: b64decode-call
+      - id: cap/data/encode/base64/python::b64decode-string
       - id: fromhex-call
       - id: bytes-fromhex-call
       - id: bz2-decompress-call
-      - id: zlib-decompress-call
-      - id: marshal-loads-call
+      - id: cap/data/compression/library/traits::zlib-decompress-symbol
+      - id: cap/data/serialization/unsafe/python::marshal-loads-symbol
 
   - id: execute-decoded-content
     desc: "Direct execution of decoded content"

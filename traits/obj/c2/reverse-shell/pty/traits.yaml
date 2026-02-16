@@ -150,14 +150,7 @@ traits:
       regex: "\\.PIPE\\b"
 
   # === Interactive shell micro-traits ===
-  - id: isatty-call
-    desc: isatty function call
-    crit: notable
-    conf: 0.4
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "isatty"
+  # Removed isatty-call duplicate - use cap/process/terminal/tty/traits::isatty (symbol works for all file types)
 
   - id: ttyname-call
     desc: ttyname function call
@@ -168,14 +161,7 @@ traits:
       type: string
       substr: "ttyname"
 
-  - id: dev-tty
-    desc: /dev/tty device reference
-    crit: notable
-    conf: 0.6
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "/dev/tty"
+  # Removed dev-tty duplicate - use cap/fs/path/device/terminal::dev-tty
 
   - id: term-env
     desc: TERM= environment setting
@@ -401,9 +387,9 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: isatty-call
+      - id: cap/process/terminal/tty/traits::isatty
       - id: ttyname-call
-      - id: dev-tty
+      - id: cap/fs/path/device/terminal::dev-tty
 
   # Terminal setup composite
   - id: terminal-setup
@@ -429,9 +415,9 @@ composite_rules:
     any:
       - id: tty-markers
       - id: terminal-setup
-      - id: isatty-call
+      - id: cap/process/terminal/tty/traits::isatty
       - id: ttyname-call
-      - id: dev-tty
+      - id: cap/fs/path/device/terminal::dev-tty
       - id: stty-cmd
 
   # Socat composite

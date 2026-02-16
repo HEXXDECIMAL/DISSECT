@@ -7,8 +7,67 @@ description = "Deep static analysis tool for extracting features from binaries a
 license = "Apache-2.0"
 default-run = "dissect"
 
+[lints]
+workspace = true
+
 [workspace]
 members = [".", "crates/scpt", "dissect-macros"]
+
+# Strict but pragmatic lints - similar to the Rust project itself
+[workspace.lints.rust]
+# Deny unsafe patterns and correctness issues
+unsafe_op_in_unsafe_fn = "deny"
+rust_2018_idioms = "deny"
+unused_must_use = "deny"
+unused_imports = "deny"
+unused_mut = "deny"
+dead_code = "warn"
+unreachable_pub = "warn"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+# Deny common mistakes and antipatterns
+all = "deny"
+correctness = "deny"
+suspicious = "deny"
+style = "warn"
+complexity = "warn"
+perf = "warn"
+
+# Deny specific dangerous patterns
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+unimplemented = "deny"
+todo = "deny"
+unreachable = "deny"
+
+# Deny poor error handling
+result_unit_err = "deny"
+result_large_err = "deny"
+
+# Warn on code quality issues
+missing_safety_doc = "warn"
+must_use_candidate = "warn"
+needless_pass_by_value = "warn"
+unnecessary_wraps = "warn"
+
+# Encourage idiomatic Rust
+match_same_arms = "warn"
+redundant_closure_for_method_calls = "warn"
+manual_let_else = "warn"
+option_if_let_else = "warn"
+
+# Allow pragmatic exceptions
+# These are too noisy or conflict with readability
+too_many_arguments = "allow"
+type_complexity = "allow"
+module_name_repetitions = "allow"
+similar_names = "allow"
+single_match_else = "allow"
+missing_errors_doc = "allow"  # Too strict for internal functions
+missing_panics_doc = "allow"  # Too strict for internal functions
 
 [dependencies]
 # Procedural macros
@@ -103,7 +162,7 @@ parking_lot = "0.12"  # For efficient mutexes in memory tracking
 memmap2 = "0.9"  # Memory-mapped file I/O for large files
 smallvec = "1.13"  # Stack-allocated vectors for small collections
 encoding_rs = "0.8"  # Character encoding detection and conversion
-stng = { git = "https://github.com/HEXXDECIMAL/stng" }  # Fast string extraction
+stng = { path = "../stng" }  # Fast string extraction (local with Deserialize support)
 
 # Logging (tracing is the modern standard, more powerful than log+env_logger)
 tracing = "0.1"

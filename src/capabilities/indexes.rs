@@ -56,26 +56,15 @@ impl TraitIndex {
         file_type: &RuleFileType,
     ) -> impl Iterator<Item = usize> + '_ {
         // Universal traits + specific file type traits
-        let specific = self
-            .by_file_type
-            .get(file_type)
-            .map(|v| v.as_slice())
-            .unwrap_or(&[]);
+        let specific = self.by_file_type.get(file_type).map(|v| v.as_slice()).unwrap_or(&[]);
 
-        self.universal
-            .iter()
-            .copied()
-            .chain(specific.iter().copied())
+        self.universal.iter().copied().chain(specific.iter().copied())
     }
 
     /// Get count of applicable traits for a file type
-    #[allow(dead_code)]
     pub(crate) fn applicable_count(&self, file_type: &RuleFileType) -> usize {
-        let specific_count = self
-            .by_file_type
-            .get(file_type)
-            .map(|v: &Vec<usize>| v.len())
-            .unwrap_or(0);
+        let specific_count =
+            self.by_file_type.get(file_type).map(|v: &Vec<usize>| v.len()).unwrap_or(0);
         self.universal.len() + specific_count
     }
 }
@@ -124,7 +113,7 @@ impl StringMatchIndex {
                     '.' | '*' | '+' | '?' | '[' | ']' | '(' | ')' | '{' | '}' | '|' | '^' | '$'
                     | '\\' => {
                         literal.push(c);
-                    }
+                    },
                     _ => literal.push(c),
                 }
                 in_escape = false;
@@ -190,7 +179,7 @@ impl StringMatchIndex {
                         patterns.push(exact_str.clone());
                         pattern_to_traits.push(vec![trait_idx]);
                     }
-                }
+                },
                 // Regex string patterns - extract literal prefix for pre-filtering
                 Condition::String {
                     regex: Some(ref regex_str),
@@ -207,8 +196,8 @@ impl StringMatchIndex {
                             regex_literal_to_traits.push(vec![trait_idx]);
                         }
                     }
-                }
-                _ => {}
+                },
+                _ => {},
             }
         }
 
@@ -216,30 +205,21 @@ impl StringMatchIndex {
 
         // Build case-sensitive Aho-Corasick automaton
         let automaton = if !patterns.is_empty() {
-            AhoCorasick::builder()
-                .ascii_case_insensitive(false)
-                .build(&patterns)
-                .ok()
+            AhoCorasick::builder().ascii_case_insensitive(false).build(&patterns).ok()
         } else {
             None
         };
 
         // Build case-insensitive Aho-Corasick automaton
         let ci_automaton = if !ci_patterns.is_empty() {
-            AhoCorasick::builder()
-                .ascii_case_insensitive(true)
-                .build(&ci_patterns)
-                .ok()
+            AhoCorasick::builder().ascii_case_insensitive(true).build(&ci_patterns).ok()
         } else {
             None
         };
 
         // Build regex literal automaton for pre-filtering
         let regex_literal_automaton = if !regex_literals.is_empty() {
-            AhoCorasick::builder()
-                .ascii_case_insensitive(false)
-                .build(&regex_literals)
-                .ok()
+            AhoCorasick::builder().ascii_case_insensitive(false).build(&regex_literals).ok()
         } else {
             None
         };
@@ -347,10 +327,8 @@ impl StringMatchIndex {
         // Traits without extractable literals can't be pre-filtered, so include them
         for &trait_idx in &self.regex_trait_indices {
             // If this trait isn't in any literal bucket, include it as candidate
-            let has_literal = self
-                .regex_literal_to_traits
-                .iter()
-                .any(|traits| traits.contains(&trait_idx));
+            let has_literal =
+                self.regex_literal_to_traits.iter().any(|traits| traits.contains(&trait_idx));
             if !has_literal {
                 candidates.insert(trait_idx);
             }
@@ -440,8 +418,8 @@ impl RawContentRegexIndex {
             match Self::build_regex_set(patterns, traits) {
                 Ok(Some(set)) => {
                     by_file_type.insert(ft, set);
-                }
-                Ok(None) => {}
+                },
+                Ok(None) => {},
                 Err(mut e) => errors.append(&mut e),
             }
         }
@@ -451,7 +429,7 @@ impl RawContentRegexIndex {
             Err(mut e) => {
                 errors.append(&mut e);
                 None
-            }
+            },
         };
 
         if !errors.is_empty() {
@@ -502,10 +480,8 @@ impl RawContentRegexIndex {
         }
 
         let pattern_strs: Vec<String> = pattern_map.keys().cloned().collect();
-        let pattern_to_traits: Vec<Vec<usize>> = pattern_strs
-            .iter()
-            .map(|p| pattern_map.get(p).unwrap().clone())
-            .collect();
+        let pattern_to_traits: Vec<Vec<usize>> =
+            pattern_strs.iter().map(|p| pattern_map.get(p).unwrap().clone()).collect();
 
         // Try to build the regex set.
         match RegexSet::new(&pattern_strs) {
@@ -538,7 +514,7 @@ impl RawContentRegexIndex {
                 }
 
                 Err(errors)
-            }
+            },
         }
     }
 
@@ -548,9 +524,7 @@ impl RawContentRegexIndex {
 
     /// Check if any of the given trait indices have content regex patterns
     pub(crate) fn has_applicable_patterns(&self, applicable: &[usize]) -> bool {
-        applicable
-            .iter()
-            .any(|idx| self.indexed_traits.contains(idx))
+        applicable.iter().any(|idx| self.indexed_traits.contains(idx))
     }
 
     /// Check whether a trait is indexed in a compiled regex set.
@@ -573,9 +547,7 @@ impl RawContentRegexIndex {
         // Check for excessively long lines (potential anti-analysis via regex backtracking)
         // Threshold: 1MB per line
         const MAX_LINE_LENGTH: usize = 1_000_000;
-        let has_excessive_line = content
-            .lines()
-            .any(|line| line.len() > MAX_LINE_LENGTH);
+        let has_excessive_line = content.lines().any(|line| line.len() > MAX_LINE_LENGTH);
 
         if has_excessive_line {
             tracing::warn!(
@@ -612,7 +584,6 @@ impl RawContentRegexIndex {
 
     /// Test each regex pattern individually to find slow ones
     /// Returns a list of (pattern, duration_ms, trait_ids)
-    #[allow(dead_code)]
     pub(crate) fn benchmark_patterns(
         &self,
         binary_data: &[u8],
@@ -639,10 +610,7 @@ impl RawContentRegexIndex {
                             .pattern_to_traits
                             .get(pattern_idx)
                             .map(|indices| {
-                                indices
-                                    .iter()
-                                    .map(|idx| format!("trait_{}", idx))
-                                    .collect()
+                                indices.iter().map(|idx| format!("trait_{}", idx)).collect()
                             })
                             .unwrap_or_default();
 
@@ -666,10 +634,7 @@ impl RawContentRegexIndex {
                             .pattern_to_traits
                             .get(pattern_idx)
                             .map(|indices| {
-                                indices
-                                    .iter()
-                                    .map(|idx| format!("trait_{}", idx))
-                                    .collect()
+                                indices.iter().map(|idx| format!("trait_{}", idx)).collect()
                             })
                             .unwrap_or_default();
 

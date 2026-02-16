@@ -30,15 +30,8 @@ traits:
       regex: "#!/(usr/bin/|bin/)(python|python3)"
       offset_range: [-4096, ~]
 
-  - id: appended-base64-blob
-    desc: Large base64 string at file end
-    crit: suspicious
-    conf: 0.75
-    for: [elf, macho, pe, shell, python]
-    if:
-      type: string
-      regex: "^[A-Za-z0-9+/]{200,}={0,2}$"
-      offset_range: [-8192, ~]
+  # Removed appended-base64-blob duplicate - use cap/data/encode/payload::large-base64-payload
+  # Note: Offset constraint for polyglot detection can be applied in composite rules if needed
 
   - id: appended-hex-blob
     desc: Hex-encoded data at file end

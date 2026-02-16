@@ -37,7 +37,7 @@ impl SectionMap {
     }
 
     /// Create a section map from an ELF binary.
-    pub fn from_elf(elf: &Elf, file_size: u64) -> Self {
+    pub fn from_elf<'a>(elf: &Elf<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for sh in &elf.section_headers {
@@ -59,7 +59,7 @@ impl SectionMap {
     }
 
     /// Create a section map from a Mach-O binary.
-    pub fn from_macho(macho: &MachO, file_size: u64) -> Self {
+    pub fn from_macho<'a>(macho: &MachO<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for segment in &macho.segments {
@@ -95,16 +95,15 @@ impl SectionMap {
     }
 
     /// Create a section map from a PE binary.
-    pub fn from_pe(pe: &PE, file_size: u64) -> Self {
+    pub fn from_pe<'a>(pe: &PE<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for section in &pe.sections {
             let section_start = u64::from(section.pointer_to_raw_data);
             let section_size = u64::from(section.size_of_raw_data);
             if section_size > 0 {
-                let name = String::from_utf8_lossy(&section.name)
-                    .trim_end_matches('\0')
-                    .to_string();
+                let name =
+                    String::from_utf8_lossy(&section.name).trim_end_matches('\0').to_string();
                 if !name.is_empty() {
                     sections.push(SectionInfo {
                         name,
@@ -246,9 +245,7 @@ impl SectionMap {
         // Apply absolute offset range
         if let Some((start, end)) = offset_range {
             let abs_start = resolve_offset(start, self.file_size);
-            let abs_end = end
-                .map(|e| resolve_offset(e, self.file_size))
-                .unwrap_or(self.file_size);
+            let abs_end = end.map(|e| resolve_offset(e, self.file_size)).unwrap_or(self.file_size);
 
             // Intersect with section bounds if section specified
             base_start = base_start.max(abs_start);
@@ -271,9 +268,7 @@ impl SectionMap {
             section?; // section_offset_range requires section
             let section_size = base_end - base_start;
             let rel_start = resolve_offset(start, section_size);
-            let rel_end = end
-                .map(|e| resolve_offset(e, section_size))
-                .unwrap_or(section_size);
+            let rel_end = end.map(|e| resolve_offset(e, section_size)).unwrap_or(section_size);
 
             base_start += rel_start;
             base_end = base_start + rel_end.saturating_sub(rel_start);
@@ -311,9 +306,7 @@ impl SectionMap {
 
     /// Get all sections as (name, start, end) tuples.
     pub fn sections(&self) -> impl Iterator<Item = (&str, u64, u64)> {
-        self.sections
-            .iter()
-            .map(|s| (s.name.as_str(), s.start, s.end))
+        self.sections.iter().map(|s| (s.name.as_str(), s.start, s.end))
     }
 }
 

@@ -197,14 +197,7 @@ traits:
       type: string
       substr: qemu-ga
 
-  - id: file-dev-vda
-    desc: QEMU/KVM virtio disk device
-    crit: suspicious
-    conf: 0.7
-    for: [python, shell, javascript]
-    if:
-      type: string
-      substr: /dev/vda
+  # Removed file-dev-vda duplicate - use cap/fs/path/device/storage::dev-vda
 
   # === VM MAC address prefixes (atomic) ===
   - id: mac-vmware-1
@@ -382,7 +375,7 @@ composite_rules:
       - id: file-vmtoolsd
       - id: file-vmhgfs
       - id: file-qemu-ga
-      - id: file-dev-vda
+      - id: cap/fs/path/device/storage::dev-vda
 
   # VM MAC address prefixes
   - id: mac-prefix

@@ -7,7 +7,7 @@ traits:
     desc: Works with block device attributes
     crit: inert
     conf: 0.66
-    for: [elf, so, c]
+    for: [all]
     if:
       type: symbol
       regex: blkid

@@ -35,15 +35,7 @@ traits:
     attack: "T1021.004"
 
   # === SSH Backdoor ===
-  - id: sshd-service
-    desc: "SSH daemon encrypted remote access"
-    crit: suspicious
-    conf: 0.85
-    for: [elf, shell]
-    if:
-      type: string
-      word: "sshd"
-    attack: "T1021.004"
+  # Removed sshd-service duplicate - use cap/os/service/remote/ssh::sshd-ref (same pattern, canonical location)
 
   - id: dropbear-lightweight-ssh
     desc: "Dropbear SSH server"
@@ -77,7 +69,7 @@ composite_rules:
     attack: "T1021.004"
     mbc: "E1037"
     any:
-      - id: sshd-service
+      - id: cap/os/service/remote/ssh::sshd-ref
       - id: dropbear-lightweight-ssh
 
   - id: remote-shell-backdoor

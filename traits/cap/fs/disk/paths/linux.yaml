@@ -25,9 +25,4 @@ traits:
       type: string
       substr: "lsblk"
 
-  - id: blkid-cmd
-    desc: blkid command
-    conf: 0.5
-    if:
-      type: string
-      substr: "blkid"
+  # Removed blkid-cmd duplicate - use cap/fs/device/blkid/linux::blkid (symbol works for all file types)

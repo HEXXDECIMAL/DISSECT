@@ -178,23 +178,8 @@ traits:
       type: string
       substr: "gunzip"
 
-  - id: inflate-function
-    desc: inflate decompression function
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "inflate"
-
-  - id: deflate-function
-    desc: deflate compression function
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "deflate"
+  # Removed inflate-function duplicate - use cap/data/compression/library/traits::inflate (symbol works for all file types)
+  # Removed deflate-function duplicate - use cap/data/compression/library/traits::deflate (symbol works for all file types)
 
 composite_rules:
   # Crypto require composite
@@ -270,8 +255,8 @@ composite_rules:
       - id: cap/data/encode/compression::zlib-signature
       - id: gzip-function
       - id: gunzip-function
-      - id: inflate-function
-      - id: deflate-function
+      - id: cap/data/compression/library/traits::inflate
+      - id: cap/data/compression/library/traits::deflate
 
   # Hardcoded crypto key composite
   - id: hardcoded-key

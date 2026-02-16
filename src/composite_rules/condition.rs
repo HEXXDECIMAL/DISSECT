@@ -21,7 +21,7 @@ mod offset_range_deser {
         impl<'de> de::Visitor<'de> for OffsetRangeVisitor {
             type Value = Option<(i64, Option<i64>)>;
 
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            fn expecting<'a>(&self, formatter: &mut std::fmt::Formatter<'a>) -> std::fmt::Result {
                 formatter.write_str("an offset range array like [start, end], [start,], or [, end]")
             }
 
@@ -30,12 +30,10 @@ mod offset_range_deser {
                 A: SeqAccess<'de>,
             {
                 // Get first element (start)
-                let start: Option<i64> = seq.next_element()?
-                    .unwrap_or(None);
+                let start: Option<i64> = seq.next_element()?.unwrap_or(None);
 
                 // Get second element (end)
-                let end: Option<i64> = seq.next_element()?
-                    .unwrap_or(None);
+                let end: Option<i64> = seq.next_element()?.unwrap_or(None);
 
                 // Both None means empty array - return None
                 if start.is_none() && end.is_none() {
@@ -102,7 +100,7 @@ impl NotException {
         match self {
             NotException::Shorthand(pattern) => {
                 value.to_lowercase().contains(&pattern.to_lowercase())
-            }
+            },
             NotException::Structured {
                 exact,
                 substr,
@@ -113,13 +111,11 @@ impl NotException {
                 } else if let Some(substr_str) = substr {
                     value.to_lowercase().contains(&substr_str.to_lowercase())
                 } else if let Some(regex_str) = regex {
-                    regex::Regex::new(regex_str)
-                        .map(|re| re.is_match(value))
-                        .unwrap_or(false)
+                    regex::Regex::new(regex_str).map(|re| re.is_match(value)).unwrap_or(false)
                 } else {
                     false
                 }
-            }
+            },
         }
     }
 }
@@ -536,7 +532,7 @@ impl From<ConditionDeser> for Condition {
                 },
                 ConditionTagged::Syscall { name, number, arch } => {
                     Condition::Syscall { name, number, arch }
-                }
+                },
                 ConditionTagged::SectionRatio {
                     section,
                     compare_to,
@@ -756,13 +752,19 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -1004,13 +1006,19 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -1082,13 +1090,19 @@ pub enum Condition {
         #[serde(skip_serializing_if = "Option::is_none")]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(skip_serializing_if = "Option::is_none")]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(
+            skip_serializing_if = "Option::is_none",
+            deserialize_with = "offset_range_deser::deserialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
@@ -1227,7 +1241,7 @@ impl Condition {
                     .add_source(source.as_bytes())
                     .map_err(|e| anyhow::anyhow!("invalid YARA rule: {}", e))?;
                 Ok(())
-            }
+            },
             Condition::Ast {
                 kind,
                 node,
@@ -1278,7 +1292,7 @@ impl Condition {
                 }
 
                 Ok(())
-            }
+            },
             Condition::Kv {
                 path,
                 exact,
@@ -1306,7 +1320,7 @@ impl Condition {
                 }
 
                 Ok(())
-            }
+            },
             // Validate location constraints for string/content conditions
             Condition::String {
                 section,
@@ -1355,7 +1369,7 @@ impl Condition {
                     *section_offset_range,
                     "hex",
                 )
-            }
+            },
             // Other conditions don't need compilation validation
             _ => Ok(()),
         }
@@ -1415,11 +1429,7 @@ impl Condition {
             let unwrapped = pattern
                 .strip_prefix("(?:")
                 .and_then(|s| s.strip_suffix(")"))
-                .map(|s| {
-                    s.strip_prefix("(?:")
-                        .and_then(|s| s.strip_suffix(")"))
-                        .unwrap_or(s)
-                })
+                .map(|s| s.strip_prefix("(?:").and_then(|s| s.strip_suffix(")")).unwrap_or(s))
                 .unwrap_or(pattern);
 
             if unwrapped.starts_with(r"\b") && unwrapped.ends_with(r"\b") && unwrapped.len() > 4 {
@@ -1428,9 +1438,7 @@ impl Condition {
 
                 // Check if it's a simple alphanumeric word (no regex metacharacters)
                 if !word.is_empty()
-                    && word
-                        .chars()
-                        .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+                    && word.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-')
                 {
                     return Some(format!(
                         "regex is a simple word boundary pattern - use 'word: \"{}\"' instead",
@@ -1594,7 +1602,7 @@ impl Condition {
                     ));
                 }
                 None
-            }
+            },
             // For substr, warn if less than 3 characters (more prone to false positives)
             Condition::String {
                 substr: Some(s),
@@ -1650,7 +1658,7 @@ impl Condition {
                     ));
                 }
                 None
-            }
+            },
             _ => None,
         }
     }
@@ -1679,7 +1687,7 @@ impl Condition {
                 }
 
                 None
-            }
+            },
             _ => None,
         }
     }
@@ -1802,10 +1810,10 @@ impl Condition {
                 *compiled_regex = Some(regex::Regex::new(regex_pattern).map_err(|e| {
                     anyhow::anyhow!("Failed to compile symbol regex '{}': {}", regex_pattern, e)
                 })?);
-            }
+            },
             Condition::Symbol { regex: None, .. } => {
                 // No regex to compile
-            }
+            },
             Condition::String {
                 regex,
                 word,
@@ -1870,7 +1878,7 @@ impl Condition {
                         compiled_excludes.push(compiled);
                     }
                 }
-            }
+            },
             Condition::Raw {
                 regex,
                 word,
@@ -1917,7 +1925,7 @@ impl Condition {
                         })?
                     });
                 }
-            }
+            },
             Condition::Kv {
                 regex: Some(regex_pattern),
                 case_insensitive,
@@ -1938,7 +1946,7 @@ impl Condition {
                         anyhow::anyhow!("Failed to compile kv regex '{}': {}", regex_pattern, e)
                     })?
                 });
-            }
+            },
             Condition::StringCount {
                 regex: Some(regex_pattern),
                 compiled_regex,
@@ -1952,8 +1960,8 @@ impl Condition {
                         e
                     )
                 })?);
-            }
-            _ => {}
+            },
+            _ => {},
         }
         Ok(())
     }
@@ -1987,11 +1995,11 @@ fn validate_ast_query(query: &str, language: Option<&str>) -> Result<()> {
                 "unsupported language for ast query: {}",
                 other
             ))
-        }
+        },
         None => {
             // No language specified - skip validation, will validate at runtime
             return Ok(());
-        }
+        },
     };
     tree_sitter::Query::new(&lang, query)
         .map_err(|e| anyhow::anyhow!("invalid tree-sitter query: {}", e))?;
@@ -2165,10 +2173,7 @@ mod location_constraint_tests {
     fn test_validate_location_section_offset_without_section_fails() {
         let result = validate_location_constraints(&None, None, None, Some(0x100), None, "content");
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("requires 'section'"));
+        assert!(result.unwrap_err().to_string().contains("requires 'section'"));
     }
 
     #[test]

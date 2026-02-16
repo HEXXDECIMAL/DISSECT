@@ -2,6 +2,7 @@ use serde_json::Value;
 use std::process::Command;
 
 #[test]
+#[ignore = "Requires specific test data file at /home/t.linux/data/known-bad/dissect/malware/js/2025.tailwind-magic/3.3.1/keylogger.js"]
 fn test_keylogger_detection() {
     let file_path =
         "/home/t.linux/data/known-bad/dissect/malware/js/2025.tailwind-magic/3.3.1/keylogger.js";

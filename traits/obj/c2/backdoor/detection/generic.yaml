@@ -39,16 +39,7 @@ traits:
       regex: "\\b[Bb]ackdoor\\b"
 
   # === Atomic: Bash Reverse Shell ===
-
-  - id: bash-dev-tcp
-    desc: Bash /dev/tcp reverse shell
-    crit: suspicious
-    conf: 0.95
-    attack: "T1059.004"
-    platforms: [linux, macos, unix]
-    if:
-      type: string
-      regex: "bash\\s+-i\\s+>&\\s*/dev/tcp/"
+  # Removed bash-dev-tcp duplicate - use obj/c2/reverse-shell/socket/sh::reverse-shell-bash
 
   - id: stdin-redirect
     desc: Stdin redirection (reverse shell indicator)
