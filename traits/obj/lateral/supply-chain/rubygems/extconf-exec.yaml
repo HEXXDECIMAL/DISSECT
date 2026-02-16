@@ -1,0 +1,22 @@
+composite_rules:
+  - id: extconf-process-replacement
+    desc: "extconf.rb replaces process via exec() (hostile behavior)"
+    crit: hostile
+    conf: 1.0
+    for: [ruby]
+    all:
+      - id: obj/lateral/supply-chain/rubygems::extconf-file
+      - id: cap/exec/command/shell/lang::ruby-exec
+
+  - id: extconf-shell-exec
+    desc: "extconf.rb performs shell execution (suspicious in build scripts)"
+    crit: suspicious
+    for: [ruby]
+    all:
+      - id: obj/lateral/supply-chain/rubygems::extconf-file
+    any:
+      - id: cap/exec/command/shell/lang::ruby-system
+      - id: obj/lateral/supply-chain/rubygems::backtick-exec
+      - id: obj/lateral/supply-chain/rubygems::percent-x-exec
+      - id: obj/lateral/supply-chain/rubygems::io-popen-exec
+      - id: obj/lateral/supply-chain/rubygems::open3-exec

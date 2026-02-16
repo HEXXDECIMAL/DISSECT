@@ -1,0 +1,8 @@
+traits:
+  - id: image-extension
+    desc: Image file extension
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      regex: '\.(png|jpg|jpeg|gif|bmp|ico|svg|tiff|webp)$'

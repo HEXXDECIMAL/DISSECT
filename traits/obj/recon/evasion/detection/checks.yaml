@@ -1,0 +1,9 @@
+composite_rules:
+  - id: evasion-checks
+    desc: Evasion checks detected (usernames/hostnames/paths)
+    crit: suspicious
+    for: [javascript, typescript, shell, python]
+    any:
+      - id: cap/anti-analysis/sandbox/detect
+    unless:
+      - id: meta/quality/libxslt::libxslt-configure-js

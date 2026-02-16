@@ -1,0 +1,9 @@
+composite_rules:
+  - id: pe-in-image-extension
+    desc: "PE executable masquerading with image extension"
+    crit: hostile
+    conf: 0.95
+    attack: "T1036"
+    all:
+      - id: meta/format/magic::pe-dos-stub
+      - id: meta/format/extension::image-extension

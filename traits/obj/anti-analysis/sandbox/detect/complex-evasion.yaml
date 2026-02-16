@@ -1,0 +1,12 @@
+composite_rules:
+  - id: complex-evasion-check
+    desc: Multiple evasion checks (generic + specific) in a single context
+    crit: hostile
+    all:
+      - id: obj/recon/evasion/detection::evasion-checks
+    any:
+      - id: cap/anti-analysis/sandbox/detect::check-path-node
+      - id: cap/anti-analysis/sandbox/detect::hex-hostname-regex
+    unless:
+      - id: meta/builder/autotools::autotools
+      - id: meta/quality/help::libxslt-configure-js

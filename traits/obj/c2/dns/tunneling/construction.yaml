@@ -1,0 +1,22 @@
+composite_rules:
+  - id: js-dns-tunneling-construction
+    desc: JavaScript DNS tunneling construction (hex-encoded metadata)
+    crit: suspicious
+    any:
+      - id: cap/c2/dns/tunneling::hex-chunk-concat-loop
+      - id: cap/c2/dns/tunneling::hex-subdomain-concat
+      - id: cap/c2/dns/tunneling::hex-subdomain-plus
+    unless:
+      - id: meta/library/jquery::domain
+      - id: meta/library/prototype::copyright
+      - id: meta/library/prototype::header-x
+      - id: meta/builder/autotools::autotools
+      - id: meta/quality/help::libxslt-configure-js
+
+  - id: js-dns-tunneling-path-encoding
+    desc: JavaScript specific path hex encoding for DNS tunneling
+    crit: suspicious
+    all:
+      - id: cap/c2/dns/tunneling::hex-path-chunk-split
+      - id: cap/c2/dns/tunneling::hex-path-p-wrapping
+      - id: cap/c2/dns/tunneling::hex-chunk-concat-loop

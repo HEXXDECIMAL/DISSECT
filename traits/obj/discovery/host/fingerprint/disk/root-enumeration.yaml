@@ -1,0 +1,12 @@
+composite_rules:
+  - id: root-dir-enumeration
+    desc: Iterates over root directories (C:, D:, /, /home) to list files
+    crit: hostile
+    all:
+      - id: cap/fs/enumerate/directory::root-paths-array
+    any:
+      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: obj/impact/ransomware/behavior::readdir-sync
+      - id: obj/impact/ransomware/behavior::readdir-fn
+    unless:
+      - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush

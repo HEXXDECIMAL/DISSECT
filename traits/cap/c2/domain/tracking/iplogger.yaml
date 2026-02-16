@@ -1,0 +1,46 @@
+traits:
+  - id: iplogger-domain
+    desc: "Detects iplogger tracking domains"
+    crit: suspicious
+    if:
+      type: string
+      regex: "iplogger\\.(?:org|com|net|ru)|2no\\.co|yip\\.su"
+
+  - id: tracking-services-domain
+    desc: "Detects tracking domains in malware beacons"
+    crit: suspicious
+    if:
+      type: string
+      regex: "(grabify\\.link|blasze\\.com|canarytokens\\.com|bitly\\.com|tinyurl\\.com)"
+
+  - id: iplogger-string
+    desc: "Detects 'iplogger' keyword"
+    crit: notable
+    if:
+      type: string
+      substr: "iplogger"
+
+  - id: iplogger-http
+    desc: "Detects HTTP indicators often with iplogger"
+    crit: notable
+    if:
+      type: string
+      regex: "http|get|post|request"
+
+composite_rules:
+  - id: iplogger-keyword-context
+    desc: "Detects 'iplogger' keyword with HTTP indicators"
+    crit: suspicious
+    all:
+      - id: iplogger-string
+      - id: iplogger-http
+
+  - id: fragmented-tracking-beacon
+    desc: "Detects fragmented tracking/logging URL construction"
+    crit: suspicious
+    all:
+      - id: cap/comm/http/lib/netlib
+    any:
+      - id: iplogger-string
+      - id: iplogger-domain
+      - id: tracking-services-domain

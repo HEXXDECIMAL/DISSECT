@@ -1,0 +1,9 @@
+composite_rules:
+  - id: significant-recon
+    desc: Significant system reconnaissance activity
+    crit: suspicious
+    any:
+      - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
+      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: obj/impact/ransomware/behavior::readdir-sync
+      - id: obj/lateral/supply-chain/npm/behavior::npm-victim-exfil

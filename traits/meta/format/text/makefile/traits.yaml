@@ -1,0 +1,12 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: makefile-basename
+    desc: Makefile (basename)
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      regex: '^Makefile$'
+

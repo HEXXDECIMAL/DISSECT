@@ -1,0 +1,45 @@
+# Repository Maintenance Tools
+# Detects scripts used for maintaining code repositories
+
+defaults:
+  for: [shell, python, ruby, javascript]
+
+traits:
+  - id: jq-processing
+    desc: Uses jq for JSON processing
+    crit: inert
+    if:
+      type: string
+      word: "jq"
+
+  - id: sed-processing
+    desc: Uses sed for text processing
+    crit: inert
+    if:
+      type: string
+      word: "sed"
+
+  - id: awk-processing
+    desc: Uses awk for text processing
+    crit: inert
+    if:
+      type: string
+      word: "awk"
+
+  - id: git-operations
+    desc: Git repository operations
+    crit: inert
+    if:
+      type: string
+      regex: '\bgit (clone|pull|push|commit|add|status|remote|checkout)\b'
+
+composite_rules:
+  - id: github-issue-maintenance
+    desc: GitHub issue maintenance script
+    crit: notable
+    all:
+      - id: cap/net/service/github::gh-issue-mgmt
+    any:
+      - id: jq-processing
+      - id: sed-processing
+      - id: awk-processing

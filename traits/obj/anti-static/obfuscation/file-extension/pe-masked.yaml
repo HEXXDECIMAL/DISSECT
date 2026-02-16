@@ -1,0 +1,19 @@
+defaults:
+  crit: suspicious
+  conf: 1.0
+
+traits:
+  - id: basename-is-image
+    desc: Filename has image extension
+    crit: inert
+    if:
+      type: basename
+      regex: \.(png|jpg|jpeg|gif|bmp|ico|svg|tif|tiff)$
+      case_insensitive: true
+
+composite_rules:
+  - id: pe-masked-as-image
+    desc: PE file disguised with an image extension
+    all:
+      - id: meta/format/magic::pe-dos-stub
+      - id: basename-is-image

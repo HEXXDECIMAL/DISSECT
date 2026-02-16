@@ -1,0 +1,9 @@
+traits:
+  - id: image-extension
+    desc: "File has image extension"
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: basename
+      regex: '(?i)\.(png|jpg|jpeg|gif|bmp|ico|webp)$'

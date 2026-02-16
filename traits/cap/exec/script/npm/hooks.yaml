@@ -1,0 +1,39 @@
+# NPM Package Manager Execution Capabilities
+# Detects execution hooks in package.json and related files
+
+traits:
+  - id: npm-preinstall-script
+    desc: NPM preinstall script entry
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: '"preinstall"\s*:\s*"'
+
+  - id: npm-postinstall-script
+    desc: NPM postinstall script entry
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: '"postinstall"\s*:\s*"'
+
+  - id: npm-install-script
+    desc: NPM install script entry
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      regex: '"install"\s*:\s*"'
+
+  - id: npm-script-execution
+    desc: NPM script execution command (run/test/etc)
+    crit: inert
+    conf: 0.6
+    for: [all]
+    if:
+      type: string
+      regex: 'npm\s+(run|test|start|stop|restart|publish|version)'

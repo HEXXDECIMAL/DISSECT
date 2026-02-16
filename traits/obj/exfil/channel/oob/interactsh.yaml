@@ -1,0 +1,12 @@
+composite_rules:
+  - id: suspicious-interactsh-usage
+    desc: Usage of Interactsh domain combined with suspicious capabilities
+    crit: hostile
+    all:
+      - id: obj/exfil/channel/oob::interactsh-domain
+    any:
+      - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
+      - id: obj/c2/dns/tunneling::js-dns-tunneling-construction
+      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: cap/fs/path/os::hardcoded-windows-root
+      - id: cap/data/encode/hex::buffer-to-hex

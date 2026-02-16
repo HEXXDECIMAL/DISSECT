@@ -1,0 +1,19 @@
+defaults:
+  crit: suspicious
+  conf: 0.8
+
+traits:
+  - id: extconf-filename
+    desc: extconf.rb filename
+    crit: inert
+    conf: 1.0
+    if:
+      type: basename
+      exact: "extconf.rb"
+
+composite_rules:
+  - id: extconf-network-request
+    desc: Network request in extconf.rb (suspicious in build scripts)
+    all:
+      - id: obj/lateral/supply-chain/rubygems::extconf-file
+      - id: obj/lateral/supply-chain/rubygems::http-client-imports

@@ -1,0 +1,10 @@
+traits:
+  - id: ruby-iplogger-url
+    desc: Detects 'iplogger.org' URL construction
+    crit: suspicious
+    if:
+      type: ast
+      language: ruby
+      query: |
+        ((string) @str
+         (#match? @str "iplogger.*org"))
