@@ -15,13 +15,7 @@ traits:
       type: string
       substr: ".ssh/id_rsa"
 
-  - id: aws-credentials-file
-    desc: AWS credentials file path
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: ".aws/credentials"
+  # Removed aws-credentials-file duplicate - use cap/fs/path/sensitive/cloud::aws-credentials
 
   - id: kube-config-file
     desc: Kubernetes config path
@@ -361,7 +355,7 @@ composite_rules:
     conf: 0.7
     any:
       - id: ssh-id-rsa
-      - id: aws-credentials-file
+      - id: cap/fs/path/sensitive/cloud::aws-credentials
       - id: kube-config-file
 
   # AWS credentials composite

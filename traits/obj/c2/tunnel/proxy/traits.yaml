@@ -164,13 +164,7 @@ traits:
       substr: X-CMD
 
   # === Chisel atomic indicators ===
-  - id: chisel-import
-    desc: Chisel Go import path
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      substr: github.com/jpillora/chisel
+  # Removed chisel-import duplicate - use known/tools/dual-use/chisel::repo
 
   - id: chisel-client
     desc: Chisel client mode
@@ -291,7 +285,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     any:
-      - id: chisel-import
+      - id: known/tools/dual-use/chisel::repo
       - id: chisel-client
       - id: chisel-server
 

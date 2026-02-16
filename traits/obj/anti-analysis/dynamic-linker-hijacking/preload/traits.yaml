@@ -10,28 +10,8 @@ traits:
     type: string
     regex: (LD_PRELOAD|LD_PRELOAD=)
   attack: T1547.015
-- id: ld-audit-env
-  desc: LD_AUDIT environment variable
-  crit: suspicious
-  conf: 0.85
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: LD_AUDIT
-  attack: T1547.015
-- id: ld-debug-env
-  desc: LD_DEBUG environment variable
-  crit: suspicious
-  conf: 0.8
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: LD_DEBUG
-  attack: T1070
+# Removed ld-audit-env duplicate - use cap/os/linker/env::ld-audit
+# Removed ld-debug-env duplicate - use cap/os/linker/env::ld-debug
 - id: dlfcn-hook-symbol
   desc: _dlfcn_hook dynamic linker hook
   crit: suspicious
@@ -64,17 +44,7 @@ traits:
     type: string
     substr: dlopen
   attack: T1574.006
-- id: dlsym-call
-  desc: dlsym symbol lookup call
-  crit: notable
-  conf: 0.5
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: dlsym
-  attack: T1574.006
+# Removed duplicate - use cap/exec/dylib/lookup::dlsym-string or dlsym-symbol
 - id: libc-preload
   desc: Preload libc library
   crit: suspicious
@@ -118,7 +88,7 @@ composite_rules:
   attack: T1574.006
   all:
   - id: dlopen-call
-  - id: dlsym-call
+  - id: cap/exec/dylib/lookup::dlsym-symbol
 - id: ld-environment-hijacking
   desc: LD environment variable hijacking
   crit: suspicious
@@ -130,8 +100,8 @@ composite_rules:
   needs: 2
   any:
   - id: ld-preload-env
-  - id: ld-audit-env
-  - id: ld-debug-env
+  - id: cap/os/linker/env::ld-audit
+  - id: cap/os/linker/env::ld-debug
 - id: dynamic-function-interception
   desc: Dynamic function interception
   crit: suspicious

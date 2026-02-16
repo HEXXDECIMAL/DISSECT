@@ -128,25 +128,8 @@ traits:
       substr: "secret_words"
 
   # === Wallet/crypto context atomic indicators ===
-  - id: wallet-word
-    desc: wallet term
-    crit: notable
-    conf: 0.5
-    # Restrict to high-level languages where wallet code appears, exclude system libraries
-    for: [python, javascript, csharp, java, go, ruby, php]
-    if:
-      type: string
-      word: "wallet"
-
-  - id: crypto-word
-    desc: crypto term
-    crit: inert
-    conf: 0.5
-    # Restrict to languages where wallet code appears, exclude system headers (C/C++)
-    for: [python, javascript, csharp, java, go, ruby, php]
-    if:
-      type: string
-      word: "crypto"
+  # Removed wallet-word duplicate - use obj/impact/cryptojacking/miner::wallet-ref
+  # Removed crypto-word duplicate - use cap/data/text/keywords::crypto-word
 
   - id: metamask-word
     desc: MetaMask reference
@@ -196,8 +179,8 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: wallet-word
-      - id: crypto-word
+      - id: obj/impact/cryptojacking/miner::wallet-ref
+      - id: cap/data/text/keywords::crypto-word
       - id: metamask-word
       - id: phantom-word
       - id: browser-word

@@ -99,15 +99,7 @@ traits:
 
   # NOTE: Go runtime and standard library use getuid/getpwuid legitimately
   # for user information. Downgraded to inert for atomic indicators.
-  - id: getpwuid
-    desc: Get password entry by UID
-    crit: notable
-    conf: 0.4
-    attack: "T1033"
-    for: [elf, macho]
-    if:
-      type: string
-      substr: "getpwuid"
+  # Removed duplicate - use cap/process/user/query::getpwuid
 
   - id: getpwnam
     desc: Get password entry by name
@@ -139,16 +131,7 @@ traits:
       type: string
       substr: "dsenableroot"
 
-  - id: whoami
-    desc: Current user lookup
-    crit: notable
-    conf: 0.75
-    attack: "T1033"
-    # Exclude JS - syntax highlighters have shell keywords
-    for: [shell, elf, macho, pe, python]
-    if:
-      type: string
-      substr: "whoami"
+  # Removed duplicate - use cap/process/user/query::whoami-cmd
 
   - id: finger
     desc: Finger command for user info
@@ -215,7 +198,7 @@ composite_rules:
     attack: "T1033"
     for: [shell, elf, macho, pe, python]
     any:
-      - id: whoami
+      - id: cap/process/user/query::whoami-cmd
       - id: cap/fs/path/config/accounts::etc-passwd
       - id: dscl
       - id: finger
@@ -233,7 +216,7 @@ composite_rules:
     any:
       - id: getpwnam
       - id: cap/process/identity/query::get-uid
-      - id: getpwuid
+      - id: cap/process/user/query::getpwuid
 
   # User enumeration detected (active commands + context)
   - id: enumeration-detected

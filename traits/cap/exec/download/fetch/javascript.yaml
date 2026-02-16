@@ -54,14 +54,7 @@ traits:
       type: string
       regex: 'powershell.{0,50}iwr.{0,50}\|.{0,20}iex'
 
-  - id: js-stdio-ignore
-    desc: Suppresses standard I/O output (silent
-    crit: notable
-    conf: 0.8
-    for: [javascript]
-    if:
-      type: string
-      regex: 'stdio:\s*[''"]ignore[''"]'
+  # Removed js-stdio-ignore duplicate - use cap/exec/process/spawn::stdio-ignore-string
 
 composite_rules:
   # Shell installer composite

@@ -29,13 +29,7 @@ traits:
       type: string
       substr: "AF_PACKET"
 
-  - id: sock-raw
-    desc: SOCK_RAW socket type
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "SOCK_RAW"
+  # Removed sock-raw duplicate - use cap/comm/ip/spoof::sock-raw-constant
 
   # === Magic/Trigger Packet Patterns ===
   - id: magic-packet

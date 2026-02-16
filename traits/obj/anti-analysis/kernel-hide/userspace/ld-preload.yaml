@@ -4,13 +4,7 @@
 
 traits:
   # === LD_PRELOAD environment micro-traits ===
-  - id: ld-preload-env
-    desc: References LD_PRELOAD environment variable
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: "LD_PRELOAD"
+  # Removed ld-preload-env duplicate - use cap/os/linker/env::ld-preload
 
   - id: ld-library-path-env
     desc: References LD_LIBRARY_PATH environment variable
@@ -147,14 +141,7 @@ traits:
       type: string
       regex: "/proc/[0-9]+"
 
-  - id: hide-pid-string
-    desc: hide_pid string reference
-    crit: suspicious
-    conf: 0.9
-    for: [elf, c]
-    if:
-      type: string
-      word: "hide_pid"
+  # Removed hide-pid-string duplicate - use obj/anti-analysis/kernel-hide/userspace/linux::hide-pid
 
   - id: hidden-proc-string
     desc: hidden_proc string reference
@@ -279,7 +266,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: ld-preload-env
+      - id: cap/os/linker/env::ld-preload
       - id: ld-library-path-env
 
   # Hook infrastructure composite
@@ -313,7 +300,7 @@ composite_rules:
     any:
       - id: cap/exec/dylib/load::dlsym
       - id: rtld-next-ref
-      - id: ld-preload-env
+      - id: cap/os/linker/env::ld-preload
       - id: dlsym-rtld-next-pattern
     unless:
       - id: cap/exec/load/library::system-lib-marker
@@ -366,7 +353,7 @@ composite_rules:
     attack: "T1574.006"
     for: [elf, c]
     any:
-      - id: hide-pid-string
+      - id: obj/anti-analysis/kernel-hide/userspace/linux::hide-pid
       - id: hidden-proc-string
     none:
       # Exclude botnets/scanners that legitimately read /proc for network enumeration

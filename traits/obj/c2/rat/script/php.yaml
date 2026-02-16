@@ -86,25 +86,10 @@ traits:
       exact: "stream_socket_client"
 
   # === Process Title Masquerading ===
-  - id: cli-process-title
-    desc: PHP process title masquerading
-    crit: suspicious
-    conf: 0.9
-    mbc: "F0004"
-    attack: "T1036.004"
-    if:
-      type: string
-      substr: "cli_set_process_title"
+  # Removed duplicate - use cap/process/control/signal::cli-set-process-title
 
   # === Daemonization ===
-  - id: posix-setsid
-    desc: POSIX session creation (daemonize)
-    crit: suspicious
-    conf: 0.85
-    mbc: "F0004"
-    if:
-      type: string
-      substr: "posix_setsid"
+  # Removed duplicate - use cap/process/control/signal::posix-setsid
 
   # === Process Fork ===
   - id: pcntl-fork
@@ -174,8 +159,8 @@ composite_rules:
     mbc: "B0022"
     for: [php]
     all:
-      - id: cli-process-title
-      - id: posix-setsid
+      - id: cap/process/control/signal::cli-set-process-title
+      - id: cap/process/control/signal::posix-setsid
       - id: stream-socket-connect
 
   # PHP RAT with remote code execution
@@ -227,8 +212,8 @@ composite_rules:
       - id: cap/exec/command/shell
     any:
       - id: kworker-masquerade
-      - id: cli-process-title
-      - id: posix-setsid
+      - id: cap/process/control/signal::cli-set-process-title
+      - id: cap/process/control/signal::posix-setsid
 
   # Multi-method command execution pattern (trying all methods)
   - id: multi-method-exec

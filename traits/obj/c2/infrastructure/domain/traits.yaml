@@ -36,14 +36,7 @@ traits:
       type: string
       substr: "anti-theft-web.herokuapp.com"
 
-  - id: communication-sms-c2
-    desc: "C2 domain used by communication-sms malware"
-    crit: suspicious
-    conf: 1.0
-    attack: "T1071.001"
-    if:
-      type: string
-      substr: "rt11.ml"
+  # Removed communication-sms-c2 duplicate (rt11.ml) - use known/malware/stealer/iterators::iterators-c2-domain
 
   - id: hardcoded-domain-com
     desc: Hardcoded .com/.org/.net domain (excluding known vendors)

@@ -168,25 +168,7 @@ traits:
       regex: "(?i)telnet brute"
 
   # === BusyBox download atomic indicators ===
-  - id: busybox-wget
-    desc: BusyBox wget download
-    crit: notable
-    conf: 0.7
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "busybox wget"
-
-  - id: busybox-tftp
-    desc: BusyBox tftp download
-    crit: notable
-    conf: 0.7
-    attack: "T1110.001"
-    for: [elf]
-    if:
-      type: string
-      substr: "busybox tftp"
+  # Removed duplicates - use obj/c2/botnet/iot::busybox-wget and ::busybox-tftp
 
   - id: mirai-cred-prefix
     desc: Mirai credential prefix (7ujMko0)
@@ -240,8 +222,8 @@ composite_rules:
     attack: "T1110.001"
     for: [elf]
     any:
-      - id: busybox-wget
-      - id: busybox-tftp
+      - id: obj/c2/botnet/iot::busybox-wget
+      - id: obj/c2/botnet/iot::busybox-tftp
 
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-creds

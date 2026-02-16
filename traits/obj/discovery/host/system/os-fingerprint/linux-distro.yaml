@@ -78,21 +78,7 @@ traits:
       type: string
       exact: "apt"
 
-  - id: yum-package-manager
-    desc: yum package manager reference
-    crit: notable
-    conf: 0.50
-    if:
-      type: string
-      exact: "yum"
-
-  - id: dnf-package-manager
-    desc: dnf package manager reference
-    crit: notable
-    conf: 0.50
-    if:
-      type: string
-      exact: "dnf"
+  # Removed duplicates - use cap/os/package-manager/install::multi-distro-yum-ref and ::multi-distro-dnf-ref
 
 composite_rules:
   # === Distribution Detection ===

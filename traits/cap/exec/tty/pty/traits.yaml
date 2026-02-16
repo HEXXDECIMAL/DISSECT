@@ -123,10 +123,10 @@ traits:
     crit: notable
     conf: 0.85
     attack: "T1059"
-    for: [elf]
+    for: [elf, macho]
     if:
-      type: string
-      substr: "vhangup"
+      type: symbol
+      exact: "vhangup"
 
   # NOTE: getpass is a standard libc function used by legitimate programs
   # (shells, sudo, passwd, etc.) to read passwords from terminal without echo.

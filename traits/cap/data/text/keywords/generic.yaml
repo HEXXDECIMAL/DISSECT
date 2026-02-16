@@ -40,6 +40,19 @@ traits:
       type: string
       substr: "buffer"
 
+  # === Cryptocurrency Terms ===
+  - id: crypto-word
+    desc: crypto keyword (word match)
+    if:
+      type: string
+      word: "crypto"
+
+  - id: crypto-substr
+    desc: crypto keyword (substr match - catches module imports)
+    if:
+      type: string
+      substr: "crypto"
+
   # === Credential Terms ===
   - id: token
     desc: token keyword

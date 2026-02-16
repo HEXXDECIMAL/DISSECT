@@ -18,13 +18,7 @@ traits:
       type: string
       regex: "DOCKER_"
 
-  - id: dockerenv
-    desc: /.dockerenv file
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: "/.dockerenv"
+  # Removed dockerenv duplicate - use cap/os/container/runtime/docker::dockerenv
 
   - id: docker-entrypoint
     desc: /docker-entrypoint path

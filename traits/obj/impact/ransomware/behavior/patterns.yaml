@@ -61,14 +61,7 @@ traits:
       type: string
       substr: "-----BEGIN PUBLIC KEY"
 
-  - id: crypto-module
-    desc: crypto module
-    crit: inert
-    conf: 0.3
-    for: [javascript, typescript, python]
-    if:
-      type: string
-      substr: "crypto"
+  # Removed crypto-module duplicate - use cap/data/text/keywords::crypto-substr
 
   # === File iteration (atomic) ===
   - id: readdir-sync
@@ -362,7 +355,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript, python]
     all:
-      - id: crypto-module
+      - id: cap/data/text/keywords::crypto-substr
       - id: rsa-key-operations
 
   # File iteration

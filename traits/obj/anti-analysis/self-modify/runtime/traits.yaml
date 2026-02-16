@@ -39,13 +39,7 @@ traits:
       type: string
       word: "PROT_WRITE"
 
-  - id: prot-exec
-    desc: PROT_EXEC memory protection constant
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "PROT_EXEC"
+  # Removed prot-exec duplicate - use cap/mem/allocate/executable/unix::prot-exec-const
 
   - id: page-rwx
     desc: PAGE_EXECUTE_READWRITE constant
@@ -73,13 +67,7 @@ traits:
       type: string
       substr: /proc/self/maps
 
-  - id: writeprocessmemory
-    desc: Windows WriteProcessMemory API
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: WriteProcessMemory
+  # Removed duplicate - use cap/exec/inject/code::write-process-memory
 
   - id: self-patch-ref
     desc: Self-patch terminology
@@ -156,13 +144,7 @@ traits:
       substr: trampoline
       case_insensitive: true
 
-  - id: ld-preload
-    desc: LD_PRELOAD library injection
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      word: "LD_PRELOAD"
+  # Removed ld-preload duplicate - use cap/os/linker/env::ld-preload
 
   - id: dyld-insert
     desc: macOS DYLD_INSERT_LIBRARIES injection
@@ -269,7 +251,7 @@ composite_rules:
       - id: virtualprotect-win
       - id: virtualprotectex-win
       - id: prot-write
-      - id: prot-exec
+      - id: cap/mem/allocate/executable/unix::prot-exec-const
       - id: page-rwx
     # mprotect is common in graphics libraries for memory-mapped video access
     # and in system libraries for dynamic memory management
@@ -289,7 +271,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: proc-self-mem
-      - id: writeprocessmemory
+      - id: cap/exec/inject/code::write-process-memory
       - id: self-patch-ref
     downgrade:
       any:

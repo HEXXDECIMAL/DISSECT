@@ -38,30 +38,11 @@ traits:
       substr: "TracerPid"
     platforms: [linux]
 
-  - id: ld-debug
-    desc: LD_DEBUG environment variable check
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.6
-    if:
-      type: string
-      substr: "LD_DEBUG"
-    platforms: [linux]
+  # Removed ld-debug duplicate - use cap/os/linker/env::ld-debug
 
   # Windows - individual API presence is notable (standard MSVC CRT imports);
   # combinations in composite rules elevate to suspicious
-  - id: win-isdebuggerpresent
-    desc: Windows IsDebuggerPresent API
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.9
-    if:
-      type: string
-      substr: "IsDebuggerPresent"
-    platforms: [windows]
-    for: [pe, dll]
+  # Removed win-isdebuggerpresent duplicate - use cap/exec/native/api::debugger-detect-api
 
   - id: win-checkremotedebugger
     desc: Windows CheckRemoteDebuggerPresent API
@@ -148,7 +129,7 @@ composite_rules:
     conf: 0.9
     platforms: [windows]
     any:
-      - id: win-isdebuggerpresent
+      - id: cap/exec/native/api::debugger-detect-api
       - id: win-checkremotedebugger
       - id: win-ntqueryinfo
     downgrade:
@@ -167,4 +148,4 @@ composite_rules:
       - id: ptrace-traceme-or-deny
       - id: process-inspection
       - id: win-debugger-detect
-      - id: ld-debug
+      - id: cap/os/linker/env::ld-debug

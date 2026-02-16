@@ -10,14 +10,7 @@ defaults:
 
 traits:
   # === WebSocket connection indicators ===
-  - id: websocket-connection
-    desc: WebSocket connection reference
-    crit: notable
-    conf: 0.6
-    for: [macho, dylib]
-    if:
-      type: string
-      substr: "WebSocket"
+  # Removed websocket-connection duplicate - use cap/comm/http/websocket::websocket-class
 
   # === Request/Response forwarding indicators ===
   - id: web3-request-dto

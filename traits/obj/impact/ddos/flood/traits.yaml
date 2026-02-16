@@ -4,14 +4,7 @@
 
 traits:
   # === SYN Flood micro-traits ===
-  - id: sock-raw
-    desc: SOCK_RAW socket type
-    crit: notable
-    conf: 0.5
-    for: [elf, macho, pe, so, dylib]
-    if:
-      type: string
-      substr: "SOCK_RAW"
+  # Removed sock-raw duplicate - use cap/comm/ip/spoof::sock-raw-constant
 
   - id: ipproto-tcp
     desc: IPPROTO_TCP constant
@@ -138,7 +131,7 @@ composite_rules:
     attack: "T1498"
     for: [elf, macho, pe, so, dylib]
     all:
-      - id: sock-raw
+      - id: cap/comm/ip/spoof::sock-raw-constant
       - id: ipproto-tcp
       - id: syn-flood-string
 

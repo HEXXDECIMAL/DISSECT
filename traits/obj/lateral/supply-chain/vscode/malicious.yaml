@@ -52,14 +52,7 @@ traits:
       regex: "exec(Sync|Async)?\\("
 
   # === Atomic indicators for credential-theft ===
-  - id: ssh-dir
-    desc: .ssh directory reference
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      exact: ".ssh"
+  # Removed ssh-dir duplicate - use cap/fs/path/sensitive/ssh::keys
 
   - id: aws-dir
     desc: .aws directory reference
@@ -70,14 +63,7 @@ traits:
       type: string
       exact: ".aws"
 
-  - id: npmrc-file
-    desc: .npmrc file reference
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: ".npmrc"
+  # Removed npmrc-file duplicate - use obj/creds/environment/secret-access::dot-npmrc
 
   - id: readFile-pattern
     desc: readFile function pattern
@@ -136,9 +122,9 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: ssh-dir
+      - id: cap/fs/path/sensitive/ssh::keys
       - id: aws-dir
-      - id: npmrc-file
+      - id: obj/creds/environment/secret-access::dot-npmrc
       - id: meta/quality/config::dotenv-file
 
   # Send methods

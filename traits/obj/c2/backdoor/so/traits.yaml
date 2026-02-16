@@ -43,7 +43,7 @@ composite_rules:
     needs: 2
     any:
       - id: obj/creds/ssh/key::dot-ssh-path
-      - id: obj/creds/ssh/key::dot-ssh-dir
+      - id: cap/fs/path/sensitive/ssh::keys
       - id: obj/persist/shell/config::bash-files
       - id: obj/persist/shell/config::profile
     none:

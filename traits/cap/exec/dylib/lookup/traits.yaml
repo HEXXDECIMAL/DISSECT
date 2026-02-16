@@ -35,5 +35,5 @@ traits:
     attack: "T1574.002"
     for: [pe]
     if:
-      type: string
+      type: symbol
       substr: "GetProcAddress"

@@ -68,14 +68,7 @@ traits:
       type: string
       substr: "System Preferences"
 
-  - id: ref-keychain
-    desc: "References Keychain Access"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1555.001"
-    if:
-      type: string
-      substr: "Keychain Access"
+  # Removed ref-keychain duplicate - use cap/exec/automation/compiled::keychain-access
 
   - id: ref-terminal
     desc: "References Terminal"

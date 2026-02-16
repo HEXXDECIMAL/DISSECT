@@ -27,17 +27,7 @@ traits:
     regex: (^GetConsoleMode$|^GetConsoleOutputCP$|^GetConsoleScreenBufferInfo$)
   attack: T1497
   mbc: B0001
-- id: write-console-api
-  desc: Console output capability
-  crit: notable
-  conf: 0.5
-  platforms:
-  - windows
-  for:
-  - pe
-  if:
-    type: symbol
-    exact: WriteConsoleW
+# Removed duplicate - use cap/hw/display/screen::write-console-w
 composite_rules:
 - id: console-environment-detection
   desc: Console environment detection checks
@@ -52,7 +42,7 @@ composite_rules:
   needs: 2
   any:
   - id: console-check-api
-  - id: write-console-api
+  - id: cap/hw/display/screen::write-console-w
 - id: environment-aware-malware
   desc: Environment-aware malware adaptation
   crit: suspicious

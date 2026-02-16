@@ -15,7 +15,7 @@ composite_rules:
       - id: cap/comm/download/curl::libcurl-http
     any:
       - id: obj/collect/file-targeting
-      - id: obj/creds/wallet/mnemonic::wallet-word
+      - id: obj/impact/cryptojacking/miner::wallet-ref
 
   # Combination 2: fcopyfile + network (macOS)
   - id: macos-file-copy-exfil

@@ -43,15 +43,7 @@ traits:
       type: string
       substr: "Shell.Application"
 
-  # MSXML HTTP request
-  - id: msxml2-xmlhttp-string
-    desc: MSXML2.XMLHTTP string reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "MSXML2.XMLHTTP"
+  # Removed msxml2-xmlhttp-string duplicate - use cap/exec/activex/com::activex-xmlhttp-msxml2
 
   - id: microsoft-xmlhttp-string
     desc: Microsoft.XMLHTTP string reference
@@ -194,14 +186,7 @@ traits:
       type: string
       substr: ".Exec("
 
-  - id: savetofile-method
-    desc: SaveToFile method call
-    crit: inert
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "SaveToFile"
+  # Removed savetofile-method duplicate - use cap/fs/file/write::file-write
 
 # === Composite Rules ===
 composite_rules:
@@ -214,7 +199,7 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: msxml2-xmlhttp-string
+      - id: cap/exec/activex/com::activex-xmlhttp-msxml2
       - id: microsoft-xmlhttp-string
       - id: msxml2-serverxmlhttp-string
 
@@ -293,7 +278,7 @@ composite_rules:
     any:
       - id: run-method
       - id: exec-method
-      - id: savetofile-method
+      - id: cap/fs/file/write::file-write
 
   # Shell or FSO objects
   - id: wsh-or-fso

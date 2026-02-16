@@ -186,13 +186,7 @@ traits:
       type: string
       substr: "/proc/net/arp"
 
-  - id: proc-net-route
-    desc: Read routing table
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "/proc/net/route"
+  # Removed proc-net-route duplicate - use cap/fs/proc/network::network-route
 
 composite_rules:
   - id: process-self-exe

@@ -336,14 +336,7 @@ traits:
       regex: "password:\\s*['\"][^'\"]+['\"]"
 
   # === WScript/XMLHTTP atomic indicators ===
-  - id: msxml2-xmlhttp
-    desc: MSXML2.XMLHTTP object
-    crit: notable
-    conf: 0.7
-    for: [javascript]
-    if:
-      type: string
-      substr: "MSXML2.XMLHTTP"
+  # Removed msxml2-xmlhttp duplicate - use cap/exec/activex/com::activex-xmlhttp-msxml2
 
   - id: microsoft-xmlhttp
     desc: Microsoft.XMLHTTP object
@@ -623,7 +616,7 @@ composite_rules:
     for: [javascript]
     any:
       - id: cap/exec/scripting/host::wscript-shell-string
-      - id: msxml2-xmlhttp
+      - id: cap/exec/activex/com::activex-xmlhttp-msxml2
       - id: microsoft-xmlhttp
     downgrade:
       any:

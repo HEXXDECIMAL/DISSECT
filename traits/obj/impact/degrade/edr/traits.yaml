@@ -24,14 +24,7 @@ traits:
       substr: "TerminateProcess"
 
   # === EDR/AV process termination verbs (atomic) ===
-  - id: kill-keyword
-    desc: kill keyword
-    crit: notable
-    conf: 0.4
-    for: [elf, pe]
-    if:
-      type: string
-      exact: "kill"
+  # Removed duplicate - use cap/process/terminate/signal::kill
 
   # NOTE: "terminate" alone is too broad - matches C++ std::terminate,
   # terminate_handler, and many other legitimate uses. Match only in
@@ -181,7 +174,7 @@ composite_rules:
     conf: 0.5
     for: [elf, pe]
     any:
-      - id: kill-keyword
+      - id: cap/process/terminate/signal::kill
       - id: terminate-keyword
 
   # EDR process termination (verb + product name)

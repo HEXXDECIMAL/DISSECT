@@ -41,15 +41,7 @@ traits:
       type: string
       substr: "hashrate"
 
-  - id: wallet-word
-    desc: wallet keyword
-    crit: notable
-    conf: 0.4
-    # Restrict to languages where miners typically appear, exclude Swift/macOS contexts
-    for: [python, shell, javascript, go]
-    if:
-      type: string
-      word: "wallet"
+  # Removed wallet-word duplicate - use obj/impact/cryptojacking/miner::wallet-ref
 
   - id: coinhive-str
     desc: coinhive reference
@@ -68,13 +60,7 @@ traits:
       substr: "cryptonight"
 
   # === XMRig atomic indicators (legacy) ===
-  - id: xmrig-pascal
-    desc: XMRig (PascalCase)
-    crit: notable
-    conf: 0.55
-    if:
-      type: string
-      substr: "XMRig"
+  # Moved xmrig-pascal to known/malware/miner/xmrig/traits.yaml
 
   - id: miner-stratum
     desc: Stratum mining protocol
@@ -96,10 +82,10 @@ composite_rules:
       - id: stratum-tcp
       - id: pool-url
       - id: miner-word
-      - id: known/malware/miner::xmrig-lower
+      - id: known/malware/miner/xmrig::xmrig-name
       - id: obj/impact/cryptojacking/miner::monero-lower
       - id: hashrate-str
-      - id: wallet-word
+      - id: obj/impact/cryptojacking/miner::wallet-ref
       - id: coinhive-str
       - id: cryptonight-str
 
@@ -109,5 +95,4 @@ composite_rules:
     crit: notable
     conf: 0.66
     any:
-      - id: known/malware/miner::xmrig-lower
-      - id: xmrig-pascal
+      - id: known/malware/miner/xmrig::xmrig-name

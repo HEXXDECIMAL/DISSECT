@@ -15,27 +15,7 @@ traits:
     attack: "T1083"
     mbc: "C0000"
 
-  - id: file-iterate-api
-    desc: File iteration API (FindNextFileW)
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FindNextFileW"
-    attack: "T1083"
-    mbc: "C0000"
-
-  - id: file-close-api
-    desc: File search termination (FindClose)
-    crit: notable
-    conf: 0.6
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FindClose"
+  # Removed duplicates - use cap/fs/enumerate/directory::find-next-file and ::find-close
 
 composite_rules:
   - id: file-enumeration-targeting
@@ -48,7 +28,7 @@ composite_rules:
     mbc: "C0000"
     all:
       - id: file-find-api
-      - id: file-iterate-api
+      - id: cap/fs/enumerate/directory::find-next-file
     downgrade:
       any:
         - id: meta/quality/versioned

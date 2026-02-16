@@ -3,48 +3,11 @@
 # Generic indicator for sophisticated thread pool malware
 
 traits:
-  - id: fls-alloc-api
-    desc: Fiber local storage allocation (FlsAlloc)
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FlsAlloc"
-    attack: "T1129"
-
-  - id: fls-getvalue-api
-    desc: Fiber local storage retrieval (FlsGetValue)
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FlsGetValue"
-    attack: "T1129"
-
-  - id: fls-setvalue-api
-    desc: Fiber local storage assignment (FlsSetValue)
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FlsSetValue"
-    attack: "T1129"
-
-  - id: fls-free-api
-    desc: Fiber local storage deallocation (FlsFree)
-    crit: notable
-    conf: 0.6
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "FlsFree"
+  # Removed duplicates - use cap/exec/native/api versions:
+  # - tls-alloc (FlsAlloc)
+  # - tls-get-value (FlsGetValue)
+  # - tls-set-value (FlsSetValue)
+  # - tls-free (FlsFree)
 
 composite_rules:
   - id: fiber-local-storage-ops
@@ -56,9 +19,9 @@ composite_rules:
     attack: "T1129"
     needs: 2
     any:
-      - id: fls-alloc-api
-      - id: fls-getvalue-api
-      - id: fls-setvalue-api
+      - id: cap/exec/native/api::tls-alloc
+      - id: cap/exec/native/api::tls-get-value
+      - id: cap/exec/native/api::tls-set-value
     downgrade:
       any:
         - id: meta/quality/versioned

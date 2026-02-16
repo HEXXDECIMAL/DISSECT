@@ -56,14 +56,7 @@ traits:
       regex: "/dev/tcp/.{0,50}Host:"
 
   # === mkfifo netcat atomic indicators ===
-  - id: mkfifo-cmd
-    desc: mkfifo command for named pipe
-    crit: notable
-    conf: 0.5
-    for: [shell, package.json]
-    if:
-      type: string
-      word: "mkfifo"
+  # Removed mkfifo-cmd duplicate - use cap/fs/pipe/fifo::mkfifo-cmd
 
   - id: nc-pipe
     desc: Netcat with pipe
@@ -154,7 +147,7 @@ composite_rules:
     conf: 0.95
     for: [shell, package.json]
     all:
-      - id: mkfifo-cmd
+      - id: cap/fs/pipe/fifo::mkfifo-cmd
       - id: cap/exec/command/shell::sh-interactive
       - id: nc-pipe
 

@@ -27,24 +27,10 @@ traits:
       type: string
       substr: "osascript"
 
-  - id: do-shell-script
-    desc: "AppleScript shell command execution"
-    crit: suspicious
-    conf: 0.85
-    attack: "T1059.004"
-    if:
-      type: string
-      substr: "do shell script"
+  # Removed do-shell-script duplicate - use cap/exec/command/script::shell-cmd
 
   # === Password dialog ===
-  - id: password-dialog
-    desc: "AppleScript password input dialog"
-    crit: suspicious
-    conf: 0.85
-    attack: "T1056.002"
-    if:
-      type: string
-      regex: "display dialog.{0,50}password"
+  # Removed password-dialog duplicate - use obj/anti-analysis/window-hide/ui::dialog-password
 
 composite_rules:
   # Hidden execution pattern
@@ -54,4 +40,4 @@ composite_rules:
     conf: 0.9
     all:
       - id: hide-window
-      - id: do-shell-script
+      - id: cap/exec/command/script::shell-cmd

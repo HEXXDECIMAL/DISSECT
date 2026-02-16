@@ -13,18 +13,7 @@ traits:
     type: symbol
     regex: (^QueryPerformanceCounter$|^gettimeofday$|^clock_gettime$)
   mbc: C0025
-- id: cpu-feature-check
-  desc: CPU feature detection for evasion
-  crit: notable
-  conf: 0.75
-  platforms:
-  - windows
-  for:
-  - pe
-  if:
-    type: symbol
-    exact: IsProcessorFeaturePresent
-  mbc: B0009
+# Removed cpu-feature-check duplicate - use cap/exec/native/api::processor-feature-check
 composite_rules:
 - id: evasion-aware-malware
   desc: Malware with multiple anti-analysis awareness checks
@@ -42,7 +31,7 @@ composite_rules:
   - id: obj/anti-analysis/debugger/detect::win-comprehensive
   any:
   - id: timing-check-api
-  - id: cpu-feature-check
+  - id: cap/exec/native/api::processor-feature-check
   - id: obj/anti-analysis/emulator/detect::comprehensive
   downgrade:
     any:

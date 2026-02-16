@@ -92,13 +92,7 @@ traits:
       type: string
       word: "instance_eval"
 
-  - id: class-eval
-    desc: class_eval call
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      word: "class_eval"
+  # Removed class-eval duplicate - use cap/exec/eval/dynamic::class-eval
 
   # === Base64 patterns ===
   - id: base64-decode
@@ -152,13 +146,7 @@ traits:
       type: string
       substr: ".ssh/id_rsa"
 
-  - id: aws-credentials-path
-    desc: AWS credentials path
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      substr: ".aws/credentials"
+  # Removed aws-credentials-path duplicate - use cap/fs/path/sensitive/cloud::aws-credentials
 
   - id: netrc-path
     desc: .netrc file path
@@ -168,13 +156,7 @@ traits:
       type: string
       substr: ".netrc"
 
-  - id: browser-login-data
-    desc: Browser Login Data file
-    crit: notable
-    conf: 0.85
-    if:
-      type: string
-      substr: "Login Data"
+  # Removed browser-login-data duplicate - use cap/fs/path/sensitive/browser::login-data
 
   - id: chrome-config-path
     desc: Chrome config path
@@ -345,9 +327,9 @@ composite_rules:
     conf: 0.9
     any:
       - id: ssh-private-key-path
-      - id: aws-credentials-path
+      - id: cap/fs/path/sensitive/cloud::aws-credentials
       - id: netrc-path
-      - id: browser-login-data
+      - id: cap/fs/path/sensitive/browser::login-data
       - id: chrome-config-path
 
   - id: webhook-exfil

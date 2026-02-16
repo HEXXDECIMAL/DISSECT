@@ -39,25 +39,7 @@ traits:
       regex: "nanosleep"
 
   # === Clock/timing functions ===
-  - id: clock-gettime
-    desc: "Reads current time (timing measurements)"
-    crit: inert
-    conf: 0.3
-    platforms: [linux, macos, unix]
-    for: [elf, macho]
-    if:
-      type: symbol
-      regex: "clock_gettime"
-
-  - id: gettimeofday
-    desc: "Gets current time of day"
-    crit: inert
-    conf: 0.3
-    platforms: [linux, macos, unix]
-    for: [elf, macho]
-    if:
-      type: symbol
-      regex: "gettimeofday"
+  # Removed duplicates - use cap/os/time/query::clock_gettime and ::gettimeofday
 
 composite_rules:
   # Basic delay capability
@@ -81,8 +63,8 @@ composite_rules:
     conf: 0.4
     attack: "T1497.003"
     any:
-      - id: clock-gettime
-      - id: gettimeofday
+      - id: cap/os/time/query::clock_gettime
+      - id: cap/os/time/query::gettimeofday
     downgrade:
       any:
         - id: cap/exec/load/video-lib-marker

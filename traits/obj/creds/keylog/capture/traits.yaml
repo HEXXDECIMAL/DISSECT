@@ -339,14 +339,7 @@ traits:
       type: string
       substr: "run-applescript"
 
-  - id: exec-sync
-    desc: execSync function
-    crit: notable
-    conf: 0.5
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      exact: "execSync"
+  # Removed exec-sync duplicate - use cap/exec/command/shell/lang::js-execsync
 
 composite_rules:
   # === Helper composites (case variants) ===

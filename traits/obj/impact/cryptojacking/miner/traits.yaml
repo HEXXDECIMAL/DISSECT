@@ -98,16 +98,7 @@ traits:
       substr: "moneropool"
 
   # === Atomic: Mining Software ===
-
-  - id: xmrig-ref
-    desc: XMRig miner reference
-    crit: suspicious
-    conf: 0.9
-    attack: "T1496"
-    if:
-      type: string
-      substr: "xmrig"
-      case_insensitive: true
+  # Removed xmrig-ref duplicate - use known/malware/miner/xmrig::xmrig-name
 
   - id: cryptonight
     desc: CryptoNight algorithm reference
@@ -294,7 +285,7 @@ composite_rules:
       - id: pool-minergate
       - id: pool-crypto-pool
       - id: pool-moneropool
-      - id: xmrig-ref
+      - id: known/malware/miner/xmrig::xmrig-name
       - id: cryptonight
       - id: known/malware/miner::cn-variants
       - id: donate-level
@@ -310,7 +301,7 @@ composite_rules:
     all:
       - id: hugepages
     any:
-      - id: xmrig-ref
+      - id: known/malware/miner/xmrig::xmrig-name
       - id: monero-ref
       - id: wallet-ref
 
@@ -336,7 +327,7 @@ composite_rules:
     mbc: "B0036"
     for: [python, shell]
     all:
-      - id: xmrig-ref
+      - id: known/malware/miner/xmrig::xmrig-name
       - id: pool-supportxmr
       - id: known/malware/miner::monero-wallets
       - id: cap/exec/command/shell::python-os-system
@@ -368,7 +359,7 @@ composite_rules:
     mbc: "B0036"
     for: [python]
     all:
-      - id: xmrig-ref
+      - id: known/malware/miner/xmrig::xmrig-name
       - id: known-mining-pool
       - id: known/malware/miner::monero-wallets
       - id: cap/exec/command/shell::python-os-system

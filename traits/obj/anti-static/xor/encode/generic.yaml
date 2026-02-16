@@ -22,13 +22,7 @@ traits:
       type: string
       substr: xor_encrypt
 
-  - id: xor-decode
-    desc: XOR decode function reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: xor_decode
+  # Removed xor-decode duplicate - use obj/anti-static/obfuscation/encoding::xor-decode-symbol
 
   - id: xor-loop
     desc: XOR operation with hex byte
@@ -48,5 +42,5 @@ composite_rules:
     any:
       - id: xor-key
       - id: xor-encrypt
-      - id: xor-decode
+      - id: obj/anti-static/obfuscation/encoding::xor-decode-symbol
       - id: xor-loop

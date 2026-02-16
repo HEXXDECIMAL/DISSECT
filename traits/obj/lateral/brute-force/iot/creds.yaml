@@ -50,14 +50,7 @@ traits:
   # Discovery objective is in obj/discovery/network/scan/
 
   # === Shell execution in static binaries ===
-  - id: bin-sh-string
-    desc: Shell path string /bin/sh
-    crit: notable
-    conf: 0.95
-    for: [elf, macho, python, go]
-    if:
-      type: string
-      substr: "/bin/sh"
+  # Removed duplicate - use cap/exec/command/shell::bin-sh instead
 
   # === Telnet/SSH Brute-Force Indicators ===
   - id: busybox-command-injection
@@ -90,7 +83,7 @@ composite_rules:
       - id: iot-vendor-creds
       - id: cap/fs/proc/info::proc-net-tcp
       - id: busybox-command-injection
-      - id: bin-sh-string
+      - id: cap/exec/command/shell::bin-sh
 
   # IoT Botnet Scanner with mirai creds: combines default creds + network scanning + busybox + shell
   # Complexity: all(4) = 4 >= 4 ✓ HOSTILE
@@ -103,7 +96,7 @@ composite_rules:
       - id: mirai-style-creds
       - id: cap/fs/proc/info::proc-net-tcp
       - id: busybox-command-injection
-      - id: bin-sh-string
+      - id: cap/exec/command/shell::bin-sh
 
   # IoT Botnet Scanner with shell injection pattern
   # Complexity: all(4) = 4 >= 4 ✓ HOSTILE
@@ -116,7 +109,7 @@ composite_rules:
       - id: iot-vendor-creds
       - id: cap/fs/proc/info::proc-net-tcp
       - id: shell-injection-pattern
-      - id: bin-sh-string
+      - id: cap/exec/command/shell::bin-sh
 
   # Credential spray: many default creds without all scanning indicators
   # Complexity: all(2) = 2 < 4, stays SUSPICIOUS

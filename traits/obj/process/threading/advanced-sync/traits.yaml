@@ -59,18 +59,7 @@ traits:
     type: symbol
     regex: (^WakeConditionVariable$|^WakeAllConditionVariable$)
   attack: T1129
-- id: slist-initialize
-  desc: Interlocked SList init
-  crit: notable
-  conf: 0.65
-  platforms:
-  - windows
-  for:
-  - pe
-  if:
-    type: symbol
-    exact: InitializeSListHead
-  attack: T1129
+# Removed duplicate - use cap/mem/sync/mutex::initialize-slist-head
 - id: slist-operations
   desc: Interlocked SList ops
   crit: notable
@@ -123,7 +112,7 @@ composite_rules:
   - pe
   attack: T1129
   all:
-  - id: slist-initialize
+  - id: cap/mem/sync/mutex::initialize-slist-head
   - id: slist-operations
 - id: advanced-sync-primitives
   desc: Advanced sync primitives

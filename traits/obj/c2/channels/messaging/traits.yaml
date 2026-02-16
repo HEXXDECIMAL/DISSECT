@@ -27,15 +27,7 @@ traits:
       type: symbol
       regex: http_post|POST|HttpPost
 
-  - id: user-agent-custom
-    desc: Custom User-Agent string (C2 indicator)
-    crit: notable
-    mbc: "B0030"
-    attack: "T1071.001"
-    conf: 0.6
-    if:
-      type: string
-      regex: "User-Agent:"
+  # Removed user-agent-custom duplicate - use cap/comm/http/request::user-agent-header
 
   # DNS C2
   - id: dns-query

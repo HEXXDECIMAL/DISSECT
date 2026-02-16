@@ -11,13 +11,7 @@ defaults:
 
 traits:
   # === JSON Content-Type ===
-  - id: json-content-type
-    desc: JSON content-type header
-    crit: notable
-    conf: 0.70
-    if:
-      type: string
-      regex: "application/json"
+  # Removed json-content-type duplicate - use cap/comm/http/request::application-json
 
   - id: json-charset-utf8
     desc: JSON with UTF-8 charset
@@ -102,7 +96,7 @@ composite_rules:
     attack: "T1071.001"
     needs: 3
     any:
-      - id: json-content-type
+      - id: cap/comm/http/request::application-json
       - id: json-charset-utf8
       - id: requests-json-headers
 
@@ -121,7 +115,7 @@ composite_rules:
       - id: base64-json-payload
       - id: http-post-json
     all:
-      - id: json-content-type
+      - id: cap/comm/http/request::application-json
     unless:
       - type: raw
         regex: "requests|test"

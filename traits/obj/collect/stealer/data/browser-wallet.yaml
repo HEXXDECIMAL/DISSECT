@@ -12,7 +12,7 @@ composite_rules:
     mbc: "OB0009"
     attack: "T1555.003"
     any:
-      - id: obj/creds/browser/chromium::login-data
+      - id: cap/fs/path/sensitive/browser::login-data
       - id: obj/creds/browser/chromium::cookies
       - id: obj/creds/browser/firefox::cookies
       - id: obj/creds/browser/safari::cookies-path

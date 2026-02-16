@@ -1,10 +1,2 @@
 # OS User information
-traits:
-  - id: home-dir
-    desc: "Get user home directory"
-    crit: inert
-    conf: 0.9
-    for: [go]
-    if:
-      type: string
-      substr: "os.UserHomeDir"
+# Removed home-dir duplicate - use cap/os/user/lookup::go-home-dir (from go.yaml)

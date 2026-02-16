@@ -10,13 +10,7 @@ defaults:
 
 traits:
   # === Download and execute function patterns ===
-  - id: py-download-and-execute-func
-    desc: download_and_execute function (Python)
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: "download_and_execute|download_execute|downloadAndExecute|downloadExecute"
+  # Removed py-download-and-execute-func duplicate - use cap/exec/dropper/http::download-and-execute-func
 
   - id: def-download
     desc: Function named download_*

@@ -15,7 +15,7 @@ traits:
     attack: "T1129"
     mbc: "C0019"
 
-  - id: post-message-api
+  - id: cap/os/message/queue::post-thread-message-a  # not-dupe (threading IPC context)
     desc: Message queue posting (PostThreadMessageA)
     crit: notable
     conf: 0.75
@@ -27,7 +27,7 @@ traits:
     attack: "T1129"
     mbc: "C0019"
 
-  - id: get-message-api
+  - id: cap/os/message/queue::get-message-a  # not-dupe (threading IPC context)
     desc: Message queue retrieval (GetMessageA)
     crit: notable
     conf: 0.75
@@ -53,7 +53,7 @@ composite_rules:
       - id: cap/process/threading
     any:
       - id: peek-message-api
-      - id: get-message-api
+      - id: cap/os/message/queue::get-message-a  # not-dupe (threading IPC context)
     needs: 1
 
   - id: message-based-command-server
@@ -66,7 +66,7 @@ composite_rules:
     mbc: "C0019"
     all:
       - id: message-queue-threading
-      - id: post-message-api
+      - id: cap/os/message/queue::post-thread-message-a  # not-dupe (threading IPC context)
 
   - id: message-dispatch-framework
     desc: Sophisticated message dispatch framework

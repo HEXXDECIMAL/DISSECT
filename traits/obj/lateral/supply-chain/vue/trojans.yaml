@@ -47,7 +47,7 @@ composite_rules:
       - { id: meta/library/vue::library }
       - { id: meta/library/vue::version-string }
     any:
-      - { id: obj/creds/browser/chromium::login-data }
+      - { id: cap/fs/path/sensitive/browser::login-data }
       - { id: obj/creds/browser/firefox::cookies }
 
   # Vue + Command Execution = HOSTILE

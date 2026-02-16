@@ -32,13 +32,7 @@ traits:
       type: raw
       regex: '\r\n\r\n'
 
-  - id: http-user-agent
-    desc: User-Agent header string
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "User-Agent:"
+  # Removed http-user-agent duplicate - use cap/comm/http/request::user-agent-header
 
   - id: http-content-type
     desc: Content-Type header string
@@ -67,5 +61,5 @@ composite_rules:
       - id: cap/exec/vm/sandbox::http-protocol-string
       - id: http-delimiter
     any:
-      - id: http-user-agent
+      - id: cap/comm/http/request::user-agent-header
       - id: http-content-type

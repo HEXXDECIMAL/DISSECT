@@ -10,11 +10,7 @@ defaults:
   attack: "T1555.003"
 
 traits:
-  - id: login-data
-    desc: Chromium Login Data database path
-    if:
-      type: string
-      substr: "Login Data"
+  # Removed login-data duplicate - use cap/fs/path/sensitive/browser::login-data
 
   - id: cookies
     desc: Chromium Cookies database path

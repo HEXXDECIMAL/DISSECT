@@ -16,22 +16,6 @@ traits:
       type: hex
       pattern: "0F 31"
 
-  - id: sys-clock-gettime
-    desc: clock_gettime function (syscall)
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      word: "clock_gettime"
-
-  - id: sys-gettimeofday
-    desc: gettimeofday function (syscall)
-    crit: inert
-    conf: 0.3
-    if:
-      type: string
-      word: "gettimeofday"
-
   # NOTE: "time" is far too generic - matches Go runtime, standard library, etc.
   # Changed to more specific pattern
   - id: time-func
@@ -52,6 +36,6 @@ composite_rules:
     all:
       - id: rdtsc
     any:
-      - id: sys-clock-gettime
-      - id: sys-gettimeofday
+      - id: cap/os/time/query::clock_gettime
+      - id: cap/os/time/query::gettimeofday
       - id: time-func

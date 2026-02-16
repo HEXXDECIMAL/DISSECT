@@ -238,7 +238,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: obj/creds/browser/chromium::login-data
+      - id: cap/fs/path/sensitive/browser::login-data
       - id: places-sqlite
 
   # Chrome history composite
@@ -253,7 +253,7 @@ composite_rules:
     any:
       - id: history-file
       - id: cookies-file
-      - id: obj/creds/browser/chromium::login-data
+      - id: cap/fs/path/sensitive/browser::login-data
     downgrade:
       any:
         # Chrome binaries legitimately reference their own data files

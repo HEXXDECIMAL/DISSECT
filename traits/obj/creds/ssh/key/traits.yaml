@@ -226,14 +226,7 @@ traits:
       type: string
       substr: "ssh_cred"
 
-  - id: sshdone-identifier
-    desc: SSH operation completion flag variable
-    crit: suspicious
-    conf: 0.85
-    for: [elf, macho, pe, dll, so, dylib, python, shell]
-    if:
-      type: string
-      substr: "sshdone"
+  # Removed sshdone-identifier duplicate - use known/malware/rootkit/medusa::sshdone
 
   # === Atomic: Password File Storage ===
   - id: sshpass-txt-file
@@ -313,14 +306,7 @@ traits:
         - type: basename
           exact: "sftp"
 
-  - id: dot-ssh-dir
-    desc: .ssh directory reference
-    crit: notable
-    conf: 0.5
-    attack: "T1552.004"
-    if:
-      type: string
-      exact: ".ssh"
+  # Removed dot-ssh-dir duplicate - use cap/fs/path/sensitive/ssh::keys
 
 composite_rules:
   # Helper composites for migrated YARA rules
@@ -349,7 +335,7 @@ composite_rules:
       - { id: sshpass-keyword }
       - { id: ssh-password-identifier }
       - { id: ssh-cred-identifier }
-      - { id: sshdone-identifier }
+      - { id: known/malware/rootkit/medusa::sshdone }
 
   - id: ssh-password-files
     desc: SSH password file patterns
@@ -370,7 +356,7 @@ composite_rules:
     any:
       - id: slash-dot-ssh
       - id: dot-dot-ssh
-      - id: dot-ssh-dir
+      - id: cap/fs/path/sensitive/ssh::keys
 
   # === Composite: SSHD network process ===
   - id: sshd-net-proc
