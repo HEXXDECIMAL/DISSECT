@@ -396,4 +396,245 @@ mod tests {
         assert!(!analyzer.is_interesting_string("(Ljava/lang/String;)I"));
         assert!(!analyzer.is_interesting_string("[Ljava/lang/Object;"));
     }
+
+    // =============================================================================
+    // Additional edge case tests - Malformed inputs
+    // =============================================================================
+
+    #[test]
+    fn test_parse_truncated_utf8_length() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Valid magic, version, and pool count, but UTF8 entry with truncated length
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version (Java 8)
+            0x00, 0x02, // constant pool count = 2
+            0x01, // tag = UTF8
+            0x00, // truncated length (only 1 byte instead of 2)
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Truncated"));
+    }
+
+    #[test]
+    fn test_parse_truncated_utf8_data() {
+        let analyzer = JavaClassAnalyzer::new();
+        // UTF8 entry claims 100 bytes but data ends early
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version (Java 8)
+            0x00, 0x02, // constant pool count = 2
+            0x01, // tag = UTF8
+            0x00, 0x64, // length = 100
+                  // but no actual data follows
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_invalid_constant_pool_tag() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Valid header but invalid constant pool tag
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version (Java 8)
+            0x00, 0x02, // constant pool count = 2
+            0xFF, // invalid tag (255)
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        // Should handle gracefully (either error or skip)
+        // The important part is it doesn't panic
+        let _ = result;
+    }
+
+    #[test]
+    fn test_parse_class_with_zero_constant_pool_count() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Constant pool count of 0 is unusual (should be at least 1)
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version (Java 8)
+            0x00, 0x00, // constant pool count = 0 (unusual but handled)
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        // Parser handles this case (will eventually fail on missing class info data)
+        // The important thing is it doesn't panic
+        let _ = result;
+    }
+
+    #[test]
+    fn test_parse_class_with_large_constant_pool_count() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Claims 65535 constant pool entries
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version (Java 8)
+            0xFF, 0xFF, // constant pool count = 65535 (max u16)
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        // Should error due to truncation
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_cafebabe_at_wrong_offset() {
+        let analyzer = JavaClassAnalyzer::new();
+        // CAFEBABE magic at wrong position
+        let data = vec![
+            0x00, 0x00, 0x00, 0x00, // wrong magic
+            0xCA, 0xFE, 0xBA, 0xBE, // CAFEBABE here doesn't count
+            0x00, 0x00, // minor version
+            0x00, 0x34, // major version
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("magic"));
+    }
+
+    #[test]
+    fn test_parse_one_byte_file() {
+        let analyzer = JavaClassAnalyzer::new();
+        let data = vec![0xCA];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_only_magic() {
+        let analyzer = JavaClassAnalyzer::new();
+        let data = vec![0xCA, 0xFE, 0xBA, 0xBE];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_magic_plus_version() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Magic + minor + major but nothing else
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor
+            0x00, 0x34, // major
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        assert!(result.is_err());
+    }
+
+    // =============================================================================
+    // Property-based tests using proptest
+    // =============================================================================
+
+    use proptest::prelude::*;
+
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(1000))]
+
+        #[test]
+        fn test_parse_never_panics_on_random_bytes(data in prop::collection::vec(any::<u8>(), 0..1000)) {
+            let analyzer = JavaClassAnalyzer::new();
+            // Should never panic, only return Ok or Err
+            let _ = analyzer.parse_class_file(&data);
+        }
+
+        #[test]
+        fn test_parse_never_panics_on_small_random_inputs(data in prop::collection::vec(any::<u8>(), 0..50)) {
+            let analyzer = JavaClassAnalyzer::new();
+            let _ = analyzer.parse_class_file(&data);
+        }
+
+        #[test]
+        fn test_parse_never_panics_with_valid_magic(
+            minor_version in any::<u16>(),
+            major_version in any::<u16>(),
+            rest in prop::collection::vec(any::<u8>(), 0..500)
+        ) {
+            let analyzer = JavaClassAnalyzer::new();
+            let mut data = vec![0xCA, 0xFE, 0xBA, 0xBE];
+            data.extend_from_slice(&minor_version.to_be_bytes());
+            data.extend_from_slice(&major_version.to_be_bytes());
+            data.extend(rest);
+
+            // Should never panic
+            let _ = analyzer.parse_class_file(&data);
+        }
+
+        #[test]
+        fn test_is_interesting_string_never_panics(s in ".*") {
+            let analyzer = JavaClassAnalyzer::new();
+            // Should never panic on any string
+            let _ = analyzer.is_interesting_string(&s);
+        }
+
+        #[test]
+        fn test_can_analyze_never_panics(filename in ".*") {
+            let analyzer = JavaClassAnalyzer::new();
+            let path = Path::new(&filename);
+            // Should never panic on any filename
+            let _ = analyzer.can_analyze(path);
+        }
+    }
+
+    // =============================================================================
+    // Constant pool parsing edge cases
+    // =============================================================================
+
+    #[test]
+    fn test_parse_class_ref_out_of_bounds() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Class entry referencing non-existent constant pool index
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor
+            0x00, 0x34, // major
+            0x00, 0x03, // pool count = 3
+            0x01, // tag = UTF8
+            0x00, 0x04, // length = 4
+            b'T', b'e', b's', b't', // "Test"
+            0x07, // tag = Class
+            0xFF, 0xFF, // name index = 65535 (out of bounds)
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        // Should handle gracefully
+        let _ = result;
+    }
+
+    #[test]
+    fn test_parse_multiple_long_and_double_entries() {
+        let analyzer = JavaClassAnalyzer::new();
+        // Long and Double take 2 constant pool slots
+        let data = vec![
+            0xCA, 0xFE, 0xBA, 0xBE, // magic
+            0x00, 0x00, // minor
+            0x00, 0x34, // major
+            0x00, 0x05, // pool count = 5
+            0x05, // tag = Long
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, // value
+            // Entry 2 is implicitly Empty (Long takes 2 slots)
+            0x06, // tag = Double
+            0x3F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // value (1.0)
+                  // Entry 4 is implicitly Empty
+        ];
+
+        let result = analyzer.parse_class_file(&data);
+        // Should handle Long/Double which occupy 2 slots each
+        let _ = result;
+    }
 }
+

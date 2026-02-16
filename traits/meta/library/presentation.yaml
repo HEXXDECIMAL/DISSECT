@@ -45,3 +45,52 @@ traits:
     if:
       type: string
       regex: "DisplayManager:StageSizeDidChangeEvent|kPadPortraitModeHorizontalMargin|kMobilePortraitModeTopMargin|kNavigationArrowSize"
+
+  - id: keynote-narration-manager
+    desc: "Detects NarrationManager (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "NarrationManager|gShowController|handleAudioDidStart"
+
+  - id: keynote-animation-manager
+    desc: "Detects AnimationManager (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "AnimationManager|kKeyframeRule|kKeyframesPropertyName"
+
+  - id: keynote-texture-manager
+    desc: "Detects TextureManager (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "TextureManager|sceneDidLoadCallbackHandler|processTextureDidLoadCallback"
+
+  - id: keynote-static-assets
+    desc: "Detects KNStaticAssets (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "KNStaticAssets|KNTransitionSwoosh|KNTransitionSlide"
+
+  - id: keynote-navigator-controller
+    desc: "Detects NavigatorController (Keynote export)"
+    crit: inert
+    conf: 1.0
+    if:
+      type: raw
+      regex: "NavigatorController|NavigatorThumbnailSidebar|NavigatorThumbnailScroller|NavigatorThumbnailSelection|NavigatorThumbnailContainer|kSlideIndexDidChangeEvent"
+
+  - id: sproutcore-localization-manager
+    desc: "Detects SproutCore/Keynote localization manager"
+    crit: inert
+    conf: 1.0
+    if:
+      type: string
+      regex: "normalizedLanguage|useAutodetectedLanguage|addStringsFor|CoreDocs\\.loc"
+    

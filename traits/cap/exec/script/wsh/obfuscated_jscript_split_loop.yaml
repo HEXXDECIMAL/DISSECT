@@ -1,0 +1,9 @@
+traits:
+  - id: js-split-string-array
+    desc: JScript split string array assignment
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: raw
+      regex: 'var\s+[a-zA-Z0-9]+\s*=\s*[''"][^''"]*[''"]\.split\([''"][^''"]*[''"]\);'

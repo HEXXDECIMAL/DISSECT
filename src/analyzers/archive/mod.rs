@@ -1859,6 +1859,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore] // Slow test: creates 101MB file and compresses it (~60s). Run with: cargo test -- --ignored
     fn test_7z_size_limit_protection() {
         // Test that 7z respects file size limits
         let temp_dir = tempfile::tempdir().unwrap();
@@ -1869,7 +1870,7 @@ mod tests {
         fs::create_dir(&src_dir).unwrap();
         let large_file = src_dir.join("huge.bin");
 
-        // Create a 101MB file
+        // Create a 101MB file (must be >100MB to trigger MAX_FILE_SIZE detection)
         let large_data = vec![0u8; 101 * 1024 * 1024];
         fs::write(&large_file, large_data).unwrap();
 

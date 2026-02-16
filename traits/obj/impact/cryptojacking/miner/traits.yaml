@@ -249,15 +249,9 @@ traits:
       type: string
       substr: "wallet"
 
-  # NOTE: Go runtime uses /proc/self legitimately for memory management
-  # Moved to inert - only meaningful with other mining indicators
-  - id: proc-self-ref
-    desc: Process self reference
-    crit: notable
-    conf: 0.3
-    if:
-      type: string
-      substr: "/proc/self"
+  # NOTE: /proc/self is a universal pattern (memory-only malware, Go runtime, etc.)
+  # This trait has been removed - /proc/self/exe is properly detected in cap/fs/proc/info/
+  # Do not re-add atomic string observations here - cryptominers require mining-specific indicators
 
   # NOTE: "NUMA" can appear in Go and other runtimes for memory optimization.
   # Only meaningful with other mining indicators.
@@ -329,7 +323,7 @@ composite_rules:
     for: [elf]
     all:
       - id: argon2d
-      - id: proc-self-ref
+      - id: cap/fs/proc/info::process-self-exe
       - id: numa-ref
 
   # === HOSTILE: Cryptominer Trojan ===

@@ -25,3 +25,12 @@ traits:
       type: raw
       regex: 'rundll32.{0,20},.{0,20}(qwerty|Run|start)'
       case_insensitive: true
+
+  - id: nemucod-export-fragments
+    desc: Fragments of Nemucod-style export call (qwerty 323)
+    crit: suspicious
+    for: [javascript, vbs]
+    if:
+      type: raw
+      regex: '",qwe".{0,50}"rty".{0,50}"323"'
+      case_insensitive: true

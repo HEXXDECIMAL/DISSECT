@@ -27,3 +27,10 @@ traits:
     if:
       type: raw
       regex: "(?i)typeof\\s+WScript\\s*(=|!)=+\\s*['\"]object['\"]"
+
+  - id: env-check-comspec-cmd
+    desc: Validates ComSpec path against cmd.exe
+    crit: suspicious
+    if:
+      type: raw
+      regex: '(?i)ComS(pec)?\b.{0,100}%SystemRoot%\\system32\\cmd\.exe'

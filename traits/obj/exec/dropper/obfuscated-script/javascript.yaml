@@ -40,3 +40,31 @@ composite_rules:
       any:
         - type: string
           regex: "BinaryParser|Jonas Raoni Soares Silva"
+
+  # Obfuscated JScript Dropper (Incremental String Building)
+  # Detects JScript code using high density of small function calls to construct payload
+  - id: js-incremental-string-dropper
+    desc: "Obfuscated JScript dropper using incremental string building"
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: cap/anti-static/obfuscation/js::js-dense-string-building
+    any:
+      - id: obj/anti-static/obfuscation/code-metrics/functions::high-function-density
+      - id: cap/exec/eval/dynamic::js-eval-construction
+      - id: cap/exec/eval/dynamic::js-indirect-eval-this
+      - id: cap/exec/eval/dynamic::js-indirect-eval-this-assign
+      - id: js-indirect-eval-via-global-var
+      - id: cap/exec/script/wsh
+
+  - id: js-indirect-eval-via-global-var
+    desc: "Indirect eval via global object reference"
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: cap/exec/eval/dynamic::js-assign-global-this
+      - id: cap/exec/eval/dynamic::bracket-property-access-var
+    unless:
+      - id: cap/exec/eval/dynamic::js-assign-common-root

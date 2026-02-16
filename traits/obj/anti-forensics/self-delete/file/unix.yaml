@@ -12,3 +12,17 @@ traits:
     if:
       type: string
       substr: "unlink(argv[0])"
+
+composite_rules:
+  - id: mirai-style-self-delete
+    desc: Memory-only execution pattern
+    crit: suspicious
+    conf: 0.88
+    mbc: "F0007"
+    attack: "T1070.004"
+    all:
+      - id: cap/fs/proc/info::process-self-exe  # Reads /proc/self/exe
+    any:
+      - id: self-delete-unlink  # Explicit unlink
+      - id: cap/fs/path/temp::tmp-hidden-file  # Hidden temp file (lock/state)
+      - id: obj/persist/daemon/init::daemon-dev-null  # Daemonization

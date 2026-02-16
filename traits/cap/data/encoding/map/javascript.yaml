@@ -1,0 +1,9 @@
+traits:
+  - id: js-nested-array-table-mapping
+    desc: JScript nested array table obfuscation mapping
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\[\s*0\s*,\s*\[\s*0\s*,\s*[''"][^''"]*[''"]\s*\]\s*\]'

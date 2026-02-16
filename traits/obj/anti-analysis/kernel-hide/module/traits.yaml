@@ -87,14 +87,9 @@ traits:
       type: symbol
       regex: "udp6_seq_show"
 
-  - id: proc-net-tcp
-    desc: /proc/net/tcp path
-    crit: notable
-    conf: 0.7
-    for: [elf, c]
-    if:
-      type: string
-      substr: "/proc/net/tcp"
+  # NOTE: /proc/net/tcp is a neutral observation (network scanning, monitoring, rootkits all use it)
+  # This atomic trait has been moved to cap/fs/proc/info/ for proper taxonomy placement
+  # Rootkit detection requires tcp_seq_show hooking functions, not just /proc/net/tcp access
 
   # === Proc Filesystem Hiding ===
   - id: proc-root-readdir
@@ -665,6 +660,8 @@ composite_rules:
       - id: udp6-seq-show
 
   # TCP hiding (migrated from YARA)
+  # Fixed: Requires BOTH hooking functions AND /proc/net/tcp (not just OR)
+  # Excludes network scanning tools (Mirai, nmap, etc.) that read /proc/net/tcp legitimately
   - id: tcp-hiding
     desc: Hooks TCP sequence show function
     crit: suspicious
@@ -672,9 +669,11 @@ composite_rules:
     mbc: "F0015"
     attack: "T1014"
     for: [elf, c]
-    any:
+    all:
       - id: tcp-seq-funcs
-      - id: proc-net-tcp
+      - id: cap/fs/proc/info::proc-net-tcp
+    none:
+      - id: obj/discovery/network/scan::scanner
 
   # Proc hiding functions helper
   - id: proc-hiding-funcs

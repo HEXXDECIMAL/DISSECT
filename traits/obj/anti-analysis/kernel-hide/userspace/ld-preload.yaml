@@ -135,14 +135,8 @@ traits:
       - id: cap/exec/load/debugger-ptrace-marker
 
   # === /proc hiding micro-traits ===
-  - id: proc-self-string
-    desc: /proc/self path reference
-    crit: notable
-    conf: 0.4
-    for: [elf, c]
-    if:
-      type: string
-      substr: "/proc/self"
+  # NOTE: Generic /proc path observations moved to cap/fs/proc/info/ (proper taxonomy)
+  # Rootkit-specific traits remain here with specific context
 
   - id: proc-pid-pattern
     desc: /proc/[pid] path pattern
@@ -152,15 +146,6 @@ traits:
     if:
       type: string
       regex: "/proc/[0-9]+"
-
-  - id: proc-net-string
-    desc: /proc/net path reference
-    crit: notable
-    conf: 0.4
-    for: [elf, c]
-    if:
-      type: string
-      substr: "/proc/net"
 
   - id: hide-pid-string
     desc: hide_pid string reference
@@ -365,15 +350,16 @@ composite_rules:
     crit: notable
     conf: 0.4
     for: [elf, c]
-    needs: 3
+    needs: 2
     any:
-      - id: proc-self-string
+      - id: cap/fs/proc/info::process-self-exe
       - id: proc-pid-pattern
-      - id: proc-net-string
+      - id: cap/fs/proc/info::proc-net-tcp
 
   # proc hiding (migrated from YARA)
+  # Requires specific rootkit indicators, not just generic /proc access
   - id: proc-hiding
-    desc: Patterns for hiding processes via
+    desc: Patterns for hiding processes via LD_PRELOAD
     crit: suspicious
     conf: 0.9
     mbc: "F0015"
@@ -382,7 +368,10 @@ composite_rules:
     any:
       - id: hide-pid-string
       - id: hidden-proc-string
-      - id: proc-paths
+    none:
+      # Exclude botnets/scanners that legitimately read /proc for network enumeration
+      - id: known/malware/botnet/mirai::stripped-mirai-iot-botnet
+      - id: obj/discovery/network/scan::scanner
 
   # ld backup pattern (migrated from YARA)
   - id: ld-backup-pattern

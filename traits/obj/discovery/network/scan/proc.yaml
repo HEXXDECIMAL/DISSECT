@@ -2,68 +2,11 @@
 # Patterns for network reconnaissance and enumeration
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
-traits:
-  - id: tcp-connections
-    desc: "Enumerate TCP connections via /proc/net/tcp"
-    crit: suspicious
-    conf: 0.8
-    mbc: "E1016"
-    attack: "T1016"
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/net/tcp"
-
-  - id: udp-connections
-    desc: "Enumerate UDP connections via /proc/net/udp"
-    crit: suspicious
-    conf: 0.8
-    mbc: "E1016"
-    attack: "T1016"
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/net/udp"
-
-  - id: raw-sockets
-    desc: "Enumerate raw sockets via /proc/net/raw"
-    crit: suspicious
-    conf: 0.85
-    mbc: "E1016"
-    attack: "T1016"
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/net/raw"
-
-  - id: arp-table
-    desc: "Read ARP table via /proc/net/arp"
-    crit: notable
-    conf: 0.75
-    mbc: "E1016"
-    attack: "T1016"
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/net/arp"
-
-  - id: routing-table
-    desc: "Read routing table via /proc/net/route"
-    crit: notable
-    conf: 0.75
-    mbc: "E1016"
-    attack: "T1016"
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      substr: "/proc/net/route"
+# NOTE: Atomic traits for /proc/net/* are in cap/fs/proc/info/
+# This file contains objective-level detection (network scanning intent)
 
 composite_rules:
+  # Network scanner composite (detects active network enumeration)
   - id: scanner
     desc: "Network connection enumeration (target scanning)"
     crit: suspicious
@@ -73,6 +16,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     any:
-      - id: tcp-connections
-      - id: udp-connections
-      - id: raw-sockets
+      - id: cap/fs/proc/info::proc-net-tcp
+      - id: cap/fs/proc/info::proc-net-udp
+      - id: cap/fs/proc/info::proc-net-raw

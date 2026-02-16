@@ -154,6 +154,46 @@ traits:
       type: string
       regex: '/proc/[^/]+/oom_score_adj'
 
+  - id: proc-net-tcp
+    desc: Read TCP connection table
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "/proc/net/tcp"
+
+  - id: proc-net-udp
+    desc: Read UDP connection table
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "/proc/net/udp"
+
+  - id: proc-net-raw
+    desc: Read raw socket table
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      substr: "/proc/net/raw"
+
+  - id: proc-net-arp
+    desc: Read ARP table
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "/proc/net/arp"
+
+  - id: proc-net-route
+    desc: Read routing table
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "/proc/net/route"
+
 composite_rules:
   - id: process-self-exe
     desc: Read own executable path via /proc

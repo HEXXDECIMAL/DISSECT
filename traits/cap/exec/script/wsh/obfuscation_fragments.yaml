@@ -2,52 +2,54 @@
 # Detects fragmented strings common in JScript obfuscation
 
 defaults:
-  crit: suspicious
+  crit: notable
   conf: 0.8
-  for: [javascript]
 
 traits:
   - id: wscript-shell-fragment
     desc: WScript.Shell string fragment
     if:
-      type: string
-      regex: 'WScrip|t\.Shell|t\.She|WScr|\.Shel'
+      type: raw
+      regex: 'WScrip|t\.Shell|t\.She|WScr|\.Shel|pt\.She'
 
   - id: msxml-fragment
     desc: MSXML2.XMLHTTP string fragment
     if:
-      type: string
-      regex: 'MSXML2|MLHTTP|MSXM|XMLH'
+      type: raw
+      regex: 'MSXML2|MLHTTP|MSXM|XMLH|XMLHTTP|XML2'
 
   - id: adodb-fragment
     desc: ADODB.Stream string fragment
     if:
-      type: string
-      regex: 'ADOD|ADODB|B\.Str|B\.St|DB\.St'
+      type: raw
+      regex: 'ADOD|ADODB|B\.Str|B\.St|DB\.St|ADO|ODB\.St'
+
+  - id: filesystemobject-fragment
+    desc: FileSystemObject string fragment
+    if:
+      type: raw
+      regex: 'SystemObj|temObj|cripting|FileSystem'
 
   - id: expand-env-fragment
     desc: ExpandEnvironmentStrings fragment
     if:
-      type: string
-      regex: 'xpandE|entS|nviro'
+      type: raw
+      regex: 'xpandE|entS|nviro|nviron'
 
   - id: response-body-fragment
     desc: ResponseBody fragment
     if:
-      type: string
-      regex: 'nseBody|ResponseB'
+      type: raw
+      regex: 'nseBody|ResponseB|nseBo'
 
-composite_rules:
-  - id: obfuscated-downloader-fragments
-    desc: Obfuscated WSH downloader fragment cluster
-    crit: suspicious
-    conf: 0.9
-    for: [javascript]
-    platforms: [windows]
-    all:
-      - id: msxml-fragment
-      - id: adodb-fragment
-      - id: response-body-fragment
-    any:
-      - id: wscript-shell-fragment
-      - id: expand-env-fragment
+  - id: math-random-fragment
+    desc: Math.random string fragment
+    if:
+      type: raw
+      regex: 'Math|Random|ath\.Ra|ath\.r|Mat|andom'
+
+  - id: script-fullname-fragment
+    desc: WScript.ScriptFullName fragment
+    if:
+      type: raw
+      regex: 'riptFull|tFullN|ptFull|ptFul|lName'
