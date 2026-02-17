@@ -87,7 +87,7 @@ rule malware_Pangolin8RAT {
         $str01 = "smcache.dat" ascii wide
         $str04 = "file:///" ascii wide
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D)
         and (filesize < 2MB)
         and ( ( 3 of ($func*) )

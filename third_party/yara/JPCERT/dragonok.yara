@@ -7,7 +7,7 @@ rule DragonOK_CHWRITER_strings {
   	strings:
       $command="%s a a b c %d \"%s\"" wide
 
-	  if:
+    condition:
     	$command
 }
 
@@ -23,6 +23,6 @@ rule DragonOK_sysget_strings {
       $cmd = "cmd /c " wide
       $register = "index.php?type=register&pageinfo" wide
 
-    if:
+    condition:
     	($netbridge and $post and $cmd) or $register
 }

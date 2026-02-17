@@ -10,7 +10,7 @@ rule malware_lvscam_phpwebshell {
         $s2 = "['a'] == 'doorway2')"
         $s3 = "['sa'] == 'eval')"
 
-    if:
+    condition:
         2 of them
 }
 
@@ -33,7 +33,7 @@ rule malware_seospam_php {
         $content3 = "okxmlgetcontent" ascii
         $content4 = "pingxmlgetcontent" ascii
 
-     if:
+    condition:
        7 of them
 }
 
@@ -50,7 +50,7 @@ rule malware_ruoji_phpwebshell {
         $s4 = "'] && @md5($_GET['" ascii
         $s5 = "']) === @md5($_GET['" ascii
 
-     if:
+    condition:
        4 of them
 }
 
@@ -66,6 +66,6 @@ rule malware_spider_phpwebshell {
         $s3 = "if($_COOKIE['admin_spiderpass'] != md5($password))" ascii
         $s4 = "case \"b\" : Guama_b(); break;" ascii
 
-     if:
+    condition:
        2 of them
 }

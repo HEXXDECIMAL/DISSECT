@@ -12,7 +12,7 @@ rule cve202120837_webshell_fox {
         $str3 = "http_get_contents2("
         $str4 = "httpsCurl("
 
-     if:
+    condition:
         uint32(0) == 0x68703F3C and (1 of ($encode*) or all of ($str*))
 }
 
@@ -28,6 +28,6 @@ rule cve202120837_webshell_HelloDolly {
         $str3 = { 3C 46 69 6C 65 73 4D 61 74 63 68 20 5C 22 2E 28 70 68 7C 70 68 74 6D 6C 7C 70 68 70 29 5C 24 5C 22 3E 5C 6E 20 4F 72 64 65 72 20 61 6C 6C 6F 77 2C 64 65 6E 79 5C 6E 20 41 6C 6C 6F 77 20 66 72 6F 6D 20 61 6C 6C 5C 6E 3C 2F 46 69 6C 65 73 4D 61 74 63 68 3E } // <FilesMatch \".(ph|phtml|php)\$\">\n Order allow,deny\n Allow from all\n</FilesMatch>
         $str4 = { 23 3C 69 6D 67 20 73 72 63 3D 22 64 61 74 61 3A 69 6D 61 67 65 2F 70 6E 67 3B 28 2E 2A 29 22 3E 23 } // #<img src="data:image/png;(.*)">#
 
-     if:
+    condition:
         uint32(0) == 0x68703F3C and 2 of ($str*)
 }

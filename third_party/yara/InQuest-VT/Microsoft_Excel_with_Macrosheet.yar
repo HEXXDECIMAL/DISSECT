@@ -15,7 +15,7 @@ rule Microsoft_Excel_with_Macrosheet
 	$xls_stub = {09 08 10 00 00 06 05 00}
     $olemacrosheet = /(\x85\x00.{6,7}[\x01\x02]|Excel 4.0 Macros)/
     $xlsxmacrosheet = /Type\s*=\s*['"]https?:\/\/schemas.microsoft.com\/office\/20\d\d\/relationships\/xlMacrosheet['"]/ nocase
-	if:
+    condition:
 			(($magic1 at 0 and $xls_stub) and $olemacrosheet)
     or
     ($xlsxmacrosheet)

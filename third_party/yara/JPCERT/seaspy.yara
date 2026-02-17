@@ -22,7 +22,7 @@ rule malware_SeaSpy_str {
         $func5 = "reverse_shell" ascii fullword
         $key1 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuJDBIgz2Gb70ExKb7fww" ascii fullword
 
-     if:
+    condition:
        uint32(0) == 0x464C457F and
        (4 of ($msg*) or 4 of ($func*) or 1 of ($key*))
 }

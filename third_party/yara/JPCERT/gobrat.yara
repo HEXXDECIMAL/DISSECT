@@ -147,7 +147,7 @@ rule malware_GobRAT {
         */
         $func15 = { 48 81 C4 10 02 00 00 C3 48 89 D9 48 89 C3 }
 
-    if:
+    condition:
         (uint32(0) == 0x464C457F)
         and (elf.machine == elf.EM_X86_64)
         and (filesize > 2MB)
@@ -179,7 +179,7 @@ rule malware_GobRATLoader {
         $str14 = "grep frpc |grep -v grep | awk"
         $str15 = "iptables error"
 
-    if:
+    condition:
         (filesize < 15KB)
         and ( 3 of ($str*) )
 }

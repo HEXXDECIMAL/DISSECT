@@ -11,7 +11,7 @@ rule malware_webrcs_lnk {
         $s2 = "-I D;saps $f;cp desktop.ini " ascii wide
         $s3 = ";if(Test-Path $n){saps $" ascii wide
 
-    if:
+    condition:
         (uint32(0) == 0x0000004C) and
         2 of them
 }
@@ -37,7 +37,7 @@ rule malware_webrcs {
 		}
         $s5 = "cqWKroElukZpUd7X2FRJhAC3IS05j6efzDmaVwv4igGtTY89sOx1QHPNBMLybn+-" ascii
 
-    if:
+    condition:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         (pe.overlay.size > 512000 and

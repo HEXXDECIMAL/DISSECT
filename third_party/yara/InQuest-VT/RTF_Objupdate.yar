@@ -15,7 +15,7 @@ rule RTF_Objupdate
         $magic1= {7b 5c 72 74 (7B | 66)} // {\rtf{ or {\rt{
         $upd = "\\objupdate" nocase
 
-	if:
+    condition:
 
         $magic1 in (0..30) and $upd and filesize > 50KB and filesize < 500KB
 

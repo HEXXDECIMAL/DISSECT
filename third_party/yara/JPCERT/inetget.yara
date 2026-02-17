@@ -10,7 +10,7 @@ rule malware_INetGet_exe
 		$v1d = "LoRd_MuldeR" wide
 		$w1a = "INetGet.exe" wide
 
-	if:
+    condition:
 		all of them
 }
 
@@ -25,6 +25,6 @@ rule malware_INetGet_rtf
 		$v1c = "7a337d33563347337433563347331d3356334b3356"
 		$v1d = {7B 5C 72 74 5C 61 6E 73 69}
 
-	if:
+    condition:
 		all of them
 }

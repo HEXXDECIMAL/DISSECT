@@ -152,7 +152,8 @@ impl SectionMap {
     }
 
     /// Get the section containing a given file offset.
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn section_for_offset(&self, offset: u64) -> Option<&str> {
         for section in &self.sections {
             if offset >= section.start && offset < section.end {
@@ -191,7 +192,8 @@ impl SectionMap {
     }
 
     /// Check if a section name matches a pattern (exact or fuzzy).
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn section_matches(actual: &str, pattern: &str) -> bool {
         // Exact match
         if actual == pattern {
@@ -292,7 +294,8 @@ impl SectionMap {
     }
 
     /// Get all unique section names.
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn section_names(&self) -> Vec<&str> {
         let mut seen = std::collections::HashSet::new();
         let mut names = Vec::new();
@@ -305,7 +308,8 @@ impl SectionMap {
     }
 
     /// Check if this map has any sections (i.e., is a binary file).
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn has_sections(&self) -> bool {
         !self.sections.is_empty()
     }

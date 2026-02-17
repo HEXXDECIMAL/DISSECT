@@ -13,6 +13,6 @@ rule malware_DarkCloud_Stealer_str {
         $name4 = "DarkCloud Credentials" ascii wide
         $name5 = "===============DARKCLOUD===============" ascii wide
 
-     if:
+    condition:
          uint16(0) == 0x5a4d and any of ($vb*) and 3 of ($name*)
 }

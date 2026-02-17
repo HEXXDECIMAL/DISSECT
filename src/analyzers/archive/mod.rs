@@ -64,6 +64,7 @@ impl ArchiveAnalyzer {
 
     /// Set the maximum file size to keep in memory during extraction.
     /// Files larger than this are written to temp files.
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn with_max_memory_file_size(mut self, size_bytes: u64) -> Self {
         self.max_memory_file_size = size_bytes;
@@ -71,6 +72,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Get the maximum memory file size setting.
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn max_memory_file_size(&self) -> u64 {
         self.max_memory_file_size
@@ -133,6 +135,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Set sample extraction configuration for extracting analyzed files to disk
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn with_sample_extraction(mut self, config: SampleExtractionConfig) -> Self {
         self.sample_extraction = Some(config);
@@ -141,6 +144,7 @@ impl ArchiveAnalyzer {
 
     /// Create a copy of this analyzer with the sample_extraction config updated
     /// to use the given archive SHA256 for extraction directory grouping.
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn with_extraction_archive_sha256(&self, archive_sha256: String) -> Self {
         Self {
@@ -189,6 +193,7 @@ impl ArchiveAnalyzer {
     ///
     /// # Returns
     /// The full `AnalysisReport` with aggregated results
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_streaming<F>(&self, file_path: &Path, on_file: F) -> Result<AnalysisReport>
     where
         F: Fn(&FileAnalysis) + Send + Sync,

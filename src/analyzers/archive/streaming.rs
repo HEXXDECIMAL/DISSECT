@@ -32,6 +32,7 @@ use super::ArchiveAnalyzer;
 // MAX_MEMORY_FILE_SIZE was removed in favor of configurable max_memory_file_size parameter
 
 /// Extracted file ready for analysis
+#[allow(dead_code)] // Used by binary target via analyze_streaming
 #[derive(Debug)]
 pub(crate) enum ExtractedFile {
     /// File extracted to memory buffer (most files)
@@ -56,7 +57,8 @@ pub(crate) enum ExtractedFile {
 
 impl ExtractedFile {
     /// Get the relative path within the archive
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target via analyze_streaming
+    #[must_use]
     pub(crate) fn path(&self) -> &str {
         match self {
             ExtractedFile::InMemory { path, .. } => path,
@@ -67,6 +69,7 @@ impl ExtractedFile {
 }
 
 /// Result of analyzing a single file within an archive
+#[allow(dead_code)] // Used by binary target via analyze_streaming
 #[derive(Debug)]
 pub(crate) struct StreamingFileResult {
     /// File analysis converted to FileAnalysis for v2 schema
@@ -81,6 +84,7 @@ impl ArchiveAnalyzer {
     /// This is the core analysis function for streaming. It operates entirely
     /// on the provided byte buffer, using YARA's scan_bytes, tree-sitter parsing
     /// on byte slices, and string extraction on raw bytes.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_in_memory(
         &self,
         relative_path: &str,
@@ -349,6 +353,7 @@ impl ArchiveAnalyzer {
     ///
     /// If the entry is larger than `max_memory_file_size` or is a nested archive,
     /// it will be written to a temp file instead.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn extract_tar_entry_to_memory<'a, R: Read>(
         entry: &mut tar::Entry<'a, R>,
         entry_name: &str,
@@ -446,6 +451,7 @@ impl ArchiveAnalyzer {
     ///
     /// If the entry is larger than `max_memory_file_size` or is a nested archive,
     /// it will be written to a temp file instead.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn extract_zip_entry_to_memory(
         entry: &mut zip::read::ZipFile<'_>,
         temp_dir: &Path,
@@ -558,6 +564,7 @@ impl ArchiveAnalyzer {
     ///
     /// # Returns
     /// An ArchiveSummary with aggregate statistics
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_tar_streaming<F>(
         &self,
         archive_path: &Path,
@@ -755,6 +762,7 @@ impl ArchiveAnalyzer {
     /// Uses the same producer-consumer pattern as TAR streaming.
     /// Note: ZIP requires reading the central directory first, so there's
     /// a small initial delay before streaming begins.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_zip_streaming<F>(
         &self,
         archive_path: &Path,
@@ -1008,6 +1016,7 @@ impl ArchiveAnalyzer {
     /// - data.tar.* (actual files)
     ///
     /// We stream the inner tar archives for parallel analysis.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_deb_streaming<F>(
         &self,
         archive_path: &Path,
@@ -1208,6 +1217,7 @@ impl ArchiveAnalyzer {
     ///
     /// RPM files contain a lead, signature header, main header, and CPIO payload.
     /// The CPIO payload may be compressed with gzip, xz, zstd, bzip2, or lzma.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_rpm_streaming<F>(
         &self,
         archive_path: &Path,
@@ -1390,6 +1400,7 @@ impl ArchiveAnalyzer {
     ///
     /// 7z uses solid compression so extraction must be sequential, but we can
     /// analyze files in parallel as they're extracted.
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_7z_streaming<F>(&self, archive_path: &Path, on_file: F) -> Result<ArchiveSummary>
     where
         F: Fn(StreamingFileResult) + Send + Sync,
@@ -1606,6 +1617,7 @@ impl ArchiveAnalyzer {
 }
 
 /// Skip an RPM header and return its size
+#[allow(dead_code)] // Used internally
 fn skip_rpm_header<R: Read>(reader: &mut R) -> Result<usize> {
     let mut magic = [0u8; 3];
     reader.read_exact(&mut magic)?;
@@ -1638,6 +1650,7 @@ fn skip_rpm_header<R: Read>(reader: &mut R) -> Result<usize> {
 }
 
 /// Extract CPIO entries to memory and send to channel for parallel analysis
+#[allow(dead_code)] // Used internally
 fn extract_cpio_streaming<R: Read>(
     mut reader: R,
     temp_dir: &Path,
@@ -1779,6 +1792,7 @@ fn extract_cpio_streaming<R: Read>(
 }
 
 /// Summary of streaming archive analysis
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug)]
 pub(crate) struct ArchiveSummary {
     /// Any hostile archive reasons detected during extraction
@@ -1786,6 +1800,7 @@ pub(crate) struct ArchiveSummary {
 }
 
 /// Detect file type from magic bytes (first 4+ bytes of data)
+#[allow(dead_code)] // Used internally
 fn detect_file_type_from_magic(data: &[u8]) -> Option<FileType> {
     if data.len() < 4 {
         return None;

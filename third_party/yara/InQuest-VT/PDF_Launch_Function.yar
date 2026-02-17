@@ -15,7 +15,7 @@ rule PDF_Launch_Function
 		$pdf_header = "%PDF-"
 		$launch = "/Launch" nocase
 
-	if:
+    condition:
 
 		$pdf_header in (0..1024) and $launch
 

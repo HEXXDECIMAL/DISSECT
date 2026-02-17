@@ -307,6 +307,7 @@ impl DiffAnalyzer {
 
     /// Create a comprehensive diff suitable for ML analysis
     /// Treats the delta as a "virtual program" with all field differences
+    #[allow(dead_code)] // Used by binary target
     fn create_full_diff(
         &self,
         file_path: &str,
@@ -408,6 +409,7 @@ impl DiffAnalyzer {
     }
 
     /// Compute numeric deltas between baseline and target metrics
+    #[allow(dead_code)] // Used by binary target
     fn compute_metrics_delta(
         &self,
         baseline: &AnalysisReport,
@@ -465,6 +467,7 @@ impl DiffAnalyzer {
     }
 
     /// Create a full diff report with comprehensive analysis for ML pipelines
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_full(&self) -> Result<FullDiffReport> {
         let is_baseline_dir = self.baseline_path.is_dir();
         let is_target_dir = self.target_path.is_dir();
@@ -478,6 +481,7 @@ impl DiffAnalyzer {
         }
     }
 
+    #[allow(dead_code)] // Used by binary target
     fn analyze_files_full(&self) -> Result<FullDiffReport> {
         let baseline_report = self.analyze_single_file(&self.baseline_path)?;
         let target_report = self.analyze_single_file(&self.target_path)?;
@@ -533,6 +537,7 @@ impl DiffAnalyzer {
         })
     }
 
+    #[allow(dead_code)] // Used by binary target
     fn analyze_directories_full(&self) -> Result<FullDiffReport> {
         let baseline_files = self.collect_files(&self.baseline_path)?;
         let target_files = self.collect_files(&self.target_path)?;

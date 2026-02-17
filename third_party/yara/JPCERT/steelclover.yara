@@ -14,7 +14,7 @@ rule SteelClover_PowerHarbor_str {
         $s7 = "$is_vm = Is-VM" ascii
         $s8 = "function Is-VM {" ascii
 
-     if:
+    condition:
         5 of them
 }
 
@@ -31,6 +31,6 @@ rule SteelClover_PowerShell_str {
         $b1 = "function Install-GnuPg" ascii
         $b2 = "Install-GnuPG -DownloadFolderPath $env:APPDATA" ascii
 
-     if:
+    condition:
         all of ($a*) or all of ($b*)
 }

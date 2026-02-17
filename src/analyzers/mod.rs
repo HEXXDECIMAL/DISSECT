@@ -985,6 +985,7 @@ pub enum FileType {
     /// Rich Text Format document (.rtf)
     Rtf,
     /// X.509 / DER certificate file
+    #[allow(dead_code)] // Used in streaming.rs match arms
     Certificate,
     /// JPEG image
     Jpeg,
@@ -1047,7 +1048,8 @@ impl FileType {
 
     /// Returns true if this file type represents source code with AST support.
     /// These file types extract strings via AST parsing for accuracy.
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn is_source_code(&self) -> bool {
         matches!(
             self,

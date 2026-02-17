@@ -15,7 +15,7 @@ rule CVE_2014_1761
 		$magic = { 7B 5C 72 74 }
 		$author = { 5C 61 75 74 68 6F 72 20 69 73 6D 61 69 6C 20 2D 20 5B 32 30 31 30 5D } /* \author ismail - [2010] */
 		$operator = { 5C 6F 70 65 72 61 74 6F 72 20 69 73 6D 61 69 6C 20 2D 20 5B 32 30 31 30 5D } /* \operator ismail - [2010] */
-	if:
+    condition:
 
 		$magic at 0 and $author or $operator in (0..1024)
 

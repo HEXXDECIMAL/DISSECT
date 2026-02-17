@@ -89,6 +89,7 @@ impl CapabilityMapper {
 
     /// Set the platform filter(s) for rule evaluation
     /// Pass vec![Platform::All] to match all platforms (default)
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn with_platforms(mut self, platforms: Vec<Platform>) -> Self {
         self.platforms = if platforms.is_empty() {
@@ -184,6 +185,7 @@ impl CapabilityMapper {
     }
 
     /// Load capability mappings from directory of YAML files (recursively)
+    #[allow(dead_code)] // Used in tests
     pub(crate) fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
         Self::from_directory_with_precision_thresholds(
             dir_path,
@@ -2041,6 +2043,7 @@ impl CapabilityMapper {
     }
 
     /// Load capability mappings from YAML file
+    #[allow(dead_code)] // Used in tests
     pub(crate) fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
         Self::from_yaml_with_precision_thresholds(
             path,
@@ -2258,36 +2261,42 @@ impl CapabilityMapper {
     }
 
     /// Get the number of loaded symbol mappings
-    #[must_use] 
+    #[allow(dead_code)] // Used in tests
+    #[must_use]
     pub(crate) fn mapping_count(&self) -> usize {
         self.symbol_map.len()
     }
 
     /// Get the number of loaded composite rules
-    #[must_use] 
+    #[allow(dead_code)] // Used in tests
+    #[must_use]
     pub(crate) fn composite_rules_count(&self) -> usize {
         self.composite_rules.len()
     }
 
     /// Get a reference to the composite rules (for graph generation and analysis)
+    #[allow(dead_code)] // Used in tests
     #[must_use]
     pub(crate) fn composite_rules(&self) -> &[CompositeTrait] {
         &self.composite_rules
     }
 
     /// Get the number of loaded trait definitions
-    #[must_use] 
+    #[allow(dead_code)] // Used in tests
+    #[must_use]
     pub(crate) fn trait_definitions_count(&self) -> usize {
         self.trait_definitions.len()
     }
 
     /// Get a reference to the trait definitions (for debugging/testing)
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn trait_definitions(&self) -> &[TraitDefinition] {
         &self.trait_definitions
     }
 
     /// Find a trait definition by ID
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn find_trait(&self, id: &str) -> Option<&TraitDefinition> {
         self.trait_definitions.iter().find(|t| t.id == id)
@@ -2525,7 +2534,8 @@ impl CapabilityMapper {
 
     /// Evaluate trait definitions against an analysis report (without cached AST)
     /// Wrapper for evaluate_traits_with_ast
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
         self.evaluate_traits_with_ast(report, binary_data, None)
     }

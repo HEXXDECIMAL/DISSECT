@@ -13,6 +13,7 @@ pub(crate) fn calculate_sha256(data: &[u8]) -> String {
 }
 
 /// Calculate SHA256 hash of a file
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn calculate_file_sha256(path: &Path) -> std::io::Result<String> {
     use sha2::{Digest, Sha256};
     let mut file = File::open(path)?;
@@ -101,6 +102,7 @@ pub(crate) fn is_benign_java_path(path: &Path) -> bool {
 
 /// Detect TAR compression type from file extension.
 /// Returns Some("gzip"), Some("bzip2"), Some("xz"), Some("zstd"), or None for plain tar.
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn detect_tar_compression(path: &Path) -> Option<String> {
     let path_str = path.to_string_lossy().to_lowercase();
 

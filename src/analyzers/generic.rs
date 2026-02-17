@@ -90,6 +90,7 @@ impl GenericAnalyzer {
     }
 
     /// Analyze source with pre-extracted stng strings (avoids duplicate string extraction)
+    #[allow(dead_code)] // Used by binary target
     pub(crate) fn analyze_source_with_stng(
         &self,
         file_path: &Path,

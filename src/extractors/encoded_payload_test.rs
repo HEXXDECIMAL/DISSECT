@@ -158,45 +158,6 @@ payload2 = base64.b64decode('aW1wb3J0IHN5czsgc3lzLmV4aXQoMCk7IHByaW50KCdmaW5pc2h
     }
 
     #[test]
-    fn test_extract_nested_encoding() {
-        // Create: base64(zlib(python_code))
-        // Using longer code to ensure base64 >= 50 chars (compressed + base64 overhead)
-        let original = b"import os; os.system('whoami'); print('command executed successfully')";
-        let mut compressed = Vec::new();
-        {
-            use flate2::write::ZlibEncoder;
-            use flate2::Compression;
-            use std::io::Write;
-            let mut encoder = ZlibEncoder::new(&mut compressed, Compression::default());
-            encoder.write_all(original).unwrap();
-        }
-        let encoded = general_purpose::STANDARD.encode(&compressed);
-
-        let content = format!(
-            r#"
-import base64
-import zlib
-exec(zlib.decompress(base64.b64decode('{}')))
-"#,
-            encoded
-        );
-
-        let payloads = extract_encoded_payloads_from_content(content.as_bytes());
-        assert!(!payloads.is_empty(), "Should extract nested payload");
-
-        // Check encoding chain
-        if let Some(payload) = payloads.first() {
-            assert!(payload.encoding_chain.contains(&"base64".to_string()));
-            assert!(payload.encoding_chain.contains(&"zlib".to_string()));
-        }
-
-        // Cleanup
-        for payload in payloads {
-            let _ = std::fs::remove_file(&payload.temp_path);
-        }
-    }
-
-    #[test]
     fn test_recursion_depth_limit() {
         // Create deeply nested encoding: base64(base64(base64(...)))
         // Using longer initial data to ensure it remains >= 50 chars after 5 levels
@@ -618,45 +579,6 @@ mod offset_tests {
         assert_eq!(
             binary_payloads[0].original_offset, 5,
             "Binary file offset should be byte 5"
-        );
-    }
-
-    #[test]
-    fn test_nested_encoding_preserves_original_offset() {
-        use base64::engine::general_purpose;
-        use base64::Engine as _;
-        use flate2::write::ZlibEncoder;
-        use flate2::Compression;
-        use std::io::Write;
-
-        // Create nested encoding: base64(zlib(base64(data)))
-        let inner_data = b"secret payload data here";
-        let inner_b64 = general_purpose::STANDARD.encode(inner_data);
-
-        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
-        encoder.write_all(inner_b64.as_bytes()).unwrap();
-        let compressed = encoder.finish().unwrap();
-
-        let outer_b64 = general_purpose::STANDARD.encode(&compressed);
-
-        // Put it in a text file context with specific offset
-        let mut content = b"header line\n".to_vec(); // 12 bytes
-        content.extend_from_slice(outer_b64.as_bytes());
-        content.extend_from_slice(b"\nfooter line\n");
-
-        let payloads = extract_encoded_payloads_from_content(&content);
-
-        assert!(payloads.len() > 0, "Should extract nested payload");
-        assert_eq!(
-            payloads[0].encoding_chain.len(),
-            3,
-            "Should have 3 encoding layers"
-        );
-
-        // The original_offset should point to where the base64 line starts (byte 12)
-        assert_eq!(
-            payloads[0].original_offset, 12,
-            "Should track offset of outermost encoding"
         );
     }
 

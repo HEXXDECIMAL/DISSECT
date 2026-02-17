@@ -12,7 +12,7 @@ rule malware_MalDocinPDF {
         $mhtfile0 = "mime" ascii nocase
         $mhtfile1 = "content-location:" ascii nocase
         $mhtfile2 = "content-type:" ascii nocase
-     if:
+    condition:
         (uint32(0) == 0x46445025) and
         (1 of ($mhtfile*)) and
         ( (1 of ($docfile*)) or

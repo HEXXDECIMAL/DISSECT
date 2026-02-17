@@ -16,6 +16,6 @@ rule malware_Quasar_strings {
             $net3 = "http://api.ipify.org/" wide
             $resource = { 52 00 65 00 73 00 6F 00 75 00 72 00 63 00 65 00 73 00 00 17 69 00 6E 00 66 00 6F 00 72 00 6D 00 61 00 74 00 69 00 6F 00 6E 00 00 }
 
-          if:
+    condition:
             ((all of ($quasarstr*) or all of ($sql*)) and $resource) or all of ($net*)
 }

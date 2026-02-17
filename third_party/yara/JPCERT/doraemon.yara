@@ -20,7 +20,7 @@ rule malware_Doraemon {
       /* strings */
       $str1 = "Doraemon.dll" fullword ascii
 
-    if:
+    condition:
 	  (uint16(0) == 0x5A4D)
 	  and (filesize < 1MB)
 	  and pe.imports("gdi32.dll", "BitBlt")

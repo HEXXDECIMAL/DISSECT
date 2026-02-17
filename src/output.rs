@@ -18,6 +18,7 @@ use std::collections::HashMap;
 use std::sync::OnceLock;
 
 /// Cached regex for stripping ANSI escape codes
+#[allow(dead_code)] // Used by binary target
 #[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn ansi_strip_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
@@ -28,7 +29,8 @@ fn ansi_strip_regex() -> &'static regex::Regex {
 /// Extract directory path from trait ID (everything except the last component)
 /// e.g., "exec/command/subprocess/popen" -> "exec/command/subprocess"
 /// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
-#[must_use] 
+#[allow(dead_code)] // Used by binary target
+#[must_use]
 fn get_directory_path(id: &str) -> String {
     let parts: Vec<&str> = id.split('/').collect();
     if parts.len() > 1 {
@@ -39,6 +41,7 @@ fn get_directory_path(id: &str) -> String {
 }
 
 /// Aggregated finding for a directory path
+#[allow(dead_code)] // Used by binary target
 #[derive(Clone)]
 struct AggregatedFinding {
     /// The directory path (e.g., "exec/command/subprocess")
@@ -52,7 +55,8 @@ struct AggregatedFinding {
 /// Aggregate findings by directory path, keeping highest criticality (then highest conf)
 /// Returns findings with IDs set to directory paths and trait_refs containing all matched trait IDs
 /// Internal findings (from code analyzers) are not aggregated - shown individually
-#[must_use] 
+#[allow(dead_code)] // Used by binary target
+#[must_use]
 pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
     let mut aggregated: HashMap<String, AggregatedFinding> = HashMap::new();
     let mut internal_findings = Vec::new();
@@ -123,6 +127,7 @@ pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Findi
 
 
 /// Get risk emoji based on criticality
+#[allow(dead_code)] // Used by binary target
 fn risk_emoji(crit: &Criticality) -> &'static str {
     match crit {
         Criticality::Filtered => "⬜",
@@ -138,6 +143,7 @@ fn risk_emoji(crit: &Criticality) -> &'static str {
 /// e.g., "cap/exec/command/subprocess" -> ("exec", "command/subprocess")
 /// e.g., "obj/anti-analysis/debugger/detect" -> ("anti-analysis", "debugger/detect")
 /// e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid")
+#[allow(dead_code)] // Used by binary target
 fn split_trait_id(id: &str) -> (String, String) {
     let parts: Vec<&str> = id.split('/').collect();
 
@@ -161,6 +167,7 @@ fn split_trait_id(id: &str) -> (String, String) {
 }
 
 /// Convert namespace to long name, capitalizing if no explicit mapping exists
+#[allow(dead_code)] // Used by binary target
 fn namespace_long_name(ns: &str) -> String {
     let mapped = match ns {
         "c2" => Some("COMMAND & CONTROL"),
@@ -205,9 +212,11 @@ fn namespace_long_name(ns: &str) -> String {
 
 /// Format evidence string (minimal, deduplicated)
 /// Maximum width for evidence display (truncate if longer)
+#[allow(dead_code)] // Used by binary target
 const EVIDENCE_MAX_WIDTH: usize = 80;
 
 /// Make descriptions more terse by removing redundant explanatory parentheticals
+#[allow(dead_code)] // Used by binary target
 fn terse_description(desc: &str) -> String {
     // Remove common verbose patterns that are redundant given the context
     desc.replace(" (timing attacks or sandbox detection)", "")
@@ -226,6 +235,7 @@ fn terse_description(desc: &str) -> String {
         .to_string()
 }
 
+#[allow(dead_code)] // Used by binary target
 fn format_evidence(finding: &Finding) -> String {
     let mut seen = std::collections::HashSet::new();
     let values: Vec<String> = finding
@@ -264,6 +274,7 @@ fn format_evidence(finding: &Finding) -> String {
 // =============================================================================
 
 /// JSONL file entry - emitted for each file as it's analyzed
+#[allow(dead_code)] // Used by binary target
 #[derive(serde::Serialize)]
 struct JsonlFileEntry<'a> {
     #[serde(rename = "type")]
@@ -273,6 +284,7 @@ struct JsonlFileEntry<'a> {
 }
 
 /// JSONL summary entry - emitted at the end of streaming output
+#[allow(dead_code)] // Used by binary target
 #[derive(serde::Serialize)]
 struct JsonlSummary {
     #[serde(rename = "type")]
@@ -285,6 +297,7 @@ struct JsonlSummary {
 }
 
 /// Format a single file analysis as a JSONL line
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<String> {
     let entry = JsonlFileEntry {
         entry_type: "file",
@@ -294,6 +307,7 @@ pub(crate) fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<Str
 }
 
 /// Format the summary as a JSONL line (for end of streaming output)
+#[allow(dead_code)] // Used by binary target
 fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
     let summary = report.summary.as_ref();
     let counts = summary.map(|s| &s.counts);
@@ -310,6 +324,7 @@ fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
 }
 
 /// Format entire report as JSONL (for non-streaming output)
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn format_jsonl(report: &AnalysisReport) -> Result<String> {
     let mut lines = Vec::with_capacity(report.files.len() + 1);
 
@@ -325,6 +340,7 @@ pub(crate) fn format_jsonl(report: &AnalysisReport) -> Result<String> {
 }
 
 /// Parse JSONL (newline-delimited JSON) back to AnalysisReport
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
     let mut files = Vec::new();
     let mut summary = None;
@@ -427,6 +443,7 @@ pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
 
 /// Format analysis report for terminal display (malcontent-style)
 /// Uses the v2 flat files array structure.
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 

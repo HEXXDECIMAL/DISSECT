@@ -127,6 +127,7 @@ pub(crate) struct ConditionResult {
     /// Evidence items collected when condition matched
     pub evidence: Vec<Evidence>,
     /// Anti-analysis warnings (recursion bombs, etc.)
+    #[allow(dead_code)] // Populated during rule evaluation, read by binary target
     pub warnings: Vec<AnalysisWarning>,
     /// Precision points contributed by this condition (higher = more specific)
     pub precision: f32,

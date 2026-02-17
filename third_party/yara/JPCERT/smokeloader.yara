@@ -10,6 +10,6 @@ rule malware_SmokeLoader {
             $b1 = { 81 3D ?? ?? ?? ?? 25 00 41 00 }
             $c1 = { C7 ?? ?? ?? 25 73 25 73 }
 
-          if:
+    condition:
             $a1 and $b1 and $c1
 }

@@ -8,7 +8,7 @@ rule webshell_filesman_base64 {
         $str1 = "IyEvdXNyL2Jpbi9wZXJsDQp1c2UgU29ja2V0Ow0KJGlhZGRyPWluZXRfYXRvbigkQVJHVlswXSkgfHwgZGllKCJFcnJvcjogJCFcbiIpOw0KJHBhZGRyPXNvY2thZGRy"
         $str2 = "IyEvdXNyL2Jpbi9wZXJsDQokU0hFTEw9Ii9iaW4vc2ggLWkiOw0KaWYgKEBBUkdWIDwgMSkgeyBleGl0KDEpOyB9DQp1c2UgU29ja2V0Ow0Kc29ja2V0KFMsJlBGX0"
 
-     if:
+    condition:
        uint32(0) == 0x68703F3C and all of them
 }
 
@@ -22,6 +22,6 @@ rule webshell_phpencode_base64 {
         $str1 = "KSkpKSkpKSkpKSkpOw=='));"
         $str2 = "eval(base64_decode('ZnVuY3Rpb24gX"
 
-     if:
+    condition:
        uint32(0) == 0x68703F3C and all of them
 }

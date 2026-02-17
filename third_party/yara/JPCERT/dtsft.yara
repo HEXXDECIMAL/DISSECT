@@ -7,7 +7,7 @@ rule malware_DtSftDriver {
     strings:
         $func0 = {8B 57 10 8B 01 8B 00 57 52 53 FF D0}
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D)
         and (pe.subsystem == pe.SUBSYSTEM_NATIVE)
         and pe.imports("FltCreateCommunicationPort","FLTMSR.SYS")
@@ -45,7 +45,7 @@ rule malware_DtSftDriverLoader {
         */
         $func1 = { 4A 83 CA FC 42 8A 14 3A 30 14 08 40 3B C6 }
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D)
         and (filesize > 50KB)
         and (filesize < 600KB)

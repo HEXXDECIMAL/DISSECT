@@ -17,7 +17,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -29,7 +28,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -41,7 +39,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -53,7 +50,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -65,7 +61,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -77,7 +72,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -89,7 +83,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.5,
         };
         assert_eq!(result.precision, 2.5);
@@ -101,7 +94,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -113,7 +105,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 0.5,
         };
         assert_eq!(result.precision, 0.5);
@@ -125,7 +116,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.25,
         };
         assert_eq!(result.precision, 1.25);
@@ -141,7 +131,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -153,7 +142,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -165,7 +153,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -181,7 +168,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -193,7 +179,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 0.75,
         };
         assert_eq!(result.precision, 0.75);
@@ -209,7 +194,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -221,7 +205,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -233,7 +216,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -245,7 +227,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -257,7 +238,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -273,7 +253,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -285,7 +264,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -297,7 +275,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.5,
         };
         assert_eq!(result.precision, 2.5);
@@ -309,7 +286,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.5,
         };
         assert_eq!(result.precision, 2.5);
@@ -321,7 +297,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.0,
         };
         assert_eq!(result.precision, 2.0);
@@ -333,7 +308,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -345,7 +319,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -357,7 +330,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.5,
         };
         assert_eq!(result.precision, 1.5);
@@ -369,7 +341,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -381,7 +352,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.5,
         };
         assert_eq!(result.precision, 2.5);
@@ -393,7 +363,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 1.0,
         };
         assert_eq!(result.precision, 1.0);
@@ -405,7 +374,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 2.5,
         };
         assert_eq!(result.precision, 2.5);
@@ -443,7 +411,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            warnings: vec![],
             precision: 0.5,
         };
         assert_eq!(result.precision, 0.5);

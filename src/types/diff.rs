@@ -71,6 +71,7 @@ pub struct ModifiedFileAnalysis {
 
 /// Comprehensive diff for a single file - can be treated as a "virtual program" for ML
 /// Contains all deltas: added/removed collections and numeric changes
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub(crate) struct FileDiff {
     /// File path relative to the analyzed directory
@@ -166,6 +167,7 @@ pub(crate) struct FileDiff {
 }
 
 /// Summary counts for quick ML feature extraction
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub(crate) struct DiffCounts {
     /// Number of findings added in target
@@ -208,6 +210,7 @@ pub(crate) struct DiffCounts {
 
 /// Numeric deltas for metrics (target - baseline)
 /// Positive = increased, Negative = decreased
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub(crate) struct MetricsDelta {
     /// File size change in bytes (target - baseline)
@@ -266,6 +269,7 @@ pub(crate) struct MetricsDelta {
 }
 
 /// Extended diff report with full analysis for ML pipelines
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct FullDiffReport {
     /// Schema version for compatibility checking

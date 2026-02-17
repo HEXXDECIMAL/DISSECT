@@ -15,7 +15,7 @@ rule Suspicious_CLSID_RTF
     $rtf_magic = "{\\rt"  // note that {\rtf1 is not required
 
     $re1 = /\x7b[^\x7d]{0,10}\\oleclsid[ \t\r\n]+[a-z0-9\x2e\x2d]{0,15}\\\x27[2-7][0-9a-f][a-z0-9\x2e\x2d]{0,15}\\\x27[2-7][0-9a-f][a-z0-9\x2e\x2d]{0,15}\\\x27[2-7][0-9a-f]/ nocase wide ascii
-	if:
+    condition:
 
     $rtf_magic in (0..30) and all of ($re*)
 

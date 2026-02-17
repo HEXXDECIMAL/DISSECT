@@ -8,7 +8,7 @@ rule CryptHunter_downloaderjs {
         $a = "pi.ProcessID!==0 && pi.ProcessID!==4){"
         $b = "prs=prs+pi.CommandLine.toLowerCase();}"
 
-     if:
+    condition:
        any of them
 }
 
@@ -24,7 +24,7 @@ rule CryptHunter_lnk_bitly {
         $a2 = "mshta" wide ascii
         $url1 = "https://bit.ly" wide ascii
 
-      if:
+    condition:
         (uint16(0) == 0x004c) and
         (filesize<100KB)  and
         ((1 of ($a*)) and ($url1))
@@ -40,7 +40,7 @@ rule CryptHunter_httpbotjs_str {
         $base64 = "W0NtZGxldEJpbmRpbmcoKV1QYXJhbShbUGFyYW1ldGVyKFBvc2l0aW9uPTApXVtTdHJpbmddJFVSTCxbUGFyYW1ldGVyKFBvc2l0aW9uPTEpXVtTdHJpbmddJFVJRCkNCmZ1bmN0aW9uIEh0dHBSZXEyew" ascii
         $var1 = { 40 28 27 22 2b 70 32 61 2b 22 27 2c 20 27 22 2b 75 69 64 2b 22 27 29 3b 7d }
 
-     if:
+    condition:
         all of them
 }
 
@@ -218,7 +218,7 @@ rule CryptHunter_devobjDLL_VMprotect {
         */
         $func7 = { 83 E2 3F 44 8B C2 8B C2 83 E0 10 41 C1 E8 02 41 83 E0 08 8B CA 44 0B C0 83 E1 02 41 C1 E8 02 8B C2 83 E0 08 C1 E1 03 44 0B C0 8B C2 83 E0 04 41 D1 E8 0B C8 83 E2 01 03 C9 C1 E2 04 44 0B C1 44 0B C2 41 8B C0 C1 E0 18 41 0B C0 C3 }
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D)
         and (filesize < 1MB)
         and (filesize > 100KB)
@@ -246,7 +246,7 @@ rule CryptHunter_pythonDownloader {
         $rot13_08 = "uggc://ncc." ascii wide fullword
         $rot13_09 = "cat_file_header_ops" ascii wide fullword
 
-    if:
+    condition:
         (filesize > 10KB)
         and (filesize < 5MB)
         and ( 1 of ($str*) or ( 3 of ($rot13*) ))
@@ -295,7 +295,7 @@ rule CryptHunter_pythonSimpleRAT {
         $str20 = "/rgp/bf-eryrnfr" ascii wide fullword
         $str21 = " -yafy -ycguernq -yerfbyi -fgq=tah99" ascii wide fullword
 
-    if:
+    condition:
         (filesize > 1KB)
         and (filesize < 5MB)
         and ( 1 of ($domain*) or ( 5 of ($str*) ))
@@ -313,7 +313,7 @@ rule CryptHunter_jsDownloader {
         $str01 = "GITHUB_RES" ascii wide fullword
         $str02 = "GITHUB_REQ" ascii wide fullword
 
-    if:
+    condition:
         (filesize > 1KB)
         and (filesize < 5MB)
         and ( 1 of ($code*) or ( 2 of ($str*) ))
@@ -336,7 +336,7 @@ rule CryptHunter_JokerSpy_macos {
         $msg4 = "FullDiskAccess: YES" ascii
         $msg5 = "kMDItemDisplayName = *TCC.db" ascii
 
-     if:
+    condition:
        (uint32(0) == 0xfeedface or
         uint32(0) == 0xcefaedfe or
         uint32(0) == 0xfeedfacf or

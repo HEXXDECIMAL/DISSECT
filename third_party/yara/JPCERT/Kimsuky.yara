@@ -11,7 +11,7 @@ rule Kimsuky_downloader_vbs
         $s3 = "iex (wget xxx" ascii
         $s4 = "pow_cmd = Replace(pow_cmd, \"xxx\", uri)" ascii
 
-    if:
+    condition:
         3 of them
 }
 
@@ -28,7 +28,7 @@ rule Kimsuky_PokDoc_ps1
         $s3 = "boundary`r`nContent-Disposition: form-data; name=\";" ascii
         $s4 = "$conDisp`\"file`\"; filename=`\"" ascii
 
-    if:
+    condition:
         3 of them
 }
 
@@ -45,7 +45,7 @@ rule Kimsuky_InfoKey_ps1
         $s3 = "`n----- [Clipboard] -----`n\" + [Windows.Clipboard]::GetText()"
         $s4 = "`n----- [\" + $t + \"] [\" + $curWnd.ToString() + \"] -----`n"
 
-    if:
+    condition:
         3 of them
 }
 
@@ -65,7 +65,7 @@ rule kimsuky_downloader_pe
         $s4 = "D:\\work\\Virus\\1_troy\\c#\\pack_2023\\2023-06\\work\\obj\\Debug\\ConsoleApplication1.pdb" ascii
         $s5 = {00 07 11 ?? 25 17 59 13 ?? 91 20 92 00 00 00 40 ?? ?? 00 00 07 11 ?? 91 20 F0 00 00 00 40}
 
-    if:
+    condition:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         all of ($dotnet*) and

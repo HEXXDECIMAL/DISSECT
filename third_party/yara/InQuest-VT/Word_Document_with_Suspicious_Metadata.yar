@@ -74,6 +74,6 @@ rule Word_Document_with_Suspicious_Metadata
 		$mil11 = "\\info{itle Template}{uthor John Doe}}"
 		$mil12 = "\\title aaa"
 		$mil13 = "tnauthor leeyth"
-	if:
+    condition:
 			1 of ($rtf*) and any of ($a*,$mil*)
 }

@@ -33,7 +33,7 @@ rule malware_WinDealer {
       $str_6 = "%s\\*.*" fullword ascii
       $str_7 = "%s\\c25549fe" fullword ascii
 
-    if:
+    condition:
 	  (uint16(0) == 0x5A4D)
 	  and (filesize < 3MB)
 	  and (8 of ($moni_*))

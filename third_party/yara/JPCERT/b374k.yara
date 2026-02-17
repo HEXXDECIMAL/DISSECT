@@ -13,6 +13,6 @@ rule webshell_b374k_str {
         $b374k3_2 = "atN9HV7ZsuZFAIRngh0oVQKZXb+fgBOdQNKnDsVQvjnz/8="
         $b374kencode = "func=\"cr\".\"eat\".\"e_fun\".\"cti\".\"on\";$b374k="
 
-     if:
+    condition:
        3 of ($b374k2_*) or all of ($b374k3_*) or $b374kencode
 }

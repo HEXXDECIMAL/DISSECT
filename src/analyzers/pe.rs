@@ -42,7 +42,8 @@ impl PEAnalyzer {
     }
 
     /// Create analyzer with shared YARA engine
-    #[must_use] 
+    #[allow(dead_code)] // Used by binary target
+    #[must_use]
     pub(crate) fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(yara_engine);
         self

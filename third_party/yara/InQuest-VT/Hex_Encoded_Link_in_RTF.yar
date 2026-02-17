@@ -15,7 +15,7 @@ rule Hex_Encoded_Link_in_RTF
         $m = {7b 5c 72 74 66 31} // RTF
         $a1 = "687474703a2f2f"
         $a2 = "2e657865"
-	if:
+    condition:
 
         $m and all of ($a*)
 

@@ -149,6 +149,7 @@ where
 
 /// Decoded string (base64, xor-decoded, etc.)
 /// Deprecated: Use StringInfo with encoding_chain instead.
+#[allow(dead_code)] // Constructed in tests only
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DecodedString {
     /// The decoded plaintext value
@@ -200,7 +201,7 @@ pub struct StringInfo {
 // Re-export stng's StringKind as StringType for compatibility
 // DISSECT-specific source code types (Literal, Comment, Docstring) map to stng::StringKind::Const
 // StackString is detected via StringMethod, not as a separate kind
-pub use stng::StringKind as StringType;
+pub(crate) use stng::StringKind as StringType;
 
 /// A binary section (ELF, Mach-O, or PE segment)
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -224,7 +225,7 @@ pub struct Section {
 /// Examples: "_malloc" -> "malloc", "__libc_start_main" -> "libc_start_main"
 #[inline]
 #[must_use]
-pub fn normalize_symbol(symbol: &str) -> String {
+pub(crate) fn normalize_symbol(symbol: &str) -> String {
     symbol.trim_start_matches('_').trim_start_matches('_').to_string()
 }
 
@@ -305,6 +306,9 @@ pub struct YaraMatch {
     /// Optional ATT&CK technique from metadata
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub attack: Option<String>,
+    /// Derived third-party trait ID (e.g., "third_party/elastic/linux/backdoor/bash")
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub trait_id: Option<String>,
 }
 
 /// A specific string pattern that contributed to a YARA rule match
@@ -716,6 +720,7 @@ mod tests {
             is_capability: false,
             mbc: None,
             attack: None,
+            trait_id: None,
         };
         assert_eq!(yara.rule, "malware_generic");
         assert!(!yara.is_capability);
@@ -732,6 +737,7 @@ mod tests {
             is_capability: true,
             mbc: Some("C0021".to_string()),
             attack: Some("T1071".to_string()),
+            trait_id: None,
         };
         assert!(yara.is_capability);
         assert_eq!(yara.mbc, Some("C0021".to_string()));

@@ -42,6 +42,7 @@ pub mod diff;
 pub mod env_mapper;
 pub mod output;
 pub mod path_mapper;
+pub mod third_party_yara;
 pub mod types;
 pub mod yara_engine;
 
@@ -80,7 +81,7 @@ pub struct AnalysisOptions {
 impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
-            enable_third_party_yara: false,
+            enable_third_party_yara: true,
             zip_passwords: cli::DEFAULT_ZIP_PASSWORDS.iter().map(std::string::ToString::to_string).collect(),
             disable_yara: false,
             disable_radare2: false,

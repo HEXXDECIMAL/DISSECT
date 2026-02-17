@@ -1307,8 +1307,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
-            "Expected cap/exec/command/direct::exec-command, found: {:?}",
+            report.findings.iter().any(|c| c.id == "cap/process/create/direct::exec-command"),
+            "Expected cap/process/create/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1324,8 +1324,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::syscall-exec"),
-            "Expected cap/exec/command/direct::syscall-exec, found: {:?}",
+            report.findings.iter().any(|c| c.id == "cap/process/create/direct::syscall-exec"),
+            "Expected cap/process/create/direct::syscall-exec, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1348,8 +1348,8 @@ func main() {
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
-            "Expected cap/exec/command/direct::exec-command, found: {:?}",
+            report.findings.iter().any(|c| c.id == "cap/process/create/direct::exec-command"),
+            "Expected cap/process/create/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1527,8 +1527,8 @@ func main() {
             report.findings.len()
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "cap/exec/command/direct::exec-command"),
-            "Expected cap/exec/command/direct::exec-command"
+            report.findings.iter().any(|c| c.id == "cap/process/create/direct::exec-command"),
+            "Expected cap/process/create/direct::exec-command"
         );
         assert!(
             report.findings.iter().any(|c| c.id == "cap/comm/http/get::http-get"),

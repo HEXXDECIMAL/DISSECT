@@ -10,6 +10,6 @@ rule tool_3proxy_strings {
         $str4 = "Connect back not received, check connback client" ascii
         $str5 = "Failed to allocate connect back socket" ascii
         $str6 = "Warning: too many connected clients (%d/%d)" ascii
-     if:
+    condition:
         3 of ($str*)
 }

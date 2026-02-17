@@ -10,7 +10,7 @@ rule malware_SysrvBot {
         $a2 = "hello/scan.(*Scanner)."
         $a3 = "hello/exp/exploit.go"
 
-    if:
+    condition:
         all of them
 }
 
@@ -26,7 +26,7 @@ rule backdoor_SysrvBot_webshell {
         $s3 = "Decrypt(file_get_contents(\"php://input\"))" ascii
         $s4 = "@eval($" ascii
 
-    if:
+    condition:
         3 of them
 }
 
@@ -41,7 +41,7 @@ rule backdoor_SysrvBot_tomcat {
         $s2 = "application.getRealPath(\"tomcat.jsp\").split(\"\\\\\\\\tomcat.jsp\");" ascii
         $s3 = "ldr.sh?tomcat)|bash" ascii
 
-    if:
+    condition:
         all of them
 }
 
@@ -56,6 +56,6 @@ rule backdoor_SysrvBot_downloader {
         $s2 = "key $user@$host \"(curl $cc/" ascii
         $s3 = "$i/hugepages/hugepages-1048576kB/nr_hugepages" ascii
 
-    if:
+    condition:
         all of them
 }

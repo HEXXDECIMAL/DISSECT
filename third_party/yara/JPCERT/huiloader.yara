@@ -14,7 +14,7 @@ rule malware_HUILoader_code {
         $add = { 83 C? 32 }
         $fui = "HUIHWASDIHWEIUDHDSFSFEFWEFEWFDSGEFERWGWEEFWFWEWD" ascii wide
 
-    if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        filesize < 200KB and

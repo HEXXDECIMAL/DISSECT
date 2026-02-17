@@ -11,6 +11,6 @@ rule malware_Bebloh_strings {
             $post1 = "&vcmd="
             $post2 = "?tver="
 
-          if:
+    condition:
             all of them
 }

@@ -13,7 +13,7 @@ rule RTF_Anti_Analysis_Header
 	strings:
 
 		$r1 = /[\x0d\x0aa-f0-9\s]{64}(\{\\object\}|\\bin)[\x0d\x0aa-f0-9\s]{64}/ nocase
-	if:
+    condition:
 
 		uint32(0) == 0x74725C7B and (not uint8(4) == 0x66 or $r1)
 

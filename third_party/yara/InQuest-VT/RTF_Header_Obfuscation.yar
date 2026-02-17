@@ -12,6 +12,6 @@ rule RTF_Header_Obfuscation
 
 	strings:
 			$bad_header = /^{\\rt[^f]/
-	if:
+    condition:
 			$bad_header
 }

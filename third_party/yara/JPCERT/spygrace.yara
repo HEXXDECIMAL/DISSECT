@@ -14,7 +14,7 @@ rule malware_spygrace {
         $c1 = {34 ?? [0-3] FE C8 88 02 4? FF C?}
         $c2 = {41 [2-3] C0 E8 02 88 [2-3] 41 [5-6] C0 E1 04 41 [2-3] C0 E8 04 02 C8 88 [2-3] 41 [2-3] 80 E1 0F C0 E1 02 [3] C0 E8 06 02 C8}
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and 3 of ($s*) and 1 of ($c*)
 }
 
@@ -30,6 +30,6 @@ rule malware_spygrace_loader {
         $c1 = {66 41 83 34 00 ?? 41 FF C1 49 63 C1 49 83 C0 02 48 3B 42 ??}
         $c2 = {48 0F 47 85 ?? ?? ?? 00 42 0F B7 0C 00 66 41 33 CA 48 8D 85 ?? ?? ?? 00 84 D2}
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and $s1 and 1 of ($c*)
 }

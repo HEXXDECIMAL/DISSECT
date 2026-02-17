@@ -20,6 +20,6 @@ rule Microsoft_LNK_with_CMD_EXE_Reference
     00 65 }
     $s3 = "%comspec%" ascii wide nocase fullword
 
-    if:
+    condition:
             ( uint32(0) == 0x0000004c and filesize < 4KB and $c1 and 1 of ($s*) )
 }

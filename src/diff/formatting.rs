@@ -11,7 +11,8 @@ use crate::types::DiffReport;
 use std::path::Path;
 
 /// Format diff report as human-readable terminal output
-#[must_use] 
+#[allow(dead_code)] // Used by binary target
+#[must_use]
 pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
     let mut output = String::new();
 

@@ -27,6 +27,11 @@
 //! - YARA matches and syscalls
 //! - Archive contents (if applicable)
 
+// The binary re-declares library source modules as private `mod` for internal access.
+// Items that are `pub` in those modules appear unreachable from the binary's perspective
+// even though they ARE reachable via the library crate. Suppress this false positive.
+#![allow(unreachable_pub)]
+
 // AMOS cipher detection now handled by stng library internally
 // mod amos_cipher;
 mod analyzers;
@@ -51,6 +56,7 @@ mod test_rules;
 mod test_rules_filters_test;
 mod types;
 mod upx;
+mod third_party_yara;
 mod yara_engine;
 
 use crate::radare2::Radare2Analyzer;
@@ -268,9 +274,9 @@ fn main() -> Result<()> {
         passwords
     };
 
-    // Determine third_party_yara setting (can come from top-level or subcommand)
-    // Third-party YARA is opt-in (disabled by default), but can also be disabled via --disable
-    let enable_third_party_global = args.third_party_yara && !disabled.third_party;
+    // Determine third_party setting (can come from top-level or subcommand)
+    // Third-party YARA is enabled by default; disable with --disable third-party
+    let enable_third_party_global = !disabled.third_party;
 
     // Collect error_if levels for criticality checking
     let error_if_levels = args.error_if_levels();
@@ -302,12 +308,8 @@ fn main() -> Result<()> {
     };
 
     let result = match args.command {
-        Some(cli::Command::Analyze {
-            targets,
-            third_party_yara: cmd_third_party,
-        }) => {
-            let enable_third_party =
-                (enable_third_party_global || cmd_third_party) && !disabled.third_party;
+        Some(cli::Command::Analyze { targets }) => {
+            let enable_third_party = enable_third_party_global;
             let expanded = expand_paths(targets, &format);
             if expanded.is_empty() {
                 anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
@@ -354,12 +356,9 @@ fn main() -> Result<()> {
                 )?
             }
         },
-        Some(cli::Command::Scan {
-            paths,
-            third_party_yara: cmd_third_party,
-        }) => scan_paths(
+        Some(cli::Command::Scan { paths }) => scan_paths(
             expand_paths(paths, &format),
-            (enable_third_party_global || cmd_third_party) && !disabled.third_party,
+            enable_third_party_global,
             &format,
             &zip_passwords,
             &disabled,
@@ -516,7 +515,7 @@ fn main() -> Result<()> {
 #[allow(clippy::too_many_arguments)]
 fn analyze_file(
     target: &str,
-    enable_third_party_yara: bool,
+    enable_third_party: bool,
     format: &cli::OutputFormat,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
@@ -541,7 +540,7 @@ fn analyze_file(
     if path.is_dir() {
         return scan_paths(
             vec![target.to_string()],
-            enable_third_party_yara,
+            enable_third_party,
             format,
             zip_passwords,
             disabled,
@@ -592,7 +591,7 @@ fn analyze_file(
         tracing::info!("Initializing YARA engine");
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party_yara)?;
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party)?;
         tracing::info!(
             "YARA engine loaded with {} rules",
             builtin_count + third_party_count
@@ -751,7 +750,7 @@ fn analyze_file(
 #[allow(clippy::too_many_arguments)]
 fn scan_paths(
     paths: Vec<String>,
-    enable_third_party_yara: bool,
+    enable_third_party: bool,
     format: &cli::OutputFormat,
     zip_passwords: &[String],
     disabled: &cli::DisabledComponents,
@@ -782,7 +781,7 @@ fn scan_paths(
         None
     } else {
         let mut engine = YaraEngine::new_with_mapper((*capability_mapper).clone());
-        match engine.load_all_rules(enable_third_party_yara) {
+        match engine.load_all_rules(enable_third_party) {
             Ok((builtin, third_party)) if builtin + third_party > 0 => Some(Arc::new(engine)),
             _ => None,
         }
@@ -1245,7 +1244,6 @@ fn analyze_file_with_shared_mapper(
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
             },
-            FileType::Certificate => types::Criticality::Notable,
             _ => types::Criticality::Notable,
         };
 

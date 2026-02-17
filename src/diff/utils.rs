@@ -17,6 +17,7 @@ pub(crate) struct FileRename {
 }
 
 /// Compute set difference for items with an id-like field
+#[allow(dead_code)] // Used by binary target
 pub(super) fn compute_added_removed<T, F>(
     baseline: &[T],
     target: &[T],

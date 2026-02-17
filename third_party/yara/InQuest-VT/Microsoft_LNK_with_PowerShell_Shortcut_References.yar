@@ -11,7 +11,7 @@ rule Microsoft_LNK_with_PowerShell_Shortcut_References
         samples        = "15651b4516dc207148ad6d2cf098edc766dc06fc26c79d498305ddcb7c930eab"
     strings:
     $hex_6bf = { 24 00 50 00 31 00 }
-    if:
+    condition:
         (uint32be(0x0) == 0x4c000000 and uint32be(0x4) == 0x1140200)
         and $hex_6bf
 }

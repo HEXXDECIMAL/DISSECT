@@ -16,7 +16,7 @@ rule darkhotel_dotNetDownloader_strings {
         $b4 = "D0w1ad" ascii fullword
         $b5 = "U1dAL1" ascii fullword
 
-      if:
+    condition:
         (uint16(0) == 0x5A4D) and
         (filesize<200KB)  and
         (($pdb) or ($a1) or (3 of  ($b*)))
@@ -40,7 +40,7 @@ rule darkhotel_lnk_strings {
         $a2 = "mshta.exe" wide ascii
         $b1 = "TVqQAAMAAAAEAAAA" ascii
 
-      if:
+    condition:
         (uint16(0) == 0x004C) and
         ((filesize<1MB) and (filesize>200KB))  and
         ((1 of ($hostname*)) or ((1 of ($a*)) and ($b1)))
@@ -60,7 +60,7 @@ rule darkhotel_srdfqm_strings {
           $a3="Request already issued" ascii fullword
           $a4="\\Microsoft\\Network\\" ascii fullword
 
-    	if:
+    condition:
           (uint16(0) == 0x5A4D) and
           (filesize<800KB)  and
         	(all of them)
@@ -81,7 +81,7 @@ rule darkhotel_isyssdownloader_pdbs {
         $pdb2 = "\\Release\\isyss.pdb" ascii wide
         $pdb3="C:\\Code\\india_source\\" ascii wide
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D) and
         (filesize<2MB)  and
         ((1 of ($pdb*)) or ($b1))

@@ -8,7 +8,7 @@ rule malware_donut_shellcode {
      strings:
        $code = { 59 48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 81 EC 00 05 00 00 }
 
-     if:
+    condition:
        all of them and
        ((uint8(0) == 0x90 and
          uint32(2) == uint32(6) and

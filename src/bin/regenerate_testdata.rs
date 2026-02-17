@@ -1,3 +1,4 @@
+//! regenerate test data binary
 use serde_json::Value;
 use std::fs;
 use std::io::{BufRead, BufReader};

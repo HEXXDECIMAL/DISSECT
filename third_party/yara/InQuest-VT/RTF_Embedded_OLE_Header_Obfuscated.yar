@@ -17,6 +17,6 @@ rule RTF_Embedded_OLE_Header_Obfuscated
 
 	$normal = /\x7b[^\x7d]*\\object[^\x7d]*\\objemb[^\x7d]*\\objdata[^\x7d]+D0CF11E0A1B11AE1/ nocase wide ascii
 
-	if:
+    condition:
 			$rtf_magic in (0..10) and $obfuscated and not $normal
 }

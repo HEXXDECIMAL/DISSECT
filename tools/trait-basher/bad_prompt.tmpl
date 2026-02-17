@@ -54,7 +54,8 @@ Compare DISSECT output against your research findings. Document gaps: Does DISSE
 - Pattern priority: ast > symbol > string > content (highest precision first)
 - Max criticality: suspicious
 - Search existing traits first to avoid duplicates
-¥
+- Consider using advanced rule types such as 'metrics' and 'section' to catch obfuscated samples
+
 ### Compose Objectives (`obj/`)
 - Combine capabilities to detect attacker intent
 - Required precision: hostile ≥4.0, suspicious ≥2.0
@@ -87,3 +88,4 @@ touch {{.BenignMarkerPath}}
 - ✓ No false positives on benign tools
 - ✓ Trait IDs reflect semantic organization per TAXONOMY.md (used by humans and ML pipelines)
 - ✓ Atomic traits are properly organized based on what they detect rather than living next to intent-based composite rules.
+- ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable

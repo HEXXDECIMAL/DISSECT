@@ -18,7 +18,8 @@ use clap::{Parser, Subcommand};
 
 /// Parse comma-separated platforms string into a vector of Platform values
 /// Returns vec![Platform::All] if input is empty or "all"
-#[must_use] 
+#[allow(dead_code)] // Used by binary target
+#[must_use]
 pub(crate) fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
     use crate::composite_rules::Platform;
 
@@ -57,6 +58,7 @@ pub(crate) const DEFAULT_ZIP_PASSWORDS: &[&str] =
     &["infected", "infect3d", "malware", "virus", "password"];
 
 /// Tracks which components are disabled
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone, Default)]
 pub(crate) struct DisabledComponents {
     /// Whether YARA scanning is disabled
@@ -71,6 +73,7 @@ pub(crate) struct DisabledComponents {
 
 impl DisabledComponents {
     /// Parse comma-separated list of components to disable
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn parse(s: &str) -> Self {
         let mut disabled = Self::default();
@@ -136,13 +139,8 @@ pub(crate) struct Args {
     #[arg(long)]
     pub no_zip_passwords: bool,
 
-    /// Enable third-party YARA rules (from third_party/yara directory)
-    #[arg(long)]
-    pub third_party_yara: bool,
-
     /// Disable specific components (comma-separated: yara,radare2,upx,third-party)
-    /// Default: third-party is disabled for faster analysis
-    #[arg(long, value_name = "COMPONENTS", default_value = "third-party")]
+    #[arg(long, value_name = "COMPONENTS", default_value = "")]
     pub disable: String,
 
     /// Enable all components (overrides --disable default)
@@ -195,6 +193,7 @@ pub(crate) struct Args {
 
 impl Args {
     /// Get the disabled components based on --disable and --enable-all flags
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn disabled_components(&self) -> DisabledComponents {
         if self.enable_all {
@@ -205,6 +204,7 @@ impl Args {
     }
 
     /// Get the output format based on --json and --format flags
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn format(&self) -> OutputFormat {
         // --format takes precedence over --json
@@ -219,6 +219,7 @@ impl Args {
     }
 
     /// Parse --error-if flag into a set of criticality levels
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
         self.error_if
@@ -227,6 +228,7 @@ impl Args {
     }
 
     /// Parse --platforms flag into a vector of Platform values
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn platforms(&self) -> Vec<crate::composite_rules::Platform> {
         parse_platforms(&self.platforms)
@@ -234,6 +236,7 @@ impl Args {
 }
 
 /// Parse a criticality level string (case-insensitive)
+#[allow(dead_code)] // Used by binary target
 fn parse_criticality_level(s: &str) -> crate::types::Criticality {
     match s.to_lowercase().as_str() {
         "filtered" => crate::types::Criticality::Filtered,
@@ -257,10 +260,6 @@ pub(crate) enum Command {
         /// Target files or directories to analyze
         #[arg(required = true)]
         targets: Vec<String>,
-
-        /// Enable third-party YARA rules (from third_party/yara directory)
-        #[arg(long)]
-        third_party_yara: bool,
     },
 
     /// Scan multiple files or directories
@@ -268,10 +267,6 @@ pub(crate) enum Command {
         /// Paths to scan (files or directories)
         #[arg(required = true)]
         paths: Vec<String>,
-
-        /// Enable third-party YARA rules (from third_party/yara directory)
-        #[arg(long)]
-        third_party_yara: bool,
     },
 
     /// Compare two versions (diff mode) for supply chain attack detection
@@ -568,13 +563,8 @@ mod tests {
         let args = Args::try_parse_from(["dissect", "analyze", "file.bin"]).unwrap();
 
         assert!(matches!(args.command, Some(Command::Analyze { .. })));
-        if let Some(Command::Analyze {
-            targets,
-            third_party_yara,
-        }) = args.command
-        {
+        if let Some(Command::Analyze { targets }) = args.command {
             assert_eq!(targets, vec!["file.bin"]);
-            assert!(!third_party_yara); // Third-party YARA disabled by default
         }
     }
 
@@ -583,28 +573,8 @@ mod tests {
         let args =
             Args::try_parse_from(["dissect", "analyze", "file1.bin", "file2.bin", "dir1"]).unwrap();
 
-        if let Some(Command::Analyze {
-            targets,
-            third_party_yara,
-        }) = args.command
-        {
+        if let Some(Command::Analyze { targets }) = args.command {
             assert_eq!(targets, vec!["file1.bin", "file2.bin", "dir1"]);
-            assert!(!third_party_yara); // Third-party YARA disabled by default
-        }
-    }
-
-    #[test]
-    fn test_parse_analyze_with_third_party_yara() {
-        let args =
-            Args::try_parse_from(["dissect", "analyze", "file.bin", "--third-party-yara"]).unwrap();
-
-        if let Some(Command::Analyze {
-            targets,
-            third_party_yara,
-        }) = args.command
-        {
-            assert_eq!(targets, vec!["file.bin"]);
-            assert!(third_party_yara); // Third-party YARA explicitly enabled
         }
     }
 
@@ -613,27 +583,8 @@ mod tests {
         let args = Args::try_parse_from(["dissect", "scan", "dir1", "dir2"]).unwrap();
 
         assert!(matches!(args.command, Some(Command::Scan { .. })));
-        if let Some(Command::Scan {
-            paths,
-            third_party_yara,
-        }) = args.command
-        {
+        if let Some(Command::Scan { paths }) = args.command {
             assert_eq!(paths, vec!["dir1", "dir2"]);
-            assert!(!third_party_yara); // Third-party YARA disabled by default
-        }
-    }
-
-    #[test]
-    fn test_parse_scan_with_third_party_yara() {
-        let args = Args::try_parse_from(["dissect", "scan", "dir1", "--third-party-yara"]).unwrap();
-
-        if let Some(Command::Scan {
-            paths,
-            third_party_yara,
-        }) = args.command
-        {
-            assert_eq!(paths, vec!["dir1"]);
-            assert!(third_party_yara); // Third-party YARA explicitly enabled
         }
     }
 
@@ -719,7 +670,6 @@ mod tests {
             "-o",
             "output.json",
             "-v",
-            "--third-party-yara",
             "file1.bin",
             "file2.bin",
         ])
@@ -729,7 +679,6 @@ mod tests {
         assert!(matches!(args.format(), OutputFormat::Jsonl));
         assert_eq!(args.output, Some("output.json".to_string()));
         assert!(args.verbose);
-        assert!(args.third_party_yara); // Third-party YARA explicitly enabled
         assert_eq!(args.paths, vec!["file1.bin", "file2.bin"]);
     }
 
@@ -767,19 +716,6 @@ mod tests {
         .unwrap();
         assert_eq!(args.min_hostile_precision, 5.5);
         assert_eq!(args.min_suspicious_precision, 2.7);
-    }
-
-    #[test]
-    fn test_parse_global_third_party_yara() {
-        let args = Args::try_parse_from(["dissect", "--third-party-yara", "file.bin"]).unwrap();
-        assert!(args.third_party_yara); // Third-party YARA explicitly enabled
-        assert_eq!(args.paths, vec!["file.bin"]);
-    }
-
-    #[test]
-    fn test_third_party_yara_disabled_by_default() {
-        let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
-        assert!(!args.third_party_yara); // Third-party YARA disabled by default
     }
 
     #[test]
@@ -852,8 +788,8 @@ mod tests {
     fn test_disabled_components_default() {
         let args = Args::try_parse_from(["dissect", "file.bin"]).unwrap();
         let disabled = args.disabled_components();
-        // third-party is disabled by default
-        assert!(disabled.third_party);
+        // Nothing is disabled by default
+        assert!(!disabled.third_party);
         assert!(!disabled.yara);
         assert!(!disabled.radare2);
         assert!(!disabled.upx);

@@ -52,7 +52,7 @@ rule APT29_csloader_code {
         $command2 = "C:\\Windows\\System32\\cmd.exe /k ping 8.8.8.8 -n 3  && del /F \"%s\"" wide
         $pdb = "C:\\Users\\jack\\viewer\\bin\\viewer.pdb" ascii
 
-      if:
+    condition:
         uint16(0) == 0x5A4D and
         uint32(uint32(0x3c)) == 0x00004550 and
         ((#size >= 4 and $process and 1 of ($command*) and 1 of ($resource*)) or
@@ -78,7 +78,7 @@ rule malware_cobaltstrike_workersdevloader {
         $opt4 = "--parent_id=" ascii wide
         $opt5 = "--auto=" ascii wide
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (

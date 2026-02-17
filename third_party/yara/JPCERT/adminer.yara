@@ -14,6 +14,6 @@ rule webshell_adminer_4_7 {
         $str7 = "lzw_decompress($"
         $str8 = "preg_match('~^(database|table|columns|sql|indexes|"
 
-     if:
+    condition:
        uint32(0) == 0x68703F3C and 5 of ($str*)
 }

@@ -13,6 +13,6 @@ rule malware_Emotet {
             $v7a = { 6A 06 33 D2 ?? F7 ?? 8B DA 43 74 }
             $v7b = { 83 E6 0F 8B CF 83 C6 04 50 8B D6 E8 ?? ?? ?? ?? 59 6A 2F 8D 3C 77 58 66 89 07 83 C7 02 4B 75 }
 
-          if:
+    condition:
           all of ($v4*) or $v5a or $v6a or all of ($v7*)
 }

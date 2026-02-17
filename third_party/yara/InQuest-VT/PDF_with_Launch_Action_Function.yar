@@ -14,7 +14,7 @@ rule PDF_with_Launch_Action_Function
 
 		$pdf_header = "%PDF-"
 		$a = "<</S/Launch/Type/Action/Win<</F"
-	if:
+    condition:
 
 		$pdf_header in (0..1024) and $a
 

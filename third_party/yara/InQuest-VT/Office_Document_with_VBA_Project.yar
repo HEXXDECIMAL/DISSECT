@@ -17,7 +17,7 @@ rule Office_Document_with_VBA_Project
 		$vba_project1 = "VBA_PROJECT" wide nocase
 		$vba_project2 = "word/vbaProject.binPK"
 
-    if:
+    condition:
 
 		(($magic1 at 0) or ($magic2 at 0)) and any of ($vba_project*)
 

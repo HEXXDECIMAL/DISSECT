@@ -16,6 +16,6 @@ rule Powershell_Case
         	$ps_normal2 = /(p.o.w.e.r.s.h.e.l.l|P.O.W.E.R.S.H.E.L.L|P.o.w.e.r.s.h.e.l.l|P.o.w.e.r.S.h.e.l.l|p.o.w.e.r.S.h.e.l.l)/ fullword
 	        $ps_wide1   = "powershell" fullword nocase
         	$ps_wide2   = /p.o.w.e.r.s.h.e.l.l/ fullword nocase
-	if:
+    condition:
 	        (($ps_wide1 and not $ps_normal1) or ($ps_wide2 and not $ps_normal2)) and not ($magic1 in (filesize-30 .. filesize))
 }

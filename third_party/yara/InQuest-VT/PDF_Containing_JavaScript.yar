@@ -15,7 +15,7 @@ rule PDF_Containing_JavaScript
 		$pdf_tag1 = /\x25\x50\x44\x46\x2d/
 		$js_tag1  = "/JavaScript" fullword
 		$js_tag2  = "/JS"		  fullword
-	if:
+    condition:
 
 		$pdf_tag1 in (0..1024) and ($js_tag1 or $js_tag2)
 

@@ -24,10 +24,12 @@ pub(crate) fn is_zero_f64(n: &f64) -> bool {
     *n == 0.0
 }
 
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn is_zero_i32(v: &i32) -> bool {
     *v == 0
 }
 
+#[allow(dead_code)] // Used by binary target
 pub(crate) fn is_zero_i64(v: &i64) -> bool {
     *v == 0
 }
@@ -114,18 +116,22 @@ use std::path::PathBuf;
 ///
 /// For archives, the archive's SHA256 is used (via `archive_sha256`) so all
 /// files from the same archive are grouped together in one directory.
+#[allow(dead_code)] // Used by binary target
 #[derive(Debug, Clone)]
 pub(crate) struct SampleExtractionConfig {
     /// Base directory for extracted files
+    #[allow(dead_code)] // Used by binary target
     pub extract_dir: PathBuf,
     /// Optional archive SHA256 to use instead of individual file SHA256.
     /// When set, all extracted files use this hash for the directory,
     /// grouping archive members together.
+    #[allow(dead_code)] // Used by binary target
     pub archive_sha256: Option<String>,
 }
 
 impl SampleExtractionConfig {
     /// Create a new extraction config
+    #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn new(extract_dir: PathBuf) -> Self {
         Self {

@@ -13,6 +13,6 @@ rule Adobe_XMP_Identifier
 	strings:
     $xmp_md5  = /xmp\.[dio]id[-: _][a-f0-9]{32}/  nocase ascii wide
     $xmp_guid = /xmp\.[dio]id[-: _][a-f0-9]{36}/ nocase ascii wide
-	if:
+    condition:
 			any of them
 }

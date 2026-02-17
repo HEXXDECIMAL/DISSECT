@@ -10,7 +10,7 @@ rule BlackTech_PLEAD_mutex {
         $v1c = "%02d:%02d:%02d"
         $v1d = "%02d-%02d-%02d"
 
-    if:
+    condition:
         ($v1a or $v1b) and $v1c and $v1d
 }
 
@@ -27,7 +27,7 @@ rule BlackTech_PLEAD_elf {
         $class3 = "CFileManager"
         $lzo = { 81 ?? FF 07 00 00 81 ?? 1F 20 00 00 }
 
-    if:
+    condition:
         3 of them
 }
 
@@ -42,7 +42,7 @@ rule BlackTech_TSCookie_rat{
         $w1a = "[-] Failed to initialize **** API" wide
         $w1b = "IPv6Test" wide
 
-    if:
+    condition:
         all of them
 }
 
@@ -63,7 +63,7 @@ rule BlackTech_TSCookie_UA {
       $v1d = { C7 40 7C 92 5A 76 5D }
       $v1e = { C7 ?? ?? ?? ?? ?? 92 5A 76 5D }
 
-    if:
+    condition:
       ($v1 and ($b1 or $d1)) or ($v1b and $v1c and ($v1d or $v1e))
 }
 
@@ -80,7 +80,7 @@ rule BlackTech_TSCookie_loader
         $rc4key = {C7 [1-6] 92 5A 76 5D}
         $rc4loop = {3D 00 01 00 00}
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D) and
         (filesize<2MB) and
         all of ($rc4*)
@@ -101,7 +101,7 @@ rule BlackTech_TSCookie_loader_pdb
         $pdb3 = "MyFuckers\\MyFuckers_"
         $pdb4 = "MyFuckersService8\\MyFuckers_"
 
-     if:
+    condition:
         uint16(0) == 0x5A4D and
         ($pdb1 or $pdb2 or $pdb3 or $pdb4)
 }
@@ -117,7 +117,7 @@ rule BlackTech_TSCookie_elf {
         $senddata = { 0? BC 63 72 }
         $config = { C7 ?? ?? ?? 80 00 00 00 89 ?? ?? ?? C7 ?? ?? ?? 78 0B 00 00 }
 
-     if:
+    condition:
         (#senddata >= 10 and $command) or $config
 }
 
@@ -135,7 +135,7 @@ rule BlackTech_IconDown_pe {
         $string1 = "/c %s" ascii
         $string2 = /%s\\[A-X]{1,3}%[l]{0,1}X\.TMP/
 
-    if:
+    condition:
         (uint16(0) == 0x5A4D) and
         (filesize<5MB) and
         1 of ($dataheader*) and all of ($string*)
@@ -150,7 +150,7 @@ rule BlackTech_IconDown_resource {
     strings:
         $key = {00 13 87 33 00 90 06 19}
 
-    if:
+    condition:
         (uint16(0) != 0x5A4D) and
         (filesize<5MB) and
         $key
@@ -176,7 +176,7 @@ rule BlackTech_iam_downloader {
         $api2 = { 68 B0 49 2D DB }
         $api3 = { 68 45 A0 E4 4E }
 
-     if:
+    condition:
         $fs30 and all of ($com*) or all of ($send*) or ($mutex and all of ($api*))
 }
 
@@ -191,7 +191,7 @@ rule BlackTech_HIPO_headercheck {
         $code1 = { 3D 48 49 50 4F 74 } // HIPO
         $code2 = { 68 22 22 22 22 68 11 11 11 11 56 8B CD E8 } // push 22222222h push 11111111h push esi
 
-     if:
+    condition:
         all of them
 }
 
@@ -210,7 +210,7 @@ rule BlackTech_PLEAD_dummycode {
         $dummy5 = "%02d%02d%02d"
         $dummy6 = "%s-%02d-%02d-%02d"
 
-     if:
+    condition:
         4 of ($dummy*)
 }
 
@@ -234,7 +234,7 @@ rule BlackTech_Flagprodownloader_str {
         $msg11 = "ExecYes" ascii wide
         $msg12 = "flagpro=" ascii wide
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        6 of them
@@ -280,7 +280,7 @@ rule BlackTech_Gh0stTimes_str {
         $pdb = {73 76 63 68 6F 73 74 2D E5 85 A8 E5 8A 9F E8 83 BD 2D E5 8A A0 E5 AF 86 31 32 30 35 5C 52 65 6C 65 61 73 65 5C 73 76 63 68 6F 73 74 2E 70 64 62}
         //$pdb = "svchost-全功能-加密1205\Release\svchost.pdb"
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (all of ($b*) or $pdb or 5 of ($msg*))
@@ -304,7 +304,7 @@ rule BlackTech_Gh0stTimes_panel {
         $table4 = "CFileManagerDlg" ascii wide
         $table5 = "CFileTransferModeDlg" ascii wide
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        5 of them
@@ -328,7 +328,7 @@ rule BlackTech_Bifrose_elf {
         $msg9 = "%x : %s %d" ascii
         $msg10 = "recvData timeout :%d" ascii
 
-     if:
+    condition:
        uint32(0) == 0x464C457F and
        5 of them
 }
@@ -349,7 +349,7 @@ rule BlackTech_BTSDoor_str {
         $pdb2 = "\\BTSWindows\\Serverx86.pdb" ascii
         $pdb3 = "\\BTSWindows\\Serverx64.pdb" ascii
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and
        uint32(uint32(0x3c)) == 0x00004550 and
        (1 of ($pdb*) or 4 of ($data*))
@@ -381,7 +381,7 @@ rule BlackTech_Hipid_str {
         $key1 = "pASSword699" ascii fullword
         $key2 = "345asdflkasduf" ascii fullword
 
-     if:
+    condition:
        uint32(0) == 0x464C457F and
        (4 of ($msg*) or 4 of ($func*) or 1 of ($key*))
 }
@@ -398,7 +398,7 @@ rule BlackTech_SelfMakeLoader_str {
         $s3 = "[+] config path:%s"
         $cmp_magic_num = { 81 7C ?? ?? (D0 D9 FE E1 | EE D8 FF E0) }
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and (all of ($s*) or $cmp_magic_num)
 }
 
@@ -414,7 +414,7 @@ rule BlackTech_HeavyROTLoader {
         $calc_key = { 63 51 E1 B7 8B ?? 8B ?? 81 ?? 00 10 00 00 C1 ?? 10 0B }
         $parse_data = { 8D 6F EE 8B 10 66 8B 70 10 8B 58 04 89 54 24 28 8B 50 08 3B F5 }
 
-     if:
+    condition:
        all of ($t*) or $calc_key or $parse_data
 }
 
@@ -433,7 +433,7 @@ rule BlackTech_SpiderRAT_str {
         $msg6 = "Send Success - %d:%d"
         $msg7 = "Recv Success - %d:%d"
 
-     if:
+    condition:
        uint16(0) == 0x5A4D and 5 of ($msg*)
 }
 
@@ -453,6 +453,6 @@ rule BlackTech_AresPYDoor_str {
         $log4 = "[i]server_hello: %s"
         $log5 = "[i]starting server_hello"
 
-     if:
+    condition:
        5 of them
 }

@@ -10,7 +10,7 @@ rule malware_Agenttesla_type1 {
             $atstr = "C:\\\\Users\\\\Admin\\\\Desktop\\\\ConsoleApp1\\\\ConsoleApp1\\\\obj\\\\Debug\\\\ConsoleApp1.pdb"
             $sqlitestr = "Not a valid SQLite 3 Database File" wide
 
-          if:
+    condition:
             all of them
 }
 
@@ -28,6 +28,6 @@ rule malware_Agenttesla_type2 {
             $type2db3 = "SQLite format 3" wide
             $type2db4 = "Berkelet DB" wide
 
-          if:
+    condition:
             (uint16(0) == 0x5A4D) and 3 of them
 }

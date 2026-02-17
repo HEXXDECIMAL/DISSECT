@@ -55,7 +55,7 @@ rule Windows_API_Function
     $api_41 = "WriteFile" nocase ascii wide
     $api_42 = "StartServiceA" nocase ascii wide
     $api_43 = "VirtualProtect" nocase ascii wide
-	if:
+    condition:
 			any of ($api*)
     and not $magic in (filesize-30..filesize)
     and not

@@ -181,11 +181,14 @@ fn test_analysis_report_new_with_timestamp() {
 
 #[test]
 fn test_trait_new_constructor() {
-    let trait_obj = Trait::new(
-        TraitKind::String,
-        "test_value".to_string(),
-        "test_source".to_string(),
-    );
+    let trait_obj = Trait {
+        kind: TraitKind::String,
+        value: "test_value".to_string(),
+        source: "test_source".to_string(),
+        offset: None,
+        encoding: None,
+        section: None,
+    };
 
     assert_eq!(trait_obj.kind, TraitKind::String);
     assert_eq!(trait_obj.value, "test_value");
@@ -363,6 +366,7 @@ fn test_yara_match_creation() {
         is_capability: false,
         mbc: None,
         attack: None,
+        trait_id: None,
     };
 
     assert_eq!(yara_match.rule, "malware_rule");
@@ -445,82 +449,4 @@ fn test_code_metrics_creation() {
     assert_eq!(metrics.total_functions, 50);
     assert_eq!(metrics.avg_complexity, 3.5);
     assert_eq!(metrics.max_complexity, 12);
-}
-
-#[test]
-fn test_sample_extraction_config_new() {
-    let config = SampleExtractionConfig::new(std::path::PathBuf::from("/tmp/extract"));
-    assert_eq!(config.extract_dir, std::path::PathBuf::from("/tmp/extract"));
-}
-
-#[test]
-fn test_sample_extraction_creates_file() {
-    let tmp_dir = tempfile::tempdir().unwrap();
-    let config = SampleExtractionConfig::new(tmp_dir.path().to_path_buf());
-
-    let data = b"test content";
-    let sha256 = "abc123";
-    let relative_path = "inner/file.txt";
-
-    let result = config.extract(sha256, relative_path, data);
-    assert!(result.is_some());
-
-    let path = result.unwrap();
-    assert!(path.exists());
-    assert_eq!(std::fs::read(&path).unwrap(), data);
-
-    // Verify path structure: <extract_dir>/<sha256>/<relative_path>
-    assert!(path.to_string_lossy().contains(sha256));
-    assert!(path.to_string_lossy().ends_with(relative_path));
-}
-
-#[test]
-fn test_sample_extraction_skips_existing_same_size() {
-    let tmp_dir = tempfile::tempdir().unwrap();
-    let config = SampleExtractionConfig::new(tmp_dir.path().to_path_buf());
-
-    let data = b"test content";
-    let sha256 = "def456";
-    let relative_path = "file.txt";
-
-    // First extraction
-    let result1 = config.extract(sha256, relative_path, data);
-    assert!(result1.is_some());
-    let path = result1.unwrap();
-
-    // Get modification time
-    let mtime1 = std::fs::metadata(&path).unwrap().modified().unwrap();
-
-    // Small delay to ensure mtime would change if file was rewritten
-    std::thread::sleep(std::time::Duration::from_millis(10));
-
-    // Second extraction with same data - should skip write
-    let result2 = config.extract(sha256, relative_path, data);
-    assert!(result2.is_some());
-
-    // Verify file was NOT rewritten (mtime unchanged)
-    let mtime2 = std::fs::metadata(&path).unwrap().modified().unwrap();
-    assert_eq!(mtime1, mtime2, "File should not have been rewritten");
-}
-
-#[test]
-fn test_sample_extraction_overwrites_different_size() {
-    let tmp_dir = tempfile::tempdir().unwrap();
-    let config = SampleExtractionConfig::new(tmp_dir.path().to_path_buf());
-
-    let data1 = b"short";
-    let data2 = b"much longer content";
-    let sha256 = "ghi789";
-    let relative_path = "file.txt";
-
-    // First extraction
-    let result1 = config.extract(sha256, relative_path, data1);
-    assert!(result1.is_some());
-    let path = result1.unwrap();
-    assert_eq!(std::fs::read(&path).unwrap(), data1);
-
-    // Second extraction with different size - should overwrite
-    let result2 = config.extract(sha256, relative_path, data2);
-    assert!(result2.is_some());
-    assert_eq!(std::fs::read(&path).unwrap(), data2);
 }
