@@ -134,7 +134,7 @@ traits:
       regex: '\.split\(\s*(?:""|'')\s*\)'
 
   # Dynamic code execution patterns (atomic)
-  # Moved to obj/exec/eval/dynamic/eval-call
+  # Moved to obj/exec/interpreter/eval/dynamic/eval-call
 
   - id: js-function-call
     desc: Function() constructor

@@ -13,7 +13,7 @@ traits:
       type: string
       regex: "(grabify\\.link|blasze\\.com|canarytokens\\.com|bitly\\.com|tinyurl\\.com)"
 
-  # Removed iplogger-string duplicate - use obj/discovery/network/scan/ip-lookup::iplogger-keyword (more complete, has attack mapping)
+  # Removed iplogger-string duplicate - use obj/discovery/network/scan::iplogger-keyword (more complete, has attack mapping)
 
   - id: iplogger-http
     desc: "Detects HTTP indicators often with iplogger"
@@ -27,7 +27,7 @@ composite_rules:
     desc: "Detects 'iplogger' keyword with HTTP indicators"
     crit: suspicious
     all:
-      - id: obj/discovery/network/scan/ip-lookup::iplogger-keyword
+      - id: obj/discovery/network/scan::iplogger-keyword
       - id: iplogger-http
 
   - id: fragmented-tracking-beacon
@@ -36,6 +36,6 @@ composite_rules:
     all:
       - id: cap/comm/http/lib/netlib
     any:
-      - id: obj/discovery/network/scan/ip-lookup::iplogger-keyword
+      - id: obj/discovery/network/scan::iplogger-keyword
       - id: iplogger-domain
       - id: tracking-services-domain

@@ -155,7 +155,7 @@ composite_rules:
     conf: 0.7
     for: [elf]
     all:
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
     any:
       - id: rtld-next-ref
       - id: meta/format/elf::rtld-default-ref
@@ -232,7 +232,7 @@ composite_rules:
     for: [elf]
     all:
       # Require basic dynamic loading
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
     any:
       # Plus at least one actual hijacking indicator (not just dlopen)
       - id: rtld-global-ref
@@ -265,7 +265,7 @@ composite_rules:
       - id: cap/dylib/library::system-lib-marker
       - id: cap/dylib/library::x11-ipc-lib-marker
       - id: cap/dylib/library::graphics-lib-marker
-      - id: cap/dylib/go-runtime/
+      - id: meta/lang::go-runtime-marker
       - id: cap/dylib/library::debugger-tool-marker
       - id: meta/signed/platform::apple
 
@@ -278,7 +278,7 @@ composite_rules:
       - id: cap/process/fork/clone::fork
       - id: cap/process/create/shell
     none:
-      - id: cap/dylib/go-runtime/
+      - id: meta/lang::go-runtime-marker
       - id: cap/dylib/library::shell-interpreter
       - id: cap/dylib/library::system-lib-marker
       - id: obj/persist/shell/config::tcsh-keyword

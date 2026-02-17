@@ -3,203 +3,282 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use super::binary::{AnalysisMetadata, Export, Function, Import, StringInfo, YaraMatch};
+use super::binary::{AnalysisMetadata, Export, Function, Import, StringInfo, SyscallInfo, YaraMatch};
 use super::paths_env::{EnvVarInfo, PathInfo};
 use super::traits_findings::{Finding, Trait};
 use super::{is_zero_f32, is_zero_i32, is_zero_i64};
-use crate::radare2::SyscallInfo;
 
 /// Diff-specific report for comparing old vs new versions
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DiffReport {
+    /// Schema version for compatibility checking
     pub schema_version: String,
+    /// Timestamp when the diff analysis was performed
     pub analysis_timestamp: DateTime<Utc>,
+    /// Whether diff mode was used
     pub diff_mode: bool,
+    /// Path to the baseline file or directory
     pub baseline: String,
+    /// Path to the target file or directory
     pub target: String,
+    /// Summary of file-level changes
     pub changes: FileChanges,
+    /// Detailed analysis of modified files
     pub modified_analysis: Vec<ModifiedFileAnalysis>,
+    /// Analysis metadata (tool versions, timing)
     pub metadata: AnalysisMetadata,
 }
 
+/// Summary of file additions, removals, modifications, and renames
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileChanges {
+    /// Paths of newly added files
     pub added: Vec<String>,
+    /// Paths of files that were removed
     pub removed: Vec<String>,
+    /// Paths of files that were modified
     pub modified: Vec<String>,
+    /// Files that were renamed (with similarity score)
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub renamed: Vec<FileRenameInfo>,
 }
 
+/// Information about a renamed file and its similarity to the original
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileRenameInfo {
+    /// Original file path
     pub from: String,
+    /// New file path
     pub to: String,
+    /// Similarity score between 0.0 and 1.0
     pub similarity: f64,
 }
 
+/// Analysis of changes to a single modified file
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModifiedFileAnalysis {
+    /// File path relative to the analyzed directory
     pub file: String,
     /// Full capability objects for new capabilities (includes description/evidence)
     pub new_capabilities: Vec<Finding>,
     /// Full capability objects for removed capabilities
     pub removed_capabilities: Vec<Finding>,
+    /// Net change in capability count (positive = more capabilities)
     pub capability_delta: i32,
+    /// Whether the overall risk increased
     pub risk_increase: bool,
 }
 
 /// Comprehensive diff for a single file - can be treated as a "virtual program" for ML
 /// Contains all deltas: added/removed collections and numeric changes
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct FileDiff {
+pub(crate) struct FileDiff {
+    /// File path relative to the analyzed directory
     pub file: String,
 
     // === Collection deltas (added/removed) ===
+    /// Findings (capabilities/indicators) present in target but not baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_findings: Vec<Finding>,
+    /// Findings present in baseline but not target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_findings: Vec<Finding>,
 
+    /// Observable traits added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_traits: Vec<Trait>,
+    /// Observable traits removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_traits: Vec<Trait>,
 
+    /// String literals added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_strings: Vec<StringInfo>,
+    /// String literals removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_strings: Vec<StringInfo>,
 
+    /// Imported symbols added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_imports: Vec<Import>,
+    /// Imported symbols removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_imports: Vec<Import>,
 
+    /// Exported symbols added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_exports: Vec<Export>,
+    /// Exported symbols removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_exports: Vec<Export>,
 
+    /// Functions added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_functions: Vec<Function>,
+    /// Functions removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_functions: Vec<Function>,
 
+    /// Syscalls added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_syscalls: Vec<SyscallInfo>,
+    /// Syscalls removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_syscalls: Vec<SyscallInfo>,
 
+    /// File/directory paths added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_paths: Vec<PathInfo>,
+    /// File/directory paths removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_paths: Vec<PathInfo>,
 
+    /// Environment variable references added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_env_vars: Vec<EnvVarInfo>,
+    /// Environment variable references removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_env_vars: Vec<EnvVarInfo>,
 
+    /// YARA rule matches added in target
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub added_yara_matches: Vec<YaraMatch>,
+    /// YARA rule matches removed from baseline
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub removed_yara_matches: Vec<YaraMatch>,
 
     // === Numeric deltas (target - baseline) ===
+    /// Numeric metric changes (target - baseline values)
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub metrics_delta: Option<MetricsDelta>,
 
     // === Counts summary (for quick ML feature extraction) ===
+    /// Summary counts for quick ML feature extraction
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub counts: Option<DiffCounts>,
 
     // === Risk assessment ===
+    /// Whether the overall risk increased from baseline to target
     pub risk_increase: bool,
+    /// Change in risk score (target - baseline), if computed
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub risk_score_delta: Option<f32>,
 }
 
 /// Summary counts for quick ML feature extraction
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct DiffCounts {
+pub(crate) struct DiffCounts {
+    /// Number of findings added in target
     pub findings_added: i32,
+    /// Number of findings removed from baseline
     pub findings_removed: i32,
+    /// Number of traits added in target
     pub traits_added: i32,
+    /// Number of traits removed from baseline
     pub traits_removed: i32,
+    /// Number of strings added in target
     pub strings_added: i32,
+    /// Number of strings removed from baseline
     pub strings_removed: i32,
+    /// Number of imported symbols added in target
     pub imports_added: i32,
+    /// Number of imported symbols removed from baseline
     pub imports_removed: i32,
+    /// Number of exported symbols added in target
     pub exports_added: i32,
+    /// Number of exported symbols removed from baseline
     pub exports_removed: i32,
+    /// Number of functions added in target
     pub functions_added: i32,
+    /// Number of functions removed from baseline
     pub functions_removed: i32,
+    /// Number of syscalls added in target
     pub syscalls_added: i32,
+    /// Number of syscalls removed from baseline
     pub syscalls_removed: i32,
+    /// Number of file paths added in target
     pub paths_added: i32,
+    /// Number of file paths removed from baseline
     pub paths_removed: i32,
+    /// Number of env var references added in target
     pub env_vars_added: i32,
+    /// Number of env var references removed from baseline
     pub env_vars_removed: i32,
 }
 
 /// Numeric deltas for metrics (target - baseline)
 /// Positive = increased, Negative = decreased
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct MetricsDelta {
-    // === Size deltas ===
+pub(crate) struct MetricsDelta {
+    /// File size change in bytes (target - baseline)
     #[serde(default, skip_serializing_if = "is_zero_i64")]
     pub size_bytes: i64,
 
-    // === Text metrics deltas ===
+    /// Change in total line count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub total_lines: i32,
+    /// Change in code line count (non-blank, non-comment)
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub code_lines: i32,
+    /// Change in comment line count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub comment_lines: i32,
+    /// Change in blank line count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub blank_lines: i32,
 
-    // === Complexity deltas ===
+    /// Change in average cyclomatic complexity
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub avg_complexity: f32,
+    /// Change in maximum complexity across all functions
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub max_complexity: i32,
+    /// Change in total function count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub total_functions: i32,
 
-    // === String metrics deltas ===
+    /// Change in string literal count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub string_count: i32,
+    /// Change in average string length
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub avg_string_length: f32,
+    /// Change in average string entropy
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub avg_string_entropy: f32,
 
-    // === Identifier metrics deltas ===
+    /// Change in unique identifier count
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub unique_identifiers: i32,
+    /// Change in average identifier length
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub avg_identifier_length: f32,
 
-    // === Binary metrics deltas (for compiled code) ===
+    /// Change in total basic block count (binary files only)
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub total_basic_blocks: i32,
+    /// Change in total instruction count (binary files only)
     #[serde(default, skip_serializing_if = "is_zero_i32")]
     pub total_instructions: i32,
+    /// Change in code density ratio (binary files only)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub code_density: f32,
 }
 
 /// Extended diff report with full analysis for ML pipelines
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FullDiffReport {
+pub(crate) struct FullDiffReport {
+    /// Schema version for compatibility checking
     pub schema_version: String,
+    /// Timestamp when the diff analysis was performed
     pub analysis_timestamp: DateTime<Utc>,
+    /// Whether diff mode was used
     pub diff_mode: bool,
+    /// Path to the baseline file or directory
     pub baseline: String,
+    /// Path to the target file or directory
     pub target: String,
+    /// Summary of file-level changes
     pub changes: FileChanges,
     /// Comprehensive per-file diffs (for ML: treat each as a "virtual program")
     pub file_diffs: Vec<FileDiff>,
@@ -209,6 +288,7 @@ pub struct FullDiffReport {
     /// Aggregate counts across all files
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub aggregate_counts: Option<DiffCounts>,
+    /// Analysis metadata (tool versions, timing)
     pub metadata: AnalysisMetadata,
 }
 

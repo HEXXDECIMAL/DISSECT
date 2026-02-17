@@ -56,10 +56,4 @@ traits:
       type: symbol
       exact: "VirtualFree"
 
-  - id: virtual-query
-    desc: Query virtual memory state
-    crit: notable
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "VirtualQuery"
+  # virtual-query: use cap/mem/query/info::virtualquery (canonical namespace)

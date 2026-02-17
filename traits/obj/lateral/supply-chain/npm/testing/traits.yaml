@@ -119,11 +119,12 @@ traits:
       type: string
       substr: "test("
 
+  # jest-word for javascript: use meta/dev/testing/jest::jest-word (canonical)
   - id: jest-word
     desc: jest keyword
     crit: notable
     conf: 0.6
-    for: [javascript, typescript]
+    for: [typescript]
     if:
       type: string
       word: "jest"
@@ -337,6 +338,7 @@ composite_rules:
     any:
       - { id: meta/dev/testing/rspec::rspec-expect }
       - { id: jest-word }
+      - { id: meta/dev/testing/jest::jest-word }
       - { id: jest-mock-call }
       - { id: obj/lateral/supply-chain/npm/testing::jest-test-blocks }
       - { id: obj/lateral/supply-chain/npm/testing::jest-test-blocks }

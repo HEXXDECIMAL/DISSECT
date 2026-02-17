@@ -33,13 +33,13 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
         return Some(relative.to_string());
     }
     // Fallback: return the file name only if we can't find "traits/"
-    path.file_name().and_then(|n| n.to_str()).map(|s| s.to_string())
+    path.file_name().and_then(|n| n.to_str()).map(std::string::ToString::to_string)
 }
 
 /// Wrapper for conditions with common filters applied at trait level.
 /// Uses #[serde(flatten)] to merge filters into the if: block ergonomically.
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct ConditionWithFilters {
+pub(crate) struct ConditionWithFilters {
     /// The actual condition (symbol, string, raw, etc.)
     #[serde(flatten)]
     pub condition: Condition,
@@ -71,31 +71,36 @@ pub struct ConditionWithFilters {
 
 impl ConditionWithFilters {
     /// Delegate method calls to the underlying condition
-    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         self.condition.precompile_regexes()
     }
 
-    pub fn can_match_file_type(&self, file_type: &FileType) -> bool {
+    #[must_use] 
+    pub(crate) fn can_match_file_type(&self, file_type: &FileType) -> bool {
         self.condition.can_match_file_type(file_type)
     }
 
-    pub fn validate(&self, _trait_id: &str) -> Result<(), String> {
+    pub(crate) fn validate(&self, _trait_id: &str) -> Result<(), String> {
         self.condition.validate().map_err(|e| e.to_string())
     }
 
-    pub fn check_greedy_patterns(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_greedy_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_greedy_patterns()
     }
 
-    pub fn check_word_boundary_regex(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_word_boundary_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_word_boundary_regex()
     }
 
-    pub fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
         self.condition.check_short_case_insensitive(file_type_count)
     }
 
-    pub fn check_count_constraints(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_count_constraints(&self, _trait_id: &str) -> Option<String> {
         // Check count_min and count_max on ConditionWithFilters
         if let (Some(min), Some(max)) = (self.count_min, self.count_max) {
             if max < min {
@@ -109,7 +114,8 @@ impl ConditionWithFilters {
         self.condition.check_count_constraints()
     }
 
-    pub fn check_density_constraints(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_density_constraints(&self, _trait_id: &str) -> Option<String> {
         // Check per_kb_min and per_kb_max on ConditionWithFilters
         if let (Some(min), Some(max)) = (self.per_kb_min, self.per_kb_max) {
             if max < min {
@@ -123,27 +129,33 @@ impl ConditionWithFilters {
         self.condition.check_density_constraints()
     }
 
-    pub fn check_match_exclusivity(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_match_exclusivity(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_match_exclusivity()
     }
 
-    pub fn check_empty_patterns(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_empty_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_empty_patterns()
     }
 
-    pub fn check_short_patterns(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_short_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_short_patterns()
     }
 
-    pub fn check_literal_regex(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_literal_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_literal_regex()
     }
 
-    pub fn check_case_insensitive_on_non_alpha(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_case_insensitive_on_non_alpha(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_case_insensitive_on_non_alpha()
     }
 
-    pub fn check_count_min_value(&self, _trait_id: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_count_min_value(&self, _trait_id: &str) -> Option<String> {
         // Check count_min on ConditionWithFilters
         if let Some(0) = self.count_min {
             return Some("count_min: 0 is meaningless (default is 1)".to_string());
@@ -156,13 +168,17 @@ impl ConditionWithFilters {
 /// Conditions for a downgrade level (supports composite syntax)
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct DowngradeConditions {
+pub(crate) struct DowngradeConditions {
+    /// At least one of these conditions must match to trigger the downgrade
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub any: Option<Vec<Condition>>,
+    /// All of these conditions must match to trigger the downgrade
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub all: Option<Vec<Condition>>,
+    /// None of these conditions may match to trigger the downgrade
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub none: Option<Vec<Condition>>,
+    /// Minimum number of `any` conditions that must match
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub needs: Option<usize>,
 }
@@ -170,9 +186,12 @@ pub struct DowngradeConditions {
 /// Definition of an atomic observable trait
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct TraitDefinition {
+pub(crate) struct TraitDefinition {
+    /// Unique identifier for this trait (e.g., "net/socket", "exec/eval")
     pub id: String,
+    /// Human-readable description of what this trait detects
     pub desc: String,
+    /// Confidence score (0.5 = heuristic, 1.0 = definitive)
     #[serde(default = "default_confidence")]
     pub conf: f32,
 
@@ -188,13 +207,16 @@ pub struct TraitDefinition {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub attack: Option<String>,
 
+    /// Platforms this trait targets (defaults to all)
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
+    /// File types this trait applies to (defaults to all)
     #[serde(default = "default_file_types")]
     pub r#for: Vec<FileType>,
 
     // Detection condition with filters - all matching logic in one place
+    /// The detection condition with optional filters
     pub r#if: ConditionWithFilters,
 
     /// String-level exceptions - filter matched strings
@@ -210,6 +232,7 @@ pub struct TraitDefinition {
     /// Only levels LOWER than base `crit` are allowed (validated at load time)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub downgrade: Option<DowngradeConditions>,
+    /// Path to the YAML file this trait was loaded from
     #[serde(skip)]
     pub defined_in: std::path::PathBuf,
     /// Precision score (calculated during loading, not from YAML)
@@ -220,7 +243,7 @@ pub struct TraitDefinition {
 impl TraitDefinition {
     /// Pre-compile all regexes in this trait's conditions for performance.
     /// Returns an error if any regex pattern is invalid.
-    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         self.r#if
             .precompile_regexes()
             .with_context(|| format!("in trait '{}' main condition", self.id))?;
@@ -270,7 +293,7 @@ impl TraitDefinition {
     }
 
     /// Pre-compile YARA rules in this trait's condition
-    pub fn compile_yara(&mut self) {
+    pub(crate) fn compile_yara(&mut self) {
         self.r#if.condition.compile_yara();
         if let Some(ref mut conds) = self.unless {
             for cond in conds.iter_mut() {
@@ -281,7 +304,8 @@ impl TraitDefinition {
 
     /// Check if criticality level is valid for user-defined traits.
     /// Returns an error message if invalid, None otherwise.
-    pub fn check_criticality(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_criticality(&self) -> Option<String> {
         use crate::types::Criticality;
 
         // Check if criticality is "Filtered" which is internal-only
@@ -296,7 +320,8 @@ impl TraitDefinition {
 
     /// Check if confidence value is in valid range.
     /// Returns an error message if invalid, None otherwise.
-    pub fn check_confidence(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_confidence(&self) -> Option<String> {
         if self.conf < 0.0 || self.conf > 1.0 {
             return Some(format!(
                 "conf: {} is outside valid range [0.0, 1.0]",
@@ -308,7 +333,8 @@ impl TraitDefinition {
 
     /// Check if size constraints are valid.
     /// Returns an error message if invalid, None otherwise.
-    pub fn check_size_constraints(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_size_constraints(&self) -> Option<String> {
         // Skip validation for Section conditions - they have their own size_min/size_max
         // for section sizes, which are separate from file size constraints
         if matches!(self.r#if.condition, Condition::Section { .. }) {
@@ -328,7 +354,8 @@ impl TraitDefinition {
 
     /// Check for empty or very short descriptions (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_description_quality(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_description_quality(&self) -> Option<String> {
         let desc = self.desc.trim();
 
         if desc.is_empty() {
@@ -349,7 +376,8 @@ impl TraitDefinition {
 
     /// Check for empty not: arrays (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_empty_not_array(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_empty_not_array(&self) -> Option<String> {
         if let Some(not_exceptions) = &self.not {
             if not_exceptions.is_empty() {
                 return Some(
@@ -363,7 +391,8 @@ impl TraitDefinition {
 
     /// Check for empty unless: arrays (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_empty_unless_array(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_empty_unless_array(&self) -> Option<String> {
         if let Some(unless_conditions) = &self.unless {
             if unless_conditions.is_empty() {
                 return Some(
@@ -376,7 +405,8 @@ impl TraitDefinition {
 
     /// Check if `not:` field is used appropriately based on match type.
     /// Returns a warning message if misused, None otherwise.
-    pub fn check_not_field_usage(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_not_field_usage(&self) -> Option<String> {
         let not_exceptions = self.not.as_ref()?;
 
         // Helper to check if a pattern could match a literal string
@@ -646,7 +676,7 @@ impl TraitDefinition {
     }
 
     /// Evaluate this trait definition against the analysis context
-    pub fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
+    pub(crate) fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
         use super::debug::{ConditionDebug, DowngradeDebug, SkipReason};
 
         // Check platform match
@@ -910,7 +940,6 @@ impl TraitDefinition {
                             original_crit: self.crit,
                             final_crit,
                             triggered,
-                            conditions: Vec::new(), // Could add condition details here
                         });
                     }
                 }
@@ -1261,9 +1290,12 @@ impl TraitDefinition {
 /// Boolean logic for combining conditions/traits
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct CompositeTrait {
+pub(crate) struct CompositeTrait {
+    /// Unique identifier for this composite rule
     pub id: String,
+    /// Human-readable description of what this rule detects
     pub desc: String,
+    /// Confidence score for the generated finding
     pub conf: f32,
 
     /// Criticality level (defaults to None)
@@ -1278,9 +1310,11 @@ pub struct CompositeTrait {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub attack: Option<String>,
 
+    /// Platforms this rule targets (defaults to all)
     #[serde(default = "default_platforms")]
     pub platforms: Vec<Platform>,
 
+    /// File types this rule applies to (defaults to all)
     #[serde(default = "default_file_types")]
     pub r#for: Vec<FileType>,
 
@@ -1293,6 +1327,7 @@ pub struct CompositeTrait {
     pub size_max: Option<usize>,
 
     // Boolean operators
+    /// All of these conditions must match
     #[serde(skip_serializing_if = "Option::is_none")]
     pub all: Option<Vec<Condition>>,
 
@@ -1304,6 +1339,7 @@ pub struct CompositeTrait {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs: Option<usize>,
 
+    /// None of these conditions may match
     #[serde(skip_serializing_if = "Option::is_none")]
     pub none: Option<Vec<Condition>>,
 
@@ -1338,7 +1374,7 @@ pub struct CompositeTrait {
 impl CompositeTrait {
     /// Pre-compile all regexes in this rule's conditions for performance.
     /// Returns an error if any regex pattern is invalid.
-    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         if let Some(ref mut conds) = self.all {
             for (idx, cond) in conds.iter_mut().enumerate() {
                 cond.precompile_regexes().with_context(|| {
@@ -1414,7 +1450,7 @@ impl CompositeTrait {
     }
 
     /// Pre-compile YARA rules in all conditions
-    pub fn compile_yara(&mut self) {
+    pub(crate) fn compile_yara(&mut self) {
         if let Some(ref mut conds) = self.all {
             for cond in conds.iter_mut() {
                 cond.compile_yara();
@@ -1438,7 +1474,8 @@ impl CompositeTrait {
     }
 
     /// Evaluate this rule against the analysis context
-    pub fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
+    #[must_use] 
+    pub(crate) fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
         use super::debug::{DowngradeDebug, ProximityDebug, SkipReason};
 
         // Check platform match
@@ -1545,7 +1582,6 @@ impl CompositeTrait {
                 ConditionResult {
                     matched: true,
                     evidence: combined_evidence,
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
@@ -1564,7 +1600,6 @@ impl CompositeTrait {
                 ConditionResult {
                     matched: true,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
@@ -1588,7 +1623,6 @@ impl CompositeTrait {
             ConditionResult {
                 matched: true,
                 evidence: combined_evidence,
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -1616,9 +1650,7 @@ impl CompositeTrait {
                         debug.set_proximity(ProximityDebug {
                             constraint_type: constraint_type.to_string(),
                             max_span,
-                            min_required: self.needs.unwrap_or(1).max(1),
                             satisfied: proximity_result.is_some(),
-                            positions: Vec::new(), // Could extract from evidence
                         });
                     }
                 }
@@ -1661,7 +1693,6 @@ impl CompositeTrait {
                             original_crit: self.crit,
                             final_crit,
                             triggered,
-                            conditions: Vec::new(),
                         });
                     }
                 }
@@ -1743,7 +1774,8 @@ impl CompositeTrait {
     /// Evaluate downgrade conditions and return final criticality.
     /// Public so that mapper can re-evaluate downgrades after all findings are collected.
     /// When matched, drops one level: hostile→suspicious→notable→inert
-    pub fn evaluate_downgrade<'a>(
+    #[must_use] 
+    pub(crate) fn evaluate_downgrade<'a>(
         &self,
         conditions: &DowngradeConditions,
         base_crit: &Criticality,
@@ -1824,7 +1856,6 @@ impl CompositeTrait {
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
@@ -1836,7 +1867,6 @@ impl CompositeTrait {
         ConditionResult {
             matched: true,
             evidence: all_evidence,
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: total_precision,
         }
@@ -1867,7 +1897,6 @@ impl CompositeTrait {
         ConditionResult {
             matched: any_matched,
             evidence: all_evidence,
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision,
         }
@@ -1915,7 +1944,6 @@ impl CompositeTrait {
         ConditionResult {
             matched,
             evidence: if matched { all_evidence } else { Vec::new() },
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: avg_precision,
         }
@@ -1933,7 +1961,6 @@ impl CompositeTrait {
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
@@ -1948,7 +1975,6 @@ impl CompositeTrait {
                 value: "negative_conditions_not_found".to_string(),
                 location: None,
             }],
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.5, // Fixed +0.5 for exclusion logic (negative conditions)
         }
@@ -2235,7 +2261,6 @@ impl CompositeTrait {
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
@@ -2277,7 +2302,6 @@ impl CompositeTrait {
             } else {
                 Vec::new()
             },
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         }
@@ -2405,7 +2429,8 @@ impl CompositeTrait {
     }
 
     /// Returns true if this rule has negative (none) conditions
-    pub fn has_negative_conditions(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn has_negative_conditions(&self) -> bool {
         self.none.as_ref().map(|n| !n.is_empty()).unwrap_or(false)
     }
 }

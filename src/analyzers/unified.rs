@@ -28,7 +28,7 @@ use tree_sitter::{Language, Parser};
 
 /// Configuration for a language analyzer.
 #[derive(Clone, Debug)]
-pub struct LanguageConfig {
+pub(crate) struct LanguageConfig {
     /// Language identifier (e.g., "python", "javascript")
     pub name: &'static str,
     /// File type for reports
@@ -50,7 +50,8 @@ pub struct LanguageConfig {
 }
 
 /// Get the language configuration for a file type.
-pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<LanguageConfig> {
+#[must_use] 
+pub(crate) fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<LanguageConfig> {
     use crate::analyzers::FileType;
 
     match file_type {
@@ -302,16 +303,27 @@ pub fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<La
 /// Unified source code analyzer.
 ///
 /// Works with any tree-sitter supported language through configuration.
-pub struct UnifiedSourceAnalyzer {
+pub(crate) struct UnifiedSourceAnalyzer {
     config: LanguageConfig,
     file_type: crate::analyzers::FileType,
     parser: RefCell<Parser>,
     capability_mapper: Arc<CapabilityMapper>,
 }
 
+impl std::fmt::Debug for UnifiedSourceAnalyzer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("UnifiedSourceAnalyzer")
+            .field("config", &self.config)
+            .field("file_type", &self.file_type)
+            .field("parser", &"<Parser>")
+            .field("capability_mapper", &self.capability_mapper)
+            .finish()
+    }
+}
+
 impl UnifiedSourceAnalyzer {
     /// Create a new analyzer for the given language configuration.
-    pub fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> anyhow::Result<Self> {
+    pub(crate) fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> anyhow::Result<Self> {
         let mut parser = Parser::new();
         parser.set_language(&config.language)
             .map_err(|e| anyhow::anyhow!("Failed to load language grammar: {:?}", e))?;
@@ -325,29 +337,30 @@ impl UnifiedSourceAnalyzer {
     }
 
     /// Create an analyzer for the given file type.
-    pub fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
+    #[must_use] 
+    pub(crate) fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
         config_for_file_type(file_type)
             .and_then(|config| Self::new(config, file_type.clone()).ok())
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+    pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
 
-    pub fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
+    pub(crate) fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
         // For backward compatibility, use UTF-8 bytes
         self.analyze_source_with_original(file_path, content, content.as_bytes())
     }
 
-    pub fn analyze_source_with_original(
+    pub(crate) fn analyze_source_with_original(
         &self,
         file_path: &Path,
         content: &str,
@@ -600,6 +613,18 @@ impl UnifiedSourceAnalyzer {
                     },
                     _ => None,
                 };
+
+                // Add a structural finding for the encrypted payload
+                report.structure.push(crate::types::StructuralFeature {
+                    id: format!("crypto/encrypted-payload/{}", payload.algorithm),
+                    desc: format!("Encrypted payload decrypted with {}", payload.algorithm),
+                    evidence: vec![crate::types::Evidence {
+                        method: "pattern".to_string(),
+                        source: "aes_extractor".to_string(),
+                        value: format!("preview={}", payload.preview),
+                        location: Some(format!("offset:{}", payload.original_offset)),
+                    }],
+                });
 
                 // Process payload report
                 if let Some(pr) = payload_report {
@@ -859,11 +884,11 @@ impl UnifiedSourceAnalyzer {
         let text = text_metrics::analyze_text(content);
 
         let identifiers = self.extract_identifiers(root, source);
-        let ident_refs: Vec<&str> = identifiers.iter().map(|s| s.as_str()).collect();
+        let ident_refs: Vec<&str> = identifiers.iter().map(std::string::String::as_str).collect();
         let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
 
         let strings = self.extract_string_values(root, source);
-        let str_refs: Vec<&str> = strings.iter().map(|s| s.as_str()).collect();
+        let str_refs: Vec<&str> = strings.iter().map(std::string::String::as_str).collect();
         let string_metrics = string_metrics::analyze_strings(&str_refs);
 
         let comment_metrics = comment_metrics::analyze_comments(content, self.config.comment_style);

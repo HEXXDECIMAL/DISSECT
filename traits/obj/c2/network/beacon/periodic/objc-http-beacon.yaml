@@ -55,7 +55,7 @@ traits:
     for: [macho]
     if:
       type: symbol
-      regex: "^launch$"
+      exact: "launch"
     downgrade:
       any:
         - id: meta/signed/platform::apple

@@ -20,13 +20,15 @@ use tree_sitter::Language;
 /// For languages with tree-sitter support, extracts symbols via AST.
 /// For all files, extracts strings and runs trait matching.
 #[derive(Debug)]
-pub struct GenericAnalyzer {
+pub(crate) struct GenericAnalyzer {
     file_type: FileType,
     capability_mapper: Arc<CapabilityMapper>,
 }
 
 impl GenericAnalyzer {
-    pub fn new(file_type: FileType) -> Self {
+    /// Create a new generic analyzer for the given file type
+    #[must_use]
+    pub(crate) fn new(file_type: FileType) -> Self {
         Self {
             file_type,
             capability_mapper: Arc::new(CapabilityMapper::empty()),
@@ -34,13 +36,15 @@ impl GenericAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
     }
@@ -86,7 +90,7 @@ impl GenericAnalyzer {
     }
 
     /// Analyze source with pre-extracted stng strings (avoids duplicate string extraction)
-    pub fn analyze_source_with_stng(
+    pub(crate) fn analyze_source_with_stng(
         &self,
         file_path: &Path,
         content: &str,
@@ -344,11 +348,18 @@ impl GenericAnalyzer {
     }
 
     fn extract_strings_regex(&self, content: &str, report: &mut AnalysisReport) {
-        // Simple regex-based string extraction for double and single quoted strings
-        let double_quote_re = regex::Regex::new(r#""([^"\\]|\\.){0,1000}""#).unwrap();
-        let single_quote_re = regex::Regex::new(r#"'([^'\\]|\\.){0,1000}'"#).unwrap();
+        #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+        fn double_quote_re() -> &'static regex::Regex {
+            static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+            RE.get_or_init(|| regex::Regex::new(r#""([^"\\]|\\.){0,1000}""#).unwrap())
+        }
+        #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+        fn single_quote_re() -> &'static regex::Regex {
+            static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+            RE.get_or_init(|| regex::Regex::new(r#"'([^'\\]|\\.){0,1000}'"#).unwrap())
+        }
 
-        for cap in double_quote_re.find_iter(content) {
+        for cap in double_quote_re().find_iter(content) {
             let s = cap.as_str().trim_start_matches('"').trim_end_matches('"');
             if !s.is_empty() {
                 report.strings.push(StringInfo {
@@ -363,7 +374,7 @@ impl GenericAnalyzer {
             }
         }
 
-        for cap in single_quote_re.find_iter(content) {
+        for cap in single_quote_re().find_iter(content) {
             let s = cap.as_str().trim_start_matches('\'').trim_end_matches('\'');
             if !s.is_empty() {
                 report.strings.push(StringInfo {

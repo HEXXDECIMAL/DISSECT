@@ -10,7 +10,7 @@ traits:
     attack: "T1055"
     mbc: "B0033"
     platforms: [linux]
-    for: [elf, c]
+    for: [elf]
     if:
       type: symbol
       regex: "memfd_create"

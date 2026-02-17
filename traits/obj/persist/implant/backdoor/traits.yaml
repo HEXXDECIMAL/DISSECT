@@ -35,7 +35,7 @@ traits:
     attack: "T1021.004"
 
   # === SSH Backdoor ===
-  # Removed sshd-service duplicate - use cap/os/service/remote/ssh::sshd-ref (same pattern, canonical location)
+  # Removed sshd-service duplicate - use cap/os/service/remote::sshd-ref (same pattern, canonical location)
 
   - id: dropbear-lightweight-ssh
     desc: "Dropbear SSH server"
@@ -69,7 +69,7 @@ composite_rules:
     attack: "T1021.004"
     mbc: "E1037"
     any:
-      - id: cap/os/service/remote/ssh::sshd-ref
+      - id: cap/os/service/remote::sshd-ref
       - id: dropbear-lightweight-ssh
 
   - id: remote-shell-backdoor

@@ -15,7 +15,7 @@ use std::sync::Arc;
 
 /// Analyzer for Windows PE binaries (executables, DLLs, drivers)
 #[derive(Debug)]
-pub struct PEAnalyzer {
+pub(crate) struct PEAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
@@ -24,7 +24,8 @@ pub struct PEAnalyzer {
 
 impl PEAnalyzer {
     /// Creates a new PE analyzer with default configuration
-    pub fn new() -> Self {
+    #[must_use] 
+    pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
@@ -34,25 +35,29 @@ impl PEAnalyzer {
     }
 
     /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
-    pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
+    #[must_use] 
+    pub(crate) fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
         self.yara_engine = Some(Arc::new(yara_engine));
         self
     }
 
     /// Create analyzer with shared YARA engine
-    pub fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(yara_engine);
         self
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }

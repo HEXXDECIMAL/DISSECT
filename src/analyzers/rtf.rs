@@ -17,13 +17,15 @@ use crate::rtf::RtfParser;
 
 /// RTF document analyzer
 #[derive(Debug)]
-pub struct RtfAnalyzer {
+pub(crate) struct RtfAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     rtf_parser: RtfParser,
 }
 
 impl RtfAnalyzer {
-    pub fn new() -> Self {
+    /// Create a new RTF analyzer with an empty capability mapper
+    #[must_use]
+    pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             rtf_parser: RtfParser::new(),
@@ -31,19 +33,16 @@ impl RtfAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
-        self
-    }
-
-    pub fn with_parser(mut self, parser: RtfParser) -> Self {
-        self.rtf_parser = parser;
         self
     }
 

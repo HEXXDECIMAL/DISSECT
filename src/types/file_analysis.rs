@@ -6,19 +6,18 @@
 
 use serde::{Deserialize, Serialize};
 
-use super::binary::{Export, Function, Import, Section, StringInfo, YaraMatch};
+use super::binary::{Export, Function, Import, Section, StringInfo, SyscallInfo, YaraMatch};
 use super::code_structure::{BinaryProperties, SourceCodeMetrics};
 use super::core::Criticality;
 use super::paths_env::{DirectoryAccess, EnvVarInfo, PathInfo};
 use super::scores::Metrics;
 use super::traits_findings::{Finding, StructuralFeature, Trait};
-use crate::radare2::SyscallInfo;
 
 /// Path delimiter for archive members (e.g., "archive.zip!!inner/file.py")
-pub const ARCHIVE_DELIMITER: &str = "!!";
+pub(crate) const ARCHIVE_DELIMITER: &str = "!!";
 
 /// Path delimiter for decoded content (e.g., "file.py##base64+gzip@1234")
-pub const ENCODING_DELIMITER: &str = "##";
+pub(crate) const ENCODING_DELIMITER: &str = "##";
 
 /// Per-file analysis - the core unit in v2 schema
 ///
@@ -137,7 +136,8 @@ pub struct FileAnalysis {
 
 impl FileAnalysis {
     /// Create a new FileAnalysis with minimal required fields
-    pub fn new(id: u32, path: String, file_type: String, sha256: String, size: u64) -> Self {
+    #[must_use] 
+    pub(crate) fn new(id: u32, path: String, file_type: String, sha256: String, size: u64) -> Self {
         Self {
             id,
             path,
@@ -169,21 +169,8 @@ impl FileAnalysis {
         }
     }
 
-    /// Set parent relationship
-    pub fn with_parent(mut self, parent_id: u32, depth: u32) -> Self {
-        self.parent_id = Some(parent_id);
-        self.depth = depth;
-        self
-    }
-
-    /// Set encoding chain (for decoded content)
-    pub fn with_encoding(mut self, encoding: Vec<String>) -> Self {
-        self.encoding = Some(encoding);
-        self
-    }
-
-    /// Compute risk and counts from findings
-    pub fn compute_summary(&mut self) {
+/// Compute risk and counts from findings
+    pub(crate) fn compute_summary(&mut self) {
         if self.findings.is_empty() {
             self.risk = None;
             self.counts = None;
@@ -219,7 +206,7 @@ impl FileAnalysis {
     }
 
     /// Strip verbose fields for minimal output
-    pub fn minimize(&mut self) {
+    pub(crate) fn minimize(&mut self) {
         self.traits.clear();
         self.structure.clear();
         self.functions.clear();
@@ -241,10 +228,13 @@ impl FileAnalysis {
 /// Finding counts by criticality
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct FindingCounts {
+    /// Number of hostile findings
     #[serde(default, skip_serializing_if = "is_zero")]
     pub hostile: u32,
+    /// Number of suspicious findings
     #[serde(default, skip_serializing_if = "is_zero")]
     pub suspicious: u32,
+    /// Number of notable findings
     #[serde(default, skip_serializing_if = "is_zero")]
     pub notable: u32,
 }
@@ -269,7 +259,8 @@ pub struct ReportSummary {
 
 impl ReportSummary {
     /// Compute summary from files array
-    pub fn from_files(files: &[FileAnalysis]) -> Self {
+    #[must_use] 
+    pub(crate) fn from_files(files: &[FileAnalysis]) -> Self {
         let mut summary = Self {
             files_analyzed: files.len() as u32,
             max_depth: 0,
@@ -305,14 +296,16 @@ impl ReportSummary {
 /// Encode an archive member path
 ///
 /// Example: encode_archive_path("foo.zip", "inner/file.py") -> "foo.zip!!inner/file.py"
-pub fn encode_archive_path(parent: &str, member: &str) -> String {
+#[must_use] 
+pub(crate) fn encode_archive_path(parent: &str, member: &str) -> String {
     format!("{}{}{}", parent, ARCHIVE_DELIMITER, member)
 }
 
 /// Encode a decoded content path
 ///
 /// Example: encode_decoded_path("file.py", &["base64", "gzip"], 1234) -> "file.py##base64+gzip@1234"
-pub fn encode_decoded_path(parent: &str, encoding: &[String], offset: usize) -> String {
+#[must_use] 
+pub(crate) fn encode_decoded_path(parent: &str, encoding: &[String], offset: usize) -> String {
     let encoding_str = encoding.join("+");
     format!(
         "{}{}{}@{}",
@@ -320,55 +313,7 @@ pub fn encode_decoded_path(parent: &str, encoding: &[String], offset: usize) -> 
     )
 }
 
-/// Parsed path components
-#[derive(Debug, Clone)]
-pub struct ParsedPath {
-    /// The root file path
-    pub root: String,
-    /// Archive member path components (split by !!)
-    pub archive_parts: Vec<String>,
-    /// Encoding info if present (encoding chain, offset)
-    pub encoding: Option<(Vec<String>, usize)>,
-}
 
-/// Parse a file path into components
-///
-/// Example: "a.zip!!b.tar!!c.py##base64+gzip@1234"
-/// -> ParsedPath { root: "a.zip", archive_parts: ["b.tar", "c.py"], encoding: Some((["base64", "gzip"], 1234)) }
-pub fn parse_file_path(path: &str) -> ParsedPath {
-    // First split off encoding part if present
-    let (path_part, encoding) = if let Some(idx) = path.find(ENCODING_DELIMITER) {
-        let encoding_str = &path[idx + ENCODING_DELIMITER.len()..];
-        let parsed_encoding = parse_encoding_suffix(encoding_str);
-        (&path[..idx], parsed_encoding)
-    } else {
-        (path, None)
-    };
-
-    // Split by archive delimiter
-    let parts: Vec<&str> = path_part.split(ARCHIVE_DELIMITER).collect();
-    let root = parts[0].to_string();
-    let archive_parts = parts[1..].iter().map(|s| s.to_string()).collect();
-
-    ParsedPath {
-        root,
-        archive_parts,
-        encoding,
-    }
-}
-
-/// Parse encoding suffix like "base64+gzip@1234"
-fn parse_encoding_suffix(s: &str) -> Option<(Vec<String>, usize)> {
-    let parts: Vec<&str> = s.split('@').collect();
-    if parts.len() != 2 {
-        return None;
-    }
-
-    let encoding: Vec<String> = parts[0].split('+').map(|s| s.to_string()).collect();
-    let offset: usize = parts[1].parse().ok()?;
-
-    Some((encoding, offset))
-}
 
 #[cfg(test)]
 mod tests {
@@ -446,69 +391,6 @@ mod tests {
         assert!(fa.source_code_metrics.is_none());
         assert!(fa.metrics.is_none());
         assert!(fa.extracted_path.is_none());
-    }
-
-    #[test]
-    fn test_file_analysis_with_parent() {
-        let fa = FileAnalysis::new(
-            1,
-            "inner.py".to_string(),
-            "python".to_string(),
-            "def456".to_string(),
-            512,
-        )
-        .with_parent(0, 1);
-
-        assert_eq!(fa.parent_id, Some(0));
-        assert_eq!(fa.depth, 1);
-    }
-
-    #[test]
-    fn test_file_analysis_with_parent_deep_nesting() {
-        let fa = FileAnalysis::new(
-            5,
-            "deep.py".to_string(),
-            "python".to_string(),
-            "xyz".to_string(),
-            256,
-        )
-        .with_parent(4, 5);
-
-        assert_eq!(fa.parent_id, Some(4));
-        assert_eq!(fa.depth, 5);
-    }
-
-    #[test]
-    fn test_file_analysis_with_encoding() {
-        let fa = FileAnalysis::new(
-            2,
-            "decoded.py".to_string(),
-            "python".to_string(),
-            "ghi789".to_string(),
-            200,
-        )
-        .with_encoding(vec!["base64".to_string(), "gzip".to_string()]);
-
-        let encoding = fa.encoding.unwrap();
-        assert_eq!(encoding.len(), 2);
-        assert_eq!(encoding[0], "base64");
-        assert_eq!(encoding[1], "gzip");
-    }
-
-    #[test]
-    fn test_file_analysis_with_encoding_single() {
-        let fa = FileAnalysis::new(
-            2,
-            "decoded.py".to_string(),
-            "python".to_string(),
-            "ghi789".to_string(),
-            200,
-        )
-        .with_encoding(vec!["base64".to_string()]);
-
-        let encoding = fa.encoding.unwrap();
-        assert_eq!(encoding.len(), 1);
-        assert_eq!(encoding[0], "base64");
     }
 
     #[test]
@@ -736,23 +618,6 @@ mod tests {
         assert!(!is_zero(&100));
     }
 
-    // ==================== ParsedPath Tests ====================
-
-    #[test]
-    fn test_parsed_path_simple() {
-        let parsed = parse_file_path("simple.txt");
-        assert_eq!(parsed.root, "simple.txt");
-        assert!(parsed.archive_parts.is_empty());
-        assert!(parsed.encoding.is_none());
-    }
-
-    #[test]
-    fn test_parsed_path_with_directory() {
-        let parsed = parse_file_path("/home/user/file.py");
-        assert_eq!(parsed.root, "/home/user/file.py");
-        assert!(parsed.archive_parts.is_empty());
-    }
-
     // ==================== Path Encoding Tests ====================
 
     #[test]
@@ -778,49 +643,6 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_parse_simple_path() {
-        let parsed = parse_file_path("file.py");
-        assert_eq!(parsed.root, "file.py");
-        assert!(parsed.archive_parts.is_empty());
-        assert!(parsed.encoding.is_none());
-    }
-
-    #[test]
-    fn test_parse_archive_path() {
-        let parsed = parse_file_path("archive.zip!!inner/file.py");
-        assert_eq!(parsed.root, "archive.zip");
-        assert_eq!(parsed.archive_parts, vec!["inner/file.py"]);
-        assert!(parsed.encoding.is_none());
-    }
-
-    #[test]
-    fn test_parse_nested_archive_path() {
-        let parsed = parse_file_path("a.zip!!b.tar!!c.py");
-        assert_eq!(parsed.root, "a.zip");
-        assert_eq!(parsed.archive_parts, vec!["b.tar", "c.py"]);
-        assert!(parsed.encoding.is_none());
-    }
-
-    #[test]
-    fn test_parse_decoded_path() {
-        let parsed = parse_file_path("file.py##base64+gzip@1234");
-        assert_eq!(parsed.root, "file.py");
-        assert!(parsed.archive_parts.is_empty());
-        let (encoding, offset) = parsed.encoding.unwrap();
-        assert_eq!(encoding, vec!["base64", "gzip"]);
-        assert_eq!(offset, 1234);
-    }
-
-    #[test]
-    fn test_parse_full_path() {
-        let parsed = parse_file_path("a.zip!!b.tar!!c.py##base64+gzip@1234");
-        assert_eq!(parsed.root, "a.zip");
-        assert_eq!(parsed.archive_parts, vec!["b.tar", "c.py"]);
-        let (encoding, offset) = parsed.encoding.unwrap();
-        assert_eq!(encoding, vec!["base64", "gzip"]);
-        assert_eq!(offset, 1234);
-    }
 
     #[test]
     fn test_finding_counts() {

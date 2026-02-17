@@ -75,7 +75,7 @@ traits:
       type: string
       regex: "(?i)\\bhwid\\b"
 
-  # Removed fingerprint-string duplicate - use cap/os/system/machine-id/linux::fingerprint-string
+  # Removed fingerprint-string duplicate - use cap/os/system/machine-id::fingerprint-string
 
 
 composite_rules:
@@ -104,7 +104,7 @@ composite_rules:
       - id: get-hwid
       - id: hardware-id-string
       - id: hwid-string
-      - id: cap/os/system/machine-id/linux::fingerprint-string
+      - id: cap/os/system/machine-id::fingerprint-string
 
   # Hostname composite
   - id: hostname

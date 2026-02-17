@@ -9,13 +9,15 @@ defaults:
   attack: T1083
 
 traits:
-  - id: user-lookup
-    desc: Convert user ID to username
+  # getpwuid: use cap/process/user/query/unix.yaml::getpwuid (canonical)
+  # getpwnam: use obj/discovery/host/user/traits.yaml::getpwnam (canonical)
+  - id: user-from-uid
+    desc: Convert user ID to username (user_from_uid)
     crit: notable
     conf: 0.8
     if:
       type: symbol
-      regex: "getpwuid|getpwnam|user_from_uid"
+      exact: "user_from_uid"
 
   - id: group-lookup
     desc: Convert group ID to group name
@@ -26,6 +28,16 @@ traits:
       regex: "getgrgid|getgrnam|group_from_gid"
 
 composite_rules:
+  # user-lookup: composite referencing canonical user query traits plus local user_from_uid
+  - id: user-lookup
+    desc: Convert user ID to username
+    crit: notable
+    conf: 0.8
+    any:
+      - id: cap/process/user/query::getpwuid
+      - id: obj/discovery/host/user::getpwnam
+      - id: user-from-uid
+
   - id: account-name-resolution
     desc: Enumerate account names from IDs
     crit: notable

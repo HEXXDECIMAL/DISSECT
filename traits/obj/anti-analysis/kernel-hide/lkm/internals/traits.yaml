@@ -228,20 +228,13 @@ traits:
   # KERNEL MODULE LOADING (FILELESS) - micro-traits
   # ============================================================
 
-  - id: memfd-create-call
-    desc: memfd_create function call
-    crit: suspicious
-    conf: 0.95
-    for: [elf, c]
-    if:
-      type: symbol
-      regex: "memfd_create"
+  # memfd-create-call: use cap/mem/anonymous/create::memfd-create (canonical)
 
   - id: sys-memfd-create-ref
     desc: SYS_memfd_create syscall reference
     crit: suspicious
     conf: 0.95
-    for: [elf, c]
+    for: [elf]
     if:
       type: string
       substr: "SYS_memfd_create"

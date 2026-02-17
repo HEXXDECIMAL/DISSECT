@@ -177,7 +177,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: vscode-context
-      - id: obj/discovery/host/fingerprint::process-env-access
+      - id: cap/os/env/access::javascript
 
   # Telemetry/Exfiltration Patterns
   # IMPORTANT: Requires VSCode markers to avoid FPs on regular npm packages

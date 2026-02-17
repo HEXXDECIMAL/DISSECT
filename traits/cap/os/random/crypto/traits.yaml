@@ -9,7 +9,7 @@ traits:
     for: [elf, macho, so, dylib, c, objective-c]
     if:
       type: symbol
-      regex: "^srand$"
+      exact: "srand"
 
   - id: rand-symbol
     desc: Random number generation (rand)
@@ -18,7 +18,7 @@ traits:
     for: [elf, macho, so, dylib, c, objective-c]
     if:
       type: symbol
-      regex: "^rand$"
+      exact: "rand"
 
 composite_rules:
   - id: seeded-random

@@ -24,9 +24,11 @@ mod models;
 mod parsing;
 
 // Re-export public types from models
-pub use models::{R2Function, R2Import, R2Section, R2String};
+pub(crate) use models::{R2Export, R2Function, R2Import, R2Section, R2String, R2Symbol};
 
 use crate::types::BinaryMetrics;
+#[cfg(test)]
+use crate::types::binary::SyscallInfo;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -41,33 +43,18 @@ static RADARE2_DISABLED: AtomicBool = AtomicBool::new(false);
 static RADARE2_AVAILABLE: OnceLock<bool> = OnceLock::new();
 
 /// Disable radare2 analysis globally
-pub fn disable_radare2() {
+pub(crate) fn disable_radare2() {
     RADARE2_DISABLED.store(true, Ordering::SeqCst);
 }
 
 /// Check if radare2 is disabled
-pub fn is_disabled() -> bool {
+pub(crate) fn is_disabled() -> bool {
     RADARE2_DISABLED.load(Ordering::SeqCst)
-}
-
-/// Syscall information extracted from binary
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct SyscallInfo {
-    /// Address where syscall instruction occurs
-    pub address: u64,
-    /// Syscall number (architecture-dependent)
-    pub number: u32,
-    /// Resolved syscall name (e.g., "read", "write", "socket")
-    pub name: String,
-    /// Brief description of what this syscall does
-    pub desc: String,
-    /// Architecture (e.g., "x86", "x86_64", "mips", "arm")
-    pub arch: String,
 }
 
 /// Batched analysis result containing all data from a single r2 session
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub struct BatchedAnalysis {
+pub(crate) struct BatchedAnalysis {
     pub functions: Vec<R2Function>,
     pub sections: Vec<R2Section>,
     pub strings: Vec<R2String>,
@@ -75,24 +62,76 @@ pub struct BatchedAnalysis {
 
 /// Radare2 integration for deep binary analysis
 #[derive(Debug)]
-pub struct Radare2Analyzer {}
+pub(crate) struct Radare2Analyzer {}
 
 impl Radare2Analyzer {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {}
     }
 
     /// Check if radare2 is available (and not disabled)
     /// Result is cached after first check to avoid subprocess spawn per file.
-    pub fn is_available() -> bool {
+    pub(crate) fn is_available() -> bool {
         if is_disabled() {
             return false;
         }
         *RADARE2_AVAILABLE.get_or_init(|| Command::new("rizin").arg("-v").output().is_ok())
     }
 
+    /// Extract all symbols (imports, exports, and internal symbols) in a single session
+    #[allow(dead_code)] // Used by main.rs binary
+    pub(crate) fn extract_all_symbols(
+        &self,
+        file_path: &Path,
+    ) -> Result<(Vec<R2Import>, Vec<R2Export>, Vec<R2Symbol>)> {
+        let output = Command::new("rizin")
+            .arg("-q")
+            .arg("-e")
+            .arg("scr.color=0")
+            .arg("-e")
+            .arg("log.level=0")
+            .arg("-c")
+            .arg("iij; echo SEPARATOR; iEj; echo SEPARATOR; isj") // Batched imports, exports, and symbols
+            .arg(file_path)
+            .output()
+            .context("Failed to execute radare2")?;
+
+        if !output.status.success() {
+            return Ok((Vec::new(), Vec::new(), Vec::new()));
+        }
+
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        let parts: Vec<&str> = output_str.split("SEPARATOR").collect();
+
+        let imports = parts
+            .first()
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        let exports = parts
+            .get(1)
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        let symbols = parts
+            .get(2)
+            .and_then(|p| {
+                let json_start = p.find('[')?;
+                serde_json::from_str(&p[json_start..]).ok()
+            })
+            .unwrap_or_default();
+
+        Ok((imports, exports, symbols))
+    }
+
     /// Extract imports
-    pub fn extract_imports(&self, file_path: &Path) -> Result<Vec<R2Import>> {
+    pub(crate) fn extract_imports(&self, file_path: &Path) -> Result<Vec<R2Import>> {
         let output = Command::new("rizin")
             .arg("-q")
             .arg("-c")
@@ -114,7 +153,7 @@ impl Radare2Analyzer {
     /// Extract functions, sections, and strings in a SINGLE r2 session
     /// This significantly reduces overhead compared to calling each method separately.
     /// Results are cached by SHA256 with zstd compression.
-    pub fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
+    pub(crate) fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
         use tracing::{debug, trace, warn};
         let _t_start = std::time::Instant::now();
 
@@ -238,7 +277,7 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics from pre-extracted batched analysis
     /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
-    pub fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {
+    pub(crate) fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {
         use parsing::calculate_char_entropy;
 
         let mut metrics = BinaryMetrics {
@@ -398,7 +437,7 @@ impl Radare2Analyzer {
 
     /// Compute ratio and normalized metrics from already-populated base metrics
     /// This should be called after all base counters are set
-    pub fn compute_ratio_metrics(metrics: &mut BinaryMetrics) {
+    pub(crate) fn compute_ratio_metrics(metrics: &mut BinaryMetrics) {
         let code_kb = metrics.code_size as f32 / 1024.0;
 
         // Density ratios (per KB of code)

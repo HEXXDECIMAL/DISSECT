@@ -14,9 +14,10 @@
 use crate::capabilities::validation::calculate_composite_precision;
 use crate::capabilities::CapabilityMapper;
 use crate::composite_rules::{
-    CompositeTrait, Condition, DebugCollector, EvaluationContext, EvaluationDebug,
-    FileType as RuleFileType, Platform, RuleType, SectionMap, TraitDefinition,
+    CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform, SectionMap,
+    TraitDefinition,
 };
+use crate::composite_rules::debug::{DebugCollector, EvaluationDebug, RuleType};
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
 use rustc_hash::{FxHashSet, FxHasher};
@@ -34,7 +35,7 @@ fn hash_str(s: &str) -> u64 {
 
 /// Result of debugging a single condition
 #[derive(Debug)]
-pub struct ConditionDebugResult {
+pub(crate) struct ConditionDebugResult {
     pub condition_desc: String,
     pub matched: bool,
     pub evidence: Vec<Evidence>,
@@ -53,11 +54,6 @@ impl ConditionDebugResult {
         }
     }
 
-    fn with_detail(mut self, detail: String) -> Self {
-        self.details.push(detail);
-        self
-    }
-
     fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
         self.evidence = evidence;
         self
@@ -66,7 +62,7 @@ impl ConditionDebugResult {
 
 /// Result of debugging an entire rule
 #[derive(Debug)]
-pub struct RuleDebugResult {
+pub(crate) struct RuleDebugResult {
     pub rule_id: String,
     pub rule_type: String, // "trait" or "composite"
     pub description: String,
@@ -80,22 +76,16 @@ pub struct RuleDebugResult {
 
 /// Information about the analysis context
 #[derive(Debug, Default)]
-pub struct ContextInfo {
+pub(crate) struct ContextInfo {
     pub file_type: String,
     pub platforms: String,
     pub string_count: usize,
     pub symbol_count: usize,
-    pub import_count: usize,
-    pub export_count: usize,
     pub finding_count: usize,
-    pub sample_strings: Vec<String>,
-    pub sample_symbols: Vec<String>,
-    /// Section names in binary (empty for non-binary files)
-    pub sections: Vec<String>,
 }
 
 /// Debug evaluator that traces through rule matching
-pub struct RuleDebugger<'a> {
+pub(crate) struct RuleDebugger<'a> {
     mapper: &'a CapabilityMapper,
     report: &'a AnalysisReport,
     binary_data: &'a [u8],
@@ -116,7 +106,7 @@ impl<'a> RuleDebugger<'a> {
     /// * `composites` - Composite rule definitions
     /// * `traits` - Trait definitions
     /// * `platforms` - Platform filter from CLI (use vec![Platform::All] to show all)
-    pub fn new(
+    pub(crate) fn new(
         mapper: &'a CapabilityMapper,
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
@@ -140,27 +130,13 @@ impl<'a> RuleDebugger<'a> {
     }
 
     /// Get context information about the analysis
-    pub fn context_info(&self) -> ContextInfo {
-        let strings: Vec<String> = self.report.strings.iter().map(|s| s.value.clone()).collect();
-        let symbols: Vec<String> = self
-            .report
-            .imports
-            .iter()
-            .map(|i| i.symbol.clone())
-            .chain(self.report.exports.iter().map(|e| e.symbol.clone()))
-            .collect();
-
+    pub(crate) fn context_info(&self) -> ContextInfo {
         ContextInfo {
             file_type: format!("{:?}", self.file_type),
             platforms: format!("{:?}", self.platforms),
-            string_count: strings.len(),
-            symbol_count: symbols.len(),
-            import_count: self.report.imports.len(),
-            export_count: self.report.exports.len(),
+            string_count: self.report.strings.len(),
+            symbol_count: self.report.imports.len() + self.report.exports.len(),
             finding_count: self.report.findings.len(),
-            sample_strings: strings.into_iter().take(20).collect(),
-            sample_symbols: symbols.into_iter().take(20).collect(),
-            sections: self.section_map.section_names().iter().map(|s| s.to_string()).collect(),
         }
     }
 
@@ -551,7 +527,7 @@ impl<'a> RuleDebugger<'a> {
     }
 
     /// Debug a specific rule by ID
-    pub fn debug_rule(&self, rule_id: &str) -> Option<RuleDebugResult> {
+    pub(crate) fn debug_rule(&self, rule_id: &str) -> Option<RuleDebugResult> {
         // First try to find as a trait definition
         if let Some(trait_def) = self.find_trait_definition(rule_id) {
             return Some(self.debug_trait_via_evaluation(trait_def));
@@ -1397,40 +1373,6 @@ impl<'a> RuleDebugger<'a> {
         result
     }
 
-    fn debug_yara_match_condition(
-        &self,
-        namespace: &str,
-        rule: Option<&String>,
-    ) -> ConditionDebugResult {
-        let desc = if let Some(r) = rule {
-            format!("yara_match: {}:{}", namespace, r)
-        } else {
-            format!("yara_match: {}:*", namespace)
-        };
-
-        let matched = self
-            .report
-            .yara_matches
-            .iter()
-            .any(|m| m.namespace == namespace && rule.is_none_or(|r| m.rule == *r));
-
-        let mut result = ConditionDebugResult::new(desc, matched);
-
-        result.details.push(format!(
-            "Total YARA matches: {}",
-            self.report.yara_matches.len()
-        ));
-
-        if !self.report.yara_matches.is_empty() {
-            result.details.push("YARA matches in file:".to_string());
-            for m in &self.report.yara_matches {
-                result.details.push(format!("  {}:{}", m.namespace, m.rule));
-            }
-        }
-
-        result
-    }
-
     fn debug_yara_inline_condition(&self, source: &str) -> ConditionDebugResult {
         use crate::composite_rules::evaluators::eval_yara_inline;
 
@@ -2258,7 +2200,7 @@ fn truncate_string(s: &str, max_len: usize) -> String {
     }
 }
 
-pub fn find_matching_strings<'a>(
+pub(crate) fn find_matching_strings<'a>(
     strings: &[&'a str],
     exact: &Option<String>,
     substr: &Option<String>,
@@ -2303,7 +2245,7 @@ pub fn find_matching_strings<'a>(
         .collect()
 }
 
-pub fn find_matching_symbols<'a>(
+pub(crate) fn find_matching_symbols<'a>(
     symbols: &[&'a str],
     exact: &Option<String>,
     substr: &Option<String>,
@@ -2448,7 +2390,7 @@ fn detect_file_type(file_type: &str) -> RuleFileType {
 }
 
 /// Format the debug results for terminal output
-pub fn format_debug_output(results: &[RuleDebugResult]) -> String {
+pub(crate) fn format_debug_output(results: &[RuleDebugResult]) -> String {
     let mut output = String::new();
     let mut matched_count = 0;
     let mut not_matched_count = 0;

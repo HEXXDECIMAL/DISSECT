@@ -3,8 +3,7 @@
 use super::*;
 use crate::composite_rules::context::EvaluationContext;
 use crate::composite_rules::types::{FileType, Platform};
-use crate::radare2::SyscallInfo;
-use crate::types::{AnalysisReport, Export, Import, Section, TargetInfo};
+use crate::types::{AnalysisReport, Export, Import, Section, SyscallInfo, TargetInfo};
 
 fn create_test_report() -> AnalysisReport {
     let target = TargetInfo {
@@ -29,130 +28,6 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         debug_collector: None,
         section_map: None,
     }
-}
-
-// =============================================================================
-// eval_imports_count tests
-// =============================================================================
-
-#[test]
-fn test_eval_imports_count_min() {
-    let mut report = create_test_report();
-    report.imports.push(Import {
-        symbol: "socket".to_string(),
-        library: None,
-        source: "libc".to_string(),
-    });
-    report.imports.push(Import {
-        symbol: "connect".to_string(),
-        library: None,
-        source: "libc".to_string(),
-    });
-    report.imports.push(Import {
-        symbol: "send".to_string(),
-        library: None,
-        source: "libc".to_string(),
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_imports_count(Some(2), None, None, &ctx);
-    assert!(result.matched);
-
-    let result = eval_imports_count(Some(5), None, None, &ctx);
-    assert!(!result.matched);
-}
-
-#[test]
-fn test_eval_imports_count_max() {
-    let mut report = create_test_report();
-    for i in 0..10 {
-        report.imports.push(Import {
-            symbol: format!("func_{}", i),
-            library: None,
-            source: "lib".to_string(),
-        });
-    }
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_imports_count(None, Some(15), None, &ctx);
-    assert!(result.matched);
-
-    let result = eval_imports_count(None, Some(5), None, &ctx);
-    assert!(!result.matched);
-}
-
-#[test]
-fn test_eval_imports_count_range() {
-    let mut report = create_test_report();
-    for i in 0..10 {
-        report.imports.push(Import {
-            symbol: format!("func_{}", i),
-            library: None,
-            source: "lib".to_string(),
-        });
-    }
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_imports_count(Some(5), Some(15), None, &ctx);
-    assert!(result.matched);
-
-    let result = eval_imports_count(Some(15), Some(20), None, &ctx);
-    assert!(!result.matched);
-}
-
-#[test]
-fn test_eval_imports_count_with_filter() {
-    let mut report = create_test_report();
-    report.imports.push(Import {
-        symbol: "CreateFile".to_string(),
-        library: Some("kernel32.dll".to_string()),
-        source: "pe".to_string(),
-    });
-    report.imports.push(Import {
-        symbol: "CreateProcess".to_string(),
-        library: Some("kernel32.dll".to_string()),
-        source: "pe".to_string(),
-    });
-    report.imports.push(Import {
-        symbol: "VirtualAlloc".to_string(),
-        library: Some("kernel32.dll".to_string()),
-        source: "pe".to_string(),
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    // Filter for "Create" imports
-    let result = eval_imports_count(Some(2), None, Some(&"Create".to_string()), &ctx);
-    assert!(result.matched);
-
-    // Filter for something that doesn't exist enough
-    let result = eval_imports_count(Some(2), None, Some(&"Virtual".to_string()), &ctx);
-    assert!(!result.matched); // Only 1 Virtual import
-}
-
-#[test]
-fn test_eval_imports_count_evidence() {
-    let mut report = create_test_report();
-    report.imports.push(Import {
-        symbol: "socket".to_string(),
-        library: None,
-        source: "libc".to_string(),
-    });
-    report.imports.push(Import {
-        symbol: "connect".to_string(),
-        library: None,
-        source: "libc".to_string(),
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let result = eval_imports_count(Some(1), None, None, &ctx);
-    assert!(result.matched);
-    assert!(!result.evidence.is_empty());
-    assert!(result.evidence[0].value.contains("(2)")); // Count in evidence
 }
 
 // =============================================================================

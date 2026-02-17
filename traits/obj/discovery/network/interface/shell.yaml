@@ -32,6 +32,7 @@ traits:
       type: string
       regex: "exec(Sync)?\\(['\"]ip a['\"]"
 
+composite_rules:
   - id: ifconfig
     desc: ifconfig network configuration discovery
     crit: suspicious

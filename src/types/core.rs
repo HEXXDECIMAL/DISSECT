@@ -1,10 +1,11 @@
 //! Core analysis types - the foundation of DISSECT reports
 
-use crate::radare2::SyscallInfo;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use super::binary::{AnalysisMetadata, Export, Function, Import, Section, StringInfo, YaraMatch};
+use super::binary::{
+    AnalysisMetadata, Export, Function, Import, Section, StringInfo, SyscallInfo, YaraMatch,
+};
 use super::code_structure::{BinaryProperties, CodeMetrics, OverlayMetrics, SourceCodeMetrics};
 use super::file_analysis::{FileAnalysis, ReportSummary};
 use super::paths_env::{DirectoryAccess, EnvVarInfo, PathInfo};
@@ -20,19 +21,27 @@ use super::traits_findings::{Finding, StructuralFeature, Trait};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Criticality {
+    /// Matched but wrong file type - preserved for ML analysis
     Filtered,
+    /// Universal baseline noise - low analytical signal
     #[default]
     Inert,
+    /// Defines program purpose - flag in diffs for supply chain security
     Notable,
+    /// Unusual/evasive behavior - investigate immediately
     Suspicious,
+    /// Almost certainly malicious - very rare
     Hostile,
 }
 
 /// Main analysis output structure
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AnalysisReport {
+    /// Schema version (currently "2.0")
     pub schema_version: String,
+    /// Timestamp when analysis was performed
     pub analysis_timestamp: DateTime<Utc>,
+    /// Information about the target file
     pub target: TargetInfo,
 
     // ========================================================================
@@ -45,29 +54,40 @@ pub struct AnalysisReport {
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub findings: Vec<Finding>,
 
+    /// Structural features (binary format properties, obfuscation markers)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub structure: Vec<StructuralFeature>,
+    /// Functions discovered via disassembly or source parsing
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub functions: Vec<Function>,
+    /// String literals extracted from the file
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub strings: Vec<StringInfo>,
+    /// Binary sections (ELF, Mach-O, or PE)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub sections: Vec<Section>,
+    /// Symbols imported from external libraries
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub imports: Vec<Import>,
+    /// Symbols exported by this file
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub exports: Vec<Export>,
+    /// YARA rule matches
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub yara_matches: Vec<YaraMatch>,
     /// Syscalls detected via binary analysis (ELF, Mach-O)
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub syscalls: Vec<SyscallInfo>,
+    /// Binary format-specific properties (security features, packing indicators)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub binary_properties: Option<BinaryProperties>,
+    /// Code complexity metrics (cyclomatic complexity, nesting)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub code_metrics: Option<CodeMetrics>,
+    /// Source code-specific metrics (imports, class count, etc.)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub source_code_metrics: Option<SourceCodeMetrics>,
+    /// Overlay data metrics (appended data after the binary)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub overlay_metrics: Option<OverlayMetrics>,
     /// Unified metrics container for ML analysis
@@ -103,14 +123,19 @@ pub struct AnalysisReport {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub summary: Option<ReportSummary>,
 
+    /// Analysis metadata (tool versions, timing, errors)
     pub metadata: AnalysisMetadata,
 }
 
 impl AnalysisReport {
+    /// Create a new analysis report for the given target, timestamped now
+    #[must_use]
     pub fn new(target: TargetInfo) -> Self {
         Self::new_with_timestamp(target, Utc::now())
     }
 
+    /// Create a new analysis report with an explicit timestamp (useful for testing)
+    #[must_use]
     pub fn new_with_timestamp(target: TargetInfo, timestamp: chrono::DateTime<Utc>) -> Self {
         Self {
             schema_version: "2.0".to_string(),
@@ -142,13 +167,6 @@ impl AnalysisReport {
         }
     }
 
-    /// Add a trait and return its index for reference
-    pub fn add_trait(&mut self, t: Trait) -> usize {
-        let idx = self.traits.len();
-        self.traits.push(t);
-        idx
-    }
-
     /// Add a finding
     pub fn add_finding(&mut self, finding: Finding) {
         if !self.findings.iter().any(|f| f.id == finding.id) {
@@ -156,13 +174,7 @@ impl AnalysisReport {
         }
     }
 
-    /// Add a finding that references specific traits by ID
-    pub fn add_finding_with_refs(&mut self, mut finding: Finding, trait_ids: Vec<String>) {
-        finding.trait_refs = trait_ids;
-        self.add_finding(finding);
-    }
-
-    /// Shrink all Vec fields to fit their contents, freeing excess capacity.
+/// Shrink all Vec fields to fit their contents, freeing excess capacity.
     /// Call this after analysis is complete to reduce memory footprint.
     pub fn shrink_to_fit(&mut self) {
         self.traits.shrink_to_fit();
@@ -184,6 +196,7 @@ impl AnalysisReport {
 
     /// Get the highest criticality level from findings in this report (excluding sub-reports)
     /// Returns None if there are no findings
+    #[must_use] 
     pub fn highest_criticality(&self) -> Option<Criticality> {
         self.findings.iter().map(|f| f.crit).max()
     }
@@ -238,6 +251,7 @@ impl AnalysisReport {
     ///
     /// This is used internally by convert_to_v2() and by archive analyzers
     /// to convert per-file reports into the flat files array structure.
+    #[must_use] 
     pub fn to_file_analysis(&self, id: u32, verbose: bool) -> FileAnalysis {
         let mut file = FileAnalysis::new(
             id,
@@ -270,37 +284,21 @@ impl AnalysisReport {
         file
     }
 
-    /// Minimize the report for non-verbose output
-    /// Keeps only findings and summary data
-    pub fn minimize(&mut self) {
-        self.traits.clear();
-        self.structure.clear();
-        self.functions.clear();
-        self.strings.clear();
-        self.sections.clear();
-        self.imports.clear();
-        self.exports.clear();
-        self.yara_matches.clear();
-        self.syscalls.clear();
-        self.binary_properties = None;
-        self.code_metrics = None;
-        self.source_code_metrics = None;
-        self.overlay_metrics = None;
-        self.metrics = None;
-        self.paths.clear();
-        self.directories.clear();
-        self.env_vars.clear();
-        self.archive_contents.clear();
-    }
 }
 
+/// Information about the file being analyzed
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TargetInfo {
+    /// Absolute path to the analyzed file
     pub path: String,
+    /// Detected file type (e.g., "elf", "python", "zip")
     #[serde(rename = "type")]
     pub file_type: String,
+    /// File size in bytes
     pub size_bytes: u64,
+    /// SHA256 hash of the file contents
     pub sha256: String,
+    /// CPU architectures (for fat/universal binaries)
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub architectures: Option<Vec<String>>,
 }
@@ -439,53 +437,6 @@ mod tests {
         assert_eq!(report.findings.len(), 2);
     }
 
-    // ==================== add_finding_with_refs Tests ====================
-
-    #[test]
-    fn test_add_finding_with_refs() {
-        let mut report = AnalysisReport::new(test_target());
-        let finding = test_finding("test/cap1", Criticality::Notable);
-
-        report.add_finding_with_refs(finding, vec!["trait1".to_string(), "trait2".to_string()]);
-
-        assert_eq!(report.findings.len(), 1);
-        assert_eq!(report.findings[0].trait_refs.len(), 2);
-        assert!(report.findings[0].trait_refs.contains(&"trait1".to_string()));
-    }
-
-    // ==================== add_trait Tests ====================
-
-    #[test]
-    fn test_add_trait_returns_index() {
-        use crate::types::traits_findings::TraitKind;
-
-        let mut report = AnalysisReport::new(test_target());
-
-        let trait1 = Trait {
-            kind: TraitKind::String,
-            value: "test_string_1".to_string(),
-            offset: Some("0x100".to_string()),
-            encoding: Some("utf8".to_string()),
-            section: None,
-            source: "strings".to_string(),
-        };
-        let trait2 = Trait {
-            kind: TraitKind::Import,
-            value: "malloc".to_string(),
-            offset: None,
-            encoding: None,
-            section: None,
-            source: "imports".to_string(),
-        };
-
-        let idx1 = report.add_trait(trait1);
-        let idx2 = report.add_trait(trait2);
-
-        assert_eq!(idx1, 0);
-        assert_eq!(idx2, 1);
-        assert_eq!(report.traits.len(), 2);
-    }
-
     // ==================== highest_criticality Tests ====================
 
     #[test]
@@ -510,51 +461,6 @@ mod tests {
         report.add_finding(test_finding("test/cap3", Criticality::Notable));
 
         assert_eq!(report.highest_criticality(), Some(Criticality::Hostile));
-    }
-
-    // ==================== minimize Tests ====================
-
-    #[test]
-    fn test_minimize_clears_fields() {
-        use crate::types::binary::StringType;
-        use crate::types::traits_findings::TraitKind;
-
-        let mut report = AnalysisReport::new(test_target());
-
-        // Add some data
-        report.traits.push(Trait {
-            kind: TraitKind::String,
-            value: "test".to_string(),
-            offset: None,
-            encoding: None,
-            section: None,
-            source: "strings".to_string(),
-        });
-        report.strings.push(StringInfo {
-            value: "test_string".to_string(),
-            offset: Some(0x100),
-            encoding: "utf8".to_string(),
-            string_type: StringType::Const,
-            section: None,
-            encoding_chain: vec![],
-            fragments: None,
-        });
-        report.imports.push(Import {
-            symbol: "malloc".to_string(),
-            library: Some("libc".to_string()),
-            source: "elf".to_string(),
-        });
-        report.add_finding(test_finding("test/cap1", Criticality::Notable));
-
-        report.minimize();
-
-        // Verbose fields should be cleared
-        assert!(report.traits.is_empty());
-        assert!(report.strings.is_empty());
-        assert!(report.imports.is_empty());
-
-        // Findings should remain
-        assert_eq!(report.findings.len(), 1);
     }
 
     // ==================== TargetInfo Tests ====================

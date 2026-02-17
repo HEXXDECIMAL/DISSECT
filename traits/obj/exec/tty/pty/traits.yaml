@@ -139,7 +139,7 @@ traits:
     for: [elf, macho]
     if:
       type: symbol
-      regex: "^getpass$"
+      exact: "getpass"
 
   - id: setupterm
     desc: Terminal initialization

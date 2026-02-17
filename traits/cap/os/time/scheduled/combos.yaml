@@ -11,7 +11,7 @@ composite_rules:
     conf: 0.95
     for: [all]
     all:
-      - id: cap/process/spawn/
+      - id: cap/process/create/spawn/
       - id: cap/process/terminate/
 
   # Logic bomb with self-destruct
@@ -24,7 +24,7 @@ composite_rules:
     for: [all]
     all:
       - id: hardcoded-datetime
-      - id: cap/process/spawn/
+      - id: cap/process/create/spawn/
       - id: cap/process/terminate/
 
   # Logic bomb with probabilistic self-destruct
@@ -38,23 +38,9 @@ composite_rules:
     all:
       - id: hardcoded-datetime
       - id: cap/os/random/prng::random-instantiation
-      - id: cap/process/spawn/
+      - id: cap/process/create/spawn/
       - id: cap/process/terminate/
 
-  # Supply chain: SQL library with malicious payload
-  - id: supply-chain-sql-backdoor
-    desc: "Supply chain attack: malicious code"
-    crit: suspicious
-    mbc: "B0003"
-    attack: "T1195.001"
-    conf: 0.95
-    for: [all]
-    all:
-      - id: cap/data/sql/query::sqlcommand
-    any:
-      - id: cap/process/terminate/
-      - id: obj/exec/eval/invoke/
-      - id: obj/exec/reflection/invoke::assembly-load
 
   # Concentrated malicious code: all behaviors within 30 lines (tight proximity)
   - id: concentrated-logic-bomb

@@ -1,8 +1,1 @@
-traits:
-  - id: run-execution
-    criticality: suspicious
-    description: Executes a command using the Run method
-    for: [javascript]
-    if:
-      type: symbol
-      exact: "Run"
+# run-execution: use obj/exec/interpreter/scripting/host::run-method (canonical .Run() detection)

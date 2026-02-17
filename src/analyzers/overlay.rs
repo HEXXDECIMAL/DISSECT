@@ -13,7 +13,8 @@ use std::sync::Arc;
 
 /// Detect if data looks like an archive based on magic bytes.
 /// Returns the archive type if detected, None otherwise.
-pub fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
+#[must_use] 
+pub(crate) fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
     if data.len() < 4 {
         return None;
     }
@@ -59,7 +60,7 @@ pub fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
 /// # Returns
 /// * `Some(OverlayAnalysis)` - If overlay contains an archive
 /// * `None` - If overlay is not an archive (signature, resources, etc.)
-pub fn analyze_overlay(
+pub(crate) fn analyze_overlay(
     overlay_data: &[u8],
     binary_path: &str,
     capability_mapper: Option<Arc<CapabilityMapper>>,
@@ -119,12 +120,7 @@ pub fn analyze_overlay(
                 source_file: Some(binary_path.to_string()),
             };
 
-            Ok(Some(OverlayAnalysis {
-                archive_type: archive_type.to_string(),
-                overlay_size: overlay_data.len() as u64,
-                sfx_finding,
-                archive_report,
-            }))
+            Ok(Some(OverlayAnalysis { sfx_finding, archive_report }))
         },
         Err(e) => {
             // Archive extraction failed - still emit a finding about the SFX
@@ -163,8 +159,6 @@ pub fn analyze_overlay(
             };
 
             Ok(Some(OverlayAnalysis {
-                archive_type: archive_type.to_string(),
-                overlay_size: overlay_data.len() as u64,
                 sfx_finding,
                 archive_report: AnalysisReport::new(TargetInfo {
                     path: format!("{}:overlay", binary_path),
@@ -179,11 +173,8 @@ pub fn analyze_overlay(
 }
 
 /// Result of overlay analysis
-pub struct OverlayAnalysis {
-    /// Detected archive type (zip, 7z, rar, etc.)
-    pub archive_type: String,
-    /// Size of overlay data in bytes
-    pub overlay_size: u64,
+#[derive(Debug)]
+pub(crate) struct OverlayAnalysis {
     /// Finding describing the SFX overlay itself
     pub sfx_finding: Finding,
     /// Full analysis report from the embedded archive

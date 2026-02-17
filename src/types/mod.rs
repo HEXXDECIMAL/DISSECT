@@ -33,76 +33,76 @@ pub(crate) fn is_zero_i64(v: &i64) -> bool {
 }
 
 // Module declarations
-pub mod binary;
-pub mod binary_metrics;
-pub mod code_structure;
-pub mod container_metrics;
-pub mod core;
-pub mod diff;
-pub mod field_paths;
-pub mod file_analysis;
-pub mod language_metrics;
-pub mod ml_features;
-pub mod paths_env;
-pub mod scores;
-pub mod text_metrics;
-pub mod traits_findings;
+pub(crate) mod binary;
+pub(crate) mod binary_metrics;
+pub(crate) mod code_structure;
+pub(crate) mod container_metrics;
+pub(crate) mod core;
+pub(crate) mod diff;
+pub(crate) mod field_paths;
+pub(crate) mod file_analysis;
+pub(crate) mod language_metrics;
+pub(crate) mod ml_features;
+pub(crate) mod paths_env;
+pub(crate) mod scores;
+pub(crate) mod text_metrics;
+pub(crate) mod traits_findings;
 
 // Re-export all public types to maintain API compatibility
 // These re-exports are part of the public library API even if not used directly in the binary
 #[allow(unused_imports)]
-pub use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
+pub(crate) use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
 
 #[allow(unused_imports)]
-pub use file_analysis::{
-    encode_archive_path, encode_decoded_path, parse_file_path, FileAnalysis, FindingCounts,
-    ParsedPath, ReportSummary, ARCHIVE_DELIMITER, ENCODING_DELIMITER,
+pub(crate) use file_analysis::{
+    encode_archive_path, encode_decoded_path, FileAnalysis, FindingCounts,
+    ReportSummary, ARCHIVE_DELIMITER, ENCODING_DELIMITER,
 };
 
 #[allow(unused_imports)]
-pub use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};
+pub(crate) use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};
 
 #[allow(unused_imports)]
-pub use paths_env::{
+pub(crate) use paths_env::{
     DirectoryAccess, DirectoryAccessPattern, EnvVarAccessType, EnvVarCategory, EnvVarInfo,
     PathAccessType, PathCategory, PathInfo, PathType,
 };
 
 #[allow(unused_imports)]
-pub use binary::{
+pub(crate) use binary::{
     AnalysisMetadata, DecodedString, Export, Function, Import, MatchedString, Section, StringInfo,
-    StringType, YaraMatch,
+    StringType, SyscallInfo, YaraMatch,
 };
 
-pub use diff::{
+pub(crate) use diff::{
     DiffCounts, DiffReport, FileChanges, FileDiff, FileRenameInfo, FullDiffReport, MetricsDelta,
     ModifiedFileAnalysis,
 };
 
 #[allow(unused_imports)]
-pub use ml_features::{
+pub(crate) use ml_features::{
     CallPatternMetrics, ControlFlowMetrics, DecodedValue, EmbeddedConstant, FunctionProperties,
     FunctionSignature, InstructionAnalysis, InstructionCategories, NestingMetrics,
 };
 
 #[allow(unused_imports)]
-pub use code_structure::{
+pub(crate) use code_structure::{
     BinaryAnomaly, BinaryProperties, CodeMetrics, GoIdioms, JavaScriptIdioms, LinkingInfo,
     SecurityFeatures, ShellIdioms, SourceCodeMetrics,
 };
 
-pub use text_metrics::{
+pub(crate) use text_metrics::{
     CommentMetrics, FunctionMetrics, IdentifierMetrics, ImportMetrics, StringMetrics, TextMetrics,
 };
 
 #[allow(unused_imports)]
-pub use language_metrics::{
+pub(crate) use language_metrics::{
     GoMetrics, JavaScriptMetrics, PythonMetrics, RustMetrics, ShellMetrics,
 };
 
-pub use binary_metrics::{BinaryMetrics, MachoMetrics};
+pub(crate) use binary_metrics::{BinaryMetrics, MachoMetrics};
 
-pub use scores::Metrics;
+pub(crate) use scores::Metrics;
 
 use std::path::PathBuf;
 
@@ -115,7 +115,7 @@ use std::path::PathBuf;
 /// For archives, the archive's SHA256 is used (via `archive_sha256`) so all
 /// files from the same archive are grouped together in one directory.
 #[derive(Debug, Clone)]
-pub struct SampleExtractionConfig {
+pub(crate) struct SampleExtractionConfig {
     /// Base directory for extracted files
     pub extract_dir: PathBuf,
     /// Optional archive SHA256 to use instead of individual file SHA256.
@@ -126,7 +126,8 @@ pub struct SampleExtractionConfig {
 
 impl SampleExtractionConfig {
     /// Create a new extraction config
-    pub fn new(extract_dir: PathBuf) -> Self {
+    #[must_use]
+    pub(crate) fn new(extract_dir: PathBuf) -> Self {
         Self {
             extract_dir,
             archive_sha256: None,
@@ -134,7 +135,8 @@ impl SampleExtractionConfig {
     }
 
     /// Create a copy with the archive SHA256 set
-    pub fn with_archive_sha256(&self, sha256: String) -> Self {
+    #[must_use]
+    pub(crate) fn with_archive_sha256(&self, sha256: String) -> Self {
         Self {
             extract_dir: self.extract_dir.clone(),
             archive_sha256: Some(sha256),
@@ -154,7 +156,7 @@ impl SampleExtractionConfig {
     ///
     /// Skips writing if file already exists with correct size (optimization for
     /// repeated scans with the same extract directory).
-    pub fn extract(&self, file_sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
+    pub(crate) fn extract(&self, file_sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
         // Use archive SHA256 if set, otherwise use the individual file's SHA256
         let sha256 = self.archive_sha256.as_deref().unwrap_or(file_sha256);
 

@@ -337,7 +337,7 @@ traits:
 
   # === WScript/XMLHTTP atomic indicators ===
   # Removed msxml2-xmlhttp duplicate - use obj/exec/activex/com::activex-xmlhttp-msxml2
-  # Removed microsoft-xmlhttp duplicate - use obj/exec/interpreter/scripting/host/windows::microsoft-xmlhttp-string
+  # Removed microsoft-xmlhttp duplicate - use obj/exec/interpreter/scripting/host::microsoft-xmlhttp-string
 
   # Batch file generation (echo >> pattern)
   - id: batch-echo
@@ -555,7 +555,7 @@ composite_rules:
       any:
         - id: meta/dev/testing::node-common-require
         - id: obj/lateral/supply-chain/npm/testing::assert-word
-        - id: cap/interface/usage/api::usage-help
+        - id: cap/interface/usage/help::usage-help
 
   # Spawn/exec composite
   - id: spawn-exec
@@ -602,7 +602,7 @@ composite_rules:
     any:
       - id: obj/exec/interpreter/scripting/host::wscript-shell-string
       - id: obj/exec/activex/com::activex-xmlhttp-msxml2
-      - id: obj/exec/interpreter/scripting/host/windows::microsoft-xmlhttp-string
+      - id: obj/exec/interpreter/scripting/host::microsoft-xmlhttp-string
     downgrade:
       any:
         - id: meta/library/jquery::library
@@ -847,3 +847,18 @@ composite_rules:
       - id: js-obfuscation-indicators
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
       - id: obj/anti-static/obfuscation/strings/encoding::js-string-split
+
+  # Supply chain: SQL library with malicious payload
+  - id: supply-chain-sql-backdoor
+    desc: "Supply chain attack: malicious code in SQL library"
+    crit: suspicious
+    mbc: "B0003"
+    attack: "T1195.001"
+    conf: 0.95
+    for: [all]
+    all:
+      - id: cap/data/sql/query::sqlcommand
+    any:
+      - id: cap/process/terminate/
+      - id: obj/exec/interpreter/eval/invoke/
+      - id: obj/exec/reflection/invoke::assembly-load

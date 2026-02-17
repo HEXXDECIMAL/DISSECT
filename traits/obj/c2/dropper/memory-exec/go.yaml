@@ -46,14 +46,7 @@ traits:
       type: string
       substr: "syscall.Exec"
 
-  # memfd_create for fileless execution (Linux)
-  - id: memfd-create
-    desc: Go memfd_create for anonymous memory
-    crit: suspicious
-    conf: 0.85
-    if:
-      type: string
-      substr: "memfd_create"
+  # memfd_create - use cap/mem/anonymous/create::memfd-create (canonical ELF symbol detection)
 
   # Custom AES decryption function pattern (main.aesDec etc)
   - id: aes-decrypt-func

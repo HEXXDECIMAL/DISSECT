@@ -21,7 +21,7 @@ use std::sync::LazyLock;
 
 /// Represents an extracted AES-encrypted payload
 #[derive(Debug)]
-pub struct AesExtractedPayload {
+pub(crate) struct AesExtractedPayload {
     /// Path to temp file containing decrypted content
     pub temp_path: PathBuf,
     /// Encoding chain (e.g., ["aes-256-cbc"])
@@ -66,6 +66,7 @@ const MIN_CIPHERTEXT_HEX_LEN: usize = 64;
 const MAX_CIPHERTEXT_BYTES: usize = 10 * 1024 * 1024;
 
 // Pre-compiled regexes for pattern matching
+#[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
 static RE_CREATE_DECIPHERIV: LazyLock<Regex> = LazyLock::new(|| {
     // Match: createDecipheriv("aes-256-cbc", "key", Buffer.from("iv", "hex"))
     // Or: createDecipheriv("aes-256-cbc", key_var, iv_var)
@@ -74,6 +75,7 @@ static RE_CREATE_DECIPHERIV: LazyLock<Regex> = LazyLock::new(|| {
     ).unwrap()
 });
 
+#[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
 static RE_DECIPHER_UPDATE: LazyLock<Regex> = LazyLock::new(|| {
     // Match: .update("hex_ciphertext", "hex", "utf8")
     // The hex string can be very long (megabytes)
@@ -83,6 +85,7 @@ static RE_DECIPHER_UPDATE: LazyLock<Regex> = LazyLock::new(|| {
     .unwrap()
 });
 
+#[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
 static RE_HEX_STRING: LazyLock<Regex> = LazyLock::new(|| {
     // Match long hex strings in quotes (potential ciphertext)
     Regex::new(r#"["']([a-fA-F0-9]{64,})["']"#).unwrap()
@@ -206,7 +209,7 @@ fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u
     let cipher = Aes256CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(|pt| pt.to_vec())
+    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(<[u8]>::to_vec)
 }
 
 /// Decrypt AES-128-CBC ciphertext
@@ -224,7 +227,7 @@ fn decrypt_aes_128_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u
     let cipher = Aes128CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(|pt| pt.to_vec())
+    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(<[u8]>::to_vec)
 }
 
 /// Try to decrypt ciphertext with given params
@@ -243,23 +246,25 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
     }
 
     // Check if it's valid UTF-8 (most JavaScript payloads are)
-    if std::str::from_utf8(plaintext).is_err() {
-        // Could be binary, check for known binary signatures
-        if plaintext.len() > 4 {
-            // ELF, Mach-O, PE signatures
-            if (plaintext[0] == 0x7F && plaintext[1] == b'E')
-                || (plaintext[0] == 0xFE && plaintext[1] == 0xED)
-                || (plaintext[0] == 0xCA && plaintext[1] == 0xFE)
-                || (plaintext[0] == b'M' && plaintext[1] == b'Z')
-            {
-                return true;
+    let text = match std::str::from_utf8(plaintext) {
+        Ok(t) => t,
+        Err(_) => {
+            // Could be binary, check for known binary signatures
+            if plaintext.len() > 4 {
+                // ELF, Mach-O, PE signatures
+                if (plaintext[0] == 0x7F && plaintext[1] == b'E')
+                    || (plaintext[0] == 0xFE && plaintext[1] == 0xED)
+                    || (plaintext[0] == 0xCA && plaintext[1] == 0xFE)
+                    || (plaintext[0] == b'M' && plaintext[1] == b'Z')
+                {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
-    }
+    };
 
     // For text content, check it's not just random garbage
-    let text = std::str::from_utf8(plaintext).unwrap();
 
     // Must have some alphanumeric content
     let alpha_count = text.chars().filter(|c| c.is_alphanumeric()).count();
@@ -338,7 +343,8 @@ fn generate_preview(data: &[u8]) -> String {
 }
 
 /// Extract all AES-encrypted payloads from JavaScript/TypeScript content
-pub fn extract_aes_payloads(content: &[u8]) -> Vec<AesExtractedPayload> {
+#[must_use] 
+pub(crate) fn extract_aes_payloads(content: &[u8]) -> Vec<AesExtractedPayload> {
     let mut payloads = Vec::new();
 
     // Convert to string (AES patterns are in text)

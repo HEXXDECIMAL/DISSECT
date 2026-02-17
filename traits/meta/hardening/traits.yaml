@@ -141,7 +141,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      regex: "^pledge$"
+      exact: "pledge"
 
   - id: unveil
     desc: OpenBSD unveil filesystem restriction
@@ -150,7 +150,7 @@ traits:
     for: [elf]
     if:
       type: symbol
-      regex: "^unveil$"
+      exact: "unveil"
 
   # === Capsicum (FreeBSD) ===
 

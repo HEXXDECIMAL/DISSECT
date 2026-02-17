@@ -100,7 +100,7 @@ traits:
       type: string
       substr: "readdir"
 
-  # Removed os-walk duplicate - use cap/fs/directory/traverse/python::traverse-walk
+  # Removed os-walk duplicate - use cap/fs/directory/traverse::traverse-walk
 
   # === File write (atomic) ===
   - id: writefile-sync
@@ -362,7 +362,7 @@ composite_rules:
       - id: walk-sync
       - id: glob-module
       - id: readdir-fn
-      - id: cap/fs/directory/traverse/python::traverse-walk
+      - id: cap/fs/directory/traverse::traverse-walk
 
   # File write functions
   - id: file-write-functions

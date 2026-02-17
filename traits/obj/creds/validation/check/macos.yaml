@@ -92,18 +92,9 @@ traits:
 
   # Credential keyword atomic indicators moved to data/text/generic.yaml
 
+  # csidentity-auth-password: use cap/os/auth/verify::csidentity-auth (canonical)
+
   # === CoreServices Identity API micro-traits ===
-  - id: csidentity-auth-password
-    desc: "Validates macOS user password"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1110.001"
-    mbc: "E1110"
-    platforms: [macos]
-    for: [macho]
-    if:
-      type: symbol
-      regex: "CSIdentityAuthenticateUsingPassword"
 
   - id: csidentity-query-create
     desc: "Searches macOS user directory"
@@ -218,7 +209,7 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: csidentity-auth-password
+      - id: cap/os/auth/verify::csidentity-auth
     any:
       - id: csidentity-query-create
       - id: csidentity-authority

@@ -61,7 +61,7 @@ impl ArchiveAnalyzer {
             .min_depth(1)
             .max_depth(10)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| e.file_type().is_file())
             .collect();
 
@@ -525,7 +525,7 @@ impl ArchiveAnalyzer {
             .min_depth(1)
             .max_depth(10)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .collect();
 
         trace!("Found {} total entries in archive", all_entries.len());
@@ -811,7 +811,6 @@ impl ArchiveAnalyzer {
                 yara_engine,
                 zip_passwords,
                 sample_extraction,
-                archive_sha256: None,
                 max_memory_file_size,
             };
 

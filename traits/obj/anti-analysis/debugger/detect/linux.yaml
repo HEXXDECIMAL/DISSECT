@@ -7,13 +7,7 @@ defaults:
   attack: "T1622"
 
 traits:
-  - id: debugger-ptrace
-    desc: Debugger detection via ptrace
-    crit: suspicious
-    conf: 0.66
-    if:
-      type: string
-      substr: PTRACE_TRACEME
+  # debugger-ptrace: use obj/anti-analysis/debugger/detect::ptrace-traceme (canonical)
 
   # NOTE: /proc/self/status detection is in traits.yaml as 'proc-status'
 

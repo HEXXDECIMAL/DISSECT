@@ -5,13 +5,16 @@ use crate::types::DecodedString;
 
 /// Extract and decode base64 strings from binary data
 /// Returns decoded strings that are valid UTF-8 and > 10 characters
+#[must_use] 
 pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
     let mut results = Vec::new();
 
     // Find base64-like sequences (alphanumeric + +/= characters, min 12 chars to catch short IPs)
     let text = String::from_utf8_lossy(data);
-    let base64_pattern = regex::Regex::new(r"[A-Za-z0-9+/]{12,}={0,2}").unwrap();
+    let Ok(base64_pattern) = regex::Regex::new(r"[A-Za-z0-9+/]{12,}={0,2}") else {
+        return results;
+    };
 
     for mat in base64_pattern.find_iter(&text) {
         let encoded = mat.as_str();
@@ -54,6 +57,7 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
 
 /// Extract XOR-decoded strings using common single-byte XOR keys
 /// Returns decoded strings for keys 0x01-0xFF that produce valid UTF-8
+#[must_use] 
 pub fn extract_xor_strings(data: &[u8]) -> Vec<DecodedString> {
     let mut results = Vec::new();
 

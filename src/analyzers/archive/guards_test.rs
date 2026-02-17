@@ -388,7 +388,7 @@ fn test_hostile_reasons_accumulate() {
 fn test_hostile_reasons_take_clears_list() {
     let guard = ExtractionGuard::new();
 
-    guard.add_hostile_reason(HostileArchiveReason::MalformedEntry("test".into()));
+    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape("test".into()));
 
     let reasons1 = guard.take_reasons();
     assert_eq!(reasons1.len(), 1);

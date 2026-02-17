@@ -6,10 +6,11 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
+  # mkfifo: use cap/fs/pipe/fifo/traits.yaml::mkfifo-cmd (canonical)
   - id: fifo
-    desc: Create FIFO special file (named
+    desc: Create FIFO named pipe via mkfifoat
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: mkfifo|mkfifoat
+      exact: "mkfifoat"

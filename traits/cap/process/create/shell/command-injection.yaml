@@ -18,13 +18,6 @@ traits:
       type: raw
       regex: '(?:snprintf|sprintf)[\s\S]{0,50}%s[\s\S]{0,50}(?:system\s*\(|popen\s*\(|execl\s*\(|execv\s*\(|/bin/sh|sh\s+-c|cmd\.exe)'
 
-  - id: system-call-symbol
-    desc: system() function call
-    crit: notable
-    conf: 0.90
-    for: [c, elf, macho]
-    if:
-      type: symbol
-      regex: "^system$"
+  # Removed system-call-symbol duplicate - use cap/process/create/shell::system-fn
 
 composite_rules:

@@ -48,7 +48,7 @@ traits:
       word: "crypto"
 
   - id: crypto-substr
-    desc: crypto keyword (substr match - catches module imports)
+    desc: crypto keyword (substr, catches imports)
     if:
       type: string
       substr: "crypto"

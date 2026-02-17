@@ -7,10 +7,10 @@ defaults:
 
 traits:
   # === Memory protection (atomic) ===
-  # Removed mprotect-unix duplicate - use cap/mem/protect/unix::mprotect (system calls should use symbol type)
+  # Removed mprotect-unix duplicate - use cap/mem/protect/modify::mprotect (system calls should use symbol type)
 
-  # Removed virtualprotect-win duplicate - use cap/mem/protect/traits::virtual-protect (symbol is more precise)
-  # Removed virtualprotectex-win duplicate - use cap/mem/protect/traits::virtual-protect-ex (symbol is more precise)
+  # Removed virtualprotect-win duplicate - use cap/mem/protect/modify::virtual-protect (symbol is more precise)
+  # Removed virtualprotectex-win duplicate - use cap/mem/protect/modify::virtual-protect-ex (symbol is more precise)
 
   - id: prot-write
     desc: PROT_WRITE memory protection constant
@@ -20,7 +20,7 @@ traits:
       type: string
       word: "PROT_WRITE"
 
-  # Removed prot-exec duplicate - use cap/mem/allocate/unix::prot-exec-const
+  # Removed prot-exec duplicate - use cap/mem/allocate/executable::prot-exec-const
 
   - id: page-rwx
     desc: PAGE_EXECUTE_READWRITE constant
@@ -89,8 +89,8 @@ traits:
     crit: notable
     conf: 0.7
     if:
-      type: string
-      substr: SetWindowsHookEx
+      type: symbol
+      exact: "SetWindowsHookEx"
 
   - id: inline-hook-ref
     desc: Inline hook terminology
@@ -223,11 +223,11 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: cap/mem/protect/unix::mprotect
-      - id: cap/mem/protect/traits::virtual-protect
-      - id: cap/mem/protect/traits::virtual-protect-ex
+      - id: cap/mem/protect/modify::mprotect
+      - id: cap/mem/protect/modify::virtual-protect
+      - id: cap/mem/protect/modify::virtual-protect-ex
       - id: prot-write
-      - id: cap/mem/allocate/unix::prot-exec-const
+      - id: cap/mem/allocate/executable::prot-exec-const
       - id: page-rwx
     # mprotect is common in graphics libraries for memory-mapped video access
     # and in system libraries for dynamic memory management

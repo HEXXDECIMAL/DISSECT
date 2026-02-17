@@ -35,7 +35,7 @@ traits:
       substr: "hide_file"
 
   # === LD_PRELOAD Injection ===
-  # Removed ld-preload-file duplicate - use obj/anti-analysis/kernel-hide/userspace/ld-preload::ld-so-preload-file
+  # Removed ld-preload-file duplicate - use obj/anti-analysis/kernel-hide/userspace::ld-so-preload-file
 
   # === Directory listing hooking ===
   # Note: Rootkit libraries EXPORT malicious readdir/getdents to intercept calls.
@@ -123,7 +123,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
     any:
       - id: readdir-hook
       - id: getdents-hook
@@ -140,7 +140,7 @@ composite_rules:
       - id: rootkit-string
       - id: hide-pid
       - id: hide-file
-      - id: obj/anti-analysis/kernel-hide/userspace/ld-preload::ld-so-preload-file
+      - id: obj/anti-analysis/kernel-hide/userspace::ld-so-preload-file
       - id: readdir-hook
       - id: getdents-hook
 

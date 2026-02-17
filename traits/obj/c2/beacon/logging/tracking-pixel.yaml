@@ -14,7 +14,7 @@ composite_rules:
     all:
       - id: cap/comm/http/lib/netlib::request-ruby
     any:
-      - id: obj/discovery/network/scan::iplogger
+      - id: obj/c2/infrastructure/domain::iplogger-domain
       - id: obj/discovery/network/scan::iplogger-keyword
       - id: obj/discovery/network/scan::iplogger-b64
       - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger
@@ -25,7 +25,7 @@ composite_rules:
     all:
       - id: cap/comm/http/lib/requests::requests-python
     any:
-      - id: obj/discovery/network/scan::iplogger
+      - id: obj/c2/infrastructure/domain::iplogger-domain
       - id: obj/discovery/network/scan::iplogger-keyword
       - id: obj/discovery/network/scan::iplogger-b64
 
@@ -34,6 +34,6 @@ composite_rules:
     all:
       - id: cap/comm/http/request::request
     any:
-      - id: obj/discovery/network/scan::iplogger
+      - id: obj/c2/infrastructure/domain::iplogger-domain
       - id: obj/discovery/network/scan::iplogger-keyword
       - id: obj/discovery/network/scan::iplogger-b64

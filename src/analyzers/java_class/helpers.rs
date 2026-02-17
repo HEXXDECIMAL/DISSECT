@@ -1,5 +1,6 @@
 //! Helper functions for Java class analysis.
 
+#[allow(dead_code)] // Used by tests
 impl super::JavaClassAnalyzer {
     pub(super) fn major_to_java_version(major: u16) -> String {
         match major {

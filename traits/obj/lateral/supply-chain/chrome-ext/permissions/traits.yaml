@@ -87,7 +87,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: setUninstallURL
-      - id: obj/lateral/supply-chain/chrome-ext/api::chrome-runtime
+      - id: obj/lateral/supply-chain/chrome-ext/markers::chrome-runtime
 
   # Sensitive data access in extension
   - id: sensitive-data-access
@@ -96,7 +96,7 @@ composite_rules:
     conf: 0.85
     for: [javascript]
     all:
-      - id: obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context
+      - id: obj/lateral/supply-chain/chrome-ext/markers::chrome-extension-context
     needs: 2
     any:
       - id: chrome-cookies

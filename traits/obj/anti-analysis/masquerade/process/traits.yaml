@@ -7,15 +7,9 @@ defaults:
   platforms: [linux]
 
 traits:
-  # === prctl PR_SET_NAME micro-traits ===
-  - id: prctl-symbol
-    desc: prctl function reference
-    crit: notable
-    conf: 0.8
-    if:
-      type: symbol
-      regex: "prctl"
+  # prctl-symbol: use obj/anti-analysis/masquerade/identity::prctl-symbol (canonical)
 
+  # === prctl PR_SET_NAME micro-traits ===
   - id: pr-set-name-const
     desc: PR_SET_NAME constant reference
     crit: notable
@@ -176,7 +170,7 @@ composite_rules:
     attack: "T1036.004"
     for: [elf]
     any:
-      - id: prctl-symbol
+      - id: obj/anti-analysis/masquerade/identity::prctl-symbol
       - id: pr-set-name-const
       - id: prctl-syscall-x64
 

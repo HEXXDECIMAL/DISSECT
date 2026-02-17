@@ -4,19 +4,19 @@ use anyhow::{bail, Result};
 use std::collections::HashSet;
 
 #[derive(Debug)]
-pub struct ClassInfo {
+pub(crate) struct ClassInfo {
     pub strings: HashSet<String>,
     pub class_refs: HashSet<String>,
     pub methods: Vec<MethodInfo>,
 }
 
 #[derive(Debug)]
-pub struct MethodInfo {
+pub(crate) struct MethodInfo {
     pub name: String,
 }
 
 #[derive(Debug, Clone)]
-pub enum ConstantPoolEntry {
+pub(crate) enum ConstantPoolEntry {
     Empty,
     Utf8(String),
     Class(u16),

@@ -16,7 +16,8 @@ use sha2::{Digest, Sha256};
 /// ```ignore
 /// let sha256 = calculate_sha256(content.as_bytes());
 /// ```
-pub fn calculate_sha256(data: &[u8]) -> String {
+#[must_use] 
+pub(crate) fn calculate_sha256(data: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(data);
     format!("{:x}", hasher.finalize())
@@ -39,7 +40,8 @@ pub fn calculate_sha256(data: &[u8]) -> String {
 /// let feature = create_language_feature("python", "tree-sitter-python", "Python script");
 /// report.structure.push(feature);
 /// ```
-pub fn create_language_feature(
+#[must_use] 
+pub(crate) fn create_language_feature(
     language: &str,
     parser_name: &str,
     description: &str,
@@ -56,25 +58,6 @@ pub fn create_language_feature(
     }
 }
 
-/// Standard analysis pipeline steps that all tree-sitter analyzers should follow.
-///
-/// This documents the common pattern - individual analyzers implement these as methods:
-///
-/// 1. Parse source with tree-sitter
-/// 2. Create TargetInfo with calculate_sha256()
-/// 3. Create AnalysisReport
-/// 4. Add language structural feature with create_language_feature()
-/// 5. Detect capabilities (analyzer-specific)
-/// 6. Extract functions (analyzer-specific)
-/// 7. Extract symbols for rule matching
-/// 8. Analyze paths and environment variables
-/// 9. Compute metrics
-/// 10. Evaluate traits and composite rules
-/// 11. Record analysis duration
-///
-/// See individual language analyzers for examples (python, ruby, php, etc.)
-#[derive(Debug)]
-pub struct AnalysisPipeline;
 
 #[cfg(test)]
 mod tests {

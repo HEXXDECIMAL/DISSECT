@@ -8,11 +8,11 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 /// npm package.json analyzer for detecting supply chain attacks
 #[derive(Debug)]
-pub struct PackageJsonAnalyzer {
+pub(crate) struct PackageJsonAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
 }
 
@@ -56,20 +56,23 @@ enum Repository {
 }
 
 impl PackageJsonAnalyzer {
-    pub fn new() -> Self {
+    #[must_use] 
+    pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
         }
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
     }
@@ -731,11 +734,11 @@ impl PackageJsonAnalyzer {
         }
 
         // Check for obfuscated names (random characters)
-        let has_many_numbers = name.chars().filter(|c| c.is_ascii_digit()).count() > 3;
+        let has_many_numbers = name.chars().filter(char::is_ascii_digit).count() > 3;
         let has_random_pattern = name.len() > 10
             && name
                 .chars()
-                .filter(|c| c.is_ascii_alphanumeric())
+                .filter(char::is_ascii_alphanumeric)
                 .collect::<String>()
                 .chars()
                 .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit());
@@ -956,13 +959,21 @@ impl PackageJsonAnalyzer {
     }
 
     fn extract_urls(&self, text: &str) -> Vec<String> {
-        let url_pattern = regex::Regex::new(r#"https?://[^\s'")\]}>]{1,2048}"#).unwrap();
-        url_pattern.find_iter(text).map(|m| m.as_str().to_string()).collect()
+        #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+        fn url_pattern() -> &'static regex::Regex {
+            static RE: OnceLock<regex::Regex> = OnceLock::new();
+            RE.get_or_init(|| regex::Regex::new(r#"https?://[^\s'")\]}>]{1,2048}"#).unwrap())
+        }
+        url_pattern().find_iter(text).map(|m| m.as_str().to_string()).collect()
     }
 
     fn extract_ips(&self, text: &str) -> Vec<String> {
-        let ip_pattern = regex::Regex::new(r"\b(?:\d{1,3}\.){3}\d{1,3}\b").unwrap();
-        ip_pattern
+        #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+        fn ip_pattern() -> &'static regex::Regex {
+            static RE: OnceLock<regex::Regex> = OnceLock::new();
+            RE.get_or_init(|| regex::Regex::new(r"\b(?:\d{1,3}\.){3}\d{1,3}\b").unwrap())
+        }
+        ip_pattern()
             .find_iter(text)
             .map(|m| m.as_str().to_string())
             .filter(|ip| {
@@ -977,9 +988,12 @@ impl PackageJsonAnalyzer {
     }
 
     fn extract_paths(&self, text: &str) -> Vec<String> {
-        let path_pattern =
-            regex::Regex::new(r#"(?-u)/[a-zA-Z0-9_./-]+|(?-u)\\[a-zA-Z0-9_.\\-]+"#).unwrap();
-        path_pattern
+        #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+        fn path_pattern() -> &'static regex::Regex {
+            static RE: OnceLock<regex::Regex> = OnceLock::new();
+            RE.get_or_init(|| regex::Regex::new(r#"(?-u)/[a-zA-Z0-9_./-]+|(?-u)\\[a-zA-Z0-9_.\\-]+"#).unwrap())
+        }
+        path_pattern()
             .find_iter(text)
             .map(|m| m.as_str().to_string())
             .filter(|p| p.len() > 3)

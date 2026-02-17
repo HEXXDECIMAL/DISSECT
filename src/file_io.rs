@@ -27,6 +27,7 @@ pub enum FileData {
 
 impl FileData {
     /// Get the data as a byte slice
+    #[must_use] 
     pub fn as_slice(&self) -> &[u8] {
         match self {
             FileData::Mapped(mmap) => mmap,
@@ -35,11 +36,13 @@ impl FileData {
     }
 
     /// Get the length of the data
+    #[must_use] 
     pub fn len(&self) -> usize {
         self.as_slice().len()
     }
 
     /// Check if the data is empty
+    #[must_use] 
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }

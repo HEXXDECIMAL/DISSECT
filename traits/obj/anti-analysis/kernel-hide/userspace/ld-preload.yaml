@@ -141,7 +141,7 @@ traits:
       type: string
       regex: "/proc/[0-9]+"
 
-  # Removed hide-pid-string duplicate - use obj/anti-analysis/kernel-hide/userspace/linux::hide-pid
+  # Removed hide-pid-string duplicate - use obj/anti-analysis/kernel-hide/userspace::hide-pid
 
   - id: hidden-proc-string
     desc: hidden_proc string reference
@@ -277,7 +277,7 @@ composite_rules:
     any:
       - id: dlsym-rtld-next-pattern
     all:
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
       - id: rtld-next-ref
 
   # dlsym RTLD_NEXT pattern (migrated from YARA)
@@ -298,7 +298,7 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
       - id: rtld-next-ref
       - id: cap/os/linker/env::ld-preload
       - id: dlsym-rtld-next-pattern
@@ -353,7 +353,7 @@ composite_rules:
     attack: "T1574.006"
     for: [elf, c]
     any:
-      - id: obj/anti-analysis/kernel-hide/userspace/linux::hide-pid
+      - id: obj/anti-analysis/kernel-hide/userspace::hide-pid
       - id: hidden-proc-string
     none:
       # Exclude botnets/scanners that legitimately read /proc for network enumeration

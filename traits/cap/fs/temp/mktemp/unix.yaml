@@ -12,4 +12,5 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      regex: mktemp|mkstemp|mkstemps|mkdtemp|tmpfile
+      # mkdtemp: use cap/fs/temp/directory/unix.yaml::directory-create (canonical)
+      regex: mktemp|mkstemp|mkstemps|tmpfile

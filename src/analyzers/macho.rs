@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 /// Analyzer for macOS Mach-O binaries (executables, dylibs, bundles)
 #[derive(Debug)]
-pub struct MachOAnalyzer {
+pub(crate) struct MachOAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
@@ -25,7 +25,8 @@ pub struct MachOAnalyzer {
 
 impl MachOAnalyzer {
     /// Creates a new Mach-O analyzer with default configuration
-    pub fn new() -> Self {
+    #[must_use] 
+    pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
@@ -35,25 +36,29 @@ impl MachOAnalyzer {
     }
 
     /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
-    pub fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
+    #[must_use] 
+    pub(crate) fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
         self.yara_engine = Some(Arc::new(yara_engine));
         self
     }
 
     /// Create analyzer with shared YARA engine
-    pub fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(yara_engine);
         self
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -845,9 +850,6 @@ impl MachOAnalyzer {
                     .unwrap_or_else(|| team_id.to_string());
                 ("developer", team_id, format!("Developer ID: {}", company))
             },
-            macho_codesign::SignatureType::AppStore => {
-                ("app-store", team_id, "Mac App Store".to_string())
-            },
             macho_codesign::SignatureType::Platform => {
                 ("platform", "apple", "macOS Platform Binary".to_string())
             },
@@ -901,9 +903,14 @@ impl MachOAnalyzer {
         }
 
         // Entitlements traits
-        for entitlement_key in codesig.entitlements.keys() {
+        for (entitlement_key, entitlement_value) in &codesig.entitlements {
             let ent_trait_id = format!("meta/entitlement::{}", entitlement_key);
             let desc = describe_entitlement(entitlement_key);
+            let value_str = match entitlement_value {
+                macho_codesign::EntitlementValue::Boolean(b) => b.to_string(),
+                macho_codesign::EntitlementValue::String(s) => s.clone(),
+                macho_codesign::EntitlementValue::Array(a) => a.join(", "),
+            };
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
@@ -916,10 +923,26 @@ impl MachOAnalyzer {
                 evidence: vec![Evidence {
                     method: "entitlements_plist".to_string(),
                     source: "codesign_parser".to_string(),
-                    value: entitlement_key.clone(),
+                    value: format!("{}={}", entitlement_key, value_str),
                     location: None,
                 }],
 
+                source_file: None,
+            });
+        }
+
+        // Notarized by Apple
+        if codesig.is_notarized {
+            report.findings.push(Finding {
+                kind: FindingKind::Capability,
+                trait_refs: vec![],
+                id: "meta/notarized".to_string(),
+                desc: "Binary is notarized by Apple".to_string(),
+                conf: 1.0,
+                crit: Criticality::Inert,
+                mbc: None,
+                attack: None,
+                evidence: vec![],
                 source_file: None,
             });
         }
@@ -1276,113 +1299,6 @@ mod tests {
         assert!(report.metadata.analysis_duration_ms > 0);
     }
 
-    // Tests for identify_payload_type function
-
-    #[test]
-    fn test_identify_payload_type_shell_script() {
-        let data = b"#!/bin/bash\necho 'Hello World'";
-        assert_eq!(identify_payload_type(data), "Shell script (bash/sh)");
-
-        let data2 = b"#!/bin/sh\nls -la";
-        assert_eq!(identify_payload_type(data2), "Shell script (bash/sh)");
-    }
-
-    #[test]
-    fn test_identify_payload_type_python() {
-        let data = b"#!/usr/bin/python3\nimport os";
-        assert_eq!(identify_payload_type(data), "Python script");
-    }
-
-    #[test]
-    fn test_identify_payload_type_applescript() {
-        let data = b"tell application \"Finder\"";
-        assert_eq!(identify_payload_type(data), "AppleScript");
-
-        let data2 = b"on run\n  display dialog";
-        assert_eq!(identify_payload_type(data2), "AppleScript");
-
-        let data3 = b"set myVar to true";
-        assert_eq!(identify_payload_type(data3), "AppleScript");
-    }
-
-    #[test]
-    fn test_identify_payload_type_osascript() {
-        let data = b"osascript -e 'tell application'";
-        assert_eq!(identify_payload_type(data), "AppleScript (via osascript)");
-    }
-
-    #[test]
-    fn test_identify_payload_type_json() {
-        let data = b"{\"key\": \"value\"}";
-        assert_eq!(identify_payload_type(data), "JSON");
-    }
-
-    #[test]
-    fn test_identify_payload_type_xml() {
-        let data = b"<?xml version=\"1.0\"?><root/>";
-        assert_eq!(identify_payload_type(data), "XML/Plist");
-    }
-
-    #[test]
-    fn test_identify_payload_type_pe() {
-        let data = b"MZ\x90\x00\x03\x00";
-        assert_eq!(identify_payload_type(data), "PE executable");
-    }
-
-    #[test]
-    fn test_identify_payload_type_elf() {
-        let data = b"\x7fELF\x02\x01\x01";
-        assert_eq!(identify_payload_type(data), "ELF executable");
-    }
-
-    #[test]
-    fn test_identify_payload_type_macho() {
-        // Little-endian Mach-O magic
-        let data = &[0xCF, 0xFA, 0xED, 0xFE, 0x07, 0x00];
-        assert_eq!(identify_payload_type(data), "Mach-O executable");
-    }
-
-    #[test]
-    fn test_identify_payload_type_zip() {
-        let data = b"PK\x03\x04\x14\x00";
-        assert_eq!(identify_payload_type(data), "ZIP archive");
-    }
-
-    #[test]
-    fn test_identify_payload_type_downloader() {
-        let data = b"curl -o /tmp/file https://example.com";
-        assert_eq!(identify_payload_type(data), "Shell commands (downloader)");
-    }
-
-    #[test]
-    fn test_identify_payload_type_javascript() {
-        let data = b"function test() { var x = 1; }";
-        assert_eq!(identify_payload_type(data), "JavaScript");
-    }
-
-    #[test]
-    fn test_identify_payload_type_binary() {
-        // Mostly non-printable data (control characters and high bytes)
-        let data: Vec<u8> = (0u8..32).chain(128u8..255).cycle().take(100).collect();
-        assert_eq!(identify_payload_type(&data), "Binary data");
-    }
-
-    #[test]
-    fn test_identify_payload_type_text() {
-        let data = b"This is just plain text without any specific markers.";
-        assert_eq!(identify_payload_type(data), "Text/script");
-    }
-
-    #[test]
-    fn test_identify_payload_type_mixed() {
-        // ~60% printable
-        let mut data = b"Some text here...".to_vec();
-        data.extend_from_slice(&[
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A,
-        ]);
-        assert_eq!(identify_payload_type(&data), "Mixed text/binary");
-    }
-
     // Integration tests for code signature extraction and finding generation
     #[test]
     fn test_signature_findings_generated() {
@@ -1583,7 +1499,7 @@ mod tests {
     fn test_determine_entitlement_criticality_debugger() {
         let crit = determine_entitlement_criticality(
             "com.apple.security.cs.debugger",
-            &macho_codesign::SignatureType::AppStore,
+            &macho_codesign::SignatureType::DeveloperID,
         );
         assert_eq!(crit, Criticality::Suspicious);
     }

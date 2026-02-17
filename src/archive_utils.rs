@@ -5,7 +5,7 @@ use std::path::Path;
 use crate::analyzers::{archive::ArchiveAnalyzer, Analyzer};
 
 /// Check if a file is an archive based on extension
-pub fn is_archive(path: &Path) -> bool {
+pub(crate) fn is_archive(path: &Path) -> bool {
     let analyzer = ArchiveAnalyzer::new();
     analyzer.can_analyze(path)
 }

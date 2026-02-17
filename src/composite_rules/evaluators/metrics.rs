@@ -14,7 +14,8 @@ use crate::types::Evidence;
 
 /// Evaluate metrics condition - check computed metrics against thresholds
 /// Field path examples: "identifiers.avg_entropy", "functions.density_per_100_lines"
-pub fn eval_metrics<'a>(
+#[must_use] 
+pub(crate) fn eval_metrics<'a>(
     field: &str,
     min: Option<f64>,
     max: Option<f64>,
@@ -29,7 +30,6 @@ pub fn eval_metrics<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -40,7 +40,6 @@ pub fn eval_metrics<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -53,7 +52,6 @@ pub fn eval_metrics<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -302,7 +300,6 @@ pub fn eval_metrics<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -340,7 +337,6 @@ pub fn eval_metrics<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }

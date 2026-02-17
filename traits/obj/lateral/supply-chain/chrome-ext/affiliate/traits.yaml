@@ -162,7 +162,7 @@ composite_rules:
     attack: "T1565.001"
     for: [javascript]
     all:
-      - id: obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context
+      - id: obj/lateral/supply-chain/chrome-ext/markers::chrome-extension-context
       - id: ext-mutation-observer
       - id: href-assignment
       - id: url-param-modification

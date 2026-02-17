@@ -150,7 +150,7 @@ traits:
       regex: "\\.PIPE\\b"
 
   # === Interactive shell micro-traits ===
-  # Removed isatty-call duplicate - use cap/process/terminal/tty/traits::isatty (symbol works for all file types)
+  # Removed isatty-call duplicate - use cap/process/terminal/tty::isatty (symbol works for all file types)
 
   - id: ttyname-call
     desc: ttyname function call
@@ -327,7 +327,7 @@ composite_rules:
     any:
       - id: net-socket-node
       - id: socket-connect-node
-      - id: websocket-ref
+      - id: cap/comm/http/websocket::websocket-class
 
   # Node.js PTY shell (migrated from YARA)
   - id: node-pty
@@ -387,7 +387,7 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: cap/process/terminal/tty/traits::isatty
+      - id: cap/process/terminal/tty::isatty
       - id: ttyname-call
       - id: cap/fs/path/device/terminal::dev-tty
 
@@ -415,7 +415,7 @@ composite_rules:
     any:
       - id: tty-markers
       - id: terminal-setup
-      - id: cap/process/terminal/tty/traits::isatty
+      - id: cap/process/terminal/tty::isatty
       - id: ttyname-call
       - id: cap/fs/path/device/terminal::dev-tty
       - id: stty-cmd

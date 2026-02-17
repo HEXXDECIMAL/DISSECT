@@ -12,45 +12,45 @@
 //!
 //! Each analyzer implements the `Analyzer` trait for consistent interface.
 
-pub mod applescript;
-pub mod archive;
-pub mod ast_walker;
+pub(crate) mod applescript;
+pub(crate) mod archive;
+pub(crate) mod ast_walker;
 
 // Universal metrics analyzers
-pub mod comment_metrics;
-pub mod function_metrics;
-pub mod identifier_metrics;
-pub mod import_metrics;
-pub mod string_metrics;
-pub mod symbol_extraction;
-pub mod text_metrics;
-pub mod utils;
+pub(crate) mod comment_metrics;
+pub(crate) mod function_metrics;
+pub(crate) mod identifier_metrics;
+pub(crate) mod import_metrics;
+pub(crate) mod string_metrics;
+pub(crate) mod symbol_extraction;
+pub(crate) mod text_metrics;
+pub(crate) mod utils;
 
 // Dedicated analyzers for binary/bytecode/manifest formats
-pub mod chrome_manifest;
-pub mod elf;
-pub mod java_class;
-pub mod macho;
-pub mod macho_codesign;
-pub mod package_json;
-pub mod pe;
-pub mod rtf;
-pub mod vsix_manifest;
+pub(crate) mod chrome_manifest;
+pub(crate) mod elf;
+pub(crate) mod java_class;
+pub(crate) mod macho;
+pub(crate) mod macho_codesign;
+pub(crate) mod package_json;
+pub(crate) mod pe;
+pub(crate) mod rtf;
+pub(crate) mod vsix_manifest;
 
 // Unified source analyzer (handles all tree-sitter languages)
-pub mod unified;
+pub(crate) mod unified;
 
 // Fallback for languages without tree-sitter support
-pub mod generic;
+pub(crate) mod generic;
 
 // Embedded code detector (analyzes code found in strings)
-pub mod embedded_code_detector;
+pub(crate) mod embedded_code_detector;
 
 // Overlay data analyzer (self-extracting archives)
-pub mod overlay;
+pub(crate) mod overlay;
 
 use crate::capabilities::CapabilityMapper;
-use crate::types::{AnalysisReport, Criticality, Evidence, Finding, FindingKind, TargetInfo};
+use crate::types::AnalysisReport;
 use anyhow::Result;
 use std::path::Path;
 use std::sync::Arc;
@@ -65,7 +65,7 @@ use std::sync::Arc;
 /// - AppleScript (compiled binary format)
 ///
 /// Returns None only for Archive (which requires special ArchiveAnalyzer config).
-pub fn analyzer_for_file_type(
+pub(crate) fn analyzer_for_file_type(
     file_type: &FileType,
     mapper: Option<CapabilityMapper>,
 ) -> Option<Box<dyn Analyzer>> {
@@ -136,7 +136,8 @@ pub fn analyzer_for_file_type(
 /// Create an analyzer for the given file type with a shared capability mapper.
 ///
 /// Same as `analyzer_for_file_type` but accepts an Arc to avoid cloning.
-pub fn analyzer_for_file_type_arc(
+#[must_use]
+pub(crate) fn analyzer_for_file_type_arc(
     file_type: &FileType,
     mapper: Option<Arc<CapabilityMapper>>,
 ) -> Option<Box<dyn Analyzer>> {
@@ -207,79 +208,6 @@ pub fn analyzer_for_file_type_arc(
     }
 }
 
-/// Safe wrapper for tree-sitter parsing that catches crashes and reports them as HOSTILE findings.
-///
-/// This function wraps tree-sitter parsing with panic handling. If the parser crashes (e.g., due to
-/// adversarial input designed to exploit parser bugs), it catches the panic and returns a report
-/// with a HOSTILE "parser-crash" finding instead of crashing the entire analysis.
-///
-/// # Arguments
-/// * `parser_fn` - Closure that performs the parsing
-/// * `file_path` - Path to the file being parsed
-/// * `parser_name` - Name of the parser (e.g., "tree-sitter-javascript")
-/// * `file_type` - File type string (e.g., "javascript")
-/// * `content_len` - Length of content in bytes
-/// * `sha256` - SHA256 hash of the content
-///
-/// # Returns
-/// * `Ok(Some(tree))` - Parsing succeeded
-/// * `Ok(None)` - Parsing failed gracefully (parse returned None)
-/// * `Err(report)` - Parser crashed, returns hostile finding report
-pub fn safe_treesitter_parse<F, T>(
-    parser_fn: F,
-    file_path: &Path,
-    parser_name: &str,
-    file_type: &str,
-    content_len: usize,
-    sha256: String,
-) -> Result<Option<T>, Box<AnalysisReport>>
-where
-    F: FnOnce() -> Option<T> + std::panic::UnwindSafe,
-{
-    let parse_result = std::panic::catch_unwind(parser_fn);
-
-    match parse_result {
-        Ok(Some(tree)) => Ok(Some(tree)),
-        Ok(None) => Ok(None),
-        Err(_panic_info) => {
-            // Parser crashed - emit warning and return HOSTILE finding report
-            eprintln!(
-                "⚠️  WARNING: {} crashed while parsing {:?} (HOSTILE anti-analysis detected)",
-                parser_name, file_path
-            );
-
-            let target = TargetInfo {
-                path: file_path.display().to_string(),
-                file_type: file_type.to_string(),
-                size_bytes: content_len as u64,
-                sha256,
-                architectures: None,
-            };
-
-            let mut report = AnalysisReport::new(target);
-            report.findings.push(Finding {
-                id: "anti-analysis/parser-crash/treesitter-crash".to_string(),
-                kind: FindingKind::Indicator,
-                desc: "Code that crashes tree-sitter parser (anti-analysis)".to_string(),
-                conf: 0.95,
-                crit: Criticality::Hostile,
-                mbc: Some("B0001".to_string()),
-                attack: None,
-                trait_refs: Vec::new(),
-                evidence: vec![Evidence {
-                    method: "panic_detection".to_string(),
-                    source: parser_name.to_string(),
-                    value: "parser_crash".to_string(),
-                    location: Some("parse".to_string()),
-                }],
-
-                source_file: None,
-            });
-
-            Err(Box::new(report))
-        },
-    }
-}
 
 /// Trait for file analyzers
 pub trait Analyzer {
@@ -292,7 +220,8 @@ pub trait Analyzer {
 
 /// Detect file type from path/extension only (no file access needed)
 /// This is useful for archive entries that don't exist on disk
-pub fn detect_file_type_from_path(file_path: &Path) -> FileType {
+#[must_use] 
+pub(crate) fn detect_file_type_from_path(file_path: &Path) -> FileType {
     // Check by filename first (for manifest files)
     if let Some(file_name) = file_path.file_name() {
         let name = file_name.to_string_lossy().to_lowercase();
@@ -824,7 +753,8 @@ fn looks_like_shell(data: &[u8]) -> bool {
 
 /// Check if file content matches its extension's expected magic bytes
 /// Returns (expected_type, actual_type_hint) if mismatch detected
-pub fn check_extension_content_mismatch(
+#[must_use]
+pub(crate) fn check_extension_content_mismatch(
     file_path: &Path,
     file_data: &[u8],
 ) -> Option<(String, String)> {
@@ -975,56 +905,100 @@ pub fn check_extension_content_mismatch(
     None
 }
 
+/// File type detected by magic bytes, extension, and content analysis
 #[derive(Debug, Clone, PartialEq)]
 pub enum FileType {
+    /// Mach-O binary (macOS/iOS executable or library)
     MachO,
+    /// ELF binary (Linux/Unix executable or shared library)
     Elf,
+    /// PE binary (Windows executable)
     Pe,
+    /// Unix shell script (bash, sh, zsh, etc.)
     Shell,
-    Batch, // Windows batch files (.bat, .cmd)
+    /// Windows batch file (.bat, .cmd)
+    Batch,
+    /// Python source file (.py)
     Python,
+    /// JavaScript source file (.js, .mjs, .cjs)
     JavaScript,
+    /// TypeScript source file (.ts, .tsx)
     TypeScript,
+    /// Go source file (.go)
     Go,
+    /// Rust source file (.rs)
     Rust,
-    Java,      // .java source files
-    JavaClass, // .class bytecode files
-    Jar,       // .jar/.war/.ear archives
+    /// Java source file (.java)
+    Java,
+    /// Compiled Java bytecode (.class)
+    JavaClass,
+    /// Java archive (.jar, .war, .ear)
+    Jar,
+    /// Ruby source file (.rb)
     Ruby,
+    /// PHP source file (.php)
     Php,
+    /// Perl source file (.pl, .pm)
     Perl,
+    /// Lua source file (.lua)
     Lua,
+    /// C# source file (.cs)
     CSharp,
+    /// PowerShell script (.ps1, .psm1)
     PowerShell,
+    /// Swift source file (.swift)
     Swift,
+    /// Objective-C source file (.m, .mm)
     ObjectiveC,
+    /// Groovy source file (.groovy)
     Groovy,
+    /// Scala source file (.scala)
     Scala,
+    /// Zig source file (.zig)
     Zig,
+    /// Elixir source file (.ex, .exs)
     Elixir,
+    /// C source file (.c, .h)
     C,
-    PackageJson,    // npm package.json manifest
-    VsixManifest,   // VSCode extension.vsixmanifest
-    ChromeManifest, // Chrome extension manifest.json
-    CargoToml,      // Rust Cargo.toml manifest
-    PyProjectToml,  // Python pyproject.toml manifest
-    ComposerJson,   // PHP composer.json manifest
-    GithubActions,  // GitHub Actions workflow YAML
-    PkgInfo,        // Python package metadata (PKG-INFO, METADATA)
+    /// npm package.json manifest
+    PackageJson,
+    /// VSCode extension manifest (.vsixmanifest)
+    VsixManifest,
+    /// Chrome extension manifest.json
+    ChromeManifest,
+    /// Rust Cargo.toml manifest
+    CargoToml,
+    /// Python pyproject.toml manifest
+    PyProjectToml,
+    /// PHP composer.json manifest
+    ComposerJson,
+    /// GitHub Actions workflow YAML
+    GithubActions,
+    /// Python package metadata (PKG-INFO, METADATA)
+    PkgInfo,
+    /// Archive file (zip, tar, gz, etc.)
     Archive,
+    /// AppleScript source file (.applescript, .scpt)
     AppleScript,
+    /// Apple Property List (.plist)
     Plist,
-    Rtf,         // Rich Text Format documents
-    Certificate, // X.509 / DER certificates
+    /// Rich Text Format document (.rtf)
+    Rtf,
+    /// X.509 / DER certificate file
+    Certificate,
+    /// JPEG image
     Jpeg,
+    /// PNG image
     Png,
+    /// File type could not be determined
     Unknown,
 }
 
 impl FileType {
     /// Returns true if this file type represents executable code (binaries, scripts, etc.)
     /// as opposed to data files (images, documents, etc.)
-    pub fn is_program(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn is_program(&self) -> bool {
         match self {
             FileType::MachO
             | FileType::Elf
@@ -1073,7 +1047,8 @@ impl FileType {
 
     /// Returns true if this file type represents source code with AST support.
     /// These file types extract strings via AST parsing for accuracy.
-    pub fn is_source_code(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn is_source_code(&self) -> bool {
         matches!(
             self,
             FileType::Python
@@ -1093,7 +1068,8 @@ impl FileType {
 
     /// Get YARA rule filetypes that are relevant for this file type
     /// Returns a list of filetype identifiers to match against YARA metadata
-    pub fn yara_filetypes(&self) -> Vec<&'static str> {
+    #[must_use] 
+    pub(crate) fn yara_filetypes(&self) -> Vec<&'static str> {
         match self {
             FileType::MachO => vec!["macho", "elf", "so"],
             FileType::Elf => vec!["elf", "so", "ko"],

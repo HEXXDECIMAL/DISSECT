@@ -44,7 +44,7 @@ fn supports_ast(file_type: FileType) -> bool {
 /// Evaluate unified AST condition
 /// Handles both simple mode (kind/node + exact/substr/regex) and advanced mode (query)
 #[allow(clippy::too_many_arguments)]
-pub fn eval_ast<'a>(
+pub(crate) fn eval_ast<'a>(
     kind: Option<&str>,
     node: Option<&str>,
     exact: Option<&str>,
@@ -59,7 +59,6 @@ pub fn eval_ast<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -91,7 +90,6 @@ pub fn eval_ast<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -101,7 +99,6 @@ pub fn eval_ast<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -114,7 +111,6 @@ pub fn eval_ast<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -172,7 +168,6 @@ pub fn eval_ast<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -184,7 +179,6 @@ pub fn eval_ast<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -196,7 +190,6 @@ pub fn eval_ast<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -227,7 +220,6 @@ fn eval_ast_pattern_multi(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
         };
@@ -241,7 +233,6 @@ fn eval_ast_pattern_multi(
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
@@ -302,7 +293,6 @@ fn eval_ast_pattern_multi(
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
-        traits: Vec::new(),
         warnings,
         precision,
     }
@@ -340,7 +330,8 @@ fn walk_ast_for_pattern_multi<'a>(
 }
 
 /// Evaluate full tree-sitter query condition
-pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
+#[must_use] 
+pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Only works for source code files
     let source = match std::str::from_utf8(ctx.binary_data) {
         Ok(s) => s,
@@ -348,7 +339,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -381,7 +371,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -393,7 +382,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -405,7 +393,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -417,7 +404,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
         };
@@ -430,7 +416,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -502,7 +487,6 @@ pub fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> Condi
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision: 2.0, // Tree-sitter queries are complex and specific
     }

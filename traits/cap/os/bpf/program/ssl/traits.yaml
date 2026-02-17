@@ -178,7 +178,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: cap/comm/socket/options/unix::options-filter
+      - id: cap/comm/socket/options::options-filter
       - id: cap/os/bpf/program/network::so-attach-bpf
 
   # Raw socket helper

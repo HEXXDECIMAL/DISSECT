@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: cap/os/kernel/api::dynamic-resolution
+      - id: cap/os/kernel/routines::dynamic-resolution
     any:
       - id: cap/os/kernel/hiding/exec::thread-manipulation-enc
       - id: cap/os/kernel/hiding/mem::mem-protect-enc
@@ -18,4 +18,4 @@ composite_rules:
     conf: 0.8
     all:
       - id: cap/fs/path/system::system32-bin
-      - id: cap/os/kernel/api::dynamic-resolution
+      - id: cap/os/kernel/routines::dynamic-resolution

@@ -17,13 +17,7 @@ traits:
       type: string
       regex: "/usr/sbin/sshd"
 
-  - id: kill-target-crond
-    desc: Cron daemon path reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/usr/sbin/crond"
+  # kill-target-crond: use obj/anti-analysis/masquerade/process::fake-crond-path (canonical path ref)
 
   - id: kill-target-telnetd
     desc: Telnet daemon path reference
@@ -107,7 +101,7 @@ composite_rules:
     needs: 4  # At least 4 different kill targets
     any:
       - id: kill-target-sshd
-      - id: kill-target-crond
+      - id: obj/anti-analysis/masquerade/process::fake-crond-path
       - id: kill-target-telnetd
       - id: kill-target-httpd
       - id: kill-target-syslogd

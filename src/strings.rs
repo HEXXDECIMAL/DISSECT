@@ -42,59 +42,107 @@ fn stng_method_to_string(method: StringMethod) -> String {
     .to_string()
 }
 
-// Static regex patterns compiled once
-static URL_REGEX: OnceLock<Regex> = OnceLock::new();
-static IP_REGEX: OnceLock<Regex> = OnceLock::new();
-static VERSION_IP_REGEX: OnceLock<Regex> = OnceLock::new();
-static EMAIL_REGEX: OnceLock<Regex> = OnceLock::new();
-static BASE64_REGEX: OnceLock<Regex> = OnceLock::new();
-
+// Static regex helper functions - patterns compiled once on first use
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
+#[allow(dead_code)] // Used internally by string classification
 fn url_regex() -> &'static Regex {
-    URL_REGEX.get_or_init(|| {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
         Regex::new(r"(?i)(https?|ftp)://[^\s<>]{1,2048}").expect("url regex is valid")
     })
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
+#[allow(dead_code)] // Used internally by string classification
 fn ip_regex() -> &'static Regex {
-    IP_REGEX.get_or_init(|| {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
         Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").expect("ip regex is valid")
     })
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
+#[allow(dead_code)] // Used internally by string classification
 fn version_ip_regex() -> &'static Regex {
-    VERSION_IP_REGEX.get_or_init(|| {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
         Regex::new(r"(?i)(?:Chrome|Safari|Firefox|Edge|Opera|Chromium|Version|AppleWebKit|KHTML|Gecko|Trident|OPR|Mobile|MSIE|rv:|v)/\d+\.\d+\.\d+\.\d+")
             .expect("version_ip regex is valid")
     })
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
+#[allow(dead_code)] // Used internally by string classification
 fn email_regex() -> &'static Regex {
-    EMAIL_REGEX.get_or_init(|| {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
         Regex::new(r"[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,63}")
             .expect("email regex is valid")
     })
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
+#[allow(dead_code)] // Used internally by string classification
 fn base64_regex() -> &'static Regex {
-    BASE64_REGEX.get_or_init(|| {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| {
         Regex::new(r"^[A-Za-z0-9+/]{16,65536}={0,2}$").expect("base64 regex is valid")
     })
 }
 
 /// Extract and classify strings from binary data
 #[derive(Debug)]
-pub struct StringExtractor {
+pub(crate) struct StringExtractor {
     min_length: usize,
     // Unified map for O(1) classification: normalized_name -> (Type, Optional Library)
     symbol_map: HashMap<String, (StringType, Option<String>)>,
 }
 
+#[allow(dead_code)] // Public API used by main.rs binary
 impl StringExtractor {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             min_length: 4,
             symbol_map: HashMap::new(),
         }
+    }
+
+    pub(crate) fn with_min_length(mut self, min_length: usize) -> Self {
+        self.min_length = min_length;
+        self
+    }
+
+    pub(crate) fn with_functions(mut self, functions: HashSet<String>) -> Self {
+        for func in &functions {
+            let normalized = Self::normalize_symbol(func);
+            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
+        }
+        self
+    }
+
+    pub(crate) fn with_imports(mut self, imports: HashSet<String>) -> Self {
+        for imp in &imports {
+            let normalized = Self::normalize_symbol(imp);
+            self.symbol_map.insert(normalized, (StringType::Import, None));
+        }
+        self
+    }
+
+    pub(crate) fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
+        // Update existing imports in symbol_map with library info
+        for (imp, lib) in import_libraries {
+            let normalized = Self::normalize_symbol(&imp);
+            self.symbol_map.insert(normalized, (StringType::Import, Some(lib)));
+        }
+        self
+    }
+
+    pub(crate) fn with_exports(mut self, exports: HashSet<String>) -> Self {
+        for exp in &exports {
+            let normalized = Self::normalize_symbol(exp);
+            self.symbol_map.insert(normalized, (StringType::Export, None));
+        }
+        self
     }
 
     fn normalize_symbol(sym: &str) -> String {
@@ -106,7 +154,7 @@ impl StringExtractor {
     }
 
     /// Extract all strings from binary data
-    pub fn extract(&self, data: &[u8], section_name: Option<String>) -> Vec<StringInfo> {
+    pub(crate) fn extract(&self, data: &[u8], section_name: Option<String>) -> Vec<StringInfo> {
         let mut strings = Vec::new();
         let mut current_string = Vec::new();
         let mut string_offset = 0;
@@ -161,7 +209,7 @@ impl StringExtractor {
     /// 1. Attempts language-aware extraction for Go/Rust binaries
     /// 2. Falls back to basic ASCII extraction for other binaries
     /// 3. Merges results from both methods, deduplicating by value
-    pub fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
+    pub(crate) fn extract_smart(&self, data: &[u8]) -> Vec<StringInfo> {
         // Build stng options with garbage filtering enabled
         let opts = ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
 
@@ -201,7 +249,7 @@ impl StringExtractor {
     ///
     /// * `data` - The raw binary data
     /// * `r2_strings` - Optional pre-extracted radare2 strings
-    pub fn extract_smart_with_r2(
+    pub(crate) fn extract_smart_with_r2(
         &self,
         data: &[u8],
         r2_strings: Option<Vec<R2String>>,
@@ -229,7 +277,7 @@ impl StringExtractor {
     }
 
     /// Check if the binary is a Go binary (useful for conditional processing)
-    pub fn is_go_binary(&self, data: &[u8]) -> bool {
+    pub(crate) fn is_go_binary(&self, data: &[u8]) -> bool {
         stng::is_go_binary(data)
     }
 
@@ -239,7 +287,7 @@ impl StringExtractor {
     /// Use `extract_smart_with_r2` instead for comprehensive extraction.
     ///
     /// This avoids re-parsing the binary in stng since DISSECT already parsed it.
-    pub fn extract_from_macho<'a>(
+    pub(crate) fn extract_from_macho<'a>(
         &self,
         macho: &MachO<'a>,
         data: &[u8],
@@ -336,7 +384,7 @@ impl StringExtractor {
     }
     /// Classify a string's type without creating a StringInfo object
     /// NOTE: This is now redundant since we use stng's classification directly
-    pub fn classify_string_type(&self, value: &str) -> StringType {
+    pub(crate) fn classify_string_type(&self, value: &str) -> StringType {
         let normalized = Self::normalize_symbol(value);
         if let Some((stype, _)) = self.symbol_map.get(&normalized) {
             return *stype;

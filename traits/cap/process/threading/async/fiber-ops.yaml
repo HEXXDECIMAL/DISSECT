@@ -1,55 +1,6 @@
 # Fiber Local Storage Operations
 # Detects use of FLS instead of TLS
 # Generic indicator for sophisticated thread pool malware
-
-traits:
-  # Removed duplicates - use obj/exec/native/api versions:
-  # - tls-alloc (FlsAlloc)
-  # - tls-get-value (FlsGetValue)
-  # - tls-set-value (FlsSetValue)
-  # - tls-free (FlsFree)
-
-composite_rules:
-  - id: fiber-local-storage-ops
-    desc: Fiber-based thread local storage
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [pe]
-    attack: "T1129"
-    needs: 2
-    any:
-      - id: obj/exec/native/api::tls-alloc
-      - id: obj/exec/native/api::tls-get-value
-      - id: obj/exec/native/api::tls-set-value
-    downgrade:
-      any:
-        - id: meta/quality/versioned
-
-  - id: thread-pool-based-malware
-    desc: Thread pool with fiber-based scheduling
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [pe]
-    attack: "T1129"
-    all:
-      - id: fiber-local-storage-ops
-      - id: cap/process/thread/create
-    downgrade:
-      any:
-        - id: meta/quality/versioned
-
-  - id: fiber-dispatch-framework
-    desc: Fiber-based dispatch and scheduling framework
-    crit: notable
-    conf: 0.85
-    platforms: [windows]
-    for: [pe]
-    attack: "T1129"
-    all:
-      - id: thread-pool-based-malware
-      - id: cap/process/create/
-    downgrade:
-      any:
-        - id: meta/quality/versioned
+#
+# FLS trait definitions live in obj/exec/native/api (FlsAlloc, FlsGetValue, FlsSetValue).
+# Composite detection rules for fiber-based malware are in obj/exec/native/runtime/suspicious.yaml.

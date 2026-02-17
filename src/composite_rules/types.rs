@@ -5,77 +5,125 @@ use serde::{Deserialize, Serialize};
 /// Platform specifier for trait targeting
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
-pub enum Platform {
+pub(crate) enum Platform {
+    /// Applies to all platforms
     All,
+    /// Linux operating system
     Linux,
+    /// macOS operating system
     MacOS,
+    /// Windows operating system
     Windows,
+    /// Any Unix-like operating system
     Unix,
+    /// Android mobile OS
     Android,
+    /// iOS mobile OS
     Ios,
 }
 
 /// File type specifier for rule targeting
 #[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[serde(rename_all = "lowercase")]
-pub enum FileType {
+pub(crate) enum FileType {
+    /// Applies to all file types
     All,
-    // Binary formats
+    /// ELF binary (Linux/Unix executable or shared library)
     Elf,
+    /// Mach-O binary (macOS/iOS executable or library)
     Macho,
+    /// PE binary (Windows executable)
     Pe,
+    /// macOS dynamic library (.dylib)
     Dylib,
+    /// Linux shared object (.so)
     So,
+    /// Windows dynamic-link library (.dll)
     Dll,
-    Class, // Java bytecode
-    // Source code formats
+    /// Java bytecode class file
+    Class,
+    /// Unix shell script (bash, sh, zsh, etc.)
     Shell,
+    /// Windows batch script (.bat, .cmd)
     Batch,
+    /// Python source file
     Python,
+    /// JavaScript source file
     JavaScript,
+    /// TypeScript source file
     TypeScript,
+    /// Rust source file
     Rust,
+    /// Java source file
     Java,
+    /// Ruby source file
     Ruby,
+    /// C source file
     C,
+    /// C++ source file
     Cpp,
+    /// Go source file
     Go,
+    /// PHP source file
     Php,
+    /// C# source file
     CSharp,
+    /// Lua source file
     Lua,
+    /// Perl source file
     Perl,
+    /// PowerShell script
     PowerShell,
+    /// Swift source file
     Swift,
+    /// Objective-C source file
     ObjectiveC,
+    /// Groovy source file
     Groovy,
+    /// Scala source file
     Scala,
+    /// Zig source file
     Zig,
+    /// Elixir source file
     Elixir,
+    /// AppleScript source file
     AppleScript,
+    /// VBScript source file
     Vbs,
+    /// HTML file
     Html,
-    // Manifest/config formats
-    PackageJson,    // npm package.json
-    ChromeManifest, // Chrome extension manifest.json
-    CargoToml,      // Rust Cargo.toml
-    PyProjectToml,  // Python pyproject.toml
-    GithubActions,  // GitHub Actions workflow YAML
-    ComposerJson,   // PHP composer.json
-    PkgInfo,        // Python package metadata
-    Plist,          // Apple Property List
-    Rtf,            // Rich Text Format
-    // Archive/installer formats (not extractable by DISSECT)
-    Ipa, // iOS App Package
-    // Generic formats
-    Text, // Plain text files
-    // Image formats
+    /// npm package.json manifest
+    PackageJson,
+    /// Chrome extension manifest.json
+    ChromeManifest,
+    /// Rust Cargo.toml manifest
+    CargoToml,
+    /// Python pyproject.toml manifest
+    PyProjectToml,
+    /// GitHub Actions workflow YAML
+    GithubActions,
+    /// PHP composer.json manifest
+    ComposerJson,
+    /// Python package metadata (PKG-INFO, METADATA)
+    PkgInfo,
+    /// Apple Property List (.plist)
+    Plist,
+    /// Rich Text Format (.rtf)
+    Rtf,
+    /// iOS App Package (.ipa) - not extractable by DISSECT
+    Ipa,
+    /// Plain text file
+    Text,
+    /// JPEG image
     Jpeg,
+    /// PNG image
     Png,
 }
 
 impl FileType {
     /// Returns true if this file type is source code (not a compiled binary)
-    pub fn is_source_code(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn is_source_code(&self) -> bool {
         matches!(
             self,
             FileType::Shell
@@ -107,7 +155,8 @@ impl FileType {
     }
 
     /// Returns a list of all concrete file types (excluding All)
-    pub fn all_concrete_variants() -> Vec<FileType> {
+    #[must_use] 
+    pub(crate) fn all_concrete_variants() -> Vec<FileType> {
         vec![
             // Binary formats
             FileType::Elf,
@@ -165,12 +214,14 @@ impl FileType {
 }
 
 /// Default platforms for rules (all platforms)
-pub fn default_platforms() -> Vec<Platform> {
+#[must_use] 
+pub(crate) fn default_platforms() -> Vec<Platform> {
     vec![Platform::All]
 }
 
 /// Default file types for rules (all file types)
-pub fn default_file_types() -> Vec<FileType> {
+#[must_use] 
+pub(crate) fn default_file_types() -> Vec<FileType> {
     vec![FileType::All]
 }
 

@@ -10,7 +10,8 @@ use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 
 /// Evaluate structure condition
-pub fn eval_structure<'a>(
+#[must_use] 
+pub(crate) fn eval_structure<'a>(
     feature: &str,
     min_sections: Option<usize>,
     ctx: &EvaluationContext<'a>,
@@ -43,7 +44,6 @@ pub fn eval_structure<'a>(
     ConditionResult {
         matched,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -58,7 +58,8 @@ pub fn eval_structure<'a>(
 ///   e.g., "terminate" matches "exec/process::terminate"
 /// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory
 ///   e.g., "anti-static/obfuscation" matches "anti-static/obfuscation::python-hex"
-pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
+#[must_use] 
+pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Check if this is a specific trait reference (contains ::)
     let is_specific = id.contains("::");
 
@@ -76,7 +77,6 @@ pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult 
         return ConditionResult {
             matched: true,
             evidence,
-            traits: vec![id.to_string()],
             warnings: Vec::new(),
             precision: 1.0,
         };
@@ -87,7 +87,6 @@ pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult 
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -114,7 +113,6 @@ pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult 
             return ConditionResult {
                 matched: true,
                 evidence,
-                traits: vec![id.to_string()],
                 warnings: Vec::new(),
                 precision: 1.0,
             };
@@ -140,7 +138,6 @@ pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult 
             return ConditionResult {
                 matched: true,
                 evidence,
-                traits: vec![id.to_string()],
                 warnings: Vec::new(),
                 precision: 1.0,
             };
@@ -150,50 +147,14 @@ pub fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult 
     ConditionResult {
         matched: false,
         evidence: Vec::new(),
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision: 0.0,
     }
 }
 
-/// Evaluate a filesize condition
-pub fn eval_filesize<'a>(
-    min: Option<usize>,
-    max: Option<usize>,
-    ctx: &EvaluationContext<'a>,
-) -> ConditionResult {
-    let size = ctx.binary_data.len();
-    let matched = min.is_none_or(|m| size >= m) && max.is_none_or(|m| size <= m);
-
-    // Calculate precision: base 1.0 + 0.5 each for min/max
-    let mut precision = 1.0f32;
-    if min.is_some() {
-        precision += 0.5;
-    }
-    if max.is_some() {
-        precision += 0.5;
-    }
-
-    ConditionResult {
-        matched,
-        evidence: if matched {
-            vec![Evidence {
-                method: "filesize".to_string(),
-                source: "binary".to_string(),
-                value: format!("{} bytes", size),
-                location: None,
-            }]
-        } else {
-            Vec::new()
-        },
-        traits: Vec::new(),
-        warnings: Vec::new(),
-        precision,
-    }
-}
-
 /// Evaluate a basename condition - match against the final path component
-pub fn eval_basename<'a>(
+#[must_use] 
+pub(crate) fn eval_basename<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
@@ -257,96 +218,8 @@ pub fn eval_basename<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
 }
 
-/// Evaluate a trait glob condition - match multiple traits by glob pattern
-pub fn eval_trait_glob<'a>(
-    pattern: &str,
-    match_mode: &str,
-    ctx: &EvaluationContext<'a>,
-) -> ConditionResult {
-    // Convert glob pattern to regex (simple: * -> .*, ? -> .)
-    let regex_pattern = format!(
-        "^{}$",
-        pattern.replace('.', "\\.").replace('*', ".*").replace('?', ".")
-    );
-
-    let re = match regex::Regex::new(&regex_pattern) {
-        Ok(r) => r,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                traits: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        },
-    };
-
-    // Find all matching trait IDs from the report's findings
-    let mut matched_traits = Vec::new();
-    let mut all_evidence = Vec::new();
-
-    // Check findings in the report
-    for finding in &ctx.report.findings {
-        if re.is_match(&finding.id) {
-            matched_traits.push(finding.id.clone());
-            all_evidence.push(Evidence {
-                method: "trait_glob".to_string(),
-                source: pattern.to_string(),
-                value: finding.id.clone(),
-                location: None,
-            });
-        }
-    }
-
-    // Also check additional_findings if available (for composite chaining)
-    if let Some(additional) = ctx.additional_findings {
-        for finding in additional {
-            if re.is_match(&finding.id) && !matched_traits.contains(&finding.id) {
-                matched_traits.push(finding.id.clone());
-                all_evidence.push(Evidence {
-                    method: "trait_glob".to_string(),
-                    source: pattern.to_string(),
-                    value: finding.id.clone(),
-                    location: None,
-                });
-            }
-        }
-    }
-
-    let count = matched_traits.len();
-
-    // Determine if matched based on match mode
-    let matched = match match_mode {
-        "any" => count >= 1,
-        "all" => {
-            // "all" means all matching traits must be present - but we found them, so true if any
-            // This is a bit tricky - "all" in YARA means all strings with prefix matched
-            // Since we don't know the total set, we treat "all" as "at least 1"
-            // For true "all" semantics, users should list traits explicitly
-            count >= 1
-        },
-        n => {
-            // Parse as number
-            n.parse::<usize>().map(|required| count >= required).unwrap_or(false)
-        },
-    };
-
-    // Calculate precision: use 1.0 base for glob pattern matching
-    // Glob patterns are less specific than exact trait references
-    let precision = if matched { 0.5 } else { 0.0 };
-
-    ConditionResult {
-        matched,
-        evidence: if matched { all_evidence } else { Vec::new() },
-        traits: matched_traits,
-        warnings: Vec::new(),
-        precision,
-    }
-}

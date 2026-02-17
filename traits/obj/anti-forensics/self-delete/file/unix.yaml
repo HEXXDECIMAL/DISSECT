@@ -25,4 +25,4 @@ composite_rules:
     any:
       - id: self-delete-unlink  # Explicit unlink
       - id: cap/fs/path/temp::tmp-hidden-file  # Hidden temp file (lock/state)
-      - id: obj/persist/daemon/init::daemon-dev-null  # Daemonization
+      - id: cap/fs/path/device::dev-null  # Daemonization

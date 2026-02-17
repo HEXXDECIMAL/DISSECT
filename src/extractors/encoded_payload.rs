@@ -9,13 +9,12 @@
 
 use crate::analyzers::FileType;
 use crate::types::Criticality;
-use regex::Regex;
 use std::io::Write;
 use std::path::PathBuf;
 
 /// Represents an extracted payload
 #[derive(Debug)]
-pub struct ExtractedPayload {
+pub(crate) struct ExtractedPayload {
     /// Path to temp file containing decoded content
     pub temp_path: PathBuf,
     /// Chain of encodings (e.g., ["base64", "zlib"])
@@ -28,34 +27,10 @@ pub struct ExtractedPayload {
     pub original_offset: usize,
 }
 
-/// Types of extracted payloads
-#[derive(Debug, PartialEq, Clone)]
-pub enum PayloadType {
-    Python,
-    Shell,
-    Binary,
-    Certificate,
-    Unknown,
-}
-
-impl From<PayloadType> for FileType {
-    fn from(pt: PayloadType) -> Self {
-        match pt {
-            PayloadType::Python => FileType::Python,
-            PayloadType::Shell => FileType::Shell,
-            PayloadType::Binary => FileType::Unknown, // Binary needs more detection
-            PayloadType::Certificate => FileType::Certificate,
-            PayloadType::Unknown => FileType::Unknown,
-        }
-    }
-}
-
 /// Maximum recursion depth for nested encoding
 const MAX_RECURSION_DEPTH: usize = 3;
 /// Minimum decoded payload length to consider (24 bytes)
 const MIN_PAYLOAD_LENGTH: usize = 24;
-/// Minimum hex string length for whole-file hex detection
-const MIN_HEX_LENGTH: usize = 100;
 
 /// Encoding methods from stng that represent decoded content
 const DECODED_METHODS: &[stng::StringMethod] = &[
@@ -87,54 +62,11 @@ fn method_to_encoding_name(method: stng::StringMethod) -> &'static str {
     }
 }
 
-/// Check if content is entirely hex-encoded (common obfuscation technique)
-/// Must be at least MIN_HEX_LENGTH characters and 100% hex digits (optionally with whitespace)
-pub fn is_hex_encoded(content: &[u8]) -> bool {
-    if content.len() < MIN_HEX_LENGTH {
-        return false;
-    }
-
-    // Check if it's ASCII
-    if !content.iter().all(|&b| b.is_ascii()) {
-        return false;
-    }
-
-    let s = String::from_utf8_lossy(content);
-    let hex_chars = s.chars().filter(|c| c.is_ascii_hexdigit()).count();
-    let whitespace = s.chars().filter(|c| c.is_ascii_whitespace()).count();
-    let total = s.chars().count();
-
-    // Must be at least 95% hex digits (allowing some whitespace)
-    hex_chars + whitespace >= total && hex_chars as f64 / total as f64 >= 0.95
-}
-
-/// Decode hex-encoded content
-pub fn decode_hex(content: &[u8]) -> Option<Vec<u8>> {
-    let s = String::from_utf8_lossy(content);
-    let hex_only: String = s.chars().filter(|c| c.is_ascii_hexdigit()).collect();
-
-    // Must have even number of hex digits
-    if !hex_only.len().is_multiple_of(2) {
-        return None;
-    }
-
-    // Pre-allocate exact capacity needed (2 hex chars = 1 byte)
-    let mut decoded = Vec::with_capacity(hex_only.len() / 2);
-    for i in (0..hex_only.len()).step_by(2) {
-        let byte_str = &hex_only[i..i + 2];
-        if let Ok(byte) = u8::from_str_radix(byte_str, 16) {
-            decoded.push(byte);
-        } else {
-            return None;
-        }
-    }
-
-    Some(decoded)
-}
 
 /// Check if a string is a valid base64 candidate (for nested detection)
 /// Uses MIN_PAYLOAD_LENGTH (24 bytes) for nested detection
-pub fn is_base64_candidate(s: &str) -> bool {
+#[must_use] 
+pub(crate) fn is_base64_candidate(s: &str) -> bool {
     // Check minimum length (lower threshold for nested detection)
     if s.len() < MIN_PAYLOAD_LENGTH {
         return false;
@@ -235,7 +167,8 @@ fn decompress_if_compressed(data: &[u8]) -> Option<(Vec<u8>, String)> {
 /// Decode base64 string, checking for and decompressing zlib or gzip if present
 /// Returns the decoded data and the compression algorithm used (if any)
 /// NOTE: This is kept for nested decoding only. Initial base64 detection uses stng.
-pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
+#[must_use] 
+pub(crate) fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     // Strip whitespace before decoding
@@ -252,127 +185,10 @@ pub fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     Some((decoded, None))
 }
 
-/// Detect the type of payload from decoded content
-pub fn detect_payload_type(data: &[u8]) -> PayloadType {
-    // Check for binary (ELF, Mach-O, PE) or DER certificates first
-    if data.len() > 4 {
-        // ELF magic: 0x7F 'E' 'L' 'F'
-        if data[0] == 0x7F && data[1] == b'E' && data[2] == b'L' && data[3] == b'F' {
-            return PayloadType::Binary;
-        }
-        // Mach-O magic: 0xFEEDFACE or 0xFEEDFACF or 0xCAFEBABE
-        if (data[0] == 0xFE
-            && data[1] == 0xED
-            && data[2] == 0xFA
-            && (data[3] == 0xCE || data[3] == 0xCF))
-            || (data[0] == 0xCA && data[1] == 0xFE && data[2] == 0xBA && data[3] == 0xBE)
-        {
-            return PayloadType::Binary;
-        }
-        // PE magic: 'M' 'Z'
-        if data[0] == b'M' && data[1] == b'Z' {
-            return PayloadType::Binary;
-        }
-
-        // Check for DER certificate (X.509)
-        // Starts with 0x30 0x82 (for certs > 256 bytes) or 0x30 0x81
-        if data[0] == 0x30 && (data[1] == 0x82 || data[1] == 0x81) {
-            return PayloadType::Certificate;
-        }
-    }
-
-    // Check if it's valid UTF-8 (text) or binary
-    let text = match std::str::from_utf8(data) {
-        Ok(s) => s,
-        Err(_) => {
-            // High entropy suggests binary
-            if calculate_entropy(data) > 7.5 {
-                return PayloadType::Binary;
-            }
-            return PayloadType::Unknown;
-        },
-    };
-
-    // Check for Python indicators
-    // Primary indicators (strong signals) using regex to avoid false positives in text
-    let python_indicators = [
-        r"\bimport\s+\w+",
-        r"\bfrom\s+\w+\s+import\b",
-        r"\bdef\s+\w+\s*\(",
-        r"\bclass\s+\w+",
-        r"\bexec\s*\(",
-        r"\beval\s*\(",
-        r"\bsys\.",
-        r"\bos\.",
-        r#"__name__\s*==\s*['"]__main__['"]"#,
-    ];
-
-    for pattern in &python_indicators {
-        if let Ok(re) = Regex::new(pattern) {
-            if re.is_match(text) {
-                return PayloadType::Python;
-            }
-        }
-    }
-
-    // Check for shell script indicators
-    if text.starts_with("#!/bin/bash")
-        || text.starts_with("#!/bin/sh")
-        || text.starts_with("#!/usr/bin/env bash")
-    {
-        return PayloadType::Shell;
-    }
-
-    let shell_indicators = [
-        r"\b(curl|wget)\s+", // removed echo/chmod which are common in docs
-        r"\|\s*(grep|sh|bash|python|php|base64|sed|awk)\b",
-        r"\bif\s*\[\s*",
-        r"\bfor\s+\w+\s+in\b",
-        r"\bexport\s+\w+=",
-    ];
-
-    for pattern in &shell_indicators {
-        if let Ok(re) = Regex::new(pattern) {
-            if re.is_match(text) {
-                return PayloadType::Shell;
-            }
-        }
-    }
-
-    // Fallback for strong shell combos
-    if text.contains("echo ") && (text.contains("$") || text.contains("|")) {
-        return PayloadType::Shell;
-    }
-
-    PayloadType::Unknown
-}
-
-/// Calculate Shannon entropy of data
-fn calculate_entropy(data: &[u8]) -> f64 {
-    if data.is_empty() {
-        return 0.0;
-    }
-
-    let mut counts = [0u64; 256];
-    for &byte in data {
-        counts[byte as usize] += 1;
-    }
-
-    let len = data.len() as f64;
-    let mut entropy = 0.0;
-
-    for &count in &counts {
-        if count > 0 {
-            let p = count as f64 / len;
-            entropy -= p * p.log2();
-        }
-    }
-
-    entropy
-}
 
 /// Generate a preview string (first 40 chars, printable only)
-pub fn generate_preview(data: &[u8]) -> String {
+#[must_use] 
+pub(crate) fn generate_preview(data: &[u8]) -> String {
     // Check if data is printable ASCII
     let is_printable = data.iter().take(40).all(|&b| {
         b.is_ascii_alphanumeric()
@@ -540,15 +356,10 @@ fn decompress_and_nest(
 }
 
 /// Generate virtual filename for extracted payload
-pub fn generate_virtual_filename(original: &str, payload: &ExtractedPayload) -> String {
-    let encoding = payload.encoding_chain.join("+");
-    let index = 0; // TODO: Track index properly
-    format!("{}!{}#{}", original, encoding, index)
-}
 
 /// Extract all encoded payloads from stng-extracted strings
 /// stng_strings should be the result of calling stng::extract_strings_with_options() once
-pub fn extract_encoded_payloads(stng_strings: &[stng::ExtractedString]) -> Vec<ExtractedPayload> {
+pub(crate) fn extract_encoded_payloads(stng_strings: &[stng::ExtractedString]) -> Vec<ExtractedPayload> {
     let mut payloads = Vec::new();
 
     // Filter for decoded strings from ANY encoding method

@@ -107,25 +107,33 @@ traits:
       regex: clock_settime
     platforms: [unix, linux, macos]
 
-  - id: utimes
-    desc: Change file access and modification
-    crit: notable
-    mbc: "F0005"
-    attack: "T1070.006"
-    conf: 0.7
+  # utimes/utimensat/futimens: use cap/fs/file/timestamp::utimes-syscall etc. (canonical)
+
+  - id: sleep-func
+    desc: Sleep for specified duration
+    crit: inert
+    conf: 0.3
     if:
       type: symbol
-      regex: utimes|utimensat|futimens
+      exact: "sleep"
+    platforms: [unix, linux, macos, windows]
+
+  - id: usleep-func
+    desc: Sleep for microsecond duration
+    crit: inert
+    conf: 0.3
+    if:
+      type: symbol
+      exact: "usleep"
     platforms: [unix, linux, macos]
 
-  # Sleep/delay functions
-  - id: sleep
-    desc: Suspend execution for interval
+  - id: nanosleep-func
+    desc: Sleep for nanosecond duration
     crit: inert
-    conf: 0.4
+    conf: 0.3
     if:
       type: symbol
-      regex: sleep|usleep|nanosleep
+      exact: "nanosleep"
     platforms: [unix, linux, macos]
 
 composite_rules:
@@ -137,3 +145,25 @@ composite_rules:
       - id: cap/os/time/query::localtime-symbol
       - id: cap/os/time/query::localtime-string
     platforms: [unix, linux, macos, windows]
+
+  - id: utimes
+    desc: Change file access and modification times
+    crit: notable
+    mbc: "F0005"
+    attack: "T1070.006"
+    conf: 0.7
+    platforms: [unix, linux, macos]
+    any:
+      - id: cap/fs/file/timestamp::utimes-syscall
+      - id: cap/fs/file/timestamp::utimensat-syscall
+      - id: cap/fs/file/timestamp::futimens-syscall
+
+  - id: sleep
+    desc: Suspend execution for interval
+    crit: inert
+    conf: 0.4
+    platforms: [unix, linux, macos]
+    any:
+      - id: cap/os/time/query::sleep-func
+      - id: cap/os/time/query::usleep-func
+      - id: cap/os/time/query::nanosleep-func

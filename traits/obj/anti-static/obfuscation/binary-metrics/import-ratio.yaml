@@ -45,10 +45,10 @@ composite_rules:
       - id: max-30-imports
     any:
       # Has dynamic loading (hiding real imports)
-      - id: obj/exec/native/api::load-library-a
-      - id: obj/exec/native/api::get-proc-address
+      - id: cap/dylib/load::load-library-a
+      - id: cap/dylib/lookup::get-proc-address
       - id: cap/dylib/load::dlopen
-      - id: cap/dylib/load::dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
 
   - id: huge-file-tiny-imports
     desc: Huge binary with minimal imports
@@ -62,8 +62,8 @@ composite_rules:
       - id: max-25-imports
     needs: 2
     any:
-      - id: obj/exec/native/api::load-library-a
-      - id: obj/exec/native/api::get-proc-address
+      - id: cap/dylib/load::load-library-a
+      - id: cap/dylib/lookup::get-proc-address
       - id: cap/crypto
       - id: cap/process/create/shell
 

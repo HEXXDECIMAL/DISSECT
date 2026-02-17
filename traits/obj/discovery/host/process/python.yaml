@@ -73,13 +73,7 @@ traits:
       type: string
       substr: "charles"
 
-  - id: fiddler-proc
-    desc: Fiddler proxy process name
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "fiddler"
+  # fiddler-proc: use obj/anti-analysis/sandbox/detect::fiddler (canonical)
 
 composite_rules:
   # Shell process enumeration
@@ -102,7 +96,7 @@ composite_rules:
       - id: vbox-proc
       - id: vmware-proc
       - id: charles-proc
-      - id: fiddler-proc
+      - id: obj/anti-analysis/sandbox/detect::fiddler
 
   - id: anti-analysis-recon
     desc: Process-based anti-analysis/recon (psutil + sensitive

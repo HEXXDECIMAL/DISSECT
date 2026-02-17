@@ -82,15 +82,9 @@ traits:
       regex: "Open3\\.(capture|popen)"
 
   # === Eval patterns ===
-  # NOTE: eval-call moved to obj/exec/eval/dynamic (content type, not string)
+  # NOTE: eval-call moved to obj/exec/interpreter/eval/dynamic (content type, not string)
 
-  - id: instance-eval
-    desc: instance_eval call
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      word: "instance_eval"
+  # instance-eval duplicate removed - use obj/exec/interpreter/eval/dynamic::instance-eval
 
   # Removed class-eval duplicate - use obj/exec/interpreter/eval/dynamic::class-eval
 
@@ -260,8 +254,8 @@ composite_rules:
     conf: 0.75
     any:
       - id: obj/exec/interpreter/eval/dynamic::eval-call-ruby
-      - id: instance-eval
-      - id: class-eval
+      - id: obj/exec/interpreter/eval/dynamic::instance-eval
+      - id: obj/exec/interpreter/eval/dynamic::class-eval
 
   - id: base64-imports
     desc: Base64 encoding operations

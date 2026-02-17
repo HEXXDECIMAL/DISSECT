@@ -39,14 +39,15 @@ traits:
       regex: "alias_method"
 
   # === HTTP Cookie Access ===
+  # HTTP_COOKIE: use obj/c2/webshell/script/ruby.yaml::http-cookie-extract (canonical)
   - id: http-cookie-access
-    desc: HTTP cookie access
+    desc: HTTP cookie access (lowercase form)
     crit: notable
     conf: 0.75
     attack: "T1190"
     if:
       type: string
-      regex: "http_cookie|HTTP_COOKIE"
+      substr: "http_cookie"
 
   # === Cookie Pattern Extraction ===
   - id: cookie-pattern-extract

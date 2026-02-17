@@ -32,6 +32,7 @@ impl Default for MemoryTracker {
 
 impl MemoryTracker {
     /// Create a new memory tracker
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             total_bytes_read: AtomicU64::new(0),
@@ -137,6 +138,7 @@ impl MemoryTracker {
 
 /// Get current RSS (Resident Set Size) in bytes
 /// Returns None if unable to determine
+#[must_use] 
 pub fn get_current_rss() -> Option<u64> {
     #[cfg(target_os = "linux")]
     {
@@ -271,6 +273,7 @@ pub fn log_after_file_processing(file_path: &str, file_size: u64, duration: Dura
 }
 
 /// Start a periodic memory logging task
+#[must_use] 
 pub fn start_periodic_logging(interval: Duration) -> std::thread::JoinHandle<()> {
     std::thread::spawn(move || {
         loop {

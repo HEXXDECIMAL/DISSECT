@@ -25,7 +25,8 @@ traits:
     conf: 0.5
     if:
       type: symbol
-      regex: http_post|POST|HttpPost
+      # POST: use cap/comm/http/post/generic.yaml::post-method (canonical)
+      regex: http_post|HttpPost
 
   # Removed user-agent-custom duplicate - use cap/comm/http/request::user-agent-header
 

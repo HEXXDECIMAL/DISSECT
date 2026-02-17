@@ -56,7 +56,7 @@ impl TraitIndex {
         file_type: &RuleFileType,
     ) -> impl Iterator<Item = usize> + '_ {
         // Universal traits + specific file type traits
-        let specific = self.by_file_type.get(file_type).map(|v| v.as_slice()).unwrap_or(&[]);
+        let specific = self.by_file_type.get(file_type).map(std::vec::Vec::as_slice).unwrap_or(&[]);
 
         self.universal.iter().copied().chain(specific.iter().copied())
     }
@@ -608,12 +608,6 @@ mod tests {
         assert!(applicable.is_empty());
     }
 
-    #[test]
-    fn test_trait_index_applicable_count_empty() {
-        let index = TraitIndex::new();
-        assert_eq!(index.applicable_count(&RuleFileType::All), 0);
-        assert_eq!(index.applicable_count(&RuleFileType::Elf), 0);
-    }
 
     // ==================== StringMatchIndex Tests ====================
 

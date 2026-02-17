@@ -13,7 +13,7 @@ traits:
     if:
       type: symbol
       # Match only the actual system() function, not std::filesystem or other symbols
-      regex: "^system$"
+      exact: "system"
     platforms: [unix, linux, macos]
     for: [binaries]
 
@@ -53,27 +53,20 @@ traits:
     for: [binaries]
 
   # Windows
-  - id: win-createprocess
-    desc: Creates new process via Windows
+  # win-createprocess: CreateProcessA -> cap/process/create/spawn::create-process-a (canonical)
+  # win-createprocess: CreateProcessW -> cap/process/create/spawn::create-process-w (canonical)
+  # win-shellexecute: ShellExecuteA -> cap/process/create/methods::shell-execute-a (canonical)
+  # win-shellexecute: ShellExecuteW -> cap/process/create/methods::shell-execute (canonical)
+  # win-shellexecute: ShellExecuteExW -> cap/process/create/methods::shell-execute-ex (canonical)
+  - id: shell-execute-ex-a
+    desc: ShellExecuteExA ANSI extended API
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
     conf: 0.9
     if:
       type: symbol
-      regex: CreateProcessA|CreateProcessW
-    platforms: [windows]
-    for: [pe, dll]
-
-  - id: win-shellexecute
-    desc: Executes file or program via
-    crit: notable
-    mbc: "E1059.003"
-    attack: "T1059.003"
-    conf: 0.9
-    if:
-      type: symbol
-      regex: ShellExecuteA|ShellExecuteW|ShellExecuteExA|ShellExecuteExW
+      exact: "ShellExecuteExA"
     platforms: [windows]
     for: [pe, dll]
 
@@ -219,3 +212,32 @@ traits:
     if:
       type: string
       regex: 'open -a \w+'
+
+composite_rules:
+  # win-createprocess: composite referencing canonical process creation traits
+  - id: win-createprocess
+    desc: Creates new process via Windows API
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.9
+    platforms: [windows]
+    for: [pe, dll]
+    any:
+      - id: cap/process/create/spawn::create-process-a
+      - id: cap/process/create/spawn::create-process-w
+
+  # win-shellexecute: composite referencing canonical shell execute traits
+  - id: win-shellexecute
+    desc: Executes file or program via Windows ShellExecute API
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.9
+    platforms: [windows]
+    for: [pe, dll]
+    any:
+      - id: cap/process/create/methods::shell-execute-a
+      - id: cap/process/create/methods::shell-execute
+      - id: cap/process/create/methods::shell-execute-ex
+      - id: shell-execute-ex-a

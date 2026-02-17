@@ -17,7 +17,7 @@ use walkdir::WalkDir;
 
 /// YARA-X engine for pattern-based detection
 #[derive(Debug)]
-pub struct YaraEngine {
+pub(crate) struct YaraEngine {
     rules: Option<yara_x::Rules>,
     capability_mapper: CapabilityMapper,
     /// Namespaces that are from third-party rules (marked as suspicious)
@@ -26,7 +26,8 @@ pub struct YaraEngine {
 
 impl YaraEngine {
     /// Create a new YARA engine without rules loaded
-    pub fn new() -> Self {
+    #[must_use] 
+    pub(crate) fn new() -> Self {
         Self {
             rules: None,
             capability_mapper: CapabilityMapper::new(),
@@ -35,7 +36,8 @@ impl YaraEngine {
     }
 
     /// Create a new YARA engine with a pre-existing capability mapper (avoids duplicate loading)
-    pub fn new_with_mapper(capability_mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn new_with_mapper(capability_mapper: CapabilityMapper) -> Self {
         Self {
             rules: None,
             capability_mapper,
@@ -44,13 +46,13 @@ impl YaraEngine {
     }
 
     /// Set the capability mapper (useful for injecting after parallel loading)
-    pub fn set_capability_mapper(&mut self, capability_mapper: CapabilityMapper) {
+    pub(crate) fn set_capability_mapper(&mut self, capability_mapper: CapabilityMapper) {
         self.capability_mapper = capability_mapper;
     }
 
     /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/yara)
     /// Uses cache if available and valid
-    pub fn load_all_rules(&mut self, enable_third_party: bool) -> Result<(usize, usize)> {
+    pub(crate) fn load_all_rules(&mut self, enable_third_party: bool) -> Result<(usize, usize)> {
         let _span = tracing::info_span!("load_yara_rules").entered();
         tracing::info!("Loading YARA rules");
         // Try to load from cache
@@ -175,7 +177,7 @@ impl YaraEngine {
         let rule_files: Vec<PathBuf> = WalkDir::new(dir)
             .follow_links(false)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|entry| {
                 let path = entry.path();
                 path.is_file()
@@ -236,6 +238,7 @@ impl YaraEngine {
     }
 
     /// Extract namespace from file path with prefix
+    #[allow(dead_code)] // Used by tests
     fn extract_namespace_with_prefix(&self, path: &Path, prefix: &str) -> String {
         let path_str = path.to_string_lossy();
 
@@ -265,6 +268,7 @@ impl YaraEngine {
 
     /// Normalize a filetype string for use as a cache suffix
     /// Simplifies types like "application/x-sh" to "sh"
+    #[allow(dead_code)] // Used by tests
     fn normalize_filetype_for_cache(filetype: &str) -> &str {
         // Remove MIME type prefixes
         if let Some(suffix) = filetype.strip_prefix("application/x-") {
@@ -279,6 +283,7 @@ impl YaraEngine {
 
     /// Check if a YARA rule matches the given file types
     /// Parses the metadata section for "filetype" or "filetypes" fields
+    #[allow(dead_code)] // Used by tests
     fn rule_matches_filetypes(source: &str, filter_types: &[&str]) -> bool {
         // If no metadata section, include the rule (no type restriction)
         if !source.contains("meta:") {
@@ -327,97 +332,8 @@ impl YaraEngine {
         false
     }
 
-    /// Load YARA rules from malcontent rules directory
-    pub fn load_malcontent_rules(&mut self) -> Result<usize> {
-        let home = std::env::var("HOME").context("HOME environment variable not set")?;
-        let rules_path = PathBuf::from(home).join("src/malcontent/rules");
-
-        if !rules_path.exists() {
-            anyhow::bail!("Malcontent rules not found at {}", rules_path.display());
-        }
-
-        self.load_rules_from_directory(&rules_path)
-    }
-
-    /// Load YARA rules from a directory (recursively)
-    pub fn load_rules_from_directory(&mut self, dir: &Path) -> Result<usize> {
-        let mut compiler = yara_x::Compiler::new();
-        let mut count = 0;
-
-        // Walk directory and compile all .yar and .yara files
-        for entry in WalkDir::new(dir).follow_links(false).into_iter().filter_map(|e| e.ok()) {
-            let path = entry.path();
-            if path.is_file() {
-                if let Some(ext) = path.extension() {
-                    if ext == "yar" || ext == "yara" {
-                        match self.compile_rule_file(&mut compiler, path) {
-                            Ok(_) => count += 1,
-                            Err(e) => {
-                                eprintln!("Warning: Failed to compile {}: {}", path.display(), e);
-                            },
-                        }
-                    }
-                }
-            }
-        }
-
-        if count == 0 {
-            anyhow::bail!("No YARA rules found in {}", dir.display());
-        }
-
-        self.rules = Some(compiler.build());
-        Ok(count)
-    }
-
-    /// Load a single YARA rule file
-    pub fn load_rule_file(&mut self, path: &Path) -> Result<()> {
-        let mut compiler = yara_x::Compiler::new();
-        self.compile_rule_file(&mut compiler, path)?;
-        self.rules = Some(compiler.build());
-        Ok(())
-    }
-
-    /// Compile a single rule file into the compiler
-    fn compile_rule_file<'a>(
-        &self,
-        compiler: &mut yara_x::Compiler<'a>,
-        path: &Path,
-    ) -> Result<()> {
-        let bytes =
-            fs::read(path).context(format!("Failed to read rule file: {}", path.display()))?;
-        let source = String::from_utf8_lossy(&bytes);
-
-        // Extract namespace from path and set it
-        let namespace = self.extract_namespace(path);
-        compiler.new_namespace(&namespace);
-
-        compiler
-            .add_source(source.as_bytes())
-            .map_err(|e| anyhow::anyhow!("Failed to compile rule {}: {:?}", path.display(), e))?;
-
-        Ok(())
-    }
-
-    /// Extract namespace from file path
-    fn extract_namespace(&self, path: &Path) -> String {
-        // Get the path relative to rules directory
-        let path_str = path.to_string_lossy();
-
-        // Find "rules/" in the path
-        if let Some(idx) = path_str.find("rules/") {
-            let relative = &path_str[idx + 6..]; // Skip "rules/"
-
-            // Remove filename and extension
-            if let Some(parent) = Path::new(relative).parent() {
-                return parent.to_string_lossy().replace('/', ".");
-            }
-        }
-
-        "default".to_string()
-    }
-
-    /// Scan a file with loaded YARA rules
-    pub fn scan_file(&self, file_path: &Path) -> Result<Vec<YaraMatch>> {
+/// Scan a file with loaded YARA rules
+    pub(crate) fn scan_file(&self, file_path: &Path) -> Result<Vec<YaraMatch>> {
         let _rules = self.rules.as_ref().context("No YARA rules loaded")?;
 
         let data =
@@ -428,12 +344,12 @@ impl YaraEngine {
 
     /// Scan byte data with loaded YARA rules
     /// Optionally filter results by file type
-    pub fn scan_bytes(&self, data: &[u8]) -> Result<Vec<YaraMatch>> {
+    pub(crate) fn scan_bytes(&self, data: &[u8]) -> Result<Vec<YaraMatch>> {
         self.scan_bytes_filtered(data, None)
     }
 
     /// Scan byte data with optional file type filtering
-    pub fn scan_bytes_filtered(
+    pub(crate) fn scan_bytes_filtered(
         &self,
         data: &[u8],
         file_type_filter: Option<&[&str]>,
@@ -583,12 +499,14 @@ impl YaraEngine {
     }
 
     /// Check if rules are loaded
-    pub fn is_loaded(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn is_loaded(&self) -> bool {
         self.rules.is_some()
     }
 
     /// Map YARA match to capability evidence
-    pub fn yara_match_to_evidence(&self, yara_match: &YaraMatch) -> Vec<Evidence> {
+    #[must_use] 
+    pub(crate) fn yara_match_to_evidence(&self, yara_match: &YaraMatch) -> Vec<Evidence> {
         let mut evidence = Vec::new();
 
         for matched_str in &yara_match.matched_strings {
@@ -626,7 +544,8 @@ impl YaraEngine {
 
     /// Map YARA namespace to capability ID
     /// Returns the capability ID if the namespace maps to a known capability
-    pub fn namespace_to_capability(&self, namespace: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn namespace_to_capability(&self, namespace: &str) -> Option<String> {
         // YARA namespace format: exec.cmd, anti-static.obfuscation, etc.
         // Convert to capability ID: exec/command, anti-analysis/obfuscation
         let parts: Vec<&str> = namespace.split('.').collect();
@@ -649,7 +568,7 @@ impl YaraEngine {
 
     /// Scan a file and return both YARA matches and derived findings
     /// This is the main entry point for universal YARA scanning
-    pub fn scan_file_to_findings(
+    pub(crate) fn scan_file_to_findings(
         &self,
         file_path: &Path,
         file_type_filter: Option<&[&str]>,

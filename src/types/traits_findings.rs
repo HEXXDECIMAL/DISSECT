@@ -61,33 +61,6 @@ pub struct Trait {
     pub source: String,
 }
 
-impl Trait {
-    pub fn new(kind: TraitKind, value: String, source: String) -> Self {
-        Self {
-            kind,
-            value,
-            offset: None,
-            encoding: None,
-            section: None,
-            source,
-        }
-    }
-
-    pub fn with_offset(mut self, offset: String) -> Self {
-        self.offset = Some(offset);
-        self
-    }
-
-    pub fn with_encoding(mut self, encoding: String) -> Self {
-        self.encoding = Some(encoding);
-        self
-    }
-
-    pub fn with_section(mut self, section: String) -> Self {
-        self.section = Some(section);
-        self
-    }
-}
 
 /// Kind of finding - what type of conclusion this represents
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -139,6 +112,8 @@ pub struct Finding {
 }
 
 impl Finding {
+    /// Create a new finding with the given identifier, kind, description, and confidence
+    #[must_use]
     pub fn new(id: String, kind: FindingKind, desc: String, conf: f32) -> Self {
         Self {
             id,
@@ -155,54 +130,51 @@ impl Finding {
     }
 
     /// Create a capability finding
+    #[must_use] 
     pub fn capability(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Capability, desc, conf)
     }
 
     /// Create a structural finding (obfuscation, packing, etc.)
+    #[must_use] 
     pub fn structural(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Structural, desc, conf)
     }
 
     /// Create an indicator finding (threat signals)
+    #[must_use] 
     pub fn indicator(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Indicator, desc, conf)
     }
 
-    /// Create a weakness finding (vulnerabilities)
-    pub fn weakness(id: String, desc: String, conf: f32) -> Self {
-        Self::new(id, FindingKind::Weakness, desc, conf)
-    }
-
+    /// Override the criticality level of this finding
+    #[must_use]
     pub fn with_criticality(mut self, crit: Criticality) -> Self {
         self.crit = crit;
         self
     }
 
+    /// Attach a Malware Behavior Catalog (MBC) identifier to this finding
+    #[must_use]
     pub fn with_mbc(mut self, mbc: String) -> Self {
         self.mbc = Some(mbc);
         self
     }
 
+    /// Attach a MITRE ATT&CK technique identifier to this finding
+    #[must_use]
     pub fn with_attack(mut self, attack: String) -> Self {
         self.attack = Some(attack);
         self
     }
 
-    pub fn with_trait_refs(mut self, refs: Vec<String>) -> Self {
-        self.trait_refs = refs;
-        self
-    }
-
+    /// Attach supporting evidence to this finding
+    #[must_use]
     pub fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
         self.evidence = evidence;
         self
     }
 
-    pub fn with_source_file(mut self, source_file: Option<String>) -> Self {
-        self.source_file = source_file;
-        self
-    }
 }
 
 /// Legacy trait structure - being replaced by Artifact + Finding model
@@ -247,6 +219,7 @@ fn truncate_str(s: &str, max_bytes: usize) -> &str {
     &s[..end]
 }
 
+/// A single piece of evidence supporting a finding
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Evidence {
     /// Detection method (symbol, yara, tree-sitter, radare2, entropy, magic, etc.)
@@ -300,60 +273,6 @@ mod tests {
                 }
             }
         }
-    }
-
-    // ==================== Trait Tests ====================
-
-    #[test]
-    fn test_trait_new() {
-        let t = Trait::new(
-            TraitKind::String,
-            "test_value".to_string(),
-            "strings".to_string(),
-        );
-
-        assert_eq!(t.kind, TraitKind::String);
-        assert_eq!(t.value, "test_value");
-        assert_eq!(t.source, "strings");
-        assert!(t.offset.is_none());
-        assert!(t.encoding.is_none());
-        assert!(t.section.is_none());
-    }
-
-    #[test]
-    fn test_trait_with_offset() {
-        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
-            .with_offset("0x1234".to_string());
-
-        assert_eq!(t.offset, Some("0x1234".to_string()));
-    }
-
-    #[test]
-    fn test_trait_with_encoding() {
-        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
-            .with_encoding("utf16le".to_string());
-
-        assert_eq!(t.encoding, Some("utf16le".to_string()));
-    }
-
-    #[test]
-    fn test_trait_with_section() {
-        let t = Trait::new(TraitKind::String, "test".to_string(), "src".to_string())
-            .with_section(".rodata".to_string());
-
-        assert_eq!(t.section, Some(".rodata".to_string()));
-    }
-
-    #[test]
-    fn test_trait_builder_chain() {
-        let t = Trait::new(TraitKind::Import, "malloc".to_string(), "elf".to_string())
-            .with_offset("0x400".to_string())
-            .with_section(".plt".to_string());
-
-        assert_eq!(t.kind, TraitKind::Import);
-        assert_eq!(t.value, "malloc");
-        assert_eq!(t.offset, Some("0x400".to_string()));
-        assert_eq!(t.section, Some(".plt".to_string()));
     }
 
     // ==================== FindingKind Tests ====================
@@ -426,17 +345,6 @@ mod tests {
     }
 
     #[test]
-    fn test_finding_weakness() {
-        let f = Finding::weakness(
-            "vuln/sql-injection".to_string(),
-            "SQL injection".to_string(),
-            0.85,
-        );
-
-        assert_eq!(f.kind, FindingKind::Weakness);
-    }
-
-    #[test]
     fn test_finding_with_criticality() {
         let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
             .with_criticality(Criticality::Hostile);
@@ -458,15 +366,6 @@ mod tests {
             .with_attack("T1059.001".to_string());
 
         assert_eq!(f.attack, Some("T1059.001".to_string()));
-    }
-
-    #[test]
-    fn test_finding_with_trait_refs() {
-        let f = Finding::capability("test".to_string(), "desc".to_string(), 0.9)
-            .with_trait_refs(vec!["trait1".to_string(), "trait2".to_string()]);
-
-        assert_eq!(f.trait_refs.len(), 2);
-        assert!(f.trait_refs.contains(&"trait1".to_string()));
     }
 
     #[test]

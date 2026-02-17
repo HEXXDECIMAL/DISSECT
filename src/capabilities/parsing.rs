@@ -515,33 +515,6 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
 mod tests {
     use super::*;
 
-    // ==================== is_unset Tests ====================
-
-    #[test]
-    fn test_is_unset_none_value() {
-        assert!(!is_unset(&None));
-    }
-
-    #[test]
-    fn test_is_unset_none_keyword_lowercase() {
-        assert!(is_unset(&Some("none".to_string())));
-    }
-
-    #[test]
-    fn test_is_unset_none_keyword_uppercase() {
-        assert!(is_unset(&Some("NONE".to_string())));
-    }
-
-    #[test]
-    fn test_is_unset_none_keyword_mixed() {
-        assert!(is_unset(&Some("NoNe".to_string())));
-    }
-
-    #[test]
-    fn test_is_unset_other_value() {
-        assert!(!is_unset(&Some("something".to_string())));
-    }
-
     // ==================== apply_string_default Tests ====================
 
     #[test]

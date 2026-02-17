@@ -5,15 +5,6 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  # NOTE: Go runtime uses getuid/geteuid legitimately - downgraded to inert
-  - id: get-uid
-    desc: Get user/group identity
-    crit: inert
-    conf: 0.3
-    if:
-      type: symbol
-      regex: getuid|geteuid|getgid|getegid
-
   # NOTE: Go runtime uses getpid/getppid legitimately - downgraded to inert
   - id: get-pid
     desc: Get process ID
@@ -22,3 +13,13 @@ traits:
     if:
       type: symbol
       regex: getpid|getppid
+
+  # get-uid: composite referencing canonical privilege query traits (see composite_rules below)
+
+composite_rules:
+  - id: get-uid
+    desc: Get user or group ID
+    crit: inert
+    conf: 0.3
+    any:
+      - id: cap/process/privilege/query

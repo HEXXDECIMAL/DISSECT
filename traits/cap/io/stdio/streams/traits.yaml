@@ -40,8 +40,8 @@ traits:
       exact: "vprintf"
 
   # === Raw I/O ===
-  # Removed fwrite duplicate - use cap/fs/file/binary/traits::fwrite-func (symbol works across all platforms)
-  # Removed fread duplicate - use cap/fs/file/binary/traits::fread-func (symbol works across all platforms)
+  # Removed fwrite duplicate - use cap/fs/file/binary::fwrite-func (symbol works across all platforms)
+  # Removed fread duplicate - use cap/fs/file/binary::fread-func (symbol works across all platforms)
 
   - id: fopen
     desc: Open file for stdio

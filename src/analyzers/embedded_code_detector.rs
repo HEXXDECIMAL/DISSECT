@@ -41,7 +41,8 @@ const MAX_CODE_ENTROPY: f64 = 7.5;
 /// For strings extracted by stng, classification is already done (no regex needed).
 /// For strings from tree-sitter AST, we classify using stng::classify_string().
 /// Returns Some(FileType) if code is detected, None otherwise.
-pub fn detect_language(string_info: &StringInfo, is_encoded: bool) -> Option<FileType> {
+#[must_use] 
+pub(crate) fn detect_language(string_info: &StringInfo, is_encoded: bool) -> Option<FileType> {
     let value = &string_info.value;
 
     // Size checks
@@ -182,7 +183,8 @@ fn generate_language_trait(
 }
 
 /// Result of analyzing an embedded string
-pub enum EmbeddedAnalysisResult {
+#[derive(Debug)]
+pub(crate) enum EmbeddedAnalysisResult {
     /// Encoded code - becomes a separate layer (FileAnalysis)
     EncodedLayer(Box<FileAnalysis>),
     /// Plain embedded code - findings added to parent
@@ -190,7 +192,7 @@ pub enum EmbeddedAnalysisResult {
 }
 
 /// Analyze a string detected as code
-pub fn analyze_embedded_string(
+pub(crate) fn analyze_embedded_string(
     parent_path: &str,
     string_info: &StringInfo,
     _string_index: usize,
@@ -289,7 +291,7 @@ pub fn analyze_embedded_string(
 /// Returns (encoded_layers, plain_findings):
 /// - encoded_layers: FileAnalysis entries for encoded code (true layers)
 /// - plain_findings: Findings for plain embedded code (added to parent)
-pub fn process_all_strings(
+pub(crate) fn process_all_strings(
     parent_path: &str,
     strings: &[StringInfo],
     capability_mapper: &Arc<CapabilityMapper>,

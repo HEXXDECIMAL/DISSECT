@@ -10,6 +10,6 @@ composite_rules:
     any:
       - id: obj/anti-analysis/debugger/detect::win-comprehensive
       - id: obj/anti-analysis/vm/detect::instruction-based-evasion
-      - id: obj/impact/degrade/edr::terminate-process-api
+      - id: cap/process/terminate/kill::terminate-process
       - id: obj/anti-analysis/vm/detect::multiple-rdtsc-instr
     needs: 1

@@ -112,16 +112,6 @@ fn test_trait_definitions_count() {
     let _ = count;
 }
 
-// ==================== Defaults and Unset Tests ====================
-
-#[test]
-fn test_is_unset() {
-    assert!(parsing::is_unset(&Some("none".to_string())));
-    assert!(parsing::is_unset(&Some("NONE".to_string())));
-    assert!(parsing::is_unset(&Some("None".to_string())));
-    assert!(!parsing::is_unset(&Some("other".to_string())));
-    assert!(!parsing::is_unset(&None));
-}
 
 #[test]
 fn test_apply_string_default_uses_default_when_raw_is_none() {

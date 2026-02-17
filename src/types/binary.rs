@@ -8,26 +8,38 @@ use super::ml_features::{
     FunctionSignature, InstructionAnalysis, NestingMetrics, RegisterUsage,
 };
 
+/// A function discovered via static analysis (binary disassembly or source parsing)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Function {
+    /// Function name or symbol
     pub name: String,
+    /// File offset where the function starts (hex string like "0x1234")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub offset: Option<String>,
+    /// Function size in bytes
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub size: Option<u64>,
+    /// Cyclomatic complexity score
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub complexity: Option<u32>,
+    /// Functions called by this function
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub calls: Vec<String>,
+    /// Tool that discovered this function (radare2, tree-sitter, etc.)
     pub source: String,
+    /// Control flow graph metrics
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub control_flow: Option<ControlFlowMetrics>,
+    /// Instruction-level analysis
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub instruction_analysis: Option<InstructionAnalysis>,
+    /// Register usage patterns
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub register_usage: Option<RegisterUsage>,
+    /// Embedded numeric constants
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub constants: Vec<EmbeddedConstant>,
+    /// High-level function properties
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub properties: Option<FunctionProperties>,
     /// Function signature (source code languages)
@@ -155,8 +167,10 @@ pub struct DecodedString {
     pub offset: Option<String>,
 }
 
+/// A string literal extracted from a binary or source file
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StringInfo {
+    /// The string value (truncated to 4KB on serialization)
     #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
     /// File offset where string was found (serialized as hex, e.g., "0x1234")
@@ -167,9 +181,12 @@ pub struct StringInfo {
         deserialize_with = "deserialize_hex_offset"
     )]
     pub offset: Option<u64>,
+    /// Character encoding (utf8, utf16le, utf16be, ascii)
     pub encoding: String,
+    /// String classification (Const, CStr, Wide, etc.)
     #[serde(rename = "type")]
     pub string_type: StringType,
+    /// Binary section where found (e.g., ".rodata", ".text")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub section: Option<String>,
     /// Encoding layers applied to this string (e.g., ["base64", "zlib"])
@@ -185,13 +202,19 @@ pub struct StringInfo {
 // StackString is detected via StringMethod, not as a separate kind
 pub use stng::StringKind as StringType;
 
+/// A binary section (ELF, Mach-O, or PE segment)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Section {
+    /// Section name (e.g., ".text", ".data", "__TEXT")
     pub name: String,
+    /// Virtual memory address of the section
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub address: Option<u64>,
+    /// Section size in bytes
     pub size: u64,
+    /// Shannon entropy of section contents (0.0 to 8.0)
     pub entropy: f64,
+    /// Permission flags (e.g., "r-x", "rw-")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub permissions: Option<String>,
 }
@@ -200,15 +223,20 @@ pub struct Section {
 /// This is done at load time for consistent matching.
 /// Examples: "_malloc" -> "malloc", "__libc_start_main" -> "libc_start_main"
 #[inline]
+#[must_use]
 pub fn normalize_symbol(symbol: &str) -> String {
     symbol.trim_start_matches('_').trim_start_matches('_').to_string()
 }
 
+/// An imported symbol (function or variable from an external library)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Import {
+    /// Normalized symbol name (leading underscores stripped)
     pub symbol: String,
+    /// Library providing this symbol (e.g., "libc.so.6", "kernel32.dll")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub library: Option<String>,
+    /// Tool that discovered this import (goblin, radare2, etc.)
     pub source: String,
 }
 
@@ -227,11 +255,15 @@ impl Import {
     }
 }
 
+/// An exported symbol (function or variable exposed by this binary)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Export {
+    /// Normalized symbol name (leading underscores stripped)
     pub symbol: String,
+    /// File offset of the exported symbol (hex string like "0x1234")
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub offset: Option<String>,
+    /// Tool that discovered this export (goblin, radare2, etc.)
     pub source: String,
 }
 
@@ -250,12 +282,18 @@ impl Export {
     }
 }
 
+/// A YARA rule match found in the analyzed file
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct YaraMatch {
+    /// Name of the matched YARA rule
     pub rule: String,
+    /// YARA namespace (typically the rule file name)
     pub namespace: String,
+    /// Severity level from rule metadata
     pub severity: String,
+    /// Human-readable description from rule metadata
     pub desc: String,
+    /// Specific string patterns that triggered the match
     #[serde(default)]
     pub matched_strings: Vec<MatchedString>,
     /// Whether this match should be upgraded to a capability
@@ -269,18 +307,41 @@ pub struct YaraMatch {
     pub attack: Option<String>,
 }
 
+/// A specific string pattern that contributed to a YARA rule match
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MatchedString {
+    /// YARA string identifier (e.g., "$s1", "$hex_pattern")
     pub identifier: String,
+    /// File offset where the pattern matched
     pub offset: u64,
+    /// Matched bytes as a string (truncated to 4KB on serialization)
     #[serde(serialize_with = "serialize_truncated_string")]
     pub value: String,
 }
 
+/// Syscall information extracted from binary
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct SyscallInfo {
+    /// Address where syscall instruction occurs
+    pub address: u64,
+    /// Syscall number (architecture-dependent)
+    pub number: u32,
+    /// Resolved syscall name (e.g., "read", "write", "socket")
+    pub name: String,
+    /// Brief description of what this syscall does
+    pub desc: String,
+    /// Architecture (e.g., "x86", "x86_64", "mips", "arm")
+    pub arch: String,
+}
+
+/// Metadata about the analysis run itself
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AnalysisMetadata {
+    /// Total analysis time in milliseconds
     pub analysis_duration_ms: u64,
+    /// Names of tools used during analysis
     pub tools_used: Vec<String>,
+    /// Non-fatal errors encountered during analysis
     pub errors: Vec<String>,
 }
 

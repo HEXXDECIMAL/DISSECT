@@ -7,29 +7,25 @@ use std::collections::HashMap;
 
 /// Comment style for different languages
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CommentStyle {
+pub(crate) enum CommentStyle {
     /// C-style: // and /* */
     CStyle,
     /// Shell/Python: #
     Hash,
-    /// HTML/XML: <!-- -->
-    Xml,
     /// Lua: -- and --[[ ]]
     Lua,
-    /// SQL: -- and /* */
-    Sql,
-    /// PowerShell: # and <# #>
-    PowerShell,
 }
 
 /// Extract and analyze comments from source code
-pub fn analyze_comments(content: &str, style: CommentStyle) -> CommentMetrics {
+#[must_use] 
+pub(crate) fn analyze_comments(content: &str, style: CommentStyle) -> CommentMetrics {
     let comments = extract_comments(content, style);
     analyze_comment_list(&comments, content)
 }
 
 /// Analyze a list of already-extracted comments
-pub fn analyze_comment_list(comments: &[String], full_content: &str) -> CommentMetrics {
+#[must_use] 
+pub(crate) fn analyze_comment_list(comments: &[String], full_content: &str) -> CommentMetrics {
     let mut metrics = CommentMetrics::default();
 
     if comments.is_empty() {
@@ -125,14 +121,12 @@ pub fn analyze_comment_list(comments: &[String], full_content: &str) -> CommentM
 }
 
 /// Extract comments from source code based on language style
-pub fn extract_comments(content: &str, style: CommentStyle) -> Vec<String> {
+#[must_use]
+pub(crate) fn extract_comments(content: &str, style: CommentStyle) -> Vec<String> {
     match style {
         CommentStyle::CStyle => extract_c_style_comments(content),
         CommentStyle::Hash => extract_hash_comments(content),
-        CommentStyle::Xml => extract_xml_comments(content),
         CommentStyle::Lua => extract_lua_comments(content),
-        CommentStyle::Sql => extract_sql_comments(content),
-        CommentStyle::PowerShell => extract_powershell_comments(content),
     }
 }
 
@@ -243,34 +237,6 @@ fn extract_hash_comments(content: &str) -> Vec<String> {
 }
 
 /// Extract XML/HTML comments (<!-- -->)
-fn extract_xml_comments(content: &str) -> Vec<String> {
-    let mut comments = Vec::new();
-    let mut i = 0;
-    let bytes = content.as_bytes();
-    let len = bytes.len();
-
-    while i + 3 < len {
-        if &bytes[i..i + 4] == b"<!--" {
-            let start = i + 4;
-            i += 4;
-
-            while i + 2 < len && &bytes[i..i + 3] != b"-->" {
-                i += 1;
-            }
-
-            if i + 2 < len {
-                let comment = String::from_utf8_lossy(&bytes[start..i]).to_string();
-                comments.push(comment);
-                i += 3;
-            }
-        } else {
-            i += 1;
-        }
-    }
-
-    comments
-}
-
 /// Extract Lua comments (-- and --[[ ]])
 fn extract_lua_comments(content: &str) -> Vec<String> {
     let mut comments = Vec::new();
@@ -315,116 +281,6 @@ fn extract_lua_comments(content: &str) -> Vec<String> {
         if i + 1 < len && chars[i] == '-' && chars[i + 1] == '-' {
             let start = i + 2;
             i += 2;
-            while i < len && chars[i] != '\n' {
-                i += 1;
-            }
-            let comment: String = chars[start..i].iter().collect();
-            comments.push(comment);
-            continue;
-        }
-
-        i += 1;
-    }
-
-    comments
-}
-
-/// Extract SQL comments (-- and /* */)
-fn extract_sql_comments(content: &str) -> Vec<String> {
-    let mut comments = Vec::new();
-    let chars: Vec<char> = content.chars().collect();
-    let len = chars.len();
-    let mut i = 0;
-
-    while i < len {
-        // Skip string literals
-        if chars[i] == '\'' {
-            i += 1;
-            while i < len {
-                if chars[i] == '\'' {
-                    if i + 1 < len && chars[i + 1] == '\'' {
-                        i += 2; // Escaped quote
-                        continue;
-                    }
-                    break;
-                }
-                i += 1;
-            }
-            i += 1;
-            continue;
-        }
-
-        // Multi-line comment /* */
-        if i + 1 < len && chars[i] == '/' && chars[i + 1] == '*' {
-            let start = i + 2;
-            i += 2;
-            while i + 1 < len && !(chars[i] == '*' && chars[i + 1] == '/') {
-                i += 1;
-            }
-            let comment: String = chars[start..i].iter().collect();
-            comments.push(comment);
-            i += 2;
-            continue;
-        }
-
-        // Single-line comment --
-        if i + 1 < len && chars[i] == '-' && chars[i + 1] == '-' {
-            let start = i + 2;
-            i += 2;
-            while i < len && chars[i] != '\n' {
-                i += 1;
-            }
-            let comment: String = chars[start..i].iter().collect();
-            comments.push(comment);
-            continue;
-        }
-
-        i += 1;
-    }
-
-    comments
-}
-
-/// Extract PowerShell comments (# and <# #>)
-fn extract_powershell_comments(content: &str) -> Vec<String> {
-    let mut comments = Vec::new();
-    let chars: Vec<char> = content.chars().collect();
-    let len = chars.len();
-    let mut i = 0;
-
-    while i < len {
-        // Skip string literals
-        if chars[i] == '"' || chars[i] == '\'' {
-            let quote = chars[i];
-            i += 1;
-            while i < len && chars[i] != quote {
-                if chars[i] == '`' && i + 1 < len {
-                    // PowerShell escape
-                    i += 1;
-                }
-                i += 1;
-            }
-            i += 1;
-            continue;
-        }
-
-        // Multi-line comment <# #>
-        if i + 1 < len && chars[i] == '<' && chars[i + 1] == '#' {
-            let start = i + 2;
-            i += 2;
-            while i + 1 < len && !(chars[i] == '#' && chars[i + 1] == '>') {
-                i += 1;
-            }
-            let comment: String = chars[start..i].iter().collect();
-            comments.push(comment);
-            i += 2;
-            continue;
-        }
-
-        // Single-line comment #
-        if chars[i] == '#' {
-            let start = i + 1;
-            i += 1;
             while i < len && chars[i] != '\n' {
                 i += 1;
             }
@@ -591,16 +447,4 @@ mod tests {
         assert_eq!(comments.len(), 2);
     }
 
-    #[test]
-    fn test_powershell_comments() {
-        let code = r#"
-            # single line
-            <#
-            multi line
-            #>
-            $x = 5
-        "#;
-        let comments = extract_powershell_comments(code);
-        assert_eq!(comments.len(), 2);
-    }
 }

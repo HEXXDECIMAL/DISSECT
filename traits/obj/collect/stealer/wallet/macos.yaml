@@ -15,7 +15,7 @@ composite_rules:
     # High-confidence: Minimal strings (obfuscated) + system() + wallet references
     all:
       - id: meta/binary/structure::minimal-string-count
-      - id: cap/process/create/shell::system-call-symbol
+      - id: cap/process/create/shell::system-fn
     any:
       - id: obj/creds/wallet/desktop::stealer
       - id: obj/creds/wallet/extension::browser-wallet-extensions

@@ -32,7 +32,7 @@ traits:
       type: string
       substr: ".mozilla/firefox"
 
-  # Removed chrome-macos-path duplicate - use obj/lateral/supply-chain/npm/install/import-combos::chrome-macos-support
+  # Removed chrome-macos-path duplicate - use obj/lateral/supply-chain/npm/install::chrome-macos-support
 
   # === Shellcode/memory execution patterns ===
   - id: prot-exec-string
@@ -130,7 +130,7 @@ composite_rules:
       - id: chrome-windows-path
       - id: edge-windows-path
       - id: firefox-unix-path
-      - id: obj/lateral/supply-chain/npm/install/import-combos::chrome-macos-support
+      - id: obj/lateral/supply-chain/npm/install::chrome-macos-support
 
   # setup.py accessing browser data paths
   - id: setup-py-browser-paths
@@ -169,7 +169,7 @@ composite_rules:
     any:
       - id: meta/import/python/os/system
       - id: meta/import/python/subprocess/
-      - id: obj/exec/eval/
+      - id: obj/exec/interpreter/eval/
 
   # setup.py with clipboard + network = clipper malware
   # Precision: all(3) + any(1) = 4.0 (meets hostile threshold)

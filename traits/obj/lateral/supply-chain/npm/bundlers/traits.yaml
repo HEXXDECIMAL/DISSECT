@@ -59,7 +59,8 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: '__esModule|Object\\.defineProperty.exports|tslib'
+      # __esModule: use obj/lateral/supply-chain/npm/minifier/traits.yaml::esmodule-export (canonical)
+      regex: 'Object\\.defineProperty.exports|tslib'
 
   # Babel transpiled
   - id: babel-transpiled

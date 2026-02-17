@@ -7,7 +7,8 @@ use crate::types::StringMetrics;
 use std::collections::HashMap;
 
 /// Analyze a collection of string literals
-pub fn analyze_strings(strings: &[&str]) -> StringMetrics {
+#[must_use] 
+pub(crate) fn analyze_strings(strings: &[&str]) -> StringMetrics {
     let mut metrics = StringMetrics::default();
 
     if strings.is_empty() {
@@ -446,136 +447,6 @@ fn has_sql_pattern(s: &str) -> bool {
     patterns.iter().filter(|p| upper.contains(*p)).count() >= 2
 }
 
-/// Extract string literals from source code using simple heuristics
-/// This is a fallback when AST parsing isn't available
-pub fn extract_strings_heuristic(content: &str) -> Vec<String> {
-    let mut strings = Vec::new();
-    let chars: Vec<char> = content.chars().collect();
-    let len = chars.len();
-    let mut i = 0;
-
-    while i < len {
-        let c = chars[i];
-
-        // Single or double quote
-        if c == '"' || c == '\'' {
-            let quote = c;
-            let start = i + 1;
-            i += 1;
-
-            // Find closing quote
-            let mut escaped = false;
-            while i < len {
-                let ch = chars[i];
-                if escaped {
-                    escaped = false;
-                } else if ch == '\\' {
-                    escaped = true;
-                } else if ch == quote {
-                    break;
-                }
-                i += 1;
-            }
-
-            if i < len && i > start {
-                let s: String = chars[start..i].iter().collect();
-                // Only include non-trivial strings
-                if s.len() >= 2 {
-                    strings.push(s);
-                }
-            }
-        }
-
-        // Triple quotes (Python, JS template)
-        if c == '"' && i + 2 < len && chars[i + 1] == '"' && chars[i + 2] == '"' {
-            i += 3;
-            let start = i;
-
-            // Find closing triple quote
-            while i + 2 < len {
-                if chars[i] == '"' && chars[i + 1] == '"' && chars[i + 2] == '"' {
-                    break;
-                }
-                i += 1;
-            }
-
-            if i + 2 < len && i > start {
-                let s: String = chars[start..i].iter().collect();
-                if s.len() >= 2 {
-                    strings.push(s);
-                }
-            }
-            i += 3;
-            continue;
-        }
-
-        // Backtick strings (JS template literals)
-        if c == '`' {
-            let start = i + 1;
-            i += 1;
-
-            while i < len && chars[i] != '`' {
-                if chars[i] == '\\' && i + 1 < len {
-                    i += 1;
-                }
-                i += 1;
-            }
-
-            if i < len && i > start {
-                let s: String = chars[start..i].iter().collect();
-                if s.len() >= 2 {
-                    strings.push(s);
-                }
-            }
-        }
-
-        i += 1;
-    }
-
-    strings
-}
-
-/// Analyze string construction patterns (for AST-level analysis)
-pub fn count_string_construction_patterns(content: &str) -> (u32, u32, u32, u32) {
-    let mut concat_ops = 0u32;
-    let mut format_strings = 0u32;
-    let mut char_construction = 0u32;
-    let mut array_join = 0u32;
-
-    // String concatenation patterns
-    concat_ops += content.matches(" + \"").count() as u32;
-    concat_ops += content.matches("\" + ").count() as u32;
-    concat_ops += content.matches(" + '").count() as u32;
-    concat_ops += content.matches("' + ").count() as u32;
-    concat_ops += content.matches(".concat(").count() as u32;
-    concat_ops += content.matches("..").count() as u32; // Lua/some langs
-
-    // Format strings
-    format_strings += content.matches("f\"").count() as u32;
-    format_strings += content.matches("f'").count() as u32;
-    format_strings += content.matches(".format(").count() as u32;
-    format_strings += content.matches("sprintf").count() as u32;
-    format_strings += content.matches("printf").count() as u32;
-    format_strings += content.matches("fmt.Sprintf").count() as u32;
-    format_strings += content.matches("String.format").count() as u32;
-    format_strings += content.matches("${").count() as u32; // Template literals
-
-    // Character construction
-    char_construction += content.matches("chr(").count() as u32;
-    char_construction += content.matches("Chr(").count() as u32;
-    char_construction += content.matches("fromCharCode").count() as u32;
-    char_construction += content.matches("String.fromCharCode").count() as u32;
-    char_construction += content.matches("pack(").count() as u32;
-
-    // Array join construction
-    array_join += content.matches(".join(").count() as u32;
-    array_join += content.matches("implode(").count() as u32;
-    array_join += content.matches("-join").count() as u32; // PowerShell
-    array_join += content.matches("strings.Join").count() as u32; // Go
-
-    (concat_ops, format_strings, char_construction, array_join)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -648,28 +519,4 @@ mod tests {
         assert!(metrics.avg_entropy > 0.0);
     }
 
-    #[test]
-    fn test_heuristic_extraction() {
-        let code = r#"x = "hello" + 'world' + `template`"#;
-        let strings = extract_strings_heuristic(code);
-        assert_eq!(strings.len(), 3);
-        assert!(strings.contains(&"hello".to_string()));
-        assert!(strings.contains(&"world".to_string()));
-        assert!(strings.contains(&"template".to_string()));
-    }
-
-    #[test]
-    fn test_construction_patterns() {
-        let code = r#"
-            s = "a" + "b" + "c"
-            t = chr(65) + chr(66)
-            u = f"hello {name}"
-            v = [].join("")
-        "#;
-        let (concat, format, chr, join) = count_string_construction_patterns(code);
-        assert!(concat >= 2);
-        assert!(chr >= 2);
-        assert!(format >= 1);
-        assert!(join >= 1);
-    }
 }

@@ -11,7 +11,7 @@ composite_rules:
     mbc: "B0032"
     attack: "T1059.007"
     all:
-      - id: known/malware/dropper::function-constructor
+      - id: obj/anti-static/obfuscation/require::function-constructor
       - id: cap/code/metrics/obfuscation::high-entropy-strings
 
   - id: dynamic-code-execution

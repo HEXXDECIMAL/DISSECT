@@ -9,7 +9,7 @@ use goblin::pe::PE;
 
 /// Information about a binary section.
 #[derive(Debug, Clone)]
-pub struct SectionInfo {
+pub(crate) struct SectionInfo {
     /// Section name (e.g., ".text", "__TEXT,__text")
     pub name: String,
     /// File offset where section starts
@@ -22,14 +22,15 @@ pub struct SectionInfo {
 ///
 /// Used to resolve section constraints in trait conditions.
 #[derive(Debug, Clone, Default)]
-pub struct SectionMap {
+pub(crate) struct SectionMap {
     sections: Vec<SectionInfo>,
     file_size: u64,
 }
 
 impl SectionMap {
     /// Create an empty section map for non-binary files.
-    pub fn empty(file_size: u64) -> Self {
+    #[must_use] 
+    pub(crate) fn empty(file_size: u64) -> Self {
         Self {
             sections: Vec::new(),
             file_size,
@@ -37,7 +38,8 @@ impl SectionMap {
     }
 
     /// Create a section map from an ELF binary.
-    pub fn from_elf<'a>(elf: &Elf<'a>, file_size: u64) -> Self {
+    #[must_use] 
+    pub(crate) fn from_elf<'a>(elf: &Elf<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for sh in &elf.section_headers {
@@ -59,7 +61,8 @@ impl SectionMap {
     }
 
     /// Create a section map from a Mach-O binary.
-    pub fn from_macho<'a>(macho: &MachO<'a>, file_size: u64) -> Self {
+    #[must_use] 
+    pub(crate) fn from_macho<'a>(macho: &MachO<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for segment in &macho.segments {
@@ -95,7 +98,8 @@ impl SectionMap {
     }
 
     /// Create a section map from a PE binary.
-    pub fn from_pe<'a>(pe: &PE<'a>, file_size: u64) -> Self {
+    #[must_use] 
+    pub(crate) fn from_pe<'a>(pe: &PE<'a>, file_size: u64) -> Self {
         let mut sections = Vec::new();
 
         for section in &pe.sections {
@@ -124,7 +128,8 @@ impl SectionMap {
     ///
     /// Tries to parse as ELF, Mach-O, or PE. Returns an empty map for
     /// unrecognized formats (source files, etc.)
-    pub fn from_binary(data: &[u8]) -> Self {
+    #[must_use] 
+    pub(crate) fn from_binary(data: &[u8]) -> Self {
         let file_size = data.len() as u64;
 
         // Try ELF first (most common for analysis)
@@ -147,7 +152,8 @@ impl SectionMap {
     }
 
     /// Get the section containing a given file offset.
-    pub fn section_for_offset(&self, offset: u64) -> Option<&str> {
+    #[must_use] 
+    pub(crate) fn section_for_offset(&self, offset: u64) -> Option<&str> {
         for section in &self.sections {
             if offset >= section.start && offset < section.end {
                 return Some(&section.name);
@@ -160,7 +166,8 @@ impl SectionMap {
     ///
     /// Fuzzy names like "text" match platform-specific variants.
     /// Exact names (starting with "." or "__") match exactly.
-    pub fn bounds(&self, name: &str) -> Option<(u64, u64)> {
+    #[must_use] 
+    pub(crate) fn bounds(&self, name: &str) -> Option<(u64, u64)> {
         // Try exact match first
         for section in &self.sections {
             if section.name == name {
@@ -184,7 +191,8 @@ impl SectionMap {
     }
 
     /// Check if a section name matches a pattern (exact or fuzzy).
-    pub fn section_matches(actual: &str, pattern: &str) -> bool {
+    #[must_use] 
+    pub(crate) fn section_matches(actual: &str, pattern: &str) -> bool {
         // Exact match
         if actual == pattern {
             return true;
@@ -217,7 +225,8 @@ impl SectionMap {
     /// - Section specified but not found
     /// - Resulting range is empty or invalid
     #[allow(clippy::too_many_arguments)]
-    pub fn resolve_range(
+    #[must_use] 
+    pub(crate) fn resolve_range(
         &self,
         section: Option<&str>,
         offset: Option<i64>,
@@ -282,13 +291,9 @@ impl SectionMap {
         Some((base_start, base_end.min(self.file_size)))
     }
 
-    /// Get the file size.
-    pub fn file_size(&self) -> u64 {
-        self.file_size
-    }
-
     /// Get all unique section names.
-    pub fn section_names(&self) -> Vec<&str> {
+    #[must_use] 
+    pub(crate) fn section_names(&self) -> Vec<&str> {
         let mut seen = std::collections::HashSet::new();
         let mut names = Vec::new();
         for section in &self.sections {
@@ -300,14 +305,11 @@ impl SectionMap {
     }
 
     /// Check if this map has any sections (i.e., is a binary file).
-    pub fn has_sections(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn has_sections(&self) -> bool {
         !self.sections.is_empty()
     }
 
-    /// Get all sections as (name, start, end) tuples.
-    pub fn sections(&self) -> impl Iterator<Item = (&str, u64, u64)> {
-        self.sections.iter().map(|s| (s.name.as_str(), s.start, s.end))
-    }
 }
 
 /// Resolve a potentially negative offset to an absolute position.

@@ -8,7 +8,8 @@ use crate::composite_rules::types::FileType;
 
 /// Map an abstract kind to language-specific tree-sitter node types.
 /// Returns multiple node types since some kinds map to several node types per language.
-pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static str> {
+#[must_use] 
+pub(crate) fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static str> {
     match kind {
         "call" => match file_type {
             FileType::Python => vec!["call"],
@@ -361,22 +362,3 @@ pub fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'static s
     }
 }
 
-/// Get all supported abstract kinds
-pub fn supported_kinds() -> &'static [&'static str] {
-    &[
-        "call",
-        "function",
-        "class",
-        "import",
-        "string",
-        "comment",
-        "assignment",
-        "return",
-        "binary_op",
-        "identifier",
-        "attribute",
-        "subscript",
-        "conditional",
-        "loop",
-    ]
-}

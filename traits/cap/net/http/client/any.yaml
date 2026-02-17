@@ -12,7 +12,8 @@ traits:
     platforms: [windows]
     for: [javascript]
     if:
-      id: obj/exec/interpreter/script/wsh::msxml-fragment
+      type: raw
+      regex: 'MSXML2|MLHTTP|MSXM|XML2'
 
 composite_rules:
   - id: http-client-any-obfuscated

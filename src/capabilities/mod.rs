@@ -30,9 +30,10 @@ mod indexes;
 mod mapper;
 mod models;
 mod parsing;
-pub mod validation;
+pub(crate) mod validation;
 
-// Re-export public API
+// Re-export public API (allow unreachable_pub: accessible via lib crate)
+#[allow(unreachable_pub)]
 pub use mapper::CapabilityMapper;
 
 // Test module needs access to internal types

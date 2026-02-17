@@ -12,13 +12,14 @@ use std::path::Path;
 use std::sync::Arc;
 
 #[derive(Debug)]
-pub struct AppleScriptAnalyzer {
+pub(crate) struct AppleScriptAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     string_extractor: StringExtractor,
 }
 
 impl AppleScriptAnalyzer {
-    pub fn new() -> Self {
+    #[must_use] 
+    pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::new()),
             string_extractor: StringExtractor::new(),
@@ -26,13 +27,15 @@ impl AppleScriptAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }

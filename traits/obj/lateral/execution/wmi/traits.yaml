@@ -1,17 +1,5 @@
 traits:
-- id: wmi-connection
-  desc: WMI connection via winmgmts
-  crit: notable
-  conf: 0.7
-  platforms:
-  - windows
-  for:
-  - javascript
-  if:
-    type: string
-    substr: 'winmgmts:'
-  attack: T1047
-  mbc: E1043
+# wmi-connection: use obj/exec/interpreter/scripting/host::winmgmts-string (canonical)
 - id: win32-process-query
   desc: Win32_Process WMI class
   crit: notable
@@ -89,7 +77,7 @@ composite_rules:
   mbc: E1043
   needs: 2
   any:
-  - id: wmi-connection
+  - id: obj/exec/interpreter/scripting/host::winmgmts-string
   - id: win32-process-query
   - id: process-startup-config
   - id: process-create-call

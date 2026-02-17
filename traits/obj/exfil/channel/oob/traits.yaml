@@ -260,7 +260,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: obj/exec/interpreter/script/npm/hooks::npm-preinstall-script }
+      - { id: obj/exec/interpreter/script/npm::npm-preinstall-script }
       - { id: oob-domains }
 
   # Migrated from YARA

@@ -134,9 +134,12 @@ pub struct InstructionCategories {
 /// Opcode frequency for pattern detection
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct OpcodeFrequency {
+    /// Mnemonic name of the opcode (e.g., "mov", "xor", "call")
     pub opcode: String,
+    /// Absolute occurrence count in the analyzed code region
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub count: u32,
+    /// Fraction of total instructions this opcode represents (0.0–1.0)
     #[serde(default, skip_serializing_if = "is_zero_f32")]
     pub percentage: f32,
 }

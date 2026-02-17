@@ -12,7 +12,7 @@ use std::sync::Arc;
 mod offset_range_deser {
     use serde::de::{self, Deserializer, SeqAccess};
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<(i64, Option<i64>)>, D::Error>
+    pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Option<(i64, Option<i64>)>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -69,7 +69,7 @@ mod offset_range_deser {
 /// Can be a single encoding, array of encodings (OR), or chain (sequence)
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
-pub enum EncodingSpec {
+pub(crate) enum EncodingSpec {
     /// Single encoding: "base64"
     Single(String),
     /// Multiple encodings (OR): ["base64", "hex"]
@@ -79,16 +79,19 @@ pub enum EncodingSpec {
 /// String exception specification for `not:` directive
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(untagged)]
-pub enum NotException {
+pub(crate) enum NotException {
     /// Shorthand: bare string defaults to substr match
     Shorthand(String),
 
     /// Structured exception with explicit match type
     Structured {
+        /// Require exact string equality to trigger the exception
         #[serde(skip_serializing_if = "Option::is_none")]
         exact: Option<String>,
+        /// Require the value to contain this substring to trigger the exception
         #[serde(skip_serializing_if = "Option::is_none")]
         substr: Option<String>,
+        /// Require the value to match this regex to trigger the exception
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
     },
@@ -96,7 +99,8 @@ pub enum NotException {
 
 impl NotException {
     /// Check if a string matches this exception
-    pub fn matches(&self, value: &str) -> bool {
+    #[must_use] 
+    pub(crate) fn matches(&self, value: &str) -> bool {
         match self {
             NotException::Shorthand(pattern) => {
                 value.to_lowercase().contains(&pattern.to_lowercase())
@@ -705,7 +709,7 @@ impl From<ConditionDeser> for Condition {
 /// 2. Shorthand: `{ id: my-trait }` - defaults to Trait when only `id` is present
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(from = "ConditionDeser")]
-pub enum Condition {
+pub(crate) enum Condition {
     /// Match a symbol (import/export)
     Symbol {
         /// Full symbol name match (entire symbol must equal this)
@@ -717,6 +721,7 @@ pub enum Condition {
         /// Regex pattern to match symbol names
         #[serde(skip_serializing_if = "Option::is_none")]
         regex: Option<String>,
+        /// Platform filter - only evaluate this condition for these platforms
         #[serde(skip_serializing_if = "Option::is_none")]
         platforms: Option<Vec<Platform>>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
@@ -738,8 +743,10 @@ pub enum Condition {
         /// Match pattern only at word boundaries (convenience for \bpattern\b)
         #[serde(skip_serializing_if = "Option::is_none")]
         word: Option<String>,
+        /// If true, matching is case-insensitive
         #[serde(default)]
         case_insensitive: bool,
+        /// Patterns that disqualify a match if they appear in the string
         #[serde(skip_serializing_if = "Option::is_none")]
         exclude_patterns: Option<Vec<String>>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
@@ -776,21 +783,28 @@ pub enum Condition {
 
     /// Match a structural feature
     Structure {
+        /// Feature identifier (e.g., "packed", "stripped", "signed")
         feature: String,
+        /// Minimum number of matching sections required
         #[serde(skip_serializing_if = "Option::is_none")]
         min_sections: Option<usize>,
     },
 
     /// Check export count
     ExportsCount {
+        /// Minimum export count required
         #[serde(skip_serializing_if = "Option::is_none")]
         min: Option<usize>,
+        /// Maximum export count allowed
         #[serde(skip_serializing_if = "Option::is_none")]
         max: Option<usize>,
     },
 
     /// Reference a previously-defined trait by ID
-    Trait { id: String },
+    Trait {
+        /// The ID of the trait to reference
+        id: String,
+    },
 
     /// Unified AST condition - search for patterns in AST nodes
     ///
@@ -1158,26 +1172,19 @@ fn default_compare_to() -> String {
     "total".to_string()
 }
 
-/// Default for count_min - at least 1 match required
-pub fn default_count_min() -> usize {
-    1
-}
-
-/// Deprecated: use default_count_min instead
-pub fn default_min_count() -> usize {
-    1
-}
 
 impl Condition {
     /// Returns true if this condition is a trait reference
-    pub fn is_trait_reference(&self) -> bool {
+    #[must_use] 
+    pub(crate) fn is_trait_reference(&self) -> bool {
         matches!(self, Condition::Trait { .. })
     }
 
     /// Check if this condition can possibly match for a given file type.
     /// Returns false for conditions that require binary section analysis
     /// when evaluating source/text files.
-    pub fn can_match_file_type(&self, file_type: &super::FileType) -> bool {
+    #[must_use] 
+    pub(crate) fn can_match_file_type(&self, file_type: &super::FileType) -> bool {
         use super::FileType;
 
         // Binary section analysis requires PE/ELF/Mach-O format
@@ -1206,7 +1213,8 @@ impl Condition {
     }
 
     /// Returns a description of the condition type for error messages
-    pub fn type_name(&self) -> &'static str {
+    #[must_use] 
+    pub(crate) fn type_name(&self) -> &'static str {
         match self {
             Condition::Symbol { .. } => "symbol",
             Condition::String { .. } => "string",
@@ -1231,7 +1239,7 @@ impl Condition {
 
     /// Validate that condition can be compiled (for YARA/AST rules)
     /// Call this at load time to catch syntax errors early
-    pub fn validate(&self) -> Result<()> {
+    pub(crate) fn validate(&self) -> Result<()> {
         match self {
             Condition::Yara { source, .. } => {
                 // Only validate syntax - add_source catches parse errors
@@ -1377,7 +1385,7 @@ impl Condition {
 
     /// Pre-compile YARA rules for faster evaluation
     /// Call this after loading traits to avoid repeated compilation during scanning
-    pub fn compile_yara(&mut self) {
+    pub(crate) fn compile_yara(&mut self) {
         if let Condition::Yara { source, compiled } = self {
             if compiled.is_none() {
                 let mut compiler = yara_x::Compiler::new();
@@ -1391,7 +1399,8 @@ impl Condition {
 
     /// Check for unbounded greedy regex patterns (.*) that can cause performance issues.
     /// Returns a warning message if found, None otherwise.
-    pub fn check_greedy_patterns(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_greedy_patterns(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
@@ -1415,7 +1424,8 @@ impl Condition {
 
     /// Check for regex patterns that are just `\bWORD\b` which should use `type: word` instead.
     /// Returns a warning message if found, None otherwise.
-    pub fn check_word_boundary_regex(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_word_boundary_regex(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. } => Some(r.as_str()),
             Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
@@ -1457,12 +1467,13 @@ impl Condition {
     ///
     ///   Mixed alphanumeric strings (like "x509") are exempt - they have fewer variants
     ///   Returns a warning message if found, None otherwise.
-    pub fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
         let check_pattern = |s: &str| -> Option<String> {
             let len = s.len();
             // Only check strings that are entirely alphabetic
             // Mixed alphanumeric like "x509" have fewer collision variants
-            if !s.chars().all(|c| c.is_alphabetic()) {
+            if !s.chars().all(char::is_alphabetic) {
                 return None;
             }
 
@@ -1527,21 +1538,24 @@ impl Condition {
 
     /// Check if count constraints are valid (count_max >= count_min).
     /// Returns a warning message if invalid, None otherwise.
-    pub fn check_count_constraints(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_count_constraints(&self) -> Option<String> {
         // Count constraints are now at trait level (ConditionWithFilters), not per-condition
         None
     }
 
     /// Check if per-KB density constraints are valid (per_kb_max >= per_kb_min).
     /// Returns a warning message if invalid, None otherwise.
-    pub fn check_density_constraints(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_density_constraints(&self) -> Option<String> {
         // Density constraints are now at trait level (ConditionWithFilters), not per-condition
         None
     }
 
     /// Check for empty or whitespace-only pattern strings (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_empty_patterns(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_empty_patterns(&self) -> Option<String> {
         let check_empty = |s: &str, field: &str| -> Option<String> {
             if s.trim().is_empty() {
                 return Some(format!(
@@ -1576,7 +1590,8 @@ impl Condition {
 
     /// Check for overly short patterns that will match too broadly (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_short_patterns(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_short_patterns(&self) -> Option<String> {
         let check_short = |s: &str, field: &str, min_len: usize| -> Option<String> {
             if s.len() < min_len {
                 return Some(format!(
@@ -1624,7 +1639,8 @@ impl Condition {
 
     /// Check for regex patterns that are just literal strings (should use substr/exact instead).
     /// Returns a warning message if found, None otherwise.
-    pub fn check_literal_regex(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_literal_regex(&self) -> Option<String> {
         let is_literal = |s: &str| -> bool {
             // Check if string contains any regex metacharacters
             !s.chars().any(|c| {
@@ -1663,40 +1679,13 @@ impl Condition {
         }
     }
 
-    /// Check for word patterns with non-word characters (common LLM mistake).
-    /// Returns a warning message if found, None otherwise.
-    pub fn check_word_pattern_validity(&self) -> Option<String> {
-        match self {
-            Condition::String { word: Some(w), .. } | Condition::Raw { word: Some(w), .. } => {
-                // Word boundaries only work with alphanumeric characters and underscores
-                let has_word_chars = w.chars().any(|c| c.is_alphanumeric() || c == '_');
-                let has_non_word_chars = w.chars().any(|c| !c.is_alphanumeric() && c != '_');
-
-                if !has_word_chars {
-                    return Some(format!(
-                        "word: pattern '{}' contains no word characters (letters, digits, underscore) - word boundaries won't work as expected",
-                        w
-                    ));
-                }
-
-                if has_non_word_chars {
-                    return Some(format!(
-                        "word: pattern '{}' contains non-word characters - these may not match at word boundaries as expected. Consider using 'regex' with \\b instead.",
-                        w
-                    ));
-                }
-
-                None
-            },
-            _ => None,
-        }
-    }
 
     /// Check if case_insensitive is used with patterns that have no letters.
     /// Returns a warning message if found, None otherwise.
-    pub fn check_case_insensitive_on_non_alpha(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_case_insensitive_on_non_alpha(&self) -> Option<String> {
         let check_pattern = |s: &str, field: &str| -> Option<String> {
-            if !s.chars().any(|c| c.is_alphabetic()) {
+            if !s.chars().any(char::is_alphabetic) {
                 return Some(format!(
                     "case_insensitive: true is set but {}: '{}' contains no letters - case_insensitive has no effect",
                     field, s
@@ -1727,14 +1716,16 @@ impl Condition {
 
     /// Check for nonsensical count_min values.
     /// Returns a warning message if found, None otherwise.
-    pub fn check_count_min_value(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_count_min_value(&self) -> Option<String> {
         // count_min is now at trait level (ConditionWithFilters), not per-condition
         None
     }
 
     /// Check if mutually exclusive match types are used together.
     /// Returns a warning message if multiple are set, None otherwise.
-    pub fn check_match_exclusivity(&self) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn check_match_exclusivity(&self) -> Option<String> {
         let check_exclusive =
             |exact: bool, substr: bool, regex: bool, word: bool| -> Option<String> {
                 let count = [exact, substr, regex, word].iter().filter(|&&x| x).count();
@@ -1799,7 +1790,7 @@ impl Condition {
     /// Pre-compile regexes in this condition for performance.
     /// Should be called once after deserialization.
     /// Returns an error if any regex pattern is invalid.
-    pub fn precompile_regexes(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn precompile_regexes(&mut self) -> anyhow::Result<()> {
         match self {
             Condition::Symbol {
                 regex: Some(regex_pattern),

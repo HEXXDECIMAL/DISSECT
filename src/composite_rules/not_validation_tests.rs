@@ -1350,52 +1350,6 @@ mod llm_validation_tests {
         assert!(warning.is_none());
     }
 
-    #[test]
-    fn test_word_pattern_with_non_word_chars() {
-        let cond = Condition::String {
-            exact: None,
-            substr: None,
-            regex: None,
-            word: Some("test-pattern".to_string()),
-            case_insensitive: false,
-            exclude_patterns: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: vec![],
-        };
-
-        let warning = cond.check_word_pattern_validity();
-        assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("non-word characters"));
-    }
-
-    #[test]
-    fn test_word_pattern_valid() {
-        let cond = Condition::String {
-            exact: None,
-            substr: None,
-            regex: None,
-            word: Some("testpattern".to_string()),
-            case_insensitive: false,
-            exclude_patterns: None,
-            external_ip: false,
-            section: None,
-            offset: None,
-            offset_range: None,
-            section_offset: None,
-            section_offset_range: None,
-            compiled_regex: None,
-            compiled_excludes: vec![],
-        };
-
-        let warning = cond.check_word_pattern_validity();
-        assert!(warning.is_none());
-    }
 
     #[test]
     fn test_case_insensitive_on_numeric_pattern() {

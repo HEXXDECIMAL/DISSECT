@@ -43,11 +43,12 @@ traits:
   # === fetch atomic indicators ===
   # NOTE: "fetch(" is too generic for binaries - matches C++ method names like
   # llvm::Fetcher::fetch(). Restrict to shell/script contexts.
+  # Note: fetch() in javascript/typescript is handled by cap/comm/http/request::fetch-string
   - id: fetch-call
     desc: fetch function call
     crit: inert
     conf: 0.5
-    for: [shell, javascript, typescript, python]
+    for: [shell, python]
     if:
       type: string
       substr: "fetch("

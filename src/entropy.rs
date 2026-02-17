@@ -12,7 +12,7 @@ use std::collections::HashMap;
 /// - 4.0-6.0: Normal (typical code/data)
 /// - 6.0-7.2: Elevated (compressed or obfuscated)
 /// - > 7.2: High (encrypted or packed)
-pub fn calculate_entropy(data: &[u8]) -> f64 {
+pub(crate) fn calculate_entropy(data: &[u8]) -> f64 {
     if data.is_empty() {
         return 0.0;
     }
@@ -35,7 +35,7 @@ pub fn calculate_entropy(data: &[u8]) -> f64 {
 
 /// Classify entropy level
 #[derive(Debug, PartialEq)]
-pub enum EntropyLevel {
+pub(crate) enum EntropyLevel {
     VeryLow,  // < 4.0
     Normal,   // 4.0-6.0
     Elevated, // 6.0-7.2
@@ -43,7 +43,7 @@ pub enum EntropyLevel {
 }
 
 impl EntropyLevel {
-    pub fn from_value(entropy: f64) -> Self {
+    pub(crate) fn from_value(entropy: f64) -> Self {
         if entropy < 4.0 {
             EntropyLevel::VeryLow
         } else if entropy < 6.0 {

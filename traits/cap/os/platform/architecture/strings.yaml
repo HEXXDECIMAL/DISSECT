@@ -40,4 +40,4 @@ traits:
     platforms: [linux, unix, macos]
     if:
       type: string
-      regex: "^arm$"
+      exact: "arm"

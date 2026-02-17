@@ -165,6 +165,37 @@ traits:
       type: string
       regex: "/usr/bin/w\\b"
 
+  # Shell command user discovery
+  - id: whoami
+    desc: Shell whoami command execution
+    crit: notable
+    conf: 0.85
+    attack: "T1033"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exec(Sync)?\\(['\"]whoami['\"]"
+
+  - id: id
+    desc: Shell id command execution
+    crit: notable
+    conf: 0.85
+    attack: "T1033"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exec(Sync)?\\(['\"]id['\"]"
+
+  - id: npm-whoami
+    desc: npm whoami command execution
+    crit: suspicious
+    conf: 0.9
+    attack: "T1033"
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "exec(Sync)?\\(['\"]npm whoami['\"]"
+
 composite_rules:
   # HOME environment composite
   - id: home-env
@@ -238,34 +269,4 @@ composite_rules:
       - type: raw
         regex: "requests|test"
 
-  # Shell command user discovery
-  - id: whoami
-    desc: Shell whoami command execution
-    crit: notable
-    conf: 0.85
-    attack: "T1033"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "exec(Sync)?\\(['\"]whoami['\"]"
-
-  - id: id
-    desc: Shell id command execution
-    crit: notable
-    conf: 0.85
-    attack: "T1033"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "exec(Sync)?\\(['\"]id['\"]"
-
-  - id: npm-whoami
-    desc: npm whoami command execution (npm user discovery)
-    crit: suspicious
-    conf: 0.9
-    attack: "T1033"
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "exec(Sync)?\\(['\"]npm whoami['\"]"
 

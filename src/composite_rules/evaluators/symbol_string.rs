@@ -32,7 +32,8 @@ fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
 // Helper functions moved to mod.rs
 
 /// Evaluate symbol condition - matches symbols in imports/exports.
-pub fn eval_symbol<'a>(
+#[must_use] 
+pub(crate) fn eval_symbol<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     pattern: Option<&String>,
@@ -52,7 +53,6 @@ pub fn eval_symbol<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -135,7 +135,6 @@ pub fn eval_symbol<'a>(
     ConditionResult {
         matched,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -177,7 +176,8 @@ fn symbol_matches_condition(
 /// as well as imports and exports if they match the string criteria.
 ///
 /// For searching raw file content, use `eval_raw()` instead.
-pub fn eval_string<'a, 'b>(
+#[must_use] 
+pub(crate) fn eval_string<'a, 'b>(
     params: &StringParams<'a>,
     trait_not: Option<&Vec<NotException>>,
     ctx: &EvaluationContext<'b>,
@@ -201,7 +201,7 @@ pub fn eval_string<'a, 'b>(
         // Use SectionMap to resolve the range if available
         if let Some(ref section_map) = ctx.section_map {
             section_map.resolve_range(
-                params.section.map(|s| s.as_str()),
+                params.section.map(std::string::String::as_str),
                 params.offset,
                 params.offset_range,
                 params.section_offset,
@@ -390,7 +390,6 @@ pub fn eval_string<'a, 'b>(
     ConditionResult {
         matched,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -401,7 +400,8 @@ pub fn eval_string<'a, 'b>(
 /// Used by `type: raw` conditions to search raw file content rather than extracted strings.
 /// Use for cross-boundary patterns or when string extraction is insufficient.
 #[allow(clippy::too_many_arguments)]
-pub fn eval_raw<'a>(
+#[must_use] 
+pub(crate) fn eval_raw<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     _regex: Option<&String>,
@@ -621,7 +621,6 @@ pub fn eval_raw<'a>(
     ConditionResult {
         matched,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -638,7 +637,8 @@ pub fn eval_raw<'a>(
 /// # Pattern Matching
 /// Supports exact, substr, regex, and word boundary matching
 #[allow(clippy::too_many_arguments)]
-pub fn eval_encoded<'a>(
+#[must_use] 
+pub(crate) fn eval_encoded<'a>(
     encoding: Option<&crate::composite_rules::condition::EncodingSpec>,
     exact: Option<&String>,
     substr: Option<&String>,
@@ -796,7 +796,6 @@ pub fn eval_encoded<'a>(
     ConditionResult {
         matched,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -805,7 +804,8 @@ pub fn eval_encoded<'a>(
 /// Helper to search encoded strings (with given encoding in chain) for patterns.
 #[allow(clippy::too_many_arguments)]
 /// Evaluate string count condition - check if string count is within bounds.
-pub fn eval_string_count<'a>(
+#[must_use] 
+pub(crate) fn eval_string_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
     min_length: Option<usize>,
@@ -852,45 +852,8 @@ pub fn eval_string_count<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision: 0.0,
     }
 }
 
-/// Evaluate layer_path condition - match strings by their encoding layer path.
-/// Layer paths are computed as: meta/layers/{section}/{encoding_chain_joined}
-pub fn eval_layer_path<'a>(value: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
-    let mut evidence = Vec::new();
-
-    for string_info in &ctx.report.strings {
-        // Compute layer path from string's section and encoding_chain
-        let section =
-            string_info.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
-        let layer_path = if string_info.encoding_chain.is_empty() {
-            // No encoding layers - not a layered string, skip
-            continue;
-        } else {
-            let chain_str = string_info.encoding_chain.join("/");
-            format!("meta/layers/{}/{}", section, chain_str)
-        };
-
-        // Check if this string's layer path matches the condition value
-        if layer_path == value {
-            evidence.push(Evidence {
-                method: "layer_path".to_string(),
-                source: "string_extractor".to_string(),
-                value: string_info.value.clone(),
-                location: string_info.offset.map(|o| format!("{:#x}", o)),
-            });
-        }
-    }
-
-    ConditionResult {
-        matched: !evidence.is_empty(),
-        evidence,
-        traits: Vec::new(),
-        warnings: Vec::new(),
-        precision: 0.0,
-    }
-}

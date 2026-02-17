@@ -9,5 +9,5 @@ composite_rules:
     for: [python]
     near_lines: 5
     all:
-      - id: obj/exec/reflection/class::dynamic-import
-      - id: obj/exec/reflection/class::getattr-module
+      - id: obj/exec/reflection/dynamic::dynamic-import
+      - id: obj/exec/reflection/dynamic::getattr-module

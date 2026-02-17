@@ -2,12 +2,7 @@
 
 traits:
   # === Secure random atomic indicators ===
-  - id: dev-urandom
-    desc: /dev/urandom access
-    conf: 0.7
-    if:
-      type: string
-      substr: /dev/urandom
+  # dev-urandom: use cap/hw/random/device::urandom (canonical)
 
   - id: dev-random
     desc: /dev/random access
@@ -57,7 +52,7 @@ composite_rules:
     desc: Secure random number generation
     conf: 0.8
     any:
-      - id: dev-urandom
+      - id: cap/hw/random/device::urandom
       - id: dev-random
       - id: rand-bytes
       - id: getrandom

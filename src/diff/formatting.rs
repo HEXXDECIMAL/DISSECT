@@ -11,7 +11,8 @@ use crate::types::DiffReport;
 use std::path::Path;
 
 /// Format diff report as human-readable terminal output
-pub fn format_diff_terminal(report: &DiffReport) -> String {
+#[must_use] 
+pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
     let mut output = String::new();
 
     // Header with version comparison
@@ -80,14 +81,14 @@ pub fn format_diff_terminal(report: &DiffReport) -> String {
             let evidence_str = cap
                 .evidence
                 .iter()
-                .find(|e| e.location.as_ref().is_some_and(|l| l.starts_with("line:")))
+                .find(|e| e.location.as_ref().is_some_and(|l: &String| l.starts_with("line:")))
                 .or(cap.evidence.first())
                 .map(|ev| {
                     let loc = ev
                         .location
                         .as_ref()
-                        .filter(|l| l != &"file" && !l.is_empty())
-                        .map(|l| format!(":{}", l.trim_start_matches("line:")))
+                        .filter(|l: &&String| l.as_str() != "file" && !l.is_empty())
+                        .map(|l: &String| format!(":{}", l.trim_start_matches("line:")))
                         .unwrap_or_default();
                     format!(" [{}{}]", ev.value, loc)
                 })

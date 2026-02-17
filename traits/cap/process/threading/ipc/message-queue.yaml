@@ -3,31 +3,8 @@
 # Generic indicator for RATs, command servers
 
 traits:
-  # Removed peek-message-api duplicate - use cap/os/message/queue::peek-message-a (same pattern, canonical location)
-
-  - id: cap/os/message/queue::post-thread-message-a  # not-dupe (threading IPC context)
-    desc: Message queue posting (PostThreadMessageA)
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "PostThreadMessageA"
-    attack: "T1129"
-    mbc: "C0019"
-
-  - id: cap/os/message/queue::get-message-a  # not-dupe (threading IPC context)
-    desc: Message queue retrieval (GetMessageA)
-    crit: notable
-    conf: 0.75
-    platforms: [windows]
-    for: [pe]
-    if:
-      type: symbol
-      exact: "GetMessageA"
-    attack: "T1129"
-    mbc: "C0019"
+  # Removed peek-message-api, post-thread-message-a, get-message-a duplicates
+  # Use canonical: cap/os/message/queue::peek-message-a, ::post-thread-message-a, ::get-message-a
 
 composite_rules:
   - id: message-queue-threading
@@ -60,7 +37,7 @@ composite_rules:
 
   - id: message-dispatch-framework
     desc: Sophisticated message dispatch framework
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     platforms: [windows]
     for: [pe]

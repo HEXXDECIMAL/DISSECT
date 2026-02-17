@@ -11,37 +11,25 @@
 //! - `--json`: Full JSON report
 //! - `--summary`: Quick classification only
 
-use crate::types::{AnalysisReport, Criticality, Finding, FindingKind, YaraMatch};
+use crate::types::{AnalysisReport, Criticality, Finding};
 use anyhow::Result;
 use colored::Colorize;
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
 /// Cached regex for stripping ANSI escape codes
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn ansi_strip_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
     RE.get_or_init(|| regex::Regex::new(r"\x1b\[[0-9;]*m").expect("valid regex"))
 }
 
-/// Program summary for quick classification
-#[derive(Debug)]
-pub struct ProgramSummary {
-    /// Classification: "infostealer", "ransomware", "backdoor", "cryptominer", "legitimate", "unknown"
-    pub classification: String,
-    /// Malware family if detected (e.g., "AMOS", "Mirai", "XMRig")
-    pub malware_family: Option<String>,
-    /// Overall risk level
-    pub risk_level: Criticality,
-    /// Key capabilities (top 3-5)
-    pub key_capabilities: Vec<String>,
-    /// Brief description of what this program does
-    pub desc: String,
-}
 
 /// Extract directory path from trait ID (everything except the last component)
 /// e.g., "exec/command/subprocess/popen" -> "exec/command/subprocess"
 /// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
-pub fn get_directory_path(id: &str) -> String {
+#[must_use] 
+fn get_directory_path(id: &str) -> String {
     let parts: Vec<&str> = id.split('/').collect();
     if parts.len() > 1 {
         parts[..parts.len() - 1].join("/")
@@ -64,7 +52,8 @@ struct AggregatedFinding {
 /// Aggregate findings by directory path, keeping highest criticality (then highest conf)
 /// Returns findings with IDs set to directory paths and trait_refs containing all matched trait IDs
 /// Internal findings (from code analyzers) are not aggregated - shown individually
-pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
+#[must_use] 
+pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
     let mut aggregated: HashMap<String, AggregatedFinding> = HashMap::new();
     let mut internal_findings = Vec::new();
 
@@ -132,54 +121,6 @@ pub fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Finding> {
     result
 }
 
-/// Convert YARA matches to findings for unified display
-fn yara_to_findings(yara_matches: &[YaraMatch]) -> Vec<Finding> {
-    yara_matches
-        .iter()
-        .map(|m| {
-            let criticality = match m.severity.as_str() {
-                "critical" | "high" => Criticality::Hostile,
-                "medium" => Criticality::Suspicious,
-                "low" => Criticality::Notable,
-                _ => Criticality::Inert,
-            };
-
-            // Extract namespace for finding ID (e.g., "traits.intel.discover" -> "intel/discover")
-            let id = if m.namespace.starts_with("traits.") {
-                m.namespace[7..].replace('.', "/") + "/" + &m.rule
-            } else if m.namespace.starts_with("third_party.") {
-                "3P/".to_string() + &m.rule
-            } else {
-                m.namespace.clone() + "/" + &m.rule
-            };
-
-            let evidence = m
-                .matched_strings
-                .iter()
-                .take(3)
-                .map(|ms| crate::types::Evidence {
-                    method: "yara".to_string(),
-                    source: "yara-x".to_string(),
-                    value: ms.value.clone(),
-                    location: Some(format!("0x{:x}", ms.offset)),
-                })
-                .collect();
-
-            Finding {
-                id,
-                kind: FindingKind::Indicator,
-                desc: m.desc.clone(),
-                conf: 0.7, // Default for YARA matches
-                crit: criticality,
-                mbc: None,
-                attack: None,
-                trait_refs: vec![],
-                evidence,
-                source_file: None,
-            }
-        })
-        .collect()
-}
 
 /// Get risk emoji based on criticality
 fn risk_emoji(crit: &Criticality) -> &'static str {
@@ -344,7 +285,7 @@ struct JsonlSummary {
 }
 
 /// Format a single file analysis as a JSONL line
-pub fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<String> {
+pub(crate) fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<String> {
     let entry = JsonlFileEntry {
         entry_type: "file",
         file,
@@ -353,7 +294,7 @@ pub fn format_jsonl_line(file: &crate::types::FileAnalysis) -> Result<String> {
 }
 
 /// Format the summary as a JSONL line (for end of streaming output)
-pub fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
+fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
     let summary = report.summary.as_ref();
     let counts = summary.map(|s| &s.counts);
 
@@ -369,7 +310,7 @@ pub fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
 }
 
 /// Format entire report as JSONL (for non-streaming output)
-pub fn format_jsonl(report: &AnalysisReport) -> Result<String> {
+pub(crate) fn format_jsonl(report: &AnalysisReport) -> Result<String> {
     let mut lines = Vec::with_capacity(report.files.len() + 1);
 
     // Emit each file as a line
@@ -384,7 +325,7 @@ pub fn format_jsonl(report: &AnalysisReport) -> Result<String> {
 }
 
 /// Parse JSONL (newline-delimited JSON) back to AnalysisReport
-pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
+pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
     let mut files = Vec::new();
     let mut summary = None;
     let mut schema_version = "2.0".to_string();
@@ -421,30 +362,30 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                     }
                 }
                 if let Some(sp) = value.get("scanned_path") {
-                    scanned_path = sp.as_str().map(|s| s.to_string());
+                    scanned_path = sp.as_str().map(std::string::ToString::to_string);
                 }
                 if let Some(tools) = value.get("tools_used").and_then(|v| v.as_array()) {
                     metadata.tools_used =
-                        tools.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect();
+                        tools.iter().filter_map(|v| v.as_str().map(std::string::ToString::to_string)).collect();
                 }
                 if let Some(errors) = value.get("errors").and_then(|v| v.as_array()) {
                     metadata.errors =
-                        errors.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect();
+                        errors.iter().filter_map(|v| v.as_str().map(std::string::ToString::to_string)).collect();
                 }
-                if let Some(duration) = value.get("analysis_duration_ms").and_then(|v| v.as_u64()) {
+                if let Some(duration) = value.get("analysis_duration_ms").and_then(serde_json::Value::as_u64) {
                     metadata.analysis_duration_ms = duration;
                 }
                 summary = Some(crate::types::ReportSummary {
                     files_analyzed: value
                         .get("files_analyzed")
-                        .and_then(|v| v.as_u64())
+                        .and_then(serde_json::Value::as_u64)
                         .unwrap_or(files.len() as u64) as u32,
                     max_depth: 0,
                     counts: crate::types::FindingCounts {
-                        hostile: value.get("hostile").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
-                        suspicious: value.get("suspicious").and_then(|v| v.as_u64()).unwrap_or(0)
+                        hostile: value.get("hostile").and_then(serde_json::Value::as_u64).unwrap_or(0) as u32,
+                        suspicious: value.get("suspicious").and_then(serde_json::Value::as_u64).unwrap_or(0)
                             as u32,
-                        notable: value.get("notable").and_then(|v| v.as_u64()).unwrap_or(0) as u32,
+                        notable: value.get("notable").and_then(serde_json::Value::as_u64).unwrap_or(0) as u32,
                     },
                     max_risk: None,
                 });
@@ -486,7 +427,7 @@ pub fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
 
 /// Format analysis report for terminal display (malcontent-style)
 /// Uses the v2 flat files array structure.
-pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
+pub(crate) fn format_terminal(report: &AnalysisReport) -> Result<String> {
     let mut output = String::new();
 
     // Compile ANSI strip regex once, outside all loops
@@ -658,202 +599,12 @@ pub fn format_terminal(report: &AnalysisReport) -> Result<String> {
     Ok(output)
 }
 
-/// Calculate overall risk level for a report
-fn calculate_overall_risk(report: &AnalysisReport) -> Criticality {
-    let mut max = Criticality::Inert;
 
-    for finding in &report.findings {
-        if finding.crit > max {
-            max = finding.crit;
-        }
-    }
-
-    for yara_match in &report.yara_matches {
-        let crit = match yara_match.severity.as_str() {
-            "critical" | "high" => Criticality::Hostile,
-            "medium" => Criticality::Suspicious,
-            "low" => Criticality::Notable,
-            _ => Criticality::Inert,
-        };
-        if crit > max {
-            max = crit;
-        }
-    }
-
-    max
-}
-
-/// Generate a program summary from analysis findings
-pub fn generate_summary(report: &AnalysisReport) -> ProgramSummary {
-    let mut classification = "unknown".to_string();
-    let mut malware_family: Option<String> = None;
-    let mut key_capabilities: Vec<String> = Vec::new();
-    let mut description_parts: Vec<String> = Vec::new();
-
-    let risk_level = calculate_overall_risk(report);
-
-    // Combine all findings
-    let mut all_findings: Vec<&Finding> = report.findings.iter().collect();
-    let yara_findings: Vec<Finding> = yara_to_findings(&report.yara_matches);
-    let yara_refs: Vec<&Finding> = yara_findings.iter().collect();
-    all_findings.extend(yara_refs);
-
-    // Check for malware family detection
-    for finding in &all_findings {
-        let id_lower = finding.id.to_lowercase();
-
-        // Detect malware families
-        if id_lower.contains("malware/stealer/amos") {
-            classification = "macOS Infostealer".to_string();
-            malware_family = Some("AMOS Stealer".to_string());
-            description_parts
-                .push("Steals browser credentials and cryptocurrency wallets".to_string());
-        } else if id_lower.contains("malware/stealer/poseidon") {
-            classification = "macOS Infostealer".to_string();
-            malware_family = Some("Poseidon Stealer".to_string());
-            description_parts.push("Steals browser credentials".to_string());
-        } else if id_lower.contains("malware/botnet/mirai") {
-            classification = "IoT Botnet".to_string();
-            malware_family = Some("Mirai".to_string());
-            description_parts.push("DDoS botnet targeting IoT devices".to_string());
-        } else if id_lower.contains("malware/cryptominer/xmrig") {
-            classification = "Cryptominer".to_string();
-            malware_family = Some("XMRig".to_string());
-            description_parts.push("Mines Monero cryptocurrency".to_string());
-        } else if id_lower.contains("malware/ransomware") {
-            classification = "Ransomware".to_string();
-            if id_lower.contains("conti") {
-                malware_family = Some("Conti".to_string());
-            } else if id_lower.contains("mallox") {
-                malware_family = Some("Mallox".to_string());
-            }
-            description_parts.push("Encrypts files for ransom".to_string());
-        } else if id_lower.contains("malware/backdoor") {
-            classification = "Backdoor".to_string();
-            description_parts.push("Provides remote access".to_string());
-        }
-
-        // Collect key capabilities (hostile/suspicious only)
-        if finding.crit >= Criticality::Suspicious {
-            let cap = format_capability_short(&finding.id);
-            if !key_capabilities.contains(&cap) && key_capabilities.len() < 5 {
-                key_capabilities.push(cap);
-            }
-        }
-    }
-
-    // If no malware detected, classify based on capabilities
-    if classification == "unknown" {
-        classification = match risk_level {
-            Criticality::Hostile => "Potentially Malicious".to_string(),
-            Criticality::Suspicious => "Suspicious Program".to_string(),
-            Criticality::Notable => "Notable Program".to_string(),
-            _ => "Legitimate Program".to_string(),
-        };
-    }
-
-    // Generate description if we don't have one
-    if description_parts.is_empty() && !key_capabilities.is_empty() {
-        description_parts.push(format!(
-            "Program with {} notable capabilities",
-            key_capabilities.len()
-        ));
-    }
-
-    ProgramSummary {
-        classification,
-        malware_family,
-        risk_level,
-        key_capabilities,
-        desc: description_parts.join("; "),
-    }
-}
-
-/// Format a capability ID into a short human-readable form
-fn format_capability_short(id: &str) -> String {
-    let parts: Vec<&str> = id.split('/').collect();
-    if parts.len() >= 2 {
-        match parts[0] {
-            "exec" => format!("Execute {}", parts.last().unwrap_or(&"code")),
-            "c2" => "Command & Control".to_string(),
-            "credential" => "Credential Access".to_string(),
-            "exfil" => "Data Exfiltration".to_string(),
-            "persistence" => "Persistence".to_string(),
-            "evasion" => "Defense Evasion".to_string(),
-            "malware" => {
-                if parts.len() >= 3 {
-                    format!("{} {}", parts[1], parts[2])
-                } else {
-                    "Malware".to_string()
-                }
-            },
-            _ => parts.join(" "),
-        }
-    } else {
-        id.to_string()
-    }
-}
-
-/// Format the program summary for terminal display
-pub fn format_summary(summary: &ProgramSummary) -> String {
-    let mut output = String::new();
-
-    // Risk emoji
-    let risk_emoji = match summary.risk_level {
-        Criticality::Hostile => "🛑",
-        Criticality::Suspicious => "🟡",
-        Criticality::Notable => "🔵",
-        _ => "⚪",
-    };
-
-    // Classification header
-    output.push_str("│\n");
-    output.push_str(&format!(
-        "│  {} {}\n",
-        risk_emoji,
-        summary.classification.bright_white().bold()
-    ));
-
-    // Malware family if detected
-    if let Some(family) = &summary.malware_family {
-        output.push_str(&format!(
-            "│  Family:  {} (detected with high conf)\n",
-            family.bright_red().bold()
-        ));
-    }
-
-    // Risk level
-    let risk_color = match summary.risk_level {
-        Criticality::Hostile => "HOSTILE".bright_red().bold(),
-        Criticality::Suspicious => "SUSPICIOUS".bright_yellow().bold(),
-        Criticality::Notable => "NOTABLE".bright_cyan(),
-        _ => "INERT".normal(),
-    };
-    output.push_str(&format!("│  Risk:    {}\n", risk_color));
-
-    // Description
-    if !summary.desc.is_empty() {
-        output.push_str("│\n");
-        output.push_str(&format!("│  {}\n", summary.desc.italic()));
-    }
-
-    // Key capabilities
-    if !summary.key_capabilities.is_empty() {
-        output.push_str("│\n");
-        output.push_str(&format!("│  {}\n", "Key Capabilities:".bright_white()));
-        for cap in &summary.key_capabilities {
-            output.push_str(&format!("│  • {}\n", cap));
-        }
-    }
-
-    output.push_str("│\n");
-    output
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{AnalysisReport, Evidence, TargetInfo};
+    use crate::types::{AnalysisReport, Evidence, FindingKind, TargetInfo, YaraMatch};
     use chrono::Utc;
 
     fn create_test_report(findings: Vec<Finding>, yara_matches: Vec<YaraMatch>) -> AnalysisReport {
@@ -1013,55 +764,6 @@ mod tests {
         assert_eq!(aggregated[0].conf, 0.9);
     }
 
-    #[test]
-    fn test_yara_to_findings_high_severity() {
-        let yara_matches = vec![YaraMatch {
-            namespace: "traits.intel.discover".to_string(),
-            rule: "process_info".to_string(),
-            desc: "Get process info".to_string(),
-            severity: "high".to_string(),
-            matched_strings: vec![],
-            is_capability: false,
-            mbc: None,
-            attack: None,
-        }];
-        let traits = yara_to_findings(&yara_matches);
-        assert_eq!(traits.len(), 1);
-        assert_eq!(traits[0].id, "intel/discover/process_info");
-        assert_eq!(traits[0].crit, Criticality::Hostile);
-    }
-
-    #[test]
-    fn test_yara_to_findings_medium_severity() {
-        let yara_matches = vec![YaraMatch {
-            namespace: "traits.net.http".to_string(),
-            rule: "client".to_string(),
-            desc: "HTTP client".to_string(),
-            severity: "medium".to_string(),
-            matched_strings: vec![],
-            is_capability: false,
-            mbc: None,
-            attack: None,
-        }];
-        let traits = yara_to_findings(&yara_matches);
-        assert_eq!(traits[0].crit, Criticality::Suspicious);
-    }
-
-    #[test]
-    fn test_yara_to_findings_third_party() {
-        let yara_matches = vec![YaraMatch {
-            namespace: "third_party.mitre".to_string(),
-            rule: "apt29".to_string(),
-            desc: "APT29 indicator".to_string(),
-            severity: "critical".to_string(),
-            matched_strings: vec![],
-            is_capability: false,
-            mbc: None,
-            attack: None,
-        }];
-        let traits = yara_to_findings(&yara_matches);
-        assert_eq!(traits[0].id, "3P/apt29");
-    }
 
     #[test]
     fn test_risk_emoji() {
@@ -1174,46 +876,5 @@ mod tests {
         assert!(output.contains("exec/shell") || output.contains("shell"));
     }
 
-    #[test]
-    fn test_calculate_overall_risk_routine() {
-        let report = create_test_report(vec![], vec![]);
-        let risk = calculate_overall_risk(&report);
-        assert_eq!(risk, Criticality::Inert);
-    }
 
-    #[test]
-    fn test_calculate_overall_risk_from_capabilities() {
-        let capabilities = vec![Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "test".to_string(),
-            desc: "Test".to_string(),
-            conf: 0.8,
-            crit: Criticality::Hostile,
-            mbc: None,
-            attack: None,
-            evidence: vec![],
-            source_file: None,
-        }];
-        let report = create_test_report(capabilities, vec![]);
-        let risk = calculate_overall_risk(&report);
-        assert_eq!(risk, Criticality::Hostile);
-    }
-
-    #[test]
-    fn test_calculate_overall_risk_from_yara() {
-        let yara_matches = vec![YaraMatch {
-            namespace: "test".to_string(),
-            rule: "dangerous".to_string(),
-            desc: "Dangerous pattern".to_string(),
-            severity: "high".to_string(),
-            matched_strings: vec![],
-            is_capability: false,
-            mbc: None,
-            attack: None,
-        }];
-        let report = create_test_report(vec![], yara_matches);
-        let risk = calculate_overall_risk(&report);
-        assert_eq!(risk, Criticality::Hostile);
-    }
 }

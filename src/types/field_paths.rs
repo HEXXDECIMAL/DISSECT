@@ -6,7 +6,7 @@
 use std::collections::HashSet;
 
 /// Trait for types that can declare their valid field paths
-pub trait ValidFieldPaths {
+pub(crate) trait ValidFieldPaths {
     /// Returns all valid field paths for this type
     /// For example, BinaryMetrics might return ["code_to_data_ratio", "string_count", ...]
     fn valid_field_paths() -> Vec<&'static str>;
@@ -14,7 +14,8 @@ pub trait ValidFieldPaths {
 
 /// Returns all valid metric field paths for use in YAML rules
 /// Returns paths like "binary.code_to_data_ratio", "text.line_count", etc.
-pub fn all_valid_metric_paths() -> HashSet<String> {
+#[must_use] 
+pub(crate) fn all_valid_metric_paths() -> HashSet<String> {
     // Import the trait to access its methods
     use super::field_paths::ValidFieldPaths;
 

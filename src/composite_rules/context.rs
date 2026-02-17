@@ -17,9 +17,12 @@ fn hash_str(s: &str) -> u64 {
 
 /// Context for evaluating composite rules
 #[derive(Debug)]
-pub struct EvaluationContext<'a> {
+pub(crate) struct EvaluationContext<'a> {
+    /// The analysis report produced for this file
     pub report: &'a AnalysisReport,
+    /// Raw binary data of the file being analyzed
     pub binary_data: &'a [u8],
+    /// Detected file type
     pub file_type: FileType,
     /// Platform filter(s) from CLI - rules match if their platforms intersect with these
     pub platforms: Vec<Platform>,
@@ -39,7 +42,8 @@ pub struct EvaluationContext<'a> {
 
 impl<'a> EvaluationContext<'a> {
     /// Create a new evaluation context
-    pub fn new(
+    #[must_use] 
+    pub(crate) fn new(
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
         file_type: FileType,
@@ -72,20 +76,16 @@ impl<'a> EvaluationContext<'a> {
         }
     }
 
-    /// Create a new evaluation context with a debug collector
-    pub fn with_debug_collector(mut self, collector: &'a DebugCollector) -> Self {
-        self.debug_collector = Some(collector);
-        self
-    }
-
     /// Set section map for location-constrained matching
-    pub fn with_section_map(mut self, section_map: SectionMap) -> Self {
+    #[must_use] 
+    pub(crate) fn with_section_map(mut self, section_map: SectionMap) -> Self {
         self.section_map = Some(section_map);
         self
     }
 
     /// Check if a finding ID exists (exact match only, O(1))
-    pub fn has_finding_exact(&self, id: &str) -> bool {
+    #[must_use] 
+    pub(crate) fn has_finding_exact(&self, id: &str) -> bool {
         if let Some(ref index) = self.finding_id_index {
             index.contains(&hash_str(id))
         } else {
@@ -101,19 +101,11 @@ impl<'a> EvaluationContext<'a> {
 
 /// Warning types for anti-analysis detection
 #[derive(Debug, Clone)]
-#[allow(dead_code, clippy::enum_variant_names)] // Infrastructure for future anti-analysis findings
-pub enum AnalysisWarning {
+pub(crate) enum AnalysisWarning {
     /// AST depth limit hit - potential recursion bomb
-    AstTooDeep { max_depth: usize },
-    /// Nesting depth limit hit in control flow
-    NestingTooDeep { max_depth: u32 },
-    /// Archive nesting depth limit hit
-    ArchiveTooDeep { max_depth: usize },
-    /// Rule evaluation timeout - potentially malicious input causing slowdown
-    RuleTimeout {
-        rule_id: String,
-        duration_ms: u64,
-        timeout_ms: u64,
+    AstTooDeep {
+        /// Maximum depth that was configured
+        max_depth: usize,
     },
 }
 
@@ -123,33 +115,17 @@ impl std::fmt::Display for AnalysisWarning {
             Self::AstTooDeep { max_depth } => {
                 write!(f, "AST nesting limit hit (depth: {})", max_depth)
             },
-            Self::NestingTooDeep { max_depth } => {
-                write!(f, "Control flow nesting limit hit (depth: {})", max_depth)
-            },
-            Self::ArchiveTooDeep { max_depth } => {
-                write!(f, "Archive nesting limit hit (depth: {})", max_depth)
-            },
-            Self::RuleTimeout {
-                rule_id,
-                duration_ms,
-                timeout_ms,
-            } => {
-                write!(
-                    f,
-                    "Rule evaluation timeout for '{}' ({}ms > {}ms limit)",
-                    rule_id, duration_ms, timeout_ms
-                )
-            },
         }
     }
 }
 
 /// Result of evaluating a condition
 #[derive(Debug)]
-pub struct ConditionResult {
+pub(crate) struct ConditionResult {
+    /// Whether the condition matched the file
     pub matched: bool,
+    /// Evidence items collected when condition matched
     pub evidence: Vec<Evidence>,
-    pub traits: Vec<String>, // Trait IDs referenced
     /// Anti-analysis warnings (recursion bombs, etc.)
     pub warnings: Vec<AnalysisWarning>,
     /// Precision points contributed by this condition (higher = more specific)
@@ -161,7 +137,6 @@ impl Default for ConditionResult {
         Self {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         }
@@ -169,46 +144,47 @@ impl Default for ConditionResult {
 }
 
 impl ConditionResult {
-    pub fn no_match() -> Self {
+    /// Create a non-matching result with no evidence
+    #[must_use]
+    pub(crate) fn no_match() -> Self {
         Self {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         }
     }
 
-    pub fn matched_with(evidence: Vec<Evidence>) -> Self {
+    /// Create a matching result with the given evidence
+    #[must_use]
+    pub(crate) fn matched_with(evidence: Vec<Evidence>) -> Self {
         Self {
             matched: true,
             evidence,
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         }
-    }
-
-    pub fn with_warning(mut self, warning: AnalysisWarning) -> Self {
-        self.warnings.push(warning);
-        self
-    }
-
-    pub fn with_precision(mut self, precision: f32) -> Self {
-        self.precision = precision;
-        self
     }
 }
 
 /// Parameters for string condition evaluation (reduces argument count)
-pub struct StringParams<'a> {
+#[derive(Debug)]
+pub(crate) struct StringParams<'a> {
+    /// Require exact string equality
     pub exact: Option<&'a String>,
+    /// Require the string to contain this substring
     pub substr: Option<&'a String>,
+    /// Require the string to match this regex pattern
     pub regex: Option<&'a String>,
+    /// Require the string to match this whole-word pattern
     pub word: Option<&'a String>,
+    /// If true, perform case-insensitive matching
     pub case_insensitive: bool,
+    /// Patterns that must NOT match (exclusion list)
     pub exclude_patterns: Option<&'a Vec<String>>,
+    /// Pre-compiled regex from the `regex` field
     pub compiled_regex: Option<&'a regex::Regex>,
+    /// Pre-compiled regexes from `exclude_patterns`
     pub compiled_excludes: &'a [regex::Regex],
     /// When true, require matched string to contain a valid external IP address
     pub external_ip: bool,

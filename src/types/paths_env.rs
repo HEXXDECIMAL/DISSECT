@@ -76,11 +76,17 @@ pub enum PathCategory {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
 pub enum PathAccessType {
+    /// File was read (open, fopen, read, etc.)
     Read,
+    /// File was written (write, fwrite, etc.)
     Write,
+    /// File was executed (exec, execve, etc.)
     Execute,
+    /// File was deleted (unlink, remove, etc.)
     Delete,
+    /// File was created (creat, open with O_CREAT, etc.)
     Create,
+    /// Access type could not be determined
     Unknown,
 }
 
@@ -119,13 +125,24 @@ pub enum DirectoryAccessPattern {
     SingleFile,
 
     /// Multiple specific files (hardcoded list)
-    MultipleSpecific { count: usize },
+    MultipleSpecific {
+        /// Number of distinct files accessed
+        count: usize,
+    },
 
     /// Directory enumeration (opendir/readdir/glob)
-    Enumeration { pattern: Option<String> },
+    Enumeration {
+        /// Optional glob pattern used for enumeration
+        pattern: Option<String>,
+    },
 
     /// Batch operations (multiple files, same operation)
-    BatchOperation { operation: String, count: usize },
+    BatchOperation {
+        /// The operation performed (e.g., "read", "write", "delete")
+        operation: String,
+        /// Number of files affected by the batch operation
+        count: usize,
+    },
 
     /// User enumeration (/home/* pattern)
     UserEnumeration,

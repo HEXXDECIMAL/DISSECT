@@ -11,7 +11,7 @@ defaults:
 
 traits:
   # === OS Release File Access ===
-  # Removed etc-os-release-read duplicate - use cap/fs/path/os/linux::os-release-path
+  # Removed etc-os-release-read duplicate - use cap/fs/path/os::os-release-path
 
   - id: os-release-open
     desc: Open os-release file
@@ -82,7 +82,7 @@ composite_rules:
     conf: 0.80
     attack: "T1082"
     any:
-      - id: cap/fs/path/os/linux::os-release-path
+      - id: cap/fs/path/os::os-release-path
       - id: os-release-open
 
   - id: distro-specific-targeting

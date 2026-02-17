@@ -484,7 +484,7 @@ composite_rules:
     all:
       - id: launch-agents
       - id: launchctl-command
-      - id: cap/process/create/shell::system-call-symbol
+      - id: cap/process/create/shell::system-fn
       - id: obj/exec/fileless/memory::exec-function
 
   # Embedded bind-shell plist dropper: binary/source contains full plist template
@@ -500,7 +500,7 @@ composite_rules:
     all:
       - id: embedded-plist-bind-shell
       - id: launch-agents
-      - id: cap/process/create/shell::system-call-symbol
+      - id: cap/process/create/shell::system-fn
 
   - id: launchd-app-trojan
     desc: Launchd persistence with app bundle hijacking
@@ -512,7 +512,7 @@ composite_rules:
     all:
       - id: launchd
       - id: obj/lateral/trojanize/app::app-bundle-hijack
-      - id: cap/process/create/shell::system-call-symbol
+      - id: cap/process/create/shell::system-fn
 
   # Masquerading Composites
   - id: output-suspicious-location

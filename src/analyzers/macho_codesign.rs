@@ -11,20 +11,19 @@ use std::collections::HashMap;
 
 /// Signature types extracted from code signature
 #[derive(Debug, Clone)]
-pub enum SignatureType {
+pub(crate) enum SignatureType {
     Adhoc,
     DeveloperID,
-    AppStore,
     Platform,
     Unknown,
 }
 
 impl SignatureType {
-    pub fn as_str(&self) -> &str {
+    #[must_use]
+    pub(crate) fn as_str(&self) -> &str {
         match self {
             SignatureType::Adhoc => "adhoc",
             SignatureType::DeveloperID => "developer-id",
-            SignatureType::AppStore => "app-store",
             SignatureType::Platform => "platform",
             SignatureType::Unknown => "unknown",
         }
@@ -33,7 +32,7 @@ impl SignatureType {
 
 /// Entitlement values (simplified from full plist support)
 #[derive(Debug, Clone)]
-pub enum EntitlementValue {
+pub(crate) enum EntitlementValue {
     Boolean(bool),
     String(String),
     Array(Vec<String>),
@@ -41,7 +40,7 @@ pub enum EntitlementValue {
 
 /// Parsed code signature information
 #[derive(Debug, Clone)]
-pub struct CodeSignature {
+pub(crate) struct CodeSignature {
     pub signature_type: SignatureType,
     pub team_id: Option<String>,
     pub authorities: Vec<String>,
@@ -58,7 +57,7 @@ const ENTITLEMENTS_BLOB_MAGIC: u32 = 0xFADE7171;
 const CMS_SIGNATURE_MAGIC: u32 = 0xFADE0B01;
 
 /// Parse code signature from binary data
-pub fn parse_code_signature(data: &[u8], cs_offset: u32, cs_size: u32) -> Result<CodeSignature> {
+pub(crate) fn parse_code_signature(data: &[u8], cs_offset: u32, cs_size: u32) -> Result<CodeSignature> {
     let offset = cs_offset as usize;
     let size = cs_size as usize;
 
@@ -252,7 +251,7 @@ fn parse_entitlements_blob(data: &[u8]) -> Result<HashMap<String, EntitlementVal
 
                     match tag_name {
                         "key" => {
-                            current_key = child.text().map(|s| s.to_string());
+                            current_key = child.text().map(std::string::ToString::to_string);
                             tracing::debug!("Found key: {:?}", current_key);
                         },
                         "true" => {
@@ -532,7 +531,6 @@ mod tests {
         assert_eq!(SignatureType::Adhoc.as_str(), "adhoc");
         assert_eq!(SignatureType::DeveloperID.as_str(), "developer-id");
         assert_eq!(SignatureType::Platform.as_str(), "platform");
-        assert_eq!(SignatureType::AppStore.as_str(), "app-store");
         assert_eq!(SignatureType::Unknown.as_str(), "unknown");
     }
 

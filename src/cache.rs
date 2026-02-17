@@ -26,7 +26,7 @@ use walkdir::WalkDir;
 /// - macOS: ~/Library/Caches/dissect
 /// - Linux: ~/.cache/dissect
 /// - Windows: %LOCALAPPDATA%\dissect
-pub fn cache_dir() -> Result<PathBuf> {
+pub(crate) fn cache_dir() -> Result<PathBuf> {
     let base_cache = dirs::cache_dir().context("Failed to get system cache directory")?;
 
     let cache_path = base_cache.join("dissect");
@@ -40,19 +40,19 @@ pub fn cache_dir() -> Result<PathBuf> {
 }
 
 /// Returns the traits directory path from DISSECT_TRAITS_PATH env var or "traits" default
-pub fn traits_path() -> PathBuf {
+pub(crate) fn traits_path() -> PathBuf {
     std::env::var("DISSECT_TRAITS_PATH")
         .map(PathBuf::from)
         .unwrap_or_else(|_| PathBuf::from("traits"))
 }
 
 /// Check if we're running in developer mode (traits directory exists)
-pub fn is_developer_mode() -> bool {
+pub(crate) fn is_developer_mode() -> bool {
     traits_path().exists()
 }
 
 /// Returns the most recent modification time of any YARA rule file
-pub fn most_recent_yara_mtime() -> Result<SystemTime> {
+pub(crate) fn most_recent_yara_mtime() -> Result<SystemTime> {
     let mut most_recent = SystemTime::UNIX_EPOCH;
 
     // Check traits directory
@@ -100,7 +100,7 @@ pub fn most_recent_yara_mtime() -> Result<SystemTime> {
 }
 
 /// Returns the modification time of the dissect binary
-pub fn binary_mtime() -> Result<SystemTime> {
+pub(crate) fn binary_mtime() -> Result<SystemTime> {
     let exe_path = std::env::current_exe().context("Failed to get current executable path")?;
 
     let metadata = fs::metadata(&exe_path).context("Failed to read binary metadata")?;
@@ -109,7 +109,7 @@ pub fn binary_mtime() -> Result<SystemTime> {
 }
 
 /// Returns the appropriate timestamp for cache invalidation
-pub fn cache_timestamp() -> Result<SystemTime> {
+pub(crate) fn cache_timestamp() -> Result<SystemTime> {
     if is_developer_mode() {
         // Developer mode: use most recent YARA file mtime
         most_recent_yara_mtime()
@@ -120,7 +120,7 @@ pub fn cache_timestamp() -> Result<SystemTime> {
 }
 
 /// Generate a cache key based on timestamp and third-party flag
-pub fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
+pub(crate) fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
     let mtime = cache_timestamp()?;
     let timestamp = mtime
         .duration_since(SystemTime::UNIX_EPOCH)
@@ -138,14 +138,14 @@ pub fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
 }
 
 /// Get the path to the YARA rules cache file
-pub fn yara_cache_path(third_party_enabled: bool) -> Result<PathBuf> {
+pub(crate) fn yara_cache_path(third_party_enabled: bool) -> Result<PathBuf> {
     let cache_key = yara_cache_key(third_party_enabled)?;
     Ok(cache_dir()?.join(cache_key))
 }
 
 /// Get the reverse engineering tool analysis cache directory
 /// Returns: {cache_dir}/re/
-pub fn re_cache_dir() -> Result<PathBuf> {
+pub(crate) fn re_cache_dir() -> Result<PathBuf> {
     let dir = cache_dir()?.join("re");
     if !dir.exists() {
         fs::create_dir_all(&dir).context("Failed to create RE cache directory")?;
@@ -156,7 +156,7 @@ pub fn re_cache_dir() -> Result<PathBuf> {
 /// Get the cache path for a reverse engineering analysis result by SHA256
 /// Uses first 2 chars as subdirectory to avoid huge flat directories.
 /// Returns: {cache_dir}/re/{sha256[0:2]}/{sha256}.bin
-pub fn re_cache_path(sha256: &str) -> Result<PathBuf> {
+pub(crate) fn re_cache_path(sha256: &str) -> Result<PathBuf> {
     if sha256.len() < 2 {
         anyhow::bail!("Invalid SHA256: too short");
     }
@@ -168,7 +168,7 @@ pub fn re_cache_path(sha256: &str) -> Result<PathBuf> {
 }
 
 /// Clean up old cache files (keep only current one)
-pub fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
+pub(crate) fn cleanup_old_caches(current_cache: &Path) -> Result<()> {
     let cache_dir = cache_dir()?;
 
     for entry in fs::read_dir(&cache_dir)? {

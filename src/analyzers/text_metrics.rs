@@ -8,7 +8,8 @@ use crate::types::TextMetrics;
 use std::collections::HashMap;
 
 /// Analyze raw text content and produce TextMetrics
-pub fn analyze_text(content: &str) -> TextMetrics {
+#[must_use] 
+pub(crate) fn analyze_text(content: &str) -> TextMetrics {
     let bytes = content.as_bytes();
     let mut metrics = TextMetrics::default();
 

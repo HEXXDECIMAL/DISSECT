@@ -16,7 +16,7 @@ traits:
       substr: "raw socket"
       case_insensitive: true
 
-  # Removed proc-net-raw duplicate - use cap/fs/proc/info/linux::proc-net-raw
+  # Removed proc-net-raw duplicate - use cap/fs/proc/info::proc-net-raw
 
 composite_rules:
   - id: raw
@@ -25,4 +25,4 @@ composite_rules:
     conf: 0.8
     any:
       - id: raw-socket-ref
-      - id: cap/fs/proc/info/linux::proc-net-raw
+      - id: cap/fs/proc/info::proc-net-raw

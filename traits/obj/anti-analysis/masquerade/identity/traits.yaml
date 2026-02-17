@@ -96,14 +96,7 @@ traits:
       type: string
       substr: "/usr/sbin/acpid"
 
-  - id: atd-path
-    desc: atd daemon path reference
-    crit: notable
-    conf: 0.8
-    for: [elf]
-    if:
-      type: string
-      substr: "/usr/sbin/atd"
+  # atd-path: use obj/anti-analysis/masquerade/process::fake-atd-path (canonical)
 
   # prctl symbol - can be used to change process name
   - id: prctl-symbol

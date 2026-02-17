@@ -9,7 +9,7 @@ composite_rules:
     conf: 0.9
     needs: 2
     any:
-      - id: vmware-string
+      - id: obj/anti-analysis/vm/detect::vendor-vmware
       - id: virtualbox-string
       - id: qemu-string
       - id: cpu-vendor
@@ -22,7 +22,7 @@ composite_rules:
     conf: 0.9
     needs: 2
     any:
-      - id: vmware-string
+      - id: obj/anti-analysis/vm/detect::vendor-vmware
       - id: virtualbox-string
       - id: qemu-string
       - id: vm-hardware

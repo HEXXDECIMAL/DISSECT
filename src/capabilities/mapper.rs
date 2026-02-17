@@ -49,7 +49,7 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
         return Some(relative.to_string());
     }
     // Fallback: return the file name only if we can't find "traits/"
-    path.file_name().and_then(|n| n.to_str()).map(|s| s.to_string())
+    path.file_name().and_then(|n| n.to_str()).map(std::string::ToString::to_string)
 }
 
 /// Maps symbols (function names, library calls) to capability IDs
@@ -74,7 +74,8 @@ impl CapabilityMapper {
     const DEFAULT_MIN_SUSPICIOUS_PRECISION: f32 = 2.0;
 
     /// Create an empty capability mapper for testing
-    pub fn empty() -> Self {
+    #[must_use] 
+    pub(crate) fn empty() -> Self {
         Self {
             symbol_map: HashMap::new(),
             trait_definitions: Vec::new(),
@@ -88,7 +89,8 @@ impl CapabilityMapper {
 
     /// Set the platform filter(s) for rule evaluation
     /// Pass vec![Platform::All] to match all platforms (default)
-    pub fn with_platforms(mut self, platforms: Vec<Platform>) -> Self {
+    #[must_use]
+    pub(crate) fn with_platforms(mut self, platforms: Vec<Platform>) -> Self {
         self.platforms = if platforms.is_empty() {
             vec![Platform::All]
         } else {
@@ -97,7 +99,9 @@ impl CapabilityMapper {
         self
     }
 
-    pub fn new() -> Self {
+    /// Create a new mapper loading traits from the default capabilities directory or YAML file
+    #[must_use]
+    pub(crate) fn new() -> Self {
         Self::new_with_precision_thresholds(
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
             Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
@@ -105,7 +109,9 @@ impl CapabilityMapper {
         )
     }
 
-    pub fn new_with_precision_thresholds(
+    /// Create a mapper with explicit precision thresholds for hostile/suspicious findings
+    #[must_use]
+    pub(crate) fn new_with_precision_thresholds(
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
         enable_full_validation: bool,
@@ -178,7 +184,7 @@ impl CapabilityMapper {
     }
 
     /// Load capability mappings from directory of YAML files (recursively)
-    pub fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
+    pub(crate) fn from_directory<P: AsRef<Path>>(dir_path: P) -> Result<Self> {
         Self::from_directory_with_precision_thresholds(
             dir_path,
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
@@ -187,7 +193,8 @@ impl CapabilityMapper {
         )
     }
 
-    pub fn from_directory_with_precision_thresholds<P: AsRef<Path>>(
+    /// Load capability mappings from a directory of YAML files with explicit precision thresholds
+    pub(crate) fn from_directory_with_precision_thresholds<P: AsRef<Path>>(
         dir_path: P,
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
@@ -217,7 +224,7 @@ impl CapabilityMapper {
         let mut yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
             .follow_links(false)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|entry| {
                 let path = entry.path();
                 if !path.is_file() || !path.extension().map(|e| e == "yaml").unwrap_or(false) {
@@ -1061,7 +1068,7 @@ impl CapabilityMapper {
                     if !matches_prefix {
                         let source_file = rule_source_files
                             .get(&rule_id)
-                            .map(|s| s.as_str())
+                            .map(std::string::String::as_str)
                             .unwrap_or("unknown");
                         invalid_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
                     }
@@ -1145,7 +1152,7 @@ impl CapabilityMapper {
             for (ref_id, rule_id) in trait_refs {
                 if ref_id.starts_with("meta/internal/") {
                     let source_file =
-                        rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                        rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                     internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
                 }
             }
@@ -1284,7 +1291,7 @@ impl CapabilityMapper {
             let violations = find_redundant_any_refs(rule);
             for (rule_id, dir, count, trait_ids) in violations {
                 let source_file =
-                    rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                 redundant_any_refs.push((rule_id, dir, count, trait_ids, source_file.to_string()));
             }
         }
@@ -1325,7 +1332,7 @@ impl CapabilityMapper {
             let violations = find_single_item_clauses(rule);
             for (rule_id, clause_type, trait_id) in violations {
                 let source_file =
-                    rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                 single_item_clauses.push((rule_id, clause_type, trait_id, source_file.to_string()));
             }
         }
@@ -1371,7 +1378,7 @@ impl CapabilityMapper {
             eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
             for (string_id, content_id, pattern) in &collisions {
                 let string_source =
-                    rule_source_files.get(string_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(string_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(string_source, string_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1406,7 +1413,7 @@ impl CapabilityMapper {
                 // Find source file for the first trait
                 let first_id = &trait_ids[0];
                 let source =
-                    rule_source_files.get(first_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(first_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, first_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
@@ -1437,7 +1444,7 @@ impl CapabilityMapper {
             for (trait_ids, _suffix, suggested) in &alternation_candidates {
                 let first_id = &trait_ids[0];
                 let source =
-                    rule_source_files.get(first_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(first_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, first_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
@@ -1462,7 +1469,7 @@ impl CapabilityMapper {
             eprintln!("   The `needs` value exceeds the number of items in `any:`:\n");
             for (rule_id, needs, any_len) in &impossible_needs {
                 let source =
-                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1493,7 +1500,7 @@ impl CapabilityMapper {
             );
             for (id, min, max, is_composite) in &impossible_sizes {
                 let kind = if *is_composite { "composite" } else { "trait" };
-                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1522,7 +1529,7 @@ impl CapabilityMapper {
                 impossible_counts.len()
             );
             for (id, min, max) in &impossible_counts {
-                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1553,7 +1560,7 @@ impl CapabilityMapper {
             eprintln!("   Empty `any:` or `all:` clauses make rules meaningless:\n");
             for (rule_id, clause_type) in &empty_clauses {
                 let source =
-                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!(
@@ -1585,7 +1592,7 @@ impl CapabilityMapper {
                 "   String/content conditions need at least one of: exact, substr, regex, word:\n"
             );
             for id in &missing_patterns {
-                let source = rule_source_files.get(id).map(|s| s.as_str()).unwrap_or("unknown");
+                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: '{}'", source, line, id);
@@ -1610,7 +1617,7 @@ impl CapabilityMapper {
             eprintln!("   `needs: 1` is the default when only `any:` exists - remove it:\n");
             for rule_id in &redundant_needs {
                 let source =
-                    rule_source_files.get(rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(source, rule_id);
                 if let Some(line) = line_hint {
                     eprintln!("   {}:{}: '{}'", source, line, rule_id);
@@ -1687,7 +1694,7 @@ impl CapabilityMapper {
                         );
                     }
                     let source_file =
-                        rule_source_files.get(&rule_id).map(|s| s.as_str()).unwrap_or("unknown");
+                        rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                     broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
                 }
             }
@@ -1726,7 +1733,7 @@ impl CapabilityMapper {
                 if !valid_metric_fields.contains(&field) {
                     let source_file = trait_source_files
                         .get(&trait_def.id)
-                        .map(|s| s.as_str())
+                        .map(std::string::String::as_str)
                         .unwrap_or("unknown");
                     invalid_metric_refs.push((
                         trait_def.id.clone(),
@@ -1786,7 +1793,7 @@ impl CapabilityMapper {
         // Strict mode is the default - composite rules must only reference traits
         let mut inline_errors = Vec::new();
         for rule in &composite_rules {
-            let source = rule_source_files.get(&rule.id).map(|s| s.as_str()).unwrap_or("unknown");
+            let source = rule_source_files.get(&rule.id).map(std::string::String::as_str).unwrap_or("unknown");
             inline_errors.extend(validate_composite_trait_only(rule, source));
         }
 
@@ -1866,7 +1873,7 @@ impl CapabilityMapper {
                         if rule.r#for == *ref_file_types {
                             let source_file = rule_source_files
                                 .get(&rule.id)
-                                .map(|s| s.as_str())
+                                .map(std::string::String::as_str)
                                 .unwrap_or("unknown");
 
                             // Check if this composite only adds an 'unless' clause
@@ -2034,7 +2041,7 @@ impl CapabilityMapper {
     }
 
     /// Load capability mappings from YAML file
-    pub fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub(crate) fn from_yaml<P: AsRef<Path>>(path: P) -> Result<Self> {
         Self::from_yaml_with_precision_thresholds(
             path,
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
@@ -2043,7 +2050,8 @@ impl CapabilityMapper {
         )
     }
 
-    pub fn from_yaml_with_precision_thresholds<P: AsRef<Path>>(
+    /// Load capability mappings from a single YAML file with explicit precision thresholds
+    pub(crate) fn from_yaml_with_precision_thresholds<P: AsRef<Path>>(
         path: P,
         min_hostile_precision: f32,
         min_suspicious_precision: f32,
@@ -2179,7 +2187,8 @@ impl CapabilityMapper {
     }
 
     /// Look up a symbol and return its capability finding if known
-    pub fn lookup(&self, symbol: &str, source: &str) -> Option<Finding> {
+    #[must_use] 
+    pub(crate) fn lookup(&self, symbol: &str, source: &str) -> Option<Finding> {
         // Strip common prefixes for matching
         let clean_symbol = symbol
             .trim_start_matches('_') // C symbols often have leading underscore
@@ -2211,7 +2220,8 @@ impl CapabilityMapper {
 
     /// Map YARA rule path to capability ID
     /// Example: "rules/exec/cmd/cmd.yara" → "exec/command/shell"
-    pub fn yara_rule_to_capability(&self, rule_path: &str) -> Option<String> {
+    #[must_use] 
+    pub(crate) fn yara_rule_to_capability(&self, rule_path: &str) -> Option<String> {
         // Extract the path components after "rules/"
         let path = rule_path.strip_prefix("rules/").unwrap_or(rule_path);
 
@@ -2248,32 +2258,38 @@ impl CapabilityMapper {
     }
 
     /// Get the number of loaded symbol mappings
-    pub fn mapping_count(&self) -> usize {
+    #[must_use] 
+    pub(crate) fn mapping_count(&self) -> usize {
         self.symbol_map.len()
     }
 
     /// Get the number of loaded composite rules
-    pub fn composite_rules_count(&self) -> usize {
+    #[must_use] 
+    pub(crate) fn composite_rules_count(&self) -> usize {
         self.composite_rules.len()
     }
 
     /// Get a reference to the composite rules (for graph generation and analysis)
-    pub fn composite_rules(&self) -> &[CompositeTrait] {
+    #[must_use]
+    pub(crate) fn composite_rules(&self) -> &[CompositeTrait] {
         &self.composite_rules
     }
 
     /// Get the number of loaded trait definitions
-    pub fn trait_definitions_count(&self) -> usize {
+    #[must_use] 
+    pub(crate) fn trait_definitions_count(&self) -> usize {
         self.trait_definitions.len()
     }
 
     /// Get a reference to the trait definitions (for debugging/testing)
-    pub fn trait_definitions(&self) -> &[TraitDefinition] {
+    #[must_use]
+    pub(crate) fn trait_definitions(&self) -> &[TraitDefinition] {
         &self.trait_definitions
     }
 
     /// Find a trait definition by ID
-    pub fn find_trait(&self, id: &str) -> Option<&TraitDefinition> {
+    #[must_use]
+    pub(crate) fn find_trait(&self, id: &str) -> Option<&TraitDefinition> {
         self.trait_definitions.iter().find(|t| t.id == id)
     }
 
@@ -2281,7 +2297,8 @@ impl CapabilityMapper {
     /// Returns findings detected from trait definitions
     ///
     /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
-    pub fn evaluate_traits_with_ast(
+    #[must_use] 
+    pub(crate) fn evaluate_traits_with_ast(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
@@ -2508,7 +2525,8 @@ impl CapabilityMapper {
 
     /// Evaluate trait definitions against an analysis report (without cached AST)
     /// Wrapper for evaluate_traits_with_ast
-    pub fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
+    #[must_use] 
+    pub(crate) fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
         self.evaluate_traits_with_ast(report, binary_data, None)
     }
 
@@ -2516,7 +2534,8 @@ impl CapabilityMapper {
     /// Returns additional findings detected by composite rules
     ///
     /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
-    pub fn evaluate_composite_rules(
+    #[must_use] 
+    pub(crate) fn evaluate_composite_rules(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
@@ -2742,7 +2761,7 @@ impl CapabilityMapper {
     /// // In an analyzer:
     /// self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
     /// ```
-    pub fn evaluate_and_merge_findings(
+    pub(crate) fn evaluate_and_merge_findings(
         &self,
         report: &mut AnalysisReport,
         binary_data: &[u8],
@@ -3149,9 +3168,13 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
 
     // Check for explicit 'offset: null' which is meaningless (same as not specifying)
     // Use regex to match the pattern with proper YAML indentation context
-    let offset_null_re = regex::Regex::new(r"^\s+offset:\s*null\s*$").unwrap();
+    #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+    fn offset_null_re() -> &'static regex::Regex {
+        static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+        RE.get_or_init(|| regex::Regex::new(r"^\s+offset:\s*null\s*$").unwrap())
+    }
     for (line_num, line) in content.lines().enumerate() {
-        if offset_null_re.is_match(line) {
+        if offset_null_re().is_match(line) {
             warnings.push(format!(
                 "{} line {}: 'offset: null' is meaningless (same as not specifying offset) - remove this line",
                 path.display(),
@@ -3161,9 +3184,13 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
     }
 
     // Check for explicit 'section: null' which is also meaningless
-    let section_null_re = regex::Regex::new(r"^\s+section:\s*null\s*$").unwrap();
+    #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
+    fn section_null_re() -> &'static regex::Regex {
+        static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+        RE.get_or_init(|| regex::Regex::new(r"^\s+section:\s*null\s*$").unwrap())
+    }
     for (line_num, line) in content.lines().enumerate() {
-        if section_null_re.is_match(line) {
+        if section_null_re().is_match(line) {
             warnings.push(format!(
                 "{} line {}: 'section: null' is meaningless (same as not specifying section) - remove this line",
                 path.display(),

@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 /// Information about a single function for metrics computation
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct FunctionInfo {
+pub(crate) struct FunctionInfo {
     pub name: String,
     pub line_count: u32,
     pub param_count: u32,
@@ -24,7 +24,8 @@ pub struct FunctionInfo {
 }
 
 /// Analyze a collection of functions and compute metrics
-pub fn analyze_functions(functions: &[FunctionInfo], total_lines: u32) -> FunctionMetrics {
+#[must_use] 
+pub(crate) fn analyze_functions(functions: &[FunctionInfo], total_lines: u32) -> FunctionMetrics {
     let mut metrics = FunctionMetrics::default();
 
     if functions.is_empty() {
@@ -129,7 +130,7 @@ pub fn analyze_functions(functions: &[FunctionInfo], total_lines: u32) -> Functi
 
     // Parameter name analysis
     if !all_param_names.is_empty() {
-        let total_len: usize = all_param_names.iter().map(|s| s.len()).sum();
+        let total_len: usize = all_param_names.iter().map(std::string::String::len).sum();
         metrics.avg_param_name_length = total_len as f32 / all_param_names.len() as f32;
         metrics.single_char_params = all_param_names.iter().filter(|s| s.len() == 1).count() as u32;
     }

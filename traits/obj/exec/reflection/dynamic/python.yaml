@@ -32,4 +32,4 @@ composite_rules:
     all:
       - id: dynamic-import
       - id: cap/data/obfuscation/strings::hex-encoding
-      - id: obj/exec/reflection/class::getattr-module
+      - id: obj/exec/reflection/dynamic::getattr-module

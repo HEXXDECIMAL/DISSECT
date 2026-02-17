@@ -30,4 +30,4 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: "^/usr/local/lib/$"
+      exact: "/usr/local/lib/"

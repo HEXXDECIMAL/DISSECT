@@ -33,7 +33,7 @@ use super::ArchiveAnalyzer;
 
 /// Extracted file ready for analysis
 #[derive(Debug)]
-pub enum ExtractedFile {
+pub(crate) enum ExtractedFile {
     /// File extracted to memory buffer (most files)
     InMemory {
         /// Relative path in archive (e.g., "lib/foo.so")
@@ -56,35 +56,19 @@ pub enum ExtractedFile {
 
 impl ExtractedFile {
     /// Get the relative path within the archive
-    pub fn path(&self) -> &str {
+    #[must_use] 
+    pub(crate) fn path(&self) -> &str {
         match self {
             ExtractedFile::InMemory { path, .. } => path,
             ExtractedFile::OnDisk { path, .. } => path,
         }
     }
 
-    /// Get the file type
-    pub fn file_type(&self) -> &FileType {
-        match self {
-            ExtractedFile::InMemory { file_type, .. } => file_type,
-            ExtractedFile::OnDisk { file_type, .. } => file_type,
-        }
-    }
-
-    /// Get the data if in-memory, None if on-disk
-    pub fn data(&self) -> Option<&[u8]> {
-        match self {
-            ExtractedFile::InMemory { data, .. } => Some(data),
-            ExtractedFile::OnDisk { .. } => None,
-        }
-    }
 }
 
 /// Result of analyzing a single file within an archive
 #[derive(Debug)]
-pub struct StreamingFileResult {
-    /// Relative path within archive
-    pub path: String,
+pub(crate) struct StreamingFileResult {
     /// File analysis converted to FileAnalysis for v2 schema
     pub file_analysis: FileAnalysis,
     /// Any nested files (from nested archives)
@@ -97,7 +81,7 @@ impl ArchiveAnalyzer {
     /// This is the core analysis function for streaming. It operates entirely
     /// on the provided byte buffer, using YARA's scan_bytes, tree-sitter parsing
     /// on byte slices, and string extraction on raw bytes.
-    pub fn analyze_in_memory(
+    pub(crate) fn analyze_in_memory(
         &self,
         relative_path: &str,
         data: &[u8],
@@ -356,7 +340,6 @@ impl ArchiveAnalyzer {
         }
 
         Ok(StreamingFileResult {
-            path: relative_path.to_string(),
             file_analysis,
             nested_files,
         })
@@ -575,7 +558,7 @@ impl ArchiveAnalyzer {
     ///
     /// # Returns
     /// An ArchiveSummary with aggregate statistics
-    pub fn analyze_tar_streaming<F>(
+    pub(crate) fn analyze_tar_streaming<F>(
         &self,
         archive_path: &Path,
         on_file: F,
@@ -587,7 +570,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-        let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
@@ -764,13 +746,7 @@ impl ArchiveAnalyzer {
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
         Ok(ArchiveSummary {
-            files_analyzed: files_analyzed.load(Ordering::Relaxed),
-            hostile: hostile_count.load(Ordering::Relaxed),
-            suspicious: suspicious_count.load(Ordering::Relaxed),
-            notable: notable_count.load(Ordering::Relaxed),
-            total_bytes: total_bytes.load(Ordering::Relaxed),
             hostile_reasons,
-            analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
 
@@ -779,7 +755,7 @@ impl ArchiveAnalyzer {
     /// Uses the same producer-consumer pattern as TAR streaming.
     /// Note: ZIP requires reading the central directory first, so there's
     /// a small initial delay before streaming begins.
-    pub fn analyze_zip_streaming<F>(
+    pub(crate) fn analyze_zip_streaming<F>(
         &self,
         archive_path: &Path,
         on_file: F,
@@ -791,7 +767,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-        let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
@@ -1021,13 +996,7 @@ impl ArchiveAnalyzer {
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
         Ok(ArchiveSummary {
-            files_analyzed: files_analyzed.load(Ordering::Relaxed),
-            hostile: hostile_count.load(Ordering::Relaxed),
-            suspicious: suspicious_count.load(Ordering::Relaxed),
-            notable: notable_count.load(Ordering::Relaxed),
-            total_bytes: total_bytes.load(Ordering::Relaxed),
             hostile_reasons,
-            analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
 
@@ -1039,7 +1008,7 @@ impl ArchiveAnalyzer {
     /// - data.tar.* (actual files)
     ///
     /// We stream the inner tar archives for parallel analysis.
-    pub fn analyze_deb_streaming<F>(
+    pub(crate) fn analyze_deb_streaming<F>(
         &self,
         archive_path: &Path,
         on_file: F,
@@ -1051,7 +1020,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-        let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1232,13 +1200,7 @@ impl ArchiveAnalyzer {
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
         Ok(ArchiveSummary {
-            files_analyzed: files_analyzed.load(Ordering::Relaxed),
-            hostile: hostile_count.load(Ordering::Relaxed),
-            suspicious: suspicious_count.load(Ordering::Relaxed),
-            notable: notable_count.load(Ordering::Relaxed),
-            total_bytes: total_bytes.load(Ordering::Relaxed),
             hostile_reasons,
-            analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
 
@@ -1246,7 +1208,7 @@ impl ArchiveAnalyzer {
     ///
     /// RPM files contain a lead, signature header, main header, and CPIO payload.
     /// The CPIO payload may be compressed with gzip, xz, zstd, bzip2, or lzma.
-    pub fn analyze_rpm_streaming<F>(
+    pub(crate) fn analyze_rpm_streaming<F>(
         &self,
         archive_path: &Path,
         on_file: F,
@@ -1259,7 +1221,6 @@ impl ArchiveAnalyzer {
         use std::io::BufReader;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-        let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1419,13 +1380,7 @@ impl ArchiveAnalyzer {
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
         Ok(ArchiveSummary {
-            files_analyzed: files_analyzed.load(Ordering::Relaxed),
-            hostile: hostile_count.load(Ordering::Relaxed),
-            suspicious: suspicious_count.load(Ordering::Relaxed),
-            notable: notable_count.load(Ordering::Relaxed),
-            total_bytes: total_bytes.load(Ordering::Relaxed),
             hostile_reasons,
-            analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
 }
@@ -1435,7 +1390,7 @@ impl ArchiveAnalyzer {
     ///
     /// 7z uses solid compression so extraction must be sequential, but we can
     /// analyze files in parallel as they're extracted.
-    pub fn analyze_7z_streaming<F>(&self, archive_path: &Path, on_file: F) -> Result<ArchiveSummary>
+    pub(crate) fn analyze_7z_streaming<F>(&self, archive_path: &Path, on_file: F) -> Result<ArchiveSummary>
     where
         F: Fn(StreamingFileResult) + Send + Sync,
     {
@@ -1444,7 +1399,6 @@ impl ArchiveAnalyzer {
         use sevenz_rust::{Password, SevenZReader};
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-        let start = std::time::Instant::now();
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1646,13 +1600,7 @@ impl ArchiveAnalyzer {
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
         Ok(ArchiveSummary {
-            files_analyzed: files_analyzed.load(Ordering::Relaxed),
-            hostile: hostile_count.load(Ordering::Relaxed),
-            suspicious: suspicious_count.load(Ordering::Relaxed),
-            notable: notable_count.load(Ordering::Relaxed),
-            total_bytes: total_bytes.load(Ordering::Relaxed),
             hostile_reasons,
-            analysis_duration_ms: start.elapsed().as_millis() as u64,
         })
     }
 }
@@ -1832,21 +1780,9 @@ fn extract_cpio_streaming<R: Read>(
 
 /// Summary of streaming archive analysis
 #[derive(Debug)]
-pub struct ArchiveSummary {
-    /// Number of files successfully analyzed
-    pub files_analyzed: u32,
-    /// Count of files with hostile findings
-    pub hostile: u32,
-    /// Count of files with suspicious findings
-    pub suspicious: u32,
-    /// Count of files with notable findings
-    pub notable: u32,
-    /// Total bytes analyzed
-    pub total_bytes: u64,
+pub(crate) struct ArchiveSummary {
     /// Any hostile archive reasons detected during extraction
     pub hostile_reasons: Vec<HostileArchiveReason>,
-    /// Total analysis duration in milliseconds
-    pub analysis_duration_ms: u64,
 }
 
 /// Detect file type from magic bytes (first 4+ bytes of data)

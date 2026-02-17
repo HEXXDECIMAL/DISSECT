@@ -14,7 +14,8 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "reverse[_\\s]?shell|revshell|r[e3]v[e3]rs[e3][_\\s]*sh[e3]ll"
+      # revshell: use obj/c2/reverse-shell/detection/traits.yaml::revshell-string (canonical)
+      regex: "reverse[_\\s]?shell|r[e3]v[e3]rs[e3][_\\s]*sh[e3]ll"
       case_insensitive: true
 
   - id: webshell-ref
@@ -164,7 +165,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: reverse-keyword
-      - id: cap/data/text/keywords::socket
+      - id: cap/comm/socket/listen::socket-sym
     any:
       - id: cap/process/create/shell::bin-bash
       - id: cap/process/create/shell::bin-sh

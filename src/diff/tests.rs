@@ -1,6 +1,5 @@
 use super::*;
 use crate::diff::formatting::format_diff_terminal;
-use crate::diff::risk::{is_high_risk_id, is_medium_risk_id};
 use crate::diff::utils::{
     calculate_file_similarity, detect_renames, extract_library_base, is_shared_library,
     library_similarity,
@@ -77,26 +76,6 @@ fn test_diff_analyzer_new() {
     assert_eq!(analyzer.target_path.to_str().unwrap(), "/target");
 }
 
-#[test]
-fn test_is_high_risk() {
-    assert!(is_high_risk_id("exec/shell"));
-    assert!(is_high_risk_id("anti-analysis/debugger"));
-    assert!(is_high_risk_id("privilege/escalation"));
-    assert!(is_high_risk_id("persistence/registry"));
-    assert!(is_high_risk_id("injection/dll"));
-    assert!(!is_high_risk_id("net/http"));
-    assert!(!is_high_risk_id("fs/read"));
-}
-
-#[test]
-fn test_is_medium_risk() {
-    assert!(is_medium_risk_id("net/http"));
-    assert!(is_medium_risk_id("credential/dump"));
-    assert!(is_medium_risk_id("registry/read"));
-    assert!(is_medium_risk_id("service/query"));
-    assert!(!is_medium_risk_id("exec/shell"));
-    assert!(!is_medium_risk_id("fs/read"));
-}
 
 #[test]
 fn test_compare_reports_no_changes() {

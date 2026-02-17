@@ -15,6 +15,6 @@ composite_rules:
     for: [pe]
     needs: 2
     any:
-      - id: obj/exec/inject
+      - id: obj/defense-evasion/process/injection
       - id: obj/defense-evasion/process/injection/atom-bombing::atom-bombing-capable
-      - id: obj/process/injection/methods::process-hollowing
+      - id: obj/defense-evasion/process/injection::process-hollowing

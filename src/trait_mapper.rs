@@ -11,6 +11,7 @@ use crate::types::{
 };
 
 /// Analyze function traits and generate behavioral capabilities
+#[must_use] 
 pub fn analyze_function(func: &Function) -> Vec<Finding> {
     let mut capabilities = Vec::new();
 
@@ -401,6 +402,7 @@ fn analyze_constants(
 }
 
 /// Analyze binary-wide properties for capabilities
+#[must_use] 
 pub fn analyze_binary_properties(props: &BinaryProperties) -> Vec<Finding> {
     let mut capabilities = Vec::new();
 

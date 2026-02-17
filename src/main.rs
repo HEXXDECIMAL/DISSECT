@@ -49,7 +49,6 @@ mod strings;
 mod test_rules;
 #[cfg(test)]
 mod test_rules_filters_test;
-mod trait_mapper;
 mod types;
 mod upx;
 mod yara_engine;

@@ -41,7 +41,13 @@ traits:
       type: string
       substr: "hashrate"
 
-  # Removed wallet-word duplicate - use obj/impact/cryptojacking/miner::wallet-ref
+  - id: wallet-ref
+    desc: wallet keyword
+    crit: notable
+    conf: 0.4
+    if:
+      type: string
+      word: "wallet"
 
   - id: coinhive-str
     desc: coinhive reference
@@ -58,6 +64,14 @@ traits:
     if:
       type: string
       substr: "cryptonight"
+
+  - id: monero-lower
+    desc: monero cryptocurrency reference
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      exact: "monero"
 
   # === XMRig atomic indicators (legacy) ===
   # Moved xmrig-pascal to known/malware/miner/xmrig/traits.yaml
@@ -89,10 +103,3 @@ composite_rules:
       - id: coinhive-str
       - id: cryptonight-str
 
-  # XMRig composite
-  - id: miner-xmrig
-    desc: XMRig cryptocurrency miner reference
-    crit: notable
-    conf: 0.66
-    any:
-      - id: known/malware/miner/xmrig::xmrig-name

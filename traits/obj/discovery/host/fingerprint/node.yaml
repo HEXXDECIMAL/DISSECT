@@ -213,14 +213,7 @@ traits:
       type: string
       substr: "Object.entries"
 
-  - id: process-env-access
-    desc: process.env access
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "process.env"
+  # process-env-access - use cap/os/env/access::javascript
 
   - id: process-env-serialization
     desc: process.env serialization call
@@ -232,16 +225,7 @@ traits:
       regex: "(Object\\.(keys|entries)\\s*\\(\\s*process\\.env\\s*\\)|JSON\\.stringify\\s*\\(\\s*process\\.env\\s*\\))"
 
   # === Process list atomic indicators ===
-  - id: tasklist-cmd
-    desc: Windows tasklist command
-    crit: notable
-    conf: 0.7
-    mbc: "E1592"
-    attack: "T1057"
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "tasklist"
+  # tasklist-cmd: use obj/discovery/host/process::tasklist-cmd (canonical)
 
   - id: ps-aux-cmd
     desc: ps aux command
@@ -254,16 +238,7 @@ traits:
       type: string
       substr: "ps aux"
 
-  - id: ps-ef-cmd
-    desc: ps -ef command
-    crit: notable
-    conf: 0.7
-    mbc: "E1592"
-    attack: "T1057"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "ps -ef"
+  # ps-ef-cmd: use obj/discovery/host/process::ps-ef-cmd (canonical)
 
   - id: get-process-cmd
     desc: PowerShell Get-Process
@@ -373,8 +348,8 @@ composite_rules:
       - { id: os-cpus }
       - { id: os-totalmem }
       - { id: os-networkInterfaces }
-      - { id: cap/discovery/system/hardware/display::display-resolution-discovery }
-      - { id: cap/discovery/system/locale }
+      - { id: obj/discovery/system/hardware/display::display-resolution-discovery }
+      - { id: obj/discovery/system/locale }
 
   - id: process-env-dump
     desc: Full environment variable dump
@@ -384,7 +359,7 @@ composite_rules:
     attack: "T1082"
     for: [javascript, typescript]
     all:
-      - { id: process-env-access }
+      - { id: cap/os/env/access::javascript }
       - { id: process-env-serialization }
 
   # Process list composite
@@ -396,9 +371,9 @@ composite_rules:
     attack: "T1057"
     for: [javascript, typescript]
     any:
-      - { id: tasklist-cmd }
+      - { id: obj/discovery/host/process::tasklist-cmd }
       - { id: ps-aux-cmd }
-      - { id: ps-ef-cmd }
+      - { id: obj/discovery/host/process::ps-ef-cmd }
       - { id: get-process-cmd }
     unless:
       - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush

@@ -208,6 +208,51 @@ traits:
         }
 
 composite_rules:
+  # Fiber Local Storage (FLS) usage patterns
+  - id: fiber-local-storage-ops
+    desc: Fiber-based thread local storage
+    crit: notable
+    conf: 0.75
+    platforms: [windows]
+    for: [pe, dll]
+    attack: "T1129"
+    needs: 2
+    any:
+      - id: obj/exec/native/runtime::tls-alloc
+      - id: obj/exec/native/runtime::tls-get-value
+      - id: obj/exec/native/runtime::tls-set-value
+    downgrade:
+      any:
+        - id: meta/quality/versioned
+
+  - id: thread-pool-based-malware
+    desc: Thread pool with fiber-based scheduling
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    for: [pe, dll]
+    attack: "T1129"
+    all:
+      - id: fiber-local-storage-ops
+      - id: cap/process/thread/create
+    downgrade:
+      any:
+        - id: meta/quality/versioned
+
+  - id: fiber-dispatch-framework
+    desc: Fiber-based dispatch and scheduling framework
+    crit: notable
+    conf: 0.85
+    platforms: [windows]
+    for: [pe, dll]
+    attack: "T1129"
+    all:
+      - id: thread-pool-based-malware
+      - id: cap/process/create/
+    downgrade:
+      any:
+        - id: meta/quality/versioned
+
   # System callback execution patterns (stealthy shellcode triggers)
   - id: callback-execution
     desc: Shellcode execution via system callback
@@ -217,10 +262,10 @@ composite_rules:
     attack: "T1055"
     for: [pe, dll]
     any:
-      - id: obj/exec/native/api::enum-ui-languages
-      - id: obj/exec/native/api::enum-resource-types
-      - id: obj/exec/native/api::enum-resource-names
-      - id: obj/exec/native/api::enum-desktop-windows
-      - id: obj/exec/native/api::enum-date-formats
-      - id: obj/exec/native/api::line-dda
+      - id: obj/exec/native/runtime::enum-ui-languages
+      - id: obj/exec/native/runtime::enum-resource-types
+      - id: obj/exec/native/runtime::enum-resource-names
+      - id: obj/exec/native/runtime::enum-desktop-windows
+      - id: obj/exec/native/runtime::enum-date-formats
+      - id: obj/exec/native/runtime::line-dda
 

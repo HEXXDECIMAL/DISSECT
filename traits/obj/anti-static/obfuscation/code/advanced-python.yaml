@@ -121,13 +121,22 @@ traits:
       count_min: 3
 
   # === Admin Check Bypass ===
-  - id: admin-check-ctypes
-    desc: Admin check via ctypes
-    crit: suspicious
-    conf: 0.85
+  # IsUserAnAdmin: use cap/os/admin/check/python.yaml::ctypes-is-admin (canonical)
+  - id: is-admin-flag
+    desc: IsAdmin flag check (Python)
+    crit: notable
+    conf: 0.75
     if:
       type: raw
-      regex: "IsUserAnAdmin|IsAdmin|CheckTokenMembership"
+      exact: "IsAdmin"
+
+  - id: check-token-membership
+    desc: CheckTokenMembership Windows API call
+    crit: notable
+    conf: 0.80
+    if:
+      type: raw
+      substr: "CheckTokenMembership"
 
 composite_rules:
   # === Advanced Obfuscation Detection ===
@@ -156,6 +165,15 @@ composite_rules:
       - id: magic-number-state-machine
       - id: obfuscated-state-variable
       - id: chinese-char-variables
+
+  - id: admin-check-ctypes
+    desc: Admin privilege check via ctypes (composite)
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: cap/os/admin/check::ctypes-is-admin
+      - id: is-admin-flag
+      - id: check-token-membership
 
   - id: windows-com-elevation
     desc: Windows COM elevation attempt

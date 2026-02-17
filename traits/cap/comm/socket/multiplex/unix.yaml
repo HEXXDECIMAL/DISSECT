@@ -6,10 +6,29 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
+  # epoll_create/epoll_ctl/epoll_wait/kqueue/kevent: use cap/comm/async/library/traits.yaml (canonical)
+  - id: select-multiplex
+    desc: select() I/O multiplexing
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      exact: "select"
+
+  - id: poll-multiplex
+    desc: poll() I/O multiplexing
+    crit: inert
+    conf: 0.5
+    if:
+      type: symbol
+      exact: "poll"
+
+composite_rules:
   - id: multiplex
     desc: I/O multiplexing on sockets
     crit: inert
     conf: 0.66
-    if:
-      type: symbol
-      regex: select|poll|epoll_create|epoll_ctl|epoll_wait|kqueue|kevent
+    any:
+      - id: select-multiplex
+      - id: poll-multiplex
+      - id: cap/comm/async/library

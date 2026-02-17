@@ -17,7 +17,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -30,7 +29,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -43,7 +41,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -56,7 +53,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -69,7 +65,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -82,7 +77,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -95,7 +89,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.5,
         };
@@ -108,7 +101,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -121,7 +113,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 0.5,
         };
@@ -134,7 +125,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.25,
         };
@@ -151,7 +141,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -164,7 +153,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -177,7 +165,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -194,7 +181,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -207,7 +193,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 0.75,
         };
@@ -224,7 +209,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -237,7 +221,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -250,7 +233,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -263,7 +245,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -276,7 +257,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -293,7 +273,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -306,7 +285,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -319,7 +297,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.5,
         };
@@ -332,7 +309,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.5,
         };
@@ -345,7 +321,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.0,
         };
@@ -358,7 +333,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -371,7 +345,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -384,7 +357,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.5,
         };
@@ -397,7 +369,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -410,7 +381,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.5,
         };
@@ -423,7 +393,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 1.0,
         };
@@ -436,7 +405,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 2.5,
         };
@@ -475,7 +443,6 @@ mod tests {
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
-            traits: vec![],
             warnings: vec![],
             precision: 0.5,
         };

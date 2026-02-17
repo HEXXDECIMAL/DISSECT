@@ -44,14 +44,16 @@ traits:
       type: string
       regex: "0x[Cc]000007[Bb]|3221226363"
 
-  # ntdll library reference
-  - id: ntdll-reference
-    desc: Reference to ntdll library
+  # ntdll: use cap/os/syscall/invoke/traits.yaml::ntdll-import (canonical)
+  # windll.ntdll: Python-specific ctypes variant, kept as atomic
+  - id: windll-ntdll
+    desc: Python ctypes windll.ntdll reference
     crit: notable
     conf: 0.7
+    for: [python]
     if:
       type: string
-      regex: "ntdll|windll\\.ntdll"
+      substr: "windll.ntdll"
 
   # Python ctypes import
   - id: ctypes-import
@@ -114,6 +116,15 @@ traits:
         }
 
 composite_rules:
+  # ntdll-reference: composite referencing canonical ntdll-import plus windll.ntdll Python variant
+  - id: ntdll-reference
+    desc: Reference to ntdll library (generic or Python ctypes)
+    crit: notable
+    conf: 0.7
+    any:
+      - id: cap/os/syscall/invoke::ntdll-import
+      - id: windll-ntdll
+
   # Full BSOD trigger pattern
   # BSOD trigger via trait references (NtRaiseHardError path)
   - id: bsod-raise-error

@@ -13,7 +13,8 @@ const KEYBOARD_PATTERNS: &[&str] = &[
 ];
 
 /// Analyze a collection of identifiers
-pub fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
+#[must_use] 
+pub(crate) fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
     let mut metrics = IdentifierMetrics::default();
 
     if identifiers.is_empty() {
@@ -221,7 +222,7 @@ fn is_hex_like(s: &str) -> bool {
     }
 
     // Must be entirely hex characters (a-f, A-F, 0-9)
-    let hex_chars = s.chars().filter(|c| c.is_ascii_hexdigit()).count();
+    let hex_chars = s.chars().filter(char::is_ascii_hexdigit).count();
     let ratio = hex_chars as f32 / s.len() as f32;
 
     // High proportion of hex chars and even length suggests hex encoding
@@ -282,165 +283,6 @@ fn is_sequential(s: &str) -> bool {
     false
 }
 
-/// Extract identifiers from source code using simple heuristics
-/// This is a fallback when AST parsing isn't available
-pub fn extract_identifiers_heuristic(content: &str) -> Vec<String> {
-    let mut identifiers = Vec::new();
-    let mut current = String::new();
-    let mut in_string = false;
-    let mut string_char = '"';
-    let mut prev_char = ' ';
-
-    for c in content.chars() {
-        // Track string state
-        if !in_string && (c == '"' || c == '\'') {
-            in_string = true;
-            string_char = c;
-            prev_char = c;
-            continue;
-        }
-        if in_string {
-            if c == string_char && prev_char != '\\' {
-                in_string = false;
-            }
-            prev_char = c;
-            continue;
-        }
-
-        // Build identifier
-        if c.is_ascii_alphanumeric() || c == '_' {
-            current.push(c);
-        } else if !current.is_empty() {
-            // Filter out pure numbers and very common keywords
-            if let Some(first) = current.chars().next() {
-                if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
-                    identifiers.push(current.clone());
-                }
-            }
-            current.clear();
-        }
-        prev_char = c;
-    }
-
-    // Don't forget the last identifier
-    if !current.is_empty() {
-        if let Some(first) = current.chars().next() {
-            if (first.is_ascii_alphabetic() || first == '_') && !is_common_keyword(&current) {
-                identifiers.push(current);
-            }
-        }
-    }
-
-    identifiers
-}
-
-/// Check if a word is a common programming keyword (should be excluded)
-fn is_common_keyword(word: &str) -> bool {
-    const KEYWORDS: &[&str] = &[
-        // Control flow
-        "if",
-        "else",
-        "elif",
-        "for",
-        "while",
-        "do",
-        "switch",
-        "case",
-        "break",
-        "continue",
-        "return",
-        "goto",
-        "try",
-        "catch",
-        "finally",
-        "throw",
-        "default",
-        "match",
-        "when",
-        "unless",
-        "until",
-        "loop",
-        // Declarations
-        "def",
-        "fn",
-        "func",
-        "function",
-        "class",
-        "struct",
-        "enum",
-        "interface",
-        "trait",
-        "impl",
-        "type",
-        "var",
-        "let",
-        "const",
-        "static",
-        "mut",
-        "public",
-        "private",
-        "protected",
-        "internal",
-        "extern",
-        "abstract",
-        "virtual",
-        "override",
-        "final",
-        "sealed",
-        // Types
-        "int",
-        "float",
-        "double",
-        "bool",
-        "boolean",
-        "string",
-        "str",
-        "char",
-        "void",
-        "null",
-        "nil",
-        "none",
-        "true",
-        "false",
-        "undefined",
-        // Imports
-        "import",
-        "from",
-        "require",
-        "include",
-        "use",
-        "using",
-        "package",
-        "module",
-        "export",
-        "as",
-        "with",
-        // Other
-        "and",
-        "or",
-        "not",
-        "in",
-        "is",
-        "new",
-        "delete",
-        "this",
-        "self",
-        "super",
-        "async",
-        "await",
-        "yield",
-        "lambda",
-        "where",
-        "sizeof",
-        "typeof",
-        "instanceof",
-        "extends",
-        "implements",
-    ];
-
-    KEYWORDS.contains(&word.to_lowercase().as_str())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -488,21 +330,7 @@ mod tests {
         assert_eq!(metrics.keyboard_pattern_names, 2);
     }
 
-    #[test]
-    fn test_heuristic_extraction() {
-        let code = r#"function hello(name) { let x = "string"; return x + name; }"#;
-        let idents = extract_identifiers_heuristic(code);
-        // Should extract: hello, name, x (filtering keywords and strings)
-        assert!(idents.contains(&"hello".to_string()));
-        assert!(idents.contains(&"name".to_string()));
-        assert!(idents.contains(&"x".to_string()));
-        // Should NOT contain keywords
-        assert!(!idents.contains(&"function".to_string()));
-        assert!(!idents.contains(&"let".to_string()));
-        assert!(!idents.contains(&"return".to_string()));
-    }
-
-    #[test]
+#[test]
     fn test_repeated_char_names() {
         let idents = vec!["aaa", "xxx", "zzz", "normal"];
         let metrics = analyze_identifiers(&idents);

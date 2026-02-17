@@ -246,7 +246,7 @@ traits:
       type: string
       substr: "shm_open"
 
-  # Removed mmap-fn duplicate - use cap/mem/allocate/unix::mmap-symbol (system calls should use symbol)
+  # Removed mmap-fn duplicate - use cap/mem/allocate/executable::mmap-symbol (system calls should use symbol)
 
   - id: dev-shm
     desc: /dev/shm path
@@ -372,7 +372,7 @@ composite_rules:
     needs: 2
     any:
       - id: shm-open
-      - id: cap/mem/allocate/unix::mmap-symbol
+      - id: cap/mem/allocate/executable::mmap-symbol
       - id: dev-shm
       - id: execv-fn
 

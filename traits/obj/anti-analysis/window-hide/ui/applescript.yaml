@@ -78,17 +78,12 @@ traits:
     attack: "T1059.002"
     if:
       type: string
-      regex: "tell application|osascript"
+      # osascript: use obj/anti-analysis/vm/methods/applescript_evasion.yaml::osascript (canonical)
+      substr: "tell application"
 
   # === Privilege escalation ===
-  - id: admin-privileges
-    desc: "AppleScript privilege escalation"
-    crit: suspicious
-    conf: 0.9
-    attack: "T1548.004"
-    if:
-      type: string
-      regex: "with administrator privileges|administrator privileges"
+  # admin-privileges: use obj/privesc/dialog/prompt/applescript.yaml::admin-privileges (canonical)
+  # with-admin-privileges: use obj/privesc/dialog/prompt/applescript.yaml::with-admin-privileges (canonical)
 
   # === Password dialog atomic indicators ===
   - id: dialog-password

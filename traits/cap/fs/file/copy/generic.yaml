@@ -10,4 +10,5 @@ traits:
     for: [elf, macho, pe, dll, so, dylib, c]
     if:
       type: symbol
-      regex: copyfile|fcopyfile|CopyFile|CopyFileA|CopyFileW
+      # fcopyfile: use cap/fs/file/binary/traits.yaml::fcopyfile-macos (canonical)
+      regex: copyfile|CopyFile|CopyFileA|CopyFileW

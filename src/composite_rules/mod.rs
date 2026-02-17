@@ -12,22 +12,21 @@
 //! - `traits`: TraitDefinition and CompositeTrait structs
 //! - `ast_kinds`: Abstract AST kind to tree-sitter node type mapping
 
-pub mod ast_kinds;
-pub mod condition;
-pub mod context;
-pub mod debug;
-pub mod evaluators;
-pub mod section_map;
-pub mod traits;
-pub mod types;
+pub(crate) mod ast_kinds;
+pub(crate) mod condition;
+pub(crate) mod context;
+pub(crate) mod debug;
+pub(crate) mod evaluators;
+pub(crate) mod section_map;
+pub(crate) mod traits;
+pub(crate) mod types;
 
 // Re-export public API
-pub use condition::Condition;
-pub use context::EvaluationContext;
-pub use debug::{DebugCollector, EvaluationDebug, RuleType};
-pub use section_map::SectionMap;
-pub use traits::{CompositeTrait, ConditionWithFilters, DowngradeConditions, TraitDefinition};
-pub use types::{FileType, Platform};
+pub(crate) use condition::Condition;
+pub(crate) use context::EvaluationContext;
+pub(crate) use section_map::SectionMap;
+pub(crate) use traits::{CompositeTrait, ConditionWithFilters, DowngradeConditions, TraitDefinition};
+pub(crate) use types::{FileType, Platform};
 
 #[cfg(test)]
 mod tests;

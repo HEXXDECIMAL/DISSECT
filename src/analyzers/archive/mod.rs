@@ -4,13 +4,13 @@ mod analyzers;
 mod guards;
 // #[cfg(test)]
 // mod guards_test;
-pub mod streaming;
+pub(crate) mod streaming;
 mod system_packages;
 mod tar;
 mod utils;
 mod zip;
 
-pub use guards::HostileArchiveReason;
+pub(crate) use guards::HostileArchiveReason;
 
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
@@ -26,10 +26,11 @@ use guards::{ExtractionGuard, MAX_FILE_COUNT, MAX_FILE_SIZE, MAX_TOTAL_SIZE};
 use utils::{calculate_sha256, detect_archive_type};
 
 /// Default maximum file size to keep in memory (100 MB)
-pub const DEFAULT_MAX_MEMORY_FILE_SIZE: u64 = 100 * 1024 * 1024;
+pub(crate) const DEFAULT_MAX_MEMORY_FILE_SIZE: u64 = 100 * 1024 * 1024;
 
+/// Analyzes archive files (zip, tar, 7z, etc.) by extracting and analyzing each member
 #[derive(Debug)]
-pub struct ArchiveAnalyzer {
+pub(crate) struct ArchiveAnalyzer {
     max_depth: usize,
     current_depth: usize,
     /// Path prefix for nested archives (e.g., "inner.tar.gz" becomes "outer.zip!inner.tar.gz")
@@ -40,16 +41,15 @@ pub struct ArchiveAnalyzer {
     zip_passwords: Arc<[String]>,
     /// Optional sample extraction configuration
     sample_extraction: Option<SampleExtractionConfig>,
-    /// SHA256 of the archive being analyzed (used for extraction directory)
-    /// This groups all files from the same archive in one directory.
-    archive_sha256: Option<String>,
     /// Maximum file size to keep in memory during extraction.
     /// Files larger than this are written to temp files.
     max_memory_file_size: u64,
 }
 
 impl ArchiveAnalyzer {
-    pub fn new() -> Self {
+    /// Create a new archive analyzer with default settings
+    #[must_use]
+    pub(crate) fn new() -> Self {
         Self {
             max_depth: 3,
             current_depth: 0,
@@ -58,89 +58,91 @@ impl ArchiveAnalyzer {
             yara_engine: None,
             zip_passwords: Arc::from([]),
             sample_extraction: None,
-            archive_sha256: None,
             max_memory_file_size: DEFAULT_MAX_MEMORY_FILE_SIZE,
         }
     }
 
     /// Set the maximum file size to keep in memory during extraction.
     /// Files larger than this are written to temp files.
-    pub fn with_max_memory_file_size(mut self, size_bytes: u64) -> Self {
+    #[must_use]
+    pub(crate) fn with_max_memory_file_size(mut self, size_bytes: u64) -> Self {
         self.max_memory_file_size = size_bytes;
         self
     }
 
     /// Get the maximum memory file size setting.
-    pub fn max_memory_file_size(&self) -> u64 {
+    #[must_use]
+    pub(crate) fn max_memory_file_size(&self) -> u64 {
         self.max_memory_file_size
     }
 
-    pub fn with_depth(mut self, depth: usize) -> Self {
+    /// Set the current nesting depth (used for recursive archive extraction)
+    #[must_use]
+    pub(crate) fn with_depth(mut self, depth: usize) -> Self {
         self.current_depth = depth;
         self
     }
 
     /// Set the path prefix for nested archive paths (used for recursion)
-    pub fn with_archive_prefix(mut self, prefix: String) -> Self {
+    #[must_use] 
+    pub(crate) fn with_archive_prefix(mut self, prefix: String) -> Self {
         self.archive_path_prefix = Some(prefix);
         self
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    pub fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
+    #[must_use]
+    pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Some(Arc::new(mapper));
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = Some(mapper);
         self
     }
 
-    pub fn with_yara(mut self, engine: YaraEngine) -> Self {
+    /// Set a YARA engine for scanning extracted files
+    #[must_use]
+    pub(crate) fn with_yara(mut self, engine: YaraEngine) -> Self {
         self.yara_engine = Some(Arc::new(engine));
         self
     }
 
     /// Set YARA engine from an existing Arc (for nested analyzers)
-    pub fn with_yara_arc(mut self, engine: Arc<YaraEngine>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_yara_arc(mut self, engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(engine);
         self
     }
 
     /// Set passwords to try for encrypted zip files
-    pub fn with_zip_passwords(mut self, passwords: Vec<String>) -> Self {
+    #[must_use]
+    pub(crate) fn with_zip_passwords(mut self, passwords: Vec<String>) -> Self {
         self.zip_passwords = Arc::from(passwords);
         self
     }
 
     /// Set passwords from an existing Arc (for nested analyzers)
-    pub fn with_zip_passwords_arc(mut self, passwords: Arc<[String]>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_zip_passwords_arc(mut self, passwords: Arc<[String]>) -> Self {
         self.zip_passwords = passwords;
         self
     }
 
     /// Set sample extraction configuration for extracting analyzed files to disk
-    pub fn with_sample_extraction(mut self, config: SampleExtractionConfig) -> Self {
+    #[must_use]
+    pub(crate) fn with_sample_extraction(mut self, config: SampleExtractionConfig) -> Self {
         self.sample_extraction = Some(config);
         self
     }
 
-    /// Set the archive SHA256 (used for extraction directory grouping)
-    pub fn with_archive_sha256(mut self, sha256: String) -> Self {
-        self.archive_sha256 = Some(sha256);
-        self
-    }
-
-    /// Get the archive SHA256 if set
-    pub fn archive_sha256(&self) -> Option<&str> {
-        self.archive_sha256.as_deref()
-    }
-
     /// Create a copy of this analyzer with the sample_extraction config updated
     /// to use the given archive SHA256 for extraction directory grouping.
-    pub fn with_extraction_archive_sha256(&self, archive_sha256: String) -> Self {
+    #[must_use]
+    pub(crate) fn with_extraction_archive_sha256(&self, archive_sha256: String) -> Self {
         Self {
             max_depth: self.max_depth,
             current_depth: self.current_depth,
@@ -152,7 +154,6 @@ impl ArchiveAnalyzer {
                 .sample_extraction
                 .as_ref()
                 .map(|c| c.with_archive_sha256(archive_sha256.clone())),
-            archive_sha256: Some(archive_sha256),
             max_memory_file_size: self.max_memory_file_size,
         }
     }
@@ -188,7 +189,7 @@ impl ArchiveAnalyzer {
     ///
     /// # Returns
     /// The full `AnalysisReport` with aggregated results
-    pub fn analyze_streaming<F>(&self, file_path: &Path, on_file: F) -> Result<AnalysisReport>
+    pub(crate) fn analyze_streaming<F>(&self, file_path: &Path, on_file: F) -> Result<AnalysisReport>
     where
         F: Fn(&FileAnalysis) + Send + Sync,
     {
@@ -394,16 +395,6 @@ impl ArchiveAnalyzer {
                     "Archive contains symlink that may escape extraction directory",
                     format!("symlink:{}", path),
                 ),
-                HostileArchiveReason::MalformedEntry(msg) => (
-                    "anti-analysis/archive/malformed",
-                    "Archive contains malformed entry",
-                    msg.clone(),
-                ),
-                HostileArchiveReason::ExtractionError(msg) => (
-                    "anti-analysis/archive/extraction-failed",
-                    "Archive extraction failed (potentially malformed or hostile)",
-                    msg.clone(),
-                ),
             };
 
             report.findings.push(Finding {
@@ -506,7 +497,7 @@ impl ArchiveAnalyzer {
             let extracted_count = walkdir::WalkDir::new(temp_dir.path())
                 .min_depth(1)
                 .into_iter()
-                .filter_map(|e| e.ok())
+                .filter_map(std::result::Result::ok)
                 .count();
 
             if extracted_count == 0 {
@@ -568,16 +559,6 @@ impl ArchiveAnalyzer {
                     "anti-analysis/archive/symlink-escape",
                     "Archive contains symlink that may escape extraction directory",
                     format!("symlink:{}", path),
-                ),
-                HostileArchiveReason::MalformedEntry(msg) => (
-                    "anti-analysis/archive/malformed",
-                    "Archive contains malformed entry",
-                    msg.clone(),
-                ),
-                HostileArchiveReason::ExtractionError(msg) => (
-                    "anti-analysis/archive/extraction-failed",
-                    "Archive extraction failed (potentially malformed or hostile)",
-                    msg.clone(),
                 ),
             };
 

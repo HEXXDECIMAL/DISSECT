@@ -13,6 +13,7 @@ use std::sync::OnceLock;
 
 /// Regex pattern to find IP-like strings in text.
 /// Matches any sequence of digits separated by dots (will be validated later).
+#[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
 fn ip_pattern() -> &'static regex::Regex {
     static PATTERN: OnceLock<regex::Regex> = OnceLock::new();
     PATTERN.get_or_init(|| {
@@ -31,7 +32,8 @@ fn ip_pattern() -> &'static regex::Regex {
 /// - Documentation ranges (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24)
 /// - Version-like (first octet 0-3)
 /// - IPs with 2+ zero octets
-pub fn is_external_ip(ip: &Ipv4Addr) -> bool {
+#[must_use] 
+pub(crate) fn is_external_ip(ip: &Ipv4Addr) -> bool {
     let octets = ip.octets();
 
     // Reject if two or more octets are zero (likely garbage data)
@@ -134,7 +136,8 @@ fn has_valid_octet_format(octet_str: &str) -> bool {
 /// (not private/loopback/reserved).
 ///
 /// Returns Some(Ipv4Addr) if the IP is valid and external, None otherwise.
-pub fn validate_external_ip_string(ip_str: &str) -> Option<Ipv4Addr> {
+#[must_use] 
+pub(crate) fn validate_external_ip_string(ip_str: &str) -> Option<Ipv4Addr> {
     let parts: Vec<&str> = ip_str.split('.').collect();
     if parts.len() != 4 {
         return None;
@@ -170,7 +173,8 @@ pub fn validate_external_ip_string(ip_str: &str) -> Option<Ipv4Addr> {
 /// This is the main entry point for the `external_ip: true` condition modifier.
 /// It finds all IP-like patterns in the text and returns true if any of them
 /// are valid external external IPs.
-pub fn contains_external_ip(text: &str) -> bool {
+#[must_use] 
+pub(crate) fn contains_external_ip(text: &str) -> bool {
     for cap in ip_pattern().captures_iter(text) {
         // Get the full match
         if let Some(full_match) = cap.get(0) {
@@ -182,20 +186,6 @@ pub fn contains_external_ip(text: &str) -> bool {
     false
 }
 
-/// Extract all external external IPs from a text string.
-///
-/// Returns a vector of valid external IPs found in the text.
-pub fn extract_external_ips(text: &str) -> Vec<Ipv4Addr> {
-    let mut ips = Vec::new();
-    for cap in ip_pattern().captures_iter(text) {
-        if let Some(full_match) = cap.get(0) {
-            if let Some(ip) = validate_external_ip_string(full_match.as_str()) {
-                ips.push(ip);
-            }
-        }
-    }
-    ips
-}
 
 #[cfg(test)]
 mod tests {
@@ -351,17 +341,6 @@ mod tests {
         assert!(contains_external_ip(
             "Server at 192.168.1.1, forwarding to 45.33.32.156"
         ));
-    }
-
-    #[test]
-    fn test_extract_external_ips() {
-        let text = "C2 servers: 45.33.32.156, 8.8.8.8, ignore 192.168.1.1 and 10.0.0.1";
-        let ips = extract_external_ips(text);
-
-        assert_eq!(ips.len(), 2);
-        assert!(ips.contains(&Ipv4Addr::new(45, 33, 32, 156)));
-        assert!(ips.contains(&Ipv4Addr::new(8, 8, 8, 8)));
-        assert!(!ips.contains(&Ipv4Addr::new(192, 168, 1, 1)));
     }
 
     #[test]

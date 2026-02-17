@@ -11,68 +11,6 @@ use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 use std::sync::Arc;
 
-/// Evaluate YARA match condition
-pub fn eval_yara_match<'a>(
-    namespace: &str,
-    rule: Option<&String>,
-    ctx: &EvaluationContext<'a>,
-) -> ConditionResult {
-    let mut evidence = Vec::new();
-
-    for yara_match in &ctx.report.yara_matches {
-        let namespace_match = yara_match.namespace == namespace
-            || yara_match.namespace.starts_with(&format!("{}.", namespace));
-
-        let rule_match = rule.is_none_or(|r| &yara_match.rule == r);
-
-        if namespace_match && rule_match {
-            // Extract actual matched content from matched_strings
-            if yara_match.matched_strings.is_empty() {
-                evidence.push(Evidence {
-                    method: "yara".to_string(),
-                    source: "yara-x".to_string(),
-                    value: yara_match.rule.clone(),
-                    location: Some(yara_match.namespace.clone()),
-                });
-            } else {
-                for ms in &yara_match.matched_strings {
-                    // Use actual value if printable, otherwise use identifier
-                    let is_printable = ms
-                        .value
-                        .bytes()
-                        .all(|b| (0x20..0x7f).contains(&b) || b == b'\n' || b == b'\t');
-                    let evidence_value = if is_printable && !ms.value.is_empty() {
-                        ms.value.clone()
-                    } else {
-                        ms.identifier.clone()
-                    };
-
-                    evidence.push(Evidence {
-                        method: "yara".to_string(),
-                        source: "yara-x".to_string(),
-                        value: evidence_value,
-                        location: Some(format!("0x{:x}", ms.offset)),
-                    });
-                }
-            }
-        }
-    }
-
-    // Calculate precision: base 1.0 + 0.5 if specific rule specified
-    let mut precision = 1.0f32;
-    if rule.is_some() {
-        precision += 0.5;
-    }
-
-    ConditionResult {
-        matched: !evidence.is_empty(),
-        evidence,
-        traits: Vec::new(),
-        warnings: Vec::new(),
-        precision,
-    }
-}
-
 /// Collect evidence from YARA scan results.
 pub(crate) fn collect_yara_evidence<'a, 'b>(
     results: yara_x::ScanResults<'a, 'b>,
@@ -115,7 +53,8 @@ pub(crate) fn collect_yara_evidence<'a, 'b>(
 
 /// Evaluate inline YARA rule condition.
 /// Uses thread-local Scanner caching for pre-compiled rules (~5x speedup).
-pub fn eval_yara_inline<'a>(
+#[must_use] 
+pub(crate) fn eval_yara_inline<'a>(
     source: &str,
     compiled: Option<&Arc<yara_x::Rules>>,
     ctx: &EvaluationContext<'a>,
@@ -139,7 +78,6 @@ pub fn eval_yara_inline<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -173,7 +111,6 @@ pub fn eval_yara_inline<'a>(
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision: 1.0, // YARA base precision (can't analyze complexity of inline rules)
     }
@@ -336,7 +273,8 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
 /// 2. Use fast memmem search to find atom candidates
 /// 3. Verify full pattern only at candidate positions
 #[allow(clippy::too_many_arguments)]
-pub fn eval_hex<'a>(
+#[must_use] 
+pub(crate) fn eval_hex<'a>(
     pattern: &str,
     location: &super::ContentLocationParams,
     ctx: &EvaluationContext<'a>,
@@ -355,7 +293,6 @@ pub fn eval_hex<'a>(
                     value: format!("invalid hex pattern: {}", e),
                     location: None,
                 }],
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -366,7 +303,6 @@ pub fn eval_hex<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -495,7 +431,6 @@ pub fn eval_hex<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }

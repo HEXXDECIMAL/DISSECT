@@ -25,4 +25,4 @@ traits:
       type: string
       substr: "lsblk"
 
-  # Removed blkid-cmd duplicate - use cap/fs/device/blkid/linux::blkid (symbol works for all file types)
+  # Removed blkid-cmd duplicate - use cap/fs/device/blkid::blkid (symbol works for all file types)

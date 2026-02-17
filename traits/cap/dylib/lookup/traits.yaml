@@ -28,12 +28,13 @@ traits:
       type: string
       substr: "dladdr"
 
-  - id: getprocaddress
-    desc: Windows GetProcAddress
+  - id: get-proc-address
+    desc: Windows GetProcAddress symbol
     crit: notable
-    conf: 0.85
+    conf: 0.95
     attack: "T1574.002"
+    platforms: [windows]
     for: [pe]
     if:
       type: symbol
-      substr: "GetProcAddress"
+      exact: "GetProcAddress"

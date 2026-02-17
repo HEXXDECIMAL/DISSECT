@@ -5,13 +5,17 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: create
-    desc: Create network socket
+  # socket: use cap/comm/socket/listen/unix.yaml::socket-sym (canonical)
+  # socketpair: use cap/comm/socket/pair/unix.yaml::pair (canonical)
+  - id: socketcall-sym
+    desc: socketcall multiplexed socket syscall (Linux)
     crit: notable
     conf: 0.75
+    platforms: [linux]
+    for: [elf]
     if:
       type: symbol
-      regex: "socket|socketpair|socketcall"
+      exact: "socketcall"
 
   - id: socket-create
     desc: Creates network socket (Linux)
@@ -54,6 +58,16 @@ traits:
       name: ["connect"]
 
 composite_rules:
+  # create: composite referencing canonical socket creation traits plus socketcall
+  - id: create
+    desc: Create network socket
+    crit: notable
+    conf: 0.75
+    any:
+      - id: cap/comm/socket/listen::socket-sym
+      - id: cap/comm/socket/pair::pair
+      - id: socketcall-sym
+
   - id: client
     desc: Network client - connects to remote host
     conf: 0.85

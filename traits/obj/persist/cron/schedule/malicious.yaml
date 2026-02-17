@@ -57,7 +57,7 @@ traits:
       substr: "base64 --decode"
 
   # Hidden file paths
-  # Removed tmp-hidden duplicate - use cap/fs/path/temp/linux::tmp-hidden-file
+  # Removed tmp-hidden duplicate - use cap/fs/path/temp::tmp-hidden-file
 
   - id: var-tmp-hidden
     desc: Hidden file in /var/tmp
@@ -104,7 +104,7 @@ composite_rules:
   - id: hidden-paths
     desc: Hidden file paths in temp
     any:
-      - id: cap/fs/path/temp/linux::tmp-hidden-file
+      - id: cap/fs/path/temp::tmp-hidden-file
       - id: var-tmp-hidden
       - id: dev-shm-hidden
 

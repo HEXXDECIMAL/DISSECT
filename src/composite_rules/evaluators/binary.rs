@@ -11,64 +11,9 @@ use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 use regex::Regex;
 
-/// Evaluate imports count condition
-pub fn eval_imports_count<'a>(
-    min: Option<usize>,
-    max: Option<usize>,
-    filter: Option<&String>,
-    ctx: &EvaluationContext<'a>,
-) -> ConditionResult {
-    let matching_imports: Vec<&str> = if let Some(filter_pattern) = filter {
-        ctx.report
-            .imports
-            .iter()
-            .filter(|imp| imp.symbol.contains(filter_pattern))
-            .map(|imp| imp.symbol.as_str())
-            .collect()
-    } else {
-        ctx.report.imports.iter().map(|imp| imp.symbol.as_str()).collect()
-    };
-
-    let count = matching_imports.len();
-    let matched = min.is_none_or(|m| count >= m) && max.is_none_or(|m| count <= m);
-
-    // Calculate precision: base 1.0 + 0.5 each for min/max/filter
-    let mut precision = 1.0f32;
-    if min.is_some() {
-        precision += 0.5;
-    }
-    if max.is_some() {
-        precision += 0.5;
-    }
-    if filter.is_some() {
-        precision += 0.5;
-    }
-
-    ConditionResult {
-        matched,
-        evidence: if matched {
-            // Deduplicate and take first few for display
-            let mut unique: Vec<&str> = matching_imports.clone();
-            unique.sort();
-            unique.dedup();
-            let sample: Vec<&str> = unique.into_iter().take(5).collect();
-            vec![Evidence {
-                method: "imports_count".to_string(),
-                source: "analysis".to_string(),
-                value: format!("({}) {}", count, sample.join(", ")),
-                location: None,
-            }]
-        } else {
-            Vec::new()
-        },
-        traits: Vec::new(),
-        warnings: Vec::new(),
-        precision,
-    }
-}
-
 /// Evaluate exports count condition
-pub fn eval_exports_count<'a>(
+#[must_use] 
+pub(crate) fn eval_exports_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
     ctx: &EvaluationContext<'a>,
@@ -103,14 +48,14 @@ pub fn eval_exports_count<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
 }
 
 /// Evaluate section ratio condition - check if section size is within ratio bounds
-pub fn eval_section_ratio<'a>(
+#[must_use] 
+pub(crate) fn eval_section_ratio<'a>(
     section_pattern: &str,
     compare_to: &str,
     min_ratio: Option<f64>,
@@ -123,7 +68,6 @@ pub fn eval_section_ratio<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             }
@@ -144,7 +88,6 @@ pub fn eval_section_ratio<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -160,7 +103,6 @@ pub fn eval_section_ratio<'a>(
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 }
@@ -178,7 +120,6 @@ pub fn eval_section_ratio<'a>(
         return ConditionResult {
             matched: false,
             evidence: Vec::new(),
-            traits: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
         };
@@ -218,7 +159,6 @@ pub fn eval_section_ratio<'a>(
         } else {
             Vec::new()
         },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
@@ -227,7 +167,8 @@ pub fn eval_section_ratio<'a>(
 /// Evaluate section condition - match sections by name, size, and entropy
 /// Replaces YARA patterns like: `for any section in pe.sections : (section.name matches /^UPX/)`
 #[allow(clippy::too_many_arguments)]
-pub fn eval_section<'a>(
+#[must_use] 
+pub(crate) fn eval_section<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
     regex: Option<&String>,
@@ -367,14 +308,14 @@ pub fn eval_section<'a>(
     ConditionResult {
         matched: !evidence.is_empty(),
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
 }
 
 /// Evaluate import combination condition - check for required + suspicious import patterns
-pub fn eval_import_combination<'a>(
+#[must_use] 
+pub(crate) fn eval_import_combination<'a>(
     required: Option<&Vec<String>>,
     suspicious: Option<&Vec<String>>,
     min_suspicious: Option<usize>,
@@ -396,7 +337,6 @@ pub fn eval_import_combination<'a>(
                 return ConditionResult {
                     matched: false,
                     evidence: Vec::new(),
-                    traits: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
                 };
@@ -438,7 +378,6 @@ pub fn eval_import_combination<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -451,7 +390,6 @@ pub fn eval_import_combination<'a>(
             return ConditionResult {
                 matched: false,
                 evidence: Vec::new(),
-                traits: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
             };
@@ -476,14 +414,14 @@ pub fn eval_import_combination<'a>(
     ConditionResult {
         matched: true,
         evidence,
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }
 }
 
 /// Evaluate syscall condition - matches syscalls detected via radare2 analysis
-pub fn eval_syscall<'a>(
+#[must_use] 
+pub(crate) fn eval_syscall<'a>(
     name: Option<&Vec<String>>,
     number: Option<&Vec<u32>>,
     arch: Option<&Vec<String>>,
@@ -531,7 +469,6 @@ pub fn eval_syscall<'a>(
     ConditionResult {
         matched,
         evidence: if matched { evidence } else { Vec::new() },
-        traits: Vec::new(),
         warnings: Vec::new(),
         precision,
     }

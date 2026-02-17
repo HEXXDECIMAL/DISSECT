@@ -6,13 +6,33 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: xattr-set
-    desc: Set extended file attribute value
+  # setxattr/fsetxattr/lsetxattr for elf: use obj/anti-analysis/security-bypass/platform::setxattr-symbol etc. (canonical)
+  - id: setxattr-func
+    desc: Set extended attribute
     crit: notable
     conf: 0.66
+    for: [macho, so, dylib]
     if:
       type: symbol
-      regex: setxattr|fsetxattr|lsetxattr
+      exact: "setxattr"
+
+  - id: fsetxattr-func
+    desc: Set extended attribute by fd
+    crit: notable
+    conf: 0.66
+    for: [macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: "fsetxattr"
+
+  - id: lsetxattr-func
+    desc: Set extended attribute (no symlink)
+    crit: notable
+    conf: 0.66
+    for: [macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: "lsetxattr"
 
   - id: xattr-get
     desc: Read extended file attribute value

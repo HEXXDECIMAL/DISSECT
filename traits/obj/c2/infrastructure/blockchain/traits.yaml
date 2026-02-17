@@ -76,14 +76,7 @@ traits:
       type: string
       regex: "(?i)contract"
 
-  - id: eth-address
-    desc: Ethereum address pattern
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "0x[a-fA-F0-9]{40}"
+  # eth-address: use obj/collect/clipboard/capture::ethereum-address (canonical)
 
   # Infura/Alchemy RPC with suspicious patterns
   - id: rpc-provider
@@ -169,7 +162,7 @@ composite_rules:
     for: [javascript, typescript]
     any:
       - id: contract-keyword
-      - id: eth-address
+      - id: obj/collect/clipboard/capture::ethereum-address
 
   # Arweave gateway composite
   - id: arweave-gateway

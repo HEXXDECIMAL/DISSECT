@@ -19,7 +19,7 @@ use crate::types::{ControlFlowMetrics, Function, FunctionProperties, Instruction
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct R2Function {
+pub(crate) struct R2Function {
     pub name: String,
     /// Function address (rizin uses "offset", radare2 used "addr")
     #[serde(alias = "addr")]
@@ -48,7 +48,7 @@ pub struct R2Function {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct R2Call {
+pub(crate) struct R2Call {
     pub name: String,
 }
 
@@ -149,7 +149,7 @@ impl From<R2Function> for Function {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct R2String {
+pub(crate) struct R2String {
     pub vaddr: u64,
     pub paddr: u64,
     pub length: u32,
@@ -160,7 +160,7 @@ pub struct R2String {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct R2Import {
+pub(crate) struct R2Import {
     pub name: String,
     #[serde(rename = "libname")]
     pub lib_name: Option<String>,
@@ -169,7 +169,7 @@ pub struct R2Import {
 
 #[allow(dead_code)] // Deserialized from JSON
 #[derive(Debug, Deserialize, Serialize)]
-pub struct R2Export {
+pub(crate) struct R2Export {
     pub name: String,
     pub vaddr: u64,
     pub paddr: u64,
@@ -179,7 +179,7 @@ pub struct R2Export {
 
 #[allow(dead_code)] // Deserialized from JSON
 #[derive(Debug, Deserialize, Serialize)]
-pub struct R2Symbol {
+pub(crate) struct R2Symbol {
     pub name: String,
     pub vaddr: u64,
     pub paddr: u64,
@@ -189,7 +189,7 @@ pub struct R2Symbol {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct R2Section {
+pub(crate) struct R2Section {
     pub name: String,
     pub size: u64,
     pub vsize: Option<u64>,

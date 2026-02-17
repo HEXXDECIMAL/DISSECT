@@ -894,6 +894,7 @@ pub struct CMetrics {
     /// malloc/free calls (for ratio)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub malloc_count: u32,
+    /// free() calls (paired with malloc_count for leak/ratio analysis)
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub free_count: u32,
     /// void pointer usage

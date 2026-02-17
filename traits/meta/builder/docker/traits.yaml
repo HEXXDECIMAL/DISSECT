@@ -18,7 +18,7 @@ traits:
       type: string
       regex: "DOCKER_"
 
-  # Removed dockerenv duplicate - use cap/os/container/runtime/docker::dockerenv
+  # Removed dockerenv duplicate - use cap/os/container/runtime::dockerenv
 
   - id: docker-entrypoint
     desc: /docker-entrypoint path
@@ -37,5 +37,5 @@ composite_rules:
     any:
       - id: dockerfile
       - id: docker-env-prefix
-      - id: dockerenv
+      - id: cap/os/container/runtime::dockerenv
       - id: docker-entrypoint

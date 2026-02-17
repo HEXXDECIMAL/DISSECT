@@ -5,7 +5,8 @@
 use crate::types::*;
 
 /// Extract environment variable access from strings and categorize them
-pub fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVarInfo> {
+#[must_use] 
+pub(crate) fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVarInfo> {
     let mut env_vars = Vec::new();
 
     for string_info in strings {
@@ -21,7 +22,8 @@ pub fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVarInfo> {
 }
 
 /// Extract environment variables from function calls (getenv, setenv, etc.)
-pub fn extract_envvars_from_imports(imports: &[Import]) -> Vec<(String, EnvVarAccessType)> {
+#[must_use] 
+pub(crate) fn extract_envvars_from_imports(imports: &[Import]) -> Vec<(String, EnvVarAccessType)> {
     let mut env_api_calls = Vec::new();
 
     for import in imports {
@@ -310,7 +312,8 @@ fn classify_env_var_category(name: &str) -> EnvVarCategory {
 }
 
 /// Generate traits from environment variable patterns
-pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
+#[must_use] 
+pub(crate) fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Credential access detection
@@ -573,7 +576,7 @@ pub fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
 }
 
 /// Main entry point: analyze environment variables and link to traits
-pub fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
+pub(crate) fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
     // Step 1: Start with existing env_vars (from script analyzers like Python)
     // then add env vars extracted from strings
     let mut env_vars = report.env_vars.clone();

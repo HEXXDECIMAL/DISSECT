@@ -6,7 +6,8 @@ use crate::types::*;
 use std::collections::HashMap;
 
 /// Extract paths from strings and categorize them
-pub fn extract_paths_from_strings(strings: &[StringInfo]) -> Vec<PathInfo> {
+#[must_use] 
+pub(crate) fn extract_paths_from_strings(strings: &[StringInfo]) -> Vec<PathInfo> {
     let mut paths = Vec::new();
 
     for string_info in strings {
@@ -139,7 +140,8 @@ fn classify_path_category(path: &str) -> PathCategory {
 }
 
 /// Group paths by directory
-pub fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
+#[must_use] 
+pub(crate) fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
     let mut dir_map: HashMap<String, Vec<&PathInfo>> = HashMap::new();
 
     // Group paths by directory
@@ -229,7 +231,8 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
 }
 
 /// Generate traits from path patterns
-pub fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
+#[must_use] 
+pub(crate) fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     // Platform detection from paths
@@ -406,7 +409,8 @@ fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
 }
 
 /// Generate traits from directory patterns
-pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<Finding> {
+#[must_use] 
+pub(crate) fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
     for dir in directories {
@@ -479,7 +483,7 @@ pub fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<
 }
 
 /// Main entry point: analyze paths and link to traits
-pub fn analyze_and_link_paths(report: &mut AnalysisReport) {
+pub(crate) fn analyze_and_link_paths(report: &mut AnalysisReport) {
     // Step 1: Extract paths from strings
     let mut paths = extract_paths_from_strings(&report.strings);
 

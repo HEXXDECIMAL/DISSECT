@@ -115,32 +115,7 @@ traits:
       type: symbol
       exact: "process.cwd"
 
-  - id: process-env-access
-    desc: process.env access
-    crit: notable
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      exact: "process.env"
-
-  - id: process-platform-access
-    desc: process.platform access
-    crit: notable
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      exact: "process.platform"
-
-  - id: process-arch-access
-    desc: process.arch access
-    crit: notable
-    conf: 0.65
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      exact: "process.arch"
+  # process-env-access is a raw capability - use cap/os/env/access::javascript
 
   - id: process-version-access
     desc: process.version access
@@ -226,7 +201,6 @@ composite_rules:
       - { id: os-cpus-call }
       - { id: os-totalmem-call }
       - { id: process-cwd-call }
-      - { id: process-env-access }
 
   # User identification: hostname + userinfo (core victim ID)
   - id: js-victim-id
@@ -263,8 +237,6 @@ composite_rules:
       - id: process-platform-content
       - id: process-arch-content
       - id: process-versions-content
-      - id: process-platform-access
-      - id: process-arch-access
       - id: process-version-access
 
   # Multiple process fingerprinting properties (2+)
@@ -279,8 +251,6 @@ composite_rules:
       - id: process-arch-content
       - id: process-versions-content
       - id: process-argv-content
-      - id: process-platform-access
-      - id: process-arch-access
       - id: process-version-access
 
   # System fingerprinting with HTTP POST exfiltration

@@ -30,7 +30,7 @@ traits:
       regex: "\\bpcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)\\b"
 
   # Removed recvfrom-fn - recvfrom is a general socket function, not BPF-specific
-  # It's already covered by cap/comm/socket/receive/unix::receive for binaries
+  # It's already covered by cap/comm/socket/receive::receive for binaries
   # and cap/comm/socket/connect/python::socket-recvfrom-call for Python
 
 
@@ -45,4 +45,4 @@ composite_rules:
       - { id: bpf-program }
       - { id: bpf-prefix }
       - { id: pcap-prefix }
-      - { id: cap/comm/socket/receive/unix::receive }
+      - { id: cap/comm/socket/receive::receive }

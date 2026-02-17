@@ -15,7 +15,7 @@ composite_rules:
       - id: obj/anti-static/obfuscation/js::js-property-concatenation-obfuscation
     any:
       - id: obj/anti-analysis/anti-sandbox/loop::large-loop-counter
-      - id: cap/dylib/probabilistic::retry-loop
+      - id: obj/anti-static/obfuscation/control-flow::retry-loop
       - id: obj/anti-static/obfuscation/js::comparison-to-obfuscated-property
 
   - id: obfuscated-payload-check

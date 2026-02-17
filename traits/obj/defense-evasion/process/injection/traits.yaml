@@ -26,7 +26,7 @@ composite_rules:
       - id: obj/defense-evasion/process/injection/code::set-thread-context
     downgrade:
       any:
-        - id: cap/dylib/go-runtime/go-runtime-marker
+        - id: meta/lang::go-runtime-marker
         - id: meta/vendor/valve/valve-corp-binary
 
   # === APC Queue Injection ===
@@ -68,7 +68,7 @@ composite_rules:
     for: ["pe", "dll"]
     all:
       - id: obj/defense-evasion/process/injection/code::create-remote-thread
-      - id: obj/exec/native/api::load-library-a
+      - id: cap/dylib/load::load-library-a
     downgrade:
       any:
         - id: meta/vendor/valve/valve-corp-binary
@@ -86,7 +86,7 @@ composite_rules:
       - id: apc-injection
     downgrade:
       any:
-        - id: cap/dylib/go-runtime/go-runtime-marker
+        - id: meta/lang::go-runtime-marker
         - id: meta/vendor/valve/valve-corp-binary
 
   # === Local / Callback Injection ===
@@ -98,6 +98,6 @@ composite_rules:
     attack: "T1055"
     for: [pe, dll]
     all:
-      - id: obj/exec/native/api::callback-execution
+      - id: obj/exec/native/runtime::callback-execution
       - id: cap/mem/protect/modify::virtual-protect
-      - id: obj/exec/native/api::heap-alloc
+      - id: obj/exec/native/runtime::heap-alloc

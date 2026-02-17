@@ -40,6 +40,34 @@ traits:
       type: symbol
       regex: "process_vm_writev"
 
+  # === Go ptrace injection ===
+  - id: syscall-ptrace-attach
+    desc: Go syscall.PtraceAttach
+    crit: inert
+    conf: 0.75
+    for: [elf, go]
+    if:
+      type: symbol
+      exact: "syscall.PtraceAttach"
+
+  - id: syscall-ptrace-cont
+    desc: Go syscall.PtraceCont
+    crit: inert
+    conf: 0.75
+    for: [elf, go]
+    if:
+      type: symbol
+      exact: "syscall.PtraceCont"
+
+  - id: proc-mem-glob
+    desc: /proc/*/mem path for process memory injection
+    crit: inert
+    conf: 0.8
+    for: [elf, go]
+    if:
+      type: string
+      substr: "/proc/*/mem"
+
 composite_rules:
   # Process injection via ptrace (migrated from YARA)
   - id: process-inject-ptrace
@@ -52,3 +80,16 @@ composite_rules:
       - id: ptrace-attach
       - id: ptrace-poketext
       - id: process-vm-writev
+
+  # Go-specific ptrace injection
+  - id: go-ptrace-inject
+    desc: Go process injection via syscall.Ptrace
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0033"
+    attack: "T1055.008"
+    for: [elf, go]
+    any:
+      - id: syscall-ptrace-attach
+      - id: syscall-ptrace-cont
+      - id: proc-mem-glob

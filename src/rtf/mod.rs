@@ -28,16 +28,21 @@
 //! }
 //! ```
 
-pub mod error;
-pub mod hex_decoder;
-pub mod ole_extractor;
-pub mod parser;
-pub mod types;
+/// Error types for RTF parsing
+pub(crate) mod error;
+/// Hex decoding for RTF objdata sections
+pub(crate) mod hex_decoder;
+/// OLE object extraction from RTF documents
+pub(crate) mod ole_extractor;
+/// Main RTF parser
+pub(crate) mod parser;
+/// Type definitions for RTF documents
+pub(crate) mod types;
 
 // Public API re-exports for convenience
 // Used by external consumers of the rtf module
 #[allow(unused_imports)]
-pub use error::{Result, RtfError};
-pub use parser::RtfParser;
+pub(crate) use error::{Result, RtfError};
+pub(crate) use parser::RtfParser;
 #[allow(unused_imports)]
-pub use types::{OleHeader, OleObject, RtfDocument, SuspiciousFlag};
+pub(crate) use types::{OleHeader, OleObject, RtfDocument, SuspiciousFlag};

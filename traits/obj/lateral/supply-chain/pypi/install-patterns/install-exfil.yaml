@@ -155,14 +155,6 @@ traits:
       regex: "atexit\\.register\\s*\\("
 
   # === Base64 Encoding for Exfil ===
-  - id: base64-encode-call
-    desc: base64.b64encode() call
-    crit: notable
-    conf: 0.7
-    if:
-      type: symbol
-      regex: "base64\\.(b64encode|encodestring)"
-
   - id: base64-encode-string
     desc: base64 encode reference
     crit: notable
@@ -315,15 +307,6 @@ composite_rules:
       - id: small-no-imports
       - id: cap/data/control-flow/analysis::for-loop-ast
 
-  # Base64 encoding composite
-  - id: base64-encode
-    desc: Base64 encoding capability
-    crit: notable
-    conf: 0.8
-    any:
-      - id: base64-encode-call
-      - id: base64-encode-string
-
   # Data collection with delimiter (fingerprint payload)
   - id: fingerprint-payload-concat
     desc: Fingerprint data concatenation
@@ -347,7 +330,7 @@ composite_rules:
     all:
       - id: setup-py-file
       - id: obj/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
-      - id: base64-encode
+      - id: base64-encode-string
       - id: cap/comm/http/request::request-python
 
   # === HOSTILE: PyPI Install-Time Atexit Exfiltration ===
@@ -364,7 +347,7 @@ composite_rules:
     all:
       - id: setup-py-file
       - id: atexit-register-callback
-      - id: base64-encode
+      - id: base64-encode-string
       - id: cap/comm/http/request::request-python
 
   # Lighter variant without setup.py check
@@ -377,7 +360,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: obj/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
-      - id: base64-encode
+      - id: base64-encode-string
       - id: cap/comm/http/request::request-python
 
   # === HOSTILE: Python Environment Variable Exfiltration ===
@@ -392,7 +375,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: cap/os/env/vars::py-environ-enumerate
-      - id: base64-encode
+      - id: base64-encode-string
       - id: cap/comm/http/request::request-python
 
   # Fingerprint with VID parameter (high confidence)
@@ -405,7 +388,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: vid-parameter
-      - id: base64-encode
+      - id: base64-encode-string
       - id: cap/comm/http/request::request-python
 
   # === HOSTILE: PyPI OOB Callback with User Info ===

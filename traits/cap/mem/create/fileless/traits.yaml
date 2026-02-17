@@ -29,7 +29,7 @@ composite_rules:
     for: [elf]
     all:
       - id: syscall-memfd-create
-      - id: cap/process/create/direct::syscall-execve-linux
+      - id: cap/process/create/shell::syscall-execve-linux
 
   - id: fileless-macos-hostile
     desc: Fileless execution with hidden tmp file on macOS

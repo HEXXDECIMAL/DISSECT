@@ -3,8 +3,6 @@
 # ATT&CK: T1497.001 (Virtualization/Sandbox Evasion: System Checks)
 
 traits:
-  # Removed vmware-string duplicate - use obj/anti-analysis/vm/detect::vendor-vmware
-
   # === VirtualBox atomic indicators ===
   - id: virtualbox-word
     desc: VirtualBox string detection

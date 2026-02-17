@@ -47,7 +47,7 @@ composite_rules:
     attack: "T1105"
     mbc: "B0024"
     all:
-      - id: obj/c2/ip::staged-tcp-query
+      - id: obj/c2/infrastructure/ip::staged-tcp-query
       - id: obj/exec/dropper/script::certutil-urlcache-split-force
       - id: obj/exec/dropper/script::wmic-arch-check
       - id: cap/fs/file/write/staging::users-public-path

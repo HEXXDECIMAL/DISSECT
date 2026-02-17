@@ -40,7 +40,7 @@ composite_rules:
     conf: 0.85
     for: [javascript]
     all:
-      - id: obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context
+      - id: obj/lateral/supply-chain/chrome-ext/markers::chrome-extension-context
     any:
       - id: profit-domain
       - id: affiliate-domain-pattern

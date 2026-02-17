@@ -93,7 +93,7 @@ composite_rules:
     mbc: "E1243"
     all:
       - id: wscript-execution
-      - id: cap/process/spawn
+      - id: cap/process/create/spawn
 
   - id: script-based-malware
     desc: Script-based malware framework

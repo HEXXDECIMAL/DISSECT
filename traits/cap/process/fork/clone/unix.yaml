@@ -20,4 +20,5 @@ traits:
     conf: 0.66
     if:
       type: symbol
-      regex: daemon|setsid
+      # setsid: use cap/process/create/setsid/traits.yaml::c (canonical)
+      exact: "daemon"

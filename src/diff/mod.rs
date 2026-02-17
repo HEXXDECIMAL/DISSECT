@@ -17,8 +17,9 @@ mod formatting;
 mod risk;
 mod utils;
 
-// Re-export public types and functions
-pub use formatting::format_diff_terminal;
+// Re-export for binary use (main.rs)
+#[allow(unused_imports)]
+pub(crate) use formatting::format_diff_terminal;
 
 // Internal imports
 use utils::{compute_added_removed, detect_renames};
@@ -41,6 +42,7 @@ pub struct DiffAnalyzer {
     capability_mapper: CapabilityMapper,
 }
 impl DiffAnalyzer {
+    /// Create a new diff analyzer comparing baseline to target
     pub fn new(baseline: impl AsRef<Path>, target: impl AsRef<Path>) -> Self {
         Self {
             baseline_path: baseline.as_ref().to_path_buf(),
@@ -49,6 +51,7 @@ impl DiffAnalyzer {
         }
     }
 
+    /// Run the diff analysis and return a DiffReport
     pub fn analyze(&self) -> Result<DiffReport> {
         // Determine if we're comparing files or directories
         let is_baseline_dir = self.baseline_path.is_dir();
@@ -117,11 +120,11 @@ impl DiffAnalyzer {
         let target_set: HashSet<_> = target_files.keys().collect();
 
         let mut added: Vec<String> =
-            target_set.difference(&baseline_set).map(|s| s.to_string()).collect();
+            target_set.difference(&baseline_set).map(std::string::ToString::to_string).collect();
         let mut removed: Vec<String> =
-            baseline_set.difference(&target_set).map(|s| s.to_string()).collect();
+            baseline_set.difference(&target_set).map(std::string::ToString::to_string).collect();
         let modified_candidates: Vec<String> =
-            baseline_set.intersection(&target_set).map(|s| s.to_string()).collect();
+            baseline_set.intersection(&target_set).map(std::string::ToString::to_string).collect();
 
         // Detect renames using similarity scoring
         let renames = detect_renames(&removed, &added);
@@ -220,7 +223,7 @@ impl DiffAnalyzer {
 
         for entry in WalkDir::new(dir)
             .into_iter()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .filter(|e| e.file_type().is_file())
         {
             let path = entry.path();
@@ -462,7 +465,7 @@ impl DiffAnalyzer {
     }
 
     /// Create a full diff report with comprehensive analysis for ML pipelines
-    pub fn analyze_full(&self) -> Result<FullDiffReport> {
+    pub(crate) fn analyze_full(&self) -> Result<FullDiffReport> {
         let is_baseline_dir = self.baseline_path.is_dir();
         let is_target_dir = self.target_path.is_dir();
 
@@ -538,11 +541,11 @@ impl DiffAnalyzer {
         let target_set: HashSet<_> = target_files.keys().collect();
 
         let mut added: Vec<String> =
-            target_set.difference(&baseline_set).map(|s| s.to_string()).collect();
+            target_set.difference(&baseline_set).map(std::string::ToString::to_string).collect();
         let mut removed: Vec<String> =
-            baseline_set.difference(&target_set).map(|s| s.to_string()).collect();
+            baseline_set.difference(&target_set).map(std::string::ToString::to_string).collect();
         let modified_candidates: Vec<String> =
-            baseline_set.intersection(&target_set).map(|s| s.to_string()).collect();
+            baseline_set.intersection(&target_set).map(std::string::ToString::to_string).collect();
 
         let renames = detect_renames(&removed, &added);
 

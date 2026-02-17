@@ -107,7 +107,7 @@ composite_rules:
     crit: suspicious
     all:
       - id: python-http-lib
-      - id: cap/os/user/lookup::home-dir
+      - id: cap/os/user/lookup::go-home-dir
       - id: cap/fs/write/file::python-open-write-binary
       - id: python-exec-any
 

@@ -22,23 +22,8 @@ traits:
   # ============================================
   # System Applications (notable)
   # ============================================
-  - id: system-settings
-    desc: "Targets System Settings"
-    crit: notable
-    conf: 0.9
-    attack: "T1082"
-    if:
-      type: string
-      substr: "System Settings"
-
-  - id: system-preferences
-    desc: "Targets System Preferences"
-    crit: notable
-    conf: 0.9
-    attack: "T1082"
-    if:
-      type: string
-      substr: "System Preferences"
+  # system-settings: use cap/process/create/script::ref-system-settings (canonical)
+  # system-preferences: use cap/process/create/script::ref-system-prefs (canonical)
 
   - id: system-events
     desc: "Targets System Events"
@@ -97,8 +82,8 @@ composite_rules:
     conf: 0.85
     for: [applescript]
     any:
-      - { id: system-settings }
-      - { id: system-preferences }
+      - { id: cap/process/create/script::ref-system-settings }
+      - { id: cap/process/create/script::ref-system-prefs }
 
   # Terminal automation commands group
   - id: terminal-commands

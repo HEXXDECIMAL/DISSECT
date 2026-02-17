@@ -61,6 +61,6 @@ composite_rules:
       - id: hdio-get-identity
       - id: hdparm-cmd
       - id: cap/fs/disk/paths::lsblk-cmd
-      - id: cap/fs/device/blkid/linux::blkid
+      - id: cap/fs/device/blkid::blkid
       - id: serial-short
       - id: id-serial

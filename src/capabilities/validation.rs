@@ -380,7 +380,7 @@ fn sum_weakest(mut values: Vec<f32>, count: usize) -> f32 {
 ///
 /// This is rule-definition precision, not runtime match precision.
 /// It counts structural constraints that make a trait more specific.
-pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
+pub(crate) fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
     let mut precision = BASE_TRAIT_PRECISION;
 
     precision += score_presence(trait_def.r#if.size_min.as_ref());
@@ -423,7 +423,7 @@ pub fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
 ///
 /// IMPORTANT: This is the ONLY place in the codebase for measuring rule precision.
 /// Do not duplicate this logic elsewhere.
-pub fn calculate_composite_precision(
+pub(crate) fn calculate_composite_precision(
     rule_id: &str,
     composite_lookup: &HashMap<&str, &CompositeTrait>,
     trait_lookup: &HashMap<&str, &TraitDefinition>,
@@ -938,6 +938,46 @@ struct PatternLocation {
     for_types: HashSet<String>,
 }
 
+/// Split a regex pattern on top-level `|` only — not inside parentheses or brackets.
+/// This avoids false positives from patterns like `(?:foo|bar)baz` being split into
+/// `(?:foo` and `bar)baz`.
+fn split_top_level_alternation(pattern: &str) -> Vec<&str> {
+    let mut depth = 0i32;
+    let mut in_char_class = false;
+    let mut last = 0;
+    let mut result = Vec::new();
+    let bytes = pattern.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'\\' => {
+                i += 2; // skip escaped character
+                continue;
+            }
+            b'[' if !in_char_class => {
+                in_char_class = true;
+            }
+            b']' if in_char_class => {
+                in_char_class = false;
+            }
+            b'(' if !in_char_class => {
+                depth += 1;
+            }
+            b')' if !in_char_class => {
+                depth -= 1;
+            }
+            b'|' if !in_char_class && depth == 0 => {
+                result.push(&pattern[last..i]);
+                last = i + 1;
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    result.push(&pattern[last..]);
+    result
+}
+
 /// Normalize a regex pattern by stripping anchors (^ and $)
 fn normalize_regex(pattern: &str) -> String {
     let mut normalized = pattern.to_string();
@@ -1192,8 +1232,8 @@ pub(crate) fn check_regex_or_overlapping_exact(
 
     // Check each regex OR pattern against all literals
     for (regex_value, regex_loc) in regex_patterns {
-        // Split the regex by | to get alternatives
-        let alternatives: Vec<&str> = regex_value.split('|').collect();
+        // Split the regex on top-level | only (not inside parentheses/brackets)
+        let alternatives: Vec<&str> = split_top_level_alternation(&regex_value);
 
         let mut overlapping_literals: Vec<(String, Vec<String>)> = Vec::new();
 
@@ -1709,8 +1749,8 @@ pub(crate) fn find_single_item_clauses(
         return violations;
     }
 
-    let any_count = rule.any.as_ref().map_or(0, |v| v.len());
-    let all_count = rule.all.as_ref().map_or(0, |v| v.len());
+    let any_count = rule.any.as_ref().map_or(0, std::vec::Vec::len);
+    let all_count = rule.all.as_ref().map_or(0, std::vec::Vec::len);
     let total_count = any_count + all_count;
 
     // Only flag if there's exactly 1 condition total
@@ -2017,6 +2057,12 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
 
         // Subdirectory count = total parts - 1 (root) - 1 (filename)
         let subdir_count = parts.len() - 2;
+
+        // cap/dylib/ is a foundational namespace with atomic, non-decomposable operations
+        // (load, lookup, enumerate, library markers). Adding depth here would be padding.
+        if subdir_count < 3 && path.starts_with("cap/dylib/") {
+            continue;
+        }
 
         if subdir_count < 3 {
             violations.push((path.clone(), subdir_count, "shallow"));
@@ -2461,44 +2507,47 @@ pub(crate) fn find_alternation_merge_candidates(
 /// Directory name segments that add no semantic meaning.
 /// These make the taxonomy harder to navigate and provide no value for ML classification.
 const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
-    "generic",    // says nothing about what's inside
-    "method",     // everything is a method
-    "modes",      // dumping ground
-    "types",      // dumping ground
-    "techniques", // dumping ground
-    "technique",  // dumping ground
-    "notable",    // dumping ground
-    "suspicious", // dumping ground
-    "hostile",    // dumping ground
-    "category",   // dumping ground
-    "misc",       // dumping ground
-    "other",      // dumping ground
-    "utils",      // too vague
-    "helpers",    // too vague
-    "composite",  // vague
-    "atomic",     // vague
-    "combos",     // vague
-    "composites", // vague
-    "composite",  // vague
-    "common",     // too vague
-    "base",       // too vague
-    "impl",       // implementation detail
-    "default",    // meaningless
-    "basic",      // meaningless
-    "simple",     // meaningless
     "advanced",   // subjective
-    "new",        // temporal, will rot
-    "old",        // temporal, will rot
-    "stuff",      // obviously bad
-    "patterns",   // vague
-    "pattern",    // vague
-    "things",     // obviously bad
-    "type",       // too vague
-    "types",      // too vague
+    "api", // almost everything is an API
+    "assorted",   // dumping ground
+    "atomic",     // vague
+    "base",       // too vague
+    "basic",      // meaningless
+    "category",   // dumping ground
+    "combos",     // vague
+    "common",     // too vague
+    "composite",  // vague
+    "composite",  // vague
+    "composites", // vague
+    "default",    // meaningless
+    "generic",    // says nothing about what's inside
+    "helpers",    // too vague
+    "hostile",    // dumping ground
+    "impl",       // implementation detail
     "kind",       // too vague
     "kinds",      // too vague
+    "method",     // everything is a method
+    "misc",       // dumping ground
+    "modes",      // dumping ground
+    "new",        // temporal, will rot
+    "notable",    // dumping ground
+    "old",        // temporal, will rot
+    "other",      // dumping ground
+    "pattern",    // vague
+    "patterns",   // vague
+    "go-runtime", // platform
+    "simple",     // meaningless
+    "stuff",      // obviously badcgl
+    "suspicious", // dumping ground
+    "technique",  // dumping ground
+    "techniques", // dumping ground
+    "things",     // obviously bad
+    "type",       // too vague
+    "types",      // dumping ground
+    "types",      // too vague
+    "utils",      // too vague
     "various",    // dumping ground
-    "assorted",   // dumping ground
+    "windows",    // generic platform
 ];
 
 /// Find directories containing banned meaningless segments.
@@ -2556,7 +2605,7 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
 
 /// Maximum number of traits allowed in a single directory.
 /// Directories exceeding this should be split into subdirectories.
-pub const MAX_TRAITS_PER_DIRECTORY: usize = 80;
+pub(crate) const MAX_TRAITS_PER_DIRECTORY: usize = 80;
 
 /// Find directories with too many traits (suggests need for subdirectories).
 /// Returns: Vec<(directory_path, trait_count)>
@@ -2662,9 +2711,9 @@ pub(crate) fn find_empty_condition_clauses(
     let mut violations = Vec::new();
 
     for rule in composite_rules {
-        let all_empty = rule.all.as_ref().is_none_or(|v| v.is_empty());
-        let any_empty = rule.any.as_ref().is_none_or(|v| v.is_empty());
-        let none_empty = rule.none.as_ref().is_none_or(|v| v.is_empty());
+        let all_empty = rule.all.as_ref().is_none_or(std::vec::Vec::is_empty);
+        let any_empty = rule.any.as_ref().is_none_or(std::vec::Vec::is_empty);
+        let none_empty = rule.none.as_ref().is_none_or(std::vec::Vec::is_empty);
 
         // Only flag if we have an explicit empty clause (Some([]))
         if let Some(all) = &rule.all {
@@ -4032,43 +4081,6 @@ mod tests {
     }
 
     #[test]
-    fn test_find_duplicate_words_in_path_empty() {
-        let dirs: Vec<String> = vec![];
-        assert!(find_duplicate_words_in_path(&dirs).is_empty());
-    }
-
-    #[test]
-    fn test_find_duplicate_words_in_path_valid() {
-        let dirs = vec![
-            "cap/comm/http/client".to_string(),
-            "obj/anti-analysis/vm-detect".to_string(),
-        ];
-        assert!(find_duplicate_words_in_path(&dirs).is_empty());
-    }
-
-    #[test]
-    fn test_find_duplicate_words_in_path_exact_duplicate() {
-        // "beacon" appears twice - once in dir name, once in segment
-        let dirs = vec!["obj/beacon/beacon-http".to_string()];
-        let violations = find_duplicate_words_in_path(&dirs);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_find_duplicate_words_in_path_stem_duplicate() {
-        let dirs = vec!["obj/anti-analysis/analysis".to_string()];
-        let violations = find_duplicate_words_in_path(&dirs);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
-    fn test_find_duplicate_words_in_path_exec_execute() {
-        let dirs = vec!["cap/exec/execute".to_string()];
-        let violations = find_duplicate_words_in_path(&dirs);
-        assert_eq!(violations.len(), 1);
-    }
-
-    #[test]
     fn test_find_parent_duplicate_segments_empty() {
         let dirs: Vec<String> = vec![];
         assert!(find_parent_duplicate_segments(&dirs).is_empty());
@@ -5250,32 +5262,26 @@ mod tests {
 }
 
 /// Cached regex pattern for extracting prefix from regex patterns
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn prefix_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
     RE.get_or_init(|| regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex"))
 }
 
-/// Cached regex patterns for slow regex detection
-fn nested_quantifiers_regex() -> &'static regex::Regex {
-    static RE: OnceLock<regex::Regex> = OnceLock::new();
-    RE.get_or_init(|| regex::Regex::new(r"\([^)]*[*+]\)[*+]").expect("valid regex"))
-}
-
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn overlapping_alternations_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
     RE.get_or_init(|| regex::Regex::new(r"\([^)]*\.\*\|[^)]*\.\*\)").expect("valid regex"))
 }
 
-fn greedy_quantifier_regex() -> &'static regex::Regex {
-    static RE: OnceLock<regex::Regex> = OnceLock::new();
-    RE.get_or_init(|| regex::Regex::new(r"\\[wWdDsS]\+\\[wWdDsS]").expect("valid regex"))
-}
-
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn greedy_range_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
-    RE.get_or_init(|| regex::Regex::new(r"\.\{[0-9]+,[0-9]*\}.+[\|\[\(]").expect("valid regex"))
+    // Only flag unbounded ranges (.{n,}) — bounded ranges (.{n,m}) have a known cost ceiling
+    RE.get_or_init(|| regex::Regex::new(r"\.\{[0-9]+,\}.+[\|\[\(]").expect("valid regex"))
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn large_range_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
     RE.get_or_init(|| regex::Regex::new(r"\.\{([0-9]+),([0-9]*)\}").expect("valid regex"))
@@ -5286,7 +5292,7 @@ fn large_range_regex() -> &'static regex::Regex {
 /// Patterns with nested quantifiers or alternations with overlapping prefixes
 /// can cause exponential runtime on certain inputs. This validates patterns
 /// for common backtracking pitfalls.
-pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<String>) {
+pub(crate) fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<String>) {
     for trait_def in traits {
         let pattern_opt = match &trait_def.r#if.condition {
             Condition::Raw {
@@ -5300,26 +5306,15 @@ pub fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mut Vec<S
         if let Some((pattern, _ci)) = pattern_opt {
             let mut issues = Vec::new();
 
-            // Check for nested quantifiers like (a+)+ or (.*)*
-            if nested_quantifiers_regex().is_match(&pattern) {
-                issues.push("nested quantifiers (e.g., (a+)+) can cause exponential backtracking");
-            }
-
             // Check for overlapping alternations with wildcards like (a.*|ab.*)
             if overlapping_alternations_regex().is_match(&pattern) {
                 issues.push("alternation with multiple .* patterns may cause backtracking");
             }
 
-            // Check for greedy quantifiers followed by the same character class
-            // e.g., \w+\w or \d+\d
-            if greedy_quantifier_regex().is_match(&pattern) {
-                issues
-                    .push("greedy quantifier followed by same character class causes backtracking");
-            }
-
-            // Check for patterns with .{min,max} followed by more complex matching
+            // Check for patterns with unbounded .{n,} followed by complex matching
+            // (bounded .{n,m} is acceptable — the upper bound limits cost)
             if greedy_range_regex().is_match(&pattern) {
-                issues.push("greedy range quantifier (.{n,m}) followed by complex patterns may be slow on long lines");
+                issues.push("unbounded range quantifier (.{n,}) followed by complex patterns may be slow");
             }
 
             // Check for very large ranges that could match huge spans

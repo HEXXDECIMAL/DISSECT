@@ -39,24 +39,8 @@ traits:
       regex: "platform\\.system.{0,50}platform\\.machine|platform\\.machine.{0,50}platform\\.system"
 
   # OS string checks (match extracted string literals)
-  - id: linux-string-check
-    desc: Linux OS string in condition
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      word: "Linux"
-    unless:
-      - type: string
-        substr: "on Linux and OS X"
-
-  - id: darwin-string-check
-    desc: Darwin/macOS string in condition
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      word: "Darwin"
+  # linux-string-check: use obj/discovery/host/system/os-fingerprint::os-check-linux (canonical)
+  # darwin-string-check: use obj/discovery/host/system/os-fingerprint::os-check-darwin (canonical)
 
   - id: arch-string-check
     desc: Architecture string checks
@@ -155,8 +139,8 @@ composite_rules:
     needs: 2
     any:
       - id: platform-checks
-      - id: linux-string-check
-      - id: darwin-string-check
+      - id: obj/discovery/host/system/os-fingerprint::os-check-linux
+      - id: obj/discovery/host/system/os-fingerprint::os-check-darwin
       - id: arch-string-check
     all:
       - id: obj/exec/dropper/tmp-run::tmp-path
@@ -172,8 +156,8 @@ composite_rules:
     needs: 3
     any:
       - id: platform-checks
-      - id: linux-string-check
-      - id: darwin-string-check
+      - id: obj/discovery/host/system/os-fingerprint::os-check-linux
+      - id: obj/discovery/host/system/os-fingerprint::os-check-darwin
       - id: arch-string-check
       - id: download-with-delete
       - id: safe-run-call

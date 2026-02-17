@@ -24,15 +24,7 @@ traits:
       regex: "from ['\"]crypto['\"]"
 
   # Cipher Creation
-  - id: createCipheriv
-    desc: Create cipher with IV (symmetric)
-    crit: notable
-    conf: 0.85
-    mbc: "C0027"
-    for: [javascript, typescript]
-    if:
-      type: symbol
-      substr: "createCipheriv"
+  # createCipheriv - use cap/crypto/operations/encryption::create-cipheriv
 
   - id: createDecipheriv
     desc: Create decipher with IV (symmetric)
@@ -41,7 +33,7 @@ traits:
     mbc: "C0027"
     for: [javascript, typescript]
     if:
-      type: symbol
+      type: string
       substr: "createDecipheriv"
 
   # === AES-128-CTR atomic indicators ===
@@ -178,8 +170,8 @@ traits:
       type: string
       substr: "gunzip"
 
-  # Removed inflate-function duplicate - use cap/data/compression/library/traits::inflate (symbol works for all file types)
-  # Removed deflate-function duplicate - use cap/data/compression/library/traits::deflate (symbol works for all file types)
+  # Removed inflate-function duplicate - use cap/data/compression/library::inflate (symbol works for all file types)
+  # Removed deflate-function duplicate - use cap/data/compression/library::deflate (symbol works for all file types)
 
 composite_rules:
   # Crypto require composite
@@ -233,7 +225,7 @@ composite_rules:
     mbc: "C0027"
     for: [javascript, typescript]
     any:
-      - id: createCipheriv
+      - id: cap/crypto/operations/encryption::create-cipheriv
       - id: createDecipheriv
 
   # Network request composite
@@ -255,8 +247,8 @@ composite_rules:
       - id: cap/data/encode/compression::zlib-signature
       - id: gzip-function
       - id: gunzip-function
-      - id: cap/data/compression/library/traits::inflate
-      - id: cap/data/compression/library/traits::deflate
+      - id: cap/data/compression/library::inflate
+      - id: cap/data/compression/library::deflate
 
   # Hardcoded crypto key composite
   - id: hardcoded-key

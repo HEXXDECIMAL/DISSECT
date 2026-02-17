@@ -60,16 +60,27 @@ traits:
       substr: "HostRequest"
 
   # === HTTP request forwarding indicators ===
-  - id: http-response-handler
-    desc: HTTP response handling
+  # dataTaskWithRequest: use cap/comm/http/lib/nsurlsession/traits.yaml::nsurlresponse-handle (canonical)
+  - id: http-response-string
+    desc: HTTPResponse string reference
     crit: notable
     conf: 0.6
     for: [macho, dylib]
     if:
       type: symbol
-      regex: "dataTaskWithRequest|HTTPResponse"
+      substr: "HTTPResponse"
 
 composite_rules:
+  # http-response-handler: composite referencing canonical dataTaskWithRequest plus HTTPResponse
+  - id: http-response-handler
+    desc: HTTP response handling (data task or HTTPResponse)
+    crit: notable
+    conf: 0.6
+    for: [macho, dylib]
+    any:
+      - id: cap/comm/http/lib/nsurlsession::nsurlresponse-handle
+      - id: http-response-string
+
   # WebSocket-based protocol proxy (Web3 relay/tunnel)
   # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
   - id: websocket-protocol-proxy
@@ -80,7 +91,7 @@ composite_rules:
     mbc: "B0030"
     for: [macho, dylib]
     all:
-      - id: websocket-connection
+      - id: cap/comm/http/websocket::websocket-class
       - id: web3-request-dto
       - id: web3-response-dto
       - id: session-management
@@ -95,7 +106,7 @@ composite_rules:
     mbc: "B0030"
     for: [macho, dylib]
     all:
-      - id: websocket-connection
+      - id: cap/comm/http/websocket::websocket-class
       - id: host-request
       - id: http-response-handler
     any:

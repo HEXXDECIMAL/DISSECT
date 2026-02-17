@@ -100,15 +100,6 @@ traits:
       type: symbol
       exact: "bind"
 
-  - id: socket-listen-call
-    desc: socket.listen() call
-    crit: inert
-    conf: 0.7
-    for: [python]
-    if:
-      type: symbol
-      exact: "listen"
-
   - id: socket-accept-call
     desc: socket.accept() call
     crit: inert
@@ -215,10 +206,8 @@ composite_rules:
   - id: socket-server-operations
     desc: Server socket operations
     for: [python]
-    needs: 2
     any:
       - { id: socket-bind-call }
-      - { id: socket-listen-call }
       - { id: socket-accept-call }
 
   - id: socket-data-transfer

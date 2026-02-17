@@ -1,5 +1,5 @@
 traits:
-  - id: cap/format/rtf/object::word-document-object
+  - id: word-document-object
     desc: RTF document containing a Word.Document object class.
     crit: notable
     for: [rtf]
@@ -7,7 +7,7 @@ traits:
       type: raw
       regex: 'objclass Word\.Document'
 
-  - id: cap/format/rtf/object::ole-link-class
+  - id: ole-link-class
     desc: RTF with OLE Link object class.
     crit: suspicious
     conf: 0.9

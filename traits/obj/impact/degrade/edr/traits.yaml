@@ -14,7 +14,7 @@ traits:
       type: string
       substr: "stopservice"
 
-  # Removed terminate-process-api duplicate - use cap/process/terminate/kill/traits::terminate-process (symbol is more precise)
+  # Removed terminate-process-api duplicate - use cap/process/terminate/kill::terminate-process (symbol is more precise)
 
   # === EDR/AV process termination verbs (atomic) ===
   # Removed duplicate - use cap/process/terminate/signal::kill
@@ -188,6 +188,6 @@ composite_rules:
     for: [pe, elf]
     any:
       - id: stopper
-      - id: cap/process/terminate/kill/traits::terminate-process
+      - id: cap/process/terminate/kill::terminate-process
     all:
       - id: edr-product-name

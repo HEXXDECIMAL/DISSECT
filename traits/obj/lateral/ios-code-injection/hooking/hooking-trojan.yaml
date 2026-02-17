@@ -16,7 +16,7 @@ composite_rules:
     for: [ipa]
     all:
       - id: obj/defense-evasion/process/injection/code::cydia-substrate-detected
-      - id: cap/discovery/ios-obfuscation/bundle::obfuscated-bundle-identity
+      - id: obj/discovery/ios-obfuscation/bundle::obfuscated-bundle-identity
       - id: obj/defense-evasion/process/injection/code::runtime-code-injection
 
   - id: ios-reverse-engineering-instrumented
@@ -37,6 +37,6 @@ composite_rules:
     mbc: "C0041"
     for: [ipa]
     all:
-      - id: cap/discovery/ios-obfuscation/bundle::suspicious-bundle-masquerading
+      - id: obj/discovery/ios-obfuscation/bundle::suspicious-bundle-masquerading
       - id: obj/defense-evasion/process/injection/code::runtime-code-injection
       - id: obj/defense-evasion/process/injection/code::cydia-substrate-detected

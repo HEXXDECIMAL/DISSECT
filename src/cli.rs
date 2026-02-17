@@ -18,7 +18,8 @@ use clap::{Parser, Subcommand};
 
 /// Parse comma-separated platforms string into a vector of Platform values
 /// Returns vec![Platform::All] if input is empty or "all"
-pub fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
+#[must_use] 
+pub(crate) fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
     use crate::composite_rules::Platform;
 
     if s.is_empty() {
@@ -52,27 +53,26 @@ pub fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> {
 }
 
 /// Default passwords to try for encrypted zip files (common malware sample passwords)
-pub const DEFAULT_ZIP_PASSWORDS: &[&str] =
+pub(crate) const DEFAULT_ZIP_PASSWORDS: &[&str] =
     &["infected", "infect3d", "malware", "virus", "password"];
-
-/// Components that can be disabled via --disable flag
-pub const DISABLEABLE_COMPONENTS: &[&str] = &["yara", "radare2", "upx", "third-party"];
-
-/// Default components to disable (for faster testing)
-pub const DEFAULT_DISABLED: &[&str] = &["third-party"];
 
 /// Tracks which components are disabled
 #[derive(Debug, Clone, Default)]
-pub struct DisabledComponents {
+pub(crate) struct DisabledComponents {
+    /// Whether YARA scanning is disabled
     pub yara: bool,
+    /// Whether radare2 analysis is disabled
     pub radare2: bool,
+    /// Whether UPX unpacking is disabled
     pub upx: bool,
+    /// Whether third-party YARA rules are disabled
     pub third_party: bool,
 }
 
 impl DisabledComponents {
     /// Parse comma-separated list of components to disable
-    pub fn parse(s: &str) -> Self {
+    #[must_use]
+    pub(crate) fn parse(s: &str) -> Self {
         let mut disabled = Self::default();
         for component in s.split(',').map(|c| c.trim().to_lowercase()) {
             match component.as_str() {
@@ -85,53 +85,17 @@ impl DisabledComponents {
         }
         disabled
     }
-
-    /// Create from a list of component names
-    pub fn from_list(components: &[&str]) -> Self {
-        let mut disabled = Self::default();
-        for component in components {
-            match *component {
-                "yara" => disabled.yara = true,
-                "radare2" => disabled.radare2 = true,
-                "upx" => disabled.upx = true,
-                "third-party" => disabled.third_party = true,
-                _ => {},
-            }
-        }
-        disabled
-    }
-
-    /// Check if any components are disabled
-    pub fn any_disabled(&self) -> bool {
-        self.yara || self.radare2 || self.upx || self.third_party
-    }
-
-    /// Get list of disabled component names
-    pub fn disabled_names(&self) -> Vec<&'static str> {
-        let mut names = Vec::new();
-        if self.yara {
-            names.push("yara");
-        }
-        if self.radare2 {
-            names.push("radare2");
-        }
-        if self.upx {
-            names.push("upx");
-        }
-        if self.third_party {
-            names.push("third-party");
-        }
-        names
-    }
 }
 
+/// Command-line arguments for the dissect tool
 #[derive(Parser, Debug)]
 #[command(name = "dissect")]
 #[command(
     about = "Deep static analysis tool for extracting features from binaries and source code"
 )]
 #[command(version)]
-pub struct Args {
+pub(crate) struct Args {
+    /// Subcommand to run (analyze, search, diff, etc.)
     #[command(subcommand)]
     pub command: Option<Command>,
 
@@ -231,7 +195,8 @@ pub struct Args {
 
 impl Args {
     /// Get the disabled components based on --disable and --enable-all flags
-    pub fn disabled_components(&self) -> DisabledComponents {
+    #[must_use]
+    pub(crate) fn disabled_components(&self) -> DisabledComponents {
         if self.enable_all {
             DisabledComponents::default()
         } else {
@@ -240,7 +205,8 @@ impl Args {
     }
 
     /// Get the output format based on --json and --format flags
-    pub fn format(&self) -> OutputFormat {
+    #[must_use]
+    pub(crate) fn format(&self) -> OutputFormat {
         // --format takes precedence over --json
         if let Some(format) = self.format {
             return format;
@@ -253,14 +219,16 @@ impl Args {
     }
 
     /// Parse --error-if flag into a set of criticality levels
-    pub fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
+    #[must_use]
+    pub(crate) fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
         self.error_if
             .as_ref()
             .map(|s| s.split(',').map(|level| parse_criticality_level(level.trim())).collect())
     }
 
     /// Parse --platforms flag into a vector of Platform values
-    pub fn platforms(&self) -> Vec<crate::composite_rules::Platform> {
+    #[must_use]
+    pub(crate) fn platforms(&self) -> Vec<crate::composite_rules::Platform> {
         parse_platforms(&self.platforms)
     }
 }
@@ -280,9 +248,10 @@ fn parse_criticality_level(s: &str) -> crate::types::Criticality {
     }
 }
 
+/// Available dissect subcommands
 #[derive(Subcommand, Debug)]
 #[allow(clippy::large_enum_variant)]
-pub enum Command {
+pub(crate) enum Command {
     /// Analyze files or directories in detail
     Analyze {
         /// Target files or directories to analyze
@@ -510,8 +479,9 @@ fn parse_offset_range(s: &str) -> Result<(i64, Option<i64>), String> {
     Ok((start, end))
 }
 
+/// Type of content to search in
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
-pub enum SearchType {
+pub(crate) enum SearchType {
     /// Search in extracted strings
     String,
     /// Search in symbols (imports/exports)
@@ -530,8 +500,9 @@ pub enum SearchType {
     Metrics,
 }
 
+/// How to match a search pattern against content
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
-pub enum MatchMethod {
+pub(crate) enum MatchMethod {
     /// Exact match
     Exact,
     /// Contains substring
@@ -542,8 +513,9 @@ pub enum MatchMethod {
     Word,
 }
 
+/// File type to use for analysis context override
 #[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
-pub enum DetectFileType {
+pub(crate) enum DetectFileType {
     /// ELF binary
     Elf,
     /// PE/Windows executable
@@ -562,8 +534,9 @@ pub enum DetectFileType {
     Raw,
 }
 
+/// Output format for the diff command
 #[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
-pub enum OutputFormat {
+pub(crate) enum OutputFormat {
     /// JSONL output (newline-delimited JSON) for streaming
     Jsonl,
     /// Human-readable terminal output
@@ -951,23 +924,6 @@ mod tests {
         assert!(!disabled.third_party);
     }
 
-    #[test]
-    fn test_disabled_components_any_disabled() {
-        let disabled = DisabledComponents::default();
-        assert!(!disabled.any_disabled());
-
-        let disabled = DisabledComponents::parse("yara");
-        assert!(disabled.any_disabled());
-    }
-
-    #[test]
-    fn test_disabled_components_disabled_names() {
-        let disabled = DisabledComponents::parse("yara,upx");
-        let names = disabled.disabled_names();
-        assert_eq!(names.len(), 2);
-        assert!(names.contains(&"yara"));
-        assert!(names.contains(&"upx"));
-    }
 
     #[test]
     fn test_disable_empty_string() {

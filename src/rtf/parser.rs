@@ -6,26 +6,31 @@ use regex::Regex;
 use std::sync::OnceLock;
 
 /// Cached regex patterns for RTF parsing
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn control_word_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| Regex::new(r"\\([a-zA-Z]+)(-?\d*)").expect("valid regex"))
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn object_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| Regex::new(r"\{\\object[^}]*\}").expect("valid regex"))
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn objclass_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| Regex::new(r#"\\objclass\s+"([^"]+)"?"#).expect("valid regex"))
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn objdata_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| Regex::new(r"\\objdata\s+([0-9a-fA-F\s]+)").expect("valid regex"))
 }
 
+#[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn unc_path_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| Regex::new(r"\\\\([^\s\\]+)@SSL\\([^\s}]+)").expect("valid regex"))
@@ -33,14 +38,16 @@ fn unc_path_regex() -> &'static Regex {
 
 /// RTF parser with anti-bomb protections and minimal dependencies
 #[derive(Debug)]
-pub struct RtfParser {
+pub(crate) struct RtfParser {
     max_depth: usize,
     max_objects: usize,
     max_file_size: usize,
 }
 
 impl RtfParser {
-    pub fn new() -> Self {
+    /// Create a new parser with default limits (100 nesting depth, 50 objects, 10MB max size)
+    #[must_use]
+    pub(crate) fn new() -> Self {
         Self {
             max_depth: 100,
             max_objects: 50,
@@ -48,21 +55,8 @@ impl RtfParser {
         }
     }
 
-    pub fn with_limits(max_depth: usize, max_objects: usize) -> Self {
-        Self {
-            max_depth,
-            max_objects,
-            max_file_size: 10 * 1024 * 1024,
-        }
-    }
-
-    pub fn with_max_file_size(mut self, size: usize) -> Self {
-        self.max_file_size = size;
-        self
-    }
-
     /// Parse RTF data and extract document structure
-    pub fn parse(&self, data: &[u8]) -> Result<RtfDocument> {
+    pub(crate) fn parse(&self, data: &[u8]) -> Result<RtfDocument> {
         if data.is_empty() {
             return Err(RtfError::EmptyFile);
         }

@@ -9,7 +9,7 @@ defaults:
 
 traits:
   # === Window hiding ===
-  # Removed hide-window duplicate - use obj/anti-analysis/window-hide/ui/applescript::hide-window
+  # Removed hide-window duplicate - use obj/anti-analysis/window-hide/ui::hide-window
 
   # === Command execution ===
   - id: osascript
@@ -32,5 +32,5 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/anti-analysis/window-hide/ui/applescript::hide-window
+      - id: obj/anti-analysis/window-hide/ui::hide-window
       - id: cap/process/create/script::shell-cmd

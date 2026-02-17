@@ -42,7 +42,6 @@ pub mod diff;
 pub mod env_mapper;
 pub mod output;
 pub mod path_mapper;
-pub mod trait_mapper;
 pub mod types;
 pub mod yara_engine;
 
@@ -50,11 +49,13 @@ pub mod yara_engine;
 pub use analyzers::{detect_file_type, Analyzer, FileType};
 pub use capabilities::CapabilityMapper;
 pub use diff::DiffAnalyzer;
-pub use types::{
-    AnalysisReport, BinaryProperties, Criticality, DiffReport, Evidence, Finding, FindingKind,
-    Metrics, ModifiedFileAnalysis, SourceCodeMetrics, StringInfo, TargetInfo, TextMetrics, Trait,
-    TraitKind,
-};
+pub use types::core::{AnalysisReport, Criticality, TargetInfo};
+pub use types::binary::StringInfo;
+pub use types::code_structure::{BinaryProperties, SourceCodeMetrics};
+pub use types::diff::{DiffReport, ModifiedFileAnalysis};
+pub use types::scores::Metrics;
+pub use types::text_metrics::TextMetrics;
+pub use types::traits_findings::{Evidence, Finding, FindingKind, Trait, TraitKind};
 
 use anyhow::Result;
 use std::path::Path;
@@ -80,7 +81,7 @@ impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
             enable_third_party_yara: false,
-            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS.iter().map(|s| s.to_string()).collect(),
+            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS.iter().map(std::string::ToString::to_string).collect(),
             disable_yara: false,
             disable_radare2: false,
             disable_upx: false,
@@ -416,7 +417,7 @@ pub fn analyze_directory<P: AsRef<Path>>(
             let file_name = e.file_name().to_string_lossy();
             !file_name.starts_with(".git")
         })
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_type().is_file())
         .filter(|e| !archive_utils::is_archive(e.path()))
         .filter(|e| {

@@ -7,7 +7,7 @@ composite_rules:
     conf: 0.9
     all:
       - id: cap/data/telemetry/activity::activity-tracker
-      - id: cap/data/telemetry/activity::tracking-identifiers
+      - id: cap/data/telemetry/logging::hardware-id-context
     any:
       - id: cap/comm/http/remote-config::remote-config-service
-      - id: cap/data/telemetry/activity::telemetry-send
+      - id: cap/data/telemetry/logging::telemetry-send

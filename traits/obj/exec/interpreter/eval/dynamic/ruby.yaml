@@ -15,15 +15,15 @@ traits:
     conf: 0.90
     if:
       type: symbol
-      regex: "^eval$"
+      exact: "eval"
 
   - id: instance-eval
     desc: Ruby instance_eval call
     crit: notable
     conf: 0.90
     if:
-      type: symbol
-      regex: "instance_eval"
+      type: string
+      word: "instance_eval"
 
   - id: class-eval
     desc: Ruby class_eval call

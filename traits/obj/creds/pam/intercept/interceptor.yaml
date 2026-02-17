@@ -18,14 +18,7 @@ traits:
       regex: "libpam\\.so\\.\\d+"
 
   # === Token access functions (symbols) ===
-  - id: pam-get-item
-    desc: pam_get_item function
-    crit: notable
-    conf: 0.75
-    for: [elf, so]
-    if:
-      type: symbol
-      exact: "pam_get_item"
+  # pam_get_item symbol - use cap/os/pam/auth::pam-get-item-symbol
 
   - id: pam-get-item-string
     desc: pam_get_item function reference (string)
@@ -82,14 +75,7 @@ traits:
       type: symbol
       exact: "pam_open_session"
 
-  - id: pam-acct-mgmt
-    desc: pam_acct_mgmt function
-    crit: notable
-    conf: 0.7
-    for: [elf, so]
-    if:
-      type: symbol
-      exact: "pam_acct_mgmt"
+  # pam_acct_mgmt symbol - use cap/os/pam/auth::pam-acct-mgmt-symbol
 
   - id: pam-acct-mgmt-string
     desc: pam_acct_mgmt function reference (string)
@@ -122,7 +108,7 @@ composite_rules:
     desc: PAM token access functions
     for: [c, cpp, elf, so]
     any:
-      - { id: pam-get-item }
+      - { id: cap/os/pam/auth::pam-get-item-symbol }
       - { id: pam-get-item-string }
       - { id: pam-set-item }
       - { id: pam-get-authtok }
@@ -135,7 +121,7 @@ composite_rules:
       - { id: cap/os/pam/auth::pam-authenticate-symbol }
       - { id: pam-authenticate-string }
       - { id: pam-open-session }
-      - { id: pam-acct-mgmt }
+      - { id: cap/os/pam/auth::pam-acct-mgmt-symbol }
       - { id: pam-acct-mgmt-string }
       - { id: pam-setcred }
 

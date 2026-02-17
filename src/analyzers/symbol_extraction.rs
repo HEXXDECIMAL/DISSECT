@@ -10,7 +10,7 @@ use crate::types::{AnalysisReport, Import};
 type ImportExtractFn = for<'a> fn(&tree_sitter::Node<'a>, &[u8]) -> Option<String>;
 
 /// Extract imports from a pre-parsed tree (avoids re-parsing)
-pub fn extract_imports_from_tree(
+pub(crate) fn extract_imports_from_tree(
     tree: &tree_sitter::Tree,
     source: &str,
     file_type: &FileType,
@@ -44,7 +44,7 @@ pub fn extract_imports_from_tree(
 /// Extract actual module imports from source code (e.g., require in Ruby, import in Python)
 /// This is separate from function call extraction for capability matching.
 /// NOTE: This parses internally - prefer extract_imports_from_tree() if you already have a tree
-pub fn extract_imports(source: &str, file_type: &FileType, report: &mut AnalysisReport) {
+pub(crate) fn extract_imports(source: &str, file_type: &FileType, report: &mut AnalysisReport) {
     let (lang, import_fn): (tree_sitter::Language, ImportExtractFn) = match file_type {
         FileType::Ruby => (tree_sitter_ruby::LANGUAGE.into(), extract_ruby_import),
         FileType::Python => (tree_sitter_python::LANGUAGE.into(), extract_python_import),
@@ -145,12 +145,12 @@ fn extract_python_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Opt
         "import_statement" => {
             // import foo.bar -> extract "foo.bar"
             let name_node = node.child_by_field_name("name")?;
-            name_node.utf8_text(source).ok().map(|s| s.to_string())
+            name_node.utf8_text(source).ok().map(std::string::ToString::to_string)
         },
         "import_from_statement" => {
             // from foo.bar import baz -> extract "foo.bar"
             let module_node = node.child_by_field_name("module_name")?;
-            module_node.utf8_text(source).ok().map(|s| s.to_string())
+            module_node.utf8_text(source).ok().map(std::string::ToString::to_string)
         },
         _ => None,
     }
@@ -206,7 +206,7 @@ fn extract_perl_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
     for i in 0..node.child_count() {
         if let Some(child) = node.child(i as u32) {
             if child.kind() == "package_name" || child.kind() == "bareword" {
-                return child.utf8_text(source).ok().map(|s| s.to_string());
+                return child.utf8_text(source).ok().map(std::string::ToString::to_string);
             }
         }
     }
@@ -233,7 +233,7 @@ fn extract_string_content<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Op
 /// NOTE: This is primarily for capability matching, not module imports.
 /// Use extract_imports() for actual module imports like require/import.
 /// Extract symbols from a pre-parsed tree (avoids re-parsing)
-pub fn extract_symbols_from_tree(
+pub(crate) fn extract_symbols_from_tree(
     tree: &tree_sitter::Tree,
     source: &str,
     call_types: &[&str],
@@ -259,7 +259,7 @@ pub fn extract_symbols_from_tree(
 
 /// Extract symbols from source code by parsing with tree-sitter
 /// NOTE: This parses internally - prefer extract_symbols_from_tree() if you already have a tree
-pub fn extract_symbols(
+pub(crate) fn extract_symbols(
     source: &str,
     lang: tree_sitter::Language,
     call_types: &[&str],
@@ -364,7 +364,7 @@ fn get_full_identifier<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
             | "string"
             | "string_literal"
     ) {
-        return node.utf8_text(source).ok().map(|s| s.to_string());
+        return node.utf8_text(source).ok().map(std::string::ToString::to_string);
     }
 
     // Recursive case: member/selector expressions
@@ -409,76 +409,6 @@ fn get_full_identifier<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
     None
 }
 
-/// Get the tree-sitter language and call node types for a file type
-pub fn get_language_config(
-    file_type: &crate::analyzers::FileType,
-) -> Option<(tree_sitter::Language, Vec<&'static str>)> {
-    use crate::analyzers::FileType;
-
-    match file_type {
-        FileType::C => Some((tree_sitter_c::LANGUAGE.into(), vec!["call_expression"])),
-        FileType::Python => Some((tree_sitter_python::LANGUAGE.into(), vec!["call"])),
-        FileType::JavaScript => Some((
-            tree_sitter_javascript::LANGUAGE.into(),
-            vec![
-                "call_expression",
-                "assignment_expression",
-                "variable_declarator",
-            ],
-        )),
-        FileType::TypeScript => Some((
-            tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
-            vec!["call_expression"],
-        )),
-        FileType::Rust => Some((
-            tree_sitter_rust::LANGUAGE.into(),
-            vec!["call_expression", "macro_invocation"],
-        )),
-        FileType::Go => Some((tree_sitter_go::LANGUAGE.into(), vec!["call_expression"])),
-        FileType::Java => Some((tree_sitter_java::LANGUAGE.into(), vec!["method_invocation"])),
-        FileType::Ruby => Some((
-            tree_sitter_ruby::LANGUAGE.into(),
-            vec!["call", "method_call"],
-        )),
-        FileType::Shell => Some((
-            tree_sitter_bash::LANGUAGE.into(),
-            vec!["command", "command_name"],
-        )),
-        FileType::CSharp => Some((
-            tree_sitter_c_sharp::LANGUAGE.into(),
-            vec!["invocation_expression"],
-        )),
-        FileType::Php => Some((
-            tree_sitter_php::LANGUAGE_PHP.into(),
-            vec!["function_call_expression"],
-        )),
-        FileType::Lua => Some((tree_sitter_lua::LANGUAGE.into(), vec!["function_call"])),
-        FileType::Perl => Some((
-            tree_sitter_perl::LANGUAGE.into(),
-            vec!["function_call", "method_call"],
-        )),
-        FileType::PowerShell => Some((
-            tree_sitter_powershell::LANGUAGE.into(),
-            vec!["command_expression", "invocation_expression"],
-        )),
-        FileType::Swift => Some((tree_sitter_swift::LANGUAGE.into(), vec!["call_expression"])),
-        FileType::ObjectiveC => Some((
-            tree_sitter_objc::LANGUAGE.into(),
-            vec!["message_expression", "call_expression"],
-        )),
-        FileType::Groovy => Some((
-            tree_sitter_groovy::LANGUAGE.into(),
-            vec!["method_call", "function_call"],
-        )),
-        FileType::Scala => Some((
-            tree_sitter_scala::LANGUAGE.into(),
-            vec!["call_expression", "apply_expression"],
-        )),
-        FileType::Zig => Some((tree_sitter_zig::LANGUAGE.into(), vec!["call_expression"])),
-        FileType::Elixir => Some((tree_sitter_elixir::LANGUAGE.into(), vec!["call"])),
-        _ => None,
-    }
-}
 
 #[cfg(test)]
 mod tests {

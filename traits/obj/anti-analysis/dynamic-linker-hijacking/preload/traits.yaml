@@ -38,7 +38,6 @@ traits:
   crit: notable
   conf: 0.5
   for:
-  - elf
   - shell
   if:
     type: string

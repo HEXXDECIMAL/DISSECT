@@ -11,31 +11,68 @@ use std::sync::RwLock;
 
 /// Why a rule was skipped before condition evaluation
 #[derive(Debug, Clone)]
-pub enum SkipReason {
+pub(crate) enum SkipReason {
     /// Rule requires different platform(s) than current context
     PlatformMismatch {
+        /// Platforms the rule requires
         rule: Vec<Platform>,
+        /// Platforms present in the current evaluation context
         context: Vec<Platform>,
     },
     /// Rule requires different file type(s) than current context
     FileTypeMismatch {
+        /// File types the rule targets
         rule: Vec<FileType>,
+        /// File type of the file being evaluated
         context: FileType,
     },
     /// File is smaller than rule's minimum size
-    SizeTooSmall { actual: usize, min: usize },
+    SizeTooSmall {
+        /// Actual file size in bytes
+        actual: usize,
+        /// Minimum required size in bytes
+        min: usize,
+    },
     /// File is larger than rule's maximum size
-    SizeTooLarge { actual: usize, max: usize },
+    SizeTooLarge {
+        /// Actual file size in bytes
+        actual: usize,
+        /// Maximum allowed size in bytes
+        max: usize,
+    },
     /// An 'unless' condition matched, skipping the rule
-    UnlessConditionMatched { condition_desc: String },
+    UnlessConditionMatched {
+        /// Human-readable description of the matching unless condition
+        condition_desc: String,
+    },
     /// Match count is below minimum threshold
-    CountBelowMinimum { actual: usize, min: usize },
+    CountBelowMinimum {
+        /// Actual match count
+        actual: usize,
+        /// Required minimum match count
+        min: usize,
+    },
     /// Match count is above maximum threshold
-    CountAboveMaximum { actual: usize, max: usize },
+    CountAboveMaximum {
+        /// Actual match count
+        actual: usize,
+        /// Maximum allowed match count
+        max: usize,
+    },
     /// Match density (per KB) is below minimum threshold
-    DensityBelowMinimum { actual: f64, min: f64 },
+    DensityBelowMinimum {
+        /// Actual density (matches per KB)
+        actual: f64,
+        /// Minimum required density
+        min: f64,
+    },
     /// Match density (per KB) is above maximum threshold
-    DensityAboveMaximum { actual: f64, max: f64 },
+    DensityAboveMaximum {
+        /// Actual density (matches per KB)
+        actual: f64,
+        /// Maximum allowed density
+        max: f64,
+    },
 }
 
 impl std::fmt::Display for SkipReason {
@@ -98,50 +135,38 @@ impl std::fmt::Display for SkipReason {
 
 /// Debug info for a single condition evaluation
 #[derive(Debug, Clone, Default)]
-pub struct ConditionDebug {
-    /// Description of the condition being evaluated
-    pub desc: String,
+pub(crate) struct ConditionDebug {
     /// Whether the condition matched
     pub matched: bool,
     /// Evidence collected if matched
     pub evidence: Vec<Evidence>,
-    /// Additional details about the evaluation
-    pub details: Vec<String>,
-    /// Sub-conditions (for nested conditions like all/any/none)
-    pub sub_conditions: Vec<ConditionDebug>,
     /// Precision score for this condition
     pub precision: f32,
 }
 
 impl ConditionDebug {
-    /// Create a new condition debug with description
-    pub fn new(desc: impl Into<String>) -> Self {
-        Self {
-            desc: desc.into(),
-            ..Default::default()
-        }
+    /// Create a new condition debug
+    pub(crate) fn new(_desc: impl Into<String>) -> Self {
+        Self::default()
     }
 
     /// Set the matched flag
-    pub fn with_matched(mut self, matched: bool) -> Self {
+    #[must_use] 
+    pub(crate) fn with_matched(mut self, matched: bool) -> Self {
         self.matched = matched;
         self
     }
 
-    /// Add a detail string
-    pub fn with_detail(mut self, detail: impl Into<String>) -> Self {
-        self.details.push(detail.into());
-        self
-    }
-
     /// Set evidence
-    pub fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
+    #[must_use] 
+    pub(crate) fn with_evidence(mut self, evidence: Vec<Evidence>) -> Self {
         self.evidence = evidence;
         self
     }
 
     /// Set precision
-    pub fn with_precision(mut self, precision: f32) -> Self {
+    #[must_use] 
+    pub(crate) fn with_precision(mut self, precision: f32) -> Self {
         self.precision = precision;
         self
     }
@@ -149,35 +174,29 @@ impl ConditionDebug {
 
 /// Debug info for proximity constraint evaluation
 #[derive(Debug, Clone)]
-pub struct ProximityDebug {
+pub(crate) struct ProximityDebug {
     /// Type of constraint: "near_lines" or "near_bytes"
     pub constraint_type: String,
     /// Maximum span allowed
     pub max_span: usize,
-    /// Minimum number of matches required
-    pub min_required: usize,
     /// Whether the constraint was satisfied
     pub satisfied: bool,
-    /// Positions of evidence items (line numbers or byte offsets)
-    pub positions: Vec<usize>,
 }
 
 /// Debug info for downgrade evaluation
 #[derive(Debug, Clone)]
-pub struct DowngradeDebug {
+pub(crate) struct DowngradeDebug {
     /// Original criticality before downgrade
     pub original_crit: Criticality,
     /// Final criticality after downgrade (may be same if not triggered)
     pub final_crit: Criticality,
     /// Whether the downgrade was triggered
     pub triggered: bool,
-    /// Conditions evaluated for the downgrade
-    pub conditions: Vec<ConditionDebug>,
 }
 
 /// Type of rule being evaluated
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RuleType {
+pub(crate) enum RuleType {
     /// Atomic trait definition
     Trait,
     /// Composite rule (boolean combination)
@@ -195,13 +214,7 @@ impl std::fmt::Display for RuleType {
 
 /// Complete debug output for a rule evaluation
 #[derive(Debug, Clone)]
-pub struct EvaluationDebug {
-    /// Rule ID being evaluated
-    pub rule_id: String,
-    /// Rule description
-    pub rule_desc: String,
-    /// Type of rule (trait or composite)
-    pub rule_type: RuleType,
+pub(crate) struct EvaluationDebug {
     /// Whether the rule matched
     pub matched: bool,
     /// Reason the rule was skipped (if applicable)
@@ -218,11 +231,8 @@ pub struct EvaluationDebug {
 
 impl EvaluationDebug {
     /// Create a new evaluation debug for a rule
-    pub fn new(rule_id: impl Into<String>, rule_type: RuleType) -> Self {
+    pub(crate) fn new(_rule_id: impl Into<String>, _rule_type: RuleType) -> Self {
         Self {
-            rule_id: rule_id.into(),
-            rule_desc: String::new(),
-            rule_type,
             matched: false,
             skip_reason: None,
             condition_results: Vec::new(),
@@ -232,29 +242,23 @@ impl EvaluationDebug {
         }
     }
 
-    /// Set the rule description
-    pub fn with_desc(mut self, desc: impl Into<String>) -> Self {
-        self.rule_desc = desc.into();
-        self
-    }
-
     /// Record a skip reason
-    pub fn record_skip(&mut self, reason: SkipReason) {
+    pub(crate) fn record_skip(&mut self, reason: SkipReason) {
         self.skip_reason = Some(reason);
     }
 
     /// Add a condition result
-    pub fn add_condition(&mut self, condition: ConditionDebug) {
+    pub(crate) fn add_condition(&mut self, condition: ConditionDebug) {
         self.condition_results.push(condition);
     }
 
     /// Set the proximity debug info
-    pub fn set_proximity(&mut self, proximity: ProximityDebug) {
+    pub(crate) fn set_proximity(&mut self, proximity: ProximityDebug) {
         self.proximity = Some(proximity);
     }
 
     /// Set the downgrade debug info
-    pub fn set_downgrade(&mut self, downgrade: DowngradeDebug) {
+    pub(crate) fn set_downgrade(&mut self, downgrade: DowngradeDebug) {
         self.downgrade = Some(downgrade);
     }
 }
@@ -262,20 +266,5 @@ impl EvaluationDebug {
 /// Debug collector that can be optionally attached to EvaluationContext.
 /// When present, evaluation records debug info. When absent, zero overhead.
 /// Uses RwLock for thread-safety with rayon parallel evaluation.
-pub type DebugCollector = RwLock<EvaluationDebug>;
+pub(crate) type DebugCollector = RwLock<EvaluationDebug>;
 
-/// Helper to record condition debug info if a collector is present
-#[inline]
-pub fn record_condition(collector: Option<&DebugCollector>, debug: ConditionDebug) {
-    if let Some(c) = collector {
-        if let Ok(mut guard) = c.write() {
-            guard.condition_results.push(debug);
-        }
-    }
-}
-
-/// Helper to check if debug collection is enabled
-#[inline]
-pub fn is_debug_enabled(collector: Option<&DebugCollector>) -> bool {
-    collector.is_some()
-}

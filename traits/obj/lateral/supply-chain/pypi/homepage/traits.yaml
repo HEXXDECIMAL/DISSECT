@@ -42,8 +42,8 @@ traits:
     crit: notable
     conf: 0.65
     if:
-      type: raw
-      substr: "[build-system]"
+      type: basename
+      exact: "pyproject.toml"
     unless:
       - type: raw
         substr: "[project.urls]"

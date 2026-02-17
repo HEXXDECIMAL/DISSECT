@@ -48,6 +48,7 @@ use super::{is_false, is_zero_f32, is_zero_u32, is_zero_u64};
 // BINARY-SPECIFIC METRICS
 // =============================================================================
 
+/// Metrics extracted from binary file formats (ELF, PE, Mach-O, Java class files)
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct BinaryMetrics {
     // === Entropy ===
@@ -289,7 +290,7 @@ pub struct BinaryMetrics {
 impl BinaryMetrics {
     /// Validate metric ranges and log warnings for out-of-range values
     /// This helps catch bugs in metric calculation
-    pub fn validate(&self) {
+    pub(crate) fn validate(&self) {
         // Entropy checks (valid range: 0-8 bits)
         if self.overall_entropy > 8.0 || self.overall_entropy < 0.0 {
             eprintln!(

@@ -27,18 +27,33 @@ pub(crate) const MAX_COMPRESSION_RATIO: u64 = 100;
 
 /// Reasons an archive may be considered hostile
 #[derive(Debug, Clone)]
-pub enum HostileArchiveReason {
+pub(crate) enum HostileArchiveReason {
+    /// A file path contains ".." components that would escape the extraction directory
     PathTraversal(String),
-    ZipBomb { compressed: u64, uncompressed: u64 },
+    /// The compression ratio exceeds the zip-bomb threshold
+    ZipBomb {
+        /// Compressed size in bytes
+        compressed: u64,
+        /// Uncompressed size in bytes
+        uncompressed: u64,
+    },
+    /// Total number of archive members exceeds the limit
     ExcessiveFileCount(usize),
+    /// Total uncompressed size of all members exceeds the limit
     ExcessiveTotalSize(u64),
-    ExcessiveFileSize { file: String, size: u64 },
+    /// A single file's uncompressed size exceeds the per-file limit
+    ExcessiveFileSize {
+        /// Name of the oversized file
+        file: String,
+        /// Uncompressed size in bytes
+        size: u64,
+    },
+    /// A symlink target points outside the extraction directory
     SymlinkEscape(String),
-    MalformedEntry(String),
-    ExtractionError(String),
 }
 
 /// Tracks extraction limits and detects hostile patterns
+#[derive(Debug)]
 pub(crate) struct ExtractionGuard {
     total_bytes: AtomicU64,
     file_count: AtomicUsize,

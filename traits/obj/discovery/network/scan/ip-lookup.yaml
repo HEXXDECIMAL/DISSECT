@@ -52,15 +52,7 @@ traits:
       type: string
       substr: "wtfismyip"
 
-  - id: iplogger
-    desc: iplogger.org IP logging service
-    crit: suspicious
-    conf: 0.9
-    attack: "T1016.001"
-    for: [all]
-    if:
-      type: string
-      substr: "iplogger.org"
+  # iplogger: use obj/c2/infrastructure/domain::iplogger-domain (canonical)
 
   - id: iplogger-keyword
     desc: iplogger keyword reference
@@ -277,7 +269,7 @@ composite_rules:
       - { id: ifconfig-me }
       - { id: icanhazip }
       - { id: wtfismyip }
-      - { id: iplogger }
+      - { id: obj/c2/infrastructure/domain::iplogger-domain }
       - { id: iplogger-keyword }
       - { id: ifconfig-io }
       - { id: ifconfig-co }

@@ -15,7 +15,7 @@ composite_rules:
       - id: cap/process/create/shell::shell-execution-indicators
     any:
       - id: obj/c2/domain/tracking::iplogger-http
-      - id: obj/c2/domain/tracking::iplogger-string
+      - id: obj/discovery/network/scan::iplogger-keyword
       - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger
       - id: obj/c2/infrastructure/network::ruby-ast-fragmented-iplogger-alt
       - id: obj/anti-static/obfuscation/string::ruby-concatenated-iplogger

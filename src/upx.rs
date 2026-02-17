@@ -13,17 +13,17 @@ use thiserror::Error;
 static UPX_DISABLED: AtomicBool = AtomicBool::new(false);
 
 /// Disable UPX decompression globally
-pub fn disable_upx() {
+pub(crate) fn disable_upx() {
     UPX_DISABLED.store(true, Ordering::SeqCst);
 }
 
 /// Check if UPX is disabled
-pub fn is_disabled() -> bool {
+pub(crate) fn is_disabled() -> bool {
     UPX_DISABLED.load(Ordering::SeqCst)
 }
 
 #[derive(Debug, Error)]
-pub enum UPXError {
+pub(crate) enum UPXError {
     #[error("UPX binary not installed or not in PATH")]
     NotInstalled,
     #[error("UPX decompression failed: {0}")]
@@ -32,12 +32,12 @@ pub enum UPXError {
     IoError(#[from] std::io::Error),
 }
 
-pub struct UPXDecompressor;
+pub(crate) struct UPXDecompressor;
 
 impl UPXDecompressor {
     /// Check if data appears to be UPX-packed by looking for "UPX!" or similar
     /// tampered magic strings ([A-Z]PX!) in the first 512 bytes of the file.
-    pub fn is_upx_packed(data: &[u8]) -> bool {
+    pub(crate) fn is_upx_packed(data: &[u8]) -> bool {
         let search_range = data.len().min(512);
         let search_data = &data[..search_range];
 
@@ -56,7 +56,7 @@ impl UPXDecompressor {
     }
 
     /// Check if the upx binary is available in PATH (and not disabled).
-    pub fn is_available() -> bool {
+    pub(crate) fn is_available() -> bool {
         if is_disabled() {
             return false;
         }
@@ -68,7 +68,7 @@ impl UPXDecompressor {
 
     /// Decompress a UPX-packed file and return the decompressed data.
     /// The input file_path points to the original packed file.
-    pub fn decompress(file_path: &Path) -> Result<Vec<u8>, UPXError> {
+    pub(crate) fn decompress(file_path: &Path) -> Result<Vec<u8>, UPXError> {
         if !Self::is_available() {
             return Err(UPXError::NotInstalled);
         }

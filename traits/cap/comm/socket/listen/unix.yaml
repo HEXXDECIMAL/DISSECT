@@ -3,7 +3,7 @@
 # ATT&CK: T1071
 
 defaults:
-  for: [elf, macho, so, dylib, c]
+  for: [elf, macho, so, dylib]
 
 traits:
   # === Socket listen micro-traits ===

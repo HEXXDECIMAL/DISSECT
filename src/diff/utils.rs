@@ -10,7 +10,7 @@ use std::path::Path;
 
 /// Represents a detected file rename
 #[derive(Debug, Clone)]
-pub struct FileRename {
+pub(crate) struct FileRename {
     pub baseline_path: String,
     pub target_path: String,
     pub similarity_score: f64,

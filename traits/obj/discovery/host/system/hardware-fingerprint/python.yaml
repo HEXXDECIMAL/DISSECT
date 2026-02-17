@@ -143,7 +143,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: getmac-module
-      - id: obj/discovery/host/system/os-fingerprint::unix-ifconfig
+      - id: cap/os/network/interface::ifconfig
       - id: uuid-getnode
 
   # Multiple system information collection

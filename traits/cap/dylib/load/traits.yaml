@@ -12,15 +12,72 @@ traits:
       type: symbol
       exact: "dlopen"
 
-  - id: dlsym
-    desc: Dynamic symbol resolution via dlsym
+  # === Windows LoadLibrary family ===
+  - id: load-library
+    desc: Dynamic library loading via LoadLibrary
     crit: notable
-    conf: 0.9
-    attack: "T1574.006"
-    for: [elf, macho]
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
     if:
       type: symbol
-      exact: "dlsym"
+      exact: "LoadLibrary"
+
+  - id: load-library-a
+    desc: Dynamic library loading via LoadLibraryA
+    crit: notable
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
+    if:
+      type: symbol
+      exact: "LoadLibraryA"
+
+  - id: load-library-w
+    desc: Dynamic library loading via LoadLibraryW
+    crit: notable
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
+    if:
+      type: symbol
+      exact: "LoadLibraryW"
+
+  - id: load-library-ex
+    desc: Extended dynamic library loading
+    crit: notable
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
+    if:
+      type: symbol
+      exact: "LoadLibraryEx"
+
+  - id: load-library-ex-a
+    desc: Extended dynamic library loading (ANSI)
+    crit: notable
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
+    if:
+      type: symbol
+      exact: "LoadLibraryExA"
+
+  - id: load-library-ex-w
+    desc: Extended dynamic library loading (Unicode)
+    crit: notable
+    conf: 0.95
+    attack: "T1574.002"
+    for: [pe]
+    platforms: [windows]
+    if:
+      type: symbol
+      exact: "LoadLibraryExW"
 
   - id: dlclose
     desc: Dynamic library unload
@@ -41,8 +98,6 @@ traits:
     if:
       type: symbol
       exact: "dlerror"
-
-  # NOTE: Windows LoadLibrary* and GetProcAddress symbols moved to obj/exec/native/api
 
   - id: nsbundle
     desc: macOS NSBundle loading
@@ -229,17 +284,11 @@ composite_rules:
       - id: messaging-app-bundle-id
 
   # Helper composites
-  - id: loadlibrary-variants
-    desc: LoadLibrary function variants
-    for: [pe]
-    any:
-      - id: obj/exec/native/api
-
   - id: library-loaders
     desc: Library loading functions (CDLL or
     for: [python]
     any:
-      - { id: obj/exec/fileless/memory::ctypes-cdll }
+      - { id: cdll-paren }
       - { id: loadlibrary-keyword }
 
   - id: path-manipulation
@@ -249,17 +298,6 @@ composite_rules:
       - { id: python-file-dunder }
       - { id: dirname-call }
       - { id: abspath-call }
-
-  # Migrated from YARA
-  - id: loadlibrary
-    desc: Runtime library loading via LoadLibrary
-    crit: notable
-    conf: 0.9
-    attack: "T1574.002"
-    for: [pe]
-    any:
-      - { id: loadlibrary-variants }
-      - { id: obj/exec/native/api::get-proc-address }
 
   - id: local-load
     desc: Loading dynamic library from local
@@ -281,7 +319,7 @@ composite_rules:
     for: [elf, macho]
     all:
       - id: dlopen
-      - id: dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
 
   # dl* family function
   - id: dl-function
@@ -292,7 +330,7 @@ composite_rules:
     for: [elf, macho]
     any:
       - id: dlopen
-      - id: dlsym
+      - id: cap/dylib/lookup::dlsym-symbol
       - id: dlclose
       - id: dlerror
 

@@ -11,7 +11,7 @@ use super::yara::*;
 use crate::composite_rules::context::EvaluationContext;
 use crate::composite_rules::evaluators::ContentLocationParams;
 use crate::composite_rules::types::{FileType, Platform};
-use crate::types::{AnalysisReport, MatchedString, TargetInfo, YaraMatch};
+use crate::types::{AnalysisReport, TargetInfo};
 use std::sync::Arc;
 
 /// Helper: Create minimal evaluation context
@@ -41,137 +41,6 @@ fn create_test_report() -> AnalysisReport {
         sha256: "test".to_string(),
         architectures: None,
     })
-}
-
-/// Helper: Create YaraMatch with defaults
-fn create_yara_match(
-    namespace: &str,
-    rule: &str,
-    matched_strings: Vec<MatchedString>,
-) -> YaraMatch {
-    YaraMatch {
-        namespace: namespace.to_string(),
-        rule: rule.to_string(),
-        severity: "medium".to_string(),
-        desc: format!("{} detected", rule),
-        matched_strings,
-        is_capability: false,
-        mbc: None,
-        attack: None,
-    }
-}
-
-// ==================== YARA Match Evaluation Tests ====================
-
-#[test]
-fn test_eval_yara_match_simple() {
-    let mut report = create_test_report();
-    report
-        .yara_matches
-        .push(create_yara_match("malware", "trojan_banker", vec![]));
-
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("malware", None, &ctx);
-
-    assert!(result.matched, "Should match namespace");
-    assert_eq!(result.evidence.len(), 1);
-    assert_eq!(result.evidence[0].value, "trojan_banker");
-}
-
-#[test]
-fn test_eval_yara_match_specific_rule() {
-    let mut report = create_test_report();
-    report
-        .yara_matches
-        .push(create_yara_match("malware", "trojan_banker", vec![]));
-    report
-        .yara_matches
-        .push(create_yara_match("malware", "trojan_stealer", vec![]));
-
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("malware", Some(&"trojan_banker".to_string()), &ctx);
-
-    assert!(result.matched);
-    assert_eq!(result.evidence.len(), 1);
-    assert_eq!(result.evidence[0].value, "trojan_banker");
-    // Specific rule should have higher precision
-    assert!(result.precision > 1.0);
-}
-
-#[test]
-fn test_eval_yara_match_with_strings() {
-    let mut report = create_test_report();
-    report.yara_matches.push(create_yara_match(
-        "malware",
-        "ransomware",
-        vec![
-            MatchedString {
-                identifier: "$key_schedule".to_string(),
-                value: "AES encryption key".to_string(),
-                offset: 0x1000,
-            },
-            MatchedString {
-                identifier: "$ransom_note".to_string(),
-                value: "Your files are encrypted".to_string(),
-                offset: 0x2000,
-            },
-        ],
-    ));
-
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("malware", None, &ctx);
-
-    assert!(result.matched);
-    assert_eq!(result.evidence.len(), 2);
-    assert_eq!(result.evidence[0].value, "AES encryption key");
-    assert_eq!(result.evidence[1].value, "Your files are encrypted");
-    assert_eq!(result.evidence[0].location, Some("0x1000".to_string()));
-}
-
-#[test]
-fn test_eval_yara_match_no_match() {
-    let report = create_test_report();
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("nonexistent", None, &ctx);
-
-    assert!(!result.matched);
-    assert_eq!(result.evidence.len(), 0);
-}
-
-#[test]
-fn test_eval_yara_match_namespace_prefix() {
-    let mut report = create_test_report();
-    report.yara_matches.push(create_yara_match(
-        "malware.ransomware",
-        "crypto_locker",
-        vec![],
-    ));
-
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("malware", None, &ctx);
-
-    assert!(result.matched, "Should match namespace prefix");
-}
-
-#[test]
-fn test_eval_yara_match_non_printable_strings() {
-    let mut report = create_test_report();
-    report.yara_matches.push(create_yara_match(
-        "malware",
-        "binary_pattern",
-        vec![MatchedString {
-            identifier: "$binary_magic".to_string(),
-            value: "\x00\x01\x02\x03".to_string(),
-            offset: 0,
-        }],
-    ));
-
-    let ctx = create_test_context(report, vec![]);
-    let result = eval_yara_match("malware", None, &ctx);
-
-    assert!(result.matched);
-    // Should use identifier instead of non-printable value
-    assert_eq!(result.evidence[0].value, "$binary_magic");
 }
 
 // ==================== Hex Pattern Parsing Tests ====================

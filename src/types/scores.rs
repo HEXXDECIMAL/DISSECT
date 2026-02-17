@@ -25,72 +25,102 @@ use super::text_metrics::{
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ValidFieldPaths)]
 pub struct Metrics {
     // === Universal text metrics (all text files) ===
+    /// Line counts and basic text statistics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<TextMetrics>,
+    /// Identifier (variable/function name) statistics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub identifiers: Option<IdentifierMetrics>,
+    /// String literal statistics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strings: Option<StringMetrics>,
+    /// Comment density and coverage metrics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comments: Option<CommentMetrics>,
+    /// Function complexity and size metrics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub functions: Option<FunctionMetrics>,
+    /// Statement type distribution
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statements: Option<StatementMetrics>,
+    /// Import/dependency metrics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub imports: Option<ImportMetrics>,
 
     // === Language-specific metrics (mutually exclusive) ===
+    /// Python-specific metrics (only for Python files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub python: Option<PythonMetrics>,
+    /// JavaScript-specific metrics (only for JS/TS files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub javascript: Option<JavaScriptMetrics>,
+    /// PowerShell-specific metrics (only for PS1 files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub powershell: Option<PowerShellMetrics>,
+    /// Shell script-specific metrics (only for shell scripts)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shell: Option<ShellMetrics>,
+    /// PHP-specific metrics (only for PHP files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub php: Option<PhpMetrics>,
+    /// Ruby-specific metrics (only for Ruby files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ruby: Option<RubyMetrics>,
+    /// Perl-specific metrics (only for Perl files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub perl: Option<PerlMetrics>,
+    /// Go-specific metrics (only for Go files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub go_metrics: Option<GoMetrics>,
+    /// Rust-specific metrics (only for Rust files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rust_metrics: Option<RustMetrics>,
+    /// C-specific metrics (only for C files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub c_metrics: Option<CMetrics>,
+    /// Java source-specific metrics (only for Java source files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub java: Option<JavaSourceMetrics>,
+    /// Lua-specific metrics (only for Lua files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lua: Option<LuaMetrics>,
+    /// C#-specific metrics (only for C# files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub csharp: Option<CSharpMetrics>,
 
     // === Binary-specific metrics ===
+    /// Cross-format binary metrics (entropy, imports, strings)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub binary: Option<BinaryMetrics>,
+    /// ELF-specific metrics (only for ELF files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub elf: Option<ElfMetrics>,
+    /// PE-specific metrics (only for PE files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pe: Option<PeMetrics>,
+    /// Mach-O-specific metrics (only for Mach-O files)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub macho: Option<MachoMetrics>,
+    /// Java class file-specific metrics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub java_class: Option<JavaClassMetrics>,
 
     // === Container/Archive metrics ===
+    /// Archive file metrics (zip, tar, etc.)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub archive: Option<ArchiveMetrics>,
+    /// npm package.json metrics
     #[serde(skip_serializing_if = "Option::is_none")]
     pub package_json: Option<PackageJsonMetrics>,
 
     // === Composite scores ===
+    /// Composite obfuscation score with component breakdown
     #[serde(skip_serializing_if = "Option::is_none")]
     pub obfuscation: Option<ObfuscationScore>,
+    /// Composite packing score with component breakdown
     #[serde(skip_serializing_if = "Option::is_none")]
     pub packing: Option<PackingScore>,
+    /// Composite supply chain risk score with component breakdown
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supply_chain: Option<SupplyChainScore>,
 }
@@ -200,7 +230,8 @@ pub struct SupplyChainScore {
 /// Returns None if the metric doesn't exist or the field path is invalid
 ///
 /// Uses serde_json for dynamic field access instead of hardcoded match statements
-pub fn get_metric_value(metrics: &Metrics, field: &str) -> Option<f64> {
+#[must_use]
+pub(crate) fn get_metric_value(metrics: &Metrics, field: &str) -> Option<f64> {
     // Convert metrics to JSON value for dynamic access
     let value = serde_json::to_value(metrics).ok()?;
 

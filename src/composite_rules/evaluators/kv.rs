@@ -34,20 +34,24 @@ use std::path::Path;
 
 /// Detected format of the structured data file.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum StructuredFormat {
+pub(crate) enum StructuredFormat {
+    /// JSON format
     Json,
+    /// YAML format
     Yaml,
+    /// TOML format
     Toml,
     /// Apple Property List (XML or Binary)
     Plist,
     /// Python PKG-INFO / METADATA (RFC 822 format)
     PkgInfo,
+    /// Format could not be determined
     Unknown,
 }
 
 /// A segment in a parsed path expression.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum PathSegment {
+pub(crate) enum PathSegment {
     /// Object key access: `"permissions"` or `"scripts"`
     Key(String),
     /// Array index access: `[0]`, `[1]`
@@ -58,16 +62,21 @@ pub enum PathSegment {
 
 /// Matcher for comparing values at a path.
 #[derive(Debug, Default)]
-pub struct KvMatcher {
+pub(crate) struct KvMatcher {
+    /// Require exact string equality
     pub exact: Option<String>,
+    /// Require the value to contain this substring
     pub substr: Option<String>,
+    /// Require the value to match this compiled regex
     pub regex: Option<Regex>,
+    /// If true, perform case-insensitive matching
     pub case_insensitive: bool,
 }
 
 impl KvMatcher {
     /// Create a new matcher from condition parameters.
-    pub fn new(
+    #[must_use] 
+    pub(crate) fn new(
         exact: Option<&String>,
         substr: Option<&String>,
         regex: Option<&Regex>,
@@ -86,7 +95,8 @@ impl KvMatcher {
     /// For arrays, returns true if any element matches.
     /// For scalars, checks the value directly.
     /// If no matcher is specified (existence check), returns true.
-    pub fn matches(&self, value: &Value) -> bool {
+    #[must_use] 
+    pub(crate) fn matches(&self, value: &Value) -> bool {
         // If no matcher specified, just check existence (path resolved)
         if self.exact.is_none() && self.substr.is_none() && self.regex.is_none() {
             return true;
@@ -145,7 +155,8 @@ fn value_to_string(value: &Value) -> String {
 ///
 /// Only recognizes known manifest filenames to avoid processing arbitrary structured data files.
 /// This ensures we only parse files we have explicit support for.
-pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
+#[must_use] 
+pub(crate) fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
     let path_str = path.to_string_lossy().to_lowercase();
 
     // Check filename patterns for known manifests
@@ -220,7 +231,7 @@ pub fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
 /// - `"scripts.postinstall"` -> `[Key("scripts"), Key("postinstall")]`
 /// - `"content_scripts[*].matches"` -> `[Key("content_scripts"), Wildcard, Key("matches")]`
 /// - `"items[0]"` -> `[Key("items"), Index(0)]`
-pub fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
+pub(crate) fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
     let mut segments = Vec::new();
     let mut current_key = String::new();
     let mut chars = path.chars().peekable();
@@ -279,7 +290,8 @@ pub fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
 /// Navigate to a path in a JSON value and return all matching values.
 ///
 /// Wildcards expand to multiple values.
-pub fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value> {
+#[must_use] 
+pub(crate) fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value> {
     if segments.is_empty() {
         return vec![value];
     }
@@ -393,7 +405,8 @@ fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: String, v
 /// Evaluate a kv condition against file content.
 ///
 /// Returns Some(Evidence) if the condition matches, None otherwise.
-pub fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> Option<Evidence> {
+#[must_use] 
+pub(crate) fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> Option<Evidence> {
     let Condition::Kv {
         path,
         exact,

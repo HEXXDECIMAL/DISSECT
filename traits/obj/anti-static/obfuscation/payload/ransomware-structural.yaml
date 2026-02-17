@@ -19,8 +19,8 @@ composite_rules:
     needs: 2
     any:
       # Dynamic loading (import obfuscation)
-      - id: obj/exec/native/api::load-library-a
-      - id: obj/exec/native/api::get-proc-address
+      - id: cap/dylib/load::load-library-a
+      - id: cap/dylib/lookup::get-proc-address
       # Execution
       - id: cap/process/create/methods::shell-execute-a
       - id: cap/process/create/methods::shell-execute
@@ -40,13 +40,13 @@ composite_rules:
       # Dominant section (single section is 85%+ of binary)
       - id: obj/anti-static/obfuscation/binary-metrics::dominant-section
       # Dynamic loading capability
-      - id: obj/exec/native/api::load-library-a
-      - id: obj/exec/native/api::get-proc-address
+      - id: cap/dylib/load::load-library-a
+      - id: cap/dylib/lookup::get-proc-address
     any:
       # Additional suspicious capabilities
       - id: cap/process/create/methods::shell-execute-a
       - id: cap/crypto/certificate/store::cert-open-store
-      - id: cap/mem/protect/modify::virtualprotect
+      - id: cap/mem/protect/modify::virtual-protect
 
   - id: encrypted-payload-binary
     desc: Binary with encrypted payload section
@@ -64,7 +64,7 @@ composite_rules:
     any:
       # Execution capabilities
       - id: cap/process/create/shell
-      - id: obj/exec/native/api::load-library-a
+      - id: cap/dylib/load::load-library-a
       - id: cap/crypto
 
   - id: minimal-import-high-entropy

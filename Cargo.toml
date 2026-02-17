@@ -162,7 +162,7 @@ parking_lot = "0.12"  # For efficient mutexes in memory tracking
 memmap2 = "0.9"  # Memory-mapped file I/O for large files
 smallvec = "1.13"  # Stack-allocated vectors for small collections
 encoding_rs = "0.8"  # Character encoding detection and conversion
-stng = { path = "../stng" }  # Fast string extraction (local with Deserialize support)
+stng = { git = "https://github.com/HEXXDECIMAL/stng" }
 
 # Logging (tracing is the modern standard, more powerful than log+env_logger)
 tracing = "0.1"
