@@ -266,7 +266,7 @@ fn test_classify_import_symbol() {
     let mut extractor = create_extractor();
     let mut imports = std::collections::HashSet::new();
     imports.insert("CreateRemoteThread".to_string());
-    extractor = extractor.with_imports(imports);
+    extractor = extractor.with_imports(&imports);
 
     assert_eq!(
         extractor.classify_string_type("CreateRemoteThread"),
@@ -279,7 +279,7 @@ fn test_classify_export_symbol() {
     let mut extractor = create_extractor();
     let mut exports = std::collections::HashSet::new();
     exports.insert("DllMain".to_string());
-    extractor = extractor.with_exports(exports);
+    extractor = extractor.with_exports(&exports);
 
     assert_eq!(
         extractor.classify_string_type("DllMain"),
@@ -292,7 +292,7 @@ fn test_classify_function_symbol() {
     let mut extractor = create_extractor();
     let mut functions = std::collections::HashSet::new();
     functions.insert("main".to_string());
-    extractor = extractor.with_functions(functions);
+    extractor = extractor.with_functions(&functions);
 
     assert_eq!(
         extractor.classify_string_type("main"),
@@ -603,7 +603,7 @@ fn test_normalize_import_with_underscore() {
     let mut extractor = create_extractor();
     let mut imports = std::collections::HashSet::new();
     imports.insert("malloc".to_string());
-    extractor = extractor.with_imports(imports);
+    extractor = extractor.with_imports(&imports);
 
     // _malloc should match malloc (underscore prefix stripped)
     assert_eq!(
@@ -617,7 +617,7 @@ fn test_normalize_import_with_double_underscore() {
     let mut extractor = create_extractor();
     let mut imports = std::collections::HashSet::new();
     imports.insert("init".to_string());
-    extractor = extractor.with_imports(imports);
+    extractor = extractor.with_imports(&imports);
 
     // __init should match init
     assert_eq!(

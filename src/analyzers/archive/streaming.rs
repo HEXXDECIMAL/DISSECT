@@ -572,7 +572,7 @@ impl ArchiveAnalyzer {
             calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
 
         // Create analyzer with archive SHA256 set in extraction config
-        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+        let analyzer = self.with_extraction_archive_sha256(&archive_sha256);
 
         // Detect compression type
         let compression = super::utils::detect_tar_compression(archive_path);
@@ -770,7 +770,7 @@ impl ArchiveAnalyzer {
             calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
 
         // Create analyzer with archive SHA256 set in extraction config
-        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+        let analyzer = self.with_extraction_archive_sha256(&archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1021,7 +1021,7 @@ impl ArchiveAnalyzer {
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
             calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
-        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+        let analyzer = self.with_extraction_archive_sha256(&archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1223,7 +1223,7 @@ impl ArchiveAnalyzer {
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
             calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
-        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+        let analyzer = self.with_extraction_archive_sha256(&archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;
@@ -1402,7 +1402,7 @@ impl ArchiveAnalyzer {
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
             calculate_file_sha256(archive_path).unwrap_or_else(|_| "unknown".to_string());
-        let analyzer = self.with_extraction_archive_sha256(archive_sha256);
+        let analyzer = self.with_extraction_archive_sha256(&archive_sha256);
 
         // Create temp dir for large files
         let temp_dir = tempfile::tempdir()?;

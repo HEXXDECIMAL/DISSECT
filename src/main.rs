@@ -185,7 +185,7 @@ fn main() -> Result<()> {
         struct LogFileWriter(Arc<Mutex<std::fs::File>>);
         impl std::io::Write for LogFileWriter {
             fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-                let mut file = self.0.lock().unwrap();
+                let mut file = self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
                 let result = file.write(buf);
                 // Flush after every write to ensure logs survive OOM kills
                 // This has a performance cost but is critical for debugging crashes
@@ -193,7 +193,7 @@ fn main() -> Result<()> {
                 result
             }
             fn flush(&mut self) -> std::io::Result<()> {
-                self.0.lock().unwrap().flush()
+                self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).flush()
             }
         }
 
@@ -330,7 +330,7 @@ fn main() -> Result<()> {
                     args.verbose,
                     args.all_files,
                     sample_extraction.as_ref(),
-                    platforms.clone(),
+                    &platforms,
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
                     max_memory_file_size,
@@ -339,7 +339,7 @@ fn main() -> Result<()> {
             } else {
                 // Multiple targets or directory - use scan
                 scan_paths(
-                    expanded,
+                    &expanded,
                     enable_third_party,
                     &format,
                     &zip_passwords,
@@ -348,7 +348,7 @@ fn main() -> Result<()> {
                     args.verbose,
                     args.all_files,
                     sample_extraction.as_ref(),
-                    platforms.clone(),
+                    &platforms,
                     args.min_hostile_precision,
                     args.min_suspicious_precision,
                     max_memory_file_size,
@@ -356,22 +356,25 @@ fn main() -> Result<()> {
                 )?
             }
         },
-        Some(cli::Command::Scan { paths }) => scan_paths(
-            expand_paths(paths, &format),
-            enable_third_party_global,
-            &format,
-            &zip_passwords,
-            &disabled,
-            error_if_levels.as_deref(),
-            args.verbose,
-            args.all_files,
-            sample_extraction.as_ref(),
-            platforms.clone(),
-            args.min_hostile_precision,
-            args.min_suspicious_precision,
-            max_memory_file_size,
-            args.validate,
-        )?,
+        Some(cli::Command::Scan { paths }) => {
+            let expanded = expand_paths(paths, &format);
+            scan_paths(
+                &expanded,
+                enable_third_party_global,
+                &format,
+                &zip_passwords,
+                &disabled,
+                error_if_levels.as_deref(),
+                args.verbose,
+                args.all_files,
+                sample_extraction.as_ref(),
+                &platforms,
+                args.min_hostile_precision,
+                args.min_suspicious_precision,
+                max_memory_file_size,
+                args.validate,
+            )?
+        },
         Some(cli::Command::Diff { old, new }) => diff_analysis(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
             extract_strings(&target, min_length, &format)?
@@ -467,7 +470,7 @@ fn main() -> Result<()> {
                 anyhow::bail!("No valid paths found (stdin was empty or contained only comments)");
             }
             scan_paths(
-                expanded,
+                &expanded,
                 enable_third_party_global,
                 &format,
                 &zip_passwords,
@@ -476,7 +479,7 @@ fn main() -> Result<()> {
                 args.verbose,
                 args.all_files,
                 sample_extraction.as_ref(),
-                platforms.clone(),
+                &platforms,
                 args.min_hostile_precision,
                 args.min_suspicious_precision,
                 max_memory_file_size,
@@ -523,7 +526,7 @@ fn analyze_file(
     verbose: bool,
     all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
-    platforms: Vec<composite_rules::Platform>,
+    platforms: &[composite_rules::Platform],
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
     max_memory_file_size: u64,
@@ -539,7 +542,7 @@ fn analyze_file(
     // If target is a directory, scan it recursively
     if path.is_dir() {
         return scan_paths(
-            vec![target.to_string()],
+            &[target.to_string()],
             enable_third_party,
             format,
             zip_passwords,
@@ -570,28 +573,41 @@ fn analyze_file(
     }
     tracing::info!("File type: {:?}", file_type);
 
-    // Load capability mapper
+    // Load capability mapper and YARA rules in parallel — they are independent until
+    // set_capability_mapper is called after both complete.
     let _t1 = std::time::Instant::now();
     tracing::info!("Loading capability mapper (trait definitions)");
+
+    // Kick off YARA loading on a background thread while the main thread builds the mapper.
+    let yara_disabled = disabled.yara;
+    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> =
+        if yara_disabled {
+            None
+        } else {
+            Some(std::thread::spawn(move || {
+                let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+                let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+                let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+                (engine, builtin, third_party)
+            }))
+        };
+
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
         min_suspicious_precision,
         enable_full_validation,
     )
-    .with_platforms(platforms.clone());
+    .with_platforms(platforms.to_vec());
     tracing::info!("Capability mapper loaded");
 
-    // Load YARA rules (unless YARA is disabled)
-    let mut yara_engine = if disabled.yara {
+    // Join YARA thread now that the mapper is ready.
+    let mut yara_engine = if yara_disabled {
         tracing::info!("YARA scanning disabled");
         eprintln!("[INFO] YARA scanning disabled");
         None
-    } else {
-        let _t_yara_start = std::time::Instant::now();
-        tracing::info!("Initializing YARA engine");
-        let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-        let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party);
+    } else if let Some(handle) = yara_handle {
+        let (mut engine, builtin_count, third_party_count) =
+            handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
         tracing::info!(
             "YARA engine loaded with {} rules",
             builtin_count + third_party_count
@@ -602,6 +618,8 @@ fn analyze_file(
         } else {
             None
         }
+    } else {
+        None
     };
 
     // Route to appropriate analyzer
@@ -749,7 +767,7 @@ fn analyze_file(
 
 #[allow(clippy::too_many_arguments)]
 fn scan_paths(
-    paths: Vec<String>,
+    paths: &[String],
     enable_third_party: bool,
     format: &cli::OutputFormat,
     zip_passwords: &[String],
@@ -758,7 +776,7 @@ fn scan_paths(
     verbose: bool,
     include_all_files: bool,
     sample_extraction: Option<&types::SampleExtractionConfig>,
-    platforms: Vec<composite_rules::Platform>,
+    platforms: &[composite_rules::Platform],
     min_hostile_precision: f32,
     min_suspicious_precision: f32,
     max_memory_file_size: u64,
@@ -773,7 +791,7 @@ fn scan_paths(
             min_suspicious_precision,
             enable_full_validation,
         )
-        .with_platforms(platforms.clone()),
+        .with_platforms(platforms.to_vec()),
     );
 
     // Pre-load YARA engine once and share across all threads
@@ -790,7 +808,7 @@ fn scan_paths(
     let mut all_files = Vec::with_capacity(1000);
     let mut archives_found = Vec::with_capacity(100);
 
-    for path_str in &paths {
+    for path_str in paths {
         let path = Path::new(path_str);
 
         if path.is_file() {
@@ -892,7 +910,7 @@ fn scan_paths(
                 if err_str.contains("--error-if") {
                     error_if_triggered.store(true, Ordering::Relaxed);
                     eprintln!("✗ {}: {}", path_str, e);
-                    let mut msg = error_if_message.lock().unwrap();
+                    let mut msg = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
                     if msg.is_none() {
                         *msg = Some(err_str);
                     }
@@ -911,7 +929,7 @@ fn scan_paths(
     const MAX_CONCURRENT_ARCHIVES: usize = 3;
     let (archive_sem_tx, archive_sem_rx) = bounded(MAX_CONCURRENT_ARCHIVES);
     for _ in 0..MAX_CONCURRENT_ARCHIVES {
-        archive_sem_tx.send(()).unwrap();
+        let _ = archive_sem_tx.send(());
     }
 
     // Process archives in parallel (skip if files already triggered --error-if)
@@ -978,7 +996,7 @@ fn scan_paths(
                             },
                             cli::OutputFormat::Jsonl => {
                                 // Should not reach here - JSONL uses streaming path above
-                                unreachable!("JSONL should use streaming path");
+                                tracing::warn!("Unexpected JSONL format in terminal output path");
                             },
                         }
                     },
@@ -988,7 +1006,7 @@ fn scan_paths(
                         if err_str.contains("--error-if") {
                             error_if_triggered.store(true, Ordering::Relaxed);
                             eprintln!("✗ {}: {}", path_str, e);
-                            let mut msg = error_if_message.lock().unwrap();
+                            let mut msg = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
                             if msg.is_none() {
                                 *msg = Some(err_str);
                             }
@@ -1014,7 +1032,7 @@ fn scan_paths(
 
     // If --error-if was triggered, return the error
     if files_result.is_err() || archives_result.is_err() {
-        if let Some(msg) = error_if_message.lock().unwrap().take() {
+        if let Some(msg) = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take() {
             anyhow::bail!(msg);
         }
     }
@@ -1187,7 +1205,7 @@ fn analyze_file_with_shared_mapper(
                     path,
                     &String::from_utf8_lossy(file_data),
                     &stng_strings,
-                )?
+                )
             } else if let Some(analyzer) =
                 analyzers::analyzer_for_file_type_arc(&file_type, Some(capability_mapper.clone()))
             {
@@ -1468,7 +1486,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                 {
                     if file_type == FileType::MachO {
                         if let Ok(nm_output) = std::process::Command::new("nm")
-                            .args(["-u", "-m", path.to_str().unwrap()])
+                            .args(["-u", "-m", &*path.to_string_lossy()])
                             .output()
                         {
                             let nm_str = String::from_utf8_lossy(&nm_output.stdout);
@@ -1542,7 +1560,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
                         FileType::Pe => PEAnalyzer::new()
                             .with_capability_mapper(capability_mapper)
                             .analyze(path)?,
-                        _ => unreachable!(),
+                        _ => anyhow::bail!("unsupported binary file type for symbol extraction"),
                     };
 
                     for import in report.imports {
@@ -1570,10 +1588,10 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
 
     let extractor = strings::StringExtractor::new()
         .with_min_length(min_length)
-        .with_imports(imports)
+        .with_imports(&imports)
         .with_import_libraries(import_libraries)
-        .with_exports(exports)
-        .with_functions(functions);
+        .with_exports(&exports)
+        .with_functions(&functions);
 
     let strings = extractor.extract_smart(&data);
 
@@ -1817,7 +1835,7 @@ fn extract_symbols(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         FileType::Pe => PEAnalyzer::new()
                             .with_capability_mapper(capability_mapper)
                             .analyze(path)?,
-                        _ => unreachable!(),
+                        _ => anyhow::bail!("unsupported binary file type for symbol extraction"),
                     };
 
                     // Add imports
@@ -1978,7 +1996,7 @@ fn extract_sections(target: &str, format: &cli::OutputFormat) -> Result<String> 
                     FileType::Pe => {
                         PEAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
                     },
-                    _ => unreachable!(),
+                    _ => anyhow::bail!("unsupported binary file type for section extraction"),
                 };
 
                 // Convert sections to output format
@@ -2786,25 +2804,19 @@ fn test_match_debug(
                     ));
                 }
                 if !count_max_ok {
-                    out.push_str(&format!(
-                        "  count_max: {} > {} (FAILED)\n",
-                        match_count,
-                        count_max.unwrap()
-                    ));
+                    if let Some(max) = count_max {
+                        out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, max));
+                    }
                 }
                 if !per_kb_min_ok {
-                    out.push_str(&format!(
-                        "  per_kb_min: {:.3} < {:.3} (FAILED)\n",
-                        density,
-                        per_kb_min.unwrap()
-                    ));
+                    if let Some(min) = per_kb_min {
+                        out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, min));
+                    }
                 }
                 if !per_kb_max_ok {
-                    out.push_str(&format!(
-                        "  per_kb_max: {:.3} > {:.3} (FAILED)\n",
-                        density,
-                        per_kb_max.unwrap()
-                    ));
+                    if let Some(max) = per_kb_max {
+                        out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, max));
+                    }
                 }
             }
 
@@ -3041,32 +3053,26 @@ fn test_match_debug(
                     ));
                 }
                 if !count_max_ok {
-                    out.push_str(&format!(
-                        "  count_max: {} > {} (FAILED)\n",
-                        match_count,
-                        count_max.unwrap()
-                    ));
+                    if let Some(max) = count_max {
+                        out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, max));
+                    }
                 }
                 if !per_kb_min_ok {
-                    out.push_str(&format!(
-                        "  per_kb_min: {:.3} < {:.3} (FAILED)\n",
-                        density,
-                        per_kb_min.unwrap()
-                    ));
+                    if let Some(min) = per_kb_min {
+                        out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, min));
+                    }
                 }
                 if !per_kb_max_ok {
-                    out.push_str(&format!(
-                        "  per_kb_max: {:.3} > {:.3} (FAILED)\n",
-                        density,
-                        per_kb_max.unwrap()
-                    ));
+                    if let Some(max) = per_kb_max {
+                        out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, max));
+                    }
                 }
             }
 
             (matched, match_count, out)
         },
         cli::SearchType::Kv => {
-            let kv_path_str = kv_path.unwrap(); // Safe: validated above
+            let kv_path_str = kv_path.unwrap_or_default();
 
             // Build the kv condition
             let exact = if method == cli::MatchMethod::Exact && !pattern.is_empty() {
@@ -3811,8 +3817,7 @@ fn test_match_debug(
                 // Check if pattern exists in content
                 let content = String::from_utf8_lossy(&binary_data);
                 let content_matched = match method {
-                    cli::MatchMethod::Exact => content.contains(pattern),
-                    cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
                     },
@@ -3882,8 +3887,7 @@ fn test_match_debug(
                 // Check if pattern exists in content
                 let content = String::from_utf8_lossy(&binary_data);
                 let content_matched = match method {
-                    cli::MatchMethod::Exact => content.contains(pattern),
-                    cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
                     },
@@ -4037,7 +4041,7 @@ fn test_match_debug(
         // Suggest alternative match methods
         output.push_str("\n  Try different match methods:\n");
         match method {
-            cli::MatchMethod::Exact => {
+            cli::MatchMethod::Exact | cli::MatchMethod::Word => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method regex (pattern match)\n");
             },
@@ -4048,10 +4052,6 @@ fn test_match_debug(
             cli::MatchMethod::Regex => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method exact (exact match)\n");
-            },
-            cli::MatchMethod::Word => {
-                output.push_str("    --method contains (substring match)\n");
-                output.push_str("    --method regex (pattern match)\n");
             },
         }
 
@@ -4145,8 +4145,7 @@ fn test_match_debug(
                         cli::SearchType::Raw => {
                             let content = String::from_utf8_lossy(&binary_data);
                             match method {
-                                cli::MatchMethod::Exact => content.contains(pattern),
-                                cli::MatchMethod::Contains => content.contains(pattern),
+                                cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
                                 cli::MatchMethod::Regex => {
                                     regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
                                 },
@@ -4157,26 +4156,11 @@ fn test_match_debug(
                                 },
                             }
                         },
-                        cli::SearchType::Kv => {
-                            // kv searches don't benefit from file type changes
-                            false
-                        },
-                        cli::SearchType::Hex => {
-                            // hex searches don't benefit from file type changes
-                            false
-                        },
-                        cli::SearchType::Encoded => {
-                            // encoded string searches depend on string extraction
-                            false
-                        },
-                        cli::SearchType::Section => {
-                            // Section searches are binary-specific
-                            false
-                        },
-                        cli::SearchType::Metrics => {
-                            // Metrics searches depend on metrics availability for the file type
-                            false
-                        },
+                        cli::SearchType::Kv
+                        | cli::SearchType::Hex
+                        | cli::SearchType::Encoded
+                        | cli::SearchType::Section
+                        | cli::SearchType::Metrics => false,
                     };
 
                     if would_match {

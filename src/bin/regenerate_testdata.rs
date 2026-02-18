@@ -59,9 +59,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .ok_or_else(|| format!("Missing path in file object at line {}", line_num))?;
 
         // Create relative path structure in verify/ directory
-        let rel_path = if let Ok(rel) = Path::new(file_path).strip_prefix(&data_dir) {
-            rel
-        } else {
+        let Ok(rel_path) = Path::new(file_path).strip_prefix(&data_dir) else {
             continue;
         };
 

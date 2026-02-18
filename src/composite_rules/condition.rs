@@ -1239,7 +1239,7 @@ impl Condition {
 
     /// Validate that condition can be compiled (for YARA/AST rules)
     /// Call this at load time to catch syntax errors early
-    pub(crate) fn validate(&self) -> Result<()> {
+    pub(crate) fn validate(&self, full: bool) -> Result<()> {
         match self {
             Condition::Yara { source, .. } => {
                 // Only validate syntax - add_source catches parse errors
@@ -1294,9 +1294,11 @@ impl Condition {
                     ));
                 }
 
-                // Validate query if present
-                if let Some(q) = query {
-                    validate_ast_query(q, language.as_deref())?;
+                // Validate query if present — skip in fast mode (query compiles at eval time)
+                if full {
+                    if let Some(q) = query {
+                        validate_ast_query(q, language.as_deref())?;
+                    }
                 }
 
                 Ok(())
@@ -2249,7 +2251,7 @@ mod location_constraint_tests {
             compiled_regex: None,
             compiled_excludes: Vec::new(),
         };
-        assert!(condition.validate().is_err());
+        assert!(condition.validate(true).is_err());
     }
 
     #[test]
@@ -2269,7 +2271,7 @@ mod location_constraint_tests {
             section_offset_range: None,
             compiled_regex: None,
         };
-        assert!(condition.validate().is_ok());
+        assert!(condition.validate(true).is_ok());
     }
 
     #[test]

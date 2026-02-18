@@ -13,7 +13,7 @@ use std::sync::Arc;
 
 /// Collect evidence from YARA scan results.
 pub(crate) fn collect_yara_evidence<'a, 'b>(
-    results: yara_x::ScanResults<'a, 'b>,
+    results: &yara_x::ScanResults<'a, 'b>,
     binary_data: &[u8],
 ) -> Vec<Evidence> {
     let mut evidence = Vec::new();
@@ -67,7 +67,7 @@ pub(crate) fn eval_yara_inline<'a>(
         // Fast path: use thread-local cached scanner
         let scanner = get_or_create_scanner(pre_compiled.as_ref());
         match scanner.scan(ctx.binary_data) {
-            Ok(results) => collect_yara_evidence(results, ctx.binary_data),
+            Ok(results) => collect_yara_evidence(&results, ctx.binary_data),
             Err(_) => Vec::new(),
         }
     } else {
@@ -85,7 +85,7 @@ pub(crate) fn eval_yara_inline<'a>(
         let rules = compiler.build();
         let mut scanner = yara_x::Scanner::new(&rules);
         match scanner.scan(ctx.binary_data) {
-            Ok(results) => collect_yara_evidence(results, ctx.binary_data),
+            Ok(results) => collect_yara_evidence(&results, ctx.binary_data),
             Err(_) => Vec::new(),
         }
     };

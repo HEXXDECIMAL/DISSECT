@@ -660,7 +660,7 @@ impl UnifiedSourceAnalyzer {
         // Extract function calls for capability matching (type: symbol conditions)
         symbol_extraction::extract_symbols(
             content,
-            self.config.language.clone(),
+            &self.config.language,
             self.config.call_node_types,
             &mut report,
         );
@@ -1052,10 +1052,7 @@ impl UnifiedSourceAnalyzer {
         let imports = metrics.imports.as_ref();
 
         // Only proceed if we have text metrics (required for ratios)
-        let text = match text {
-            Some(t) => t,
-            None => return,
-        };
+        let Some(text) = text else { return };
 
         // Cross-component ratios (per function)
         if let Some(funcs) = functions {

@@ -256,7 +256,7 @@ impl<'a> RuleDebugger<'a> {
         let finding = trait_def.evaluate(&ctx);
 
         // Extract debug info
-        let eval_debug = debug.into_inner().unwrap();
+        let eval_debug = debug.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner);
 
         // Convert to RuleDebugResult
         let mut result = self.convert_eval_debug_to_result(
@@ -297,7 +297,7 @@ impl<'a> RuleDebugger<'a> {
         let finding = composite.evaluate(&ctx);
 
         // Extract debug info
-        let eval_debug = debug.into_inner().unwrap();
+        let eval_debug = debug.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner);
 
         // Convert to RuleDebugResult, using composite requirements
         let requirements = build_composite_requirements(composite);
@@ -648,7 +648,7 @@ impl<'a> RuleDebugger<'a> {
                 pattern,
                 *offset,
                 *offset_range,
-                section.clone(),
+                section.as_deref(),
                 *section_offset,
                 *section_offset_range,
             ),
@@ -1204,8 +1204,7 @@ impl<'a> RuleDebugger<'a> {
                         "📍 Matches by section: {}",
                         section_summary.join(", ")
                     ));
-                    if sections_with_matches.len() == 1 {
-                        let section = sections_with_matches.keys().next().unwrap();
+                    if let (1, Some(section)) = (sections_with_matches.len(), sections_with_matches.keys().next()) {
                         result.details.push(format!(
                             "💡 All matches in '{}' - consider `section: \"{}\"` for precision",
                             section, section
@@ -1766,14 +1765,14 @@ impl<'a> RuleDebugger<'a> {
         pattern: &str,
         offset: Option<i64>,
         offset_range: Option<(i64, Option<i64>)>,
-        section: Option<String>,
+        section: Option<&str>,
         section_offset: Option<i64>,
         section_offset_range: Option<(i64, Option<i64>)>,
     ) -> ConditionDebugResult {
         use crate::composite_rules::evaluators::{eval_hex, ContentLocationParams};
 
         let mut desc = format!("hex: \"{}\"", truncate_string(pattern, 40));
-        if let Some(sec) = &section {
+        if let Some(sec) = section {
             desc.push_str(&format!(" in section: {}", sec));
         }
         if let Some(off) = offset {
@@ -1801,7 +1800,7 @@ impl<'a> RuleDebugger<'a> {
         let eval_result = eval_hex(
             pattern,
             &ContentLocationParams {
-                section: section.clone(),
+                section: section.map(std::borrow::ToOwned::to_owned),
                 offset,
                 offset_range,
                 section_offset,

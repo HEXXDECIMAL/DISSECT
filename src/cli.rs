@@ -475,7 +475,7 @@ fn parse_offset_range(s: &str) -> Result<(i64, Option<i64>), String> {
 }
 
 /// Type of content to search in
-#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
 pub(crate) enum SearchType {
     /// Search in extracted strings
     String,
@@ -496,7 +496,7 @@ pub(crate) enum SearchType {
 }
 
 /// How to match a search pattern against content
-#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
 pub(crate) enum MatchMethod {
     /// Exact match
     Exact,
@@ -509,7 +509,7 @@ pub(crate) enum MatchMethod {
 }
 
 /// File type to use for analysis context override
-#[derive(Debug, Clone, clap::ValueEnum, PartialEq)]
+#[derive(Debug, Clone, Copy, clap::ValueEnum, PartialEq)]
 pub(crate) enum DetectFileType {
     /// ELF binary
     Elf,

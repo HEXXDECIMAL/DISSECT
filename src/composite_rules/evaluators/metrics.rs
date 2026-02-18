@@ -46,16 +46,13 @@ pub(crate) fn eval_metrics<'a>(
         }
     }
 
-    let metrics = match &ctx.report.metrics {
-        Some(m) => m,
-        None => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            }
-        },
+    let Some(metrics) = &ctx.report.metrics else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     // Parse field path and get value
@@ -294,16 +291,13 @@ pub(crate) fn eval_metrics<'a>(
         _ => None,
     };
 
-    let value = match value {
-        Some(v) => v,
-        None => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            }
-        },
+    let Some(value) = value else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     let min_ok = min.is_none_or(|m| value >= m);

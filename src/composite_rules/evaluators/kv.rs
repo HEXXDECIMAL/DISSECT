@@ -358,7 +358,7 @@ fn parse_pkginfo(content: &[u8]) -> Option<Value> {
         } else if let Some(colon_pos) = line.find(':') {
             // New header - save previous if any
             if let Some(key) = current_key.take() {
-                insert_pkginfo_value(&mut map, key, current_value.trim().to_string());
+                insert_pkginfo_value(&mut map, &key, current_value.trim().to_string());
             }
 
             let key = line[..colon_pos].trim().to_string();
@@ -370,14 +370,14 @@ fn parse_pkginfo(content: &[u8]) -> Option<Value> {
 
     // Don't forget the last header
     if let Some(key) = current_key {
-        insert_pkginfo_value(&mut map, key, current_value.trim().to_string());
+        insert_pkginfo_value(&mut map, &key, current_value.trim().to_string());
     }
 
     Some(Value::Object(map))
 }
 
 /// Insert a value into PKG-INFO map, handling multiple values for same key.
-fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: String, value: String) {
+fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: &str, value: String) {
     if value.is_empty() {
         return;
     }

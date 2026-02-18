@@ -260,12 +260,12 @@ pub(crate) fn extract_symbols_from_tree(
 /// NOTE: This parses internally - prefer extract_symbols_from_tree() if you already have a tree
 pub(crate) fn extract_symbols(
     source: &str,
-    lang: tree_sitter::Language,
+    lang: &tree_sitter::Language,
     call_types: &[&str],
     report: &mut AnalysisReport,
 ) {
     let mut parser = tree_sitter::Parser::new();
-    if parser.set_language(&lang).is_err() {
+    if parser.set_language(lang).is_err() {
         return;
     }
 

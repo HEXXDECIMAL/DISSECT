@@ -146,7 +146,7 @@ impl ArchiveAnalyzer {
     /// to use the given archive SHA256 for extraction directory grouping.
     #[allow(dead_code)] // Used by binary target
     #[must_use]
-    pub(crate) fn with_extraction_archive_sha256(&self, archive_sha256: String) -> Self {
+    pub(crate) fn with_extraction_archive_sha256(&self, archive_sha256: &str) -> Self {
         Self {
             max_depth: self.max_depth,
             current_depth: self.current_depth,
@@ -157,7 +157,7 @@ impl ArchiveAnalyzer {
             sample_extraction: self
                 .sample_extraction
                 .as_ref()
-                .map(|c| c.with_archive_sha256(archive_sha256.clone())),
+                .map(|c| c.with_archive_sha256(archive_sha256.to_owned())),
             max_memory_file_size: self.max_memory_file_size,
         }
     }

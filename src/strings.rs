@@ -103,16 +103,16 @@ impl StringExtractor {
         self
     }
 
-    pub(crate) fn with_functions(mut self, functions: HashSet<String>) -> Self {
-        for func in &functions {
+    pub(crate) fn with_functions(mut self, functions: &HashSet<String>) -> Self {
+        for func in functions {
             let normalized = Self::normalize_symbol(func);
             self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
         }
         self
     }
 
-    pub(crate) fn with_imports(mut self, imports: HashSet<String>) -> Self {
-        for imp in &imports {
+    pub(crate) fn with_imports(mut self, imports: &HashSet<String>) -> Self {
+        for imp in imports {
             let normalized = Self::normalize_symbol(imp);
             self.symbol_map.insert(normalized, (StringType::Import, None));
         }
@@ -128,8 +128,8 @@ impl StringExtractor {
         self
     }
 
-    pub(crate) fn with_exports(mut self, exports: HashSet<String>) -> Self {
-        for exp in &exports {
+    pub(crate) fn with_exports(mut self, exports: &HashSet<String>) -> Self {
+        for exp in exports {
             let normalized = Self::normalize_symbol(exp);
             self.symbol_map.insert(normalized, (StringType::Export, None));
         }

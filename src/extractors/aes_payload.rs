@@ -246,22 +246,19 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
     }
 
     // Check if it's valid UTF-8 (most JavaScript payloads are)
-    let text = match std::str::from_utf8(plaintext) {
-        Ok(t) => t,
-        Err(_) => {
-            // Could be binary, check for known binary signatures
-            if plaintext.len() > 4 {
-                // ELF, Mach-O, PE signatures
-                if (plaintext[0] == 0x7F && plaintext[1] == b'E')
-                    || (plaintext[0] == 0xFE && plaintext[1] == 0xED)
-                    || (plaintext[0] == 0xCA && plaintext[1] == 0xFE)
-                    || (plaintext[0] == b'M' && plaintext[1] == b'Z')
-                {
-                    return true;
-                }
+    let Ok(text) = std::str::from_utf8(plaintext) else {
+        // Could be binary, check for known binary signatures
+        if plaintext.len() > 4 {
+            // ELF, Mach-O, PE signatures
+            if (plaintext[0] == 0x7F && plaintext[1] == b'E')
+                || (plaintext[0] == 0xFE && plaintext[1] == 0xED)
+                || (plaintext[0] == 0xCA && plaintext[1] == 0xFE)
+                || (plaintext[0] == b'M' && plaintext[1] == b'Z')
+            {
+                return true;
             }
-            return false;
         }
+        return false;
     };
 
     // For text content, check it's not just random garbage

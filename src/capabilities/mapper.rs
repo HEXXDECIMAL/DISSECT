@@ -398,7 +398,7 @@ impl CapabilityMapper {
                 // Validate YARA/AST conditions at load time
                 trait_def
                     .r#if
-                    .validate(&trait_def.id)
+                    .validate(&trait_def.id, enable_full_validation)
                     .map_err(|e| anyhow::anyhow!("{}", e))
                     .with_context(|| {
                         format!(
