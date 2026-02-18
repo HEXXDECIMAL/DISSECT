@@ -74,4 +74,5 @@ composite_rules:
     # Downgrade for Apple system components (e.g., /bin/bash, /bin/zsh)
     downgrade:
       any:
-        - id: meta/apple/system-component
+        - id: meta/apple::system-component
+        - id: meta/apple::project-marker

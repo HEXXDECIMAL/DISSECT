@@ -126,3 +126,21 @@ composite_rules:
       - id: obj/exec/lolbin/os::nemucod-export-fragments
       - id: cap/env/check/wsh::env-check-comspec-cmd
       - id: obj/c2/infrastructure/domain::nemucod-domain
+
+  - id: jscript-error-key-gen-dropper
+    desc: "JScript Dropper using Error Object for Key Generation"
+    crit: hostile
+    all:
+      - id: cap/data/control-flow/analysis::js-try-catch-error-method-call
+    any:
+      - id: cap/host/interpreter/jscript::is-jscript
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+
+  - id: jscript-xor-decoder-dropper
+    desc: "JScript Dropper using Custom XOR Decoder Loop"
+    crit: hostile
+    all:
+      - id: cap/data/encode/xor::js-xor-decoder-loop
+    any:
+      - id: obj/exec/interpreter/script/wsh

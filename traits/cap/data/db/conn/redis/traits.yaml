@@ -45,7 +45,7 @@ traits:
   - id: ioredis
     desc: ioredis driver
     crit: notable
-    conf: 0.9
+    conf: 1.0
     if:
       type: string
       substr: "ioredis"

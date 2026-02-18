@@ -414,6 +414,9 @@ composite_rules:
     all:
       - id: small-file-5k
       - id: dangerous-requires
+    downgrade:
+      any:
+        - id: obj/lateral/supply-chain/npm/testing::test-fixtures
 
   # No deps with hooks - migrated from YARA
   - id: no-deps-with-hooks

@@ -67,7 +67,7 @@ traits:
   # Hidden window style
   - id: ps-hidden-window
     desc: Hidden window execution
-    crit: suspicious
+    crit: notable
     conf: 0.85
     for: [powershell, batch, shell]
     attack: "T1564.003"

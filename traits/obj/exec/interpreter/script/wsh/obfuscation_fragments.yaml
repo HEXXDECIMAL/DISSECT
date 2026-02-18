@@ -34,19 +34,13 @@ traits:
     desc: ExpandEnvironmentStrings fragment
     if:
       type: raw
-      regex: 'xpandE|entS|nviro|nviron'
+      regex: 'xpandE|nviro|nviron'
 
   - id: response-body-fragment
     desc: ResponseBody fragment
     if:
       type: raw
-      regex: 'nseBody|ResponseB|nseBo'
-
-  - id: math-random-fragment
-    desc: Math.random string fragment
-    if:
-      type: raw
-      regex: 'Math|Random|ath\.Ra|ath\.r|Mat|andom'
+      regex: 'nseBody|ResponseB|nseBo|onseB'
 
   - id: script-fullname-fragment
     desc: WScript.ScriptFullName fragment

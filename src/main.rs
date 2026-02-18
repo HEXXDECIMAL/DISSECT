@@ -784,7 +784,22 @@ fn scan_paths(
 ) -> Result<String> {
     use walkdir::WalkDir;
 
-    // Load capability mapper once and share across all threads
+    // Kick off YARA loading on a background thread immediately — it's the slowest
+    // initialization step (wasmtime JIT) and is independent of capability loading.
+    let yara_disabled = disabled.yara;
+    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> =
+        if yara_disabled {
+            None
+        } else {
+            Some(std::thread::spawn(move || {
+                let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+                let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+                let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+                (engine, builtin, third_party)
+            }))
+        };
+
+    // Load capability mapper while YARA compiles in the background.
     let capability_mapper = Arc::new(
         crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
             min_hostile_precision,
@@ -794,13 +809,14 @@ fn scan_paths(
         .with_platforms(platforms.to_vec()),
     );
 
-    // Pre-load YARA engine once and share across all threads
-    let shared_yara_engine: Option<Arc<YaraEngine>> = if disabled.yara {
-        None
-    } else {
-        let mut engine = YaraEngine::new_with_mapper((*capability_mapper).clone());
-        let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+    // Join YARA thread now that the mapper is ready.
+    let shared_yara_engine: Option<Arc<YaraEngine>> = if let Some(handle) = yara_handle {
+        let (mut engine, builtin, third_party) =
+            handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
+        engine.set_capability_mapper((*capability_mapper).clone());
         if builtin + third_party > 0 { Some(Arc::new(engine)) } else { None }
+    } else {
+        None
     };
 
     // Collect all files from paths (expanding directories recursively)

@@ -99,3 +99,6 @@ composite_rules:
       - id: ioplatformuuid
       - id: ioplatformserialnum
       - id: iokit-registry
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple

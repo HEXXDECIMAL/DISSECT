@@ -153,7 +153,11 @@ impl Radare2Analyzer {
     /// Extract functions, sections, and strings in a SINGLE r2 session
     /// This significantly reduces overhead compared to calling each method separately.
     /// Results are cached by SHA256 with zstd compression.
-    pub(crate) fn extract_batched(&self, file_path: &Path) -> Result<BatchedAnalysis> {
+    ///
+    /// `has_symbols`: when false (stripped binary), function analysis (`aa; aflj`) is skipped.
+    /// Stripped binaries yield only heuristically-guessed unnamed functions of limited value,
+    /// so sections and strings alone are extracted instead — much faster and equally useful.
+    pub(crate) fn extract_batched(&self, file_path: &Path, has_symbols: bool) -> Result<BatchedAnalysis> {
         use tracing::{debug, trace, warn};
         let _t_start = std::time::Instant::now();
 
@@ -174,32 +178,30 @@ impl Radare2Analyzer {
 
         // Check file size - skip expensive function analysis for large binaries
         // Binaries >20MB take minutes to analyze with 'aa'
-        // We can still get useful section/entropy data without function analysis
         const MAX_SIZE_FOR_FULL_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
 
         let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
+        let skip_function_analysis =
+            file_size > MAX_SIZE_FOR_FULL_ANALYSIS || !has_symbols;
 
-        let skip_function_analysis = file_size > MAX_SIZE_FOR_FULL_ANALYSIS;
-
-        if skip_function_analysis {
+        if file_size > MAX_SIZE_FOR_FULL_ANALYSIS {
             debug!(
-                "File size {} MB > 20 MB, skipping function analysis but extracting strings for stng",
+                "File size {} MB > 20 MB, skipping function analysis",
                 file_size / 1024 / 1024
             );
+        } else if !has_symbols {
+            debug!("Stripped binary, skipping function analysis (aa/aflj)");
         }
 
         // SINGLE r2 spawn with ALL data extraction
         // Commands separated by "echo SEP" for parsing:
-        // - aa: analyze (only for small binaries)
+        // - aa: full analysis (only for unstripped binaries under 20MB)
         // - aflj: functions as JSON
         // - iSj: sections as JSON
         // - izj: strings as JSON
         let command = if skip_function_analysis {
-            // Large binary: skip function analysis (aa/aflj) but keep string extraction (izj)
-            // String extraction is slow but cached, and provides additional context to stng
             "iSj; echo SEP; izj"
         } else {
-            // Small binary: full analysis + all data
             "aa; aflj; echo SEP; iSj; echo SEP; izj"
         };
 

@@ -3,25 +3,12 @@ traits:
     desc: Array containing root paths (potential directory enumeration)
     crit: notable
     if:
-      type: ast
-      language: javascript
-      query: |
-        (array
-          (string (string_fragment) @path1)
-          (string (string_fragment) @path2)
-        )
-        (#match? @path1 "^([C-Z]:\\\\|/)$")
-        (#match? @path2 "^([C-Z]:\\\\|/home)$")
-    not:
-      - "get"
-      - "post"
-      - "Loading"
-      - "Uninitialized"
-      - "Interactive"
-      - "Complete"
-      - "Loaded"
+      type: string
+      regex: |
+        \[\s*['"](?:[A-Z]:\\\\|/)['"]\s*,\s*['"](?:[A-Z]:\\\\|/home)['"]\s*
     unless:
       - id: meta/library/prototype::copyright
       - id: meta/library/prototype::header-x
       - id: meta/quality::versioned
       - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush
+      - id: meta/library::ioredis-auto-pipeline

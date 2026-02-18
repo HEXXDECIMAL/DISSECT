@@ -35,7 +35,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*sh"
+      regex: "\\|\\s*sh(?:[^a-zA-Z0-9_]|$)"
 
   - id: script-pipe-bash
     desc: Script pipes to bash
@@ -44,7 +44,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*bash"
+      regex: "\\|\\s*bash(?:[^a-zA-Z0-9_]|$)"
 
   - id: script-pipe-node
     desc: Script pipes to node
@@ -53,7 +53,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*node"
+      regex: "\\|\\s*node(?:[^a-zA-Z0-9_]|$)"
 
   - id: script-eval
     desc: Script uses eval
@@ -80,7 +80,12 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "/\\.[a-z]"
+      regex: "/\\.(?:[ac-z]|b[^i]|bi[^n]|b$|bi$)"
+    # TODO: Fix 'unless' block structure (parsing error)
+    # unless:
+    #   - type: kv
+    #     path: "scripts"
+    #     regex: "/\\.bin/"
 
   - id: script-tmp-dir
     desc: Script uses /tmp directory

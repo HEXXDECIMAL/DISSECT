@@ -2,6 +2,10 @@
 # MBC: B0003 (Rootkit)
 # ATT&CK: T1014
 
+defaults:
+  platforms: [linux]
+  for: [elf]
+
 traits:
   # === Rootkit String Markers ===
   - id: rootkit-string

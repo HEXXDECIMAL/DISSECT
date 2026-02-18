@@ -6,4 +6,4 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'var\s+[a-zA-Z0-9]+\s*=\s*[''"][^''"]*[''"]\.split\([''"][^''"]*[''"]\);'
+      regex: 'var\s+[a-zA-Z0-9]{1,15}\s*=\s*[''"][^''"]*[''"]\.split\([''"][^''"]*[''"]\);'

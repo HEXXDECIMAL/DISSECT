@@ -9,7 +9,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'fs\.readdir|fs\.stat'
+      regex: 'fs\.readdir'
 
   - id: file-search-exclude-common
     desc: File search logic excluding common system/dev directories

@@ -2,6 +2,7 @@ traits:
   - id: hex-path-chunk-split
     desc: Splits path into chunks for hex encoding
     crit: notable
+    conf: 0.9
     if:
       type: ast
       language: javascript
@@ -10,12 +11,20 @@ traits:
           function: (member_expression
             property: (property_identifier) @split
           )
-          arguments: (arguments
-            (string (string_fragment) @slash)
-          )
+          arguments: (arguments . (string (string_fragment) @slash))
         )
         (#eq? @split "split")
         (#eq? @slash "/")
+    unless:
+      - id: meta/library::ioredis-auto-pipeline
+      - id: cap/data/db/conn/redis::ioredis
+      - id: meta/library::commander
+      - id: meta/library/nodeunit::nodeunit
+      - id: meta/library/nodeunit::nodeunit-require
+    downgrade:
+      any:
+        - id: cap/data/db/conn/redis::ioredis
+        - id: meta/library::commander
 
   - id: hex-path-p-wrapping
     desc: Wraps encoded path chunks with 'p' characters

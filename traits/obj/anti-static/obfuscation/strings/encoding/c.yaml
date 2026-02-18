@@ -13,10 +13,20 @@ traits:
       type: string
       regex: "char\\s+\\w+\\[\\]\\s*=\\s*\\{[0-9, ]+\\}"
 
-  - id: strings-hex
+  - id: strings-hex-raw
     desc: Hex-encoded string patterns
-    crit: notable
+    crit: inert
     conf: 0.66
     if:
       type: string
       regex: "\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}\\\\x[0-9a-fA-F]{2}"
+
+composite_rules:
+  - id: strings-hex
+    desc: Hex-encoded string patterns
+    crit: notable
+    conf: 0.66
+    any:
+      - id: strings-hex-raw
+    unless:
+      - id: meta/purpose/test-tool::coreutils-copyright

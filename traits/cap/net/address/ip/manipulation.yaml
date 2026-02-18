@@ -24,6 +24,10 @@ traits:
       - id: meta/builder/autotools::autotools
       - id: meta/builder/autotools::configure-ac
       - id: meta/builder/pip::setup-py
+      - id: meta/library::commander
+    downgrade:
+      any:
+        - id: meta/library::commander
 
   - id: dashed-ip-colon-regex
     desc: Dashed IP Replacement (colon to dash)
@@ -50,6 +54,10 @@ traits:
       - id: meta/builder/autotools::autotools
       - id: meta/builder/autotools::configure-ac
       - id: meta/builder/pip::setup-py
+      - id: meta/library::commander
+    downgrade:
+      any:
+        - id: meta/library::commander
 
 composite_rules:
   - id: dashed-ip-manipulation
@@ -63,3 +71,7 @@ composite_rules:
       - id: meta/builder/autotools::autotools
       - id: meta/builder/autotools::configure-ac
       - id: meta/builder/pip::setup-py
+      - id: meta/library::commander
+    downgrade:
+      any:
+        - id: meta/library::commander

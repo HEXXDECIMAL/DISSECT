@@ -19,6 +19,10 @@ traits:
       # strb: ?? ?? ?? 39
       # ror: ?? ?? ?? 93
       pattern: "?? ?? ?? 4a ?? ?? ?? 39 ?? ?? ?? 93"
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
+        - id: meta/signed/issuer::apple
 
   - id: svc-instruction
     desc: "ARM64 svc instruction"

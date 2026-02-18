@@ -258,6 +258,7 @@ composite_rules:
       - id: bundle-and-framework
       - id: project-and-framework
       - id: system-bin-path
+      - id: project-marker
 
   # Main composite: Requires structure AND platform signature
   - id: system-component

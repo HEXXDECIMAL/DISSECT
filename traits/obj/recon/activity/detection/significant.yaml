@@ -7,3 +7,14 @@ composite_rules:
       - id: cap/fs/enumerate/directory::fs-readdir-recursive
       - id: obj/impact/ransomware/behavior::readdir-sync
       - id: obj/lateral/supply-chain/npm/behavior::npm-victim-exfil
+    unless:
+      - id: meta/library::commander
+      - id: meta/library/nodeunit::nodeunit
+      - id: meta/library/nodeunit::nodeunit-require
+    downgrade:
+      any:
+        - id: obj/lateral/supply-chain/npm/testing::test-fixtures
+        - id: obj/lateral/supply-chain/npm/testing::has-assertions
+        - id: meta/library/nodeunit::nodeunit
+        - id: meta/library/nodeunit::nodeunit-require
+        # - id: meta/library/nodeunit::nodeunit

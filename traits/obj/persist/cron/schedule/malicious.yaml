@@ -40,9 +40,9 @@ traits:
       substr: "wget -O -"
 
   # Base64 decode
-  - id: base64-d
+  - id: base64-d-raw
     desc: base64 -d decode
-    crit: notable
+    crit: inert
     conf: 0.6
     if:
       type: string
@@ -76,6 +76,16 @@ traits:
       substr: "/dev/shm/."
 
 composite_rules:
+  # Base64 decode composite (downgradable)
+  - id: base64-d
+    desc: base64 -d decode
+    crit: notable
+    conf: 0.6
+    any:
+      - id: base64-d-raw
+    unless:
+      - id: meta/purpose/test-tool::coreutils-copyright
+
   # Helper: Cron paths
   - id: cron-paths
     desc: Cron file paths

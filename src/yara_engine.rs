@@ -40,7 +40,7 @@ impl YaraEngine {
         self.capability_mapper = capability_mapper;
     }
 
-    /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/yara)
+    /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/)
     /// Uses cache if available and valid
     pub(crate) fn load_all_rules(&mut self, enable_third_party: bool) -> (usize, usize) {
         let _span = tracing::info_span!("load_yara_rules").entered();
@@ -108,18 +108,18 @@ impl YaraEngine {
             }
         }
 
-        // 2. Optionally load third-party YARA rules from third_party/yara with per-vendor namespaces
+        // 2. Optionally load third-party YARA rules from third_party/ with per-vendor namespaces
         if enable_third_party {
-            let third_party_dir = Path::new("third_party/yara");
+            let third_party_dir = Path::new("third_party");
             if third_party_dir.exists() {
                 tracing::debug!("Loading third-party YARA rules");
                 let count = self.load_third_party_rules(&mut compiler, third_party_dir);
                 third_party_count = count;
                 if count > 0 {
-                    tracing::info!("Loaded {} third-party YARA rules from third_party/yara", count);
+                    tracing::info!("Loaded {} third-party YARA rules from third_party/", count);
                 }
             } else {
-                tracing::warn!("third_party/yara directory not found");
+                tracing::warn!("third_party/ directory not found");
             }
         }
 
@@ -149,7 +149,7 @@ impl YaraEngine {
         (builtin_count, third_party_count)
     }
 
-    /// Load YARA rules from a directory into a compiler
+    /// Load YARA rules from a directory into a compiler, skipping individual files that fail to compile
     fn load_rules_into_compiler<'a>(
         &mut self,
         compiler: &mut yara_x::Compiler<'a>,
@@ -236,7 +236,7 @@ impl YaraEngine {
 
         let mut total = 0;
         for (dir_path, rule_files) in &files_by_dir {
-            // Derive namespace from directory path relative to third_party/yara/
+            // Derive namespace from directory path relative to third_party/
             let namespace = dir_path
                 .strip_prefix(dir)
                 .ok()
@@ -274,7 +274,7 @@ impl YaraEngine {
 
         // Find the base directory (traits/ or third_party/)
         let search_str = if prefix == "third_party" {
-            "third_party/yara/"
+            "third_party/"
         } else {
             "traits/"
         };
@@ -813,7 +813,7 @@ rule test_rule {
     #[test]
     fn test_extract_namespace_with_prefix_third_party() {
         let engine = YaraEngine::new();
-        let path = Path::new("/path/to/third_party/yara/malware/test.yar");
+        let path = Path::new("/path/to/third_party/malware/test.yar");
         let namespace = engine.extract_namespace_with_prefix(path, "third_party");
         assert_eq!(namespace, "third_party.malware");
     }

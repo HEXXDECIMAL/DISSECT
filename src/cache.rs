@@ -74,9 +74,9 @@ pub(crate) fn most_recent_yara_mtime() -> Result<SystemTime> {
         }
     }
 
-    // Check third_party/yara directory
-    if Path::new("third_party/yara").exists() {
-        for entry in WalkDir::new("third_party/yara").follow_links(false).into_iter().flatten() {
+    // Check third_party directory
+    if Path::new("third_party").exists() {
+        for entry in WalkDir::new("third_party").follow_links(false).into_iter().flatten() {
             let path = entry.path();
             if path.is_file()
                 && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)

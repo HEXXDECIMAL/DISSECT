@@ -85,7 +85,7 @@ traits:
     for: [perl, all]
     if:
       type: raw
-      regex: "^#!\\s*(/usr)?/bin/(env\\s+)?perl"
+      regex: "^#!\\s*((/usr)?/bin/(env\\s+)?|\\./)perl"
       
 
   - id: ruby

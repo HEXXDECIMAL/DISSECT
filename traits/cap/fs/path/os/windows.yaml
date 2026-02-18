@@ -2,13 +2,26 @@
 # Capabilities related to handling Windows file paths
 
 traits:
-  - id: hardcoded-windows-root
-    desc: Hardcoded Windows root path (C:\, D:\, etc.)
-    crit: suspicious
+  - id: hardcoded-windows-root-pattern
+    desc: Hardcoded Windows root path pattern
+    crit: inert
     conf: 0.8
     if:
       type: raw
       regex: '["''][A-Z]:[\\/]+'
+
+composite_rules:
+  - id: hardcoded-windows-root
+    desc: Hardcoded Windows root path (C:\, D:\, etc.)
+    crit: notable
+    conf: 0.8
+    all:
+      - id: hardcoded-windows-root-pattern
     unless:
       - id: meta/library/vscode::vscode-extension
       - id: meta/library/test::test-framework
+    downgrade:
+      any:
+        - id: meta/library::botocore-lib
+        - id: meta/import/python::boto3
+        - id: cap/comm/ssh/connect::paramiko

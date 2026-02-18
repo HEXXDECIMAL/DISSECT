@@ -86,6 +86,7 @@ impl ElfAnalyzer {
         // Attempt to parse with goblin
         let mut elf_metrics_opt = None;
         let mut goblin_code_size: Option<u64> = None;
+        let mut has_symbols = false; // set below from goblin parse
         match Elf::parse(data) {
             Ok(elf) => {
                 tools_used.push("goblin".to_string());
@@ -95,6 +96,7 @@ impl ElfAnalyzer {
 
                 // Compute ELF-specific metrics
                 elf_metrics_opt = Some(self.compute_elf_metrics(&elf));
+                has_symbols = !elf.syms.is_empty();
 
                 // Calculate code_size from goblin section flags (more accurate than radare2)
                 goblin_code_size = Some(self.compute_code_size(&elf));
@@ -133,7 +135,7 @@ impl ElfAnalyzer {
             tools_used.push("radare2".to_string());
 
             // Use batched extraction - single r2 session for functions, sections, strings, imports
-            if let Ok(batched) = self.radare2.extract_batched(file_path) {
+            if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
                 let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
 

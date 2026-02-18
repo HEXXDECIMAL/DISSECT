@@ -60,9 +60,10 @@ traits:
 
   - id: activex-fragment-tiny-2
     desc: Tiny ActiveXObject fragment (variant 2)
+    conf: 0.9
     if:
       type: string
-      regex: 'Activ|eXObj'
+      regex: 'Activ($|[^e])|eXObj'
     downgrade:
       any:
         - id: meta/library/jquery::domain
@@ -71,6 +72,7 @@ traits:
         - id: meta/library/jquery::fn-extend
     unless:
       - id: cap/host/interpreter/jscript::activex-object
+      - id: cap/data/db/conn/redis::ioredis
       - id: meta/library/jquery::domain
       - id: meta/library/jquery::version-string
       - id: meta/library/jquery::copyright

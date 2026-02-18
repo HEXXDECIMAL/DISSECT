@@ -15,15 +15,28 @@ traits:
       - "$xdOMA"
       - "$GETkE"
 
-  - id: powershell-cmdlet-patterns
-    desc: "PowerShell cmdlet naming pattern in non-PS code"
-    crit: suspicious
+  - id: powershell-cmdlet-patterns-raw
+    desc: "PowerShell cmdlet naming pattern (raw)"
+    crit: inert
     conf: 0.8
     for: [javascript, typescript, python]
     if:
       type: string
       regex: 'Out-File|Get-Content|Invoke-Expression|Start-Process'
       count_min: 1
+
+composite_rules:
+  - id: powershell-cmdlet-patterns
+    desc: "PowerShell cmdlet naming pattern in non-PS code"
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: powershell-cmdlet-patterns-raw
     unless:
       - type: string
         regex: 'SyntaxHighlighter'
+    downgrade:
+      any:
+        - id: meta/library::botocore-lib
+        - id: meta/import/python::boto3
+        - id: cap/comm/ssh/connect::paramiko

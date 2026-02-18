@@ -46,7 +46,7 @@ traits:
 
   - id: js-hex-char-array
     desc: Array of hex-encoded characters
-    crit: suspicious
+    crit: notable
     conf: 0.8
     if:
       type: ast
@@ -58,19 +58,12 @@ traits:
         (#match? @hex "^0x[0-9a-fA-F]{1,2}$")
     unless:
       - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush
-
-  - id: js-large-int-array
-    desc: Array of large integers (potential char codes)
-    crit: suspicious
-    conf: 0.8
-    if:
-      type: ast
-      language: javascript
-      query: |
-        (array
-          (number) @num
-        )
-        (#match? @num "^[0-9]{2,}$")
+      - id: meta/dev/testing::node-common-require
+      - id: meta/library::ioredis-auto-pipeline
+      - id: meta/library::commander
+    downgrade:
+      any:
+        - id: meta/library::commander
 
   - id: js-tohex-helper
     desc: Helper function 'toHex' for data encoding

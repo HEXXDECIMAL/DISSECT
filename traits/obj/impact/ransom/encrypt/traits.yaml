@@ -21,6 +21,9 @@ traits:
       type: string
       regex: "(Encryption|Encrypting).{0,20}complete"
       case_insensitive: true
+    downgrade:
+      any:
+        - id: meta/signed/platform::apple
 
   # Encrypt file/directory function symbols
   - id: encrypt-func-symbol

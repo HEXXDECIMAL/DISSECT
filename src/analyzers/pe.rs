@@ -104,7 +104,9 @@ impl PEAnalyzer {
             tools_used.push("radare2".to_string());
 
             // Use batched extraction - single r2 session for functions, sections, strings, imports
-            if let Ok(batched) = self.radare2.extract_batched(file_path) {
+            // PE binaries with no imports are packed/obfuscated; skip aa in that case.
+            let has_symbols = !pe.imports.is_empty();
+            if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
                 let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
 

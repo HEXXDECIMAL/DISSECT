@@ -387,3 +387,22 @@ composite_rules:
     any:
       - id: go-ldflags-strip
       - id: go-ldflags-hide-gui
+
+  # Hostile Batch Dropper (Download + Execute + Self-Delete)
+  - id: batch-dropper-hostile
+    desc: Hostile Batch Dropper (Download + Execute + Self-Delete)
+    crit: hostile
+    conf: 0.99
+    mbc: "C0002"
+    attack: "T1059.003"
+    for: [batch]
+    all:
+      - id: cap/fs/file/delete::batch-self-delete
+    any:
+      - id: powershell-download
+      - id: powershell-download-cradle
+      - id: certutil-download
+      - id: bitsadmin-download
+      - id: curl-to-temp
+      - id: batch-download-execute
+      - id: cap/code/obfuscation/string::rundll32-obfuscated-env-var

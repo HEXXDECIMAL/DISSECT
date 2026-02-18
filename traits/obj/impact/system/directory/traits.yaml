@@ -167,6 +167,11 @@ composite_rules:
       - id: cap/fs/path/device/storage::dev-hda
       - id: physical-drive0
       - id: physical-drive-unc
+    downgrade:
+      any:
+        - id: meta/library::botocore-lib
+        - id: meta/import/python::boto3
+        - id: cap/comm/ssh/connect::paramiko
 
   - id: recursive-delete-cmd
     desc: "Recursive deletion command pattern"
