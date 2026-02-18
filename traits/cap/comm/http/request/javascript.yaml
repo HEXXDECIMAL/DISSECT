@@ -33,7 +33,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "import\\s+\\{[^}]*axios[^}]*\\}\\s+from\\s+['\"]axios['\"]"
+      regex: "import\\s+\\{[^}]{0,220}axios[^}]{0,220}\\}\\s+from\\s+['\"]axios['\"]"
 
   - id: axios-require
     desc: axios require statement
@@ -299,7 +299,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "path:\\s*[`\"'][^`\"']*\\$\\{"
+      regex: "path:\\s*[`\"'][^`\"']{0,220}\\$\\{"
 
   - id: axios-with-data
     desc: axios request with data payload
@@ -308,7 +308,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "axios\\(\\{[^}]*data:"
+      regex: "axios\\(\\{[^}]{0,260}data:"
 
   - id: fetch-post-pattern
     desc: fetch API with POST method
@@ -317,7 +317,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "fetch\\([^)]+\\{[^}]*method:\\s*['\"]POST['\"]"
+      regex: "fetch\\(.{1,260}\\{[^}]{0,260}method:\\s*['\"]POST['\"]"
 
   - id: req-write
     desc: Write data to HTTP request stream

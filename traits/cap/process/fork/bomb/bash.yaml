@@ -1,6 +1,6 @@
 traits:
   - id: bomb
-    desc: "Bash Fork Bomb"
+    desc: "Classic Bash fork bomb recursion pattern"
     crit: suspicious
     conf: 1.0
     if:

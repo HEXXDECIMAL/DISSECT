@@ -240,7 +240,7 @@ composite_rules:
   # NOTE: Go runtime and legitimate tools (like ls) use these for user/group name display
   - id: passive-user-lookup
     desc: POSIX user lookup functions
-    crit: inert
+    crit: notable
     conf: 0.4
     attack: "T1033"
     for: [elf, macho]

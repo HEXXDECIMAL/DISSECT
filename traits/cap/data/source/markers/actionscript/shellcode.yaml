@@ -1,0 +1,8 @@
+traits:
+  - id: shellcode-naming
+    desc: "Detects variable or class names suggestive of"
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: "shellcode?Bytes"

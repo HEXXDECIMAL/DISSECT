@@ -1,6 +1,6 @@
 traits:
   - id: js-replace-gibberish
-    desc: "Detects the specific string replacement pattern used in Nemucod deobfuscation."
+    desc: "Detects the specific string replacement pattern used"
     crit: suspicious
     if:
       type: raw

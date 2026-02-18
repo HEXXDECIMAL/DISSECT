@@ -15,7 +15,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: '(?i)set%[^% \t\n]+%'
+      regex: '(?i)set%[^% \t\n]{1,80}%'
 
   # %VAR%set trick (obfuscated command start)
   - id: batch-obfuscated-command-start
@@ -24,7 +24,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '(?i)%[^% \t\n]+%set\s+'
+      regex: '(?i)%[^% \t\n]{1,80}%set\s+'
 
   # Fragmented command reconstruction (multiple sets of 1-4 chars)
   - id: batch-command-reconstruction
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '(?i)set\s+[^=]+=[^ \t\n\r]{1,4}(?:[\t\r\n ]|$)'
+      regex: '(?i)set\s+[^=]{1,120}=[^ \t\n\r]{1,4}(?:[\t\r\n ]|$)'
       count_min: 5
 
   # Base64-like payload in set command
@@ -43,7 +43,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: 'set\s+[^=]+=[A-Za-z0-9+/]{100,}'
+      regex: 'set\s+[^=]{1,120}=[A-Za-z0-9+/]{100,}'
 
 composite_rules:
   - id: batch-heavy-obfuscation

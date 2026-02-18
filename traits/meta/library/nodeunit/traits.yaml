@@ -77,7 +77,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: "require\\(['\"](?:[^'\"]+/)?nodeunit(?:/[^'\"]+)?['\"]\\)"
+      regex: "require\\(['\"](?:[^'\"]{1,120}/)?nodeunit(?:/[^'\"]{1,120})?['\"]\\)"
 
 composite_rules:
   - id: nodeunit

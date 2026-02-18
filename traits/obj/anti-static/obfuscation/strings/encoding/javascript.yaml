@@ -77,7 +77,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']+["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
+      regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']{1,120}["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
 
   - id: js-require-alias
     desc: Require function aliasing
@@ -103,7 +103,7 @@ traits:
   # Custom string shuffling/decoding loop pattern
   - id: js-charat-loop
     desc: charAt in loop pattern
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "B0032"
     attack: "T1027"
@@ -121,7 +121,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+\s*\[[^\]]+\]\s*;\s*\w+\s*\[[^\]]+\]\s*=\s*\w+'
+      regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]{1,80}\]\s*;\s*\w+\s*\[[^\]]{1,80}\]\s*=\s*\w+\s*\[[^\]]{1,80}\]\s*;\s*\w+\s*\[[^\]]{1,80}\]\s*=\s*\w+'
 
   # String split to array
   - id: js-string-split
@@ -134,7 +134,7 @@ traits:
       regex: '\.split\(\s*(?:""|'')\s*\)'
 
   # Dynamic code execution patterns (atomic)
-  # Moved to obj/execution/interpreter/eval/dynamic/eval-call
+  # Moved to obj/exec/interpreter/eval/dynamic/eval-call
 
   - id: js-function-call
     desc: Function() constructor
@@ -185,7 +185,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\.split\([^)]+\)\.join\(\s*(?:""|'')\s*\)'
+      regex: '\.split\(.{1,120}\)\.join\(\s*(?:""|'')\s*\)'
 
   # === Density-Based Obfuscation Detection ===
   # Legitimate code rarely has more than a few escape sequences.
@@ -241,7 +241,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "(?:\\b(?:this|self|window|globalThis|global|document|top|parent|frames|module|exports|process|[A-Za-z_$][\\w$]*)(?:\\s*\\.\\s*[A-Za-z_$][\\w$]*)*)\\s*\\[\\s*['\"](eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)['\"]\\s*\\]\\s*\\("
+      regex: "(?:\\b(?:this|self|window|globalThis|global|document|top|parent|frames|module|exports|process|[A-Za-z_$][\\w$]*)(?:\\s*\\.\\s*[A-Za-z_$][\\w$]*){0,6})\\s*\\[\\s*['\"](eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)['\"]\\s*\\]\\s*\\("
       count_min: 1
 
 composite_rules:
@@ -285,7 +285,7 @@ composite_rules:
     attack: "T1027"
     for: [javascript, typescript]
     any:
-      - id: obj/execution/interpreter/eval/dynamic::eval-call-js
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
       - id: js-function-call
       - id: js-new-function
 
@@ -383,7 +383,7 @@ composite_rules:
   # Mixed encoding usage (Hex and Base64) - common in legitimate code
   - id: js-mixed-encoding-usage
     desc: Mixed encoding usage (Hex and Base64)
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript]
     all:

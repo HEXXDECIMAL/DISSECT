@@ -38,7 +38,6 @@ composite_rules:
     conf: 0.9
     any:
       - id: cap/process/create/shell
-      - id: system-fn
 
   - id: shell-execution-indicators
     desc: Shell command execution indicators
@@ -47,5 +46,4 @@ composite_rules:
     any:
       - id: shell-symbols
       - id: go-shell-strings
-
 

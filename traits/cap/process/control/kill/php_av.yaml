@@ -10,7 +10,7 @@ traits:
     if:
       type: string
       # Matches taskkill /im (image name) followed by AV names
-      regex: '(?i)taskkill.*\/im\s+(nod32|mcshield|kav|avg|avast|norton|sophos)'
+      regex: '(?i)taskkill.{0,220}\/im\s+(nod32|mcshield|kav|avg|avast|norton|sophos)'
 
   - id: delete-av-directory
     desc: Attempting to remove AV installation directories
@@ -20,4 +20,4 @@ traits:
     if:
       type: string
       # Matches rmdir/exec/system commands targeting Program Files/AV
-      regex: '(?i)(rmdir|del|erase).*Program Files.*(Norton|McAfee|Kaspersky|ESET|AVG|Avast|Sophos)'
+      regex: '(?i)(rmdir|del|erase).{0,220}Program Files.{0,220}(Norton|McAfee|Kaspersky|ESET|AVG|Avast|Sophos)'

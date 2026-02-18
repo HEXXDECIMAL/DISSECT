@@ -55,6 +55,7 @@ composite_rules:
       - id: meta/intent::secret
       - id: cap/fs/proc/info::process-pid-mem
       - id: github-actions-targeting-shell
+    crit: notable
 
   - id: github-actions-secret-harvest
     desc: Harvests secrets from GitHub Actions

@@ -17,7 +17,7 @@ traits:
 
   - id: powershell-cmdlet-patterns-raw
     desc: "PowerShell cmdlet naming pattern (raw)"
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, python]
     if:

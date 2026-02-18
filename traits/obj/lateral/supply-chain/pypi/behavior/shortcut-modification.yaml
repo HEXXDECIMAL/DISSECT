@@ -15,7 +15,7 @@ composite_rules:
     conf: 0.95
     all:
       - id: obj/lateral/supply-chain/pypi/install-patterns::robust-setup-py
-      - id: obj/anti-static/obfuscation/code::com-dispatch-usage
+      - id: obj/anti-static/obfuscation/source::com-dispatch-usage
     any:
       - id: obj/persist/startup/registry::shortcut-arguments
       - id: obj/persist/startup/registry::shortcut-target-path

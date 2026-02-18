@@ -1,6 +1,6 @@
 traits:
   - id: actionscript-heavy-uint-padding
-    desc: "Class contains excessive uint fields, indicative of heap spraying or memory layout control"
+    desc: "Class contains excessive uint fields, indicative of"
     crit: suspicious
     # Removed for: to ensure it runs
 

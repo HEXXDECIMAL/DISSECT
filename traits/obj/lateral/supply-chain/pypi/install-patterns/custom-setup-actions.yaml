@@ -48,7 +48,7 @@ composite_rules:
     attack: "T1020"
     all:
       - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
-      - id: obj/execution/setup/hooks::setuptools-run-override
+      - id: obj/exec/setup/hooks::setuptools-run-override
       - id: setup-computername-access
       - id: cap/comm/http/request::request-python
 
@@ -63,7 +63,7 @@ composite_rules:
     attack: "T1105"
     all:
       - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
-      - id: obj/execution/setup/hooks::setuptools-run-override
+      - id: obj/exec/setup/hooks::setuptools-run-override
       - id: cap/comm/http/request::request-python
       - id: cap/fs/file/open::generic
       - id: cap/process/create/shell::shell-execution-indicators
@@ -77,5 +77,5 @@ composite_rules:
     conf: 0.85
     all:
       - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
-      - id: obj/execution/setup/hooks::setuptools-run-override
+      - id: obj/exec/setup/hooks::setuptools-run-override
       - id: cap/comm/http/request::request-python

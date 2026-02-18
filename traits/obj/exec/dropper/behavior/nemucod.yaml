@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     for: [javascript]
     all:
-      - id: cap/code/obfuscation/js::js-decimal-xor-loop
+      - id: cap/data/source/obfuscation/js::js-decimal-xor-loop
       - id: cap/host/interpreter/jscript::activex-object
     any:
       - id: cap/data/encode/string::decimal-string-blob

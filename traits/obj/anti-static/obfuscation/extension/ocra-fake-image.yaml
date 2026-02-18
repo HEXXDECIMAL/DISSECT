@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: basename-is-image
     desc: Filename has image extension
-    crit: inert
+    crit: notable
     if:
       type: basename
       regex: \.(png|jpg|jpeg|gif|bmp|ico|svg|tif|tiff)$

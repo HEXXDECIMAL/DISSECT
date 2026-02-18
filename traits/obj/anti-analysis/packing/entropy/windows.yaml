@@ -17,6 +17,6 @@ traits:
       regex: '(?i)^(\.|__)(text|code)'
       entropy_min: 7.8
     unless:
-      - id: obj/execution/reflection/invoke::namespace-import
+      - id: obj/exec/reflection/invoke::namespace-import
       - id: meta/format/pe/dotnet::dotnet-assembly
       - id: file/archive/self-extracting # SFX stubs may have compressed code

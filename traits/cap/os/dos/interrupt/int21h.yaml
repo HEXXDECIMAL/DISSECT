@@ -47,7 +47,7 @@ traits:
       substr: '_AH = 0x4f'
 
   - id: get-set-file-time
-    desc: Get or Set file date/time (INT 21H, AH=57H)
+    desc: Get or Set file date/time (INT 21H,
     if:
       type: raw
       substr: '_AH = 0x57'

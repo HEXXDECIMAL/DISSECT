@@ -1,5 +1,5 @@
 traits:
-# wmi-connection: use obj/execution/interpreter/scripting/host::winmgmts-string (canonical)
+# wmi-connection: use obj/exec/interpreter/scripting/host::winmgmts-string (canonical)
 - id: win32-process-query
   desc: Win32_Process WMI class
   crit: notable
@@ -77,7 +77,7 @@ composite_rules:
   mbc: E1043
   needs: 2
   any:
-  - id: obj/execution/interpreter/scripting/host::winmgmts-string
+  - id: obj/exec/interpreter/scripting/host::winmgmts-string
   - id: win32-process-query
   - id: process-startup-config
   - id: process-create-call

@@ -62,7 +62,7 @@ traits:
   # === Command Line Ruby ===
   - id: cli-ruby-exec
     desc: Command line Ruby execution
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: raw

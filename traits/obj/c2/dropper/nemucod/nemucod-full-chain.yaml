@@ -9,7 +9,7 @@ composite_rules:
     all:
       - id: cap/host/interpreter/jscript::is-jscript
       - id: obj/anti-analysis/timing/nemucod::nemucod-jitter-check
-      - id: obj/execution/dropper/obfuscated-script::nemucod-function-obfuscation
+      - id: obj/exec/dropper/obfuscated-script::nemucod-dropper
       - id: obj/c2/dropper/nemucod::fragmented-url-dropper
-      - id: cap/code/obfuscation/js::js-string-literal-charat-access
-      - id: cap/code/obfuscation/js::ast-bracket-charat-access
+      - id: cap/data/source/obfuscation/js::js-string-literal-charat-access
+      - id: cap/data/source/obfuscation/js::ast-bracket-charat-access

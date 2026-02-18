@@ -296,7 +296,7 @@ traits:
     if:
       type: ast
       node: declaration
-      regex: "^__[a-z]+(?:_[a-z0-9]+)+"
+      regex: "^__[a-z]{1,40}(?:_[a-z0-9]{1,40}){1,8}"
     not:
       - regex: "^__declspec\\b"
 

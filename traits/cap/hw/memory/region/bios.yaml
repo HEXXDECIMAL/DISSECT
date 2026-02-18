@@ -4,4 +4,4 @@ traits:
     crit: suspicious
     if:
       type: raw
-      regex: 'mov\s+si,413[^\n]*\n\s*dec\s+word\s+ptr\s+\[si\]'
+      regex: 'mov\s+si,413[^\n]{0,120}\n\s*dec\s+word\s+ptr\s+\[si\]'

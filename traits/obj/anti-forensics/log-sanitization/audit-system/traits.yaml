@@ -57,6 +57,7 @@ composite_rules:
       - { id: audit-log-start }
       - { id: netlink-unicast }
       - { id: netlink-audit-constant }
+    crit: notable
 
   - id: audit-fields
     desc: Audit log field patterns
@@ -64,6 +65,7 @@ composite_rules:
     any:
       - { id: pid-equals }
       - { id: ino-equals }
+    crit: notable
 
   - id: audit-blinding
     desc: Intercepts and drops Linux Auditing

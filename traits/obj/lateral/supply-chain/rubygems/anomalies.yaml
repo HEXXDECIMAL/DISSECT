@@ -6,7 +6,7 @@ composite_rules:
     all:
       - id: obj/lateral/supply-chain/rubygems::extconf-file
     none:
-      - id: obj/execution/interpreter/script/extconf::calls-create-makefile
+      - id: obj/exec/interpreter/script/extconf::calls-create-makefile
 
   - id: extconf-file-manipulation
     desc: extconf.rb performs file manipulation (suspicious in build scripts)
@@ -15,7 +15,7 @@ composite_rules:
     all:
       - id: obj/lateral/supply-chain/rubygems::extconf-file
     any:
-      - id: obj/execution/dropper/script::ruby-ast-file-rename
+      - id: obj/exec/dropper/script::ruby-ast-file-rename
       - id: cap/fs/write/file::ruby-file-delete
       - id: cap/fs/file/rename::ruby-rename
 
@@ -34,4 +34,4 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: "ext/[^/]+/[^/]+/[^/]+/"
+      regex: "ext/[^/]{1,120}/[^/]{1,120}/[^/]{1,120}/"

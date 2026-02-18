@@ -61,7 +61,7 @@ traits:
 
   - id: js-assign-common-root
     desc: Common global object assignment (root, self, global)
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:

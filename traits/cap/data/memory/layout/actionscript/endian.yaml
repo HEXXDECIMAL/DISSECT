@@ -1,6 +1,6 @@
 traits:
   - id: actionscript-endian-manipulation
-    desc: ActionScript ByteArray endian manipulation (often used in binary parsing or exploits)
+    desc: ActionScript ByteArray endian manipulation (often used in
     crit: notable
     conf: 0.8
     if:

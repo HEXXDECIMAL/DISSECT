@@ -5,4 +5,4 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: 'socket\s*\([^,]+,\s*(SOCK_RAW|3)\s*,\s*[^)]+\)'
+      regex: 'socket\s*\([^,]{1,120},\s*(SOCK_RAW|3)\s*,\s*[^)]{1,120}\)'

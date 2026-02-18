@@ -258,8 +258,8 @@ composite_rules:
     conf: 0.7
     for: [python]
     any:
-      - id: obj/execution/tty/pty::pty-spawn
-      - id: obj/execution/tty/pty::import-pty
+      - id: obj/exec/tty/pty::pty-spawn
+      - id: obj/exec/tty/pty::import-pty
 
   # Shell path composite
   - id: py-shell-path
@@ -304,7 +304,7 @@ composite_rules:
     all:
       - id: cap/comm/socket/connect::socket-socket-call
       - id: socket-connect
-      - id: obj/execution/fileless/memory::subprocess-mod
+      - id: obj/exec/fileless/memory::subprocess-mod
       - id: python-pipe
 
   # Node.js PTY composite

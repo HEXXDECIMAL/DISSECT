@@ -1,8 +1,8 @@
 traits:
   - id: ip-hdrincl-option
-    desc: "Detects setting IP_HDRINCL socket option (IP header inclusion)"
+    desc: "Detects setting IP_HDRINCL socket option (IP header"
     crit: suspicious
     conf: 0.9
     if:
       type: raw
-      regex: 'setsockopt\s*\([^,]+,\s*[^,]+,\s*IP_HDRINCL\s*,\s*[^)]+\)'
+      regex: 'setsockopt\s*\([^,]{1,120},\s*[^,]{1,120},\s*IP_HDRINCL\s*,\s*[^)]{1,120}\)'

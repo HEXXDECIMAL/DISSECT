@@ -13,8 +13,7 @@ traits:
     attack: "T1204.002"
     if:
       type: raw
-      regex: 'open\s+[^|&
-]*\.(pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|txt)'
+      regex: 'open\s+[^|& ]{0,220}\.(pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|txt)'
 
 composite_rules:
   - id: download-and-open-decoy
@@ -23,5 +22,5 @@ composite_rules:
     conf: 0.9
     attack: "T1036"
     all:
-      - id: obj/execution/dropper/script::curl-download-file
+      - id: obj/exec/dropper/script::curl-download-file
       - id: open-decoy-doc-macos

@@ -1,6 +1,6 @@
 traits:
   - id: js-fragmented-url-construction
-    desc: URL construction from many small fragments (likely Nemucod)
+    desc: URL construction from many small fragments (likely
     crit: suspicious
     conf: 0.95
     mbc: "B0032"

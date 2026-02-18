@@ -6,7 +6,7 @@ traits:
     for: [groovy]
     if:
       type: raw
-      regex: "commandLine\\s*.*\\bcalc(\\.exe)?\\b"
+      regex: "commandLine\\s*.{0,220}\\bcalc(\\.exe)?\\b"
 
   - id: gradle-exec-powershell-encoded
     desc: Gradle executes encoded PowerShell
@@ -15,4 +15,4 @@ traits:
     for: [groovy]
     if:
       type: raw
-      regex: "powershell.*-e(ncodedCommand)?\\s+[A-Za-z0-9+/=]{20,}"
+      regex: "powershell.{0,220}-e(ncodedCommand)?\\s+[A-Za-z0-9+/=]{20,}"

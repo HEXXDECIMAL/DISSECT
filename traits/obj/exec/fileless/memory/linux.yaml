@@ -8,7 +8,7 @@ traits:
   # === memfd_create indicators (atomic) ===
   - id: memfd-create-fn
     desc: memfd_create function call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python, c, shell]
     if:
@@ -17,7 +17,7 @@ traits:
 
   - id: sys-memfd-create
     desc: SYS_memfd_create constant
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [python, c, shell]
     if:
@@ -26,7 +26,7 @@ traits:
 
   - id: syscall-319
     desc: memfd_create syscall number 319
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c, shell]
     if:
@@ -35,7 +35,7 @@ traits:
 
   - id: mfd-cloexec
     desc: MFD_CLOEXEC flag
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     if:
@@ -44,7 +44,7 @@ traits:
 
   - id: libc-syscall
     desc: libc.syscall call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     if:
@@ -53,7 +53,7 @@ traits:
 
   - id: syscall-paren
     desc: syscall( invocation
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c, shell]
     if:
@@ -63,7 +63,7 @@ traits:
   # === proc/self/fd indicators (atomic) ===
   - id: proc-self-fd
     desc: /proc/self/fd path
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell, elf]
     if:
@@ -72,7 +72,7 @@ traits:
 
   - id: proc-self-fd-slash
     desc: /proc/self/fd/ path
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     if:
@@ -82,7 +82,7 @@ traits:
   # === exec indicators (atomic) ===
   - id: execv-fn
     desc: execv function call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c, shell]
     if:
@@ -91,7 +91,7 @@ traits:
 
   - id: execve-fn
     desc: execve function call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c, shell]
     if:
@@ -100,7 +100,7 @@ traits:
 
   - id: execl-fn
     desc: execl function call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c, shell]
     if:
@@ -109,7 +109,7 @@ traits:
 
   - id: os-exec
     desc: os.exec Python call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python]
     if:
@@ -118,7 +118,7 @@ traits:
 
   - id: subprocess-mod
     desc: subprocess module
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python]
     if:
@@ -128,7 +128,7 @@ traits:
   # === ctypes indicators (atomic) ===
   - id: ctypes-mod
     desc: ctypes module
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -137,7 +137,7 @@ traits:
 
   - id: ctypes-cdll
     desc: CDLL ctypes class
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python]
     if:
@@ -146,7 +146,7 @@ traits:
 
   - id: libc-so
     desc: libc.so reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c]
     if:
@@ -155,7 +155,7 @@ traits:
 
   - id: dot-syscall
     desc: .syscall( call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python]
     if:
@@ -165,7 +165,7 @@ traits:
   # === download indicators (atomic) ===
   - id: requests-get
     desc: requests.get HTTP call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -174,7 +174,7 @@ traits:
 
   - id: urllib-mod
     desc: urllib module
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python]
     if:
@@ -183,7 +183,7 @@ traits:
 
   - id: http-client
     desc: http.client module
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python]
     if:
@@ -192,7 +192,7 @@ traits:
 
   - id: dot-content
     desc: .content response attribute
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python]
     if:
@@ -202,7 +202,7 @@ traits:
   # === write indicators (atomic) ===
   - id: os-write
     desc: os.write function
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -211,7 +211,7 @@ traits:
 
   - id: write-fd
     desc: write(fd call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python, c]
     if:
@@ -220,7 +220,7 @@ traits:
 
   - id: os-lseek
     desc: os.lseek function
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [python]
     if:
@@ -229,7 +229,7 @@ traits:
 
   - id: seek-set
     desc: SEEK_SET constant
-    crit: inert
+    crit: notable
     conf: 0.3
     for: [python, c]
     if:
@@ -239,7 +239,7 @@ traits:
   # === shared memory indicators (atomic) ===
   - id: shm-open
     desc: shm_open function
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     if:
@@ -250,7 +250,7 @@ traits:
 
   - id: dev-shm
     desc: /dev/shm path
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     if:
@@ -261,7 +261,7 @@ composite_rules:
   # Exec function composite
   - id: exec-function
     desc: Execution function calls
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     any:
@@ -307,7 +307,7 @@ composite_rules:
   # proc/self/fd path
   - id: proc-fd-path
     desc: References /proc/self/fd path
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [python, c, shell]
     any:

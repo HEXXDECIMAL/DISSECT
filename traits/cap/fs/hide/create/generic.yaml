@@ -15,4 +15,4 @@ traits:
     attack: "T1564.001"
     if:
       type: raw
-      regex: "curl\\s+-o\\s+\\.[^\\s/]+"
+      regex: "curl\\s+-o\\s+\\.[^\\s/]{1,120}"

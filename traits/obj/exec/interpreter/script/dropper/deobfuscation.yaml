@@ -8,11 +8,11 @@ composite_rules:
     conf: 0.9
     for: [javascript, typescript]
     all:
-      - id: cap/code/obfuscation/string::self-modifying-string-replace
-      - id: cap/code/obfuscation/string::custom-delimiter-obfuscation
+      - id: cap/data/source/obfuscation/string::self-modifying-string-replace
+      - id: cap/data/source/obfuscation/string::custom-delimiter-obfuscation
     any:
-      - id: cap/code/obfuscation/string::base64-function-keyword
-      - id: obj/execution/interpreter/script/embedded::powershell-cmdlet-patterns
+      - id: cap/data/source/obfuscation/string::base64-function-keyword
+      - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: obfuscation-with-duplicate-names
     desc: "Code inflation with duplicate function names"
@@ -20,11 +20,11 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     all:
-      - id: cap/code/obfuscation/names::duplicate-function-names
+      - id: cap/data/source/obfuscation/names::duplicate-function-names
     any:
-      - id: cap/code/obfuscation/string::char-expansion-obfuscation
-      - id: cap/code/obfuscation/string::cyrillic-junk-padding
-      - id: cap/code/obfuscation/string::custom-delimiter-obfuscation
+      - id: cap/data/source/obfuscation/string::char-expansion-obfuscation
+      - id: cap/data/source/obfuscation/string::cyrillic-junk-padding
+      - id: cap/data/source/obfuscation/string::custom-delimiter-obfuscation
 
   - id: embedded-code-with-deobfuscation
     desc: "High embedded code with runtime deobfuscation"
@@ -32,8 +32,8 @@ composite_rules:
     conf: 0.85
     for: [javascript, typescript, powershell]
     all:
-      - id: cap/code/obfuscation/metrics::high-embedded-code-ratio
+      - id: cap/data/source/obfuscation/metrics::high-embedded-code-ratio
     any:
-      - id: cap/code/obfuscation/string::self-modifying-string-replace
-      - id: cap/code/obfuscation/string::chained-replace-calls
-      - id: cap/code/obfuscation/string::powershell-replace-operator
+      - id: cap/data/source/obfuscation/string::self-modifying-string-replace
+      - id: cap/data/source/obfuscation/string::chained-replace-calls
+      - id: cap/data/source/obfuscation/string::powershell-replace-operator

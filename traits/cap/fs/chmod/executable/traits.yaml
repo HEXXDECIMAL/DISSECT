@@ -14,7 +14,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: 'chmod\s+(\-[a-zA-Z]+\s+)*\+x\s+[/\.\$\w\{]'
+      regex: 'chmod\s+(?:\-[a-zA-Z]{1,8}\s+){0,3}\+x\s+[/\.\$\w\{]'
 
   # chmod +x in non-shell context (more suspicious)
   - id: shell-plus-x-embedded
@@ -24,7 +24,7 @@ traits:
     for: [python, javascript, ruby, go, rust, c, cpp, pe, elf, macho]
     if:
       type: string
-      regex: 'chmod\s+(\-[a-zA-Z]+\s+)*\+x\s+[/\.\$\w\{]'
+      regex: 'chmod\s+(?:\-[a-zA-Z]{1,8}\s+){0,3}\+x\s+[/\.\$\w\{]'
 
   # Python os.chmod with executable bit (0o7xx pattern)
   - id: python-executable
@@ -42,7 +42,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: 'chmod\([^)]*0o?755\)'
+      regex: 'chmod\(.{0,220}0o?755\)'
 
   # Ruby chmod with executable modes
   - id: ruby-executable
@@ -51,7 +51,7 @@ traits:
     for: [ruby]
     if:
       type: string
-      regex: 'chmod\([^)]*0[ox]?7[0-7][0-7]\)'
+      regex: 'chmod\(.{0,220}0[ox]?7[0-7][0-7]\)'
 
   # Shell chmod with 7xx modes
   - id: shell-7xx

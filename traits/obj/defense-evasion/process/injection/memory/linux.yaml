@@ -43,7 +43,7 @@ traits:
   # === Go ptrace injection ===
   - id: syscall-ptrace-attach
     desc: Go syscall.PtraceAttach
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [elf, go]
     if:
@@ -52,7 +52,7 @@ traits:
 
   - id: syscall-ptrace-cont
     desc: Go syscall.PtraceCont
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [elf, go]
     if:
@@ -61,7 +61,7 @@ traits:
 
   - id: proc-mem-glob
     desc: /proc/*/mem path for process memory injection
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [elf, go]
     if:

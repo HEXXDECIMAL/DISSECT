@@ -125,7 +125,7 @@ traits:
     if:
       type: kv
       path: "name"
-      regex: "^[a-z][a-z0-9]*(-[a-z][a-z0-9]*)+$"
+      regex: "^[a-z][a-z0-9]{0,60}(?:-[a-z][a-z0-9]{0,60}){1,8}$"
 
   # Package version suggests maturity (>= 0.2.0 or >= 1.0.0)
   # Mature packages should have complete metadata (bugs, homepage)
@@ -290,7 +290,7 @@ composite_rules:
   # Many legitimate small packages also match, so crit is notable not suspicious.
   - id: cloned-package-identity
     desc: Package with shorthand repo but missing bugs/homepage (possible copy)
-    crit: inert
+    crit: notable
     conf: 0.75
     attack: "T1195.002"
     all:
@@ -311,7 +311,7 @@ composite_rules:
   # Complexity: all(+3) + none(+0.6+2) = 5.6 (meets suspicious threshold)
   - id: mature-cloned-package
     desc: Mature version package with incomplete copied metadata
-    crit: inert
+    crit: notable
     conf: 0.85
     attack: "T1195.002"
     mbc: "F0004"

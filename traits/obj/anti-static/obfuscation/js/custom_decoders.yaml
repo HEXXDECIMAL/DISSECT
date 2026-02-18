@@ -27,7 +27,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'this\.split\("[^"]+"\)\.join\(""\)'
+      regex: 'this\.split\("[^"]{1,120}"\)\.join\(""\)'
 
   - id: js-base64-custom-loop
     desc: Custom Base64 decoding loop with bitwise operations

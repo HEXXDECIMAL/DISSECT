@@ -349,7 +349,7 @@ traits:
       type: raw
       substr: ".Save()"
 
-  # NOTE: Generic executable indicators moved to obj/execution/interpreter/script/indicators/windows.yaml
+  # NOTE: Generic executable indicators moved to obj/exec/interpreter/script/indicators/windows.yaml
   # and cap/data/text/keywords/ to avoid misleading categorization as registry persistence
 
 composite_rules:
@@ -494,7 +494,7 @@ composite_rules:
       - id: wmi-commandlineconsumer
       - id: wmi-activescriptconsumer
 
-  # NOTE: windows-executable-payload composite moved to obj/execution/interpreter/script/indicators/windows.yaml
+  # NOTE: windows-executable-payload composite moved to obj/exec/interpreter/script/indicators/windows.yaml
   # as windows-executable-ref to reflect its nature as a capability, not persistence mechanism
 
   # Python registry persistence pattern

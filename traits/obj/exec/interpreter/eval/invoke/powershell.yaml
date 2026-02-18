@@ -56,7 +56,7 @@ traits:
   # Call operator (&)
   - id: call-operator
     desc: PowerShell call operator
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [powershell]
     if:

@@ -146,27 +146,42 @@ traits:
 composite_rules:
 - id: deleted-process-detection
   desc: Detection of deleted process searches
+  crit: notable
   any:
   - id: proc-exe-deleted-search
+    crit: notable
   - id: grep-deleted-process
+    crit: notable
 - id: deleted-process-termination
   desc: Termination of deleted processes
+  crit: notable
   any:
   - id: kill-9-deleted-processes
+    crit: notable
   - id: pkill-deleted-pattern
+    crit: notable
 - id: shell-config-evidence-removal
   desc: Evidence removal from shell configuration files
+  crit: notable
   any:
   - id: sed-bashrc-cleanup
+    crit: notable
   - id: sed-bash-profile-cleanup
+    crit: notable
   - id: sed-profile-cleanup
+    crit: notable
   - id: sed-zshrc-cleanup
+    crit: notable
 - id: deleted-pattern-removal-methods
   desc: Methods for removing deleted process references
+  crit: notable
   any:
   - id: sed-deleted-pattern-removal
+    crit: notable
   - id: sed-deleted-regex-pattern
+    crit: notable
   - id: sed-generic-deleted-removal
+    crit: notable
 - id: comprehensive-deleted-cleanup
   desc: Complete workflow for deleted process evidence removal
   crit: suspicious
@@ -178,7 +193,9 @@ composite_rules:
   mbc: B0005
   all:
   - id: deleted-process-detection
+    crit: notable
   - id: deleted-process-termination
+    crit: notable
 - id: targeted-shell-cleanup
   desc: Targeted removal from specific shell files
   crit: suspicious
@@ -189,9 +206,12 @@ composite_rules:
   attack: T1070.004
   all:
   - id: home-directory-iteration
+    crit: notable
   - id: shell-config-evidence-removal
     needs: 2
+    crit: notable
   - id: deleted-pattern-removal-methods
+    crit: notable
 - id: aggressive-evidence-removal
   desc: Aggressive multi-method evidence removal pattern
   crit: hostile
@@ -203,4 +223,6 @@ composite_rules:
   mbc: B0005
   all:
   - id: comprehensive-deleted-cleanup
+    crit: notable
   - id: targeted-shell-cleanup
+    crit: notable

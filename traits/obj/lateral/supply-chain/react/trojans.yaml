@@ -16,7 +16,7 @@ composite_rules:
     all:
       - {id: meta/library/react::library}
       - {id: meta/library/react::version-banner}
-      - {id: obj/execution/activex/com::activex-object-create}
+      - {id: obj/exec/activex/com::activex-object-create}
   # React + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell
     desc: "React library with reverse shell"

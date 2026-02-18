@@ -9,7 +9,7 @@ traits:
   # === Module Lookup ===
   - id: get-module-handle-by-name
     desc: Get module handle Unicode
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
@@ -17,7 +17,7 @@ traits:
 
   - id: get-module-handle-ansi
     desc: Get module handle ANSI
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
@@ -25,7 +25,7 @@ traits:
 
   - id: get-module-filename
     desc: Get module file path
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
@@ -33,18 +33,18 @@ traits:
 
   - id: get-module-filename-ansi
     desc: Get module file path (ANSI)
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
       exact: "GetModuleFileNameA"
 
   # === Dynamic Loading ===
-  # NOTE: LoadLibraryW and LoadLibraryExW moved to obj/execution/native/runtime
+  # NOTE: LoadLibraryW and LoadLibraryExW moved to obj/exec/native/runtime
 
   - id: free-library
     desc: Unload dynamic library
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
@@ -53,7 +53,7 @@ traits:
   # === Process Information ===
   - id: get-current-process
     desc: Get current process handle
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol
@@ -61,7 +61,7 @@ traits:
 
   - id: get-current-process-id
     desc: Get current process ID
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: symbol

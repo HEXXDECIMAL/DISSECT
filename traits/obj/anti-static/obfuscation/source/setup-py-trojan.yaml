@@ -1,0 +1,104 @@
+# Setup.py Trojan Detection
+# Detects malicious setup.py files that execute obfuscated code during package installation
+# Common pattern: legitimate setup() call followed by code execution with base64 decoding
+# ATT&CK: T1195.001 (Supply Chain Compromise), T1027 (Obfuscated Files)
+# MBC: E1014 (Data Encoding), B0024 (Dropper)
+
+defaults:
+  for: [python]
+  attack: "T1195.001"
+  mbc: "E1014"
+
+traits:
+  # === Setup.py Specific Patterns ===
+
+  - id: setup-call-after-code
+    desc: setup() call followed by other code
+    crit: notable
+    conf: 0.75
+    if:
+      type: raw
+      regex: "setup\\([^)]{0,120}\\)\\s*\\n.{20,500}(exec|eval|__import__|compile|import\\s+(os|sys|tempfile|base64))"
+
+  # === Platform-Conditional Execution ===
+
+  - id: platform-name-check
+    desc: Platform detection via os.name
+    crit: notable
+    conf: 0.70
+    if:
+      type: raw
+      regex: "from\\s+os\\s+import\\s+name|import\\s+os.{0,50}\\bos\\.name"
+
+  - id: conditional-exec-check
+    desc: Conditional execution check (argv, environ)
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: raw
+      regex: "(?:['\\\"]sdist['\\\"].{0,40}in.{0,10}(sys\\.)?argv|(?:sys\\.)?argv.{0,40}['\\\"]sdist['\\\"]|os\\.name\\s*==\\s*['\\\"]nt['\\\"]|name\\s*==\\s*['\\\"]nt['\\\"]).{0,50}(?:exec\\s*\\(|eval\\s*\\(|compile\\s*\\(|__import__\\s*\\(|os\\.system\\s*\\(|subprocess\\.(?:Popen|call|run|check_output)\\s*\\()"
+
+  # === Base64 Payload Execution ===
+
+  - id: b64decode-exec-pattern
+    desc: Base64 decode with exec execution
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: raw
+      regex: "exec\\s*\\(\\s*b64decode\\s*\\(|exec\\(\\s*\\w*.{0,20}decode\\("
+
+  - id: large-b64-string-binary
+    desc: Large base64 string with binary MZ header
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: raw
+      regex: "\\bCmltcG9ydCBvcw|CmltcG9ydCBzeXM|CmltcG9ydCB0ZW1wZmlsZQ"
+
+  - id: tempfile-write-exec
+    desc: Write to tempfile then execute
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: raw
+      regex: "t\\.gettempdir|tempfile\\.(NamedTemporaryFile|mkstemp).{0,50}open.{0,50}write.{0,50}exec|open\\s*\\(.{0,20}w.{0,20}\\).{0,50}write.{0,50}path.{0,20}exe"
+
+  # === Post-Setup Execution Pattern ===
+
+  - id: post-setup-execution
+    desc: Code execution after setup() call
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: raw
+      regex: "setup\\s*\\([^\\)]{0,120}\\)\\s*(?:#.{0,80})?\\s*\\n.{0,250}(?:from|import)\\s+(?:os|sys|base64|subprocess).{0,250}(?:exec\\s*\\(|eval\\s*\\(|compile\\s*\\(|__import__\\s*\\(|os\\.system\\s*\\(|subprocess\\.(?:Popen|call|run|check_output)\\s*\\()"
+
+  # === Comment Obfuscation ===
+
+  - id: you-got-me-comment
+    desc: You got me comment (obfuscation marker)
+    crit: notable
+    conf: 0.75
+    if:
+      type: string
+      regex: "You\\s+got\\s+me|gotcha"
+      case_insensitive: true
+
+composite_rules:
+  # === Setup.py Post-Install Trojan ===
+  # Detects the pattern: legitimate setup() call followed by conditional,
+  # obfuscated code execution (base64 decode + exec) targeting specific platforms.
+  # This is a classic PyPI supply-chain trojan pattern used in simple droppers.
+  # Complexity: all(+3) = 3 (suspicious)
+  - id: setup-py-post-install-trojan
+    desc: Setup.py with post-install code execution
+    crit: suspicious
+    conf: 0.92
+    attack: "T1195.001"
+    mbc: "E1014"
+    for: [python]
+    all:
+      - id: b64decode-exec-pattern
+      - id: platform-name-check
+      - id: conditional-exec-check

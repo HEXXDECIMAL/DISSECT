@@ -61,6 +61,7 @@ traits:
 composite_rules:
     - id: ddos-technique
       desc: DDoS technique indicators
+      crit: notable
       any:
         - id: cap/comm/socket/raw::raw-socket-creation-regex
         - id: syn-flood
@@ -69,6 +70,7 @@ composite_rules:
   
     - id: ddos-offensive-markers
       desc: Offensive markers for DDoS
+      crit: notable
       any:
         - id: cap/data/text/malware::cyber-warfare-marker
         - id: cap/data/text/malware/ddos::sending-packets-marker

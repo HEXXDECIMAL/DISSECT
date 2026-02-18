@@ -1,6 +1,6 @@
 traits:
   - id: hex-xor-loop-stub
-    desc: "Detects hex-encoded x64 shellcode stub (xor rcx, rcx; sub rcx, ...)"
+    desc: "Detects hex-encoded x64 shellcode stub (xor rcx,"
     crit: suspicious
     conf: 0.9
     mbc: C0043

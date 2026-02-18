@@ -2,7 +2,7 @@
 # Useful for context in composite rules
 
 defaults:
-  crit: inert
+  crit: notable
   conf: 1.0
 
 traits:

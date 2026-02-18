@@ -102,7 +102,7 @@ traits:
     conf: 0.95
     if:
       type: raw
-      regex: 'preg_replace\s*\(\s*["\x27][^"\x27]*/e[^"\x27]*["\x27]'
+      regex: 'preg_replace\s*\(\s*["\x27][^"\x27]{0,120}/e[^"\x27]{0,120}["\x27]'
 
 composite_rules:
   # Multi-layer PHP obfuscation

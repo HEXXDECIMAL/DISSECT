@@ -62,6 +62,7 @@ composite_rules:
     any:
       - id: flood-types
       - id: attack-metrics
+    crit: notable
 
   # Helper: Bot mechanics
   - id: ddos-mechanics
@@ -69,6 +70,7 @@ composite_rules:
     any:
       - id: cap/process/create/workers/
       - id: attack-telemetry
+    crit: notable
 
   # Helper: HTTP Methods
   - id: http-methods
@@ -77,6 +79,7 @@ composite_rules:
       - id: cap/comm/http/post
       - id: cap/comm/http/request::request
       - id: cap/comm/http/request::request-python
+    crit: notable
 
   # High-confidence DDoS capability
   - id: ddos-capability

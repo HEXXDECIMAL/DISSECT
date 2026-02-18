@@ -8,7 +8,7 @@ traits:
       type: string
       # Detects a pattern indicating usage of SaveToFile method of ADODB.Stream object
       # or highly fragmented versions often used in Nemucod
-      regex: 'ADODB\.Stream|SaveToFile|S\\x61veFile|ToF\\x69le'
+      regex: 'ADODB\.Stream|S\\x61veFile|ToF\\x69le'
 
   - id: adodb-fragment-adod
     desc: Obfuscated ADODB fragment "ADOD"
@@ -58,6 +58,6 @@ composite_rules:
       - id: savetofile-fragment-save
       - id: savetofile-fragment-tofil
     any:
-      - id: cap/code/obfuscation/js::js-string-literal-charat-access
-      - id: cap/code/obfuscation/js::js-dynamic-property-function-concat-raw
-      - id: cap/code/obfuscation/js::js-dynamic-property-function-concat-ast
+      - id: cap/data/source/obfuscation/js::js-string-literal-charat-access
+      - id: cap/data/source/obfuscation/js::js-dynamic-property-function-concat-raw
+      - id: cap/data/source/obfuscation/js::js-dynamic-property-function-concat-ast

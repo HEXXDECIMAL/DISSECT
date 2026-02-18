@@ -27,7 +27,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "require\\(['\"][^./][^'\"]+['\"]\\)|from\\s+['\"][^./][^'\"]+['\"]"
+      regex: "require\\(['\"][^./][^'\"]{1,120}['\"]\\)|from\\s+['\"][^./][^'\"]{1,120}['\"]"
 
   - id: has-default-export
     desc: Code has default export

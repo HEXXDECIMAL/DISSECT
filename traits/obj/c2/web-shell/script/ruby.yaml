@@ -28,7 +28,7 @@ traits:
       type: string
       regex: "shell_exec|passthru|popen\\("
     unless:
-      - id: obj/execution/gtfobins/ruby-shell-exec
+      - id: obj/exec/gtfobins/ruby-shell-exec
 
   # === Shell Prompt Pattern ===
   - id: shell-prompt-string

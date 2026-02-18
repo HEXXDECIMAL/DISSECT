@@ -63,7 +63,7 @@ traits:
     size_max: 5000
     if:
       type: raw
-      regex: 'curl\s+[^|&\n]*-s[^|&\n]*(https?://|ftp://)|curl\s+[^|&\n]*--silent[^|&\n]*(https?://|ftp://)'
+      regex: 'curl\s+[^|&\n]{0,120}-s[^|&\n]{0,120}(https?://|ftp://)|curl\s+[^|&\n]{0,120}--silent[^|&\n]{0,120}(https?://|ftp://)'
     not:
       - regex: "(?i)netbsd\\.org"
       - regex: "(?i)freebsd\\.org"
@@ -86,7 +86,7 @@ traits:
   # === Curl output atomic indicators ===
   - id: curl-output-dash-o
     desc: "Curl with -o flag"
-    crit: inert
+    crit: notable
     conf: 0.7
     mbc: "C0002"
     attack: "T1105"
@@ -140,7 +140,7 @@ traits:
     if:
       type: raw
       # Matches -o, -O, --output, and combined flags like -LO, -sLO
-      regex: 'curl\s+(?:[^|&\n]+\s+)?(-o\s+|--output\s+|-[a-zA-Z]*O)'
+      regex: 'curl\s+(?:[^|&\n]{1,120}\s+)?(-o\s+|--output\s+|-[a-zA-Z]*O)'
 
   - id: chmod-plus-x-cmd
     desc: "chmod +x command"

@@ -44,14 +44,14 @@ traits:
 
   - id: wscript-scriptfullname-utf16
     desc: WScript.ScriptFullName in UTF-16 script
-    crit: inert
+    crit: notable
     if:
       type: raw
       regex: "S\\x00c\\x00r\\x00i\\x00p\\x00t\\x00F\\x00u\\x00l\\x00l\\x00N\\x00a\\x00m\\x00e"
 
   - id: wscript-quit-utf16
     desc: WScript.Quit in UTF-16 script
-    crit: inert
+    crit: notable
     if:
       type: raw
       regex: "W\\x00S\\x00c\\x00r\\x00i\\x00p\\x00t\\x00\\.\\x00Q\\x00u\\x00i\\x00t"

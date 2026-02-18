@@ -9,4 +9,4 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: 'sum\([^)]*isalnum'
+      regex: 'sum\([^)]{0,120}isalnum'

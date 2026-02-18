@@ -42,7 +42,7 @@ traits:
   # Base64 decode
   - id: base64-d-raw
     desc: base64 -d decode
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -76,16 +76,6 @@ traits:
       substr: "/dev/shm/."
 
 composite_rules:
-  # Base64 decode composite (downgradable)
-  - id: base64-d
-    desc: base64 -d decode
-    crit: notable
-    conf: 0.6
-    any:
-      - id: base64-d-raw
-    unless:
-      - id: meta/purpose/test-tool::coreutils-copyright
-
   # Helper: Cron paths
   - id: cron-paths
     desc: Cron file paths
@@ -93,6 +83,7 @@ composite_rules:
       - id: obj/persist/cron/job::cron-d-path
       - id: obj/persist/cron/job::var-spool-cron-path
       - id: crontab-dash
+    crit: notable
 
 
   # Helper: Download cradles
@@ -102,13 +93,15 @@ composite_rules:
       - id: curl-silent
       - id: wget-quiet
       - id: wget-stdout
+    crit: notable
 
   # Helper: Base64 decoding
   - id: base64-decode
     desc: Base64 decode operations
     any:
-      - id: base64-d
+      - id: base64-d-raw
       - id: base64-decode-flag
+    crit: notable
 
   # Helper: Hidden paths
   - id: hidden-paths
@@ -117,6 +110,7 @@ composite_rules:
       - id: cap/fs/path/temp::tmp-hidden-file
       - id: var-tmp-hidden
       - id: dev-shm-hidden
+    crit: notable
 
   # Helper: Cron keywords
   - id: cron-keywords
@@ -124,6 +118,7 @@ composite_rules:
     any:
       - id: obj/persist/cron/job::crontab-command
       - id: obj/persist/cron/job::etc-cron-path
+    crit: notable
 
 
   # Helper: Download cradle with shell pipe
@@ -132,6 +127,7 @@ composite_rules:
     all:
       - id: download-cradles
       - id: cap/os/console/io::shell-pipes
+    crit: notable
 
   # Helper: Download cradle with suppression
   - id: cradle-with-suppression
@@ -139,6 +135,7 @@ composite_rules:
     all:
       - id: download-cradles
       - id: cap/os/console/io::output-suppression
+    crit: notable
 
   # Helper: Cron with base64
   - id: cron-with-base64
@@ -146,6 +143,7 @@ composite_rules:
     all:
       - id: cron-keywords
       - id: base64-decode
+    crit: notable
 
   # Helper: Cron with hidden paths
   - id: cron-with-hidden
@@ -153,6 +151,7 @@ composite_rules:
     all:
       - id: cron-keywords
       - id: hidden-paths
+    crit: notable
 
   # Cron download cradle
   - id: download-cradle

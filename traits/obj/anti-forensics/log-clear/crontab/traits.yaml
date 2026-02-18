@@ -101,25 +101,37 @@ traits:
 composite_rules:
 - id: cron-location-targeting
   desc: Targeting multiple cron file locations
+  crit: notable
   for:
   - elf
   - shell
   any:
   - id: var-spool-cron-target
+    crit: notable
   - id: etc-crontab-target
+    crit: notable
   - id: etc-cron-d-target
+    crit: notable
 - id: cron-removal-methods
   desc: Methods for removing cron evidence
+  crit: notable
   any:
   - id: sed-cron-removal
+    crit: notable
   - id: sed-deleted-pattern-cron
+    crit: notable
   - id: rm-cron-files
+    crit: notable
 - id: cron-loop-removal
   desc: Looping removal of cron files
+  crit: notable
   all:
   - id: cron-loop-iteration
+    crit: notable
   - id: cron-file-test
+    crit: notable
   - id: cron-removal-methods
+    crit: notable
 - id: cron-file-cleanup
   desc: Complete crontab file cleanup
   crit: suspicious
@@ -130,8 +142,10 @@ composite_rules:
   attack: T1070.004
   all:
   - id: cron-loop-removal
+    crit: notable
   - id: cron-location-targeting
     needs: 2
+    crit: notable
 - id: spool-cron-bulk-wipeout
   desc: Complete /var/spool/cron wipeout
   crit: suspicious
@@ -143,8 +157,11 @@ composite_rules:
   mbc: B0005
   all:
   - id: rm-cron-files
+    crit: notable
   - id: var-spool-cron-target
+    crit: notable
   - id: sed-deleted-pattern-cron
+    crit: notable
 - id: comprehensive-cron-evidence-removal
   desc: Comprehensive crontab evidence removal campaign
   crit: hostile
@@ -156,7 +173,9 @@ composite_rules:
   mbc: B0005
   all:
   - id: cron-file-cleanup
+    crit: notable
   - id: spool-cron-bulk-wipeout
+    crit: notable
 - id: kinsing-cron-cleanup
   desc: Kinsing cron job evidence removal
   crit: suspicious
@@ -167,4 +186,6 @@ composite_rules:
   attack: T1070.004
   all:
   - id: known/malware/miner/kinsing-enhanced::kinsing-identifier
+    crit: notable
   - id: comprehensive-cron-evidence-removal
+    crit: notable

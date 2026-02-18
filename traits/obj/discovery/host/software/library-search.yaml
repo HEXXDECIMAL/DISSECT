@@ -43,7 +43,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: 'strstr\s*\(\s*[^,]+d_name\s*,\s*"(?:x86_64|arm|i386|aarch64|linux)"\s*\)'
+      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:x86_64|arm|i386|aarch64|linux)"\s*\)'
 
   # === Library Resolver Function Patterns ===
   # Function naming patterns that suggest library resolution code

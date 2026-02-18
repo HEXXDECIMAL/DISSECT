@@ -206,6 +206,7 @@ composite_rules:
       - id: keplr
       - id: rabby
       - id: brave
+    crit: notable
 
   - id: desktop-wallets
     desc: Desktop wallet path references
@@ -213,6 +214,7 @@ composite_rules:
       - id: coinomi
       - id: atomic
       - id: electrum
+    crit: notable
 
   # Migrated from YARA - Detects multiple wallet extension IDs (strong indicator of wallet stealer)
   - id: multi-wallet-targeting

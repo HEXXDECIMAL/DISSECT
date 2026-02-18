@@ -12,4 +12,4 @@ composite_rules:
     needs: 2
     any:
       - id: obj/c2/reverse-shell
-      - id: obj/execution/gtfobins/scripts::cli-ruby-exec
+      - id: obj/exec/gtfobins/scripts::cli-ruby-exec

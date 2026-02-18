@@ -59,7 +59,7 @@ traits:
     if:
       type: raw
       # Matches: creationflags=FLAG1 | FLAG2
-      regex: "creationflags\\s*=\\s*[^,)]+\\|"
+      regex: "creationflags\\s*=\\s*[^,)]{1,120}\\|"
 
 composite_rules:
   # subprocess call composite

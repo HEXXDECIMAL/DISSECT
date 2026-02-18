@@ -35,7 +35,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: 'chmod\([^)]*0?o?777\)'
+      regex: 'chmod\([^)]{0,120}0?o?777\)'
 
   # Ruby chmod(0777) variants
   - id: ruby-0777-parens

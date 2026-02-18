@@ -139,7 +139,7 @@ traits:
     if:
       type: string
       # Pattern: Version.php, version.php, check.php etc
-      regex: "https?://[^/]+/[Vv]ersion\\.php|https?://[^/]+/[Cc]heck\\.php"
+      regex: "https?://[^/]{1,120}/[Vv]ersion\\.php|https?://[^/]{1,120}/[Cc]heck\\.php"
 
   # === Deferred Execution via atexit ===
   # atexit.register() schedules a callback to run after install completes.
@@ -193,7 +193,7 @@ traits:
     if:
       type: raw
       # Require explicit data keyword to avoid matching timeout-only calls
-      regex: "urlopen\\s*\\([^)]*\\bdata\\s*="
+      regex: "urlopen\\s*\\([^)]{0,120}\\bdata\\s*="
 
   - id: vid-parameter
     desc: vid= POST parameter

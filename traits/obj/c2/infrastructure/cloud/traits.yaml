@@ -26,7 +26,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'https?://[a-z0-9-]+\.s3[^/]*\.amazonaws\.com/[^"\s]+\.(png|jpg|jpeg|gif|ico|bmp|pdf|doc|docx|txt)$'
+      regex: 'https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.(png|jpg|jpeg|gif|ico|bmp|pdf|doc|docx|txt)$'
 
   # Azure Blob storage URL
   - id: azure-blob-url

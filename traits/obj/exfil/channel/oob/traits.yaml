@@ -218,7 +218,7 @@ traits:
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
   # === NPM preinstall atomic indicators ===
-  # Moved to obj/execution/package-manager/npm.yaml
+  # Moved to obj/exec/package-manager/npm.yaml
 
 composite_rules:
   # Helper composite for all OOB domain patterns
@@ -231,6 +231,7 @@ composite_rules:
       - { id: oastify-domain }
       - { id: oast-fun-domain }
       - { id: pipedream-domain }
+    crit: notable
 
   # Helper composite for all ngrok tunnels
   - id: ngrok-tunnels
@@ -241,6 +242,7 @@ composite_rules:
       - { id: ngrok-http }
       - { id: ngrok-https }
       - { id: ngrok-free }
+    crit: notable
 
   # Helper composite for requestbin endpoints
   - id: requestbin-endpoints
@@ -249,6 +251,7 @@ composite_rules:
     any:
       - { id: requestbin-com }
       - { id: requestbin-net }
+    crit: notable
 
 
   # Migrated from YARA
@@ -260,7 +263,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: obj/execution/interpreter/script/npm::npm-preinstall-script }
+      - { id: obj/exec/interpreter/script/npm::npm-preinstall-script }
       - { id: oob-domains }
 
   # Migrated from YARA
@@ -287,6 +290,7 @@ composite_rules:
     any:
       - { id: oastify-b64 }
       - { id: oast-fun-b64 }
+    crit: notable
 
   - id: encoded-oob-exfil
     desc: "Base64-encoded OOB domain with HTTP"

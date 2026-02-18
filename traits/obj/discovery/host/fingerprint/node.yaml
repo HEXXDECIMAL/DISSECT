@@ -123,7 +123,7 @@ traits:
 
   - id: internal-filter-keyword
     desc: internal filter keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -262,6 +262,7 @@ composite_rules:
     any:
       - { id: mac-keyword-lower }
       - { id: mac-keyword-upper }
+    crit: notable
 
   - id: mac-patterns
     desc: MAC address patterns
@@ -270,6 +271,7 @@ composite_rules:
       - { id: mac-keyword-variants }
       - { id: mac-address-regex }
       - { id: internal-filter-keyword }
+    crit: notable
 
   - id: hash-algorithms
     desc: Hash algorithm keywords
@@ -277,6 +279,7 @@ composite_rules:
     any:
       - { id: sha256-keyword }
       - { id: md5-keyword }
+    crit: notable
 
   - id: system-id-sources
     desc: System identification sources
@@ -285,6 +288,7 @@ composite_rules:
       - { id: hostname-keyword }
       - { id: userinfo-keyword }
       - { id: networkinterfaces-keyword }
+    crit: notable
 
   - id: object-serialization
     desc: Object serialization methods
@@ -293,6 +297,7 @@ composite_rules:
       - { id: json-stringify-call }
       - { id: object-keys-call }
       - { id: object-entries-call }
+    crit: notable
 
   - id: all-os-methods
     desc: All os module methods
@@ -306,6 +311,7 @@ composite_rules:
       - { id: os-cpus }
       - { id: os-totalmem }
       - { id: os-networkInterfaces }
+    crit: notable
 
   # Main composites (migrated from YARA)
   - id: mac-address

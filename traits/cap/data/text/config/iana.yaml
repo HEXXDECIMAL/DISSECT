@@ -5,4 +5,4 @@ traits:
     conf: 1.0
     if:
       type: raw
-      regex: '\{ ".*", \{ NULL \}, \d+, ".*" \}'
+      regex: '\{ ".{0,220}", \{ NULL \}, \d+, ".{0,220}" \}'

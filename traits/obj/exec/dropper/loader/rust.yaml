@@ -4,7 +4,7 @@
 traits:
   - id: client-get
     desc: HTTP client.get call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [rust]
     if:
@@ -13,7 +13,7 @@ traits:
 
   - id: write-body
     desc: Write HTTP body to file
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [rust]
     if:
@@ -22,7 +22,7 @@ traits:
 
   - id: rust-spawn-call
     desc: Process spawn call
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [rust]
     if:

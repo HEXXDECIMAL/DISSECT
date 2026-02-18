@@ -46,7 +46,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "['\"`][^'\"`]+\\.txt['\"`]"
+      regex: "['\"`][^'\"`]{1,120}\\.txt['\"`]"
 
   - id: dat-file-reference
     desc: .dat file path reference
@@ -55,7 +55,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "['\"`][^'\"`]+\\.dat['\"`]"
+      regex: "['\"`][^'\"`]{1,120}\\.dat['\"`]"
 
   # === Eval with processed argument (not just a variable) ===
 

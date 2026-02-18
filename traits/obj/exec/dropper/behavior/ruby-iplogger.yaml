@@ -10,8 +10,8 @@ composite_rules:
   - id: ruby-iplogger-dropper
     desc: Ruby script (extconf.rb) drops executable and contacts tracking service
     all:
-      - id: obj/execution/dropper/script::filename-extconf
-      - id: obj/execution/dropper/script::ruby-ast-rename-to-exe
+      - id: obj/exec/dropper/script::filename-extconf
+      - id: obj/exec/dropper/script::ruby-ast-rename-to-exe
       - id: cap/process/create/shell::shell-execution-indicators
     any:
       - id: obj/c2/domain/tracking::iplogger-http

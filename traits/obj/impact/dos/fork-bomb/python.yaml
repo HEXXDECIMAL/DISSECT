@@ -152,6 +152,7 @@ composite_rules:
       - id: while-true
       - id: while-1
       - id: for-iter-int
+    crit: notable
 
   # Helper: Worker keywords
   - id: worker-keywords
@@ -160,6 +161,7 @@ composite_rules:
       - id: worker-keyword-lower
       - id: worker-keyword-upper
       - id: worker-keyword-title
+    crit: notable
 
   # Helper: Daemon keywords
   - id: daemon-keywords
@@ -168,6 +170,7 @@ composite_rules:
       - id: daemon-keyword-lower
       - id: daemon-keyword-upper
       - id: daemon-keyword-title
+    crit: notable
 
   # Helper: Legitimate patterns
   - id: legitimate-patterns
@@ -177,6 +180,7 @@ composite_rules:
       - id: worker-keywords
       - id: pool-keyword
       - id: daemon-keywords
+    crit: notable
 
   # Helper: Fork with infinite loop
   - id: fork-with-loop
@@ -185,6 +189,7 @@ composite_rules:
       - id: import-os
       - id: os-fork-string
       - id: infinite-loops
+    crit: notable
 
   # Helper: Tight loop patterns
   - id: tight-loops
@@ -193,6 +198,7 @@ composite_rules:
       - id: while-true
       - id: while-1
       - id: large-range-loop
+    crit: notable
 
   # Helper: Fork with large range or while loop
   - id: fork-with-tight-loop
@@ -200,6 +206,7 @@ composite_rules:
     all:
       - id: os-fork-string
       - id: tight-loops
+    crit: notable
 
   # Fork without rate limiting in tight loop (suspicious)
   # NOTE: Original YARA had filesize < 1MB constraint (not supported in DISSECT)
@@ -219,6 +226,7 @@ composite_rules:
     any:
       - id: while-true
       - id: while-1
+    crit: notable
 
   # Direct fork bomb detection: infinite loop + os.fork
   - id: fork-bomb

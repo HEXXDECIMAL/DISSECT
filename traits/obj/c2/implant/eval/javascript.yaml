@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1059.007"
     all:
       - id: obj/anti-static/obfuscation/require::function-constructor
-      - id: cap/code/metrics/obfuscation::high-entropy-strings
+      - id: cap/data/source/metrics/obfuscation::high-entropy-strings
 
   - id: dynamic-code-execution
     desc: Dynamic code execution with obfuscation
@@ -21,10 +21,10 @@ composite_rules:
     for: [javascript]
     attack: "T1059.007"
     all:
-      - id: obj/execution/interpreter/eval/dynamic::eval-call-js
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
     any:
-      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
-      - id: cap/code/metrics/obfuscation::high-entropy-strings
+      - id: cap/data/source/metrics/obfuscation::high-entropy-identifiers
+      - id: cap/data/source/metrics/obfuscation::high-entropy-strings
     downgrade:
       any:
-        - id: obj/execution/interpreter/eval/dynamic::eval-function-definition
+        - id: obj/exec/interpreter/eval/dynamic::eval-function-definition

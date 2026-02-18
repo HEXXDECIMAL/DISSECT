@@ -16,7 +16,7 @@ composite_rules:
     any:
       - id: cap/fs/write/file::adodb-savetofile
       - id: cap/fs/write/file::adodb-savetofile-obfuscated-fragments
-      - id: obj/execution/interpreter/script/wsh::adodb-fragment-tiny-exact
+      - id: obj/exec/interpreter/script/wsh::adodb-fragment-tiny-exact
 
   - id: nemucod-run-method
     desc: Nemucod execution method call (literal or dynamic WScript property)
@@ -24,9 +24,9 @@ composite_rules:
     conf: 0.9
     for: [javascript]
     any:
-      - id: cap/exec/shell/wsh::wscript-shell-run
-      - id: cap/code/obfuscation/js::js-wscript-dynamic-property-raw
-      - id: cap/code/obfuscation/js::js-wscript-dynamic-property-ast
+      - id: cap/process/create/shell/wsh::wscript-shell-run
+      - id: cap/data/source/obfuscation/js::js-wscript-dynamic-property-raw
+      - id: cap/data/source/obfuscation/js::js-wscript-dynamic-property-ast
 
   - id: nemucod-fragment-combination
     desc: Nemucod specific URL fragment combination (qw4o and co.uk)
@@ -48,7 +48,7 @@ composite_rules:
       - id: cap/host/interpreter/jscript::is-jscript
       - id: obj/c2/dropper/nemucod::nemucod-adodb-write-path
       - id: obj/c2/dropper/nemucod::nemucod-run-method
-      - id: obj/execution/dropper/obfuscated-script::nemucod-temp-exe-construction
+      - id: cap/data/source/obfuscation/js::nemucod-wsh-fragments
     any:
       - id: cap/data/string/nemucod-url-fragment::js-fragmented-url-construction
       - id: cap/data/string/nemucod-url-fragment::js-fragmented-url-regex

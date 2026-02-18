@@ -14,4 +14,4 @@ traits:
     if:
       type: raw
       # Matches DeleteFile(ScriptFullName)
-      regex: '\.DeleteFile\s*\([^)]*ScriptFullName[^)]*\)'
+      regex: '\.DeleteFile\s*\([^)]{0,120}ScriptFullName[^)]{0,120}\)'

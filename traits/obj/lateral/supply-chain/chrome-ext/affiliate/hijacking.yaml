@@ -43,7 +43,7 @@ traits:
 
   - id: url-tostring
     desc: Converts URL object to string
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript]
     if:
@@ -69,7 +69,7 @@ traits:
     if:
       type: ast
       kind: call
-      regex: "querySelectorAll\\(['\"][^'\"]*href|querySelector\\(['\"][^'\"]*href"
+      regex: "querySelectorAll\\(['\"][^'\"]{0,120}href|querySelector\\(['\"][^'\"]{0,120}href"
 
   - id: queryselector-product-links
     desc: Selects product/shopping links

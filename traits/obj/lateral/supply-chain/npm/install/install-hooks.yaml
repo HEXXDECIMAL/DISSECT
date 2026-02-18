@@ -123,7 +123,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "https?://[^\"'\\s]*\\$\\("
+      regex: "https?://[^\"'\\s]{0,120}\\$\\("
 
 # === Composite Rules ===
 composite_rules:

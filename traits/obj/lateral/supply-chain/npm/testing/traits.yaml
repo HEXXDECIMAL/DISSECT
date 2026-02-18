@@ -97,7 +97,7 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: '"test":\\s*"[^"]*(?:jest|mocha|ava|tap|vitest|node --test|npm test)'
+      regex: '"test":\\s*"[^"]{0,120}(?:jest|mocha|ava|tap|vitest|node --test|npm test)'
 
   # Has TypeScript configuration
   - id: uses-test-framework
@@ -293,7 +293,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "\\btest\\s*\\(\\s*['\"`][^'\"]*WPT|\\btest\\s*\\(\\s*function\\(\\)"
+      regex: "\\btest\\s*\\(\\s*['\"`][^'\"]{0,120}WPT|\\btest\\s*\\(\\s*function\\(\\)"
 
 # === COMPOSITE RULES ===
 composite_rules:
@@ -305,6 +305,7 @@ composite_rules:
       - { id: describe-with-string }
       - { id: it-with-string }
       - { id: test-with-string }
+    crit: notable
 
   - id: test-assertions
     desc: Test assertion patterns
@@ -313,6 +314,7 @@ composite_rules:
       - { id: meta/dev/testing/rspec::rspec-expect }
       - { id: assert-method }
       - { id: should-assertion }
+    crit: notable
 
   - id: has-test-blocks
     desc: Code contains test definitions
@@ -331,6 +333,7 @@ composite_rules:
       - { id: meta/dev/testing/jest::jest-describe }
       - { id: test-call }
       - { id: obj/lateral/supply-chain/npm/testing::it-with-string }
+    crit: notable
 
   - id: jest-assertions-or-hooks
     desc: Jest assertions or lifecycle hooks
@@ -342,6 +345,7 @@ composite_rules:
       - { id: jest-mock-call }
       - { id: obj/lateral/supply-chain/npm/testing::jest-test-blocks }
       - { id: obj/lateral/supply-chain/npm/testing::jest-test-blocks }
+    crit: notable
 
   - id: jest-test-file
     desc: Jest test file markers
@@ -359,6 +363,7 @@ composite_rules:
     all:
       - { id: meta/dev/testing/jest::jest-describe }
       - { id: obj/lateral/supply-chain/npm/testing::it-with-string }
+    crit: notable
 
   - id: mocha-assertions-or-hooks
     desc: Mocha assertions or hooks
@@ -366,6 +371,7 @@ composite_rules:
     any:
       - { id: assert-word }
       - { id: should-assertion }
+    crit: notable
 
 
   - id: mocha-test-file

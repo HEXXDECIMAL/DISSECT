@@ -64,7 +64,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "file_get_contents\\s*\\([^)]*https?://"
+      regex: "file_get_contents\\s*\\([^)]{0,120}https?://"
 
   # === Multi-Method Command Execution ===
   - id: function-exists-exec
@@ -124,7 +124,7 @@ traits:
 
   - id: localhost-socket-uri
     desc: Localhost socket URI
-    crit: inert
+    crit: notable
     conf: 1.0
     if:
       type: string

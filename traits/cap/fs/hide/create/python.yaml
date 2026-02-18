@@ -17,7 +17,7 @@ traits:
     if:
       type: string
       # Matches: os.path.join(..., ".xyz") or join(foo, ".bar")
-      regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]*[\"']"
+      regex: "os\\.path\\.join\\(.{0,200},\\s*[\"']\\.[a-zA-Z][a-zA-Z0-9_-]{0,40}[\"']"
     not:
       - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
@@ -41,7 +41,7 @@ traits:
     if:
       type: string
       # Matches: "/." or "~/." patterns in strings (not comments)
-      regex: "[\"'][^\"']*[/~]\\.[a-zA-Z][a-zA-Z0-9_-]*"
+      regex: "[\"'].{0,200}[/~]\\.[a-zA-Z][a-zA-Z0-9_-]{0,40}"
 
   # makedirs with hidden directory
   - id: python-makedirs-hidden
@@ -50,7 +50,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "os\\.makedirs\\([^)]*\\.[a-zA-Z][a-zA-Z0-9_-]*"
+      regex: "os\\.makedirs\\(.{0,220}\\.[a-zA-Z][a-zA-Z0-9_-]{0,40}"
     not:
       - regex: "[\"']\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)[\"']"
 
@@ -61,7 +61,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: "\\.mkdir\\(\\s*[\"'](?:\\.[a-zA-Z][a-zA-Z0-9_-]*|[^\"']*[\\\\/]\\.[a-zA-Z][a-zA-Z0-9_-]*)[\"']"
+      regex: "\\.mkdir\\(\\s*[\"'](?:\\.[a-zA-Z][a-zA-Z0-9_-]{0,40}|.{0,200}[\\\\/]\\.[a-zA-Z][a-zA-Z0-9_-]{0,40})[\"']"
     unless:
       - type: string
         regex: "\\.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)"
@@ -74,7 +74,7 @@ traits:
     if:
       type: string
       # expanduser or Path.home
-      regex: 'os\.path\.expanduser\([^)]*~|Path\.home\(\)'
+      regex: 'os\.path\.expanduser\(.{0,120}~|Path\.home\(\)'
 
   # Hidden directory join pattern
   - id: python-hidden-join-pattern
@@ -84,7 +84,7 @@ traits:
     if:
       type: string
       # join with hidden dir
-      regex: "os\\.path\\.join\\([^)]*[,]\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
+      regex: "os\\.path\\.join\\(.{0,200},\\s*[\"']\\.[a-zA-Z]|/\\s*[\"']\\.[a-zA-Z]"
 
   # === File write atomic indicators ===
   - id: python-os-makedirs
@@ -101,7 +101,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "open\\([^)]+[\"']w"
+      regex: "open\\(.{0,220}[\"']w"
 
   # Hidden directory with short cryptic name (.n2, .x, .tmp2)
   # Only match in contexts suggesting directory creation, not file extensions
@@ -113,7 +113,7 @@ traits:
       type: string
       # Match hidden dir pattern in os.path.join, Path /operator, or makedirs context
       # Explicitly exclude file extensions (.py, .js, .go, etc.) by matching directory patterns
-      regex: "(os\\.path\\.join|/\\s*[\"']\\.|makedirs|mkdir)\\([^)]*[\"']\\.[a-z][a-z0-9]?[\"']"
+      regex: "(os\\.path\\.join|/\\s*[\"']\\.|makedirs|mkdir)\\(.{0,220}[\"']\\.[a-z][a-z0-9]?[\"']"
     not:
         # Exclude common file extensions
         - regex: "[\"']\\.(py|js|ts|go|rs|rb|md|sh|c|h|pyc|pt|so|git|ssh|aws|npm)[\"']"

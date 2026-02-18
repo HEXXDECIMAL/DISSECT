@@ -147,6 +147,7 @@ composite_rules:
       - { id: singularity-lower }
       - { id: singularity-title }
       - { id: singularity-upper }
+    crit: notable
 
   - id: ftrace-keyword
     desc: Ftrace keyword (case variants)
@@ -172,6 +173,7 @@ composite_rules:
       - { id: taint-lower }
       - { id: taint-title }
       - { id: taint-upper }
+    crit: notable
 
   - id: rootkit-keywords
     desc: Rootkit-related keywords
@@ -197,6 +199,7 @@ composite_rules:
     any:
       - { id: ftrace-enabled }
       - { id: tracing-on }
+    crit: notable
 
   - id: fake-state-vars
     desc: Fake state storage variables
@@ -204,6 +207,7 @@ composite_rules:
     any:
       - { id: saved-ftrace-value }
       - { id: ftrace-write-intercepted }
+    crit: notable
 
   - id: fake-state-logic
     desc: Divergent logic where READ returns

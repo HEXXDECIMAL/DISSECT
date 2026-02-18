@@ -9,7 +9,7 @@ defaults:
 
 traits:
   - id: adodb-fragment-tiny-exact
-    desc: Exact tiny ADODB fragments (AD, OD, DB, B.St)
+    desc: Exact tiny ADODB fragments (AD, OD, DB,
     crit: notable
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
       - id: meta/quality/help::usage-title
 
   - id: wscript-shell-fragment-tiny-exact
-    desc: Exact tiny WScript fragments (WScr, ipt., She, ll)
+    desc: Exact tiny WScript fragments (WScr, ipt., She,
     crit: notable
     if:
       type: string
@@ -47,7 +47,7 @@ traits:
       - id: meta/quality/help::usage-title
 
   - id: timing-fragment-tiny-exact
-    desc: Exact tiny timing/delay fragments (Sl, eep, Date, Mill, illi, onds)
+    desc: Exact tiny timing/delay fragments (Sl, eep, Date,
     crit: notable
     if:
       type: string
@@ -56,7 +56,7 @@ traits:
       - id: meta/quality/help::usage-title
 
   - id: payload-handling-fragment-tiny-exact
-    desc: Exact tiny payload handling fragments (ResponseBody, SaveToFile, ExpandEnv)
+    desc: Exact tiny payload handling fragments (ResponseBody, SaveToFile,
     crit: notable
     if:
       type: string

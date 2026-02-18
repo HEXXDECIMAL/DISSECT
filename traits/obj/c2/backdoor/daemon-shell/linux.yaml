@@ -41,7 +41,6 @@ composite_rules:
       - id: obj/persist/daemon/init::daemon-fork
       - id: obj/persist/daemon/init::daemon-setsid
       - id: cap/process/create/shell
-      - id: cap/process/create/shell::xor-shell-command
 
   # Extreme case: high-volume command execution
   - id: linux-command-orchestration-backdoor

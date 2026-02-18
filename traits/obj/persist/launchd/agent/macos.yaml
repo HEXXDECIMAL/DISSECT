@@ -407,7 +407,7 @@ traits:
     if:
       type: kv
       path: "Program"
-      regex: "/\\.[^/]+$"
+      regex: "/\\.[^/]{1,120}$"
 
   - id: args-hidden
     desc: Hidden ProgramArguments[0] executable
@@ -417,7 +417,7 @@ traits:
     if:
       type: kv
       path: "ProgramArguments[0]"
-      regex: "/\\.[^/]+$"
+      regex: "/\\.[^/]{1,120}$"
 
 composite_rules:
   - id: launchd
@@ -485,7 +485,7 @@ composite_rules:
       - id: launch-agents
       - id: launchctl-command
       - id: cap/process/create/shell::system-fn
-      - id: obj/execution/fileless/memory::exec-function
+      - id: obj/exec/fileless/memory::exec-function
 
   # Embedded bind-shell plist dropper: binary/source contains full plist template
   # with socket-activated shell + drops to LaunchAgents

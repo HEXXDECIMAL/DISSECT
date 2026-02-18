@@ -13,7 +13,7 @@ traits:
   # ============================================
   - id: finder
     desc: "Targets Finder"
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: string

@@ -17,7 +17,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: 'touch\s+-r\s+[^\s]+'
+      regex: 'touch\s+-r\s+[^\s]{1,120}'
 
   # touch -d (set specific timestamp)
   - id: touch-date
@@ -26,7 +26,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: 'touch\s+-d\s+["\x27][^"\x27]+["\x27]'
+      regex: 'touch\s+-d\s+["\x27][^"\x27]{1,120}["\x27]'
 
   # touch -t (set timestamp with STAMP)
   - id: touch-timestamp
@@ -44,5 +44,5 @@ traits:
     conf: 0.95
     if:
       type: raw
-      regex: 'touch\s+-r\s+[^\s]+'
+      regex: 'touch\s+-r\s+[^\s]{1,120}'
       count_min: 2

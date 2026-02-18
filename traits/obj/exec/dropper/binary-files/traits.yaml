@@ -6,7 +6,7 @@ traits:
   # === Executable search by extension ===
   - id: endswith-exe
     desc: endsWith .exe check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -16,7 +16,7 @@ traits:
 
   - id: endswith-bat
     desc: endsWith .bat check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -26,7 +26,7 @@ traits:
 
   - id: endswith-cmd
     desc: endsWith .cmd check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -36,7 +36,7 @@ traits:
 
   - id: endswith-ps1
     desc: endsWith .ps1 check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -46,7 +46,7 @@ traits:
 
   - id: endswith-sh
     desc: endsWith .sh check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -56,7 +56,7 @@ traits:
 
   - id: endswith-elf
     desc: endsWith .elf check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -66,7 +66,7 @@ traits:
 
   - id: endswith-bin
     desc: endsWith .bin check
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
@@ -77,38 +77,38 @@ traits:
   # === Executable search by find() pattern ===
   - id: find-exe-pattern
     desc: find() with .exe pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
     if:
       type: string
-      regex: "find\\([^)]*\\.exe"
+      regex: "find\\([^)]{0,120}\\.exe"
 
   - id: find-bat-pattern
     desc: find() with .bat pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
     if:
       type: string
-      regex: "find\\([^)]*\\.bat"
+      regex: "find\\([^)]{0,120}\\.bat"
 
   - id: find-cmd-pattern
     desc: find() with .cmd pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1105"
     for: [javascript, typescript]
     if:
       type: string
-      regex: "find\\([^)]*\\.cmd"
+      regex: "find\\([^)]{0,120}\\.cmd"
 
   # === Exe file reference atomics ===
   - id: exe-ext
     desc: .exe extension
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -117,7 +117,7 @@ traits:
 
   - id: exepath-var
     desc: exePath variable
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -126,7 +126,7 @@ traits:
 
   - id: exefile-var
     desc: exeFile variable
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:

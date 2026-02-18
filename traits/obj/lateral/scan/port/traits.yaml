@@ -286,7 +286,7 @@ traits:
 
   - id: sym-getaddrinfo
     desc: getaddrinfo function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -295,7 +295,7 @@ traits:
 
   - id: sym-socket
     desc: socket function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -304,7 +304,7 @@ traits:
 
   - id: sym-connect
     desc: connect function symbol
-    crit: inert
+    crit: notable
     conf: 0.4
     platforms: [all]
     if:
@@ -485,7 +485,7 @@ composite_rules:
   # They are inert on their own - only suspicious in combination with scanning patterns
   - id: sym-hostname-resolve
     desc: Hostname resolution function symbols
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     any:
@@ -497,7 +497,7 @@ composite_rules:
   # program. On their own they indicate network capability (inert), not scanning intent.
   - id: sym-socket-connect
     desc: Socket connection function symbols
-    crit: inert
+    crit: notable
     conf: 0.6
     platforms: [all]
     any:

@@ -17,7 +17,7 @@ composite_rules:
     desc: Trojan wrapper pattern (forks payload + executes legitimate binary)
     criticality: hostile
     all:
-      - id: obj/execution/fileless/memory::execve-fn
+      - id: obj/exec/fileless/memory::execve-fn
       - id: cap/process/create/shell::system-fn
       - id: obj/persistence/trojan/wrapper::trojan-fork-logic
       - id: obj/persistence/trojan/wrapper::trojan-indicator

@@ -7,7 +7,7 @@ traits:
     if:
       type: raw
       # Object literal containing repeated short-key -> escaped-byte entries.
-      regex: "var\\s+\\w+\\s*=\\s*\\{[^}]*['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]*['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]*['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"]"
+      regex: "var\\s+\\w+\\s*=\\s*\\{[^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"]"
 
   - id: js-string-key-array
     desc: Array with multiple short string keys

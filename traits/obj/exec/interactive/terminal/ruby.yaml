@@ -29,7 +29,7 @@ traits:
   # === Option Selection ===
   - id: option-selection
     desc: Option selection interface
-    crit: inert
+    crit: notable
     conf: 0.50
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
   # === Clear Screen ===
   - id: cli-clear-screen
     desc: CLI clear screen command
-    crit: inert
+    crit: notable
     conf: 0.40
     if:
       type: string

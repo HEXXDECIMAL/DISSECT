@@ -9,6 +9,6 @@ composite_rules:
     desc: Obfuscation using indexed array literals
     for: [javascript]
     any:
-      - id: cap/code/obfuscation/js::js-array-global-object-access
-      - id: cap/code/obfuscation/js::js-array-dynamic-execution
-      - id: cap/code/obfuscation/js::js-immediate-array-indexing
+      - id: cap/data/source/obfuscation/js::js-array-global-object-access
+      - id: cap/data/source/obfuscation/js::js-array-dynamic-execution
+      - id: cap/data/source/obfuscation/js::js-immediate-array-indexing

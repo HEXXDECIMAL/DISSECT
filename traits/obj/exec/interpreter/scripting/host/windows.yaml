@@ -6,7 +6,7 @@ traits:
   # WScript.Shell execution
   - id: wscript-shell-string
     desc: WScript.Shell string reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     if:
@@ -16,30 +16,20 @@ traits:
   # Scripting.FileSystemObject
   - id: filesystem-object-string
     desc: FileSystemObject string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
       type: string
       substr: "FileSystemObject"
 
-  # ActiveXObject creation
-  - id: activex-object-string
-    desc: ActiveXObject string reference
-    crit: inert
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "ActiveXObject"
+  # Removed shell-application-string duplicate - use obj/exec/activex/com::activex-shell-app
 
-  # Removed shell-application-string duplicate - use obj/execution/activex/com::activex-shell-app
-
-  # Removed msxml2-xmlhttp-string duplicate - use obj/execution/activex/com::activex-xmlhttp-msxml2
+  # Removed msxml2-xmlhttp-string duplicate - use obj/exec/activex/com::activex-xmlhttp-msxml2
 
   - id: microsoft-xmlhttp-string
     desc: Microsoft.XMLHTTP string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -48,7 +38,7 @@ traits:
 
   - id: msxml2-serverxmlhttp-string
     desc: Msxml2.ServerXMLHTTP string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -58,19 +48,19 @@ traits:
   # WMI scripting
   - id: winmgmts-string
     desc: winmgmts WMI moniker string
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript, powershell]
     if:
       type: string
       substr: "winmgmts:"
 
-  # Removed wbemscripting-locator-string duplicate - use obj/execution/activex/com::activex-wmi
+  # Removed wbemscripting-locator-string duplicate - use obj/exec/activex/com::activex-wmi
 
   # ADODB stream (file operations)
   - id: adodb-stream-string
     desc: ADODB.Stream string reference
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
@@ -80,7 +70,7 @@ traits:
   # Schedule.Service (task scheduler)
   - id: schedule-service-string
     desc: Schedule.Service string reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, powershell]
     if:
@@ -89,7 +79,7 @@ traits:
 
   - id: win32-scheduledjob-string
     desc: Win32_ScheduledJob string reference
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, powershell]
     if:
@@ -99,7 +89,7 @@ traits:
   # Registry manipulation keywords
   - id: regread-method
     desc: RegRead method call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -108,7 +98,7 @@ traits:
 
   - id: regwrite-method
     desc: RegWrite method call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -117,7 +107,7 @@ traits:
 
   - id: regdelete-method
     desc: RegDelete method call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -126,7 +116,7 @@ traits:
 
   - id: hklm-hive
     desc: HKLM registry hive reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, powershell]
     if:
@@ -135,7 +125,7 @@ traits:
 
   - id: hkcu-hive
     desc: HKCU registry hive reference
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript, powershell]
     if:
@@ -145,7 +135,7 @@ traits:
   # WinHttp for droppers
   - id: winhttp-string
     desc: WinHttp string reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -155,7 +145,7 @@ traits:
   # Method calls
   - id: run-method
     desc: .Run method call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -164,7 +154,7 @@ traits:
 
   - id: exec-method
     desc: .Exec method call
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -180,11 +170,11 @@ composite_rules:
   # MSXML HTTP request variants
   - id: msxml-http-variants
     desc: MSXML HTTP request object variants
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: obj/execution/activex/com::activex-xmlhttp-msxml2
+      - id: obj/exec/activex/com::activex-xmlhttp-msxml2
       - id: microsoft-xmlhttp-string
       - id: msxml2-serverxmlhttp-string
 
@@ -192,18 +182,18 @@ composite_rules:
   # WMI scripting variants
   - id: wmi-scripting-patterns
     desc: WMI scripting patterns
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript, powershell]
     any:
       - id: winmgmts-string
-      - id: obj/execution/activex/com::activex-wmi
+      - id: obj/exec/activex/com::activex-wmi
 
 
   # Schedule.Service variants
   - id: schedule-service-patterns
     desc: Task scheduler COM object patterns
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript, typescript, powershell]
     any:
@@ -214,7 +204,7 @@ composite_rules:
   # Registry operation methods
   - id: registry-methods
     desc: Registry manipulation methods
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     any:
@@ -225,7 +215,7 @@ composite_rules:
   # Registry hive references
   - id: registry-hives
     desc: Registry hive references
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript, powershell]
     any:
@@ -247,7 +237,7 @@ composite_rules:
   # HTTP objects for droppers
   - id: http-objects
     desc: HTTP objects for network access
-    crit: inert
+    crit: notable
     conf: 0.6
     for: [javascript, typescript]
     any:
@@ -257,7 +247,7 @@ composite_rules:
   # Execution methods
   - id: execution-methods
     desc: Code execution methods
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     any:
@@ -268,7 +258,7 @@ composite_rules:
   # Shell or FSO objects
   - id: wsh-or-fso
     desc: WScript.Shell or FileSystemObject
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [javascript, typescript]
     any:

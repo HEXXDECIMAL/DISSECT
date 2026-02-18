@@ -74,7 +74,7 @@ traits:
     attack: "T1027"
     if:
       type: raw
-      regex: "\\.join\\s*\\([^)]*chr\\s*\\([^)]*\\)\\s*for\\s+\\w+\\s+in"
+      regex: "\\.join\\s*\\([^)]{0,120}chr\\s*\\([^)]{0,120}\\)\\s*for\\s+\\w+\\s+in"
 
   # Bitshift operations on numeric arrays - obfuscation
   - id: bitshift-array

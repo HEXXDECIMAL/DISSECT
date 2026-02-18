@@ -317,6 +317,7 @@ composite_rules:
       - { id: sniff-ssh-lower }
       - { id: sniff-ssh-title }
       - { id: sniff-ssh-upper }
+    crit: notable
 
   - id: ssh-sniff-variants
     desc: ssh_sniff case variants
@@ -325,6 +326,7 @@ composite_rules:
       - { id: ssh-sniff-lower }
       - { id: ssh-sniff-title }
       - { id: ssh-sniff-upper }
+    crit: notable
 
   - id: ssh-sniffing-indicators
     desc: SSH sniffing function identifiers
@@ -336,6 +338,7 @@ composite_rules:
       - { id: ssh-password-identifier }
       - { id: ssh-cred-identifier }
       - { id: known/malware/rootkit/medusa::sshdone }
+    crit: notable
 
   - id: ssh-password-files
     desc: SSH password file patterns
@@ -345,6 +348,7 @@ composite_rules:
       - { id: ssh-pass-log-file }
       - { id: password-txt-file }
       - { id: credentials-txt-file }
+    crit: notable
 
 
   # === Composite: SSH directory path ===

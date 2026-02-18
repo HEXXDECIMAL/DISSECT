@@ -284,6 +284,7 @@ composite_rules:
       - { id: unconfined-u-label }
       - { id: unconfined-r-label }
       - { id: unconfined-t-label }
+    crit: notable
 
   - id: enforcement-commands
     desc: SELinux enforcement commands
@@ -294,6 +295,7 @@ composite_rules:
       - { id: selinux-enforce-sysfs }
       - { id: selinux-enforce-legacy }
       - { id: permissive-keyword }
+    crit: notable
 
   - id: policy-commands
     desc: SELinux policy manipulation commands
@@ -303,6 +305,7 @@ composite_rules:
       - { id: semodule-command }
       - { id: chcon-command }
       - { id: restorecon-command }
+    crit: notable
 
   - id: policy-files
     desc: SELinux policy file references
@@ -310,6 +313,7 @@ composite_rules:
     any:
       - { id: selinux-config-dir }
       - { id: policy-file-pattern }
+    crit: notable
 
   - id: kernel-parameters
     desc: SELinux kernel boot parameters
@@ -319,6 +323,7 @@ composite_rules:
       - { id: enforcing-equals-zero }
       - { id: selinux-disabled-config }
       - { id: selinux-permissive-config }
+    crit: notable
 
   - id: sel-enforce-symbols
     desc: SELinux enforcement symbols
@@ -326,6 +331,7 @@ composite_rules:
     all:
       - { id: sel-read-enforce-symbol }
       - { id: sel-write-enforce-symbol }
+    crit: notable
 
   # Migrated from YARA
   - id: xattr-manipulation
@@ -376,6 +382,7 @@ composite_rules:
     all:
       - { id: selinux-state-symbol }
       - { id: enforcing-keyword }
+    crit: notable
 
   # Helper: fake enforce + selinux state combo
   - id: fake-enforce-selinux
@@ -384,6 +391,7 @@ composite_rules:
     all:
       - { id: fake-enforce-identifier }
       - { id: selinux-state-symbol }
+    crit: notable
 
   - id: runtime-patch
     desc: Direct kernel memory manipulation of

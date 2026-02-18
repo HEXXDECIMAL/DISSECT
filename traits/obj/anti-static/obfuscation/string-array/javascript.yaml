@@ -42,7 +42,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "\\[\\s*['\"][0-9a-fA-F]{2,4}['\"]\\s*\\]\\s*=\\s*['\"][^'\"]+['\"]"
+      regex: "\\[\\s*['\"][0-9a-fA-F]{2,4}['\"]\\s*\\]\\s*=\\s*['\"][^'\"]{1,120}['\"]"
       count_min: 3
 
   # String array declaration with large obfuscated variable names

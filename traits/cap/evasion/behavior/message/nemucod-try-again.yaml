@@ -1,6 +1,6 @@
 traits:
   - id: nemucod-try-again
-    desc: Detects the fragmented "Please, try again" message used by Nemucod malware when evasion checks fail
+    desc: Detects the fragmented "Please, try again" message
     crit: suspicious
     mbc: "B0032"
     attack: "T1497"

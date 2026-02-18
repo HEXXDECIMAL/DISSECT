@@ -165,7 +165,7 @@ traits:
     attack: "T1543"
     if:
       type: raw
-      regex: '"/root/[^"]+"|PROGNAME="/root/|DAEMON="/root/'
+      regex: '"/root/[^"]{1,120}"|PROGNAME="/root/|DAEMON="/root/'
 
   # Deceptive processname comment - claims to be one process but might run another
   - id: processname-mismatch-lib

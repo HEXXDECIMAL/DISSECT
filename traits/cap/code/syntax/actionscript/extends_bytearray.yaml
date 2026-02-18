@@ -1,8 +1,0 @@
-traits:
-  - id: actionscript-extends-bytearray
-    desc: ActionScript class extending ByteArray (often used for memory manipulation)
-    crit: suspicious
-    conf: 0.8
-    if:
-      type: raw
-      regex: "extends\\s+(flash\\.utils\\.)?ByteArray"

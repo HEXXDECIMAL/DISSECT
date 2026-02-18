@@ -26,7 +26,7 @@ traits:
       - id: meta/library::js-module-exports
 
   - id: js-loop-string-concat
-    desc: "String concatenation in loop body using array subscript"
+    desc: "String concatenation in loop body using array"
     crit: notable
     conf: 0.6
     for: [javascript, typescript]

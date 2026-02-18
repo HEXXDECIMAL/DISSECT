@@ -43,7 +43,7 @@ traits:
   # Note: proc-self-maps is commonly used by legitimate software (Go/Rust runtimes,
   # crash reporters, profilers) so it's no longer used in self-modify detection.
 
-  # Removed duplicate - use obj/defense-evasion/process/injection/code::write-process-memory
+  # Removed duplicate - use obj/defense-evasion/process/injection/runtime::write-process-memory
 
   - id: self-patch-ref
     desc: Self-patch terminology
@@ -247,7 +247,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: proc-self-mem
-      - id: obj/defense-evasion/process/injection/code::write-process-memory
+      - id: obj/defense-evasion/process/injection/runtime::write-process-memory
       - id: self-patch-ref
     downgrade:
       any:

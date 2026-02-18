@@ -15,7 +15,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*"[^"]*dump[^"]*"'
+      regex: '"name":\s*".{0,120}dump.{0,120}"'
       case_insensitive: true
 
   - id: name-grab-keyword
@@ -24,7 +24,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*"[^"]*grab(?:ber)?[^"]*"'
+      regex: '"name":\s*".{0,120}grab(?:ber)?.{0,120}"'
       case_insensitive: true
 
   - id: name-steal-keyword
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '"name":\s*"[^"]*steal(?:er)?[^"]*"'
+      regex: '"name":\s*".{0,120}steal(?:er)?.{0,120}"'
       case_insensitive: true
 
   - id: name-hack-keyword
@@ -42,7 +42,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*"[^"]*hack(?:er|ing)?[^"]*"'
+      regex: '"name":\s*".{0,120}hack(?:er|ing)?.{0,120}"'
       case_insensitive: true
 
   - id: name-crack-keyword
@@ -51,7 +51,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*"[^"]*crack(?:er)?[^"]*"'
+      regex: '"name":\s*".{0,120}crack(?:er)?.{0,120}"'
       case_insensitive: true
 
   - id: name-token-keyword
@@ -60,7 +60,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*token[^"]*"'
+      regex: '"name":\s*".{0,120}token.{0,120}"'
       case_insensitive: true
 
   - id: name-logger-keyword
@@ -69,7 +69,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*logger[^"]*"'
+      regex: '"name":\s*".{0,120}logger.{0,120}"'
       case_insensitive: true
 
   - id: name-exfil-keyword
@@ -78,7 +78,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: '"name":\s*"[^"]*exfil[^"]*"'
+      regex: '"name":\s*".{0,120}exfil.{0,120}"'
       case_insensitive: true
 
   # === Package name contains target application names ===
@@ -89,7 +89,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*discord[^"]*"'
+      regex: '"name":\s*".{0,120}discord.{0,120}"'
       case_insensitive: true
 
   - id: name-telegram-target
@@ -98,7 +98,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*telegram[^"]*"'
+      regex: '"name":\s*".{0,120}telegram.{0,120}"'
       case_insensitive: true
 
   - id: name-slack-target
@@ -107,7 +107,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*slack[^"]*"'
+      regex: '"name":\s*".{0,120}slack.{0,120}"'
       case_insensitive: true
 
   - id: name-wallet-target
@@ -116,7 +116,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*wallet[^"]*"'
+      regex: '"name":\s*".{0,120}wallet.{0,120}"'
       case_insensitive: true
 
   - id: name-crypto-target
@@ -125,7 +125,7 @@ traits:
     conf: 0.4
     if:
       type: raw
-      regex: '"name":\s*"[^"]*crypto[^"]*"'
+      regex: '"name":\s*".{0,120}crypto.{0,120}"'
       case_insensitive: true
 
   - id: name-metamask-target
@@ -134,7 +134,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*metamask[^"]*"'
+      regex: '"name":\s*".{0,120}metamask.{0,120}"'
       case_insensitive: true
 
   - id: name-browser-target
@@ -143,7 +143,7 @@ traits:
     conf: 0.4
     if:
       type: raw
-      regex: '"name":\s*"[^"]*browser[^"]*"'
+      regex: '"name":\s*".{0,120}browser.{0,120}"'
       case_insensitive: true
 
   - id: name-password-target
@@ -152,7 +152,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"[^"]*pass(?:word)?[^"]*"'
+      regex: '"name":\s*".{0,120}pass(?:word)?.{0,120}"'
       case_insensitive: true
 
   # === Package name prefixes legitimate tool names (typosquatting) ===
@@ -163,7 +163,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"mysql-[^"]*"'
+      regex: '"name":\s*"mysql-.{0,120}"'
       case_insensitive: true
 
   - id: name-express-prefix
@@ -172,7 +172,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"express-[^"]*"'
+      regex: '"name":\s*"express-.{0,120}"'
       case_insensitive: true
 
   - id: name-react-prefix
@@ -181,7 +181,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"react-[^"]*"'
+      regex: '"name":\s*"react-.{0,120}"'
       case_insensitive: true
 
   - id: name-vue-prefix
@@ -190,7 +190,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"vue-[^"]*"'
+      regex: '"name":\s*"vue-.{0,120}"'
       case_insensitive: true
 
   - id: name-node-prefix
@@ -199,7 +199,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*"node-[^"]*"'
+      regex: '"name":\s*"node-.{0,120}"'
       case_insensitive: true
 
   # === Minimal metadata indicators ===
@@ -212,7 +212,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"keywords":\s*\[[^\]]*"[^"]*dump[^"]*"'
+      regex: '"keywords":\s*\[[^\]]{0,300}".{0,120}dump.{0,120}"'
       case_insensitive: true
 
   - id: keyword-grab
@@ -221,7 +221,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"keywords":\s*\[[^\]]*"[^"]*grab[^"]*"'
+      regex: '"keywords":\s*\[[^\]]{0,300}".{0,120}grab.{0,120}"'
       case_insensitive: true
 
   - id: keyword-steal
@@ -230,7 +230,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '"keywords":\s*\[[^\]]*"[^"]*steal[^"]*"'
+      regex: '"keywords":\s*\[[^\]]{0,300}".{0,120}steal.{0,120}"'
       case_insensitive: true
 
   - id: keyword-token
@@ -239,7 +239,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"keywords":\s*\[[^\]]*"[^"]*token[^"]*"'
+      regex: '"keywords":\s*\[[^\]]{0,300}".{0,120}token.{0,120}"'
       case_insensitive: true
 
   - id: keyword-discord
@@ -248,7 +248,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"keywords":\s*\[[^\]]*"[^"]*discord[^"]*"'
+      regex: '"keywords":\s*\[[^\]]{0,300}".{0,120}discord.{0,120}"'
       case_insensitive: true
 
 composite_rules:

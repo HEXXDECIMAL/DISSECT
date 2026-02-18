@@ -3,7 +3,7 @@
 
 traits:
   - id: js-xor-cyclic-pattern
-    desc: JavaScript cyclic XOR pattern (e.g. key[i % key.length])
+    desc: JavaScript cyclic XOR pattern (e.g. key[i %
     crit: suspicious
     conf: 0.85
     for: [javascript]
@@ -25,7 +25,7 @@ traits:
         )
 
   - id: js-xor-dynamic-char-at
-    desc: JavaScript dynamic charCodeAt access (often for XOR key)
+    desc: JavaScript dynamic charCodeAt access (often for XOR
     crit: notable
     for: [javascript]
     if:

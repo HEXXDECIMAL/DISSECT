@@ -19,7 +19,7 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: '"[^"]*src/|"files":[^]]*"src"'
+      regex: '"[^"]{0,120}src/|"files":[^]]*"src"'
 
   # Has test directory
   - id: has-examples

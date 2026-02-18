@@ -20,7 +20,7 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: "open\\([^)]*['\"]r\\+b['\"]"
+      regex: "open\\([^)]{0,120}['\"]r\\+b['\"]"
 
   # Sensitive file paths (browser/wallet)
   - id: key4-db-path

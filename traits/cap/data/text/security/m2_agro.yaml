@@ -1,6 +1,6 @@
 traits:
   - id: m2-agro-cert-string
-    desc: String related to "M2 AGRO" stolen certificate (Brazilian malware)
+    desc: String related to "M2 AGRO" stolen certificate
     crit: notable
     conf: 0.9
     for: [pe]

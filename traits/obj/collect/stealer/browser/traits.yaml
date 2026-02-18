@@ -10,7 +10,7 @@ traits:
   # === Browser credential harvesting ===
   - id: chrome-string
     desc: Chrome browser string
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -18,7 +18,7 @@ traits:
 
   - id: firefox-string
     desc: Firefox browser string
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -26,7 +26,7 @@ traits:
 
   - id: go-sqlite3
     desc: go-sqlite3 library import
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -34,7 +34,7 @@ traits:
 
   - id: crypt-unprotect-data
     desc: CryptUnprotectData Windows API
-    crit: inert
+    crit: notable
     conf: 0.75
     for: [pe]
     if:
@@ -44,7 +44,7 @@ traits:
   # === AWS credential harvesting ===
   - id: os-getenv
     desc: os.Getenv function
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -52,7 +52,7 @@ traits:
 
   - id: aws-access-string
     desc: AWS_ACCESS environment variable
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -60,7 +60,7 @@ traits:
 
   - id: aws-secret-string
     desc: AWS_SECRET environment variable
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -74,12 +74,14 @@ composite_rules:
       - { id: firefox-string }
       - { id: cap/fs/path/sensitive/browser::login-data }
       - { id: obj/creds/browser/firefox::cookies }
+    crit: notable
 
   - id: aws-env-vars
     desc: AWS environment variable names
     any:
       - { id: aws-access-string }
       - { id: aws-secret-string }
+    crit: notable
 
   - id: browser-cred-harvest
     desc: Browser credential database harvesting

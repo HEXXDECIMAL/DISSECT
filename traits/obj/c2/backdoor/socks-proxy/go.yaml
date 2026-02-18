@@ -100,6 +100,7 @@ composite_rules:
       - id: go-socks-dialer
       - id: go-socks-cmd
       - id: go-socks-addr
+    crit: notable
 
   - id: go-pty-strings
     desc: Go PTY library strings
@@ -107,6 +108,7 @@ composite_rules:
       - id: go-pty-startwithsize
       - id: go-pty-setsize
       - id: go-ptmx
+    crit: notable
 
   # === Detection composites referencing generic traits ===
   - id: go-pty-with-shell

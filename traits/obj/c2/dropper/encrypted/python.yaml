@@ -13,7 +13,7 @@ composite_rules:
     mbc: "B0024"
     attack: "T1027.002"
     all:
-      - id: obj/execution/reflection/class::python-zipimporter-load
+      - id: obj/exec/reflection/class::python-zipimporter-load
       - id: cap/data/encode/base64::b64decode-string
     any:
       - id: cap/crypto/symmetric/aes::pyaes-usage

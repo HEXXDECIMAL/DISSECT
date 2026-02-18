@@ -12,7 +12,7 @@ traits:
   # === Fetch API patterns ===
   - id: fetch-call
     desc: fetch() API call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -20,7 +20,7 @@ traits:
 
   - id: fetch-then-json
     desc: fetch().then JSON parse
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: raw
@@ -29,7 +29,7 @@ traits:
   # === Spawn/exec patterns ===
   - id: spawnSync-call
     desc: spawnSync function call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -37,7 +37,7 @@ traits:
 
   - id: spawn-call
     desc: spawn function call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -54,7 +54,7 @@ traits:
   # === Cleanup patterns ===
   - id: unlinkSync-call
     desc: fs.unlinkSync call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -62,7 +62,7 @@ traits:
 
   - id: unlink-call
     desc: fs.unlink call
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: raw
@@ -75,7 +75,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: "\\./tmp[^/]*\\.js|/tmp/[^/]*\\.js"
+      regex: "\\./tmp[^/]{0,120}\\.js|/tmp/[^/]{0,120}\\.js"
 
   - id: random-temp-filename
     desc: Random/unusual temp filename
@@ -105,7 +105,7 @@ traits:
   # === IIFE patterns ===
   - id: iife-start
     desc: IIFE pattern start
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -113,7 +113,7 @@ traits:
 
   - id: iife-arrow
     desc: IIFE with arrow function
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -123,7 +123,7 @@ composite_rules:
   # File write composite
   - id: file-write
     desc: File write operation
-    crit: inert
+    crit: notable
     conf: 0.7
     any:
       - id: cap/fs/write/file::write-file-sync
@@ -132,7 +132,7 @@ composite_rules:
   # File delete composite
   - id: file-delete
     desc: File delete operation
-    crit: inert
+    crit: notable
     conf: 0.7
     any:
       - id: unlinkSync-call
@@ -169,7 +169,7 @@ composite_rules:
   # IIFE composite
   - id: iife-pattern
     desc: Immediately invoked function
-    crit: inert
+    crit: notable
     conf: 0.6
     any:
       - id: iife-start

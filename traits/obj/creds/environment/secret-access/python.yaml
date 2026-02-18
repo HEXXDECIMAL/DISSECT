@@ -11,7 +11,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*TOKEN[^''"]*[''"]'
+      regex: '[''"].{0,120}TOKEN.{0,120}[''"]'
 
   - id: keyword-key
     desc: KEY keyword in env variable
@@ -20,7 +20,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*KEY[^''"]*[''"]'
+      regex: '[''"].{0,120}KEY.{0,120}[''"]'
 
   - id: keyword-secret
     desc: SECRET keyword in env variable
@@ -29,7 +29,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*SECRET[^''"]*[''"]'
+      regex: '[''"].{0,120}SECRET.{0,120}[''"]'
 
   - id: keyword-pass
     desc: PASS keyword in env variable
@@ -38,7 +38,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*PASS[^''"]*[''"]'
+      regex: '[''"].{0,120}PASS.{0,120}[''"]'
 
   - id: keyword-auth
     desc: AUTH keyword in env variable
@@ -47,7 +47,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*AUTH[^''"]*[''"]'
+      regex: '[''"].{0,120}AUTH.{0,120}[''"]'
 
   - id: keyword-pwd
     desc: PWD keyword in env variable
@@ -56,7 +56,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*PWD[^''"]*[''"]'
+      regex: '[''"].{0,120}PWD.{0,120}[''"]'
 
   - id: keyword-cred
     desc: CRED keyword in env variable
@@ -65,7 +65,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: '[''"][^''"]*CRED[^''"]*[''"]'
+      regex: '[''"].{0,120}CRED.{0,120}[''"]'
 
 composite_rules:
   # Helper composites
@@ -80,6 +80,7 @@ composite_rules:
       - { id: keyword-auth }
       - { id: keyword-pwd }
       - { id: keyword-cred }
+    crit: notable
 
   # Migrated from YARA
   - id: python-os-getenv

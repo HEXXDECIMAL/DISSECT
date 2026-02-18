@@ -115,6 +115,7 @@ composite_rules:
     any:
       - { id: tainted-mask }
       - { id: taint-mask }
+    crit: notable
 
   - id: log-filter-functions
     desc: Log filtering/sanitization functions
@@ -123,6 +124,7 @@ composite_rules:
       - { id: filter-kmsg }
       - { id: filter-taint }
       - { id: sanitize-log }
+    crit: notable
 
   - id: kmsg-access
     desc: Kernel message log access
@@ -130,6 +132,7 @@ composite_rules:
     any:
       - { id: dev-kmsg-path }
       - { id: do-syslog-symbol }
+    crit: notable
 
   - id: log-sanitization
     desc: Real-time filtering of dmesg or

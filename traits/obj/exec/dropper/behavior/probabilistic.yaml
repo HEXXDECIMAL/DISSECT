@@ -13,9 +13,9 @@ composite_rules:
     attack: T1027
     mbc: B0032
     all:
-      - id: obj/execution/dropper/behavior::probabilistic-loader-loop
+      - id: obj/exec/dropper/behavior::probabilistic-loader-loop
     any:
-      - id: obj/execution/vm/random-code::random-code-generation
-      - id: obj/execution/vm/random-code::math-random-index
+      - id: obj/exec/vm/random-code::random-code-generation
+      - id: obj/exec/vm/random-code::math-random-index
       - id: cap/data/encode/hex_xor::fragmented-hex-xor-decoder
       - id: cap/data/encode/hex_xor::js-obfuscated-fragment-xor-decode

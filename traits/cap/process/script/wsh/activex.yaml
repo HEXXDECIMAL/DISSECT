@@ -1,7 +1,0 @@
-traits:
-  - id: activex-object
-    desc: "Detects ActiveXObject instantiation in JScript/WSH."
-    crit: notable
-    if:
-      type: string
-      regex: 'ActiveXObject'

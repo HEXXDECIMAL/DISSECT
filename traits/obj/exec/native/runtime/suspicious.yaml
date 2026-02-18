@@ -218,9 +218,9 @@ composite_rules:
     attack: "T1129"
     needs: 2
     any:
-      - id: obj/execution/native/runtime::tls-alloc
-      - id: obj/execution/native/runtime::tls-get-value
-      - id: obj/execution/native/runtime::tls-set-value
+      - id: obj/exec/native/runtime::tls-alloc
+      - id: obj/exec/native/runtime::tls-get-value
+      - id: obj/exec/native/runtime::tls-set-value
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -262,10 +262,10 @@ composite_rules:
     attack: "T1055"
     for: [pe, dll]
     any:
-      - id: obj/execution/native/runtime::enum-ui-languages
-      - id: obj/execution/native/runtime::enum-resource-types
-      - id: obj/execution/native/runtime::enum-resource-names
-      - id: obj/execution/native/runtime::enum-desktop-windows
-      - id: obj/execution/native/runtime::enum-date-formats
-      - id: obj/execution/native/runtime::line-dda
+      - id: obj/exec/native/runtime::enum-ui-languages
+      - id: obj/exec/native/runtime::enum-resource-types
+      - id: obj/exec/native/runtime::enum-resource-names
+      - id: obj/exec/native/runtime::enum-desktop-windows
+      - id: obj/exec/native/runtime::enum-date-formats
+      - id: obj/exec/native/runtime::line-dda
 

@@ -1,6 +1,6 @@
 traits:
   - id: reversed-nemucod-c2-url
-    desc: "Detects the reversed and obfuscated C2 URL used by Nemucod."
+    desc: "Detects the reversed and obfuscated C2 URL"
     crit: suspicious
     if:
       type: raw

@@ -18,7 +18,7 @@ traits:
     if:
       type: raw
       # cat FILE | xargs -l COMMAND (line-based execution)
-      regex: "cat\\s+\\S+\\s*\\|\\s*xargs\\s+[^\\n]*-l[^\\n]*\\."
+      regex: "cat\\s+\\S+\\s*\\|\\s*xargs\\s+[^\\n]{0,120}-l[^\\n]{0,120}\\."
 
   - id: xargs-call-script
     desc: xargs executing local script
@@ -27,7 +27,7 @@ traits:
     if:
       type: raw
       # xargs calling ./ script (dot prefix = hidden/local)
-      regex: "xargs\\s+[^\\n]*\\./\\.[a-z_]+"
+      regex: "xargs\\s+[^\\n]{0,120}\\./\\.[a-z_]+"
 
   - id: pipe-loop-pattern
     desc: Pipe to xargs for iteration
@@ -36,7 +36,7 @@ traits:
     if:
       type: raw
       # Generic pipe to xargs pattern
-      regex: "\\|\\s*xargs\\s+[^\\n]*-[a-z]*l"
+      regex: "\\|\\s*xargs\\s+[^\\n]{0,120}-[a-z]*l"
 
   # === Scanner invocation patterns ===
 

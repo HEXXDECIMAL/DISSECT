@@ -244,7 +244,7 @@ composite_rules:
     for: [elf, c]
     any:
       - id: cap/comm/ip/services::ipproto-icmp
-      - id: cap/os/bpf/program/network::ipproto-udp
+      - id: cap/comm/socket/udp::ipproto-udp
 
   # BPFDoor-style helper
   # Requires both shell activation AND protocol trigger to be suspicious

@@ -18,7 +18,7 @@ traits:
     crit: inert
     if:
       type: string
-      substr: "^"
+      substr: " ^ "
 
   - id: js-substring
     desc: Substring call

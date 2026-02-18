@@ -340,7 +340,7 @@ composite_rules:
     mbc: "E1014"
     for: [python]
     all:
-      - id: obj/execution/reflection/class::python-import-chain
+      - id: obj/exec/reflection/class::python-import-chain
       - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file
     any:
       - id: obj/anti-static/obfuscation/payload::exec-function-call

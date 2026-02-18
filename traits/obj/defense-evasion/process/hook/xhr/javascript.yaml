@@ -11,7 +11,7 @@ traits:
   # === XMLHttpRequest prototype atomic ===
   - id: xhr-prototype-access
     desc: XMLHttpRequest.prototype access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -19,7 +19,7 @@ traits:
 
   - id: xhr-bracket-access
     desc: XMLHttpRequest bracket notation access
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -28,7 +28,7 @@ traits:
   # === XMLHttpRequest.open hook atomic ===
   - id: xhr-prototype-open-eq
     desc: XMLHttpRequest.prototype.open assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -36,7 +36,7 @@ traits:
 
   - id: xhr-bracket-open-eq
     desc: XMLHttpRequest bracket open assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -45,7 +45,7 @@ traits:
   # === XMLHttpRequest.send hook atomic ===
   - id: xhr-prototype-send-eq
     desc: XMLHttpRequest.prototype.send assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -53,7 +53,7 @@ traits:
 
   - id: xhr-bracket-send-eq
     desc: XMLHttpRequest bracket send assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -62,7 +62,7 @@ traits:
   # === fetch API hook atomic ===
   - id: window-fetch-eq
     desc: window.fetch assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -70,7 +70,7 @@ traits:
 
   - id: globalthis-fetch-eq
     desc: globalThis.fetch assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -78,7 +78,7 @@ traits:
 
   - id: self-fetch-eq
     desc: self.fetch assignment
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string

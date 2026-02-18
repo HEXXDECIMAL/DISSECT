@@ -14,7 +14,7 @@ traits:
     attack: "T1505.003"
     if:
       type: string
-      regex: '<input[^>]*type=[''"]password[''"]'
+      regex: '<input[^>]{0,120}type=[''"]password[''"]'
 
   - id: ajax-handler
     desc: AJAX request handler pattern

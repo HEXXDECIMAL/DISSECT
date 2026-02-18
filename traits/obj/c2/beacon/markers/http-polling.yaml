@@ -8,7 +8,7 @@ defaults:
 traits:
   - id: net-http-import
     desc: net/http package import
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
 
   - id: http-client
     desc: http.Client type
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -24,7 +24,7 @@ traits:
 
   - id: time-ticker
     desc: time.Ticker periodic execution
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: symbol
@@ -32,7 +32,7 @@ traits:
 
   - id: time-sleep
     desc: time.Sleep function
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: symbol
@@ -40,7 +40,7 @@ traits:
 
   - id: encoding-base64-import
     desc: encoding/base64 package import
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -48,7 +48,7 @@ traits:
 
   - id: encoding-json-import
     desc: encoding/json package import
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -60,24 +60,28 @@ composite_rules:
     any:
       - { id: net-http-import }
       - { id: http-client }
+    crit: notable
 
   - id: interval-funcs
     desc: Periodic execution functions
     any:
       - { id: time-ticker }
       - { id: time-sleep }
+    crit: notable
 
   - id: encoding-imports
     desc: Encoding package imports
     any:
       - { id: encoding-base64-import }
       - { id: encoding-json-import }
+    crit: notable
 
   - id: http-customization
     desc: HTTP request customization
     any:
       - { id: cap/comm/http/request::user-agent-header }
       - { id: encoding-imports }
+    crit: notable
 
   - id: c2-beacon
     desc: HTTP C2 beacon pattern

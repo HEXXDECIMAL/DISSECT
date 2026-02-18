@@ -36,7 +36,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "`[^`]*\\$\\{"
+      regex: "`[^`]{0,120}\\$\\{"
 
   - id: const-let
     desc: ES6 const/let declarations
@@ -54,7 +54,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(const|let|var)\\s*\\{[^}]+\\}\\s*="
+      regex: "(const|let|var)\\s*\\{[^}]{1,120}\\}\\s*="
 
   - id: spread-operator
     desc: ES6 spread operator

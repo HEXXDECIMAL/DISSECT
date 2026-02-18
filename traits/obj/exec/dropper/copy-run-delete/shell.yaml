@@ -18,7 +18,7 @@ traits:
     attack: "T1574.010"
     if:
       type: raw
-      regex: 'cp\s+[^|&;\n]+\s+/bin/[a-zA-Z0-9_.-]+'
+      regex: 'cp\s+.{1,200}\s+/bin/[a-zA-Z0-9_.-]{1,80}'
     unless:
       - id: cap/process/create/shell::make-invocation
       - id: cap/dylib/library::cmake-build-ref
@@ -31,7 +31,7 @@ traits:
     attack: "T1574.010"
     if:
       type: raw
-      regex: 'cp\s+[^|&;\n]+\s+/sbin/[a-zA-Z0-9_.-]+'
+      regex: 'cp\s+.{1,200}\s+/sbin/[a-zA-Z0-9_.-]{1,80}'
     unless:
       - id: cap/process/create/shell::make-invocation
       - id: cap/dylib/library::cmake-build-ref
@@ -44,14 +44,14 @@ traits:
     attack: "T1574.010"
     if:
       type: raw
-      regex: 'cp\s+[^|&;\n]+\s+/usr/(s?bin|local/s?bin)/[a-zA-Z0-9_.-]+'
+      regex: 'cp\s+.{1,240}\s+/usr/(s?bin|local/s?bin)/[a-zA-Z0-9_.-]{1,80}'
     unless:
       - id: cap/process/create/shell::make-invocation
       - id: cap/dylib/library::cmake-build-ref
 
   - id: cp-force-flag
     desc: Copy with force overwrite
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: raw
@@ -85,7 +85,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: '&&\s*rm\s+(-[a-z]+\s+)*(/bin/|/sbin/|/usr/bin/|/usr/sbin/|/usr/local/bin/|/usr/local/sbin/)'
+      regex: '&&\s*rm\s+(?:-[a-z]{1,8}\s+){0,3}(/bin/|/sbin/|/usr/bin/|/usr/sbin/|/usr/local/bin/|/usr/local/sbin/)'
 
   - id: rm-bin-path
     desc: Delete file in /bin directory
@@ -95,7 +95,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: 'rm\s+(-[a-z]+\s+)*(--\s+)?/bin/[a-zA-Z0-9_.-]+'
+      regex: 'rm\s+(?:-[a-z]{1,8}\s+){0,3}(?:--\s+)?/bin/[a-zA-Z0-9_.-]{1,80}'
 
   - id: rm-sbin-path
     desc: Delete file in /sbin directory
@@ -105,7 +105,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: 'rm\s+(-[a-z]+\s+)*(--\s+)?/sbin/[a-zA-Z0-9_.-]+'
+      regex: 'rm\s+(?:-[a-z]{1,8}\s+){0,3}(?:--\s+)?/sbin/[a-zA-Z0-9_.-]{1,80}'
 
   # === Combined patterns ===
   - id: cp-and-rm-chain
@@ -116,7 +116,7 @@ traits:
     attack: "T1059.004"
     if:
       type: raw
-      regex: 'cp\s+[^|&;\n]+&&[^;]{0,512}rm\s+'
+      regex: 'cp\s+.{1,220}&&.{0,512}rm\s+'
 
   - id: exec-and-rm-chain
     desc: Execute then remove chain
@@ -126,7 +126,7 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: '(?:^|[\s;&|])/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]+[^;]*&&[^;]*rm\s+'
+      regex: '(?:^|[\s;&|])/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]{1,80}.{0,240}&&.{0,240}rm\s+'
 
 composite_rules:
   # Copy to any system bin directory

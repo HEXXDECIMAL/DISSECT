@@ -149,7 +149,7 @@ composite_rules:
     conf: 0.9
     needs: 2
     any:
-      - id: cap/code/metrics/obfuscation::high-entropy-identifiers
+      - id: cap/data/source/metrics/obfuscation::high-entropy-identifiers
       - id: many-high-entropy-identifiers
       - id: obj/anti-static/obfuscation/code-metrics::go-many-high-entropy-identifiers
       - id: py-many-high-entropy-identifiers

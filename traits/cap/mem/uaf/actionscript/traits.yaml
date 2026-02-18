@@ -1,6 +1,6 @@
 traits:
   - id: actionscript-initialize-nullify-uaf
-    desc: "Pattern of initializing a manager and immediately nullifying the object (UAF trigger)"
+    desc: "Pattern of initializing a manager and immediately"
     crit: suspicious
     conf: 0.9
     attack: T1203

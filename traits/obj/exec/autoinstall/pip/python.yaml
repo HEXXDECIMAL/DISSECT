@@ -15,7 +15,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "subprocess\\.[a-z_]+\\([^)]*pip[^)]*install"
+      regex: "subprocess\\.[a-z_]+\\(.{0,220}pip.{0,120}install"
 
   # sys.executable -m pip pattern
   - id: sys-executable
@@ -23,7 +23,7 @@ traits:
     conf: 0.95
     if:
       type: string
-      regex: "sys\\.executable[^)]*-m[^)]*pip[^)]*install"
+      regex: "sys\\.executable.{0,120}-m.{0,120}pip.{0,120}install"
 
   # os.system pip install
   - id: os-system
@@ -31,7 +31,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "os\\.system\\([^)]*pip[^)]*install"
+      regex: "os\\.system\\(.{0,220}pip.{0,120}install"
 
   # importlib fallback pattern (try import, except install)
   - id: try-import-install
@@ -40,7 +40,7 @@ traits:
     if:
       type: string
       # Matches pattern in try/except blocks
-      regex: "except[^:]*:.{0,50}pip.{0,20}install|ImportError.{0,50}pip.{0,20}install"
+      regex: "except[^:]{0,120}:.{0,50}pip.{0,20}install|ImportError.{0,50}pip.{0,20}install"
 
   # pip.main() direct call
   - id: main-call
@@ -80,7 +80,7 @@ traits:
   # === Try/except block atomic indicators ===
   - id: try-colon
     desc: "try: statement"
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -88,15 +88,15 @@ traits:
 
   - id: except-colon-pattern
     desc: except statement with colon
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
-      regex: "except[^:]*:"
+      regex: "except[^:]{0,120}:"
 
   - id: import-statement
     desc: import statement
-    crit: inert
+    crit: notable
     conf: 0.4
     if:
       type: string
@@ -104,7 +104,7 @@ traits:
 
   - id: pip-install-pattern
     desc: pip install pattern
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -124,7 +124,7 @@ traits:
 
   - id: except-import-error-content
     desc: "except ImportError in source"
-    crit: inert
+    crit: notable
     conf: 0.70
     if:
       type: raw

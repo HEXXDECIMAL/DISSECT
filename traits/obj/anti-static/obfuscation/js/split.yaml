@@ -14,7 +14,7 @@ traits:
 
   - id: js-string-concatenation
     desc: "String concatenation (potential obfuscation)"
-    crit: inert
+    crit: notable
     if:
       type: ast
       query: |
@@ -26,4 +26,4 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '\[\s*["''][^"'']+["'']\s*\+\s*["''][^"'']+["'']\s*\]'
+      regex: '\[\s*["''][^"'']{1,120}["'']\s*\+\s*["''][^"'']{1,120}["'']\s*\]'

@@ -36,7 +36,7 @@ traits:
     if:
       type: raw
       # Matches: crontab -l | sed '/pattern/d' | crontab -
-      regex: "crontab\\s+-l\\s*\\|\\s*sed\\s+['\"]?/[^/]+/d['\"]?\\s*\\|\\s*crontab\\s*-"
+      regex: "crontab\\s+-l\\s*\\|\\s*sed\\s+['\"]?/[^/]{1,120}/d['\"]?\\s*\\|\\s*crontab\\s*-"
 
   # Multiple cron manipulations indicates malware cleaning up competitors
   - id: mass-crontab-cleanup

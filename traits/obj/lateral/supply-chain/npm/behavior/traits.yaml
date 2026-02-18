@@ -120,7 +120,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:writeFile|writeFileSync|appendFile)\\s*\\([^)]*node_modules"
+      regex: "(?:writeFile|writeFileSync|appendFile)\\s*\\(.{0,220}node_modules"
 
   # Reads .npmrc (token theft)
   - id: npmrc-read
@@ -130,7 +130,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:readFile|readFileSync)\\s*\\([^)]*\\.npmrc"
+      regex: "(?:readFile|readFileSync)\\s*\\(.{0,220}\\.npmrc"
 
   # Package writes to package.json (persistence)
   - id: package-json-write
@@ -140,7 +140,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "writeFileSync\\s*\\([^)]*package\\.json|writeFile\\s*\\([^)]*package\\.json"
+      regex: "writeFileSync\\s*\\(.{0,220}package\\.json|writeFile\\s*\\(.{0,220}package\\.json"
 
   # Scoped package mimicking popular library
   - id: scoped-typosquat
@@ -149,7 +149,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: '"name":\\s*"@[^/]+/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
+      regex: '"name":\\s*"@[^/]{1,80}/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
 
   # === Orphan child process micro-traits ===
   - id: child-dot-unref
@@ -169,7 +169,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "spawn\\([^)]+\\)\\.unref\\(\\)"
+      regex: "spawn\\(.{1,220}\\)\\.unref\\(\\)"
 
   # === Silent process execution micro-traits ===
 

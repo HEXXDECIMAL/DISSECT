@@ -9,14 +9,14 @@ defaults:
 traits:
   - id: basename-is-doc
     desc: Filename has document extension
-    crit: inert
+    crit: notable
     if:
       type: basename
       regex: '\.(pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|txt|csv|ods|odt)$'
 
   - id: basename-is-media
     desc: Filename has media extension
-    crit: inert
+    crit: notable
     if:
       type: basename
       regex: '\.(mp3|mp4|wav|avi|mov|mkv|flv|wmv|png|jpg|jpeg|gif|bmp|ico|svg|webp|tiff|tif)$'

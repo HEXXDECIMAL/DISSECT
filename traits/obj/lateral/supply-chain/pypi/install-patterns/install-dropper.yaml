@@ -106,7 +106,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'https?://[^\s''"]+\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\s''"]*)?$'
+      regex: 'https?://[^\s''"]{1,120}\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\s''"]{0,120})?$'
 
   # === Install Hook Pattern ===
   # setup.py install command override (post-install execution)
@@ -354,7 +354,7 @@ traits:
   # Atomic trait for pip install commands in strings (e.g., inside os.system)
   - id: pip-install-string
     desc: pip install command string
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -364,7 +364,7 @@ traits:
   # Atomic trait for pip module reference (e.g. -m pip)
   - id: pip-module-string
     desc: pip module reference string
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -375,7 +375,7 @@ composite_rules:
   # Combines multiple ways to identify a setup.py file
   - id: robust-setup-py
     desc: setup.py installation file
-    crit: inert
+    crit: notable
     conf: 1.0
     any:
       - id: obj/lateral/supply-chain/pypi/general::setup-py-file
@@ -404,7 +404,7 @@ composite_rules:
     any:
       - id: pip-install-string
       - id: pip-module-string
-      - id: obj/execution/autoinstall/pip::pip-install-pattern
+      - id: obj/exec/autoinstall/pip::pip-install-pattern
 
   # === Windows Command Execution ===
   - id: windows-start-exec
@@ -529,9 +529,9 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: obj/execution/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
-      - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
+      - id: obj/anti-static/obfuscation/source::advanced-python-obfuscation
 
   # === HOSTILE: PyPI Shortcut Hijack Dropper ===
   - id: pypi-shortcut-hijack-dropper
@@ -542,7 +542,7 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: obj/execution/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
 
@@ -583,7 +583,7 @@ composite_rules:
       - id: robust-setup-py
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
-      - id: obj/execution/autoinstall/pip::main-call-content
+      - id: obj/exec/autoinstall/pip::main-call-content
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -597,7 +597,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: robust-setup-py
-      - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
+      - id: obj/anti-static/obfuscation/source::advanced-python-obfuscation
       - id: setup-py-file-write
       - id: cap/fs/directory/mkdir::mkdir-python
 
@@ -610,9 +610,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: obj/execution/dropper/stealth::subprocess-popen
+      - id: obj/exec/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
-      - id: obj/execution/background/daemon::powershell-hidden
+      - id: obj/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
   - id: pypi-powershell-encoded-dropper
@@ -623,9 +623,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: obj/execution/dropper/stealth::subprocess-popen
+      - id: obj/exec/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
-      - id: obj/execution/background/daemon::powershell-hidden
+      - id: obj/exec/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
   - id: pypi-powershell-stager
@@ -638,7 +638,7 @@ composite_rules:
       - id: robust-setup-py
       - id: powershell-download-in-string
       - id: powershell-expand-archive
-      - id: obj/execution/interpreter/vbscript/interpreter::vbs-powershell-launch
+      - id: obj/exec/interpreter/vbscript/interpreter::vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
   - id: pypi-extension-dropper-admin-gated

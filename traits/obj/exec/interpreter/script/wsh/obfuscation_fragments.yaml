@@ -13,17 +13,11 @@ traits:
       type: raw
       regex: 'WScrip|t\.Shell|t\.She|WScr|\.Shel|pt\.She'
 
-  - id: msxml-fragment
-    desc: MSXML2.XMLHTTP string fragment
-    if:
-      type: raw
-      regex: 'MSXML2|MLHTTP|MSXM|XML2'
-
   - id: adodb-fragment
     desc: ADODB.Stream string fragment
     if:
       type: raw
-      regex: 'ADOD|ADODB|B\.Str|B\.St|DB\.St|ADO|ODB\.St'
+      regex: 'ADODB|B\.Str|B\.St|DB\.St|ADO|ODB\.St'
 
   - id: filesystemobject-fragment
     desc: FileSystemObject string fragment

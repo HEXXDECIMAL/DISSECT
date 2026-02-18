@@ -6,7 +6,7 @@ defaults:
 
 traits:
   - id: mode-read-write-binary
-    desc: Open file in binary read/write mode (rb+, wb+)
+    desc: Open file in binary read/write mode (rb+,
     crit: notable
     conf: 0.9
     if:

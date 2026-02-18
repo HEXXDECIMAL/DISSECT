@@ -99,7 +99,7 @@ traits:
       # Require URL/network endpoint context to avoid matching benign dotted config keys like "figure.subplot.top".
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
-      regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
+      regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.){1,6}(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5})?(?:[/?#].{0,220})?|(?:[a-zA-Z0-9-]{1,63}\\.){1,6}(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]{1,220}|\\?.{1,220}))['\\\"]"
     unless:
       - type: raw
         regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru|tbcdn\\.cn|xn--hgi\\.ws"
@@ -202,7 +202,7 @@ traits:
     for: [scripts]
     if:
       type: string
-      regex: "(?:https?|wss?)://(?:[a-zA-Z0-9][-a-zA-Z0-9]*\\.)+[a-zA-Z]{2,6}(?:/|$|:)"
+      regex: "(?:https?|wss?)://(?:[a-zA-Z0-9][-a-zA-Z0-9]*\\.){1,6}[a-zA-Z]{2,6}(?:/|$|:)"
       exclude_patterns:
         # Documentation/standards
         - "ezgif\\.com"
@@ -420,7 +420,7 @@ traits:
     attack: "T1105"
     if:
       type: string
-      regex: 'firebasestorage\.googleapis\.com/v[0-9]+/b/[^/]+/o/'
+      regex: 'firebasestorage\.googleapis\.com/v[0-9]+/b/[^/]{1,120}/o/'
 
   # === PHP collector scripts (atomic) ===
   - id: php-collect
@@ -474,7 +474,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "https?://[^/]+/[^'\"\\s]*(?:gate|upload|post|send|cmd|shell|webhook|collect|exfil|steal|payload|drop|loader|backdoor)[^'\"\\s]*\\.php(?:\\?[^'\"\\s]*)?"
+      regex: "https?://[^/]{1,120}/.{0,220}(?:gate|upload|post|send|cmd|shell|webhook|collect|exfil|steal|payload|drop|loader|backdoor).{0,220}\\.php(?:\\?.{0,220})?"
 
   - id: php-url
     desc: PHP URL endpoint (often used for C2)
@@ -484,7 +484,7 @@ traits:
     for: [shell, python, ruby, javascript, perl, go, rust, c, cpp, java, csharp, elf, macho, pe, typescript]
     if:
       type: string
-      regex: 'https?://[a-zA-Z0-9][-a-zA-Z0-9.]+(?::[0-9]+)?/[^?#\s]*\.php(?:[?#]|$)'
+      regex: 'https?://[a-zA-Z0-9][-a-zA-Z0-9.]{1,120}(?::[0-9]+)?/.{0,220}\.php(?:[?#]|$)'
       exclude_patterns:
         - "(?i)sourceforge\\.net"
         - "(?i)vim\\.org"
@@ -650,7 +650,7 @@ traits:
     attack: "T1071"
     if:
       type: string
-      regex: '(?:[a-z0-9-]+\.)+replit\.dev'
+      regex: '(?:[a-z0-9-]{1,63}\.){1,6}replit\.dev'
 
   - id: repl-co
     desc: Repl.co endpoint
@@ -659,7 +659,7 @@ traits:
     attack: "T1071"
     if:
       type: string
-      regex: '(?:[a-z0-9-]+\.)+repl\.co'
+      regex: '(?:[a-z0-9-]{1,63}\.){1,6}repl\.co'
 
   - id: replit-id-domain
     desc: Replit ID endpoint (commonly abused)

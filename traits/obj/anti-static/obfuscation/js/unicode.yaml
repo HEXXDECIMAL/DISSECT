@@ -19,4 +19,4 @@ traits:
     if:
       type: raw
       # Matches this[{...:'\uXXXX'}. where \u is literal text in the source
-      regex: 'this\[\s*\{[^:]+:[''"]\\\\u[0-9a-fA-F]{4}[''"]\}\.'
+      regex: 'this\[\s*\{[^:]{1,120}:[''"]\\\\u[0-9a-fA-F]{4}[''"]\}\.'

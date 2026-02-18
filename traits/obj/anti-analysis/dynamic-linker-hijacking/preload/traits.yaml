@@ -56,7 +56,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (?:LD_PRELOAD\s*=\s*[^\s]*libc(?:\.so|-)|ld\.so\.preload[^\n]{0,80}libc(?:\.so|-))
+    regex: (?:LD_PRELOAD\s*=\s*[^\s]{0,120}libc(?:\.so|-)|ld\.so\.preload[^\n]{0,80}libc(?:\.so|-))
 - id: glibc-tunables
   desc: GLIBC_TUNABLES environment variable
   crit: notable

@@ -17,7 +17,7 @@ composite_rules:
   # Helper: Any network activity
   - id: python-network-combo
     desc: Python network activity
-    crit: inert
+    crit: notable
     conf: 0.8
     any:
       - id: cap/comm/http/request::request-python
@@ -27,7 +27,7 @@ composite_rules:
   # Helper: Install context
   - id: pypi-install-context-combo
     desc: PyPI install context
-    crit: inert
+    crit: notable
     conf: 1.0
     any:
       - id: obj/lateral/supply-chain/pypi/install-patterns::setup-py-file

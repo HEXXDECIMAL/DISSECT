@@ -6,16 +6,16 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: 'for\s*\([^;]+;[^;]+;\s*[\w$]+\s*\+=\s*(?:[3-9]|[1-9]\d+|[a-zA-Z_$][\w$]*)\)'
+      regex: 'for\s*\([^;]{1,120};[^;]{1,120};\s*[\w$]+\s*\+=\s*(?:[3-9]|[1-9]\d+|[a-zA-Z_$][\w$]*)\)'
 
   - id: js-loop-string-concat
-    desc: "String concatenation in loop body using array subscript"
+    desc: "String concatenation in loop body using array"
     crit: notable
     conf: 0.6
     for: [javascript, typescript]
     if:
       type: raw
-      regex: '(?:[\w$]+\s*=\s*[\w$]+\s*\+\s*[\w$]+\s*\[[^\]]+\]|[\w$]+\s*\+=\s*[\w$]+\s*\[[^\]]+\])(?:[;\s,\+\)\}]|$)'
+      regex: '(?:[\w$]+\s*=\s*[\w$]+\s*\+\s*[\w$]+\s*\[[^\]]{1,120}\]|[\w$]+\s*\+=\s*[\w$]+\s*\[[^\]]{1,120}\])(?:[;\s,\+\)\}]|$)'
 
   - id: js-concat-chain
     desc: "JavaScript massive string concatenation chain"

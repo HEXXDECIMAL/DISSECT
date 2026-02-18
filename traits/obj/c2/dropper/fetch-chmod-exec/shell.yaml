@@ -15,8 +15,8 @@ composite_rules:
     for: [shell]
     all:
       - id: obj/c2/infrastructure/ip::http-raw-ip-url
-      - id: obj/execution/dropper/script::curl-download
-      - id: obj/execution/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::curl-download
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
 
   # Download from raw IP + Gatekeeper bypass + execute
   # Complexity: all(4) = 4 -> hostile
@@ -29,9 +29,9 @@ composite_rules:
     for: [shell]
     all:
       - id: obj/c2/infrastructure/ip::http-raw-ip-url
-      - id: obj/execution/dropper/script::curl-download
+      - id: obj/exec/dropper/script::curl-download
       - id: cap/fs/attributes/xattr::xattr-clear
-      - id: obj/execution/dropper/script::execute-dot-slash
+      - id: obj/exec/dropper/script::execute-dot-slash
 
   # Temp directory staging dropper
   # Complexity: all(4) = 4 -> hostile
@@ -44,9 +44,9 @@ composite_rules:
     for: [shell]
     all:
       - id: tmpdir-variable
-      - id: obj/execution/dropper/script::curl-download
-      - id: obj/execution/dropper/script::chmod-plus-x-cmd
-      - id: obj/execution/dropper/script::execute-dot-slash
+      - id: obj/exec/dropper/script::curl-download
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::execute-dot-slash
 
   # Download from external URL + chmod + execute
   # Complexity: all(4) = 4 -> hostile
@@ -59,9 +59,9 @@ composite_rules:
     for: [shell]
     all:
       - id: obj/c2/infrastructure/domain::http-url-script
-      - id: obj/execution/dropper/script::curl-download-file
-      - id: obj/execution/dropper/script::chmod-plus-x-cmd
-      - id: obj/execution/dropper/script::execute-dot-slash
+      - id: obj/exec/dropper/script::curl-download-file
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::execute-dot-slash
 
   # Download file + make executable + detached execution
   # Precision: all(4) + any(1) + for(1) >= 4 -> hostile
@@ -73,12 +73,12 @@ composite_rules:
     attack: "T1105"
     for: [shell]
     all:
-      - id: obj/execution/dropper/script::curl-download-file
-      - id: obj/execution/dropper/script::execute-dot-slash
-      - id: obj/execution/background/daemon::nohup-command
+      - id: obj/exec/dropper/script::curl-download-file
+      - id: obj/exec/dropper/script::execute-dot-slash
+      - id: obj/exec/background/daemon::nohup-command
     any:
-      - id: obj/execution/dropper/script::chmod-plus-x-cmd
-      - id: obj/execution/dropper/script::chmod-7xx-cmd
+      - id: obj/exec/dropper/script::chmod-plus-x-cmd
+      - id: obj/exec/dropper/script::chmod-7xx-cmd
 
 traits:
   - id: tmpdir-variable

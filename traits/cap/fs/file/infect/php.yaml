@@ -9,7 +9,7 @@ traits:
       case_insensitive: true
 
   - id: php-append-self
-    description: "Detects PHP code referencing its own filename for inclusion"
+    description: "References own filename for inclusion"
     crit: suspicious
     attack: T1546
     if:

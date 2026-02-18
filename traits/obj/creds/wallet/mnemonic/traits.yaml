@@ -16,7 +16,7 @@ traits:
     crit: suspicious
     if:
       type: string
-      regex: "split\\([^)]*\\)\\s*\\.\\s*length\\s*[=!<>]+\\s*(12|15|18|21|24)|len\\([^)]*split[^)]*\\)\\s*[=!<>]+\\s*(12|15|18|21|24)|words?_?count\\s*[=!<>]+\\s*(12|15|18|21|24)"
+      regex: "split\\([^)]{0,120}\\)\\s*\\.\\s*length\\s*[=!<>]+\\s*(12|15|18|21|24)|len\\([^)]{0,120}split[^)]{0,120}\\)\\s*[=!<>]+\\s*(12|15|18|21|24)|words?_?count\\s*[=!<>]+\\s*(12|15|18|21|24)"
 
   # Common mnemonic-related variable/function names
   - id: variable-names
@@ -141,7 +141,7 @@ traits:
 
   - id: phantom-word
     desc: Phantom wallet reference
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string

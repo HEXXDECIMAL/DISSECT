@@ -25,7 +25,7 @@ traits:
     attack: "T1083"
     if:
       type: raw
-      regex: 'find_files\s*\([^)]*,[^)]*,\s*\w+\s*,'
+      regex: 'find_files\s*\([^)]{0,120},[^)]{0,120},\s*\w+\s*,'
 
   - id: depth-limit-param
     desc: Depth-limited recursion parameter

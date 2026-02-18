@@ -108,7 +108,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "if\\s*\\([^)]*0x[0-9a-fA-F]+[^)]*\\)"
+      regex: "if\\s*\\([^)]{0,120}0x[0-9a-fA-F]+[^)]{0,120}\\)"
       count_min: 2
 
 composite_rules:

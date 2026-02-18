@@ -2,7 +2,7 @@ traits:
   - id: asm-rol-not-loop
     conf: 0.9
     crit: suspicious
-    desc: Detects assembly ROL/NOT encryption loop used in Win32.Jacky
+    desc: Detects assembly ROL/NOT encryption loop used in
     if:
       type: raw
       # lodsb; rol al, cl; not al; stosb; loop

@@ -15,7 +15,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '\bnohup\s+[^\n]+'
+      regex: '\bnohup\s+[^\n]{1,120}'
 
   # nohup with output redirection to /dev/null (hiding output)
   - id: nohup-hidden-output
@@ -25,12 +25,12 @@ traits:
     mbc: "F0005"
     if:
       type: raw
-      regex: 'nohup\s+[^\n]+>\s*/dev/null'
+      regex: 'nohup\s+[^\n]{1,120}>\s*/dev/null'
 
   # Background with & and output suppression
   - id: background-ampersand-hidden
     desc: Background process with hidden output
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: raw

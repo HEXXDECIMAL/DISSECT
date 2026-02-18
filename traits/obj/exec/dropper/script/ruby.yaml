@@ -9,7 +9,7 @@ traits:
   # === Ruby require strings (library imports) ===
   - id: net-http-single-quote
     desc: "'net/http' require string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -17,7 +17,7 @@ traits:
 
   - id: net-http-double-quote
     desc: '"net/http" require string'
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -25,7 +25,7 @@ traits:
 
   - id: uri-single-quote
     desc: "'uri' require string"
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -33,7 +33,7 @@ traits:
 
   - id: uri-double-quote
     desc: '"uri" require string'
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -41,7 +41,7 @@ traits:
 
   - id: base64-single-quote
     desc: "'base64' require string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -49,7 +49,7 @@ traits:
 
   - id: base64-double-quote
     desc: '"base64" require string'
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -57,7 +57,7 @@ traits:
 
   - id: resolv-single-quote
     desc: "'resolv' require string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -65,7 +65,7 @@ traits:
 
   - id: resolv-double-quote
     desc: '"resolv" require string'
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -73,7 +73,7 @@ traits:
 
   - id: socket-single-quote
     desc: "'socket' require string"
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -81,7 +81,7 @@ traits:
 
   - id: socket-double-quote
     desc: '"socket" require string'
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -89,7 +89,7 @@ traits:
 
   - id: tempfile-single-quote
     desc: "'tempfile' require string"
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -97,7 +97,7 @@ traits:
 
   - id: tempfile-double-quote
     desc: '"tempfile" require string'
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -105,7 +105,7 @@ traits:
 
   - id: open-uri-single-quote
     desc: "'open-uri' require string"
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -113,7 +113,7 @@ traits:
 
   - id: open-uri-double-quote
     desc: '"open-uri" require string'
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -121,7 +121,7 @@ traits:
 
   - id: pty-single-quote
     desc: "'pty' require string"
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string
@@ -129,7 +129,7 @@ traits:
 
   - id: pty-double-quote
     desc: '"pty" require string'
-    crit: inert
+    crit: notable
     conf: 0.75
     if:
       type: string

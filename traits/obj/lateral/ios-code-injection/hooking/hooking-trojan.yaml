@@ -15,9 +15,9 @@ composite_rules:
     mbc: "C0041"
     for: [ipa]
     all:
-      - id: obj/defense-evasion/process/injection/code::cydia-substrate-detected
+      - id: obj/defense-evasion/process/injection/runtime::cydia-substrate-detected
       - id: obj/discovery/ios-obfuscation/bundle::obfuscated-bundle-identity
-      - id: obj/defense-evasion/process/injection/code::runtime-code-injection
+      - id: obj/defense-evasion/process/injection/runtime::runtime-code-injection
 
   - id: ios-reverse-engineering-instrumented
     desc: Reverse engineering tool
@@ -26,8 +26,8 @@ composite_rules:
     attack: "T1564"
     for: [ipa]
     any:
-      - id: obj/defense-evasion/process/injection/code::reveal-server-framework
-      - id: obj/defense-evasion/process/injection/code::cbinjection-framework
+      - id: obj/defense-evasion/process/injection/runtime::reveal-server-framework
+      - id: obj/defense-evasion/process/injection/runtime::cbinjection-framework
 
   - id: ios-obfuscated-trojan
     desc: Obfuscated injection
@@ -38,5 +38,5 @@ composite_rules:
     for: [ipa]
     all:
       - id: obj/discovery/ios-obfuscation/bundle::suspicious-bundle-masquerading
-      - id: obj/defense-evasion/process/injection/code::runtime-code-injection
-      - id: obj/defense-evasion/process/injection/code::cydia-substrate-detected
+      - id: obj/defense-evasion/process/injection/runtime::runtime-code-injection
+      - id: obj/defense-evasion/process/injection/runtime::cydia-substrate-detected

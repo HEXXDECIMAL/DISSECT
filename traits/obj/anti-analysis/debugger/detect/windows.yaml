@@ -7,7 +7,7 @@ defaults:
   platforms: [windows]
 
 traits:
-  # IsDebuggerPresent: use obj/execution/native/runtime/traits.yaml::debugger-detect-api (canonical)
+  # IsDebuggerPresent: use obj/exec/native/runtime/traits.yaml::debugger-detect-api (canonical)
   - id: check-remote-debugger
     desc: CheckRemoteDebuggerPresent API
     crit: notable
@@ -37,6 +37,6 @@ composite_rules:
     mbc: "B0001"
     attack: "T1622"
     any:
-      - id: obj/execution/native/runtime::debugger-detect-api
+      - id: obj/exec/native/runtime::debugger-detect-api
       - id: check-remote-debugger
       - id: nt-query-information-process

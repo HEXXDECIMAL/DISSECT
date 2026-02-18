@@ -1,6 +1,6 @@
 traits:
   - id: ivt-segment-val
-    desc: Loads interrupt vector table segment value (0024h) (ASM)
+    desc: Loads interrupt vector table segment value (0024h)
     crit: notable
     if:
       type: raw
@@ -21,7 +21,7 @@ traits:
       regex: '(?i)int\s+0?B4h'
 
   - id: ivt-self-check
-    desc: Checks for specific byte (60h/pusha) in IVT segment (ASM)
+    desc: Checks for specific byte (60h/pusha) in IVT
     crit: suspicious
     if:
       type: raw

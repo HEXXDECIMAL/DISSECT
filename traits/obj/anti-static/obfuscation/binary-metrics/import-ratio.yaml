@@ -23,7 +23,7 @@ traits:
 
   - id: max-50-imports
     desc: Binary has 50 or fewer imports
-    crit: inert
+    crit: notable
     conf: 0.7
     for: [pe, elf, macho]
     if:
@@ -84,6 +84,6 @@ composite_rules:
       - id: cap/crypto
     downgrade:
       any:
-        - id: obj/execution/reflection/invoke::namespace-import
-        - id: obj/execution/reflection/invoke::method-info
-        - id: obj/execution/reflection/invoke::property-info
+        - id: obj/exec/reflection/invoke::namespace-import
+        - id: obj/exec/reflection/invoke::method-info
+        - id: obj/exec/reflection/invoke::property-info

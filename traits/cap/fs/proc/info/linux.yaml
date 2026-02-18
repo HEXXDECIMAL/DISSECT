@@ -57,7 +57,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/maps'
+      regex: '/proc/[0-9]{1,10}/maps'
 
   - id: process-pid-mem
     desc: Access process memory via /proc/*/mem
@@ -65,7 +65,7 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: '/proc/[^/]+/mem'
+      regex: '/proc/[0-9]{1,10}/mem'
 
   - id: process-pid-cmdline
     desc: Read process command line via
@@ -73,7 +73,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/cmdline'
+      regex: '/proc/[0-9]{1,10}/cmdline'
 
   # NOTE: Debuggers legitimately read /proc/*/environ to inspect target process
   # environment. Downgrade to notable for debugger tools.
@@ -83,7 +83,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/environ'
+      regex: '/proc/[0-9]{1,10}/environ'
     not:
       - substr: "/proc/self/"
     downgrade:
@@ -96,7 +96,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/fd'
+      regex: '/proc/[0-9]{1,10}/fd'
 
   - id: linux-process-pid-exe
     desc: Process exe path via /proc
@@ -104,7 +104,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/exe'
+      regex: '/proc/[0-9]{1,10}/exe'
 
   - id: process-pid-status
     desc: Read process status via /proc/*/status
@@ -112,7 +112,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/status'
+      regex: '/proc/[0-9]{1,10}/status'
 
   - id: process-pid-stat
     desc: Read process statistics via /proc/*/stat
@@ -120,7 +120,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/stat[^u]'
+      regex: '/proc/[0-9]{1,10}/stat\b'
 
   - id: python-proc-path-join
     desc: os.path.join for /proc sensitive files
@@ -152,7 +152,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: '/proc/[^/]+/oom_score_adj'
+      regex: '/proc/[0-9]{1,10}/oom_score_adj'
 
   - id: proc-net-tcp
     desc: Read TCP connection table

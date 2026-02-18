@@ -10,11 +10,11 @@ defaults:
 
 traits:
   # === Download and execute function patterns ===
-  # Removed py-download-and-execute-func duplicate - use obj/execution/dropper/http::download-and-execute-func
+  # Removed py-download-and-execute-func duplicate - use obj/exec/dropper/http::download-and-execute-func
 
   - id: def-download
     desc: Function named download_*
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -22,7 +22,7 @@ traits:
 
   - id: def-fetch
     desc: Function named fetch_*
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -30,7 +30,7 @@ traits:
 
   - id: payload-keyword
     desc: payload/stage/phase keyword
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
 
   - id: requests-method
     desc: requests.get or requests.post
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -46,7 +46,7 @@ traits:
 
   - id: popen-call
     desc: subprocess module call
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -79,7 +79,7 @@ composite_rules:
     any:
       - id: cap/process/create/subprocess
       - id: cap/process/create/shell::python-os-system
-      - id: obj/execution/interpreter/eval/invoke::exec-call-python
+      - id: obj/exec/interpreter/eval/invoke::exec-call-python
 
   # C2 endpoint path composite
   - id: python-endpoint-path

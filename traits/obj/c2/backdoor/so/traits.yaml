@@ -75,7 +75,6 @@ composite_rules:
       - id: cap/os/linker/env::ld-preload
     any:
       - id: cap/process/create/shell
-      - id: cap/process/create/shell::c-popen
       - id: cap/dylib/lookup::dlsym-symbol
 
   # Full supply chain backdoor pattern

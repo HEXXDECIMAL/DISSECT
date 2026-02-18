@@ -6,7 +6,7 @@ traits:
   # === Archive extraction methods ===
   - id: extract-full
     desc: extractFull call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -15,7 +15,7 @@ traits:
 
   - id: extract-call
     desc: extract() call
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -24,7 +24,7 @@ traits:
 
   - id: unzip-call
     desc: unzip reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -33,7 +33,7 @@ traits:
 
   - id: 7z-ref
     desc: 7z reference
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -43,7 +43,7 @@ traits:
   # === Password-protected archive parameters ===
   - id: password-colon
     desc: "password: parameter"
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -52,7 +52,7 @@ traits:
 
   - id: password-equals
     desc: password= parameter
-    crit: inert
+    crit: notable
     conf: 0.5
     for: [javascript, typescript]
     if:
@@ -61,7 +61,7 @@ traits:
 
   - id: p-flag
     desc: -p flag
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -71,7 +71,7 @@ traits:
   # === 7-zip atomic indicators ===
   - id: 7zip-bin-module
     desc: 7zip-bin module
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1140"
     for: [javascript, typescript]
@@ -81,7 +81,7 @@ traits:
 
   - id: node-7z-module
     desc: node-7z module
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1140"
     for: [javascript, typescript]
@@ -91,7 +91,7 @@ traits:
 
   - id: path7za
     desc: path7za reference
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1140"
     for: [javascript, typescript]
@@ -101,7 +101,7 @@ traits:
 
   - id: 7z-exe
     desc: 7z.exe reference
-    crit: inert
+    crit: notable
     conf: 0.6
     attack: "T1140"
     for: [javascript, typescript]
@@ -112,7 +112,7 @@ traits:
   # === Archive extension atomics ===
   - id: zip-ext
     desc: .zip extension
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -121,7 +121,7 @@ traits:
 
   - id: 7z-ext
     desc: .7z extension
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -130,7 +130,7 @@ traits:
 
   - id: tar-ext
     desc: .tar extension
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:
@@ -139,7 +139,7 @@ traits:
 
   - id: rar-ext
     desc: .rar extension
-    crit: inert
+    crit: notable
     conf: 0.4
     for: [javascript, typescript]
     if:

@@ -245,12 +245,12 @@ composite_rules:
     attack: "T1140"
     conf: 0.92
     all:
-      - id: obj/execution/reflection/class::java-defineclass
-      - id: obj/execution/reflection/class::java-reflective-invoke
-      - id: obj/execution/reflection/class::java-string-reversal
+      - id: obj/exec/reflection/class::java-defineclass
+      - id: obj/exec/reflection/class::java-reflective-invoke
+      - id: obj/exec/reflection/class::java-string-reversal
     any:
-      - id: obj/execution/reflection/class::java-reflection
-      - id: obj/execution/reflection/class::java-defineclass
+      - id: obj/exec/reflection/class::java-reflection
+      - id: obj/exec/reflection/class::java-defineclass
 
   # Java Adwind RAT C2 infrastructure pattern
   - id: adwind-c2-infrastructure

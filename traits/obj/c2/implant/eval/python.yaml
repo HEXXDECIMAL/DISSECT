@@ -11,12 +11,12 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059.006"
     all:
-      - id: obj/execution/interpreter/eval/invoke::python-eval
+      - id: obj/exec/interpreter/eval/invoke::python-eval
       - id: cap/comm/http/client
     any:
       - id: cap/data/obfuscation/payload::eval-function-call
-      - id: obj/execution/interpreter/eval/remote::eval-config-access
-      - id: obj/execution/interpreter/eval/remote::eval-dict-get
+      - id: obj/exec/interpreter/eval/remote::eval-config-access
+      - id: obj/exec/interpreter/eval/remote::eval-dict-get
 
   - id: client-config-execution
     desc: HTTP client config execution pattern
@@ -26,11 +26,11 @@ composite_rules:
     mbc: "E1059"
     attack: "T1059.006"
     all:
-      - id: obj/execution/interpreter/eval/invoke::python-eval
+      - id: obj/exec/interpreter/eval/invoke::python-eval
       - id: cap/comm/http/lib/urllib::urllib-word
     any:
       - id: cap/data/obfuscation/payload::eval-function-call
-      - id: obj/execution/interpreter/eval/remote::eval-config-access
+      - id: obj/exec/interpreter/eval/remote::eval-config-access
 
   - id: config-string-execution
     desc: Configuration string execution
@@ -39,7 +39,7 @@ composite_rules:
     for: [python]
     attack: "T1059.006"
     all:
-      - id: obj/execution/interpreter/eval/invoke::python-eval
+      - id: obj/exec/interpreter/eval/invoke::python-eval
     any:
       - id: cap/data/obfuscation/payload::eval-function-call
-      - id: obj/execution/interpreter/eval/remote::eval-client-config
+      - id: obj/exec/interpreter/eval/remote::eval-client-config

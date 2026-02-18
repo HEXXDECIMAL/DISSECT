@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     all:
       - id: cap/fs/file/section::asm-pe-header-manipulation
-      - id: cap/exec/load/manual-import::asm-manual-import-parsing
+      - id: cap/process/create/load/manual-import::asm-manual-import-parsing
     any:
       - id: cap/crypto/symmetric/xor::asm-rol-not-loop
       - id: cap/fs/memory/mmap::win32-file-mapping

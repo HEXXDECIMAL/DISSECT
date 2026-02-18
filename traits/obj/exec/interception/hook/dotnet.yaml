@@ -5,7 +5,7 @@ traits:
   # === Dynamic proxy atomic indicators ===
   - id: proxy-generator
     desc: ProxyGenerator class reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -13,7 +13,7 @@ traits:
 
   - id: dynamic-proxy-class
     desc: DynamicProxy class reference
-    crit: inert
+    crit: notable
     conf: 0.7
     if:
       type: string
@@ -22,7 +22,7 @@ traits:
   # === Interceptor atomic indicators ===
   - id: iinterceptor-interface
     desc: IInterceptor interface reference
-    crit: inert
+    crit: notable
     conf: 0.65
     if:
       type: string
@@ -30,7 +30,7 @@ traits:
 
   - id: interceptor-class
     desc: Interceptor class reference
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string
@@ -38,7 +38,7 @@ traits:
 
   - id: iinvocation-interface
     desc: IInvocation interface reference
-    crit: inert
+    crit: notable
     conf: 0.65
     if:
       type: string

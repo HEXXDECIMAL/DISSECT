@@ -1,7 +1,0 @@
-traits:
-  - id: return-this
-    desc: Detects prototype function that returns 'this' (used for unboxing/global object access)
-    crit: suspicious
-    if:
-      type: raw
-      regex: 'function\s+[a-zA-Z0-9_$]+.prototype.[a-zA-Z0-9_$]+\s*\(\s*\)\s*\{\s*return\s+this'

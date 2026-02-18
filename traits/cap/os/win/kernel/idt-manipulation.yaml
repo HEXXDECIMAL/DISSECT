@@ -10,7 +10,7 @@ traits:
   - id: int5
     conf: 0.8
     crit: suspicious
-    desc: Detects 'int 5' instruction (often used for Ring0 escalation on Win9x)
+    desc: Detects 'int 5' instruction (often used for
     if:
       type: raw
       regex: 'int\s+5'

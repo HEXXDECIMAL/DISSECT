@@ -5,4 +5,4 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "ext/[^/]+/[^/]+/[^/]+/extconf\\.rb"
+      regex: "ext/[^/]{1,120}/[^/]{1,120}/[^/]{1,120}/extconf\\.rb"

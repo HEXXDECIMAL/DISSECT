@@ -34,7 +34,7 @@ traits:
     desc: Node.js test filename pattern
     if:
       type: basename
-      regex: 'test[-_].*\\.js$|.*[-_]test\\.js$|.*\\.spec\\.js$'
+      regex: 'test[-_].{0,220}\\.js$|.{0,220}[-_]test\\.js$|.{0,220}\\.spec\\.js$'
 
 composite_rules:
   - id: is-test

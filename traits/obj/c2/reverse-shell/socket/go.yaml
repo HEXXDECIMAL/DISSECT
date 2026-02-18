@@ -81,7 +81,7 @@ traits:
       substr: "Stderr ="
 
   # === Shell path micro-traits ===
-  # NOTE: cmd-exe moved to obj/execution/interpreter/script/indicators/windows.yaml to avoid duplication
+  # NOTE: cmd-exe moved to obj/exec/interpreter/script/indicators/windows.yaml to avoid duplication
 
   - id: cmd-plain
     desc: Windows cmd shell reference

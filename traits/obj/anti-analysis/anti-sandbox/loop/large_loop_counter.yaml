@@ -15,6 +15,6 @@ traits:
       type: raw
       # Matches: if (var == 123456789012345) or while (var < 123456789012345)
       # Regex looks for comparison operators followed by at least 14 digits
-      regex: '(?:if|while|for)\s*\([^)]+(?:==|!=|<|>|<=|>=)\s*[1-9][0-9]{13,}'
+      regex: '(?:if|while|for)\s*\([^)]{1,120}(?:==|!=|<|>|<=|>=)\s*[1-9][0-9]{13,}'
       not:
         regex: '.*(?:1099511627776|1073741824).*'

@@ -5,7 +5,7 @@ traits:
   # === Shell installer atomic indicators ===
   - id: curl-pipe-bash-js
     desc: curl piped to bash
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     for: [javascript]
@@ -15,7 +15,7 @@ traits:
 
   - id: curl-pipe-sh-js
     desc: curl piped to sh
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     for: [javascript]
@@ -25,7 +25,7 @@ traits:
 
   - id: curl-pipe-zsh-js
     desc: curl piped to zsh
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     for: [javascript]
@@ -36,7 +36,7 @@ traits:
   # === PowerShell installer atomic indicators ===
   - id: powershell-irm-iex
     desc: PowerShell irm piped to iex
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     for: [javascript]
@@ -46,7 +46,7 @@ traits:
 
   - id: powershell-iwr-iex
     desc: PowerShell iwr piped to iex
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1105"
     for: [javascript]

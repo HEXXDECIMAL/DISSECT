@@ -26,7 +26,7 @@ traits:
     mbc: "F0005"
     if:
       type: raw
-      regex: 'stdio:\s*\[[^\]]*[''"]ignore[''"]'
+      regex: 'stdio:\s*\[[^\]]{0,220}[''"]ignore[''"]'
 
   - id: stdio-ignore-string
     desc: stdio set to ignore

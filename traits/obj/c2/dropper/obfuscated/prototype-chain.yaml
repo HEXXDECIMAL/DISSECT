@@ -7,6 +7,6 @@ composite_rules:
     attack: "T1027"
     mbc: "B0032"
     all:
-      - id: cap/code/obfuscation/prototype::weird-function-syntax
-      - id: cap/code/obfuscation/eval::eval-unescape
-      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragments-composite
+      - id: cap/data/source/obfuscation/prototype::weird-function-syntax
+      - id: cap/data/source/obfuscation/eval::eval-unescape
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragments-composite

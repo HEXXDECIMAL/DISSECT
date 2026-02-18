@@ -128,7 +128,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      regex: "open\\([^)]*[\"'][wa][\"']"
+      regex: "open\\([^)]{0,120}[\"'][wa][\"']"
 
   # === Ransom note (atomic) ===
   - id: files-encrypted-msg

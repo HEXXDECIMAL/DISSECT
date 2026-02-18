@@ -16,7 +16,7 @@ traits:
 
   - id: eval-as-first-arg
     desc: eval as first argument (eval,
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059.007"
     for: [javascript]
@@ -26,7 +26,7 @@ traits:
 
   - id: eval-as-last-arg
     desc: eval as last argument ,eval)
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059.007"
     for: [javascript]
@@ -116,7 +116,7 @@ traits:
   # === VM runIn atomic indicators ===
   - id: vm-runIn-method
     desc: vm.runIn method
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059.007"
     for: [javascript]
@@ -126,7 +126,7 @@ traits:
 
   - id: runInContext-call
     desc: runInContext call
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059.007"
     for: [javascript]
@@ -136,7 +136,7 @@ traits:
 
   - id: runInNewContext-call
     desc: runInNewContext call
-    crit: inert
+    crit: notable
     conf: 0.7
     attack: "T1059.007"
     for: [javascript]
@@ -147,7 +147,7 @@ traits:
   # === IIFE patterns ===
   - id: iife-pattern
     desc: Immediately invoked function expression
-    crit: inert
+    crit: notable
     conf: 0.9
     for: [javascript]
     if:
@@ -162,12 +162,12 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'var\s+\w+\s*=\s*function\s*\([^)]*\)\s*\{|var\s+\w+\s*=\s*\(\s*\)\s*=>'
+      regex: 'var\s+\w+\s*=\s*function\s*\([^)]{0,120}\)\s*\{|var\s+\w+\s*=\s*\(\s*\)\s*=>'
 
   # Eval compiling a function string (common in templating/polyfills)
   - id: eval-function-definition
     desc: eval() compiling a function string
-    crit: inert
+    crit: notable
     conf: 0.8
     for: [javascript]
     if:

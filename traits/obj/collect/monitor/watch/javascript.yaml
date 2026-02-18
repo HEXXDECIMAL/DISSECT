@@ -59,7 +59,7 @@ composite_rules:
     attack: "T1113"
     for: [javascript]
     all:
-      - id: obj/execution/dropper/loader::file-write
+      - id: obj/exec/dropper/loader::file-write
     any:
       - id: cap/hw/display/screen::monitor-get-displays
       - id: cap/hw/display/screen::screenshot-capture-fn

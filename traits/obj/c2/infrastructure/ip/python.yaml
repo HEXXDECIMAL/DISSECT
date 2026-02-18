@@ -33,7 +33,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "requests\\.(get|post)\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+      regex: "requests\\.(get|post)\\([^)]{0,120}https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
       external_ip: true
 
   # Match urllib with IP-based URL
@@ -42,7 +42,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "urlopen\\([^)]*https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
+      regex: "urlopen\\([^)]{0,120}https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}"
       external_ip: true
 
   # Match URL construction pattern: f-string with host and port

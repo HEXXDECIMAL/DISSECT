@@ -19,8 +19,8 @@ composite_rules:
     for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/platform::bypass
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
 
   # Download + Execute + Defender Exclusion specifically
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -33,8 +33,8 @@ composite_rules:
     for: [batch, shell, powershell]
     all:
       - id: obj/anti-analysis/security-bypass/platform::defender-exclusion
-      - id: obj/execution/dropper/script::download-file-ps
-      - id: obj/execution/dropper/script::start-cmd
+      - id: obj/exec/dropper/script::download-file-ps
+      - id: obj/exec/dropper/script::start-cmd
 
   # PowerShell download cradle in batch with security bypass
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -47,8 +47,8 @@ composite_rules:
     for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/platform::bypass
-      - id: obj/execution/dropper/script::powershell-download
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::powershell-download
+      - id: obj/exec/dropper/script::exec-cmd
 
   # UAC bypass + Download + Execute
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -61,8 +61,8 @@ composite_rules:
     for: [batch, shell, powershell]
     all:
       - id: obj/anti-analysis/security-bypass/platform::start-process-runas
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
 
   # AV check (tasklist) + Security bypass + dropper
   # Classic pattern: check for AV, disable it, then download/execute
@@ -77,8 +77,8 @@ composite_rules:
     all:
       - id: obj/anti-analysis/security-bypass/platform::tasklist-av-check
       - id: obj/anti-analysis/security-bypass/platform::bypass
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
 
   # Malwarebytes disable + dropper
   # Complexity: all(3) + file_types(1) = 4 -> hostile
@@ -91,8 +91,8 @@ composite_rules:
     for: [batch, shell]
     all:
       - id: obj/anti-analysis/security-bypass/platform::malwarebytes-stop-service
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
 
   # MSHTA remote fetch with obfuscated IP address
   # LOLBin proxy execution + IP evasion = strong dropper signal
@@ -105,7 +105,7 @@ composite_rules:
     attack: "T1218.005"
     for: [batch, shell, powershell]
     all:
-      - id: obj/execution/dropper/loader::mshta-remote-url
+      - id: obj/exec/dropper/loader::mshta-remote-url
       - id: obj/anti-static/obfuscation/ip-notation::hex-octal-ip-in-url
 
   # Heavy Obfuscation + PowerShell Execution + MOTW Removal
@@ -119,5 +119,5 @@ composite_rules:
     for: [batch, shell]
     all:
       - id: obj/anti-static/obfuscation/strings/concatenation::batch-heavy-obfuscation
-      - id: obj/execution/dropper/script::powershell-exe
+      - id: obj/exec/dropper/script::powershell-exe
       - id: obj/anti-forensics/evidence-removal/cleanup::motw-removal-stream

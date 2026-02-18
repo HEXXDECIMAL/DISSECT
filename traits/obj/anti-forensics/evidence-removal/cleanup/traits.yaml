@@ -32,7 +32,7 @@ traits:
   if:
     type: string
     # Matches: sed -i '/pattern/d' or sed -i 's/pattern//'
-    regex: (sed\s+-i\s+['"][^'"]*/d['"]|sed\s+-i\s+['"]s/[^/]+//g?['"])
+    regex: (sed\s+-i\s+['"][^'"]{0,120}/d['"]|sed\s+-i\s+['"]s/[^/]{1,120}//g?['"])
 
 - id: deleted-process-cleanup
   desc: Cleanup deleted process references

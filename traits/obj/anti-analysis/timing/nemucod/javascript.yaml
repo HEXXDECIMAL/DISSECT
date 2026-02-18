@@ -7,6 +7,6 @@ composite_rules:
       - id: cap/host/interpreter/jscript::is-jscript
       - id: cap/time/measure/delta::js-subtraction-func-regex
     any:
-      - id: cap/code/obfuscation/js::nemucod-wsh-fragments
+      - id: cap/data/source/obfuscation/js::nemucod-wsh-fragments
         count_min: 3
-      - id: cap/code/obfuscation/js::js-many-tiny-strings
+      - id: cap/data/source/obfuscation/js::js-many-tiny-strings

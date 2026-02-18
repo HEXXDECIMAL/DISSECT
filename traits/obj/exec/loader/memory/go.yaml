@@ -5,7 +5,7 @@ composite_rules:
     mbc: C0016 # In-Memory Execution
     attack: T1620 # Reflective Code Loading
     all:
-      - id: cap/code/function/names::go-mem-exec
+      - id: cap/data/source/function/names::go-mem-exec
     any:
-      - id: cap/code/function/names::go-self-delete
+      - id: cap/data/source/function/names::go-self-delete
       - id: cap/data/encode/hex::hex-xor-loop-stub

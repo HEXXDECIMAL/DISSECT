@@ -43,7 +43,7 @@ traits:
     for: [php]
     if:
       type: string
-      regex: "file_put_contents\\s*\\([^,]+,\\s*base64_decode"
+      regex: "file_put_contents\\s*\\([^,]{1,120},\\s*base64_decode"
 
   - id: move-uploaded-file
     desc: Move uploaded file to destination

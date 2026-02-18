@@ -117,7 +117,7 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: obj/execution/dropper/script::curl-download
+      - id: obj/exec/dropper/script::curl-download
       - id: obj/creds/browser/chromium::cookies-path
-      - id: obj/execution/dropper/payload::cp-execute
+      - id: obj/exec/dropper/payload::cp-execute
       - id: cap/comm/http/upload::curl-upload-file

@@ -1,7 +1,7 @@
 traits:
   - id: delete-critical-system-dll
     desc: "Deletes critical Windows system DLLs"
-    crit: hostile
+    crit: suspicious
     conf: 0.9
     mbc: E1485
     attack: T1485

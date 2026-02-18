@@ -24,7 +24,7 @@ traits:
 
   - id: echo-command
     desc: echo command
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -32,7 +32,7 @@ traits:
 
   - id: grep-v
     desc: grep -v (inverse match/filter)
-    crit: inert
+    crit: notable
     conf: 0.6
     if:
       type: string

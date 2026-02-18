@@ -8,5 +8,5 @@ conditions:
     rule_id: cap/fs/pe/section::vdata
     filters:
       - type: or
-        rule_id: cap/code/identifier/malware::etymo-crypt-strings
-        rule_id: cap/code/pattern/encryption::asm-xor-loop
+        rule_id: cap/data/source/markers/malware::etymo-crypt-strings
+        rule_id: cap/data/source/pattern/encryption::asm-xor-loop

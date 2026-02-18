@@ -29,7 +29,7 @@ traits:
     if:
       type: raw
       # Matches: var jo = [("x", ba),("x", ix), ... or var wv = [('x', ba)
-      regex: 'var\s+\w+\s*=\s*\[\s*\(\s*["''][^"'']+["'']\s*,\s*\w+\s*\)\s*,'
+      regex: 'var\s+\w+\s*=\s*\[\s*\(\s*["''][^"'']{1,120}["'']\s*,\s*\w+\s*\)\s*,'
 
   - id: nemucod-reconstruction-loop
     desc: "Nemucod string reconstruction loop"

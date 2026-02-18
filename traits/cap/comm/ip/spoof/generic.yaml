@@ -80,7 +80,7 @@ traits:
       regex: "(SYN|syn).?cookie"
 
   - id: bitwise-ip-construction
-    desc: IP address construction using bitwise operations (often for spoofing)
+    desc: IP address construction using bitwise operations (often
     crit: suspicious
     conf: 0.8
     if:

@@ -45,4 +45,4 @@ traits:
     conf: 0.6
     if:
       type: raw
-      regex: "require\\(\\s*Buffer\\.from\\([^,]+,\\s*['\"]hex['\"]\\)\\.toString\\(\\)\\s*\\)"
+      regex: "require\\(\\s*Buffer\\.from\\([^,]{1,120},\\s*['\"]hex['\"]\\)\\.toString\\(\\)\\s*\\)"

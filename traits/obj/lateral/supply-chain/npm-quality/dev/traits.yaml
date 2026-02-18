@@ -71,7 +71,7 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: '"build":\s*"[^"]*(?:tsc|rollup|webpack|esbuild|babel|vite)'
+      regex: '"build":\s*"[^"]{0,120}(?:tsc|rollup|webpack|esbuild|babel|vite)'
 
   - id: has-lint-script
     desc: Package has linting configured

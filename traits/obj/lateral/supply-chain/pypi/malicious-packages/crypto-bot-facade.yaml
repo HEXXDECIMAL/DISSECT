@@ -34,7 +34,7 @@ traits:
     conf: 0.60
     if:
       type: raw
-      regex: "from\\s+(?:[a-zA-Z_]+\\.)*utils\\s+import\\s+\\*"
+      regex: "from\\s+(?:[a-zA-Z_]{1,30}\\.){0,6}utils\\s+import\\s+\\*"
 
   # === Crypto Trading Terminology ===
   - id: defi-protocol-ref

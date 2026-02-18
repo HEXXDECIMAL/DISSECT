@@ -23,7 +23,7 @@ traits:
     if:
       type: string
       # Match pool URLs like pool.example.com or example-pool.com
-      regex: "(?:stratum\\+(?:tcp|ssl)://|https?://)[^\\s]+pool[^\\s]*|pool\\.[a-z0-9-]+\\.(?:com|net|org|io)"
+      regex: "(?:stratum\\+(?:tcp|ssl)://|https?://)[^\\s]{1,120}pool[^\\s]{0,120}|pool\\.[a-z0-9-]+\\.(?:com|net|org|io)"
 
   - id: miner-word
     desc: miner keyword

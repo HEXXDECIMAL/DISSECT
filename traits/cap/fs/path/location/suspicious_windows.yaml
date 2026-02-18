@@ -20,10 +20,10 @@ traits:
     desc: Writes executable to drive root
     if:
       type: string
-      regex: "(?i)[C-Z]:\\\\[^\\\\]+\\.exe"
+      regex: "(?i)[C-Z]:\\\\[^\\\\]{1,120}\\.exe"
     
   - id: path-suspicious-startup
     desc: Writes to Startup folder
     if:
       type: string
-      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]+\\.(exe|vbs|js|bat|cmd)"
+      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.(exe|vbs|js|bat|cmd)"

@@ -1,6 +1,6 @@
 traits:
   - id: loop-variable-variable-step
-    desc: Loop variable incremented by a variable step (e.g. i += step)
+    desc: Loop variable incremented by a variable step
     crit: notable
     for: [javascript]
     if:
@@ -23,7 +23,7 @@ traits:
       - id: meta/dev/testing::node-common-require
 
   - id: loop-string-access-dynamic-method
-    desc: String character access inside a loop using dynamic method (e.g. s[m](i))
+    desc: String character access inside a loop using
     crit: notable
     for: [javascript]
     if:

@@ -37,7 +37,7 @@ traits:
   # === Array manipulation patterns ===
   - id: push-shift-pattern
     desc: Array push/shift rotation pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     attack: "T1027"
     for: [javascript]
@@ -47,7 +47,7 @@ traits:
 
   - id: shift-push-pattern
     desc: Array unshift/pop rotation pattern
-    crit: inert
+    crit: notable
     conf: 0.8
     attack: "T1027"
     for: [javascript]

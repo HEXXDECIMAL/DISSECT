@@ -8,7 +8,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "(?s)while\\s*\\((?:[^()]|\\([^()]*\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
+      regex: "(?s)while\\s*\\((?:[^()]|\\([^()]{0,120}\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
     not:
       - regex: "while\\s*\\(_\\)\\s*\\{\\s*try"
 

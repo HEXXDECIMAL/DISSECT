@@ -1,7 +1,7 @@
 composite_rules:
   - id: custom-wordlist-pdf-bigram
     desc: Helper for custom wordlist generator (PDF + Bigram)
-    crit: inert
+    crit: notable
     conf: 0.8
     all:
       - id: cap/data/format/pdf::read
@@ -9,7 +9,7 @@ composite_rules:
 
   - id: custom-wordlist-secondary
     desc: Helper for custom wordlist generator (Dict override OR PDF+Bigram)
-    crit: inert
+    crit: notable
     conf: 0.8
     any:
       - id: cap/fs/path/system::suspicious-dict-override

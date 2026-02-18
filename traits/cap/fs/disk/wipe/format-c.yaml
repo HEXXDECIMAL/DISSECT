@@ -1,6 +1,6 @@
 traits:
   - id: format-c
-    desc: "Format C Drive"
+    desc: "Destructive format command targeting Windows C drive"
     crit: suspicious
     conf: 1.0
     mbc: E1485

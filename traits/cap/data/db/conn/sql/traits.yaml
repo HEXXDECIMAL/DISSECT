@@ -10,7 +10,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "(?i)\\bSELECT\\s+(\\*|[a-z0-9_]+(\\s*,\\s*[a-z0-9_]+)*)\\s+FROM\\b"
+      regex: "(?i)\\bSELECT\\s+(\\*|[a-z0-9_]{1,40}(\\s*,\\s*[a-z0-9_]{1,40}){0,12})\\s+FROM\\b"
 
   - id: sql-insert
     desc: INSERT INTO SQL keyword

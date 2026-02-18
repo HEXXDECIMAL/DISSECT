@@ -4,4 +4,4 @@ traits:
     criticality: suspicious
     if:
       type: string
-      regex: 'bash:\s+[^:]+:\s+No such file or directory'
+      regex: 'bash:\s+[^:]{1,120}:\s+No such file or directory'

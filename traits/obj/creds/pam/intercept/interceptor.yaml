@@ -103,6 +103,7 @@ composite_rules:
     any:
       - { id: cap/os/pam/auth::libpam-so-string }
       - { id: libpam-so-versioned }
+    crit: notable
 
   - id: pam-token-access
     desc: PAM token access functions
@@ -113,6 +114,7 @@ composite_rules:
       - { id: pam-set-item }
       - { id: pam-get-authtok }
       - { id: pam-authtok-constant }
+    crit: notable
 
   - id: pam-auth-functions
     desc: PAM authentication functions
@@ -124,6 +126,7 @@ composite_rules:
       - { id: cap/os/pam/auth::pam-acct-mgmt-symbol }
       - { id: pam-acct-mgmt-string }
       - { id: pam-setcred }
+    crit: notable
 
   # Migrated from YARA
   - id: interceptor

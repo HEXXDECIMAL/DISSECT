@@ -28,5 +28,4 @@ traits:
     for: [batch, shell]
     if:
       type: raw
-      regex: '(?i)del\s+(?:/[a-z]\s+)*"?%~f0"?'
-
+      regex: '(?i)del\s+(?:/[a-z]\s+){0,3}"?%~f0"?'

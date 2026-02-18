@@ -204,6 +204,7 @@ composite_rules:
     any:
       - id: password-auth
       - id: cap/comm/ssh/client::keyboard-interactive
+    crit: notable
 
   # Helper: SSH authentication errors
   - id: ssh-auth-errors
@@ -211,6 +212,7 @@ composite_rules:
     any:
       - id: cap/comm/ssh/client::auth-failed
       - id: too-many-auth-failures
+    crit: notable
 
   # Helper: SSH port references
   - id: ssh-port-refs
@@ -220,6 +222,7 @@ composite_rules:
       - id: ssh-port-string-lower
       - id: ssh-port-string-upper
       - id: ssh-port-string-title
+    crit: notable
 
   # Helper: Scanner keywords
   - id: scanner-keywords
@@ -230,6 +233,7 @@ composite_rules:
       - id: scanning-keyword
       - id: ssh-port-refs
       - id: cap/comm/socket/connect::connect
+    crit: notable
 
   # Helper: SSH protocol with auth methods
   - id: ssh-with-auth
@@ -237,6 +241,7 @@ composite_rules:
     all:
       - id: cap/comm/ssh/client::protocol
       - id: ssh-auth-methods
+    crit: notable
 
   # SSH authentication brute-force
   - id: auth-spray
@@ -290,6 +295,7 @@ composite_rules:
     all:
       - id: ssh-port-refs
       - id: scanner-keywords
+    crit: notable
 
   # Helper: SSH port with threading (threaded scanning)
   # NOTE: Removed timeout requirement as "timeout" alone is too generic.
@@ -300,6 +306,7 @@ composite_rules:
       - id: ssh-port-refs
       - id: cap/process/threading/operations::concurrent
       - id: cap/comm/socket/connect::connect
+    crit: notable
 
   # SSH scanner patterns
   - id: scanner

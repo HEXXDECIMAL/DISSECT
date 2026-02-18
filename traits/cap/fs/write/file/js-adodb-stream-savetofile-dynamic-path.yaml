@@ -6,4 +6,4 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\]\s*\(\s*\w+\s*,\s*2\s*\)\s*;\s*\w+\[[^\]]+\]\s*\('
+      regex: '\]\s*\(\s*\w+\s*,\s*2\s*\)\s*;\s*\w+\[[^\]]{1,120}\]\s*\('

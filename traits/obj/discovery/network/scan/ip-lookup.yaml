@@ -278,6 +278,7 @@ composite_rules:
       - { id: grabify }
       - { id: blasze }
       - { id: yip-su }
+    crit: notable
 
   # Helper composite for all base64-encoded IP lookup services
   - id: base64-ip-services
@@ -294,6 +295,7 @@ composite_rules:
       - { id: ifconfig-io-b64 }
       - { id: ifconfig-co-b64 }
       - { id: ident-me-b64 }
+    crit: notable
 
   # Migrated from YARA (partial) - requires 2 different IP lookup services
   - id: ip-recon-detected

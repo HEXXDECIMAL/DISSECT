@@ -17,7 +17,7 @@ traits:
 
   - id: iplogger-http
     desc: "Detects HTTP indicators often with iplogger"
-    crit: inert
+    crit: notable
     if:
       type: string
       regex: "http|get|post|request"

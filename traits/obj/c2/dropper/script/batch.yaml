@@ -13,33 +13,33 @@ composite_rules:
     attack: "T1105"
     mbc: "C0002"
     all:
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
     any:
-      - id: obj/execution/dropper/script::certutil-urlcache
-      - id: obj/execution/dropper/script::bitsadmin-download
-      - id: obj/execution/dropper/script::powershell-download
+      - id: obj/exec/dropper/script::certutil-urlcache
+      - id: obj/exec/dropper/script::bitsadmin-download
+      - id: obj/exec/dropper/script::powershell-download
 
   - id: batch-staging-dropper
     desc: Batch script downloading and executing from staging directory
     attack: "T1105"
     mbc: "E1074"
     all:
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::exec-cmd
     any:
       - id: cap/fs/file/write/staging::users-public-path
-      - id: obj/execution/dropper/script::run-from-temp
+      - id: obj/exec/dropper/script::run-from-temp
 
   - id: batch-arch-aware-dropper
     desc: Architecture-aware batch dropper
     attack: "T1105"
     mbc: "C0002"
     all:
-      - id: obj/execution/dropper/script::download-tool
-      - id: obj/execution/dropper/script::wmic-arch-check
+      - id: obj/exec/dropper/script::download-tool
+      - id: obj/exec/dropper/script::wmic-arch-check
     any:
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::exec-cmd
       - id: cap/fs/file/write/staging::users-public-path
 
   - id: batch-certutil-tcp-stager
@@ -48,9 +48,9 @@ composite_rules:
     mbc: "B0024"
     all:
       - id: obj/c2/infrastructure/ip::staged-tcp-query
-      - id: obj/execution/dropper/script::certutil-urlcache-split-force
-      - id: obj/execution/dropper/script::wmic-arch-check
+      - id: obj/exec/dropper/script::certutil-urlcache-split-force
+      - id: obj/exec/dropper/script::wmic-arch-check
       - id: cap/fs/file/write/staging::users-public-path
     any:
-      - id: obj/execution/dropper/script::exec-cmd
+      - id: obj/exec/dropper/script::exec-cmd
       - id: cap/fs/file/delete::del-command

@@ -31,7 +31,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: 'spawn\([^)]*pm2'
+      regex: 'spawn\(.{0,220}pm2'
 
   # PM2 start command
   - id: pm2-start
@@ -40,7 +40,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: 'pm2\s+start|exec\([^)]*pm2\s+start'
+      regex: 'pm2\s+start|exec\(.{0,220}pm2\s+start'
 
   # Forever process manager
   - id: forever-spawn
@@ -49,7 +49,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: 'forever\s+start|spawn\([^)]*forever'
+      regex: 'forever\s+start|spawn\(.{0,220}forever'
 
   # Nodemon for persistence
   - id: nodemon-spawn
@@ -58,7 +58,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: 'spawn\([^)]*nodemon'
+      regex: 'spawn\(.{0,220}nodemon'
 
 composite_rules:
   # PM2 with detached mode

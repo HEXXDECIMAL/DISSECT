@@ -18,4 +18,4 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'function\s+[a-zA-Z0-9]+\(\)\s*\{\s*[a-zA-Z0-9]+\([''"][^''"]*[''"]\);\s*return\s+[a-zA-Z0-9]+\(\);\s*\}\s*;'
+      regex: 'function\s+[a-zA-Z0-9]+\(\)\s*\{\s*[a-zA-Z0-9]+\([''"][^''"]{0,120}[''"]\);\s*return\s+[a-zA-Z0-9]+\(\);\s*\}\s*;'

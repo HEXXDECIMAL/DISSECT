@@ -83,7 +83,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: "querySelectorAll\\([^)]*a\\[href"
+      regex: "querySelectorAll\\([^)]{0,120}a\\[href"
 
 composite_rules:
   # === Affiliate Link Hijacking Detection ===

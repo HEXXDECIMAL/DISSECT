@@ -18,7 +18,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: cap/process/create/shell
+      - id: cap/process/create
 
   - id: executes-scripts
     desc: Executes script files

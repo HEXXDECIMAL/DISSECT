@@ -1,7 +1,7 @@
 traits:
 - id: timing-check-api
   desc: Timing API sandbox detection
-  crit: inert
+  crit: notable
   conf: 0.3
   platforms:
   - all
@@ -13,7 +13,7 @@ traits:
     type: symbol
     regex: (^QueryPerformanceCounter$|^gettimeofday$|^clock_gettime$)
   mbc: C0025
-# Removed cpu-feature-check duplicate - use obj/execution/native/runtime::processor-feature-check
+# Removed cpu-feature-check duplicate - use obj/exec/native/runtime::processor-feature-check
 composite_rules:
 - id: evasion-aware-malware
   desc: Malware with multiple anti-analysis awareness checks
@@ -31,7 +31,7 @@ composite_rules:
   - id: obj/anti-analysis/debugger/detect::win-comprehensive
   any:
   - id: timing-check-api
-  - id: obj/execution/native/runtime::processor-feature-check
+  - id: obj/exec/native/runtime::processor-feature-check
   - id: obj/anti-analysis/emulator/detect::comprehensive
   downgrade:
     any:

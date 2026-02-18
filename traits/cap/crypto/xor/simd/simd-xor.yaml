@@ -2,7 +2,7 @@ traits:
   - id: simd-xor
     conf: 0.8
     crit: suspicious
-    desc: SIMD XOR operations (often used in fast crypto/obfuscation)
+    desc: SIMD XOR operations (often used in fast
     if:
       type: string
       regex: '(pxor|vxorps|vxorpd|xorps|xorpd)\s+xmm'

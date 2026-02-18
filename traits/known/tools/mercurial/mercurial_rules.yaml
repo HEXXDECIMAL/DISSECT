@@ -3,9 +3,5 @@ composite_rules:
     desc: "Downgrade js-comma-operator-abuse for mercurial.js"
     crit: inert # The rule itself is inert, it just performs a downgrade
     all:
-      - id: cap/code/obfuscation/js::js-comma-operator-abuse
+      - id: cap/data/source/obfuscation/js::js-comma-operator-abuse
       - id: mercurial-js-id
-    downgrade:
-      - id: cap/code/obfuscation/js::js-comma-operator-abuse
-        to: notable
-        reason: "Legitimate use of (0,0,0) in rgb() function, not obfuscation."

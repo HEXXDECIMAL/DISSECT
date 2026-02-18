@@ -154,7 +154,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "open\\([^)]+[\"']a[\"']"
+      regex: "open\\([^)]{1,120}[\"']a[\"']"
 
   - id: file-open-write
     desc: File open for writing
@@ -162,7 +162,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "open\\([^)]+[\"']w[\"']"
+      regex: "open\\([^)]{1,120}[\"']w[\"']"
 
   - id: dot-write
     desc: .write() method call on file handle

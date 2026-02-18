@@ -15,7 +15,7 @@ traits:
     if:
       type: string
       # Matches: open(..., 'wb'), open(..., "wb"), with open(..., 'wb')
-      regex: "open\\([^)]+['\"]wb['\"]\\)"
+      regex: "open\\(.{1,220}['\"]wb['\"]\\)"
 
   # Binary append mode
   - id: python-open-append-binary
@@ -23,7 +23,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "open\\([^)]+['\"]ab['\"]\\)"
+      regex: "open\\(.{1,220}['\"]ab['\"]\\)"
 
   # Write with pathlib
   - id: python-pathlib-write-bytes
@@ -40,7 +40,7 @@ traits:
     if:
       type: string
       # Matches: f.write(response.content) or write(r.content)
-      regex: "\\.write\\([^)]*\\.content\\)"
+      regex: "\\.write\\(.{0,220}\\.content\\)"
 
   # shutil.copyfileobj - streaming copy
   - id: python-shutil-copy
@@ -57,7 +57,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: "open\\([^)]*['\"]?/tmp/"
+      regex: "open\\(.{0,220}['\"]?/tmp/"
 
   # === tempfile module atomic indicators ===
   - id: python-tempfile-named

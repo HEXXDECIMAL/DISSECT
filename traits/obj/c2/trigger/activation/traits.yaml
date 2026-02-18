@@ -145,6 +145,7 @@ composite_rules:
     any:
       - id: icmp-hdr-struct
       - id: icmp-rcv
+    crit: notable
 
   # Helper: Magic value patterns (numeric only - word "magic" removed due to false positives)
   - id: magic-values
@@ -152,6 +153,7 @@ composite_rules:
     any:
       - id: magic-1337
       - id: magic-0x539
+    crit: notable
 
   # Helper: Trigger keywords
   - id: trigger-keywords
@@ -167,6 +169,7 @@ composite_rules:
       - id: revshell-keyword-upper
       - id: revshell-keyword-title
       - id: icmp-echo-const
+    crit: notable
 
   # ICMP Magic Packet Trigger
   - id: icmp-magic-packet

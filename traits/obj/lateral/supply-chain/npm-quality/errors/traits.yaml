@@ -8,7 +8,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "try\\s*\\{[^}]+\\}\\s*catch"
+      regex: "try\\s*\\{[^}]{1,400}\\}\\s*catch"
 
   - id: has-named-functions
     desc: Code has named function definitions
@@ -44,7 +44,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "Buffer\\.from\\([^)]+,\\s*['\"](?:utf8|utf-8|ascii|hex|binary)['\"]\\)"
+      regex: "Buffer\\.from\\(.{1,220},\\s*['\"](?:utf8|utf-8|ascii|hex|binary)['\"]\\)"
 
   - id: has-callback-pattern
     desc: Code uses Node.js callback pattern
@@ -53,7 +53,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "function\\s*\\([^)]*,\\s*(?:callback|cb|done|next)\\)"
+      regex: "function\\s*\\(.{0,160},\\s*(?:callback|cb|done|next)\\)"
 
   - id: has-config-object
     desc: Code uses configuration objects
@@ -62,7 +62,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:config|options|settings|opts)\\s*=\\s*\\{|function\\s*\\([^)]*(?:config|options|settings)\\)"
+      regex: "(?:config|options|settings|opts)\\s*=\\s*\\{|function\\s*\\(.{0,220}(?:config|options|settings)\\)"
 
   - id: use-strict
     desc: Code uses strict mode

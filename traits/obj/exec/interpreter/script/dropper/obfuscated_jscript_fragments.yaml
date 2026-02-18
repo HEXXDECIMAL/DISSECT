@@ -10,17 +10,17 @@ composite_rules:
   - id: obfuscated-downloader-tiny-fragments-2
     desc: Obfuscated WSH downloader (Tiny Fragments Variant 2)
     all:
-      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-tiny-2
-      - id: obj/execution/interpreter/script/wsh::xmlhttp-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::xmlhttp-fragment-tiny-2
     any:
-      - id: obj/execution/interpreter/script/wsh::savetofile-fragment-tiny-2
-      - id: obj/execution/interpreter/script/wsh::adodb-fragment-tiny-2
-      - id: obj/execution/interpreter/script/wsh::activex-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::savetofile-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::adodb-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::activex-fragment-tiny-2
 
   - id: obfuscated-jscript-dynamic-execution
     desc: Obfuscated JScript dynamic execution (this[...])
     all:
-      - id: cap/code/execution/dynamic::dynamic-this-execution-computed
+      - id: obj/exec/interpreter/script/wsh::dynamic-this-execution-computed
     any:
       - id: obj/anti-static/obfuscation/code-metrics/functions::high-function-density
       - id: obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions

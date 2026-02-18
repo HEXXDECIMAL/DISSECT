@@ -93,7 +93,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "exec\\s*\\([^)]*decode\\s*\\("
+      regex: "exec\\s*\\([^)]{0,120}decode\\s*\\("
 
   # eval() with decode pattern
   - id: eval-decode-pattern
@@ -104,7 +104,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "eval\\s*\\([^)]*decode\\s*\\("
+      regex: "eval\\s*\\([^)]{0,120}decode\\s*\\("
 
   # Base64 decode and execute
   - id: b64decode-exec-pattern
@@ -127,7 +127,7 @@ traits:
     for: [python]
     if:
       type: string
-      regex: "compile\\s*\\([^)]+,\\s*['\"][^'\"]+['\"]\\s*,\\s*['\"]exec['\"]\\s*\\)"
+      regex: "compile\\s*\\([^)]{1,120},\\s*['\"][^'\"]{1,120}['\"]\\s*,\\s*['\"]exec['\"]\\s*\\)"
 
   # === Compiled Python bytecode (.pyc) disguised as .py ===
   # Python bytecode magic number in a .py file indicates the file was

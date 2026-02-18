@@ -3,7 +3,7 @@
 
 traits:
   - id: caesar-cipher-loop
-    desc: Caesar cipher loop (ord + key -> chr)
+    desc: Caesar cipher loop (ord + key ->
     crit: suspicious
     conf: 0.8
     for: [php]
@@ -46,4 +46,4 @@ traits:
     for: [php]
     if:
       type: string
-      regex: 'ord\(\$[^)]+\)\s*[+-]\s*\$[^;]+;\s*.*chr\('
+      regex: 'ord\(\$[^)]{1,120}\)\s*[+-]\s*\$[^;]{1,120};\s*.{0,220}chr\('

@@ -11,7 +11,7 @@ traits:
     if:
       type: raw
       # Matches: sh script.sh, ./script.sh, source script.sh, . script.sh
-      regex: '(?:(?:^|[\s;&|])(?:sh|bash|zsh|dash|ash|source|\.)\s+(?:-[a-zA-Z]+\s+)*|(?:^|[\s;&|])\./)[\w./-]+\.sh'
+      regex: '(?:^|[ ;&|])(?:sh|bash|zsh|dash|ash|source|\.)\s+[^\s]{1,80}\.sh|(?:^|[ ;&|])\./[A-Za-z0-9_./-]{1,80}\.sh'
 
   - id: batch-script-execution
     desc: Executes a batch script file (.bat)

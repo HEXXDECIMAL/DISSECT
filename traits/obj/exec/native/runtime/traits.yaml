@@ -24,7 +24,7 @@ traits:
 
   - id: processor-feature-check
     desc: Check processor features
-    crit: inert
+    crit: notable
     conf: 0.9
     if:
       type: symbol
@@ -35,7 +35,7 @@ traits:
 
   - id: get-module-handle
     desc: Module handle resolution
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -44,7 +44,7 @@ traits:
   # === Process Information Gathering ===
   - id: get-thread-id
     desc: Current thread ID retrieval
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -53,7 +53,7 @@ traits:
   # === System Time Access ===
   - id: system-time-filetime
     desc: System time as file time
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -62,7 +62,7 @@ traits:
   # === Memory Operations ===
   - id: heap-alloc
     desc: Heap memory allocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -70,7 +70,7 @@ traits:
 
   - id: heap-realloc
     desc: Heap memory reallocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -78,7 +78,7 @@ traits:
 
   - id: get-process-heap
     desc: Get process heap handle
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -86,7 +86,7 @@ traits:
 
   - id: local-alloc
     desc: Local memory allocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -94,7 +94,7 @@ traits:
 
   - id: local-free
     desc: Local memory deallocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -102,7 +102,7 @@ traits:
 
   - id: local-realloc
     desc: Local memory reallocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -111,7 +111,7 @@ traits:
   # === Synchronization Primitives ===
   - id: critical-section-enter
     desc: Enter critical section
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -119,7 +119,7 @@ traits:
 
   - id: critical-section-leave
     desc: Leave critical section
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -127,7 +127,7 @@ traits:
 
   - id: initialize-critical-section
     desc: Initialize critical section
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -136,7 +136,7 @@ traits:
   # === Thread Local Storage ===
   - id: tls-alloc
     desc: Thread-local storage allocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -144,7 +144,7 @@ traits:
 
   - id: tls-free
     desc: Thread-local storage deallocation
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -152,7 +152,7 @@ traits:
 
   - id: tls-get-value
     desc: Thread-local storage retrieval
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -160,7 +160,7 @@ traits:
 
   - id: tls-set-value
     desc: Thread-local storage assignment
-    crit: inert
+    crit: notable
     conf: 0.90
     if:
       type: symbol
@@ -169,7 +169,7 @@ traits:
   # === Exception Handling ===
   - id: raise-exception
     desc: Raise structured exception
-    crit: inert
+    crit: notable
     conf: 0.85
     if:
       type: symbol
@@ -178,7 +178,7 @@ traits:
   # === System Callback APIs (often used for stealthy execution) ===
   - id: enum-ui-languages
     desc: Enumerate UI languages (potential callback trigger)
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol
@@ -186,7 +186,7 @@ traits:
 
   - id: enum-resource-types
     desc: Enumerate resource types (potential callback trigger)
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol
@@ -194,7 +194,7 @@ traits:
 
   - id: enum-resource-names
     desc: Enumerate resource names (potential callback trigger)
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol
@@ -202,7 +202,7 @@ traits:
 
   - id: enum-desktop-windows
     desc: Enumerate desktop windows (potential callback trigger)
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol
@@ -210,7 +210,7 @@ traits:
 
   - id: enum-date-formats
     desc: Enumerate date formats (potential callback trigger)
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol
@@ -218,7 +218,7 @@ traits:
 
   - id: line-dda
     desc: LineDDA callback trigger
-    crit: inert
+    crit: notable
     conf: 0.95
     if:
       type: symbol

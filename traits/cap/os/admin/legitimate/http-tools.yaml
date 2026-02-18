@@ -11,7 +11,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: 'curl\s+[^|&]*health|wget\s+[^|&]*health|http://(localhost|127\.0\.0\.1).{0,50}/health'
+      regex: 'curl\s+[^|&]{0,120}health|wget\s+[^|&]{0,120}health|http://(localhost|127\.0\.0\.1).{0,50}/health'
 
   - id: backup-script
     desc: HTTP backup script pattern

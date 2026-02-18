@@ -7,6 +7,6 @@ composite_rules:
     conf: 0.95
     attack: "T1041" # Exfiltration Over C2 Channel
     all:
-      - id: obj/execution/interpreter/runtime/colab::register-callback
-      - id: obj/execution/interpreter/runtime/colab::invoke-function
+      - id: obj/exec/interpreter/runtime/colab::register-callback
+      - id: obj/exec/interpreter/runtime/colab::invoke-function
       - id: obj/exfil/channel/webhook::discord-exfiltration

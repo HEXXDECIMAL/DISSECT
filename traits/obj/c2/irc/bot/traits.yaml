@@ -139,6 +139,7 @@ composite_rules:
       - id: irc-privmsg
       - id: irc-nick
       - id: irc-user
+    crit: notable
 
   # Helper: DDoS terms
   - id: ddos-attack-terms
@@ -148,6 +149,7 @@ composite_rules:
       - id: attack-udp
       - id: ddos-flood
       - id: ddos-attack
+    crit: notable
 
   # Tsunami/Kaiten identifier
   - id: tsunami-artifact

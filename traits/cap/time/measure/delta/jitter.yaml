@@ -7,8 +7,8 @@ defaults:
   for: [javascript]
 
 traits:
-  - id: js-date-diff-jitter-check
-    desc: "Checks for timing jitter using Date differences (VM detection)"
+  - id: js-date-diff-jitter-pattern
+    desc: "Checks for timing jitter using Date differences"
     if:
       type: raw
       # Matches: (A != B) || (B != C) pattern

@@ -15,7 +15,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'curl\s+[^|]*\|\s*sh\b'
+      regex: 'curl\s+.{0,200}\|\s*sh\b'
 
   - id: curl-pipe-bash
     desc: curl piped to bash
@@ -24,7 +24,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'curl\s+[^|]*\|\s*bash\b'
+      regex: 'curl\s+.{0,200}\|\s*bash\b'
 
   - id: curl-pipe-zsh
     desc: curl piped to zsh
@@ -33,7 +33,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'curl\s+[^|]*\|\s*zsh\b'
+      regex: 'curl\s+.{0,200}\|\s*zsh\b'
 
   - id: curl-pipe-ksh
     desc: curl piped to ksh
@@ -42,7 +42,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'curl\s+[^|]*\|\s*ksh\b'
+      regex: 'curl\s+.{0,200}\|\s*ksh\b'
 
   - id: curl-pipe-dash
     desc: curl piped to dash
@@ -51,7 +51,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'curl\s+[^|]*\|\s*dash\b'
+      regex: 'curl\s+.{0,200}\|\s*dash\b'
 
   # === Wget pipe atomic indicators ===
   - id: wget-pipe-sh
@@ -61,7 +61,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'wget\s+[^|]*\|\s*sh\b'
+      regex: 'wget\s+.{0,200}\|\s*sh\b'
 
   - id: wget-pipe-bash
     desc: wget piped to bash
@@ -70,7 +70,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'wget\s+[^|]*\|\s*bash\b'
+      regex: 'wget\s+.{0,200}\|\s*bash\b'
 
   - id: wget-pipe-zsh
     desc: wget piped to zsh
@@ -79,7 +79,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'wget\s+[^|]*\|\s*zsh\b'
+      regex: 'wget\s+.{0,200}\|\s*zsh\b'
 
   - id: wget-pipe-ksh
     desc: wget piped to ksh
@@ -88,7 +88,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'wget\s+[^|]*\|\s*ksh\b'
+      regex: 'wget\s+.{0,200}\|\s*ksh\b'
 
   - id: wget-pipe-dash
     desc: wget piped to dash
@@ -97,7 +97,7 @@ traits:
     attack: "T1059.004"
     if:
       type: string
-      regex: 'wget\s+[^|]*\|\s*dash\b'
+      regex: 'wget\s+.{0,200}\|\s*dash\b'
 
   # === Python pipe atomic indicators ===
   - id: curl-pipe-python
@@ -107,7 +107,7 @@ traits:
     attack: "T1059.006"
     if:
       type: string
-      regex: 'curl\s+[^\n|]*\|\s*python'
+      regex: 'curl\s+.{0,200}\|\s*python'
 
   - id: wget-pipe-python
     desc: wget piped to python
@@ -116,7 +116,7 @@ traits:
     attack: "T1059.006"
     if:
       type: string
-      regex: 'wget\s+[^\n|]*\|\s*python'
+      regex: 'wget\s+.{0,200}\|\s*python'
 
   # === Perl pipe atomic indicators ===
   - id: curl-pipe-perl
@@ -126,7 +126,7 @@ traits:
     attack: "T1059.005"
     if:
       type: string
-      regex: 'curl\s+[^\n|]*\|\s*perl'
+      regex: 'curl\s+.{0,200}\|\s*perl'
 
   - id: wget-pipe-perl
     desc: wget piped to perl
@@ -135,7 +135,7 @@ traits:
     attack: "T1059.005"
     if:
       type: string
-      regex: 'wget\s+[^\n|]*\|\s*perl'
+      regex: 'wget\s+.{0,200}\|\s*perl'
 
   # === Node.js pipe atomic indicators ===
   - id: curl-pipe-node
@@ -145,7 +145,7 @@ traits:
     attack: "T1059.007"
     if:
       type: string
-      regex: 'curl\s+[^\n|]*\|\s*node'
+      regex: 'curl\s+.{0,200}\|\s*node'
 
   - id: wget-pipe-node
     desc: wget piped to node
@@ -154,7 +154,7 @@ traits:
     attack: "T1059.007"
     if:
       type: string
-      regex: 'wget\s+[^\n|]*\|\s*node'
+      regex: 'wget\s+.{0,200}\|\s*node'
 
   # === Ruby pipe atomic indicators ===
   - id: curl-pipe-ruby
@@ -164,7 +164,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'curl\s+[^\n|]*\|\s*ruby'
+      regex: 'curl\s+.{0,200}\|\s*ruby'
 
   - id: wget-pipe-ruby
     desc: wget piped to ruby
@@ -173,7 +173,7 @@ traits:
     attack: "T1059"
     if:
       type: string
-      regex: 'wget\s+[^\n|]*\|\s*ruby'
+      regex: 'wget\s+.{0,200}\|\s*ruby'
 
   # === Fetch eval atomic indicators ===
   - id: eval-curl-subshell

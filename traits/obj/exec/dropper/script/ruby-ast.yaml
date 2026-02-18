@@ -76,7 +76,7 @@ traits:
   # === File Open Binary Write ===
   - id: ruby-ast-file-open-wb
     desc: File binary write mode
-    crit: inert
+    crit: notable
     conf: 0.82
     if:
       type: ast

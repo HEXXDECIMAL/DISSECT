@@ -76,15 +76,6 @@ traits:
   # - cap/comm/ip/services::ipproto-icmp
   # Composite rules below reference them using full paths.
 
-  - id: ipproto-udp
-    desc: IPPROTO_UDP protocol
-    crit: inert
-    conf: 0.3
-    for: [elf, c]
-    if:
-      type: string
-      substr: "IPPROTO_UDP"
-
   # === XDP Return Values ===
   # XDP_TX is particularly suspicious - reflects packets back out the interface
   - id: xdp-tx
@@ -144,7 +135,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "#include\\s+\"[^\"]+\\.skel\\.h\""
+      regex: "#include\\s+\"[^\"]{1,120}\\.skel\\.h\""
 
   # === XDP Packet Reflection ===
   # XDP_TX with packet manipulation = covert reflection/reply

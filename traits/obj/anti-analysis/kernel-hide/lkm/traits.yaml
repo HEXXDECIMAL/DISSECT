@@ -131,7 +131,6 @@ composite_rules:
     attack: "T1014"
     for: [c]
     all:
-      - id: obj/anti-analysis/kernel-hide/lkm/headers::linkage-include-str
       - id: obj/anti-analysis/kernel-hide/lkm/headers
 
   # Full rootkit header detection
