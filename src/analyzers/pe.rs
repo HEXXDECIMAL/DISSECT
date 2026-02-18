@@ -34,13 +34,6 @@ impl PEAnalyzer {
         }
     }
 
-    /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
-    #[must_use] 
-    pub(crate) fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
-        self.yara_engine = Some(Arc::new(yara_engine));
-        self
-    }
-
     /// Create analyzer with shared YARA engine
     #[allow(dead_code)] // Used by binary target
     #[must_use]
@@ -63,7 +56,11 @@ impl PEAnalyzer {
         self
     }
 
-    fn analyze_pe(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    /// Structural analysis of a PE binary (no main YARA scan, no trait evaluation).
+    /// Overlay analysis (self-extracting archives) still runs and uses the YARA engine
+    /// stored in this analyzer if set. Callers are responsible for running the main YARA
+    /// scan and calling `evaluate_and_merge_findings` on the returned report.
+    pub(crate) fn analyze_structural(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse with goblin
@@ -168,7 +165,7 @@ impl PEAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust)
         // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
-        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings
@@ -181,51 +178,6 @@ impl PEAnalyzer {
             );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
-
-        // Run YARA scan if engine is loaded
-        if let Some(yara_engine) = &self.yara_engine {
-            if yara_engine.is_loaded() {
-                tools_used.push("yara-x".to_string());
-                // Filter for PE-specific rules
-                let file_types = &["pe", "exe", "dll", "bat", "ps1"];
-                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
-                    Ok(matches) => {
-                        report.yara_matches = matches.clone();
-
-                        for yara_match in &matches {
-                            if let Some(cap_id) =
-                                self.capability_mapper.yara_rule_to_capability(&yara_match.rule)
-                            {
-                                report.findings.push(Finding {
-                                    kind: FindingKind::Capability,
-                                    trait_refs: vec![],
-                                    id: cap_id.clone(),
-                                    desc: format!("Matched YARA rule: {}", yara_match.rule),
-                                    conf: 0.95,
-                                    crit: Criticality::Inert,
-                                    mbc: None,
-                                    attack: None,
-                                    evidence: vec![Evidence {
-                                        method: "yara".to_string(),
-                                        source: "yara-x".to_string(),
-                                        value: yara_match.rule.clone(),
-                                        location: None,
-                                    }],
-
-                                    source_file: None,
-                                });
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        eprintln!("YARA scan error: {:?}", e);
-                    },
-                }
-            }
-        }
-
-        // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         // Update binary metrics with final counts and compute ratios
         if let Some(ref mut metrics) = report.metrics {
@@ -678,7 +630,9 @@ impl Default for PEAnalyzer {
 impl Analyzer for PEAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = fs::read(file_path).context("Failed to read file")?;
-        self.analyze_pe(file_path, &data)
+        let mut report = self.analyze_structural(file_path, &data)?;
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
+        Ok(report)
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {

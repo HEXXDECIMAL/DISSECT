@@ -39,20 +39,6 @@ fn test_yaml_loading() {
     let _ = count;
 }
 
-#[test]
-fn test_yara_rule_mapping() {
-    let mapper = CapabilityMapper::new();
-
-    assert_eq!(
-        mapper.yara_rule_to_capability("rules/exec/cmd/cmd.yara"),
-        Some("exec/command/shell".to_string())
-    );
-
-    assert_eq!(
-        mapper.yara_rule_to_capability("rules/anti-static/obfuscation/bitwise.yara"),
-        Some("anti-analysis/obfuscation/bitwise".to_string())
-    );
-}
 
 #[test]
 fn test_mapping_count() {
@@ -70,13 +56,6 @@ fn test_lookup_nonexistent() {
     assert!(capability.is_none());
 }
 
-#[test]
-fn test_yara_rule_path_parsing() {
-    let mapper = CapabilityMapper::new();
-
-    // Test various path formats
-    assert!(mapper.yara_rule_to_capability("rules/exec/shell.yara").is_some());
-}
 
 #[test]
 fn test_empty_mapper_counts() {
@@ -765,7 +744,7 @@ fn test_iterative_eval_single_pass() {
     // Test that simple composites work in a single pass
     let mapper = CapabilityMapper::empty();
     let report = test_report_with_findings(vec![test_finding("atomic/trait-a")]);
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     assert!(findings.is_empty()); // Empty mapper returns no findings
 }
 
@@ -776,7 +755,7 @@ fn test_iterative_eval_max_iterations_protection() {
     let mapper = CapabilityMapper::empty();
 
     let start = std::time::Instant::now();
-    let _ = mapper.evaluate_composite_rules(&report, &[], None);
+    let _ = mapper.evaluate_composite_rules(&report, &[], None, None);
     let elapsed = start.elapsed();
 
     assert!(
@@ -819,7 +798,7 @@ fn test_composite_referencing_atomic_trait() {
     let mut mapper = CapabilityMapper::empty();
     mapper.composite_rules.push(composite);
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].id, "test/composite");
 }
@@ -886,7 +865,7 @@ fn test_composite_of_composites_two_levels() {
     mapper.composite_rules.push(composite_a);
     mapper.composite_rules.push(composite_b);
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
 
     // Both composites should be found due to iterative evaluation
     assert_eq!(findings.len(), 2);
@@ -931,7 +910,7 @@ fn test_composite_three_level_chain() {
     mapper.composite_rules.push(make_composite("level/two", "level/one"));
     mapper.composite_rules.push(make_composite("level/three", "level/two"));
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
 
     assert_eq!(findings.len(), 3);
     let ids: Vec<_> = findings.iter().map(|f| f.id.as_str()).collect();
@@ -1003,7 +982,7 @@ fn test_composite_circular_dependency_handled() {
     mapper.composite_rules.push(composite_b);
 
     let start = std::time::Instant::now();
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     let elapsed = start.elapsed();
 
     assert!(elapsed.as_millis() < 100, "Took too long: {:?}", elapsed);
@@ -1045,7 +1024,7 @@ fn test_composite_prefix_matching_in_chain() {
     let mut mapper = CapabilityMapper::empty();
     mapper.composite_rules.push(composite);
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].id, "test/uses-discovery");
 }
@@ -1090,7 +1069,7 @@ fn test_composite_requires_count_in_chain() {
     let mut mapper = CapabilityMapper::empty();
     mapper.composite_rules.push(composite);
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     assert_eq!(findings.len(), 1);
     assert_eq!(findings[0].id, "test/needs-two");
 }

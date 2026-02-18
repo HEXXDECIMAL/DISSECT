@@ -51,17 +51,24 @@ pub(crate) fn is_developer_mode() -> bool {
     traits_path().exists()
 }
 
-/// Returns the most recent modification time of any YARA rule file
+/// Returns the most recent modification time of any YARA rule file or trait YAML file.
+/// YAML files are included because they may contain inline `type: yara` conditions
+/// that are compiled into the combined YARA cache.
 pub(crate) fn most_recent_yara_mtime() -> Result<SystemTime> {
     let mut most_recent = SystemTime::UNIX_EPOCH;
 
-    // Check traits directory
+    // Check traits directory for both .yar/.yara and .yaml/.yml files
     let traits_dir = traits_path();
     if traits_dir.exists() {
         for entry in WalkDir::new(&traits_dir).follow_links(false).into_iter().flatten() {
             let path = entry.path();
             if path.is_file()
-                && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)
+                && path
+                    .extension()
+                    .map(|ext| {
+                        ext == "yar" || ext == "yara" || ext == "yaml" || ext == "yml"
+                    })
+                    .unwrap_or(false)
             {
                 if let Ok(metadata) = fs::metadata(path) {
                     if let Ok(mtime) = metadata.modified() {
@@ -134,7 +141,8 @@ pub(crate) fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
     };
     let mode = if is_developer_mode() { "dev" } else { "prod" };
 
-    Ok(format!("yara-rules-{}-{}-{}.bin", mode, timestamp, suffix))
+    // v2: native-code-serialization enabled (wasmtime precompiled, no Cranelift on load)
+    Ok(format!("yara-rules-v2-{}-{}-{}.bin", mode, timestamp, suffix))
 }
 
 /// Get the path to the YARA rules cache file

@@ -79,7 +79,7 @@ goblin = "0.8"
 scpt = { path = "crates/scpt" }
 
 # YARA pattern matching
-yara-x = "0.10"
+yara-x = { version = "0.10", features = ["rules-profiling", "native-code-serialization"] }
 
 # Tree-sitter parsers
 tree-sitter = "0.26"
@@ -180,6 +180,10 @@ assert_cmd = "2.0"
 dhat = "0.3.3"
 predicates = "3.0"
 proptest = "1.4"
+
+[profile.profiling]
+inherits = "release"
+debug = true
 
 [profile.test]
 opt-level = 1  # Faster test execution

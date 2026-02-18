@@ -271,16 +271,6 @@ func updateDep(kind string) error {
 			os.Remove(p)
 		}
 
-	case "InQuest-VT":
-		rel, tmpdir, err = gitClone("https://github.com/InQuest/yara-rules-vt.git")
-		if err != nil {
-			return err
-		}
-		defer os.RemoveAll(tmpdir)
-		if err := copyFlat(tmpdir, kind, []string{"*.yar", "*.yara", "*LICENSE*", "README*"}); err != nil {
-			return err
-		}
-
 	case "bartblaze":
 		rel, tmpdir, err = gitClone("https://github.com/bartblaze/Yara-rules.git")
 		if err != nil {
@@ -369,7 +359,7 @@ func main() {
 
 	// No args: update every directory that contains a RELEASE file,
 	// or all known deps if none are found (e.g. fresh/empty directory).
-	allKinds := []string{"YARAForge", "huntress", "InQuest-VT", "bartblaze", "JPCERT", "TTC-CERT", "elastic"}
+	allKinds := []string{"YARAForge", "huntress", "bartblaze", "JPCERT", "TTC-CERT", "elastic"}
 
 	slog.Info("scanning for existing deps", "dir", cwd)
 	entries, err := os.ReadDir(".")

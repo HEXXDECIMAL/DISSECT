@@ -157,7 +157,7 @@ impl ChromeManifestAnalyzer {
 
         // Evaluate YAML-based rules
         self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None);
+            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None, None);
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["serde_json".to_string()];

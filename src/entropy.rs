@@ -2,8 +2,6 @@
 //!
 //! High entropy sections often indicate encryption, compression, or packing.
 
-use std::collections::HashMap;
-
 /// Calculate Shannon entropy of a byte slice
 ///
 /// Returns value between 0.0 (no entropy) and 8.0 (maximum entropy)
@@ -17,20 +15,18 @@ pub(crate) fn calculate_entropy(data: &[u8]) -> f64 {
         return 0.0;
     }
 
-    let mut freq: HashMap<u8, usize> = HashMap::new();
+    let mut freq = [0usize; 256];
     for &byte in data {
-        *freq.entry(byte).or_insert(0) += 1;
+        freq[byte as usize] += 1;
     }
 
     let len = data.len() as f64;
-    let mut entropy = 0.0;
-
-    for count in freq.values() {
-        let p = *count as f64 / len;
-        entropy -= p * p.log2();
-    }
-
-    entropy
+    freq.iter()
+        .filter(|&&c| c > 0)
+        .fold(0.0, |entropy, &count| {
+            let p = count as f64 / len;
+            entropy - p * p.log2()
+        })
 }
 
 /// Classify entropy level

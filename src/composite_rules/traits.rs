@@ -292,9 +292,14 @@ impl TraitDefinition {
         Ok(())
     }
 
-    /// Pre-compile YARA rules in this trait's condition
-    pub(crate) fn compile_yara(&mut self) {
-        self.r#if.condition.compile_yara();
+    /// Register the combined-engine namespace for the top-level `if` condition.
+    /// Sets `Condition::Yara { namespace }` to `"inline.{trait_id}"` so evaluation
+    /// uses the pre-scanned combined engine results instead of re-compiling.
+    /// Also compiles any `unless` YARA conditions independently (they are rare).
+    pub(crate) fn set_yara_if_namespace(&mut self) {
+        let ns = format!("inline.{}", self.id);
+        self.r#if.condition.set_yara_namespace(ns);
+        // Still compile unless conditions the old way — they are rare and not in the combined engine
         if let Some(ref mut conds) = self.unless {
             for cond in conds.iter_mut() {
                 cond.compile_yara();
@@ -1091,8 +1096,8 @@ impl TraitDefinition {
                 *case_insensitive,
                 ctx,
             ),
-            Condition::Yara { source, compiled } => {
-                eval_yara_inline(source, compiled.as_ref(), ctx)
+            Condition::Yara { source, namespace, compiled } => {
+                eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
             },
             Condition::Syscall { name, number, arch } => {
                 eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
@@ -2045,8 +2050,8 @@ impl CompositeTrait {
                 *case_insensitive,
                 ctx,
             ),
-            Condition::Yara { source, compiled } => {
-                eval_yara_inline(source, compiled.as_ref(), ctx)
+            Condition::Yara { source, namespace, compiled } => {
+                eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
             },
             Condition::Syscall { name, number, arch } => {
                 eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)

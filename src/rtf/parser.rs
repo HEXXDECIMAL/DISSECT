@@ -357,7 +357,7 @@ mod tests {
     #[test]
     fn test_extract_control_words() {
         let parser = RtfParser::new();
-        let words = parser.extract_control_words("{\\rtf1\\ansi\\deff0}").unwrap();
+        let words = parser.extract_control_words("{\\rtf1\\ansi\\deff0}");
         assert!(words.iter().any(|w| w.name == "rtf"));
         assert!(words.iter().any(|w| w.name == "ansi"));
     }

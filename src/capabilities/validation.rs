@@ -1781,6 +1781,47 @@ pub(crate) fn find_single_item_clauses(
     violations
 }
 
+/// Find composite rules where an `all:` or `any:` clause contains overlapping IDs.
+/// Overlap occurs when one entry is a directory reference that is a prefix of another
+/// specific trait reference in the same clause (e.g. `cap/foo` subsumes `cap/foo::bar`).
+/// Returns a list of `(rule_id, clause_type, dir_ref, specific_ref)` for each overlap.
+pub(crate) fn find_overlapping_conditions(
+    rule: &CompositeTrait,
+) -> Vec<(String, &'static str, String, String)> {
+    let mut violations = Vec::new();
+
+    for (conditions, clause) in [
+        (rule.all.as_deref(), "all"),
+        (rule.any.as_deref(), "any"),
+    ] {
+        let Some(conditions) = conditions else { continue };
+
+        let dir_refs: Vec<&str> = conditions
+            .iter()
+            .filter_map(|c| {
+                if let Condition::Trait { id } = c {
+                    if !id.contains("::") { Some(id.as_str()) } else { None }
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        for cond in conditions {
+            if let Condition::Trait { id } = cond {
+                if let Some(idx) = id.find("::") {
+                    let trait_dir = &id[..idx];
+                    if let Some(&dir) = dir_refs.iter().find(|&&d| d == trait_dir) {
+                        violations.push((rule.id.clone(), clause, dir.to_string(), id.clone()));
+                    }
+                }
+            }
+        }
+    }
+
+    violations
+}
+
 /// Find cap/ rules with hostile criticality.
 /// Cap rules represent observable capabilities and should never be hostile.
 /// Hostile criticality requires objective-level evidence and belongs in obj/.
@@ -1820,6 +1861,49 @@ pub(crate) fn find_hostile_cap_rules(
     // Check composite rules
     for rule in composite_rules {
         if is_cap_rule(&rule.id) && rule.crit == Criticality::Hostile {
+            let source = rule_source_files
+                .get(&rule.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((rule.id.clone(), source));
+        }
+    }
+
+    violations
+}
+
+/// Find obj/ rules with inert criticality.
+/// Obj rules represent attacker objectives and must carry analytical signal.
+/// Inert rules either belong in cap/ or meta/ (if truly neutral),
+/// or should be upgraded to notable (if they indicate program purpose).
+/// Returns (rule_id, source_file) for violations.
+pub(crate) fn find_inert_obj_rules(
+    trait_definitions: &[TraitDefinition],
+    composite_rules: &[CompositeTrait],
+    rule_source_files: &HashMap<String, String>,
+) -> Vec<(String, String)> {
+    let mut violations = Vec::new();
+
+    fn is_obj_rule(id: &str) -> bool {
+        let prefix = id.find("::").map_or(id, |i| &id[..i]);
+        match prefix.find('/') {
+            Some(slash_idx) => &prefix[..slash_idx] == "obj",
+            None => prefix == "obj",
+        }
+    }
+
+    for trait_def in trait_definitions {
+        if is_obj_rule(&trait_def.id) && trait_def.crit == Criticality::Inert {
+            let source = rule_source_files
+                .get(&trait_def.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((trait_def.id.clone(), source));
+        }
+    }
+
+    for rule in composite_rules {
+        if is_obj_rule(&rule.id) && rule.crit == Criticality::Inert {
             let source = rule_source_files
                 .get(&rule.id)
                 .cloned()
@@ -1902,6 +1986,47 @@ pub(crate) fn find_cap_obj_violations(
                     }
                 }
             }
+        }
+    }
+
+    violations
+}
+
+/// Find rules that use `malware/` as a subcategory of `obj/` or `cap/`.
+///
+/// Malware-specific signatures belong in `known/malware/`, not as subcategories
+/// of objectives or capabilities. See TAXONOMY.md for the correct structure.
+///
+/// Returns `(rule_id, source_file)` for violations.
+pub(crate) fn find_malware_subcategory_violations(
+    trait_definitions: &[TraitDefinition],
+    composite_rules: &[CompositeTrait],
+    rule_source_files: &HashMap<String, String>,
+) -> Vec<(String, String)> {
+    let mut violations = Vec::new();
+
+    fn is_misplaced(id: &str) -> bool {
+        let path = id.find("::").map_or(id, |i| &id[..i]);
+        path.starts_with("obj/malware/") || path.starts_with("cap/malware/")
+    }
+
+    for trait_def in trait_definitions {
+        if is_misplaced(&trait_def.id) {
+            let source = rule_source_files
+                .get(&trait_def.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((trait_def.id.clone(), source));
+        }
+    }
+
+    for rule in composite_rules {
+        if is_misplaced(&rule.id) {
+            let source = rule_source_files
+                .get(&rule.id)
+                .cloned()
+                .unwrap_or_else(|| "unknown".to_string());
+            violations.push((rule.id.clone(), source));
         }
     }
 
@@ -2515,6 +2640,8 @@ const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
     "basic",      // meaningless
     "category",   // dumping ground
     "combos",     // vague
+    "code",       // vague
+    "identifier", // vague
     "common",     // too vague
     "composite",  // vague
     "composite",  // vague
@@ -3234,6 +3361,159 @@ mod tests {
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "other/dir");
         assert_eq!(violations[0].2, 4);
+    }
+
+    // ==================== Overlapping Condition Tests ====================
+
+    #[test]
+    fn test_find_overlapping_conditions_no_overlap() {
+        let rule = CompositeTrait {
+            id: "cap/code/syntax/actionscript::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: Some(vec![
+                Condition::Trait {
+                    id: "cap/code/syntax/actionscript::trait-a".to_string(),
+                },
+                Condition::Trait {
+                    id: "cap/code/syntax/actionscript::trait-b".to_string(),
+                },
+            ]),
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        assert!(find_overlapping_conditions(&rule).is_empty());
+    }
+
+    #[test]
+    fn test_find_overlapping_conditions_all_overlap() {
+        let rule = CompositeTrait {
+            id: "cap/test::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: Some(vec![
+                Condition::Trait {
+                    id: "cap/code/syntax/actionscript::obfuscated-identifier-section".to_string(),
+                },
+                Condition::Trait {
+                    id: "cap/code/syntax/actionscript".to_string(),
+                },
+            ]),
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let violations = find_overlapping_conditions(&rule);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].1, "all");
+        assert_eq!(violations[0].2, "cap/code/syntax/actionscript");
+        assert_eq!(
+            violations[0].3,
+            "cap/code/syntax/actionscript::obfuscated-identifier-section"
+        );
+    }
+
+    #[test]
+    fn test_find_overlapping_conditions_any_overlap() {
+        let rule = CompositeTrait {
+            id: "cap/test::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: Some(vec![
+                Condition::Trait {
+                    id: "cap/code/syntax/javascript".to_string(),
+                },
+                Condition::Trait {
+                    id: "cap/code/syntax/javascript::eval-obfuscation".to_string(),
+                },
+            ]),
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let violations = find_overlapping_conditions(&rule);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].1, "any");
+        assert_eq!(violations[0].2, "cap/code/syntax/javascript");
+        assert_eq!(violations[0].3, "cap/code/syntax/javascript::eval-obfuscation");
+    }
+
+    #[test]
+    fn test_find_overlapping_conditions_different_dirs_no_overlap() {
+        let rule = CompositeTrait {
+            id: "cap/test::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: Some(vec![
+                Condition::Trait {
+                    id: "cap/code/syntax/actionscript".to_string(),
+                },
+                Condition::Trait {
+                    id: "cap/code/syntax/javascript::eval-obfuscation".to_string(),
+                },
+            ]),
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        assert!(find_overlapping_conditions(&rule).is_empty());
     }
 
     // ==================== Autoprefix Tests ====================
@@ -4531,6 +4811,229 @@ mod tests {
         assert_eq!(violations[0].0, "cap/test::trait");
     }
 
+    // ==================== Inert Obj Rule Tests ====================
+
+    #[test]
+    fn test_find_inert_obj_rules_empty() {
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites: Vec<CompositeTrait> = vec![];
+        let sources = HashMap::new();
+        assert!(find_inert_obj_rules(&traits, &composites, &sources).is_empty());
+    }
+
+    #[test]
+    fn test_find_inert_obj_rules_no_violations() {
+        // Obj rule with notable criticality is OK
+        let rule = CompositeTrait {
+            id: "obj/c2/backdoor::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Notable,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites = vec![rule];
+        let sources = HashMap::new();
+        assert!(find_inert_obj_rules(&traits, &composites, &sources).is_empty());
+    }
+
+    #[test]
+    fn test_find_inert_obj_rules_violation() {
+        // Obj rule with inert criticality is a VIOLATION
+        let rule = CompositeTrait {
+            id: "obj/c2/backdoor::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites = vec![rule];
+        let mut sources = HashMap::new();
+        sources.insert("obj/c2/backdoor::rule".to_string(), "test.yaml".to_string());
+
+        let violations = find_inert_obj_rules(&traits, &composites, &sources);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].0, "obj/c2/backdoor::rule");
+    }
+
+    #[test]
+    fn test_find_inert_obj_rules_cap_ok() {
+        // Cap rule with inert criticality is fine (handled by other validators)
+        let rule = CompositeTrait {
+            id: "cap/comm/socket::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Inert,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites = vec![rule];
+        let sources = HashMap::new();
+        assert!(find_inert_obj_rules(&traits, &composites, &sources).is_empty());
+    }
+
+    #[test]
+    fn test_find_inert_obj_rules_trait_violation() {
+        // Obj trait definition with inert criticality is a VIOLATION
+        let mut trait_def = make_string_trait("obj/exfil/test::trait", "test", Criticality::Inert);
+        trait_def.id = "obj/exfil/test::trait".to_string();
+
+        let traits = vec![trait_def];
+        let composites: Vec<CompositeTrait> = vec![];
+        let mut sources = HashMap::new();
+        sources.insert("obj/exfil/test::trait".to_string(), "test.yaml".to_string());
+
+        let violations = find_inert_obj_rules(&traits, &composites, &sources);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].0, "obj/exfil/test::trait");
+    }
+
+    // ==================== Malware Subcategory Violation Tests ====================
+
+    #[test]
+    fn test_find_malware_subcategory_violations_empty() {
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites: Vec<CompositeTrait> = vec![];
+        let sources = HashMap::new();
+        assert!(find_malware_subcategory_violations(&traits, &composites, &sources).is_empty());
+    }
+
+    #[test]
+    fn test_find_malware_subcategory_violations_known_ok() {
+        // known/malware/ is the correct location — not a violation
+        let rule = CompositeTrait {
+            id: "known/malware/apt/rule::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Hostile,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites = vec![rule];
+        let sources = HashMap::new();
+        assert!(find_malware_subcategory_violations(&traits, &composites, &sources).is_empty());
+    }
+
+    #[test]
+    fn test_find_malware_subcategory_violations_obj_malware() {
+        // obj/malware/ is a violation
+        let rule = CompositeTrait {
+            id: "obj/malware/backdoor::rule".to_string(),
+            desc: "test".to_string(),
+            conf: 1.0,
+            crit: Criticality::Hostile,
+            mbc: None,
+            attack: None,
+            platforms: vec![Platform::All],
+            r#for: vec![RuleFileType::All],
+            size_min: None,
+            size_max: None,
+            all: None,
+            any: None,
+            needs: None,
+            none: None,
+            near_lines: None,
+            near_bytes: None,
+            unless: None,
+            not: None,
+            downgrade: None,
+            defined_in: std::path::PathBuf::from("test.yaml"),
+            precision: None,
+        };
+        let traits: Vec<TraitDefinition> = vec![];
+        let composites = vec![rule];
+        let mut sources = HashMap::new();
+        sources.insert(
+            "obj/malware/backdoor::rule".to_string(),
+            "obj/malware/backdoor/rule.yaml".to_string(),
+        );
+        let violations = find_malware_subcategory_violations(&traits, &composites, &sources);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].0, "obj/malware/backdoor::rule");
+    }
+
+    #[test]
+    fn test_find_malware_subcategory_violations_cap_malware() {
+        // cap/malware/ is a violation
+        let trait_def =
+            make_string_trait("cap/malware/dropper::trait", "test", Criticality::Suspicious);
+        let traits = vec![trait_def];
+        let composites: Vec<CompositeTrait> = vec![];
+        let mut sources = HashMap::new();
+        sources.insert(
+            "cap/malware/dropper::trait".to_string(),
+            "cap/malware/dropper/trait.yaml".to_string(),
+        );
+        let violations = find_malware_subcategory_violations(&traits, &composites, &sources);
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].0, "cap/malware/dropper::trait");
+    }
+
     // ==================== File Type Overlap Tests ====================
 
     #[test]
@@ -5277,8 +5780,8 @@ fn overlapping_alternations_regex() -> &'static regex::Regex {
 #[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn greedy_range_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
-    // Only flag unbounded ranges (.{n,}) — bounded ranges (.{n,m}) have a known cost ceiling
-    RE.get_or_init(|| regex::Regex::new(r"\.\{[0-9]+,\}.+[\|\[\(]").expect("valid regex"))
+    // Flag all unbounded ranges (.{n,}) — bounded ranges (.{n,m}) have a known cost ceiling
+    RE.get_or_init(|| regex::Regex::new(r"\.\{[0-9]+,\}").expect("valid regex"))
 }
 
 #[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
@@ -5314,7 +5817,7 @@ pub(crate) fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mu
             // Check for patterns with unbounded .{n,} followed by complex matching
             // (bounded .{n,m} is acceptable — the upper bound limits cost)
             if greedy_range_regex().is_match(&pattern) {
-                issues.push("unbounded range quantifier (.{n,}) followed by complex patterns may be slow");
+                issues.push("open-ended range quantifier (.{n,}) — use a bounded range like .{0,50} instead");
             }
 
             // Check for very large ranges that could match huge spans

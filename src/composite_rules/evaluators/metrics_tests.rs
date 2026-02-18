@@ -29,6 +29,7 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     }
 }
 

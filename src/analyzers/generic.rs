@@ -266,6 +266,7 @@ impl GenericAnalyzer {
             &mut report,
             content.as_bytes(),
             tree.as_ref(),
+            None,
         );
         tracing::info!(
             "GenericAnalyzer: Rule evaluation completed in {:?}",

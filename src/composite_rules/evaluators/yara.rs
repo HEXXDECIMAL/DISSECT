@@ -52,26 +52,42 @@ pub(crate) fn collect_yara_evidence<'a, 'b>(
 }
 
 /// Evaluate inline YARA rule condition.
-/// Uses thread-local Scanner caching for pre-compiled rules (~5x speedup).
-#[must_use] 
+///
+/// Evaluation priority:
+/// 1. Combined-engine lookup: if `namespace` is set and `ctx.inline_yara_results` is present,
+///    return the pre-scanned evidence. This is the fast path for atomic trait conditions.
+/// 2. Per-condition compiled rules: if `compiled` is set (unless/composite conditions),
+///    scan with the pre-compiled Rules object.
+/// 3. On-the-fly compilation: compile from source (fallback, should be rare).
+#[must_use]
 pub(crate) fn eval_yara_inline<'a>(
     source: &str,
+    namespace: Option<&str>,
     compiled: Option<&Arc<yara_x::Rules>>,
     ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
+    // Fast path: combined engine results are available for this namespace.
+    if let (Some(ns), Some(inline_results)) = (namespace, ctx.inline_yara_results) {
+        let evidence = inline_results.get(ns).cloned().unwrap_or_default();
+        return ConditionResult {
+            matched: !evidence.is_empty(),
+            evidence,
+            warnings: Vec::new(),
+            precision: 1.0,
+        };
+    }
+
     let scan_start = std::time::Instant::now();
 
-    // For pre-compiled rules, use cached scanner (fast path)
-    // For fallback compilation, create a new scanner (slow path, should be rare)
+    // Medium path: use per-condition pre-compiled rules (unless/composite conditions).
     let evidence = if let Some(pre_compiled) = compiled {
-        // Fast path: use thread-local cached scanner
         let scanner = get_or_create_scanner(pre_compiled.as_ref());
         match scanner.scan(ctx.binary_data) {
             Ok(results) => collect_yara_evidence(&results, ctx.binary_data),
             Err(_) => Vec::new(),
         }
     } else {
-        // Slow path: compile on-the-fly (should be rare, pre-compilation preferred)
+        // Slow path: compile on-the-fly (should be rare).
         let mut compiler = yara_x::Compiler::new();
         compiler.new_namespace("inline");
         if compiler.add_source(source.as_bytes()).is_err() {
@@ -92,19 +108,13 @@ pub(crate) fn eval_yara_inline<'a>(
 
     let scan_duration = scan_start.elapsed();
     if scan_duration.as_millis() > 1000 {
-        let rule_preview = if source.len() > 100 {
-            format!("{}...", &source[..100])
-        } else {
-            source.to_string()
-        };
-        eprintln!(
-            "⚠️  WARNING: YARA rule took {}ms to scan {}KB file",
+        tracing::warn!(
+            source_preview = source.lines().next().unwrap_or(""),
+            file_kb = ctx.binary_data.len() / 1024,
+            ms = scan_duration.as_millis(),
+            "Inline YARA rule took {}ms ({}KB); consider moving to combined engine",
             scan_duration.as_millis(),
-            ctx.binary_data.len() / 1024
-        );
-        eprintln!(
-            "    Rule preview: {}",
-            rule_preview.lines().next().unwrap_or("")
+            ctx.binary_data.len() / 1024,
         );
     }
 
@@ -112,7 +122,7 @@ pub(crate) fn eval_yara_inline<'a>(
         matched: !evidence.is_empty(),
         evidence,
         warnings: Vec::new(),
-        precision: 1.0, // YARA base precision (can't analyze complexity of inline rules)
+        precision: 1.0,
     }
 }
 

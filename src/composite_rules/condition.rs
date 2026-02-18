@@ -533,6 +533,7 @@ impl From<ConditionDeser> for Condition {
                 ConditionTagged::Yara { source } => Condition::Yara {
                     source,
                     compiled: None,
+                    namespace: None,
                 },
                 ConditionTagged::Syscall { name, number, arch } => {
                     Condition::Syscall { name, number, arch }
@@ -867,9 +868,13 @@ pub(crate) enum Condition {
     Yara {
         /// YARA rule source code
         source: String,
-        /// Pre-compiled YARA rules (populated at load time, skipped during deserialization)
+        /// Pre-compiled YARA rules (used for unless/composite conditions not in combined engine)
         #[serde(skip)]
         compiled: Option<Arc<yara_x::Rules>>,
+        /// Namespace in the combined YARA engine (e.g. "inline.trait-id").
+        /// When set, evaluation uses pre-scanned results from context instead of re-scanning.
+        #[serde(skip)]
+        namespace: Option<String>,
     },
 
     /// Match syscalls detected via radare2 binary analysis
@@ -1385,10 +1390,10 @@ impl Condition {
         }
     }
 
-    /// Pre-compile YARA rules for faster evaluation
-    /// Call this after loading traits to avoid repeated compilation during scanning
+    /// Pre-compile YARA rules for faster evaluation.
+    /// Used for unless/composite conditions that are not in the combined engine.
     pub(crate) fn compile_yara(&mut self) {
-        if let Condition::Yara { source, compiled } = self {
+        if let Condition::Yara { source, compiled, .. } = self {
             if compiled.is_none() {
                 let mut compiler = yara_x::Compiler::new();
                 compiler.new_namespace("inline");
@@ -1399,9 +1404,20 @@ impl Condition {
         }
     }
 
-    /// Check for unbounded greedy regex patterns (.*) that can cause performance issues.
+    /// Set the combined-engine namespace for this YARA condition.
+    /// Called during mapper loading to register that this condition's rule
+    /// has been compiled into the main YaraEngine with the given namespace.
+    /// Evaluation will then look up pre-scanned results by namespace instead
+    /// of re-scanning with the per-condition compiled rules.
+    pub(crate) fn set_yara_namespace(&mut self, ns: String) {
+        if let Condition::Yara { namespace, .. } = self {
+            *namespace = Some(ns);
+        }
+    }
+
+    /// Check for regex patterns that can cause catastrophic backtracking.
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_greedy_patterns(&self) -> Option<String> {
         let regex_to_check = match self {
             Condition::String { regex: Some(r), .. }
@@ -1414,10 +1430,10 @@ impl Condition {
         };
 
         if let Some(regex) = regex_to_check {
-            if has_unbounded_greedy(regex) {
+            if let Some(issue) = find_backtrack_issue(regex) {
                 return Some(format!(
-                    "unbounded greedy pattern (.*) found - use bounded pattern like .{{0,50}} instead: {}",
-                    regex
+                    "{} - use bounded pattern like .{{0,50}} instead: {}",
+                    issue, regex
                 ));
             }
         }
@@ -1991,50 +2007,124 @@ fn validate_ast_query(query: &str, language: Option<&str>) -> Result<()> {
     Ok(())
 }
 
-/// Check if a regex contains unbounded greedy patterns like .* or .+
-/// Returns true if found, false otherwise.
-/// Bounded patterns like .{0,50} or lazy patterns like .*? are acceptable.
-fn has_unbounded_greedy(regex: &str) -> bool {
+/// Detect regex patterns that cause catastrophic backtracking.
+///
+/// Returns a short description of the first issue found, or None if the
+/// pattern looks safe. Lazy quantifiers (.*?, .+?) and bounded repetitions
+/// (.{0,50}) are accepted. Three classes of danger are detected:
+///
+/// - Unbounded wildcard:  `.*` or `.+`
+/// - Negated char class:  `[^x]+` (matches almost anything, equivalent to `.+`)
+/// - Nested quantifiers:  `(\w+)+` or `(.+)+` (exponential backtracking)
+fn find_backtrack_issue(regex: &str) -> Option<&'static str> {
     let chars: Vec<char> = regex.chars().collect();
     let len = chars.len();
     let mut i = 0;
+    // Stack: each entry records whether the group contains a quantified subexpression.
+    let mut group_stack: Vec<bool> = Vec::new();
 
     while i < len {
-        // Skip escaped characters
-        if chars[i] == '\\' {
-            i += 2;
-            continue;
-        }
-
-        // Check for character classes (skip them as .* inside [] is different)
-        if chars[i] == '[' {
-            while i < len && chars[i] != ']' {
-                if chars[i] == '\\' {
+        match chars[i] {
+            '\\' => {
+                // Skip the escaped character entirely.
+                i += 2;
+            }
+            '[' => {
+                let negated = i + 1 < len && chars[i + 1] == '^';
+                i += 1;
+                while i < len && chars[i] != ']' {
+                    if chars[i] == '\\' {
+                        i += 1;
+                    }
                     i += 1;
                 }
+                i += 1; // skip ']'
+                if i < len && (chars[i] == '*' || chars[i] == '+') {
+                    let lazy = i + 1 < len && chars[i + 1] == '?';
+                    if !lazy {
+                        if negated {
+                            return Some("unbounded negated character class (e.g. [^x]+)");
+                        }
+                        if let Some(top) = group_stack.last_mut() {
+                            *top = true;
+                        }
+                    }
+                }
+                // Let the next iteration handle the quantifier for group tracking.
+            }
+            '(' => {
+                group_stack.push(false);
                 i += 1;
             }
-            i += 1;
-            continue;
-        }
-
-        // Check for . followed by * or +
-        if chars[i] == '.' && i + 1 < len {
-            let next = chars[i + 1];
-            if next == '*' || next == '+' {
-                // Check if it's lazy (followed by ?)
-                if i + 2 < len && chars[i + 2] == '?' {
+            ')' => {
+                let had_inner = group_stack.pop().unwrap_or(false);
+                i += 1;
+                if i < len && (chars[i] == '*' || chars[i] == '+') {
+                    let lazy = i + 1 < len && chars[i + 1] == '?';
+                    if !lazy {
+                        if had_inner {
+                            return Some("nested quantifier (e.g. (\\w+)+ or (.+)+)");
+                        }
+                        // The group-as-a-whole is now quantified; tell the parent.
+                        if let Some(parent) = group_stack.last_mut() {
+                            *parent = true;
+                        }
+                    }
+                } else if had_inner {
+                    // No quantifier on this group, but it contained quantifiers.
+                    // Propagate upward so patterns like ((\w+))+ are caught when
+                    // the outer group eventually closes with a quantifier.
+                    if let Some(parent) = group_stack.last_mut() {
+                        *parent = true;
+                    }
+                }
+            }
+            '.' => {
+                if i + 1 < len && (chars[i + 1] == '*' || chars[i + 1] == '+') {
+                    let lazy = i + 2 < len && chars[i + 2] == '?';
+                    if !lazy {
+                        return Some("unbounded wildcard (.* or .+)");
+                    }
+                    // Lazy wildcard still counts as a quantified subexpression.
+                    if let Some(top) = group_stack.last_mut() {
+                        *top = true;
+                    }
                     i += 3;
                     continue;
                 }
-                // Check if there's a reasonable limit after (not truly unbounded)
-                // This is an unbounded greedy pattern
-                return true;
+                // Check for open-ended brace quantifier: .{n,} with no upper bound.
+                if i + 1 < len && chars[i + 1] == '{' {
+                    let start = i + 2;
+                    let mut j = start;
+                    while j < len && chars[j] != '}' {
+                        j += 1;
+                    }
+                    if j < len {
+                        let inner: String = chars[start..j].iter().collect();
+                        // Open-ended: has a comma with nothing after it, e.g. "1," or "0,"
+                        if inner.contains(',') && inner.ends_with(',') {
+                            return Some("open-ended range quantifier (.{n,}) — use a bounded range like .{0,50} instead");
+                        }
+                    }
+                }
+                i += 1;
+            }
+            '*' | '+' => {
+                // A bare quantifier on a plain character or escape sequence.
+                let lazy = i + 1 < len && chars[i + 1] == '?';
+                if !lazy {
+                    if let Some(top) = group_stack.last_mut() {
+                        *top = true;
+                    }
+                }
+                i += 1;
+            }
+            _ => {
+                i += 1;
             }
         }
-        i += 1;
     }
-    false
+    None
 }
 
 /// Validate location constraint parameters for consistency.
@@ -2396,5 +2486,196 @@ mod location_constraint_tests {
         assert!(result.is_ok());
         let parsed = result.unwrap();
         assert_eq!(parsed.section_offset_range, Some((100, None)));
+    }
+}
+
+#[cfg(test)]
+mod backtrack_tests {
+    use super::find_backtrack_issue;
+
+    // ── patterns that MUST be flagged ──────────────────────────────────────
+
+    #[test]
+    fn dot_star_caught() {
+        assert!(find_backtrack_issue(".*").is_some());
+    }
+
+    #[test]
+    fn dot_plus_caught() {
+        assert!(find_backtrack_issue(".+").is_some());
+    }
+
+    #[test]
+    fn dot_star_in_middle_caught() {
+        assert!(find_backtrack_issue("foo.*bar").is_some());
+    }
+
+    #[test]
+    fn dot_star_after_flag_group_caught() {
+        // (?i).* — the (?i) flag group should not suppress detection
+        assert!(find_backtrack_issue("(?i).*").is_some());
+    }
+
+    #[test]
+    fn negated_class_plus_caught() {
+        assert!(find_backtrack_issue("[^)]+").is_some());
+    }
+
+    #[test]
+    fn negated_class_star_caught() {
+        assert!(find_backtrack_issue("[^abc]*").is_some());
+    }
+
+    #[test]
+    fn negated_class_with_escape_inside_caught() {
+        // [^\s]+ — backslash-s inside the class, class still negated
+        assert!(find_backtrack_issue(r"[^\s]+").is_some());
+    }
+
+    #[test]
+    fn nested_quantifier_word_char_caught() {
+        // (\w+)+ — the canonical ReDoS pattern
+        assert!(find_backtrack_issue(r"(\w+)+").is_some());
+    }
+
+    #[test]
+    fn nested_quantifier_dot_plus_caught() {
+        // (.+)+ — .+ is caught as an unbounded wildcard before the nesting is relevant
+        assert!(find_backtrack_issue("(.+)+").is_some());
+    }
+
+    #[test]
+    fn nested_quantifier_char_class_caught() {
+        // ([a-z]+)+ — bounded class, but the outer quantifier creates the danger
+        assert!(find_backtrack_issue("([a-z]+)+").is_some());
+    }
+
+    #[test]
+    fn nested_quantifier_alternation_caught() {
+        // (?:a+|b+)+ — quantified branches inside a repeated group
+        assert!(find_backtrack_issue("(?:a+|b+)+").is_some());
+    }
+
+    #[test]
+    fn doubly_nested_quantifier_caught() {
+        // ((\w+))+ — inner group propagates its quantifier flag to the outer
+        assert!(find_backtrack_issue(r"((\w+))+").is_some());
+    }
+
+    #[test]
+    fn nested_quantifier_with_star_caught() {
+        assert!(find_backtrack_issue(r"(\w+)*").is_some());
+    }
+
+    #[test]
+    fn real_world_eval_decrypt_pattern_caught() {
+        let pat = r"(?i)(\$[a-zA-Z0-9_]+\s*=\s*[a-zA-Z0-9_]*Decrypt.*\(.+\);\s*eval\s*\(\s*\$[a-zA-Z0-9_]+\s*\)|eval\s*\(\s*[a-zA-Z0-9_]*Decrypt.*\(.+\)\s*\))";
+        assert!(find_backtrack_issue(pat).is_some());
+    }
+
+    #[test]
+    fn open_ended_range_quantifier_caught() {
+        // .{1,} is semantically equivalent to .+ and must be flagged
+        assert!(find_backtrack_issue(".{1,}").is_some());
+    }
+
+    #[test]
+    fn open_ended_range_zero_caught() {
+        // .{0,} is semantically equivalent to .* and must be flagged
+        assert!(find_backtrack_issue(".{0,}").is_some());
+    }
+
+    #[test]
+    fn open_ended_range_in_pattern_caught() {
+        // .{2,} embedded in a larger pattern must be flagged
+        assert!(find_backtrack_issue(r"foo.{2,}bar").is_some());
+    }
+
+    // ── patterns that must NOT be flagged ──────────────────────────────────
+
+    #[test]
+    fn lazy_dot_star_ok() {
+        assert!(find_backtrack_issue(".*?").is_none());
+    }
+
+    #[test]
+    fn lazy_dot_plus_ok() {
+        assert!(find_backtrack_issue(".+?").is_none());
+    }
+
+    #[test]
+    fn bounded_repetition_ok() {
+        assert!(find_backtrack_issue(".{0,50}").is_none());
+    }
+
+    #[test]
+    fn word_char_plus_alone_ok() {
+        // \w+ is not nested and not a wildcard — safe
+        assert!(find_backtrack_issue(r"\w+").is_none());
+    }
+
+    #[test]
+    fn whitespace_star_ok() {
+        // \s* is bounded by the whitespace character class — safe on its own
+        assert!(find_backtrack_issue(r"\s*").is_none());
+    }
+
+    #[test]
+    fn non_negated_class_plus_ok() {
+        // [a-z]+ is a bounded positive class — safe
+        assert!(find_backtrack_issue("[a-z]+").is_none());
+    }
+
+    #[test]
+    fn escaped_dot_ok() {
+        // \. is a literal dot, not a wildcard — \. followed by * is fine
+        assert!(find_backtrack_issue(r"\.*").is_none());
+    }
+
+    #[test]
+    fn dot_inside_class_ok() {
+        // [.*]+ — the . inside [] is a literal character, not a wildcard
+        assert!(find_backtrack_issue("[.*]+").is_none());
+    }
+
+    #[test]
+    fn simple_alternation_ok() {
+        // (foo|bar)+ — no quantifiers inside the group branches
+        assert!(find_backtrack_issue("(foo|bar)+").is_none());
+    }
+
+    #[test]
+    fn simple_literal_group_repeated_ok() {
+        assert!(find_backtrack_issue("(abc)+").is_none());
+    }
+
+    #[test]
+    fn empty_pattern_ok() {
+        assert!(find_backtrack_issue("").is_none());
+    }
+
+    #[test]
+    fn plain_literal_ok() {
+        assert!(find_backtrack_issue("hello world").is_none());
+    }
+
+    // ── message content ────────────────────────────────────────────────────
+
+    #[test]
+    fn dot_star_message_mentions_wildcard() {
+        let msg = find_backtrack_issue(".*").unwrap();
+        assert!(msg.contains("wildcard"), "got: {msg}");
+    }
+
+    #[test]
+    fn negated_class_message_mentions_negated() {
+        let msg = find_backtrack_issue("[^x]+").unwrap();
+        assert!(msg.contains("negated"), "got: {msg}");
+    }
+
+    #[test]
+    fn nested_quantifier_message_mentions_nested() {
+        let msg = find_backtrack_issue(r"(\w+)+").unwrap();
+        assert!(msg.contains("nested"), "got: {msg}");
     }
 }

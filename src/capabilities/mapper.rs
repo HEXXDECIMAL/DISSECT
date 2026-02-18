@@ -29,11 +29,13 @@ use super::validation::{
     find_alternation_merge_candidates, find_banned_directory_segments, find_cap_obj_violations,
     find_depth_violations, find_duplicate_second_level_directories,
     find_duplicate_traits_and_composites, find_empty_condition_clauses, find_for_only_duplicates,
-    find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
+    find_hostile_cap_rules, find_impossible_count_constraints, find_inert_obj_rules,
+    find_malware_subcategory_violations, find_impossible_needs,
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
     find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
-    find_platform_named_directories, find_redundant_any_refs, find_redundant_needs_one,
-    find_single_item_clauses, find_slow_regex_patterns, find_string_content_collisions,
+    find_overlapping_conditions, find_platform_named_directories, find_redundant_any_refs,
+    find_redundant_needs_one, find_single_item_clauses, find_slow_regex_patterns,
+    find_string_content_collisions,
     find_string_pattern_duplicates, precalculate_all_composite_precisions,
     simple_rule_to_composite_rule, validate_composite_trait_only,
     validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
@@ -729,19 +731,24 @@ impl CapabilityMapper {
             trait_definitions_map.into_values().collect();
         let mut composite_rules: Vec<CompositeTrait> = composite_rules_map.into_values().collect();
 
-        // Pre-compile all YARA rules for faster evaluation (parallelized)
+        // Register the combined-engine namespace for atomic traits whose top-level `if`
+        // condition is `type: yara`.  These rules are compiled into the shared YaraEngine
+        // (see `yara_engine::load_inline_trait_rules`), so we only need to record the
+        // namespace here — actual compilation and scanning happen in the engine.
         let yara_count_traits = trait_definitions
             .iter()
             .filter(|t| matches!(t.r#if.condition, Condition::Yara { .. }))
             .count();
 
-        // Use rayon's par_iter_mut for parallel YARA compilation
         trait_definitions.par_iter_mut().for_each(|t| {
             if matches!(t.r#if.condition, Condition::Yara { .. }) {
-                t.compile_yara();
+                // Set namespace for the combined engine; also compiles any `unless` YARA conditions.
+                t.set_yara_if_namespace();
             }
         });
 
+        // Composite rules still use per-condition compilation (they are rare and have
+        // complex condition trees that are not currently in the combined engine).
         let yara_count_composite = composite_rules.len();
         composite_rules.par_iter_mut().for_each(|r| {
             r.compile_yara();
@@ -749,7 +756,7 @@ impl CapabilityMapper {
 
         if debug && (yara_count_traits > 0 || yara_count_composite > 0) {
             eprintln!(
-                "   ⚡ Pre-compiled YARA rules in {} traits, {} composite rules",
+                "   ⚡ Registered {} inline YARA namespaces, compiled {} composite rules",
                 yara_count_traits, yara_count_composite
             );
         }
@@ -1253,37 +1260,65 @@ impl CapabilityMapper {
             ));
         }
 
-        // TODO: Re-enable once find_inert_obj_rules is restored
-        // Validate that obj/known/ rules are never inert
-        // Inert traits are neutral capabilities and belong in cap/
-        // tracing::debug!("Step 13b/15: Checking for inert obj/known rules");
-        // let inert_obj_rules =
-        //     find_inert_obj_rules(&trait_definitions, &composite_rules, &rule_source_files);
-        //
-        // if !inert_obj_rules.is_empty() {
-        //     eprintln!(
-        //         "\n❌ ERROR: {} obj/known rules have inert criticality",
-        //         inert_obj_rules.len()
-        //     );
-        //     eprintln!("   Obj/known contain behaviors with malicious or suspicious intent.");
-        //     eprintln!("   Inert traits are neutral capabilities and should be in cap/:\n");
-        //     for (rule_id, source_file) in &inert_obj_rules {
-        //         let line_hint = find_line_number(source_file, "crit: inert");
-        //         if let Some(line) = line_hint {
-        //             eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
-        //         } else {
-        //             eprintln!("   {}: Rule '{}'", source_file, rule_id);
-        //         }
-        //     }
-        //     eprintln!("\n   To fix:");
-        //     eprintln!("   - If it's a neutral observation, migrate to cap/");
-        //     eprintln!("   - If it could be interpreted as slightly interesting or suspicious, upgrade to notable");
-        //     eprintln!("   - See TAXONOMY.md for guidance on trait classification");
-        //     warnings.push(format!(
-        //         "{} obj/known rules have inert criticality (should be in cap/)",
-        //         inert_obj_rules.len()
-        //     ));
-        // }
+        // Validate that obj/ rules are never inert
+        // Obj rules represent attacker objectives and must carry analytical signal.
+        // Inert rules either belong in cap/ or meta/ (if truly neutral), or should
+        // be upgraded to notable if they indicate something of interest or suspicion.
+        tracing::debug!("Step 13b/15: Checking for inert obj rules");
+        let inert_obj_rules =
+            find_inert_obj_rules(&trait_definitions, &composite_rules, &rule_source_files);
+
+        if !inert_obj_rules.is_empty() {
+            eprintln!(
+                "\n❌ ERROR: {} obj/ rules have inert criticality",
+                inert_obj_rules.len()
+            );
+            eprintln!("   Obj rules represent attacker objectives and must carry analytical signal.");
+            eprintln!("   Inert findings have no place in obj/ - every objective implies intent:\n");
+            for (rule_id, source_file) in &inert_obj_rules {
+                let line_hint = find_line_number(source_file, "crit: inert");
+                if let Some(line) = line_hint {
+                    eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
+                } else {
+                    eprintln!("   {}: Rule '{}'", source_file, rule_id);
+                }
+            }
+            eprintln!("\n   To fix:");
+            eprintln!("   - If truly neutral (no intent), migrate to cap/ or meta/");
+            eprintln!("   - If it leans toward any level of interest or suspicion, upgrade to notable");
+            eprintln!("   - See TAXONOMY.md for guidance on trait classification");
+            warnings.push(format!(
+                "{} obj/ rules have inert criticality (migrate to cap/meta/ or upgrade to notable)",
+                inert_obj_rules.len()
+            ));
+        }
+
+        // Validate that malware/ is not used as a subcategory of obj/ or cap/
+        // Malware-specific signatures belong in known/malware/ per TAXONOMY.md
+        tracing::debug!("Step 13b/15: Checking for misplaced malware/ subcategories");
+        let malware_violations = find_malware_subcategory_violations(
+            &trait_definitions,
+            &composite_rules,
+            &rule_source_files,
+        );
+
+        if !malware_violations.is_empty() {
+            eprintln!(
+                "\n❌ ERROR: {} rules use malware/ as a subcategory of obj/ or cap/",
+                malware_violations.len()
+            );
+            eprintln!("   Malware-specific signatures belong in known/malware/, not obj/ or cap/.");
+            eprintln!("   See TAXONOMY.md for the correct taxonomy structure:\n");
+            for (rule_id, source_file) in &malware_violations {
+                eprintln!("   {}: Rule '{}'", source_file, rule_id);
+            }
+            eprintln!("\n   Move these rules to known/malware/<family>/ instead.");
+            warnings.push(format!(
+                "{} rules misuse malware/ as a subcategory of obj/ or cap/ (see TAXONOMY.md)",
+                malware_violations.len()
+            ));
+            has_fatal_errors = true;
+        }
 
         // Validate that `any:` clauses don't have 3+ traits from the same external directory
         // Recommend using directory references instead for better maintainability
@@ -1366,6 +1401,46 @@ impl CapabilityMapper {
                 "{} composite rules have single-item any:/all: clauses",
                 single_item_clauses.len()
             ));
+        }
+
+        // Validate that all:/any: clauses don't contain overlapping IDs.
+        // A directory reference subsumes any specific trait from that directory.
+        let mut overlapping = Vec::new();
+        for rule in &composite_rules {
+            for (rule_id, clause, dir_ref, specific_ref) in find_overlapping_conditions(rule) {
+                let source_file =
+                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
+                overlapping.push((rule_id, clause, dir_ref, specific_ref, source_file.to_string()));
+            }
+        }
+        if !overlapping.is_empty() {
+            eprintln!(
+                "\n❌ ERROR: {} composite rules have overlapping {}/{} conditions",
+                overlapping.len(),
+                "all:",
+                "any:"
+            );
+            eprintln!("   A directory reference already includes all traits within it;\n   remove the specific trait reference:\n");
+            for (rule_id, clause, dir_ref, specific_ref, source_file) in &overlapping {
+                let line_hint = find_line_number(source_file, rule_id);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
+                        source_file, line, rule_id, clause, specific_ref, dir_ref
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
+                        source_file, rule_id, clause, specific_ref, dir_ref
+                    );
+                }
+            }
+            eprintln!();
+            warnings.push(format!(
+                "{} composite rules have overlapping all:/any: conditions",
+                overlapping.len()
+            ));
+            has_fatal_errors = true;
         }
 
         // Validate: string vs content type collisions (same pattern at same criticality)
@@ -2221,46 +2296,6 @@ impl CapabilityMapper {
         None
     }
 
-    /// Map YARA rule path to capability ID
-    /// Example: "rules/exec/cmd/cmd.yara" → "exec/command/shell"
-    #[must_use] 
-    pub(crate) fn yara_rule_to_capability(&self, rule_path: &str) -> Option<String> {
-        // Extract the path components after "rules/"
-        let path = rule_path.strip_prefix("rules/").unwrap_or(rule_path);
-
-        // Map directory structure to capability IDs
-        // This follows the malcontent rule structure
-        let parts: Vec<&str> = path.split('/').collect();
-
-        if parts.is_empty() {
-            return None;
-        }
-
-        // Build capability ID from path components
-        // Example: exec/cmd/cmd.yara → exec/command/shell
-        match (parts.first(), parts.get(1)) {
-            (Some(&"exec"), Some(&"cmd")) | (Some(&"exec"), Some(&"shell")) => {
-                Some("exec/command/shell".to_string())
-            }
-            (Some(&"exec"), Some(&"program")) => Some("exec/command/direct".to_string()),
-            (Some(&"net"), Some(&"ftp")) => Some("net/ftp/client".to_string()),
-            (Some(&"net"), Some(&"http")) => Some("net/http/client".to_string()),
-            (Some(&"crypto"), sub) => Some(format!("crypto/{}", sub.unwrap_or(&"generic"))),
-            (Some(&"anti-static"), Some(&"obfuscation")) => {
-                // Get the specific obfuscation type
-                if let Some(&obf_type) = parts.get(2) {
-                    let type_clean = obf_type.trim_end_matches(".yara");
-                    Some(format!("anti-analysis/obfuscation/{}", type_clean))
-                } else {
-                    Some("anti-analysis/obfuscation".to_string())
-                }
-            },
-            (Some(&"fs"), sub) => Some(format!("fs/{}", sub.unwrap_or(&"generic"))),
-            (Some(category), sub) => Some(format!("{}/{}", category, sub.unwrap_or(&"generic"))),
-            _ => None,
-        }
-    }
-
     /// Get the number of loaded symbol mappings
     #[allow(dead_code)] // Used in tests
     #[must_use]
@@ -2303,16 +2338,18 @@ impl CapabilityMapper {
         self.trait_definitions.iter().find(|t| t.id == id)
     }
 
-    /// Evaluate trait definitions against an analysis report with optional cached AST
-    /// Returns findings detected from trait definitions
+    /// Evaluate trait definitions against an analysis report with optional cached AST.
+    /// `inline_yara` supplies pre-scanned results from the combined YARA engine, keyed by
+    /// namespace (`"inline.{trait_id}"`), enabling fast lookup in `eval_yara_inline`.
     ///
     /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn evaluate_traits_with_ast(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
+        inline_yara: Option<&HashMap<String, Vec<Evidence>>>,
     ) -> Vec<Finding> {
         // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
@@ -2320,7 +2357,7 @@ impl CapabilityMapper {
         // Build section map for location-constrained matching
         let section_map = SectionMap::from_binary(binary_data);
 
-        let ctx = EvaluationContext::new(
+        let mut ctx = EvaluationContext::new(
             report,
             binary_data,
             file_type,
@@ -2329,6 +2366,9 @@ impl CapabilityMapper {
             cached_ast,
         )
         .with_section_map(section_map);
+        if let Some(results) = inline_yara {
+            ctx = ctx.with_inline_yara(results);
+        }
 
         // Use trait index to only evaluate applicable traits
         // This dramatically reduces work for specific file types
@@ -2419,6 +2459,7 @@ impl CapabilityMapper {
 
         let all_findings: Vec<Finding> = applicable_indices
             .par_iter()
+            .with_min_len(64)
             .filter_map(|&idx| {
                 let trait_def = &self.trait_definitions[idx];
 
@@ -2538,19 +2579,20 @@ impl CapabilityMapper {
     #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn evaluate_traits(&self, report: &AnalysisReport, binary_data: &[u8]) -> Vec<Finding> {
-        self.evaluate_traits_with_ast(report, binary_data, None)
+        self.evaluate_traits_with_ast(report, binary_data, None, None)
     }
 
-    /// Evaluate composite rules against an analysis report
-    /// Returns additional findings detected by composite rules
+    /// Evaluate composite rules against an analysis report.
+    /// `inline_yara` supplies pre-scanned results from the combined YARA engine.
     ///
     /// Platform filtering is controlled by the `platform` field set via `with_platform()`.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn evaluate_composite_rules(
         &self,
         report: &AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
+        inline_yara: Option<&HashMap<String, Vec<Evidence>>>,
     ) -> Vec<Finding> {
         // Determine file type from report (platform comes from self.platform)
         let file_type = self.detect_file_type(&report.target.file_type);
@@ -2574,19 +2616,18 @@ impl CapabilityMapper {
         // Pass 1: Iterative evaluation of positive rules to reach a stable fixed-point
         const MAX_ITERATIONS: usize = 10;
         for _ in 0..MAX_ITERATIONS {
-            let ctx = EvaluationContext::new(
+            let mut ctx = EvaluationContext::new(
                 report,
                 binary_data,
                 file_type,
                 self.platforms.clone(),
-                if all_findings.is_empty() {
-                    None
-                } else {
-                    Some(&all_findings)
-                },
+                if all_findings.is_empty() { None } else { Some(&all_findings) },
                 cached_ast,
             )
             .with_section_map(section_map.clone());
+            if let Some(results) = inline_yara {
+                ctx = ctx.with_inline_yara(results);
+            }
 
             // Evaluate positive rules (parallel for large sets, sequential for small)
             let new_findings: Vec<Finding> = if positive_rules.len() > 50 {
@@ -2616,19 +2657,18 @@ impl CapabilityMapper {
 
         // Pass 2: Final evaluation of rules with negative conditions (exclusions)
         // These are only checked AFTER all positive indicators have reached a stable state.
-        let ctx = EvaluationContext::new(
+        let mut ctx = EvaluationContext::new(
             report,
             binary_data,
             file_type,
             self.platforms.clone(),
-            if all_findings.is_empty() {
-                None
-            } else {
-                Some(&all_findings)
-            },
+            if all_findings.is_empty() { None } else { Some(&all_findings) },
             cached_ast,
         )
         .with_section_map(section_map.clone());
+        if let Some(results) = inline_yara {
+            ctx = ctx.with_inline_yara(results);
+        }
 
         let negative_findings: Vec<Finding> = if negative_rules.len() > 50 {
             negative_rules
@@ -2767,24 +2807,38 @@ impl CapabilityMapper {
     /// * `binary_data` - Raw file data for content-based matching
     /// * `cached_ast` - Optional cached tree-sitter AST for performance
     ///
+    /// Evaluate all traits and composite rules and merge findings into the report.
+    ///
+    /// `inline_yara` supplies pre-scanned results from the combined YARA engine (keyed by
+    /// `"inline.{trait_id}"`). Pass `None` when YARA is disabled or when called outside
+    /// of a binary analysis context.
+    ///
     /// # Example
     /// ```ignore
-    /// // In an analyzer:
-    /// self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
+    /// // In an analyzer, after scanning:
+    /// let (yara_matches, inline_yara) = engine.scan_bytes_with_inline(data, filter)?;
+    /// self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None, Some(&inline_yara));
     /// ```
     pub(crate) fn evaluate_and_merge_findings(
         &self,
         report: &mut AnalysisReport,
         binary_data: &[u8],
         cached_ast: Option<&tree_sitter::Tree>,
+        inline_yara: Option<&HashMap<String, Vec<Evidence>>>,
     ) {
         // Step 1: Evaluate atomic trait definitions
-        let trait_findings = self.evaluate_traits_with_ast(report, binary_data, cached_ast);
+        let trait_findings =
+            self.evaluate_traits_with_ast(report, binary_data, cached_ast, inline_yara);
+
+        // Build a seen-IDs set once from existing report findings, then keep it up-to-date
+        // as we merge — O(1) per lookup instead of O(n) linear scan.
+        let mut seen: FxHashSet<String> =
+            report.findings.iter().map(|f| f.id.clone()).collect();
 
         // Step 2: Merge atomic trait findings into report (so composites can reference them)
         for finding in trait_findings {
-            // Avoid duplicates
-            if !report.findings.iter().any(|f| f.id == finding.id) {
+            if !seen.contains(finding.id.as_str()) {
+                seen.insert(finding.id.clone());
                 report.findings.push(finding);
             }
         }
@@ -2793,13 +2847,17 @@ impl CapabilityMapper {
         // This MUST happen before Step 3 so composite rules can reference them
         Self::generate_import_findings(report);
 
-        // Step 3: Evaluate composite rules (which can now access the atomic traits AND meta/import findings)
-        let composite_findings = self.evaluate_composite_rules(report, binary_data, cached_ast);
+        // Step 3: Evaluate composite rules (which can now access atomic traits AND meta/import findings)
+        let composite_findings =
+            self.evaluate_composite_rules(report, binary_data, cached_ast, inline_yara);
 
-        // Step 4: Merge composite findings into report
+        // Step 4: Merge composite findings into report.
+        // Rebuild seen to include meta/import findings added in step 2.5.
+        let mut seen: FxHashSet<String> =
+            report.findings.iter().map(|f| f.id.clone()).collect();
         for finding in composite_findings {
-            // Avoid duplicates
-            if !report.findings.iter().any(|f| f.id == finding.id) {
+            if !seen.contains(finding.id.as_str()) {
+                seen.insert(finding.id.clone());
                 report.findings.push(finding);
             }
         }

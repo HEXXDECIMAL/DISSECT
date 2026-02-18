@@ -431,6 +431,20 @@ pub(crate) enum Command {
         max_size: Option<u64>,
     },
 
+    /// Profile YARA rule performance per rule file against a target.
+    /// Compiles each .yar file individually, scans the target, and reports
+    /// timing sorted slowest-first so you can identify rules to disable.
+    #[command(name = "yara-profile")]
+    YaraProfile {
+        /// Target file to scan
+        #[arg(required = true)]
+        target: String,
+
+        /// Only show rule files taking longer than this many milliseconds
+        #[arg(short, long, default_value = "10")]
+        min_ms: u64,
+    },
+
     /// Generate a graph visualization of trait relationships
     Graph {
         /// Directory depth level (2 = cap/comm, 3 = cap/comm/socket, etc.)

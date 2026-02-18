@@ -703,6 +703,7 @@ impl UnifiedSourceAnalyzer {
             &mut report,
             content.as_bytes(),
             Some(&tree),
+            None,
         );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;

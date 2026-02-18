@@ -344,7 +344,7 @@ fn test_evaluate_composite_rules_empty() {
     let mapper = CapabilityMapper::empty();
     let report = create_test_report();
 
-    let findings = mapper.evaluate_composite_rules(&report, &[], None);
+    let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
     assert_eq!(findings.len(), 0);
 }
 
@@ -395,7 +395,7 @@ traits:
         fragments: None,
     });
 
-    mapper.evaluate_and_merge_findings(&mut report, binary_data, None);
+    mapper.evaluate_and_merge_findings(&mut report, binary_data, None, None);
 
     // Should have findings from both symbol lookup and trait evaluation
     assert!(report.findings.len() >= 2);
@@ -407,35 +407,6 @@ traits:
     assert!(report.findings.iter().any(|f| f.id == "test/string::check"));
 }
 
-// YARA rules are not currently supported in YAML configuration
-#[test]
-#[ignore]
-fn test_yara_rule_to_capability() {
-    let yaml = r#"
-yara_rules:
-  rules/malware/ransomware.yar:
-    id: "known/malware/ransomware::detected"
-    desc: "Ransomware pattern detected"
-    crit: hostile
-"#;
-    let (_dir, path) = create_test_yaml(yaml);
-    let mapper = CapabilityMapper::from_yaml(&path).unwrap();
-
-    let capability = mapper.yara_rule_to_capability("rules/malware/ransomware.yar");
-    assert!(capability.is_some());
-    assert_eq!(capability.unwrap(), "known/malware/ransomware::detected");
-}
-
-#[test]
-fn test_yara_rule_to_capability_nonexistent() {
-    let mapper = CapabilityMapper::empty();
-    let capability = mapper.yara_rule_to_capability("nonexistent/rule.yar");
-    // Should return None for unmapped rules
-    assert!(
-        capability.is_none() || capability.is_some(),
-        "Method should handle nonexistent rules gracefully"
-    );
-}
 
 #[test]
 fn test_find_trait() {

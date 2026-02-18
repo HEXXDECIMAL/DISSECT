@@ -14,7 +14,7 @@
 **Additional tools**: r2 (radare2), ghidra, nm, readelf
 
 **Traits**: {{.TraitsDir}}
-**Docs**: RULES.md describes trait rule syntax, TAXONOMY.md describes subdirectories, PRECISION.md describes precision
+**Docs**: RULES.md describes our unusual trait rule syntax, TAXONOMY.md describes subdirectories (a necessary read)
 
 ---
 
@@ -28,6 +28,8 @@
 | `obj/*` | Composed attacker objective | notable → suspicious → hostile | `cap/` + `obj/` + `meta/` |
 | `known/*` | Specific malware/tool signature | any | all tiers |
 
+NOTE: Composite rules are rarely in the same subdirectary as the atomic rules they depend on. Be precise in your directory selection as the subcategory you choose will be read by humans and ML pipelines alike.
+
 **Key rules**:
 - Trait ID references are either use subdirectory or subdirectory::specific_trait_id - filenames are not part of the trait ID
 - Traits require 3-4 semantic subdirectories (no generic names)
@@ -36,7 +38,9 @@
 
 ### Pattern Types (by precision)
 
-`ast` > `symbol` > `kv` > `string` > `base64` > `xor` > `content` > `hex`
+`ast` > `symbol` > `kv` > `string` > `base64` > `xor` > `raw` > `hex`
+
+AST rules have the greatest precision, especially in the face of obfuscation.
 
 ### Criticality Thresholds
 

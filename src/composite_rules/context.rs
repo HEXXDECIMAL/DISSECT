@@ -5,6 +5,7 @@ use super::section_map::SectionMap;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Evidence, Finding};
 use rustc_hash::{FxHashSet, FxHasher};
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
 /// Compute a fast hash of a string for deduplication.
@@ -38,6 +39,10 @@ pub(crate) struct EvaluationContext<'a> {
     pub debug_collector: Option<&'a DebugCollector>,
     /// Section map for location-constrained matching (lazy-initialized)
     pub section_map: Option<SectionMap>,
+    /// Pre-scanned inline YARA results from the combined engine, keyed by namespace
+    /// (`"inline.{trait_id}"`). When present, YARA condition evaluation uses this
+    /// map instead of re-scanning with per-condition compiled rules.
+    pub inline_yara_results: Option<&'a HashMap<String, Vec<Evidence>>>,
 }
 
 impl<'a> EvaluationContext<'a> {
@@ -73,13 +78,25 @@ impl<'a> EvaluationContext<'a> {
             finding_id_index: Some(index),
             debug_collector: None,
             section_map: None,
+            inline_yara_results: None,
         }
     }
 
     /// Set section map for location-constrained matching
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_section_map(mut self, section_map: SectionMap) -> Self {
         self.section_map = Some(section_map);
+        self
+    }
+
+    /// Attach pre-scanned inline YARA results from the combined engine.
+    /// Keyed by namespace (`"inline.{trait_id}"`); maps to matched evidence.
+    #[must_use]
+    pub(crate) fn with_inline_yara(
+        mut self,
+        results: &'a HashMap<String, Vec<Evidence>>,
+    ) -> Self {
+        self.inline_yara_results = Some(results);
         self
     }
 

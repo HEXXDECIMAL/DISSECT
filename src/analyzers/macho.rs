@@ -7,7 +7,6 @@ use crate::entropy::{calculate_entropy, EntropyLevel};
 use crate::radare2::Radare2Analyzer;
 use crate::strings::StringExtractor;
 use crate::types::*;
-use crate::yara_engine::YaraEngine;
 use anyhow::{Context, Result};
 use goblin::mach::{Mach, MachO};
 use std::fs;
@@ -20,34 +19,17 @@ pub(crate) struct MachOAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
-    yara_engine: Option<Arc<YaraEngine>>,
 }
 
 impl MachOAnalyzer {
     /// Creates a new Mach-O analyzer with default configuration
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
-            yara_engine: None,
         }
-    }
-
-    /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
-    #[must_use] 
-    pub(crate) fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
-        self.yara_engine = Some(Arc::new(yara_engine));
-        self
-    }
-
-    /// Create analyzer with shared YARA engine
-    #[allow(dead_code)] // Used by binary target
-    #[must_use]
-    pub(crate) fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
-        self.yara_engine = Some(yara_engine);
-        self
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
@@ -64,7 +46,10 @@ impl MachOAnalyzer {
         self
     }
 
-    fn analyze_single(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    /// Structural analysis of a thin Mach-O binary (no YARA scan, no trait evaluation).
+    /// Only handles thin binaries — fat binary dispatch is done by the caller.
+    /// Callers are responsible for running YARA and calling `evaluate_and_merge_findings`.
+    pub(crate) fn analyze_structural(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
         let start = std::time::Instant::now(); // Parse with goblin
         let macho = match goblin::mach::Mach::parse(data)? {
             Mach::Binary(m) => m,
@@ -267,7 +252,7 @@ impl MachOAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust)
         // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
-        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Update binary metrics with string count
@@ -287,60 +272,6 @@ impl MachOAnalyzer {
             );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
-
-        // Run YARA scan if engine is loaded
-        if let Some(yara_engine) = &self.yara_engine {
-            if yara_engine.is_loaded() {
-                tools_used.push("yara-x".to_string());
-                // Filter for Mach-O-specific rules
-                let file_types = &["macho", "elf", "so"];
-                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
-                    Ok(matches) => {
-                        // Add YARA matches to report
-                        report.yara_matches = matches.clone();
-
-                        // Map YARA matches to capabilities
-                        for yara_match in &matches {
-                            // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
-                            let cap_id = yara_match.namespace.replace('.', "/");
-
-                            // Check if we already have this capability
-                            if !report.findings.iter().any(|c| c.id == cap_id) {
-                                let evidence = yara_engine.yara_match_to_evidence(yara_match);
-
-                                // Map severity to criticality
-                                let criticality = match yara_match.severity.as_str() {
-                                    "critical" | "high" => Criticality::Hostile,
-                                    "low" => Criticality::Notable,
-                                    _ => Criticality::Suspicious,
-                                };
-
-                                report.findings.push(Finding {
-                                    kind: FindingKind::Capability,
-                                    trait_refs: vec![],
-                                    id: cap_id,
-                                    desc: yara_match.desc.clone(),
-                                    conf: 0.9, // YARA matches are high confidence
-                                    crit: criticality,
-                                    mbc: yara_match.mbc.clone(),
-                                    attack: yara_match.attack.clone(),
-                                    evidence,
-
-                                    source_file: None,
-                                });
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
-                    },
-                }
-            }
-        }
-
-        // Evaluate all rules (atomic + composite) and merge into report
-        let _t_eval = std::time::Instant::now();
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
         // Update binary metrics with data from report (import/export/string counts and entropy)
         Self::update_binary_metrics(&mut report);
@@ -1093,48 +1024,58 @@ impl Default for MachOAnalyzer {
     }
 }
 
-impl Analyzer for MachOAnalyzer {
-    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
-        let data = fs::read(file_path).context("Failed to read file")?;
-
-        // Check if it's a fat binary
-        match goblin::mach::Mach::parse(&data)? {
-            Mach::Binary(_) => self.analyze_single(file_path, &data),
-            Mach::Fat(fat) => {
-                // Prefer arm64, fall back to first architecture
-                let arches = fat.arches()?;
-                let preferred_arch = arches
+impl MachOAnalyzer {
+    /// Returns the byte range of the preferred architecture slice within a fat binary,
+    /// or `0..data.len()` for thin binaries.
+    pub(crate) fn preferred_arch_range(&self, data: &[u8]) -> std::ops::Range<usize> {
+        if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
+            if let Ok(arches) = fat.arches() {
+                let preferred = arches
                     .iter()
                     .find(|a| a.cputype == 0x0100000c) // CPU_TYPE_ARM64
                     .or_else(|| arches.first());
-
-                if let Some(arch) = preferred_arch {
+                if let Some(arch) = preferred {
                     let offset = arch.offset as usize;
                     let size = arch.size as usize;
-                    let arch_data = &data[offset..offset + size];
-                    let mut report = self.analyze_single(file_path, arch_data)?;
+                    if offset + size <= data.len() {
+                        return offset..offset + size;
+                    }
+                }
+            }
+        }
+        0..data.len()
+    }
 
-                    // Update report with all architectures from fat binary
-                    let arch_names: Vec<String> =
-                        arches.iter().map(|a| self.arch_name_from_cputype(a.cputype)).collect();
-                    report.target.architectures = Some(arch_names.clone());
-
-                    // Update macho metrics for universal binary
-                    if let Some(ref mut metrics) = report.metrics {
-                        if let Some(ref mut macho_metrics) = metrics.macho {
-                            if arch_names.len() > 1 {
-                                macho_metrics.is_universal = true;
-                                macho_metrics.slice_count = arch_names.len() as u32;
-                            }
+    /// Updates a report with fat binary metadata (architecture list, universal binary flag).
+    /// No-op for thin binaries.
+    pub(crate) fn apply_fat_metadata(&self, report: &mut AnalysisReport, data: &[u8]) {
+        if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
+            if let Ok(arches) = fat.arches() {
+                let arch_names: Vec<String> =
+                    arches.iter().map(|a| self.arch_name_from_cputype(a.cputype)).collect();
+                report.target.architectures = Some(arch_names.clone());
+                if let Some(ref mut metrics) = report.metrics {
+                    if let Some(ref mut macho_metrics) = metrics.macho {
+                        if arch_names.len() > 1 {
+                            macho_metrics.is_universal = true;
+                            macho_metrics.slice_count = arch_names.len() as u32;
                         }
                     }
-
-                    Ok(report)
-                } else {
-                    anyhow::bail!("No architectures found in fat binary");
                 }
-            },
+            }
         }
+    }
+}
+
+impl Analyzer for MachOAnalyzer {
+    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+        let data = fs::read(file_path).context("Failed to read file")?;
+        let range = self.preferred_arch_range(&data);
+        let arch_data = &data[range];
+        let mut report = self.analyze_structural(file_path, arch_data)?;
+        self.apply_fat_metadata(&mut report, &data);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, arch_data, None, None);
+        Ok(report)
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {

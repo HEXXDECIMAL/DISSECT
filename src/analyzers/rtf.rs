@@ -79,7 +79,7 @@ impl RtfAnalyzer {
 
         // All pattern detection is delegated to capability mapper
         // which evaluates YAML traits against the file content
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None, None);
 
         report
     }

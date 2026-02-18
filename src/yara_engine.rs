@@ -11,6 +11,7 @@ use crate::capabilities::CapabilityMapper;
 use crate::types::{Evidence, MatchedString, YaraMatch};
 use anyhow::{Context, Result};
 use rayon::prelude::*;
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
@@ -20,19 +21,27 @@ use walkdir::WalkDir;
 pub(crate) struct YaraEngine {
     rules: Option<yara_x::Rules>,
     capability_mapper: CapabilityMapper,
+    /// Namespaces compiled into the combined engine from inline trait YARA conditions.
+    /// Used to split scan results: inline matches (keyed here) go to trait evaluation;
+    /// all other matches are returned as regular YARA findings.
+    compiled_inline_namespaces: Vec<String>,
 }
 
 impl YaraEngine {
     /// Create a new YARA engine without rules loaded
     #[must_use]
     pub(crate) fn new() -> Self {
-        Self { rules: None, capability_mapper: CapabilityMapper::new() }
+        Self {
+            rules: None,
+            capability_mapper: CapabilityMapper::new(),
+            compiled_inline_namespaces: Vec::new(),
+        }
     }
 
     /// Create a new YARA engine with a pre-existing capability mapper (avoids duplicate loading)
     #[must_use]
     pub(crate) fn new_with_mapper(capability_mapper: CapabilityMapper) -> Self {
-        Self { rules: None, capability_mapper }
+        Self { rules: None, capability_mapper, compiled_inline_namespaces: Vec::new() }
     }
 
     /// Set the capability mapper (useful for injecting after parallel loading)
@@ -79,8 +88,22 @@ impl YaraEngine {
         let mut builtin_count = 0;
         let mut third_party_count = 0;
 
-        // 1. Load built-in YARA rules from traits directory
+        // 0. Load inline YARA from trait YAML files into the combined compiler.
+        //    These are `type: yara` conditions in .yaml trait definitions.
+        //    By compiling them here, a single JIT pass covers both inline and third-party rules.
         let traits_dir = crate::cache::traits_path();
+        if traits_dir.exists() {
+            self.compiled_inline_namespaces =
+                Self::load_inline_trait_rules(&mut compiler, &traits_dir);
+            if !self.compiled_inline_namespaces.is_empty() {
+                tracing::debug!(
+                    "Loaded {} inline YARA rules from trait YAML files",
+                    self.compiled_inline_namespaces.len()
+                );
+            }
+        }
+
+        // 1. Load built-in YARA rules from traits directory
         if traits_dir.exists() {
             tracing::debug!("Loading built-in YARA rules from {}", traits_dir.display());
             match self.load_rules_into_compiler(&mut compiler, &traits_dir, "traits") {
@@ -147,6 +170,189 @@ impl YaraEngine {
         }
 
         (builtin_count, third_party_count)
+    }
+
+    /// Parse trait YAML files and add all `type: yara` conditions to the compiler.
+    ///
+    /// Each rule is added under namespace `inline.{trait_id}` so that scan results
+    /// can be mapped back to the originating trait during evaluation.
+    /// Returns the list of namespaces successfully added.
+    fn load_inline_trait_rules<'a>(
+        compiler: &mut yara_x::Compiler<'a>,
+        traits_dir: &Path,
+    ) -> Vec<String> {
+        let mut namespaces = Vec::new();
+
+        let yaml_files: Vec<PathBuf> = WalkDir::new(traits_dir)
+            .follow_links(false)
+            .into_iter()
+            .filter_map(std::result::Result::ok)
+            .filter(|e| {
+                let p = e.path();
+                p.is_file()
+                    && p.extension()
+                        .map(|ext| ext == "yaml" || ext == "yml")
+                        .unwrap_or(false)
+            })
+            .map(|e| e.path().to_path_buf())
+            .collect();
+
+        for path in &yaml_files {
+            let Ok(content) = fs::read_to_string(path) else { continue };
+            let Ok(doc) = serde_yaml::from_str::<serde_yaml::Value>(&content) else { continue };
+
+            // YAML files may have a top-level `traits:` list or be a bare list
+            let items = match &doc {
+                serde_yaml::Value::Mapping(m) => m
+                    .get("traits")
+                    .and_then(|v| v.as_sequence())
+                    .map(|s| s.as_slice()),
+                serde_yaml::Value::Sequence(s) => Some(s.as_slice()),
+                _ => None,
+            };
+
+            let Some(items) = items else { continue };
+
+            for item in items {
+                let Some(id) = item.get("id").and_then(|v| v.as_str()) else { continue };
+                let Some(if_cond) = item.get("if") else { continue };
+
+                // Only handle `type: yara` conditions
+                if if_cond.get("type").and_then(|v| v.as_str()) != Some("yara") {
+                    continue;
+                }
+
+                let Some(source) = if_cond.get("source").and_then(|v| v.as_str()) else {
+                    continue
+                };
+
+                let ns = format!("inline.{}", id);
+                compiler.new_namespace(&ns);
+                match compiler.add_source(source.as_bytes()) {
+                    Ok(_) => {
+                        tracing::trace!("Loaded inline YARA rule for trait {}", id);
+                        namespaces.push(ns);
+                    },
+                    Err(e) => {
+                        tracing::warn!("Failed to compile inline YARA for trait {}: {:?}", id, e);
+                    },
+                }
+            }
+        }
+
+        namespaces
+    }
+
+    /// Scan binary data and split results into regular YARA matches and inline trait results.
+    ///
+    /// Regular matches (non-`inline.*` namespaces) are returned as `Vec<YaraMatch>` for
+    /// inclusion in the analysis report. Inline matches are returned as a
+    /// `HashMap<String, Vec<Evidence>>` keyed by namespace (`"inline.{trait_id}"`), for use
+    /// by trait evaluation via `EvaluationContext::inline_yara_results`.
+    pub(crate) fn scan_bytes_with_inline(
+        &self,
+        data: &[u8],
+        file_type_filter: Option<&[&str]>,
+    ) -> Result<(Vec<YaraMatch>, HashMap<String, Vec<Evidence>>)> {
+        use std::time::Duration;
+
+        let rules = self.rules.as_ref().context("No YARA rules loaded")?;
+        let inline_ns_set: std::collections::HashSet<&str> =
+            self.compiled_inline_namespaces.iter().map(String::as_str).collect();
+
+        let mut scanner = yara_x::Scanner::new(rules);
+        scanner.set_timeout(Duration::from_secs(30));
+        let scan_results =
+            scanner.scan(data).map_err(|e| anyhow::anyhow!("YARA scan failed: {:?}", e))?;
+
+        struct RawRule {
+            name: String,
+            namespace: String,
+            tags: Vec<String>,
+            metadata: Vec<(String, String)>,
+            patterns: Vec<(String, Vec<(usize, usize)>)>,
+        }
+
+        let raw_rules: Vec<RawRule> = scan_results
+            .matching_rules()
+            .map(|rule| RawRule {
+                name: rule.identifier().to_string(),
+                namespace: rule.namespace().to_string(),
+                tags: rule.tags().map(|t| t.identifier().to_string()).collect(),
+                metadata: rule
+                    .metadata()
+                    .map(|(k, v)| (k.to_string(), format!("{:?}", v)))
+                    .collect(),
+                patterns: rule
+                    .patterns()
+                    .map(|pat| {
+                        let ranges =
+                            pat.matches().map(|m| (m.range().start, m.range().end)).collect();
+                        (pat.identifier().to_string(), ranges)
+                    })
+                    .collect(),
+            })
+            .collect();
+
+        drop(scan_results);
+
+        // Warn on slow rules
+        const SLOW_RULE_THRESHOLD: Duration = Duration::from_millis(500);
+        for profiling_data in scanner.most_expensive_rules(20) {
+            let total = profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
+            if total >= SLOW_RULE_THRESHOLD {
+                tracing::warn!(
+                    namespace = %profiling_data.namespace,
+                    rule = %profiling_data.rule,
+                    total_ms = total.as_millis(),
+                    "Slow YARA rule ({}ms): {}::{} — consider disabling",
+                    total.as_millis(),
+                    profiling_data.namespace,
+                    profiling_data.rule,
+                );
+            }
+        }
+
+        let mut yara_matches = Vec::new();
+        let mut inline_results: HashMap<String, Vec<Evidence>> = HashMap::new();
+
+        for raw in raw_rules {
+            // Inline namespace: collect evidence for trait evaluation, not YARA output
+            if inline_ns_set.contains(raw.namespace.as_str()) {
+                let evidence = raw
+                    .patterns
+                    .iter()
+                    .flat_map(|(_pattern_id, ranges)| {
+                        ranges.iter().map(|(start, end)| {
+                            let match_len = end - start;
+                            let value = if match_len <= 100 {
+                                String::from_utf8_lossy(&data[*start..*end]).to_string()
+                            } else {
+                                format!("<{} bytes>", match_len)
+                            };
+                            Evidence {
+                                method: "yara".to_string(),
+                                source: "yara-x".to_string(),
+                                value,
+                                location: Some(format!("offset:0x{:x}", start)),
+                            }
+                        })
+                    })
+                    .collect::<Vec<_>>();
+                // Even if empty (condition match without string patterns), record the hit
+                inline_results.entry(raw.namespace).or_default().extend(evidence);
+                continue;
+            }
+
+            // Regular match: build YaraMatch
+            let yara_match = self.build_yara_match(raw.name, raw.namespace, raw.tags,
+                raw.metadata, raw.patterns, data, file_type_filter);
+            if let Some(m) = yara_match {
+                yara_matches.push(m);
+            }
+        }
+
+        Ok((yara_matches, inline_results))
     }
 
     /// Load YARA rules from a directory into a compiler, skipping individual files that fail to compile
@@ -378,161 +584,143 @@ impl YaraEngine {
         self.scan_bytes_filtered(data, None)
     }
 
-    /// Scan byte data with optional file type filtering
+    /// Scan byte data with optional file type filtering.
+    /// Inline YARA results (namespace `inline.*`) are silently discarded; use
+    /// `scan_bytes_with_inline` when you need them for trait evaluation.
     pub(crate) fn scan_bytes_filtered(
         &self,
         data: &[u8],
         file_type_filter: Option<&[&str]>,
     ) -> Result<Vec<YaraMatch>> {
-        let rules = self.rules.as_ref().context("No YARA rules loaded")?;
+        let (matches, _inline) = self.scan_bytes_with_inline(data, file_type_filter)?;
+        Ok(matches)
+    }
 
-        let mut scanner = yara_x::Scanner::new(rules);
-        let scan_results =
-            scanner.scan(data).map_err(|e| anyhow::anyhow!("YARA scan failed: {:?}", e))?;
+    /// Build a `YaraMatch` from raw match data collected during scanning.
+    /// Returns `None` if the rule is an inline trait rule (those go into `inline_results`).
+    #[allow(clippy::too_many_arguments)]
+    fn build_yara_match(
+        &self,
+        rule_name: String,
+        namespace: String,
+        tags: Vec<String>,
+        metadata: Vec<(String, String)>,
+        patterns: Vec<(String, Vec<(usize, usize)>)>,
+        data: &[u8],
+        file_type_filter: Option<&[&str]>,
+    ) -> Option<YaraMatch> {
+        let mut description = String::new();
+        let mut severity = "none".to_string();
+        let mut capability_flag = false;
+        let mut mbc_code: Option<String> = None;
+        let mut attack_code: Option<String> = None;
+        let mut rule_filetypes: Vec<String> = Vec::new();
+        let mut os_meta: Option<String> = None;
 
-        let mut matches = Vec::new();
-
-        for matching_rule in scan_results.matching_rules() {
-            let rule_name = matching_rule.identifier().to_string();
-            let namespace = matching_rule.namespace().to_string();
-
-            // Extract metadata - iterate through key-value pairs
-            let mut description = String::new();
-            let mut severity = "none".to_string(); // Default to none - rules should explicitly set severity
-            let mut capability_flag = false;
-            let mut mbc_code: Option<String> = None;
-            let mut attack_code: Option<String> = None;
-            let mut rule_filetypes: Vec<String> = Vec::new();
-            let mut os_meta: Option<String> = None;
-
-            // Extract severity from YARA rule tags (e.g., "rule name: low")
-            for tag in matching_rule.tags() {
-                let tag_name = tag.identifier();
-                if tag_name == "none"
-                    || tag_name == "low"
-                    || tag_name == "medium"
-                    || tag_name == "high"
-                {
-                    severity = tag_name.to_string();
-                    break;
-                }
+        for tag_name in &tags {
+            if matches!(tag_name.as_str(), "none" | "low" | "medium" | "high") {
+                severity = tag_name.clone();
+                break;
             }
-
-            // Third-party rules are identified by the "3p." namespace prefix
-            let is_third_party = namespace.starts_with("3p.");
-            if is_third_party {
-                severity = "medium".to_string();
-            }
-
-            for (key, value) in matching_rule.metadata() {
-                // Extract string value from MetaValue (strips String("...") wrapper from debug output)
-                let value_str = {
-                    let debug_str = format!("{:?}", value);
-                    if debug_str.starts_with("String(\"") && debug_str.ends_with("\")") {
-                        debug_str[8..debug_str.len() - 2].to_string()
-                    } else {
-                        debug_str.trim_matches('"').to_string()
-                    }
-                };
-
-                match key {
-                    "description" => description = value_str,
-                    "risk" => {
-                        if !is_third_party {
-                            severity = value_str;
-                        }
-                    },
-                    "capability" => {
-                        capability_flag = value_str.to_lowercase() == "true" || value_str == "1";
-                    },
-                    "mbc" => mbc_code = Some(value_str),
-                    "attack" => attack_code = Some(value_str),
-                    "filetype" | "filetypes" => {
-                        rule_filetypes =
-                            value_str.split(',').map(|s| s.trim().to_lowercase()).collect();
-                    },
-                    "os" => os_meta = Some(value_str.to_lowercase()),
-                    _ => {},
-                }
-            }
-
-            // For third-party rules with no explicit filetype, infer from rule name and os metadata
-            if is_third_party && rule_filetypes.is_empty() {
-                let inferred =
-                    crate::third_party_yara::infer_filetypes(&rule_name, os_meta.as_deref());
-                rule_filetypes = inferred.iter().map(std::string::ToString::to_string).collect();
-            }
-
-            // Apply file type filtering if specified
-            if let Some(filter_types) = file_type_filter {
-                if !rule_filetypes.is_empty() {
-                    let matches_filter = rule_filetypes.iter().any(|rule_type| {
-                        filter_types.iter().any(|ft| rule_type == &ft.to_lowercase())
-                    });
-                    if !matches_filter {
-                        severity = "filtered".to_string();
-                        tracing::warn!(
-                            rule = %rule_name,
-                            rule_targets = ?rule_filetypes,
-                            scanning = ?filter_types,
-                            "YARA rule filtered: targets {:?}, not applicable to {:?}",
-                            rule_filetypes, filter_types,
-                        );
-                    }
-                }
-            }
-
-            // Extract matched strings/patterns
-            let mut matched_strings = Vec::new();
-            for pattern in matching_rule.patterns() {
-                for m in pattern.matches() {
-                    let range = m.range();
-                    let match_len = range.end - range.start;
-
-                    let value = if match_len <= 100 {
-                        String::from_utf8_lossy(&data[range.clone()]).to_string()
-                    } else {
-                        format!("<{} bytes>", match_len)
-                    };
-
-                    matched_strings.push(MatchedString {
-                        identifier: pattern.identifier().to_string(),
-                        offset: range.start as u64,
-                        value,
-                    });
-                }
-            }
-
-            // Infer capability from metadata:
-            // 1. Explicit: capability = "true"
-            // 2. Inferred: mbc or attack present
-            let is_capability = capability_flag || mbc_code.is_some() || attack_code.is_some();
-
-            // Derive structured trait ID for third-party matches
-            let trait_id = if is_third_party {
-                Some(crate::third_party_yara::derive_trait_id(
-                    &namespace,
-                    &rule_name,
-                    os_meta.as_deref(),
-                ))
-            } else {
-                None
-            };
-
-            matches.push(YaraMatch {
-                rule: rule_name,
-                namespace: namespace.clone(),
-                severity,
-                desc: description,
-                matched_strings,
-                is_capability,
-                mbc: mbc_code,
-                attack: attack_code,
-                trait_id,
-            });
         }
 
-        Ok(matches)
+        let is_third_party = namespace.starts_with("3p.");
+        if is_third_party {
+            severity = "medium".to_string();
+        }
+
+        for (key, value_str) in &metadata {
+            let value_str = if value_str.starts_with("String(\"") && value_str.ends_with("\")") {
+                value_str[8..value_str.len() - 2].to_string()
+            } else {
+                value_str.trim_matches('"').to_string()
+            };
+
+            match key.as_str() {
+                "description" => description = value_str,
+                "risk" => {
+                    if !is_third_party {
+                        severity = value_str;
+                    }
+                },
+                "capability" => {
+                    capability_flag = value_str.to_lowercase() == "true" || value_str == "1";
+                },
+                "mbc" => mbc_code = Some(value_str),
+                "attack" => attack_code = Some(value_str),
+                "filetype" | "filetypes" => {
+                    rule_filetypes =
+                        value_str.split(',').map(|s| s.trim().to_lowercase()).collect();
+                },
+                "os" => os_meta = Some(value_str.to_lowercase()),
+                _ => {},
+            }
+        }
+
+        if is_third_party && rule_filetypes.is_empty() {
+            let inferred =
+                crate::third_party_yara::infer_filetypes(&rule_name, os_meta.as_deref());
+            rule_filetypes = inferred.iter().map(std::string::ToString::to_string).collect();
+        }
+
+        if let Some(filter_types) = file_type_filter {
+            if !rule_filetypes.is_empty() {
+                let matches_filter = rule_filetypes
+                    .iter()
+                    .any(|rule_type| filter_types.iter().any(|ft| rule_type == &ft.to_lowercase()));
+                if !matches_filter {
+                    tracing::warn!(
+                        rule = %rule_name,
+                        rule_targets = ?rule_filetypes,
+                        scanning = ?filter_types,
+                        "YARA rule filtered: targets {:?}, not applicable to {:?}",
+                        rule_filetypes,
+                        filter_types,
+                    );
+                    return None;
+                }
+            }
+        }
+
+        let mut matched_strings = Vec::new();
+        for (pattern_id, ranges) in &patterns {
+            for (start, end) in ranges {
+                let match_len = end - start;
+                let value = if match_len <= 100 {
+                    String::from_utf8_lossy(&data[*start..*end]).to_string()
+                } else {
+                    format!("<{} bytes>", match_len)
+                };
+                matched_strings.push(MatchedString {
+                    identifier: pattern_id.clone(),
+                    offset: *start as u64,
+                    value,
+                });
+            }
+        }
+
+        let is_capability = capability_flag || mbc_code.is_some() || attack_code.is_some();
+        let trait_id = if is_third_party {
+            Some(crate::third_party_yara::derive_trait_id(
+                &namespace,
+                &rule_name,
+                os_meta.as_deref(),
+            ))
+        } else {
+            None
+        };
+
+        Some(YaraMatch {
+            rule: rule_name,
+            namespace,
+            severity,
+            desc: description,
+            matched_strings,
+            is_capability,
+            mbc: mbc_code,
+            attack: attack_code,
+            trait_id,
+        })
     }
 
     /// Check if rules are loaded
@@ -669,7 +857,12 @@ impl YaraEngine {
         // Serialize the rules using the YARA-X serialization
         let serialized = rules.serialize().context("Failed to serialize YARA rules")?;
 
-        let cache_data = CacheData { builtin_count, third_party_count, rules_data: serialized };
+        let cache_data = CacheData {
+            builtin_count,
+            third_party_count,
+            rules_data: serialized,
+            inline_namespaces: self.compiled_inline_namespaces.clone(),
+        };
 
         // Serialize to file
         let encoded = bincode::serialize(&cache_data).context("Failed to encode cache data")?;
@@ -694,6 +887,7 @@ impl YaraEngine {
             .context("Failed to deserialize YARA rules")?;
 
         self.rules = Some(rules);
+        self.compiled_inline_namespaces = cache_data.inline_namespaces;
         Ok((cache_data.builtin_count, cache_data.third_party_count))
     }
 }
@@ -704,6 +898,10 @@ struct CacheData {
     builtin_count: usize,
     third_party_count: usize,
     rules_data: Vec<u8>,
+    /// Inline YARA namespaces compiled from trait YAML files.
+    /// Stored so the engine can split scan results correctly on cache load.
+    #[serde(default)]
+    inline_namespaces: Vec<String>,
 }
 
 impl Default for YaraEngine {

@@ -307,6 +307,11 @@ fn main() -> Result<()> {
         None
     };
 
+    // Handle commands that manage their own output before entering the result-formatting match.
+    if let Some(cli::Command::YaraProfile { target, min_ms }) = &args.command {
+        return yara_profile(Path::new(target), *min_ms);
+    }
+
     let result = match args.command {
         Some(cli::Command::Analyze { targets }) => {
             let enable_third_party = enable_third_party_global;
@@ -460,6 +465,7 @@ fn main() -> Result<()> {
             min_refs,
             namespaces.as_deref(),
         )?,
+        Some(cli::Command::YaraProfile { .. }) => unreachable!("handled above"),
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -515,6 +521,50 @@ fn main() -> Result<()> {
 
     Ok(())
 }
+/// Process YARA scan results: apply matches as findings to the report and return the inline map.
+/// The inline map (`HashMap<String, Vec<Evidence>>`) is used by `evaluate_and_merge_findings`
+/// for `type: yara` trait conditions.
+fn process_yara_result(
+    report: &mut types::AnalysisReport,
+    yara_result: Option<anyhow::Result<(Vec<types::YaraMatch>, std::collections::HashMap<String, Vec<types::Evidence>>)>>,
+    engine: Option<&yara_engine::YaraEngine>,
+) -> std::collections::HashMap<String, Vec<types::Evidence>> {
+    let Some(Ok((matches, inline))) = yara_result else {
+        return std::collections::HashMap::new();
+    };
+    report.yara_matches = matches.clone();
+    for yara_match in &matches {
+        let cap_id = yara_match.namespace.replace('.', "/");
+        if report.findings.iter().any(|c| c.id == cap_id) {
+            continue;
+        }
+        let evidence = engine
+            .map(|e| e.yara_match_to_evidence(yara_match))
+            .unwrap_or_default();
+        let crit = match yara_match.severity.as_str() {
+            "critical" | "high" => types::Criticality::Hostile,
+            "low" => types::Criticality::Notable,
+            _ => types::Criticality::Suspicious,
+        };
+        report.findings.push(types::Finding {
+            kind: types::FindingKind::Capability,
+            trait_refs: vec![],
+            id: cap_id,
+            desc: yara_match.desc.clone(),
+            conf: 0.9,
+            crit,
+            mbc: yara_match.mbc.clone(),
+            attack: yara_match.attack.clone(),
+            evidence,
+            source_file: None,
+        });
+    }
+    if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
+        report.metadata.tools_used.push("yara-x".to_string());
+    }
+    inline
+}
+
 #[allow(clippy::too_many_arguments)]
 fn analyze_file(
     target: &str,
@@ -622,32 +672,86 @@ fn analyze_file(
         None
     };
 
-    // Route to appropriate analyzer
-    // Binary analyzers (MachO, Elf, Pe, Archive, Jar) handle YARA internally with specialized filtering
-    // All other analyzers get YARA scanning applied universally after analysis
+    // Route to appropriate analyzer.
+    // For ELF/MachO/PE: structural analysis and YARA scan run in parallel via rayon::join,
+    // followed by a single centralized trait evaluation pass.
+    // Archive and source types are handled sequentially (archives manage their own YARA).
     let _t3 = std::time::Instant::now();
     let mut report = match file_type {
         FileType::MachO => {
-            let mut analyzer =
+            let data = fs::read(path).context("Failed to read file")?;
+            let engine = yara_engine.take(); // take prevents source-type double-scan below
+            let analyzer =
                 MachOAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
-            }
-            analyzer.analyze(path)?
+            let range = analyzer.preferred_arch_range(&data);
+            let arch_data = &data[range];
+            let file_types: &[&str] = &["macho", "dylib", "kext"];
+            let (struct_result, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, arch_data),
+                || engine.as_ref().filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(arch_data, Some(file_types))
+                }),
+            );
+            let mut report = struct_result?;
+            analyzer.apply_fat_metadata(&mut report, &data);
+            let inline_yara = process_yara_result(&mut report, yara_result, engine.as_ref());
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                arch_data,
+                None,
+                Some(&inline_yara),
+            );
+            report
         },
         FileType::Elf => {
-            let mut analyzer = ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
-            }
-            analyzer.analyze(path)?
+            let data = fs::read(path).context("Failed to read file")?;
+            let engine = yara_engine.take(); // take prevents source-type double-scan below
+            let analyzer =
+                ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            let file_types: &[&str] = &["elf", "so", "ko"];
+            let (mut report, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, &data),
+                || engine.as_ref().filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(&data, Some(file_types))
+                }),
+            );
+            let inline_yara = process_yara_result(&mut report, yara_result, engine.as_ref());
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                &data,
+                None,
+                Some(&inline_yara),
+            );
+            crate::path_mapper::analyze_and_link_paths(&mut report);
+            crate::env_mapper::analyze_and_link_env_vars(&mut report);
+            report
         },
         FileType::Pe => {
-            let mut analyzer = PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
+            let data = fs::read(path).context("Failed to read file")?;
+            // Arc lets PE use the engine for overlay analysis while we also run a parallel scan
+            let yara_arc = yara_engine.take().map(Arc::new);
+            let mut analyzer =
+                PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            if let Some(arc) = &yara_arc {
+                analyzer = analyzer.with_yara_arc(arc.clone());
             }
-            analyzer.analyze(path)?
+            let file_types: &[&str] = &["pe", "exe", "dll", "bat", "ps1"];
+            let (struct_result, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, &data),
+                || yara_arc.as_ref().filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(&data, Some(file_types))
+                }),
+            );
+            let mut report = struct_result?;
+            let inline_yara =
+                process_yara_result(&mut report, yara_result, yara_arc.as_deref());
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                &data,
+                None,
+                Some(&inline_yara),
+            );
+            report
         },
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
@@ -729,8 +833,10 @@ fn analyze_file(
                     report.yara_matches = matches;
 
                     // Add findings that don't already exist
+                    let existing: std::collections::HashSet<String> =
+                        report.findings.iter().map(|f| f.id.clone()).collect();
                     for finding in findings {
-                        if !report.findings.iter().any(|f| f.id == finding.id) {
+                        if !existing.contains(finding.id.as_str()) {
                             report.findings.push(finding);
                         }
                     }
@@ -1137,20 +1243,16 @@ fn analyze_file_with_shared_mapper(
     // All other analyzers get YARA scanning applied universally after analysis
     let mut report = match file_type {
         FileType::MachO => {
-            let mut analyzer =
-                MachOAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
-            if let Some(engine) = shared_yara_engine {
-                analyzer = analyzer.with_yara_arc(engine.clone());
-            }
-            analyzer.analyze(path)?
+            // YARA handled by post-analysis block below
+            MachOAnalyzer::new()
+                .with_capability_mapper_arc(capability_mapper.clone())
+                .analyze(path)?
         },
         FileType::Elf => {
-            let mut analyzer =
-                ElfAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
-            if let Some(engine) = shared_yara_engine {
-                analyzer = analyzer.with_yara_arc(engine.clone());
-            }
-            analyzer.analyze(path)?
+            // YARA handled by post-analysis block below
+            ElfAnalyzer::new()
+                .with_capability_mapper_arc(capability_mapper.clone())
+                .analyze(path)?
         },
         FileType::Pe => {
             let mut analyzer =
@@ -1315,8 +1417,10 @@ fn analyze_file_with_shared_mapper(
                     report.yara_matches = matches;
 
                     // Add findings that don't already exist
+                    let existing: std::collections::HashSet<String> =
+                        report.findings.iter().map(|f| f.id.clone()).collect();
                     for finding in findings {
-                        if !report.findings.iter().any(|f| f.id == finding.id) {
+                        if !existing.contains(finding.id.as_str()) {
                             report.findings.push(finding);
                         }
                     }
@@ -1609,7 +1713,7 @@ fn extract_strings(target: &str, min_length: usize, format: &cli::OutputFormat) 
         .with_exports(&exports)
         .with_functions(&functions);
 
-    let strings = extractor.extract_smart(&data);
+    let strings = extractor.extract_smart(&data, None);
 
     match format {
         cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&strings)?),
@@ -2383,7 +2487,7 @@ fn test_rules_debug(
     let mut report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
 
     // Evaluate traits first to populate findings
-    capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None);
+    capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None, None);
 
     // Create debugger and debug each rule
     // Pass platforms from CLI for consistency with production evaluation
@@ -4291,4 +4395,98 @@ fn find_rules_in_directory(
     rules.sort();
     rules.dedup();
     rules
+}
+
+/// Profile YARA rule performance by compiling each .yar file individually
+/// and scanning the target, then reporting timing sorted slowest-first.
+fn yara_profile(target: &Path, min_ms: u64) -> Result<()> {
+    use std::time::Instant;
+    use walkdir::WalkDir;
+
+    let data = fs::read(target)
+        .with_context(|| format!("Failed to read {}", target.display()))?;
+
+    let third_party_dir = Path::new("third_party");
+    if !third_party_dir.exists() {
+        anyhow::bail!("third_party/ directory not found");
+    }
+
+    // Collect all YARA rule files
+    let rule_files: Vec<_> = WalkDir::new(third_party_dir)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            let p = e.path();
+            p.is_file() && p.extension().map(|x| x == "yar" || x == "yara").unwrap_or(false)
+        })
+        .map(|e| e.path().to_path_buf())
+        .collect();
+
+    eprintln!("Profiling {} rule files against {} ...", rule_files.len(), target.display());
+
+    // For each rule file: compile, scan, record elapsed (including sub-threshold files for total)
+    let mut total_individual_ms: u64 = 0;
+    let mut results: Vec<(u64, String)> = rule_files
+        .iter()
+        .filter_map(|path| {
+            let source = fs::read(path).ok()?;
+            let mut compiler = yara_x::Compiler::new();
+            compiler.add_source(source.as_slice()).ok()?;
+            let rules = compiler.build();
+            let mut scanner = yara_x::Scanner::new(&rules);
+            scanner.set_timeout(std::time::Duration::from_secs(30));
+            let t = Instant::now();
+            let _ = scanner.scan(&data);
+            let elapsed_ms = t.elapsed().as_millis() as u64;
+            Some((elapsed_ms, path.clone()))
+        })
+        .inspect(|(ms, _)| total_individual_ms += ms)
+        .filter_map(|(ms, path)| {
+            if ms >= min_ms {
+                let label = path
+                    .strip_prefix(third_party_dir)
+                    .unwrap_or(&path)
+                    .display()
+                    .to_string();
+                Some((ms, label))
+            } else {
+                None
+            }
+        })
+        .collect();
+
+    results.sort_by(|a, b| b.0.cmp(&a.0));
+
+    // Measure combined scan time (all rules compiled together, as in normal operation)
+    let combined_ms = {
+        let mut compiler = yara_x::Compiler::new();
+        for path in &rule_files {
+            if let Ok(source) = fs::read(path) {
+                let _ = compiler.add_source(source.as_slice());
+            }
+        }
+        let rules = compiler.build();
+        let mut scanner = yara_x::Scanner::new(&rules);
+        scanner.set_timeout(std::time::Duration::from_secs(30));
+        let t = Instant::now();
+        let _ = scanner.scan(&data);
+        t.elapsed().as_millis() as u64
+    };
+
+    if !results.is_empty() {
+        println!("{:>8}  {}", "ms", "rule file");
+        println!("{}", "-".repeat(72));
+        for (ms, label) in &results {
+            println!("{:>8}  {}", ms, label);
+        }
+        println!();
+    }
+    println!("{:>8}ms  sum of individual scans ({} files)", total_individual_ms, rule_files.len());
+    println!("{:>8}ms  combined scan (all rules together, as in normal operation)", combined_ms);
+    if !results.is_empty() {
+        println!("\n{} rule files shown (>= {}ms threshold)", results.len(), min_ms);
+    }
+
+    Ok(())
 }

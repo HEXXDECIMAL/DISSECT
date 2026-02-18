@@ -58,6 +58,7 @@ fn test_symbol_condition() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -112,6 +113,7 @@ fn test_all() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -180,6 +182,7 @@ fn test_count() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -245,6 +248,7 @@ fn test_string_exact_condition() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -304,6 +308,7 @@ fn test_any() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -388,6 +393,7 @@ fn test_not_directive_shorthand() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -472,6 +478,7 @@ fn test_not_directive_exact() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -560,6 +567,7 @@ fn test_not_directive_regex() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -643,6 +651,7 @@ fn test_unless_directive_skips_trait() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -697,6 +706,7 @@ fn test_unless_directive_allows_trait() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -765,6 +775,7 @@ fn test_downgrade_to_notable() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -849,6 +860,7 @@ fn test_downgrade_one_level() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -911,6 +923,7 @@ fn test_downgrade_no_match_keeps_original() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -987,6 +1000,7 @@ fn test_downgrade_from_hostile() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1083,6 +1097,7 @@ fn test_all_three_directives_combined() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1179,6 +1194,7 @@ fn test_string_exact_match_requires_full_equality() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: "hello" should match only "hello", not "hello world"
@@ -1264,6 +1280,7 @@ fn test_string_substr_matches_substrings() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // substr: "hello" should match both "hello" and "hello world"
@@ -1340,6 +1357,7 @@ fn test_symbol_exact_vs_substr() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: "read" should match only "read", not "readlink"
@@ -1442,6 +1460,7 @@ fn test_string_case_insensitive_exact() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // Case-insensitive exact match
@@ -1522,6 +1541,7 @@ fn test_string_word_boundary_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // word: "cat" should match "the cat sat" but not "category"
@@ -1615,6 +1635,7 @@ fn test_string_regex_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // regex for IP addresses
@@ -1681,6 +1702,7 @@ fn test_content_exact_vs_substr() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: should match only if entire content equals the pattern (won't match)
@@ -1747,6 +1769,7 @@ fn test_basename_exact_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: "__init__.py" should match
@@ -1770,6 +1793,7 @@ fn test_basename_exact_no_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: "__init__.py" should not match "main.py"
@@ -1792,6 +1816,7 @@ fn test_basename_substr_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // substr: "setup" should match "setup_tools.py"
@@ -1814,6 +1839,7 @@ fn test_basename_regex_match() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // regex: "^test_" should match files starting with "test_"
@@ -1836,6 +1862,7 @@ fn test_basename_case_insensitive() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // exact: "readme.md" should match "README.md" with case_insensitive
@@ -1863,6 +1890,7 @@ fn test_basename_in_trait_definition() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let trait_def = TraitDefinition {
@@ -1915,6 +1943,7 @@ fn test_basename_in_composite_rule() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -1982,6 +2011,7 @@ fn test_composite_unless_skips_rule() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     // Composite rule with unless condition
@@ -2039,6 +2069,7 @@ fn test_composite_unless_allows_rule() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -2096,6 +2127,7 @@ fn test_composite_unless_with_basename() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {
@@ -2167,6 +2199,7 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
     };
 
     let rule = CompositeTrait {

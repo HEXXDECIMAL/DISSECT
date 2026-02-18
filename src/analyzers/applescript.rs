@@ -127,7 +127,7 @@ impl Analyzer for AppleScriptAnalyzer {
         self.extract_scpt_symbols(&data, &mut report);
 
         // Use intelligent string extraction
-        report.strings = self.string_extractor.extract_smart(&data);
+        report.strings = self.string_extractor.extract_smart(&data, None);
 
         // Analyze embedded code in strings
         let (encoded_layers, plain_findings) =
@@ -141,7 +141,7 @@ impl Analyzer for AppleScriptAnalyzer {
         report.findings.extend(plain_findings);
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
 
         Ok(report)
     }

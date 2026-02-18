@@ -241,6 +241,7 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: Some(self.build_finding_index()),
             debug_collector,
             section_map: Some(self.section_map.clone()),
+            inline_yara_results: None,
         }
     }
 
@@ -553,6 +554,7 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: None,
             debug_collector: None,
             section_map: Some(self.section_map.clone()),
+            inline_yara_results: None,
         };
 
         match condition {
@@ -1396,10 +1398,11 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: None,
             debug_collector: None,
             section_map: None,
+            inline_yara_results: None,
         };
 
         // Actually evaluate the inline YARA rule
-        let eval_result = eval_yara_inline(source, None, &ctx);
+        let eval_result = eval_yara_inline(source, None, None, &ctx);
 
         let mut result = ConditionDebugResult::new(desc, eval_result.matched);
         result.evidence = eval_result.evidence;
@@ -1726,6 +1729,7 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: None,
             debug_collector: None,
             section_map: None,
+            inline_yara_results: None,
         };
 
         let eval_result = crate::composite_rules::evaluators::eval_ast(
@@ -1795,6 +1799,7 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: None,
             debug_collector: None,
             section_map: Some(self.section_map.clone()),
+            inline_yara_results: None,
         };
 
         let eval_result = eval_hex(

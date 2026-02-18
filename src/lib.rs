@@ -60,6 +60,7 @@ pub use types::traits_findings::{Evidence, Finding, FindingKind, Trait, TraitKin
 
 use anyhow::Result;
 use std::path::Path;
+use std::sync::Arc;
 
 /// Options for file analysis
 #[derive(Debug, Clone)]
@@ -188,6 +189,9 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Check for encoded payloads (hex, base64, etc.) using stng results
     let encoded_payloads = extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
 
+    // Wrap mapper in Arc once — all analyzers share it via cheap ref-count bumps
+    let mapper_arc = Arc::new(capability_mapper.clone());
+
     // Load YARA rules if not disabled
     let mut yara_engine = if options.disable_yara {
         None
@@ -196,7 +200,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         let mut engine = yara_engine::YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) =
             engine.load_all_rules(options.enable_third_party_yara);
-        engine.set_capability_mapper(capability_mapper.clone());
+        engine.set_capability_mapper((*mapper_arc).clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)
         } else {
@@ -204,40 +208,33 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         }
     };
 
-    // Route to appropriate analyzer
+    // Route to appropriate analyzer.
+    // For ELF/MachO/PE the YARA engine is NOT passed to the analyzer; YARA scanning
+    // happens in the post-analysis block below via scan_file_to_findings.
     let mut report = match file_type {
         FileType::MachO => {
-            let mut analyzer = analyzers::macho::MachOAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
-            }
-            analyzer.analyze(path)?
+            analyzers::macho::MachOAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         FileType::Elf => {
-            let mut analyzer = analyzers::elf::ElfAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
-            }
-            analyzer.analyze(path)?
+            analyzers::elf::ElfAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         FileType::Pe => {
-            let mut analyzer =
-                analyzers::pe::PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
-            if let Some(engine) = yara_engine.take() {
-                analyzer = analyzer.with_yara(engine);
-            }
-            analyzer.analyze(path)?
+            analyzers::pe::PEAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         FileType::JavaClass => {
-            let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
+            analyzers::java_class::JavaClassAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         FileType::Jar | FileType::Archive => {
             let mut analyzer = analyzers::archive::ArchiveAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone())
+                .with_capability_mapper_arc(mapper_arc.clone())
                 .with_zip_passwords(options.zip_passwords.clone());
             if let Some(engine) = yara_engine.take() {
                 analyzer = analyzer.with_yara(engine);
@@ -245,19 +242,19 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             analyzer.analyze(path)?
         },
         FileType::PackageJson => {
-            let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
+            analyzers::package_json::PackageJsonAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         FileType::VsixManifest => {
-            let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
-                .with_capability_mapper(capability_mapper.clone());
-            analyzer.analyze(path)?
+            analyzers::vsix_manifest::VsixManifestAnalyzer::new()
+                .with_capability_mapper_arc(mapper_arc.clone())
+                .analyze(path)?
         },
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
-                analyzers::analyzer_for_file_type(&file_type, Some(capability_mapper.clone()))
+                analyzers::analyzer_for_file_type_arc(&file_type, Some(mapper_arc.clone()))
             {
                 analyzer.analyze(path)?
             } else {
@@ -343,8 +340,10 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             }
 
             // Merge findings from payload analysis
+            let existing: std::collections::HashSet<String> =
+                report.findings.iter().map(|f| f.id.clone()).collect();
             for finding in payload_report.findings {
-                if !report.findings.iter().any(|f| f.id == finding.id) {
+                if !existing.contains(finding.id.as_str()) {
                     report.findings.push(finding);
                 }
             }
@@ -363,8 +362,10 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
 
             if let Ok((matches, findings)) = engine.scan_file_to_findings(path, filter) {
                 report.yara_matches = matches;
+                let existing: std::collections::HashSet<String> =
+                    report.findings.iter().map(|f| f.id.clone()).collect();
                 for finding in findings {
-                    if !report.findings.iter().any(|f| f.id == finding.id) {
+                    if !existing.contains(finding.id.as_str()) {
                         report.findings.push(finding);
                     }
                 }

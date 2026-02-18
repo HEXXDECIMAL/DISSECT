@@ -9,7 +9,6 @@ use crate::radare2::Radare2Analyzer;
 use crate::strings::StringExtractor;
 use crate::types::binary_metrics::ElfMetrics;
 use crate::types::*;
-use crate::yara_engine::YaraEngine;
 use anyhow::{Context, Result};
 use goblin::elf::Elf;
 use std::fs;
@@ -22,34 +21,17 @@ pub(crate) struct ElfAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
-    yara_engine: Option<Arc<YaraEngine>>,
 }
 
 impl ElfAnalyzer {
     /// Creates a new ELF analyzer with default configuration
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
-            yara_engine: None,
         }
-    }
-
-    /// Create analyzer with YARA rules loaded (takes ownership, wraps in Arc)
-    #[must_use] 
-    pub(crate) fn with_yara(mut self, yara_engine: YaraEngine) -> Self {
-        self.yara_engine = Some(Arc::new(yara_engine));
-        self
-    }
-
-    /// Create analyzer with shared YARA engine
-    #[allow(dead_code)] // Used by binary target
-    #[must_use]
-    pub(crate) fn with_yara_arc(mut self, yara_engine: Arc<YaraEngine>) -> Self {
-        self.yara_engine = Some(yara_engine);
-        self
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
@@ -66,7 +48,7 @@ impl ElfAnalyzer {
         self
     }
 
-    fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> AnalysisReport {
+    fn analyze_elf_core(&self, file_path: &Path, data: &[u8]) -> AnalysisReport {
         let start = std::time::Instant::now();
         let _t_sha = std::time::Instant::now();
         let sha256 = crate::analyzers::utils::calculate_sha256(data);
@@ -202,7 +184,7 @@ impl ElfAnalyzer {
 
         // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
         let _t_stng = std::time::Instant::now();
-        report.strings = self.string_extractor.extract_smart_with_r2(data, r2_strings);
+        report.strings = self.string_extractor.extract_smart(data, r2_strings);
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings
@@ -215,62 +197,6 @@ impl ElfAnalyzer {
             );
         report.files.extend(encoded_layers);
         report.findings.extend(plain_findings);
-
-        // Run YARA scan if engine is loaded
-        if let Some(yara_engine) = &self.yara_engine {
-            if yara_engine.is_loaded() {
-                tools_used.push("yara-x".to_string());
-                // Filter for ELF-specific rules
-                let file_types = &["elf", "so", "ko"];
-                match yara_engine.scan_bytes_filtered(data, Some(file_types)) {
-                    Ok(matches) => {
-                        report.yara_matches = matches.clone();
-
-                        for yara_match in &matches {
-                            // Use namespace as capability ID (e.g., "exec.cmd" -> "exec/cmd")
-                            let cap_id = yara_match.namespace.replace('.', "/");
-
-                            if !report.findings.iter().any(|c| c.id == cap_id) {
-                                let evidence = yara_engine.yara_match_to_evidence(yara_match);
-
-                                // Map severity to criticality
-                                let criticality = match yara_match.severity.as_str() {
-                                    "critical" | "high" => Criticality::Hostile,
-                                    "low" => Criticality::Notable,
-                                    _ => Criticality::Suspicious,
-                                };
-
-                                report.findings.push(Finding {
-                                    kind: FindingKind::Capability,
-                                    trait_refs: vec![],
-                                    id: cap_id,
-                                    desc: yara_match.desc.clone(),
-                                    conf: 0.9,
-                                    crit: criticality,
-                                    mbc: yara_match.mbc.clone(),
-                                    attack: yara_match.attack.clone(),
-                                    evidence,
-
-                                    source_file: None,
-                                });
-                            }
-                        }
-                    },
-                    Err(e) => {
-                        report.metadata.errors.push(format!("YARA scan failed: {}", e));
-                    },
-                }
-            }
-        }
-
-        // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
-
-        // Analyze paths and generate path-based traits
-        crate::path_mapper::analyze_and_link_paths(&mut report);
-
-        // Analyze environment variables and generate env-based traits
-        crate::env_mapper::analyze_and_link_env_vars(&mut report);
 
         // Validate metric ranges to catch calculation bugs
         if let Some(ref metrics) = report.metrics {
@@ -706,21 +632,20 @@ impl Default for ElfAnalyzer {
     }
 }
 
-impl Analyzer for ElfAnalyzer {
-    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+impl ElfAnalyzer {
+    /// Perform structural analysis of an ELF binary (no YARA scan, no trait evaluation).
+    /// Handles UPX decompression internally. Callers are responsible for running YARA
+    /// and calling `evaluate_and_merge_findings` on the returned report.
+    pub(crate) fn analyze_structural(&self, file_path: &Path, data: &[u8]) -> AnalysisReport {
         use crate::upx::{UPXDecompressor, UPXError};
 
-        let data = fs::read(file_path).context("Failed to read file")?;
-
-        // Check for UPX packing
-        if !UPXDecompressor::is_upx_packed(&data) {
-            return Ok(self.analyze_elf(file_path, &data));
+        if !UPXDecompressor::is_upx_packed(data) {
+            return self.analyze_elf_core(file_path, data);
         }
 
-        // File is UPX-packed - analyze packed version first
-        let mut report = self.analyze_elf(file_path, &data);
+        // UPX-packed: structural analysis of packed binary first
+        let mut report = self.analyze_elf_core(file_path, data);
 
-        // Add UPX packer finding
         report.findings.push(
             Finding::structural(
                 "anti-static/packer/upx".to_string(),
@@ -730,7 +655,6 @@ impl Analyzer for ElfAnalyzer {
             .with_criticality(Criticality::Suspicious),
         );
 
-        // Attempt decompression
         if !UPXDecompressor::is_available() {
             report.findings.push(
                 Finding::structural(
@@ -740,22 +664,19 @@ impl Analyzer for ElfAnalyzer {
                 )
                 .with_criticality(Criticality::Notable),
             );
-            return Ok(report);
+            return report;
         }
 
         match UPXDecompressor::decompress(file_path) {
             Ok(unpacked_data) => {
-                // Write unpacked data to temp file for radare2 analysis
-                let temp_file = tempfile::NamedTempFile::new()
-                    .context("Failed to create temp file for unpacked analysis")?;
-                fs::write(temp_file.path(), &unpacked_data)
-                    .context("Failed to write unpacked data to temp file")?;
-
-                // Analyze unpacked version
-                let unpacked_report = self.analyze_elf(temp_file.path(), &unpacked_data);
-                self.merge_reports(&mut report, unpacked_report);
-
-                report.metadata.tools_used.push("upx".to_string());
+                if let Ok(temp_file) = tempfile::NamedTempFile::new() {
+                    if fs::write(temp_file.path(), &unpacked_data).is_ok() {
+                        let unpacked_report =
+                            self.analyze_elf_core(temp_file.path(), &unpacked_data);
+                        self.merge_reports(&mut report, unpacked_report);
+                        report.metadata.tools_used.push("upx".to_string());
+                    }
+                }
             },
             Err(e) => {
                 let description = match e {
@@ -775,7 +696,7 @@ impl Analyzer for ElfAnalyzer {
             },
         }
 
-        // Update binary metrics with final counts and compute ratios
+        // Update binary metrics with final counts after UPX merge
         if let Some(ref mut metrics) = report.metrics {
             if let Some(ref mut binary) = metrics.binary {
                 binary.import_count = report.imports.len() as u32;
@@ -783,7 +704,6 @@ impl Analyzer for ElfAnalyzer {
                 binary.string_count = report.strings.len() as u32;
                 binary.file_size = data.len() as u64;
 
-                // Compute largest section ratio
                 if binary.file_size > 0 && !report.sections.is_empty() {
                     let max_section_size =
                         report.sections.iter().map(|s| s.size).max().unwrap_or(0);
@@ -791,11 +711,21 @@ impl Analyzer for ElfAnalyzer {
                         max_section_size as f32 / binary.file_size as f32;
                 }
 
-                // Compute ratio metrics
                 crate::radare2::Radare2Analyzer::compute_ratio_metrics(binary);
             }
         }
 
+        report
+    }
+}
+
+impl Analyzer for ElfAnalyzer {
+    fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
+        let data = fs::read(file_path).context("Failed to read file")?;
+        let mut report = self.analyze_structural(file_path, &data);
+        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
+        crate::path_mapper::analyze_and_link_paths(&mut report);
+        crate::env_mapper::analyze_and_link_env_vars(&mut report);
         Ok(report)
     }
 
