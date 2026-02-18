@@ -14,7 +14,7 @@ composite_rules:
       - id: obj/exec/interpreter/eval/invoke::python-eval
       - id: cap/comm/http/client
     any:
-      - id: cap/data/obfuscation/payload::eval-function-call
+      - id: obj/anti-static/obfuscation/payload::eval-function-call
       - id: obj/exec/interpreter/eval/remote::eval-config-access
       - id: obj/exec/interpreter/eval/remote::eval-dict-get
 
@@ -29,7 +29,7 @@ composite_rules:
       - id: obj/exec/interpreter/eval/invoke::python-eval
       - id: cap/comm/http/lib/urllib::urllib-word
     any:
-      - id: cap/data/obfuscation/payload::eval-function-call
+      - id: obj/anti-static/obfuscation/payload::eval-function-call
       - id: obj/exec/interpreter/eval/remote::eval-config-access
 
   - id: config-string-execution
@@ -41,5 +41,5 @@ composite_rules:
     all:
       - id: obj/exec/interpreter/eval/invoke::python-eval
     any:
-      - id: cap/data/obfuscation/payload::eval-function-call
+      - id: obj/anti-static/obfuscation/payload::eval-function-call
       - id: obj/exec/interpreter/eval/remote::eval-client-config

@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1027.002"
     all:
       - id: cap/process/create/launch::windows-startfile-exec
-      - id: cap/data/obfuscation/source::b64decode-exec
+      - id: obj/anti-static/obfuscation/source::b64decode-exec
     any:
-      - id: cap/data/obfuscation/payload::exec-decode-pattern
+      - id: obj/anti-static/obfuscation/payload::exec-decode-pattern
       - id: cap/fs/path/temp

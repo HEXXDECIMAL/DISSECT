@@ -6,5 +6,5 @@ composite_rules:
     for: [pe, dll, csharp]
     platforms: [windows]
     all:
-      - id: cap/ui/controls/obfuscation::vscrollbar-spam
+      - id: obj/anti-static/obfuscation/ui-controls::vscrollbar-spam
       - id: meta/format/magic::pe-dos-stub

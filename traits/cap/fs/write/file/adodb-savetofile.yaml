@@ -57,7 +57,3 @@ composite_rules:
       - id: adodb-fragment-stream
       - id: savetofile-fragment-save
       - id: savetofile-fragment-tofil
-    any:
-      - id: cap/data/source/obfuscation/js::js-string-literal-charat-access
-      - id: cap/data/source/obfuscation/js::js-dynamic-property-function-concat-raw
-      - id: cap/data/source/obfuscation/js::js-dynamic-property-function-concat-ast

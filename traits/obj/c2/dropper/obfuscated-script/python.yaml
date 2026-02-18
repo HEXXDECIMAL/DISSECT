@@ -6,5 +6,5 @@ composite_rules:
     attack: "T1027"
     for: [python]
     all:
-      - id: cap/data/source/obfuscation/names::math-alphanum-identifiers
-      - id: cap/data/obfuscation/source::complex-number-obfuscation
+      - id: obj/anti-static/obfuscation/source/names::math-alphanum-identifiers
+      - id: obj/anti-static/obfuscation/source::complex-number-obfuscation

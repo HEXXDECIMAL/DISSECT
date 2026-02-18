@@ -22,8 +22,8 @@ composite_rules:
       - id: cap/net/protocol/http::hex-command-regex
       - id: cap/net/protocol/http::header-stringify-scan
       - id: obj/exec/vm/sandbox::vm-runInThisContext
-      - id: cap/data/encode/obfuscation::encoded-node-require
-      - id: cap/data/encode/obfuscation::encoded-node-vm
-      - id: cap/data/encode/obfuscation::encoded-node-vm-run
+      - id: obj/anti-static/obfuscation/encoding::encoded-node-require
+      - id: obj/anti-static/obfuscation/encoding::encoded-node-vm
+      - id: obj/anti-static/obfuscation/encoding::encoded-node-vm-run
       - id: cap/data/manipulation/buffer::buffer-alloc-large
       - id: cap/data/manipulation/buffer::module-exports-buffer-storage

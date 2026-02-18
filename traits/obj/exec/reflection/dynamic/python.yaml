@@ -31,5 +31,5 @@ composite_rules:
     for: [python]
     all:
       - id: dynamic-import
-      - id: cap/data/obfuscation/strings::hex-encoding
+      - id: obj/anti-static/obfuscation/strings::hex-encoding
       - id: obj/exec/reflection/dynamic::getattr-module

@@ -11,5 +11,5 @@ composite_rules:
       - id: obj/anti-analysis/timing/nemucod::nemucod-jitter-check
       - id: obj/exec/dropper/obfuscated-script::nemucod-dropper
       - id: obj/c2/dropper/nemucod::fragmented-url-dropper
-      - id: cap/data/source/obfuscation/js::js-string-literal-charat-access
-      - id: cap/data/source/obfuscation/js::ast-bracket-charat-access
+      - id: obj/anti-static/obfuscation/source/syntax::js-string-literal-charat-access
+      - id: obj/anti-static/obfuscation/source/syntax::ast-bracket-charat-access

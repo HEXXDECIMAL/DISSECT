@@ -17,5 +17,5 @@ composite_rules:
       - id: obj/exec/interpreter/scripting/host::adodb-stream-obfuscated
     any:
       - id: cap/data/format/executable::mz-header-check
-      - id: obj/anti-static/obfuscation/js::js-property-concatenation-obfuscation
+      - id: obj/anti-static/obfuscation/source/syntax::js-property-concatenation-obfuscation
       - id: cap/comm/http/url::dropper-common-params

@@ -4,8 +4,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     any:
-      - id: cap/data/source/obfuscation/js::js-nemucod-decoder-loop
-      - id: cap/data/source/obfuscation/js::nemucod-chunked-array-sequence
+      - id: obj/anti-static/obfuscation/source/syntax::js-nemucod-decoder-loop
+      - id: obj/anti-static/obfuscation/source/syntax::nemucod-chunked-array-sequence
 
   - id: nemucod-dropper
     desc: Detects Nemucod JScript dropper variants using custom array-chunking and dynamic execution.

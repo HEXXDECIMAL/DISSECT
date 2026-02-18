@@ -811,8 +811,8 @@ composite_rules:
     conf: 0.8
     for: [javascript]
     any:
-      - id: obj/anti-static/obfuscation/js::js-useless-arithmetic
-      - id: obj/anti-static/obfuscation/js::js-split-custom-delimiter
+      - id: obj/anti-static/obfuscation/source/syntax::js-useless-arithmetic
+      - id: obj/anti-static/obfuscation/source/syntax::js-split-custom-delimiter
       - id: obj/anti-static/obfuscation/strings/encoding::js-hex-escape
       - id: obj/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
     needs: 2

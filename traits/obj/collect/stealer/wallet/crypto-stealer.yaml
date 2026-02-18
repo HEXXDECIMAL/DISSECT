@@ -29,4 +29,4 @@ composite_rules:
       - id: solana-config-b64
     any:
       - id: obj/lateral/supply-chain/vscode::file-write-ops
-      - id: obj/anti-static/obfuscation/js::js-comma-sequence-obfuscation-v2
+      - id: obj/anti-static/obfuscation/source/syntax::js-comma-sequence-obfuscation-v2

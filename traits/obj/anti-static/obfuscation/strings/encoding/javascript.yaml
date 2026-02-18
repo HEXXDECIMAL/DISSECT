@@ -311,8 +311,8 @@ composite_rules:
     attack: "T1027.002"
     for: [javascript]
     all:
-      - id: cap/data/obfuscation/string_reconstruction::js-string-dict-map
-      - id: cap/data/obfuscation/string_reconstruction::js-string-key-array
+      - id: obj/anti-static/obfuscation/string_reconstruction::js-string-dict-map
+      - id: obj/anti-static/obfuscation/string_reconstruction::js-string-key-array
 
   - id: js-dict-reconstruction-eval
     desc: Dictionary-rebuilt payload executed with eval

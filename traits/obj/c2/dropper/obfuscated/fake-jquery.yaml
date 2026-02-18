@@ -4,8 +4,8 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     any:
-      - id: cap/data/source/obfuscation/names::fake-jquery-vars
-      - id: cap/data/source/obfuscation/prototype::string-arg-extension
+      - id: obj/anti-static/obfuscation/source/names::fake-jquery-vars
+      - id: obj/anti-static/obfuscation/source/prototype::string-arg-extension
 
   - id: fake-jquery-dropper
     desc: "Hostile JScript Dropper masquerading as jQuery library"
@@ -17,6 +17,6 @@ composite_rules:
       - id: obj/c2/dropper/obfuscated::fake-jquery-indicators
     any:
       - id: obj/exec/interpreter/script/wsh::wscript-shell-fragments-composite
-      - id: cap/data/source/obfuscation/prototype::weird-function-syntax
+      - id: obj/anti-static/obfuscation/source/prototype::weird-function-syntax
       - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
       - id: obj/exec/interpreter/script/wsh::wscript-dropper-full-composite

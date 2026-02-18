@@ -8,10 +8,10 @@ composite_rules:
     conf: 0.9
     for: [javascript, typescript]
     all:
-      - id: cap/data/source/obfuscation/string::self-modifying-string-replace
-      - id: cap/data/source/obfuscation/string::custom-delimiter-obfuscation
+      - id: obj/anti-static/obfuscation/source/string::self-modifying-string-replace
+      - id: obj/anti-static/obfuscation/source/string::custom-delimiter-obfuscation
     any:
-      - id: cap/data/source/obfuscation/string::base64-function-keyword
+      - id: obj/anti-static/obfuscation/source/string::base64-function-keyword
       - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: obfuscation-with-duplicate-names
@@ -20,11 +20,11 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     all:
-      - id: cap/data/source/obfuscation/names::duplicate-function-names
+      - id: obj/anti-static/obfuscation/source/names::duplicate-function-names
     any:
-      - id: cap/data/source/obfuscation/string::char-expansion-obfuscation
-      - id: cap/data/source/obfuscation/string::cyrillic-junk-padding
-      - id: cap/data/source/obfuscation/string::custom-delimiter-obfuscation
+      - id: obj/anti-static/obfuscation/source/string::char-expansion-obfuscation
+      - id: obj/anti-static/obfuscation/source/string::cyrillic-junk-padding
+      - id: obj/anti-static/obfuscation/source/string::custom-delimiter-obfuscation
 
   - id: embedded-code-with-deobfuscation
     desc: "High embedded code with runtime deobfuscation"
@@ -32,8 +32,8 @@ composite_rules:
     conf: 0.85
     for: [javascript, typescript, powershell]
     all:
-      - id: cap/data/source/obfuscation/metrics::high-embedded-code-ratio
+      - id: obj/anti-static/obfuscation/source/metrics::high-embedded-code-ratio
     any:
-      - id: cap/data/source/obfuscation/string::self-modifying-string-replace
-      - id: cap/data/source/obfuscation/string::chained-replace-calls
-      - id: cap/data/source/obfuscation/string::powershell-replace-operator
+      - id: obj/anti-static/obfuscation/source/string::self-modifying-string-replace
+      - id: obj/anti-static/obfuscation/source/string::chained-replace-calls
+      - id: obj/anti-static/obfuscation/source/string::powershell-replace-operator

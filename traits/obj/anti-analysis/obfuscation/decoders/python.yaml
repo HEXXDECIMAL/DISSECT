@@ -10,10 +10,10 @@ composite_rules:
     attack: "T1027"
     for: [python]
     all:
-      - id: cap/data/obfuscation/source::python-xor-byte-loop
-      - id: cap/data/obfuscation/source::python-printable-char-check
+      - id: obj/anti-static/obfuscation/source::python-xor-byte-loop
+      - id: obj/anti-static/obfuscation/source::python-printable-char-check
     any:
-      - id: cap/data/obfuscation/source::python-sliding-key-loop
+      - id: obj/anti-static/obfuscation/source::python-sliding-key-loop
       - id: cap/data/encode/xor::xor-key-null-pattern
 
   - id: python-bruteforce-string-dumper
@@ -23,8 +23,8 @@ composite_rules:
     attack: "T1027"
     for: [python]
     all:
-      - id: cap/data/obfuscation/source::python-rolling-xor-loop
+      - id: obj/anti-static/obfuscation/source::python-rolling-xor-loop
       - id: cap/io/console/logging::hacker-tool-log-marker
     any:
       - id: cap/data/analysis/string-quality::alphanumeric-ratio-check
-      - id: cap/data/obfuscation/source::python-printable-char-check
+      - id: obj/anti-static/obfuscation/source::python-printable-char-check

@@ -17,8 +17,8 @@ composite_rules:
       
       # Obfuscation logic: Sliding key or printable char check
     any:
-      - id: cap/data/obfuscation/source::python-sliding-key-loop
-      - id: cap/data/obfuscation/source::python-printable-char-check
+      - id: obj/anti-static/obfuscation/source::python-sliding-key-loop
+      - id: obj/anti-static/obfuscation/source::python-printable-char-check
 
     # Downgrade for likely benign scripts (e.g., educational or utility scripts that are explicitly named as decoders/tools but not malicious)
     # However, this combination is rare in benign code unless it's a security tool.

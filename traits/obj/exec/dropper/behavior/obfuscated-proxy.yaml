@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1027"
     # ref: "report:7b05e5f325822740fc28bf8cd9bd527088d2df4f820fcbafd12a710bace575a7"
     all:
-      - id: cap/data/source/obfuscation/proxy::identity-function-proxy
+      - id: obj/anti-static/obfuscation/source/proxy::identity-function-proxy
     any:
       - id: obj/anti-static/obfuscation/strings/encoding::js-interspersed-hex-escapes
       - id: obj/exec/interpreter/script/wsh

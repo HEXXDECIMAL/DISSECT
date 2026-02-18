@@ -405,4 +405,4 @@ composite_rules:
       - id: bitsadmin-download
       - id: curl-to-temp
       - id: batch-download-execute
-      - id: cap/data/source/obfuscation/string::rundll32-obfuscated-env-var
+      - id: obj/anti-static/obfuscation/source/string::rundll32-obfuscated-env-var
