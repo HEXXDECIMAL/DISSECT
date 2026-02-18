@@ -233,7 +233,7 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
 }
 
 /// Extract bytes corresponding to '??' wildcards in the matched pattern
-fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> Option<Vec<u8>> {
+fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> Vec<u8> {
     let mut extracted = Vec::new();
     let mut offset = pos;
 
@@ -264,7 +264,7 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> O
             },
         }
     }
-    Some(extracted)
+    extracted
 }
 
 /// Evaluate hex pattern condition
@@ -410,15 +410,15 @@ pub(crate) fn eval_hex<'a>(
                 .iter()
                 .map(|pos| {
                     // Always extract wildcard bytes (consistent with regex behavior)
-                    let value =
-                        if let Some(extracted) = extract_wildcard_bytes(data, *pos, &segments) {
-                            // Format extracted bytes as hex string
-                            let hex_str: Vec<String> =
-                                extracted.iter().map(|b| format!("{:02x}", b)).collect();
-                            format!("extracted: {}", hex_str.join(" "))
-                        } else {
-                            pattern.to_string()
-                        };
+                    let extracted = extract_wildcard_bytes(data, *pos, &segments);
+                    let value = if extracted.is_empty() {
+                        pattern.to_string()
+                    } else {
+                        // Format extracted bytes as hex string
+                        let hex_str: Vec<String> =
+                            extracted.iter().map(|b| format!("{:02x}", b)).collect();
+                        format!("extracted: {}", hex_str.join(" "))
+                    };
 
                     Evidence {
                         method: "hex".to_string(),

@@ -95,11 +95,11 @@ impl GenericAnalyzer {
         content: &str,
         stng_strings: &[stng::ExtractedString],
     ) -> Result<AnalysisReport> {
-        self.analyze_source_internal(file_path, content, Some(stng_strings))
+        Ok(self.analyze_source_internal(file_path, content, Some(stng_strings)))
     }
 
     fn analyze_source(&self, file_path: &Path, content: &str) -> Result<AnalysisReport> {
-        self.analyze_source_internal(file_path, content, None)
+        Ok(self.analyze_source_internal(file_path, content, None))
     }
 
     fn analyze_source_internal(
@@ -107,7 +107,7 @@ impl GenericAnalyzer {
         file_path: &Path,
         content: &str,
         stng_strings: Option<&[stng::ExtractedString]>,
-    ) -> Result<AnalysisReport> {
+    ) -> AnalysisReport {
         let start = std::time::Instant::now();
         tracing::info!(
             "GenericAnalyzer: Starting analysis of {}",
@@ -275,7 +275,7 @@ impl GenericAnalyzer {
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec![parser_name];
 
-        Ok(report)
+        report
     }
 
     fn extract_strings(

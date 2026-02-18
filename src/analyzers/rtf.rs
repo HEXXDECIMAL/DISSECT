@@ -46,7 +46,7 @@ impl RtfAnalyzer {
         self
     }
 
-    fn analyze_rtf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    fn analyze_rtf(&self, file_path: &Path, data: &[u8]) -> AnalysisReport {
         // Calculate hash
         let mut hasher = Sha256::new();
         hasher.update(data);
@@ -81,7 +81,7 @@ impl RtfAnalyzer {
         // which evaluates YAML traits against the file content
         self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None);
 
-        Ok(report)
+        report
     }
 }
 
@@ -94,7 +94,7 @@ impl Default for RtfAnalyzer {
 impl Analyzer for RtfAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = std::fs::read(file_path)?;
-        self.analyze_rtf(file_path, &data)
+        Ok(self.analyze_rtf(file_path, &data))
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {
@@ -116,7 +116,7 @@ mod tests {
         let data = b"{\\rtf1\\ansi\\ansicpg1252}";
         let path = Path::new("/tmp/test.rtf");
 
-        let report = analyzer.analyze_rtf(path, data).unwrap();
+        let report = analyzer.analyze_rtf(path, data);
         assert_eq!(report.target.file_type, "rtf");
         assert_eq!(report.metadata.tools_used, vec!["rtf-parser"]);
     }

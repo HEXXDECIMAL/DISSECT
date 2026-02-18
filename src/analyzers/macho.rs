@@ -96,7 +96,7 @@ impl MachOAnalyzer {
             });
 
         // Analyze header and structure
-        self.analyze_structure_with_signature(&macho, &mut report, codesig_data.as_ref())?;
+        self.analyze_structure_with_signature(&macho, &mut report, codesig_data.as_ref());
 
         // Generate signature findings from parsed code signature
         if let Some(ref codesig) = codesig_data {
@@ -678,7 +678,6 @@ impl MachOAnalyzer {
             });
         }
 
-        Ok(())
     }
 
     fn analyze_imports<'a>(

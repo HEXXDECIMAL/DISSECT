@@ -195,7 +195,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         let empty_mapper = CapabilityMapper::empty();
         let mut engine = yara_engine::YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) =
-            engine.load_all_rules(options.enable_third_party_yara)?;
+            engine.load_all_rules(options.enable_third_party_yara);
         engine.set_capability_mapper(capability_mapper.clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)

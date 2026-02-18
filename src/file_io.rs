@@ -6,7 +6,7 @@
 //! Automatically detects and converts UTF-16 LE/BE files to UTF-8 for
 //! consistent text processing across all analysis modules.
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use encoding_rs::{UTF_16BE, UTF_16LE};
 use memmap2::Mmap;
 use std::fs::File;
@@ -66,7 +66,7 @@ impl AsRef<[u8]> for FileData {
 /// # Returns
 ///
 /// UTF-8 encoded data (either converted or original if already UTF-8)
-fn normalize_text_encoding(data: &[u8]) -> Result<Vec<u8>> {
+fn normalize_text_encoding(data: &[u8]) -> Vec<u8> {
     // Check for UTF-16 LE BOM (FF FE)
     if data.len() >= 2 && data[0] == 0xFF && data[1] == 0xFE {
         tracing::debug!("Detected UTF-16 LE encoding, converting to UTF-8");
@@ -78,7 +78,7 @@ fn normalize_text_encoding(data: &[u8]) -> Result<Vec<u8>> {
             tracing::warn!("UTF-16 LE decoding had some errors, using lossy conversion");
         }
 
-        return Ok(decoded.into_owned().into_bytes());
+        return decoded.into_owned().into_bytes();
     }
 
     // Check for UTF-16 BE BOM (FE FF)
@@ -92,11 +92,11 @@ fn normalize_text_encoding(data: &[u8]) -> Result<Vec<u8>> {
             tracing::warn!("UTF-16 BE decoding had some errors, using lossy conversion");
         }
 
-        return Ok(decoded.into_owned().into_bytes());
+        return decoded.into_owned().into_bytes();
     }
 
     // No UTF-16 BOM detected, return original data
-    Ok(data.to_vec())
+    data.to_vec()
 }
 
 /// Read a file efficiently, using memory-mapping for large files.
@@ -161,8 +161,7 @@ pub fn read_file_normalized(path: &Path) -> Result<FileData> {
             || (raw_bytes[0] == 0xFE && raw_bytes[1] == 0xFF))
     // UTF-16 BE
     {
-        let normalized =
-            normalize_text_encoding(raw_bytes).context("Failed to normalize text encoding")?;
+        let normalized = normalize_text_encoding(raw_bytes);
         Ok(FileData::Owned(normalized))
     } else {
         // No conversion needed, return original data
@@ -289,14 +288,14 @@ mod tests {
             0x74, 0x00, // t
         ];
 
-        let result = normalize_text_encoding(&utf16le_data).unwrap();
+        let result = normalize_text_encoding(&utf16le_data);
         assert_eq!(result, b"test");
     }
 
     #[test]
     fn test_normalize_encoding_no_bom() {
         let utf8_data = b"plain text";
-        let result = normalize_text_encoding(utf8_data).unwrap();
+        let result = normalize_text_encoding(utf8_data);
         assert_eq!(result, utf8_data);
     }
 }

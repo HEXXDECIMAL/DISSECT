@@ -591,7 +591,7 @@ fn analyze_file(
         tracing::info!("Initializing YARA engine");
         let empty_mapper = crate::capabilities::CapabilityMapper::empty();
         let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party)?;
+        let (builtin_count, third_party_count) = engine.load_all_rules(enable_third_party);
         tracing::info!(
             "YARA engine loaded with {} rules",
             builtin_count + third_party_count
@@ -743,7 +743,7 @@ fn analyze_file(
 
     match format {
         cli::OutputFormat::Jsonl => output::format_jsonl(&report),
-        cli::OutputFormat::Terminal => output::format_terminal(&report),
+        cli::OutputFormat::Terminal => Ok(output::format_terminal(&report)),
     }
 }
 
@@ -781,10 +781,8 @@ fn scan_paths(
         None
     } else {
         let mut engine = YaraEngine::new_with_mapper((*capability_mapper).clone());
-        match engine.load_all_rules(enable_third_party) {
-            Ok((builtin, third_party)) if builtin + third_party > 0 => Some(Arc::new(engine)),
-            _ => None,
-        }
+        let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+        if builtin + third_party > 0 { Some(Arc::new(engine)) } else { None }
     };
 
     // Collect all files from paths (expanding directories recursively)
@@ -863,13 +861,8 @@ fn scan_paths(
                     cli::OutputFormat::Terminal => {
                         // For terminal format, show immediate output above progress bar
                         match output::parse_jsonl(&json) {
-                            Ok(report) => match output::format_terminal(&report) {
-                                Ok(formatted) => {
-                                    print!("{}", formatted);
-                                },
-                                Err(e) => {
-                                    eprintln!("Error formatting report for {}: {}", path_str, e);
-                                },
+                            Ok(report) => {
+                                print!("{}", output::format_terminal(&report));
                             },
                             Err(e) => {
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
@@ -970,16 +963,8 @@ fn scan_paths(
                             cli::OutputFormat::Terminal => {
                                 // For terminal format, show immediate output above progress bar
                                 match output::parse_jsonl(&json) {
-                                    Ok(report) => match output::format_terminal(&report) {
-                                        Ok(formatted) => {
-                                            print!("{}", formatted);
-                                        },
-                                        Err(e) => {
-                                            eprintln!(
-                                                "Error formatting report for {}: {}",
-                                                path_str, e
-                                            );
-                                        },
+                                    Ok(report) => {
+                                        print!("{}", output::format_terminal(&report));
                                     },
                                     Err(e) => {
                                         eprintln!("DEBUG: JSON parse error: {}", e);

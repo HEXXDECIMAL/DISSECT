@@ -42,7 +42,7 @@ impl YaraEngine {
 
     /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/yara)
     /// Uses cache if available and valid
-    pub(crate) fn load_all_rules(&mut self, enable_third_party: bool) -> Result<(usize, usize)> {
+    pub(crate) fn load_all_rules(&mut self, enable_third_party: bool) -> (usize, usize) {
         let _span = tracing::info_span!("load_yara_rules").entered();
         tracing::info!("Loading YARA rules");
         // Try to load from cache
@@ -61,7 +61,7 @@ impl YaraEngine {
                             "✅ Loaded {} built-in + {} third-party YARA rules from cache",
                             builtin, third_party
                         );
-                        return Ok((builtin, third_party));
+                        return (builtin, third_party);
                     },
                     Err(e) => {
                         tracing::warn!("Cache load failed: {}, recompiling from source", e);
@@ -113,16 +113,10 @@ impl YaraEngine {
             let third_party_dir = Path::new("third_party/yara");
             if third_party_dir.exists() {
                 tracing::debug!("Loading third-party YARA rules");
-                match self.load_third_party_rules(&mut compiler, third_party_dir) {
-                    Ok(count) => {
-                        third_party_count = count;
-                        if count > 0 {
-                            tracing::info!("Loaded {} third-party YARA rules from third_party/yara", count);
-                        }
-                    },
-                    Err(e) => {
-                        tracing::warn!("Failed to load third-party YARA rules: {}", e);
-                    },
+                let count = self.load_third_party_rules(&mut compiler, third_party_dir);
+                third_party_count = count;
+                if count > 0 {
+                    tracing::info!("Loaded {} third-party YARA rules from third_party/yara", count);
                 }
             } else {
                 tracing::warn!("third_party/yara directory not found");
@@ -132,7 +126,7 @@ impl YaraEngine {
         if builtin_count + third_party_count == 0 {
             // Don't fail if no rules - just return empty
             tracing::info!("No YARA rules found");
-            return Ok((0, 0));
+            return (0, 0);
         }
 
         let _t_build = std::time::Instant::now();
@@ -152,7 +146,7 @@ impl YaraEngine {
             }
         }
 
-        Ok((builtin_count, third_party_count))
+        (builtin_count, third_party_count)
     }
 
     /// Load YARA rules from a directory into a compiler
@@ -225,7 +219,7 @@ impl YaraEngine {
         &mut self,
         compiler: &mut yara_x::Compiler<'a>,
         dir: &Path,
-    ) -> Result<usize> {
+    ) -> usize {
         // Collect all YARA files grouped by their directory (namespace boundary)
         let mut files_by_dir: std::collections::BTreeMap<PathBuf, Vec<PathBuf>> =
             std::collections::BTreeMap::new();
@@ -270,7 +264,7 @@ impl YaraEngine {
             }
         }
 
-        Ok(total)
+        total
     }
 
     /// Extract namespace from file path with prefix

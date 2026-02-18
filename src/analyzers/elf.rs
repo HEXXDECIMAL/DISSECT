@@ -66,7 +66,7 @@ impl ElfAnalyzer {
         self
     }
 
-    fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    fn analyze_elf(&self, file_path: &Path, data: &[u8]) -> AnalysisReport {
         let start = std::time::Instant::now();
         let _t_sha = std::time::Instant::now();
         let sha256 = crate::analyzers::utils::calculate_sha256(data);
@@ -280,7 +280,7 @@ impl ElfAnalyzer {
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = tools_used;
 
-        Ok(report)
+        report
     }
 
     fn analyze_structure<'a>(&self, elf: &Elf<'a>, report: &mut AnalysisReport) {
@@ -712,11 +712,11 @@ impl Analyzer for ElfAnalyzer {
 
         // Check for UPX packing
         if !UPXDecompressor::is_upx_packed(&data) {
-            return self.analyze_elf(file_path, &data);
+            return Ok(self.analyze_elf(file_path, &data));
         }
 
         // File is UPX-packed - analyze packed version first
-        let mut report = self.analyze_elf(file_path, &data)?;
+        let mut report = self.analyze_elf(file_path, &data);
 
         // Add UPX packer finding
         report.findings.push(
@@ -750,9 +750,8 @@ impl Analyzer for ElfAnalyzer {
                     .context("Failed to write unpacked data to temp file")?;
 
                 // Analyze unpacked version
-                if let Ok(unpacked_report) = self.analyze_elf(temp_file.path(), &unpacked_data) {
-                    self.merge_reports(&mut report, unpacked_report);
-                }
+                let unpacked_report = self.analyze_elf(temp_file.path(), &unpacked_data);
+                self.merge_reports(&mut report, unpacked_report);
 
                 report.metadata.tools_used.push("upx".to_string());
             },

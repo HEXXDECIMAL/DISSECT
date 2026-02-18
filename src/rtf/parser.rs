@@ -76,13 +76,13 @@ impl RtfParser {
         let text = String::from_utf8_lossy(data);
 
         // Extract control words
-        let control_words = self.extract_control_words(&text)?;
+        let control_words = self.extract_control_words(&text);
 
         // Check for objupdate directive (suspicious)
         let has_objupdate = control_words.iter().any(|cw| cw.name == "objupdate");
 
         // Extract embedded objects
-        let embedded_objects = self.extract_ole_objects(&text)?;
+        let embedded_objects = self.extract_ole_objects(&text);
 
         if embedded_objects.len() > self.max_objects {
             return Err(RtfError::TooManyObjects {
@@ -117,7 +117,7 @@ impl RtfParser {
     }
 
     /// Extract control words from RTF text
-    fn extract_control_words(&self, text: &str) -> Result<Vec<ControlWord>> {
+    fn extract_control_words(&self, text: &str) -> Vec<ControlWord> {
         let mut words = Vec::new();
         let re = control_word_regex();
 
@@ -141,11 +141,11 @@ impl RtfParser {
             }
         }
 
-        Ok(words)
+        words
     }
 
     /// Extract embedded OLE objects
-    fn extract_ole_objects(&self, text: &str) -> Result<Vec<OleObject>> {
+    fn extract_ole_objects(&self, text: &str) -> Vec<OleObject> {
         let mut objects = Vec::new();
 
         // Find all \object...{\object directives
@@ -199,7 +199,7 @@ impl RtfParser {
             }
         }
 
-        Ok(objects)
+        objects
     }
 
     /// Extract objdata hex string from object directive

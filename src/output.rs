@@ -444,7 +444,7 @@ pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
 /// Format analysis report for terminal display (malcontent-style)
 /// Uses the v2 flat files array structure.
 #[allow(dead_code)] // Used by binary target
-pub(crate) fn format_terminal(report: &AnalysisReport) -> Result<String> {
+pub(crate) fn format_terminal(report: &AnalysisReport) -> String {
     let mut output = String::new();
 
     // Compile ANSI strip regex once, outside all loops
@@ -613,7 +613,7 @@ pub(crate) fn format_terminal(report: &AnalysisReport) -> Result<String> {
         output.push_str("│  No findings\n");
     }
 
-    Ok(output)
+    output
 }
 
 
@@ -870,7 +870,7 @@ mod tests {
     #[test]
     fn test_format_terminal_empty_report() {
         let report = create_test_report(vec![], vec![]);
-        let output = format_terminal(&report).unwrap();
+        let output = format_terminal(&report);
         assert!(output.contains("/test/sample.bin"));
     }
 
@@ -889,7 +889,7 @@ mod tests {
             source_file: None,
         }];
         let report = create_test_report(capabilities, vec![]);
-        let output = format_terminal(&report).unwrap();
+        let output = format_terminal(&report);
         assert!(output.contains("exec/shell") || output.contains("shell"));
     }
 
