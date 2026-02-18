@@ -1,0 +1,18 @@
+defaults:
+  for: [javascript]
+
+composite_rules:
+  - id: jscript-skip-step-dropper
+    desc: "JScript dropper using skip-step obfuscation and massive string concatenation"
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: cap/data/encode/skip-step::js-skip-step-loop
+      - id: cap/data/encode/skip-step::js-concat-chain
+    any:
+      - id: obj/anti-static/obfuscation/strings/encoding::js-string-split
+      - id: cap/code/metrics/obfuscation::high-entropy-strings
+      - id: obj/exec/interpreter/eval/dynamic::js-assign-global-this
+    needs: 1
+    attack: "T1027"
+    mbc: "B0032"

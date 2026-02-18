@@ -1,0 +1,9 @@
+traits:
+  - id: nemucod-decoder-loop
+    desc: Detects the specific loop structure used by Nemucod to decode strings from integer arrays (loop < 3 + manual 4th element).
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\+=\s*String\.fromCharCode\s*\(\s*[a-zA-Z0-9_$]+\s*\[\s*[a-zA-Z0-9_$]+\s*\]\s*\)\s*;\s*\}\s*[a-zA-Z0-9_$]+\s*\+=\s*String\.fromCharCode\s*\(\s*[a-zA-Z0-9_$]+\s*\[\s*3\s*\]\s*\)'

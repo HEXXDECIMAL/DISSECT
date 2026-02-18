@@ -1,0 +1,22 @@
+composite_rules:
+  - id: fake-jquery-indicators
+    desc: "Detects indicators of Fake jQuery obfuscation"
+    crit: suspicious
+    conf: 0.8
+    any:
+      - id: cap/code/obfuscation/names::fake-jquery-vars
+      - id: cap/code/obfuscation/prototype::string-arg-extension
+
+  - id: fake-jquery-dropper
+    desc: "Hostile JScript Dropper masquerading as jQuery library"
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032" # Obfuscated Files or Information
+    all:
+      - id: obj/c2/dropper/obfuscated::fake-jquery-indicators
+    any:
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragments-composite
+      - id: cap/code/obfuscation/prototype::weird-function-syntax
+      - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+      - id: obj/exec/interpreter/script/wsh::wscript-dropper-full-composite

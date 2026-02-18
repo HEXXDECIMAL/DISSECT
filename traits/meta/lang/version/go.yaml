@@ -1,0 +1,8 @@
+traits:
+  - id: version
+    desc: "Detects Go programming language version"
+    crit: inert
+    if:
+      type: string
+      regex: "go(\\d+\\.\\d+(\\.\\d+)?)"
+      extract: version

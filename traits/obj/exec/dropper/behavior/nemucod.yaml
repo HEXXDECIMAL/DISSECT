@@ -1,0 +1,11 @@
+composite_rules:
+  - id: nemucod-decimal-xor-dropper
+    desc: Nemucod dropper using decimal XOR obfuscation
+    crit: hostile
+    for: [javascript]
+    all:
+      - id: cap/code/obfuscation/js::js-decimal-xor-loop
+      - id: cap/host/interpreter/jscript::activex-object
+    any:
+      - id: cap/data/encode/string::decimal-string-blob
+      - id: obj/anti-static/obfuscation/js::js-comma-sequence-obfuscation-v2

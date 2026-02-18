@@ -1,0 +1,8 @@
+traits:
+  - id: pixel-access
+    desc: "Accesses individual pixels in images (steganography indicator)"
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "GetPixel|SetPixel|LockBits|BitmapData|Scan0|Stride|ImageLockMode|PixelFormat"

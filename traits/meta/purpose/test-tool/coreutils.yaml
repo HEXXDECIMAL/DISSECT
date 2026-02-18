@@ -1,0 +1,24 @@
+traits:
+  - id: coreutils-copyright
+    desc: Coreutils copyright string
+    crit: notable
+    if:
+      type: raw
+      substr: "Free Software Foundation, Inc."
+  
+  - id: exercise-basenc
+    desc: "Exercise basenc comment"
+    crit: notable
+    if:
+      type: raw
+      substr: "Exercise basenc"
+
+composite_rules:
+  - id: coreutils-test-script
+    desc: Coreutils test script
+    crit: notable
+    conf: 0.8
+    all:
+      - id: meta/lang/shebang::perl
+      - id: meta/purpose/test-tool::coreutils-copyright
+      - id: meta/purpose/test-tool::exercise-basenc

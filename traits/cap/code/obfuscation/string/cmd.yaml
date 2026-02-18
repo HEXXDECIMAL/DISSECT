@@ -1,0 +1,18 @@
+traits:
+  - id: rundll32-obfuscated-env-var
+    desc: Obfuscated Rundll32 with environment variables
+    crit: suspicious
+    conf: 0.9
+    for: [batch, shell]
+    if:
+      type: raw
+      regex: '(?i)Ru(?:%[0-9]|%[^%]+%)32' # Matches Ru%132, Ru%foo%32
+
+  - id: rundll32-obfuscated-split
+    desc: Obfuscated Rundll32 split strings
+    crit: suspicious
+    conf: 0.8
+    for: [batch, shell]
+    if:
+      type: raw
+      regex: '(?i)R(?:\\^|%[^%]+%)?u(?:\\^|%[^%]+%)?n(?:\\^|%[^%]+%)?d(?:\\^|%[^%]+%)?l(?:\\^|%[^%]+%)?l(?:\\^|%[^%]+%)?32'

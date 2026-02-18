@@ -1,0 +1,24 @@
+traits:
+  - id: js-keyword-parseint
+    desc: parseInt keyword
+    if:
+      type: raw
+      regex: '\bparseInt\b'
+
+  - id: js-keyword-fromcharcode
+    desc: fromCharCode keyword
+    if:
+      type: raw
+      regex: '\bfromCharCode\b'
+
+  - id: js-keyword-xor
+    desc: XOR operator
+    if:
+      type: raw
+      regex: '\s\^'
+
+  - id: js-obfuscated-string-method
+    desc: Obfuscated String method call (String[...])
+    if:
+      type: raw
+      regex: 'String\s*\['

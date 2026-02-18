@@ -1,0 +1,13 @@
+# Code Obfuscation Fragments
+# Detects fragmented strings common in obfuscated code
+
+defaults:
+  crit: notable
+  conf: 0.8
+
+traits:
+  - id: math-random-fragment
+    desc: Math.random string fragment
+    if:
+      type: raw
+      regex: 'Math|Random|ath\.Ra|ath\.r|Mat|andom'

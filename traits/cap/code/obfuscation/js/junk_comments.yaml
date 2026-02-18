@@ -1,0 +1,7 @@
+traits:
+  - id: js-junk-comment-long
+    desc: Detects very long, continuous alphanumeric comments often used as junk data or padding in malware.
+    crit: notable
+    if:
+      type: raw
+      regex: '//[a-zA-Z0-9]{100,}'

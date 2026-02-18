@@ -1,0 +1,23 @@
+composite_rules:
+  - id: nemucod-packer-structure
+    desc: Detects Nemucod packer via specific decoder loop or chunked array sequence.
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: cap/code/obfuscation/js::nemucod-decoder-loop
+      - id: cap/code/obfuscation/js::nemucod-chunked-array-sequence
+
+  - id: nemucod-dropper
+    desc: Detects Nemucod JScript dropper variants using custom array-chunking and dynamic execution.
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: obj/exec/dropper/obfuscated-script::nemucod-packer-structure
+    any:
+      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
+      - id: obj/anti-static/obfuscation/strings/encoding::js-dynamic-exec
+      - id: cap/data/encode/arrays::js-large-int-array
+      - id: cap/data/encode/arrays::js-hex-number-array
+    needs: 1

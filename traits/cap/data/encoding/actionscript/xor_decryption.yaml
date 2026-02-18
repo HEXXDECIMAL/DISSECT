@@ -1,0 +1,16 @@
+traits:
+  - id: actionscript-writebyte
+    desc: ActionScript writeByte call
+    crit: inert
+    conf: 0.6
+    if:
+      type: raw
+      substr: "writeByte"
+
+  - id: actionscript-bytearray
+    desc: ActionScript ByteArray usage
+    crit: inert
+    conf: 0.6
+    if:
+      type: raw
+      substr: "ByteArray"

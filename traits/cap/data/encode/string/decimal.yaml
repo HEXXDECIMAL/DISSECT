@@ -1,0 +1,11 @@
+traits:
+  - id: decimal-string-blob
+    desc: Long string of decimal digits
+    crit: notable
+    for: [javascript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (string_fragment) @str
+        (#match? @str "^[0-9]{50,}$")

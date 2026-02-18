@@ -1,0 +1,13 @@
+traits:
+  - id: exec-task
+    desc: Gradle exec task definition
+    crit: inert
+    if:
+      type: raw
+      regex: "exec\\s*\\{"
+  - id: command-line
+    desc: Gradle commandLine property
+    crit: inert
+    if:
+      type: raw
+      regex: "commandLine"

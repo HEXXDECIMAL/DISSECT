@@ -1,0 +1,44 @@
+traits:
+  - id: process-binding-evals
+    desc: Access to process.binding('evals') (legacy VM usage)
+    crit: notable
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @proc
+            property: (property_identifier) @bind
+          )
+          arguments: (arguments
+            (string (string_fragment) @arg)
+          )
+        )
+        (#eq? @proc "process")
+        (#eq? @bind "binding")
+        (#eq? @arg "evals")
+
+  - id: process-binding-natives
+    desc: Access to process.binding('natives') (legacy internal access)
+    crit: notable
+    conf: 0.95
+    for: [javascript, typescript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @proc
+            property: (property_identifier) @bind
+          )
+          arguments: (arguments
+            (string (string_fragment) @arg)
+          )
+        )
+        (#eq? @proc "process")
+        (#eq? @bind "binding")
+        (#eq? @arg "natives")

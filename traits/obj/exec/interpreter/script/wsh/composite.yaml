@@ -1,0 +1,32 @@
+# WScript Obfuscation Composite Rules
+# Detects fragmented WScript usage
+
+defaults:
+  crit: notable
+  conf: 0.8
+
+composite_rules:
+  - id: wscript-shell-fragments-composite
+    desc: WScript.Shell fragments detected
+    any:
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-tiny-exact
+
+  - id: wscript-dropper-fragments-composite
+    desc: WScript dropper fragments detected (ADODB/XMLHTTP)
+    any:
+      - id: obj/exec/interpreter/script/wsh::adodb-fragment
+      - id: obj/exec/interpreter/script/wsh::msxml-fragment
+      - id: obj/exec/interpreter/script/wsh::xmlhttp-fragment-tiny-2
+      - id: obj/exec/interpreter/script/wsh::response-body-fragment
+      - id: obj/exec/interpreter/script/wsh::adodb-fragment-tiny-exact
+      - id: obj/exec/interpreter/script/wsh::xmlhttp-fragment-tiny-exact
+      - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+
+  - id: wscript-dropper-full-composite
+    desc: WScript dropper (ADODB + XMLHTTP)
+    all:
+      - id: obj/exec/interpreter/script/wsh::adodb-fragment
+      - id: obj/exec/interpreter/script/wsh::msxml-fragment
