@@ -1,0 +1,22 @@
+composite_rules:
+  - id: jscript-dynamic-execution
+    desc: Dynamic execution via eval or function constructor
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: obj/execution/interpreter/eval/dynamic::js-indirect-eval-this
+      - id: cap/code/execution/dynamic::dynamic-this-execution-computed
+      - id: obj/execution/interpreter/eval/dynamic::bracket-function-access
+      - id: cap/data/control-flow/analysis::js-dynamic-method-call
+
+  - id: jscript-permutation-dropper
+    desc: Obfuscated JScript dropper using permutation cipher and dynamic execution
+    crit: hostile
+    conf: 0.95
+    attack: T1027
+    mbc: B0032
+    for: [javascript]
+    all:
+      - id: cap/data/encode/permutation::js-permutation-loop
+      - id: obj/execution/dropper/obfuscated-script::jscript-dynamic-execution

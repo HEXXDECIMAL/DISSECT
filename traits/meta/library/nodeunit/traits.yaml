@@ -76,17 +76,8 @@ traits:
     crit: inert
     for: [javascript]
     if:
-      type: ast
-      language: javascript
-      query: |
-        (call_expression
-          function: (identifier) @req
-          arguments: (arguments
-            (string (string_fragment) @mod)
-          )
-        )
-        (#match? @req "^require$")
-        (#match? @mod "^nodeunit$")
+      type: raw
+      regex: "require\\(['\"](?:[^'\"]+/)?nodeunit(?:/[^'\"]+)?['\"]\\)"
 
 composite_rules:
   - id: nodeunit

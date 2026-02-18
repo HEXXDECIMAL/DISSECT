@@ -82,7 +82,7 @@ traits:
 
   - id: process-binding
     desc: Access to process.binding (internal Node)
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -91,6 +91,7 @@ traits:
     unless:
       - id: cap/vm/runtime/binding::process-binding-evals
       - id: cap/vm/runtime/binding::process-binding-natives
+      - id: meta/dev/testing/benchmark::benchmark
 
   # Function constructor patterns
   - id: new-function-call
@@ -235,7 +236,7 @@ composite_rules:
       - id: new-function-call
       - id: function-constructor-access
       - id: function-direct-call
-      - id: obj/exec/interpreter/eval/dynamic::function-constructor-from-typeof
+      - id: obj/execution/interpreter/eval/dynamic::function-constructor-from-typeof
 
   # HTTP methods for remote loading
   - id: http-fetch-methods

@@ -1,0 +1,13 @@
+traits:
+- id: anti-forensics-cleanup
+  desc: Anti-forensics cleanup activity
+  crit: notable
+  conf: 0.8
+  if:
+    type: string
+    regex: (?i)(cleanup|clear|remove|delete|wipe)
+    not: ["DeleteOnClose"]
+  attack: T1070
+  mbc: E1070
+  unless:
+    - id: meta/dev/testing::is-test

@@ -6,8 +6,12 @@ traits:
     if:
       type: ast
       language: javascript
+      # Matches sequence expressions that are standalone statements (e.g. "a, b, c;")
+      # Excludes sequences in for-loops, return statements, etc.
       query: |
-        (sequence_expression) @seq
+        (expression_statement
+          (sequence_expression)
+        ) @seq
     downgrade:
       any:
         - type: string

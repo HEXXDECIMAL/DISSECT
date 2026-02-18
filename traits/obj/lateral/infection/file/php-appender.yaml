@@ -1,0 +1,9 @@
+composite_rules:
+  - id: php-appender
+    description: "Detects PHP file infector appending malicious code to other files"
+    crit: hostile
+    attack: T1554
+    all:
+      - id: cap/fs/directory/traverse::php-dir-traverse
+      - id: cap/fs/file/write::php-file-write
+      - id: cap/fs/file/infect::php-payload-include

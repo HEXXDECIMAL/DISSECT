@@ -1,8 +1,0 @@
-traits:
-  - id: msxml
-    criticality: notable
-    description: "Makes an HTTP request using MSXML2.XMLHTTP"
-    for: [javascript]
-    if:
-      type: string
-      regex: 'MSXML2\.XMLHTTP'

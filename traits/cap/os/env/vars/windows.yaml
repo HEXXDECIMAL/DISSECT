@@ -25,3 +25,11 @@ traits:
       type: string
       substr: "ComSpec"
 
+  - id: temp-env-var
+    desc: "Contains %TEMP% environment variable string"
+    crit: notable
+    if:
+      type: string
+      regex: '%TEMP%'
+      case_insensitive: true
+

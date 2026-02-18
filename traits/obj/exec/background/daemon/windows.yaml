@@ -61,4 +61,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: start-hidden
-      - id: obj/exec/autoinstall/pip::pip-install-pattern
+      - id: obj/execution/autoinstall/pip::pip-install-pattern

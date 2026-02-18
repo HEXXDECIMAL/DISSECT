@@ -27,6 +27,24 @@ traits:
       type: string
       substr: "evilpacket.net"
 
+  - id: healdsburgdistricthospital-net
+    desc: "healdsburgdistricthospital.net malicious domain (Nemucod)"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1071.001"
+    if:
+      type: string
+      substr: "healdsburgdistricthospital.net"
+
+  - id: filioruters-com
+    desc: "filioruters.com malicious domain"
+    crit: suspicious
+    conf: 1.0
+    attack: "T1105"
+    if:
+      type: string
+      substr: "filioruters.com"
+
   - id: anti-theft-web-heroku
     desc: "Anti-theft-web.herokuapp.com malicious domain (phpass malware)"
     crit: suspicious
@@ -66,6 +84,7 @@ traits:
       - substr: "freedesktop.org"
       - substr: "proxy.com"
       - substr: "example.com"
+      - substr: "example.org"
       - substr: "xiph.org"
       - substr: "translationproject.org"
       - substr: "sourceware.org"
@@ -80,7 +99,7 @@ traits:
       # Require URL/network endpoint context to avoid matching benign dotted config keys like "figure.subplot.top".
       # Removed: .date (matches Go time.Time.date), .pro (too common)
       # Added: .pe (Peru - commonly abused for short URLs), .su (Soviet Union - malware favorite)
-      regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|club|work|stream|download|racing|win|party|review|accountant|science|trade|webcam|bid|loan|pe|su|icu|buzz)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
+      regex: "['\\\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5})?(?:[/?#][^'\\\"\\s]*)?|(?:[a-zA-Z0-9-]{1,63}\\.)+(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\\d{1,5}|/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\?[^'\\\"\\s]+))['\\\"]"
     unless:
       - type: raw
         regex: "sina\\.com\\.cn|163\\.com|126\\.com|sohu\\.com|qq\\.com|yahoo\\.com\\.cn|mysite|rambler\\.ru|yandex\\.ru|mail\\.ru|tbcdn\\.cn|xn--hgi\\.ws"
@@ -377,7 +396,7 @@ traits:
 
   # Cloud storage abuse for payload hosting
   - id: appwrite-storage
-    desc: Appwrite cloud storage (commonly abused
+    desc: Appwrite cloud storage (commonly abused)
     crit: suspicious
     conf: 0.85
     attack: "T1105"
@@ -386,7 +405,7 @@ traits:
       regex: '[a-z0-9-]+\.cloud\.appwrite\.io/v[0-9]+/storage/buckets/[a-z0-9]+/files/'
 
   - id: supabase-storage
-    desc: Supabase storage endpoint (can be
+    desc: Supabase storage endpoint (can be abused)
     crit: notable
     conf: 0.75
     attack: "T1105"
@@ -395,7 +414,7 @@ traits:
       regex: '[a-z0-9]+\.supabase\.co/storage/v[0-9]+/'
 
   - id: firebase-storage
-    desc: Firebase storage endpoint (can be
+    desc: Firebase storage endpoint (can be abused)
     crit: notable
     conf: 0.7
     attack: "T1105"
@@ -615,7 +634,7 @@ traits:
 
   # Vercel serverless C2 (elevated - commonly abused)
   - id: vercel-serverless
-    desc: Contacts Vercel serverless function (commonly
+    desc: Contacts Vercel serverless function (commonly abused)
     crit: suspicious
     conf: 0.85
     attack: "T1071"
@@ -693,7 +712,7 @@ traits:
 
   # Serveo SSH tunnel
   - id: serveo-tunnel
-    desc: Serveo SSH tunnel endpoint (reverse
+    desc: Serveo SSH tunnel endpoint (reverse shell)
     crit: suspicious
     conf: 0.95
     attack: "T1572"
@@ -752,7 +771,7 @@ traits:
 
 composite_rules:
   - id: c2-domain
-    desc: "Likely C2 domain (suspicious TLD"
+    desc: "Likely C2 domain (suspicious TLD)"
     crit: notable
     conf: 0.85
     # REAL C2 implants are typically small (<5KB scripts)
@@ -796,7 +815,7 @@ composite_rules:
 
   # Serverless function endpoints
   - id: serverless-function
-    desc: Contacts serverless function endpoint (Lambda,
+    desc: Contacts serverless function endpoint (Lambda, etc)
     crit: notable
     conf: 0.7
     attack: "T1071"
@@ -819,7 +838,7 @@ composite_rules:
 
   # Paste services
   - id: paste-service
-    desc: Contacts paste/bin service (common payload
+    desc: Contacts paste/bin service (common payload hosting)
     crit: suspicious
     conf: 0.85
     attack: "T1102"

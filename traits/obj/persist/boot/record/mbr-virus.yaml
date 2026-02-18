@@ -1,0 +1,18 @@
+composite_rules:
+  - id: mbr-virus
+    desc: MBR Virus Code Pattern
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: cap/fs/disk/partition::mbr-mod-asm
+    any:
+      - id: cap/hw/memory/region::bios-mem-steal-asm
+      - id: cap/os/dos/interrupt::int-vector-calc-asm
+
+  - id: andropinis-virus
+    desc: Andropinis Virus Detected (Source)
+    crit: hostile
+    conf: 1.0
+    all:
+      - id: cap/fs/disk/partition::mbr-mod-asm
+      - id: known/malware/virus::andropinis-strings

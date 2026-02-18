@@ -5,7 +5,7 @@ composite_rules:
     all:
       - id: cap/fs/enumerate/directory::root-paths-array
     any:
-      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: cap/fs/enumerate/directory::fs-readdir
       - id: obj/impact/ransomware/behavior::readdir-sync
       - id: obj/impact/ransomware/behavior::readdir-fn
     unless:

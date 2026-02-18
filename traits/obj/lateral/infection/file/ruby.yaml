@@ -66,15 +66,6 @@ traits:
       regex: 'File\.rename.{0,50}\.rb|\.rb.{0,50}File\.rename'
 
   # === Self-Replication ===
-  - id: self-file-reference
-    desc: Self-reference via __FILE__
-    crit: notable
-    conf: 0.80
-    attack: "T1059"
-    if:
-      type: raw
-      regex: '__FILE__'
-
   - id: read-self-content
     desc: Reading own file content
     crit: suspicious
@@ -145,7 +136,7 @@ composite_rules:
     attack: "T1059"
     needs: 3
     any:
-      - id: self-file-reference
+      - id: cap/fs/read/self::self-file-reference
       - id: read-self-content
       - id: write-to-other-files
       - id: skip-self-check

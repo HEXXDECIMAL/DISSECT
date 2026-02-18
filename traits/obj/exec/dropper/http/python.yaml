@@ -10,7 +10,7 @@ defaults:
 
 traits:
   # === Download and execute function patterns ===
-  # Removed py-download-and-execute-func duplicate - use obj/exec/dropper/http::download-and-execute-func
+  # Removed py-download-and-execute-func duplicate - use obj/execution/dropper/http::download-and-execute-func
 
   - id: def-download
     desc: Function named download_*
@@ -79,7 +79,7 @@ composite_rules:
     any:
       - id: cap/process/create/subprocess
       - id: cap/process/create/shell::python-os-system
-      - id: obj/exec/interpreter/eval/invoke::exec-call-python
+      - id: obj/execution/interpreter/eval/invoke::exec-call-python
 
   # C2 endpoint path composite
   - id: python-endpoint-path

@@ -11,5 +11,5 @@ composite_rules:
     mbc: "B0024"
     attack: "T1105"
     all:
-      - id: obj/exec/dropper/script::curl-download
+      - id: obj/execution/dropper/script::curl-download
       - id: obj/c2/botnet/iot::pipe-to-shell

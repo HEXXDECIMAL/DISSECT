@@ -1,0 +1,8 @@
+traits:
+  - id: asm-loop
+    conf: 0.7
+    crit: suspicious
+    desc: Detects simple XOR/SUB/ADD encryption loop in assembly
+    if:
+      type: raw
+      regex: '(xor|sub|add)\s+(byte|dword)\s+ptr\s+\[.+?\],\s+(al|eax|ebx|ecx|edx)[\s\S]{0,100}?(loop|jb|jmp)\s+\w+'

@@ -1,0 +1,18 @@
+# Obfuscated WSH String Fragments (Tiny Assignments)
+# Detects tiny fragmented strings assigned to variables, common in JScript obfuscation
+
+defaults:
+  crit: notable
+  conf: 0.8
+  for: [javascript]
+
+traits:
+  - id: wsh-tiny-fragment-assignment
+    desc: "Assignment of tiny WSH keywords to variables"
+    if:
+      type: raw
+      # var x = "Fil"; var y = "eTo"; var z = "Sav";
+      # Target specific fragments seen in Nemucod: Fil, eTo, Sav, ADOD, DODB, onseB
+      # Optimized regex to use \w for alphanumeric characters
+      regex: 'var\s+[\w$]+\s*=\s*["''](Fil|eTo|Sav|ADOD|DODB|onseB)["'']'
+      count_min: 1

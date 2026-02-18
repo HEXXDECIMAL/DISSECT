@@ -1,5 +1,5 @@
 traits:
-  - id: obj/lateral/supply-chain/pypi/malicious-packages::windows-extension-manifest
+  - id: windows-extension-manifest
     desc: "Malicious 'Windows' extension manifest with clipboard permissions"
     crit: suspicious
     mbc: E1176

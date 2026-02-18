@@ -1,0 +1,8 @@
+traits:
+  - id: case-insensitive-lower-asm
+    conf: 0.8
+    crit: notable
+    desc: Case-insensitive file extension check using bitwise OR lowercase conversion (ASM)
+    if:
+      type: raw
+      regex: 'or (e[abcd]x|e[sd]i), [0-9a-fA-F]+h?[\s\S]+?cmp (e[abcd]x|e[sd]i), ["''][^"'']+["'']'

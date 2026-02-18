@@ -1,0 +1,8 @@
+traits:
+  - id: raw-socket-creation-regex
+    desc: "Detects raw socket creation in C/C++"
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: 'socket\s*\([^,]+,\s*(SOCK_RAW|3)\s*,\s*[^)]+\)'

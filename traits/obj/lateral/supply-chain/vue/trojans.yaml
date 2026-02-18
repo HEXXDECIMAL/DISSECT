@@ -16,7 +16,7 @@ composite_rules:
     all:
       - { id: meta/library/vue::library }
       - { id: meta/library/vue::version-string }
-      - { id: obj/exec/activex/com::activex-object-create }
+      - { id: obj/execution/activex/com::activex-object-create }
 
   # Vue + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell

@@ -247,8 +247,8 @@ composite_rules:
       - id: chrome-path
       - id: cookies-path
     any:
-      - id: obj/exec/dropper/payload::cp-execute
-      - id: obj/exec/dropper/script::curl-cmd
+      - id: obj/execution/dropper/payload::cp-execute
+      - id: obj/execution/dropper/script::curl-cmd
       - id: cap/fs/attributes/xattr::xattr-remove
 
   - id: master-decrypt

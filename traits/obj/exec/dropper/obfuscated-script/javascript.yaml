@@ -7,7 +7,7 @@ composite_rules:
     crit: hostile
     conf: 0.85
     all:
-      - id: obj/exec/interpreter/scripting/jscript::jscript-cc-eval
+      - id: obj/execution/interpreter/scripting/jscript::jscript-cc-eval
     any:
       - id: obj/anti-static/obfuscation/js::js-split-string-property
       - id: obj/anti-static/obfuscation/code-metrics/structure::very-long-lines

@@ -3,7 +3,7 @@ composite_rules:
     desc: Root directory enumeration methods
     crit: notable
     any:
-      - id: cap/fs/enumerate/directory/javascript::fs-readdir-recursive
+      - id: cap/fs/enumerate/directory/javascript::fs-readdir
       - id: obj/impact/ransomware/behavior/patterns::readdir-sync
       - id: obj/impact/ransomware/behavior/patterns::readdir-fn
 

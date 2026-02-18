@@ -70,7 +70,7 @@ composite_rules:
       - id: wscript-createobject
       - id: wscript-getobject
       - id: wscript-sleep
-      - id: obj/exec/activex/
+      - id: obj/execution/activex/
 
   - id: wscript-com-objects
     desc: WScript COM object usage
@@ -81,7 +81,7 @@ composite_rules:
     attack: "T1202"
     mbc: "E1243"
     any:
-      - id: obj/exec/activex/
+      - id: obj/execution/activex/
 
   - id: wscript-process-execution
     desc: WScript process execution
@@ -105,6 +105,6 @@ composite_rules:
     mbc: "E1243"
     needs: 3
     any:
-      - id: obj/exec/activex/
+      - id: obj/execution/activex/
       - id: wscript-createobject
       - id: wscript-sleep

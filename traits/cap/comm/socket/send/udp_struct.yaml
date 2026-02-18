@@ -1,0 +1,7 @@
+traits:
+  - id: sendto-struct-usage
+    desc: sendto usage with struct sockaddr (common in raw socket tools)
+    crit: notable
+    if:
+      type: raw
+      regex: 'sendto\s*\(.*sizeof\s*\(.*struct\s+sockaddr'

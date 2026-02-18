@@ -1,0 +1,12 @@
+composite_rules:
+  - id: nemucod-temp-exe-construction
+    desc: Detects construction of an executable path in the TEMP directory (Nemucod pattern)
+    crit: suspicious
+    conf: 0.9
+    for: [javascript]
+    all:
+      - id: cap/code/obfuscation/js::nemucod-wsh-fragments
+        count_min: 5
+    any:
+      - id: cap/code/obfuscation/js::nemucod-network-fragments
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragments-composite

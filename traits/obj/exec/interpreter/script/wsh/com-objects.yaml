@@ -1,6 +1,6 @@
 # Windows Script Host Traits
 # Detects WSH-specific patterns
-# Note: COM object detections are in obj/exec/activex/com/ to avoid duplication
+# Note: COM object detections are in obj/execution/activex/com/ to avoid duplication
 
 traits:
   - id: wscript-exe

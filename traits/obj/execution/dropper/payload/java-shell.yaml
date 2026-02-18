@@ -1,0 +1,19 @@
+# Java Shell Script Dropper
+# Detects Java code that writes and executes shell scripts
+# MBC: E1203 (Execute Code), C0015 (Write File)
+# ATT&CK: T1105 (Ingress Tool Transfer), T1059.004 (Unix Shell)
+
+composite_rules:
+  - id: java-shell-dropper
+    desc: Java code dropping shell script
+    crit: hostile
+    conf: 0.9
+    mbc: "E1203"
+    attack: "T1105"
+    all:
+      - id: cap/process/create/spawn::java-runtime-exec-source
+      - id: cap/fs/write/file::java-fileoutputstream-source
+    any:
+      - id: cap/process/create/shell::embedded-shebang-sh
+      - id: cap/process/create/shell::bin-sh-source
+      - id: cap/fs/chmod/executable::shell-7xx

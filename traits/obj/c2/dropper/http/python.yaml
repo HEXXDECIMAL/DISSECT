@@ -11,9 +11,9 @@ composite_rules:
     mbc: "B0024"
     attack: "T1105"
     all:
-      - id: obj/exec/dropper/http::download-and-execute-func
-      - id: obj/exec/dropper/http::multi-persist-dirs
-      - id: obj/exec/dropper/http::http-ip-port-url
+      - id: obj/execution/dropper/http::download-and-execute-func
+      - id: obj/execution/dropper/http::multi-persist-dirs
+      - id: obj/execution/dropper/http::http-ip-port-url
 
   - id: python-dropper
     desc: Python dropper with download and execute
@@ -23,10 +23,10 @@ composite_rules:
     mbc: "B0024"
     attack: "T1105"
     all:
-      - id: obj/exec/dropper/http::download-and-execute-func
-      - id: obj/exec/dropper/http::http-ip-port-url
+      - id: obj/execution/dropper/http::download-and-execute-func
+      - id: obj/execution/dropper/http::http-ip-port-url
       - id: cap/fs/path/temp
     any:
-      - id: obj/exec/dropper/http::is-process-running-func
-      - id: obj/exec/dropper/http::arch-64bit-check
+      - id: obj/execution/dropper/http::is-process-running-func
+      - id: obj/execution/dropper/http::arch-64bit-check
       - id: cap/process/create/subprocess::run-ast

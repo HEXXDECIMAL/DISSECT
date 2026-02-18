@@ -10,30 +10,29 @@ composite_rules:
   - id: obfuscated-downloader-fragments-strict
     desc: Obfuscated WSH downloader fragment cluster (Strict)
     all:
-      - id: obj/exec/interpreter/script/wsh::msxml-fragment-short
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/execution/interpreter/script/wsh::msxml-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short
     any:
-      - id: obj/exec/interpreter/script/wsh::expand-env-fragment-short
-      - id: obj/exec/interpreter/script/wsh::response-body-fragment
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::expand-env-fragment-short
+      - id: obj/execution/interpreter/script/wsh::response-body-fragment
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
 
   - id: obfuscated-downloader-tiny-fragments
     desc: "Obfuscated WSH downloader (Tiny Fragments)"
     crit: hostile
     all:
-      - id: obj/exec/interpreter/script/wsh::fragment-msxml-tiny
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wsh-tiny-fragment-assignment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short
     any:
-      - id: obj/exec/interpreter/script/wsh::fragment-savetofile-tiny
-      - id: obj/exec/interpreter/script/wsh::response-body-fragment
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::response-body-fragment
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
 
   - id: obfuscated-adodb-dropper
     desc: "Obfuscated ADODB.Stream payload writer"
     crit: hostile
     all:
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
-      - id: obj/exec/interpreter/script/wsh::response-body-fragment
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::response-body-fragment
     any:
       - id: obj/anti-static/obfuscation/js::js-split-string-property
       - id: obj/anti-static/obfuscation/strings/encoding::fromcharcode
@@ -44,18 +43,18 @@ composite_rules:
     all:
       - id: cap/env/check/wsh::env-check-no-document
     any:
-      - id: obj/exec/interpreter/scripting/host::activex-object-obfuscated
-      - id: obj/exec/interpreter/scripting/host::wscript-shell-obfuscated
-      - id: obj/exec/interpreter/cmd/obfuscation::cmd-caret-obfuscation
+      - id: obj/execution/interpreter/scripting/host::activex-object-obfuscated
+      - id: obj/execution/interpreter/scripting/host::wscript-shell-obfuscated
+      - id: obj/execution/interpreter/cmd/obfuscation::cmd-caret-obfuscation
       - id: cap/fs/path/location::path-suspicious-appdata-exe
 
   - id: obfuscated-jscript-powershell-dropper
     desc: "Obfuscated JScript PowerShell dropper"
     crit: hostile
     all:
-      - id: obj/exec/interpreter/scripting/host::wscript-shell-obfuscated
-      - id: obj/exec/interpreter/cmd/obfuscation::cmd-caret-obfuscation
-      - id: obj/exec/interpreter/powershell::pwsh-downloader
+      - id: obj/execution/interpreter/scripting/host::wscript-shell-obfuscated
+      - id: obj/execution/interpreter/cmd/obfuscation::cmd-caret-obfuscation
+      - id: obj/execution/interpreter/powershell::pwsh-downloader
 
   - id: obfuscated-property-access-dropper
     desc: "Obfuscated JScript Dropper using Property Access Obfuscation"
@@ -65,29 +64,29 @@ composite_rules:
     any:
       - id: obj/anti-static/obfuscation/control-flow::retry-loop
       - id: obj/anti-analysis/deception/social::fake-error-document-corrupted
-      - id: obj/exec/process/control::start-process
+      - id: obj/execution/process/control::start-process
 
   - id: jscript-array-obfuscated-dropper
     desc: "Obfuscated JScript Dropper using Array Function Loop"
     crit: hostile
     all:
-      - id: obj/exec/interpreter/script/wsh::jscript-array-function-loop
-      - id: obj/exec/interpreter/script/wsh::jscript-obfuscated-string-builder
+      - id: obj/execution/interpreter/script/wsh::jscript-array-function-loop
+      - id: obj/execution/interpreter/script/wsh::jscript-obfuscated-string-builder
     any:
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
-      - id: obj/exec/interpreter/script/wsh::response-body-fragment
-      - id: obj/exec/interpreter/script/dropper::obfuscated-jscript-dynamic-execution
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::response-body-fragment
+      - id: obj/execution/interpreter/script/dropper::obfuscated-jscript-dynamic-execution
 
   - id: jscript-nested-array-dropper
     desc: "Obfuscated JScript Dropper using Nested Array Map"
     crit: hostile
     all:
       - id: cap/data/encode/map::js-nested-array-table-mapping
-      - id: obj/exec/interpreter/script/wsh::js-split-string-array
+      - id: cap/data/manipulation/string::js-split-string-array
     any:
-      - id: obj/exec/interpreter/scripting/jscript::jscript-cc-on
-      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
+      - id: obj/execution/interpreter/scripting/jscript::jscript-cc-on
+      - id: obj/execution/interpreter/eval/dynamic::eval-call-js
 
   - id: jscript-regex-cleanup-dropper
     desc: "Obfuscated JScript Dropper using RegExp Cleanup"
@@ -95,8 +94,8 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/js::js-regex-string-cleanup
     any:
-      - id: obj/exec/interpreter/scripting/jscript::jscript-cc-eval
-      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
+      - id: obj/execution/interpreter/scripting/jscript::jscript-cc-eval
+      - id: obj/execution/interpreter/eval/dynamic::eval-call-js
 
   - id: jscript-function-assembly-dropper
     desc: "Obfuscated JScript Dropper using Function Assembly Loop"
@@ -104,9 +103,9 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/js::js-function-assembly-loop
     any:
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
-      - id: obj/exec/interpreter/script/wsh::msxml-fragment
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::msxml-fragment
 
   - id: jscript-array-url-dropper
     desc: "JScript Dropper using Array URL Construction"
@@ -114,18 +113,18 @@ composite_rules:
     all:
       - id: obj/anti-static/obfuscation/js::js-array-index-concatenation
       - id: obj/lateral/supply-chain/dropper::adodb-stream
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
 
   - id: nemucod-downloader
     desc: "Nemucod JScript Downloader"
     crit: hostile
     all:
-      - id: obj/exec/interpreter/scripting/jscript::jscript-cc-on
+      - id: obj/execution/interpreter/scripting/jscript::jscript-cc-on
     any:
       - id: cap/data/encode/map::js-nested-array-table-mapping
-      - id: obj/exec/lolbin/os::nemucod-export-fragments
+      - id: obj/execution/lolbin/os::nemucod-export-fragments
       - id: cap/env/check/wsh::env-check-comspec-cmd
-      - id: obj/c2/infrastructure/domain::nemucod-domain
+      - id: obj/c2/infrastructure/domain/family::nemucod-domain
 
   - id: jscript-error-key-gen-dropper
     desc: "JScript Dropper using Error Object for Key Generation"
@@ -134,8 +133,8 @@ composite_rules:
       - id: cap/data/control-flow/analysis::js-try-catch-error-method-call
     any:
       - id: cap/host/interpreter/jscript::is-jscript
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short
 
   - id: jscript-xor-decoder-dropper
     desc: "JScript Dropper using Custom XOR Decoder Loop"
@@ -143,4 +142,4 @@ composite_rules:
     all:
       - id: cap/data/encode/xor::js-xor-decoder-loop
     any:
-      - id: obj/exec/interpreter/script/wsh
+      - id: obj/execution/interpreter/script/wsh

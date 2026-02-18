@@ -1,5 +1,5 @@
 traits:
-  - id: obj/anti-static/obfuscation/rtf::byte-nibble
+  - id: byte-nibble
     desc: RTF Byte Nibble obfuscation pattern (e.g. 014\'47).
     crit: suspicious
     conf: 0.9

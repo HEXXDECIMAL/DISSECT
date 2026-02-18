@@ -52,18 +52,19 @@ traits:
       type: ast
       language: javascript
       query: |
-        (array
-          (string (string_fragment) @hex)
+        (
+          (array
+            (string (string_fragment) @hex)
+          )
+          (#match? @hex "^0x[0-9a-fA-F]{1,2}$")
         )
-        (#match? @hex "^0x[0-9a-fA-F]{1,2}$")
     unless:
       - id: meta/library/syntaxhighlighter::syntaxhighlighter-brush
       - id: meta/dev/testing::node-common-require
       - id: meta/library::ioredis-auto-pipeline
       - id: meta/library::commander
-    downgrade:
-      any:
-        - id: meta/library::commander
+      - id: meta/library/nodeunit::nodeunit
+      - id: meta/library::commander-require
 
   - id: js-tohex-helper
     desc: Helper function 'toHex' for data encoding

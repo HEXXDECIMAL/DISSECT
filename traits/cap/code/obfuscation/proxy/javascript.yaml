@@ -19,9 +19,11 @@ traits:
               (identifier) @param
             )
             (statement_block
+              .
               (return_statement
                 (identifier) @ret
               )
+              .
             )
             (#eq? @param @ret)
           )
@@ -40,9 +42,11 @@ traits:
               (identifier) @param
             )
             (statement_block
+              .
               (return_statement
                 (identifier) @ret
               )
+              .
             )
             (#eq? @param @ret)
           )

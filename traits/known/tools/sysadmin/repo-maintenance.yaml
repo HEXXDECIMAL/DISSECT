@@ -33,6 +33,13 @@ traits:
       type: string
       regex: '\bgit (clone|pull|push|commit|add|status|remote|checkout)\b'
 
+  - id: hg-operations
+    desc: Mercurial repository operations
+    crit: inert
+    if:
+      type: string
+      regex: '\bhg (init|log|status|diff|bookmarks|revert|add|forget|commit|ci)\b'
+
 composite_rules:
   - id: github-issue-maintenance
     desc: GitHub issue maintenance script

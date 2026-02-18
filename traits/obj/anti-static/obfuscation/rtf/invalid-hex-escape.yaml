@@ -1,5 +1,5 @@
 traits:
-  - id: obj/anti-static/obfuscation/rtf::invalid-hex-escape
+  - id: invalid-hex-escape
     desc: RTF hex escape with invalid digit.
     crit: suspicious
     conf: 0.9

@@ -68,7 +68,7 @@ traits:
       type: string
       substr: "System Preferences"
 
-  # Removed ref-keychain duplicate - use obj/exec/automation/compiled::keychain-access
+  # Removed ref-keychain duplicate - use obj/execution/automation/compiled::keychain-access
 
   - id: ref-terminal
     desc: "References Terminal"

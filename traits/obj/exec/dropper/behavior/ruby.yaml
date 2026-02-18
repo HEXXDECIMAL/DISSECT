@@ -11,9 +11,9 @@ composite_rules:
     attack: "T1059"
     needs: 3
     any:
-      - id: obj/exec/dropper/script::ruby-ast-http-in-method
-      - id: obj/exec/dropper/script::ruby-ast-file-binmode-write
-      - id: obj/exec/dropper/script::ruby-ast-system-in-method
+      - id: obj/execution/dropper/script::ruby-ast-http-in-method
+      - id: obj/execution/dropper/script::ruby-ast-file-binmode-write
+      - id: obj/execution/dropper/script::ruby-ast-system-in-method
 
   # === Obfuscated C2 via AST ===
   - id: ruby-ast-obfuscated-c2
@@ -22,7 +22,7 @@ composite_rules:
     conf: 0.91
     attack: "T1027"
     all:
-      - id: obj/exec/dropper/script::ruby-ast-base64-dns
+      - id: obj/execution/dropper/script::ruby-ast-base64-dns
       - id: cap/comm/dns/lookup::dns-resolve
 
   # === Windows Dropper (New) ===
@@ -32,6 +32,6 @@ composite_rules:
     conf: 0.95
     attack: "T1059"
     all:
-      - id: obj/exec/dropper/script::ruby-ast-check-windows-regex
-      - id: obj/exec/dropper/script::ruby-ast-rename-img-to-exe
-      - id: obj/exec/dropper/script::ruby-ast-exec-in-method
+      - id: obj/execution/dropper/script::ruby-ast-check-windows-regex
+      - id: obj/execution/dropper/script::ruby-ast-rename-img-to-exe
+      - id: obj/execution/dropper/script::ruby-ast-exec-in-method

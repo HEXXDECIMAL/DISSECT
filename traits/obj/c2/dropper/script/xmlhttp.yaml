@@ -19,4 +19,4 @@ composite_rules:
       - id: xmlhttp-clsid-any
       - id: cap/os/com/instantiation::create-instance
       - id: cap/comm/http/client::response-text
-      - id: obj/exec/interpreter/eval/invoke::iex
+      - id: obj/execution/interpreter/eval/invoke::iex

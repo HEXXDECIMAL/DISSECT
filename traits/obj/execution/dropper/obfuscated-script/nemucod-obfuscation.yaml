@@ -1,0 +1,27 @@
+composite_rules:
+  - id: nemucod-function-obfuscation-indicators
+    desc: Helper for Nemucod IIFE and charAt obfuscation indicators.
+    crit: notable
+    for: [javascript]
+    any:
+      - id: cap/code/obfuscation/js::iife-string-literal-return
+      - id: cap/code/obfuscation/js::ast-bracket-charat-access
+
+  - id: nemucod-wsh-dropper-indicators
+    desc: Helper for Nemucod WSH dropper fragments.
+    crit: notable
+    for: [javascript]
+    any:
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragments-composite
+      - id: obj/execution/interpreter/script/wsh::wscript-dropper-fragments-composite
+
+  - id: nemucod-function-obfuscation
+    desc: Detects Nemucod JScript dropper using IIFE and charAt obfuscation.
+    crit: hostile
+    conf: 4.5
+    attack: T1027
+    mbc: B0032
+    all:
+      - id: cap/host/interpreter/jscript::is-jscript
+      - id: nemucod-function-obfuscation-indicators
+      - id: nemucod-wsh-dropper-indicators

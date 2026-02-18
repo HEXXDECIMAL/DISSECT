@@ -9,6 +9,9 @@ traits:
   if:
     type: string
     regex: (LD_PRELOAD|LD_PRELOAD=)
+  downgrade:
+    any:
+    - id: meta/dev/testing/gnu-tests::gnu-coreutils-test
   attack: T1547.015
 # Removed ld-audit-env duplicate - use cap/os/linker/env::ld-audit
 # Removed ld-debug-env duplicate - use cap/os/linker/env::ld-debug

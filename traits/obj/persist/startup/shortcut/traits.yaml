@@ -1,0 +1,18 @@
+composite_rules:
+  - id: ps-startup-indicators
+    desc: Helper for startup shortcut indicators
+    crit: notable
+    any:
+      - id: cap/os/env/vars::env-appdata
+      - id: cap/os/env/vars::env-temp
+      - id: cap/os/info/system::special-folder
+
+  - id: startup-shortcut-persistence
+    desc: "Persists payload via Startup folder shortcut"
+    crit: hostile
+    conf: 0.95
+    for: [powershell, javascript]
+    all:
+      - id: cap/os/wsh/file::create-shortcut
+      - id: cap/os/wsh/file::wscript-shell-object
+      - id: obj/persist/startup/shortcut::ps-startup-indicators

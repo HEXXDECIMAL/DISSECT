@@ -5,6 +5,7 @@ traits:
     conf: 1.0
     attack: T1027
     mbc: B0032
+    for: [javascript, typescript]
     if:
       type: raw
       regex: "(?s)while\\s*\\((?:[^()]|\\([^()]*\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
@@ -17,6 +18,7 @@ traits:
     conf: 1.0
     attack: T1027
     mbc: B0032
+    for: [javascript, typescript]
     if:
       type: raw
       regex: '(?s)while\s*\(\s*\w+\s*<\s*\d+\s*\)\s*\{\s*try\s*\{.*?\+\+\s*;?\s*\}\s*catch'

@@ -2,5 +2,5 @@
 # Detects use of FLS instead of TLS
 # Generic indicator for sophisticated thread pool malware
 #
-# FLS trait definitions live in obj/exec/native/api (FlsAlloc, FlsGetValue, FlsSetValue).
-# Composite detection rules for fiber-based malware are in obj/exec/native/runtime/suspicious.yaml.
+# FLS trait definitions live in obj/execution/native/api (FlsAlloc, FlsGetValue, FlsSetValue).
+# Composite detection rules for fiber-based malware are in obj/execution/native/runtime/suspicious.yaml.

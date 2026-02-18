@@ -8,9 +8,9 @@ composite_rules:
       - id: obj/lateral/supply-chain/npm/metadata::postinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::preinstall-hook-key
       - id: obj/lateral/supply-chain/npm/metadata::install-hook-key
-      - id: obj/exec/interpreter/script/npm::npm-postinstall-script
-      - id: obj/exec/interpreter/script/npm::npm-preinstall-script
-      - id: obj/exec/interpreter/script/npm::npm-install-script
+      - id: obj/execution/interpreter/script/npm::npm-postinstall-script
+      - id: obj/execution/interpreter/script/npm::npm-preinstall-script
+      - id: obj/execution/interpreter/script/npm::npm-install-script
 
   - id: npm-exfil-method
     desc: Exfiltration method for npm scripts
@@ -33,6 +33,8 @@ composite_rules:
       - id: cap/process/create/recon::sys-info-discovery
       - id: cap/process/create/recon::process-discovery
       - id: cap/process/create/recon::npm-config-discovery
+    unless:
+      - id: meta/dev/testing::is-test
 
   - id: npm-install-recon-exfil
     desc: NPM install hook performs system reconnaissance and exfiltration

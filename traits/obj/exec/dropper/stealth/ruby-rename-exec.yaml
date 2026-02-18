@@ -9,10 +9,10 @@ composite_rules:
   - id: ruby-dropper-rename-exec
     desc: Ruby script renames file to executable and executes it
     all:
-      - id: obj/exec/dropper/script::ruby-ast-rename-img-to-exe
+      - id: obj/execution/dropper/script::ruby-ast-rename-img-to-exe
       - id: cap/process/create/shell/lang::ruby-exec
     any:
-      - id: obj/exec/dropper/script::ruby-ast-check-windows-regex
-      - id: obj/exec/dropper/script::ruby-ast-host-os-access
-      - id: obj/exec/dropper/script::windows-os-check
+      - id: obj/execution/dropper/script::ruby-ast-check-windows-regex
+      - id: obj/execution/dropper/script::ruby-ast-host-os-access
+      - id: obj/execution/dropper/script::windows-os-check
     needs: 1

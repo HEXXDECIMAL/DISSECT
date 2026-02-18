@@ -1,0 +1,23 @@
+# PHP AV Process Killing
+# Detects attempts to kill specific antivirus processes
+
+traits:
+  - id: taskkill-av-process
+    desc: Attempting to kill AV processes via taskkill
+    crit: suspicious
+    conf: 0.9
+    for: [php]
+    if:
+      type: string
+      # Matches taskkill /im (image name) followed by AV names
+      regex: '(?i)taskkill.*\/im\s+(nod32|mcshield|kav|avg|avast|norton|sophos)'
+
+  - id: delete-av-directory
+    desc: Attempting to remove AV installation directories
+    crit: suspicious
+    conf: 0.9
+    for: [php]
+    if:
+      type: string
+      # Matches rmdir/exec/system commands targeting Program Files/AV
+      regex: '(?i)(rmdir|del|erase).*Program Files.*(Norton|McAfee|Kaspersky|ESET|AVG|Avast|Sophos)'

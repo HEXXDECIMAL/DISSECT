@@ -1,0 +1,15 @@
+composite_rules:
+  - id: nemucod-full-chain
+    desc: Comprehensive detection for Nemucod JScript dropper, combining VM evasion, advanced obfuscation, and full download-and-execute chain.
+    crit: hostile
+    conf: 0.99
+    attack: T1059.007, T1105, T1027, T1497
+    mbc: B0017, B0018, B0032, B0008
+    for: [javascript]
+    all:
+      - id: cap/host/interpreter/jscript::is-jscript
+      - id: obj/anti-analysis/timing/nemucod::nemucod-jitter-check
+      - id: obj/execution/dropper/obfuscated-script::nemucod-function-obfuscation
+      - id: obj/c2/dropper/nemucod::fragmented-url-dropper
+      - id: cap/code/obfuscation/js::js-string-literal-charat-access
+      - id: cap/code/obfuscation/js::ast-bracket-charat-access

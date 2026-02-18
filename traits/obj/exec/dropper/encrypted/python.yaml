@@ -55,8 +55,8 @@ composite_rules:
     needs: 3
     any:
       - id: cap/crypto/symmetric/aes
-      - id: obj/exec/reflection/class::python-zipimporter
-      - id: obj/exec/reflection/class::python-zipimporter-load
+      - id: obj/execution/reflection/class::python-zipimporter
+      - id: obj/execution/reflection/class::python-zipimporter-load
       - id: cap/data/encode/base64::b64decode-string
       - id: cap/fs/temp/pyinstaller::pyinstaller-meipass
       - id: hardcoded-aes-key

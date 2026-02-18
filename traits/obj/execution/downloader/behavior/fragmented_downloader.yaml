@@ -1,0 +1,16 @@
+composite_rules:
+  - id: js-highly-fragmented-downloader
+    desc: "Highly fragmented JScript downloader (Nemucod-style)"
+    crit: hostile
+    conf: 0.95
+    for: [javascript]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: cap/code/obfuscation/js::js-many-tiny-strings
+      - id: cap/code/obfuscation/js::js-fragmented-property-access
+    any:
+      - id: cap/time/measure/delta::js-date-diff-jitter-check
+      - id: cap/exec/script/wsh::wsh-wait-loop-readystate
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short

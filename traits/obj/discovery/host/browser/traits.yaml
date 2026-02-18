@@ -115,6 +115,10 @@ traits:
       type: string
       substr: bookmarks
       case_insensitive: true
+    downgrade:
+      any:
+        - id: known/tools/sysadmin::hg-operations
+        - id: meta/quality/testing::test-file-shell
 
   - id: bookmarks-plist
     desc: Bookmarks.plist file
@@ -336,6 +340,8 @@ composite_rules:
           substr: "Safari"
         - type: basename
           substr: "brave"
+        - id: known/tools/sysadmin::hg-operations
+        - id: meta/quality/testing::test-file-shell
 
   # Local storage composite
   - id: local-storage

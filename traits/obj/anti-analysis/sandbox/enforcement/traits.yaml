@@ -15,4 +15,4 @@ composite_rules:
     all:
       - id: cap/os/env/vars::comspec-env-var
       - id: obj/anti-analysis/sandbox/detect::js-check-cmd-path
-      - id: obj/exec/interpreter/script/wsh::wscript-quit-obfuscated
+      - id: obj/execution/interpreter/script/wsh::wscript-quit-obfuscated

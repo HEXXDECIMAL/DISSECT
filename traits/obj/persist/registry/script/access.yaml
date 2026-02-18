@@ -116,4 +116,4 @@ composite_rules:
   mbc: E1006
   all:
   - id: script-regdelete
-  - id: obj/anti-forensics
+  - id: obj/anti-forensics/cleanup/artifact::anti-forensics-cleanup

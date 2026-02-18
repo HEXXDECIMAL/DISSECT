@@ -57,3 +57,28 @@ traits:
     if:
       type: string
       substr: "HYDRASYN"
+
+composite_rules:
+    - id: ddos-technique
+      desc: DDoS technique indicators
+      any:
+        - id: cap/comm/socket/raw::raw-socket-creation-regex
+        - id: syn-flood
+        - id: ack-flood
+        - id: cap/comm/ip/spoof::spoof
+  
+    - id: ddos-offensive-markers
+      desc: Offensive markers for DDoS
+      any:
+        - id: cap/data/text/malware::cyber-warfare-marker
+        - id: cap/data/text/malware/ddos::sending-packets-marker
+        - id: cap/data/text/malware/ddos::got-root-marker
+        - id: cap/data/text/malware/aggressive::unprofessional-error-marker
+  
+    - id: ddos-tool-offensive
+      desc: "DDoS tool with offensive or aggressive indicators"
+      crit: hostile
+      conf: 0.95
+      all:
+        - id: ddos-technique
+        - id: ddos-offensive-markers

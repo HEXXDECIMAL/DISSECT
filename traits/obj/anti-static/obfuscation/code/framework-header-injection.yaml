@@ -62,7 +62,7 @@ composite_rules:
   # Supply-chain injection pattern: OpenSSL headers bundled unexpectedly
   - id: openssl-source-injection
     desc: OpenSSL header source injected into framework
-    crit: suspicious
+    crit: notable
     conf: 0.90
     for: [c]
     any:

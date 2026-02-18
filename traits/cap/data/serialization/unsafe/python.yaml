@@ -92,3 +92,6 @@ composite_rules:
     any:
       - id: pickle-loads
       - id: pickle-load
+    downgrade:
+      any:
+        - id: meta/import/python::mercurial

@@ -1,18 +1,27 @@
 traits:
   - id: js-skip-step-loop
     desc: "JavaScript loop with non-standard increment (skip-step)"
-    crit: suspicious
+    crit: notable
     conf: 0.8
+    for: [javascript, typescript]
     if:
-      type: ast
-      node: for_statement
-      regex: 'for\s*\([^;]+;[^;]+;\s*\w+\s*\+=\s*(?:[a-zA-Z_]\w*|[2-9]|[1-9]\d+)\)'
+      type: raw
+      regex: 'for\s*\([^;]+;[^;]+;\s*[\w$]+\s*\+=\s*(?:[3-9]|[1-9]\d+|[a-zA-Z_$][\w$]*)\)'
+
+  - id: js-loop-string-concat
+    desc: "String concatenation in loop body using array subscript"
+    crit: notable
+    conf: 0.6
+    for: [javascript, typescript]
+    if:
+      type: raw
+      regex: '(?:[\w$]+\s*=\s*[\w$]+\s*\+\s*[\w$]+\s*\[[^\]]+\]|[\w$]+\s*\+=\s*[\w$]+\s*\[[^\]]+\])(?:[;\s,\+\)\}]|$)'
 
   - id: js-concat-chain
     desc: "JavaScript massive string concatenation chain"
     crit: suspicious
     conf: 0.7
+    for: [javascript, typescript]
     if:
-      type: ast
-      node: variable_declarator
+      type: raw
       regex: '=\s*(?:[\w"''\.]+\s*\+\s*){5,}'

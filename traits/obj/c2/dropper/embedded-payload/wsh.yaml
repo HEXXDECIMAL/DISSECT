@@ -13,9 +13,9 @@ composite_rules:
     attack: "T1059.007"
     mbc: "E1243"
     all:
-      - id: obj/exec/activex/com::utf16-wsh-com-objects
-      - id: obj/exec/activex/com::shell-execute-utf16
+      - id: obj/execution/activex/com::utf16-wsh-com-objects
+      - id: obj/execution/activex/com::shell-execute-utf16
     any:
-      - id: obj/exec/activex/com::frombase64-utf16
-      - id: obj/exec/activex/com::copyfile-utf16
+      - id: obj/execution/activex/com::frombase64-utf16
+      - id: obj/execution/activex/com::copyfile-utf16
       - id: cap/fs/file/write/staging::users-public-path-utf16

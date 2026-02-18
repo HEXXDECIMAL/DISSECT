@@ -14,5 +14,5 @@ composite_rules:
     for: [python]
     all:
       - id: cap/fs/chmod/executable::python-executable
-      - id: obj/exec/dropper/stealth::python
-      - id: obj/exec/dropper/tmp-run::os-remove
+      - id: obj/execution/dropper/stealth::python
+      - id: obj/execution/dropper/tmp-run::os-remove

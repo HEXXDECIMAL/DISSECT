@@ -30,7 +30,7 @@ composite_rules:
       - id: cap/process/create/shell/lang::js-bun-exec
     any:
       - id: bun-install-url
-      - id: obj/exec/dropper/script::curl-download
-      - id: obj/exec/dropper/script::wget-download
-      - id: obj/exec/dropper/script::curl-silent-stdout
+      - id: obj/execution/dropper/script::curl-download
+      - id: obj/execution/dropper/script::wget-download
+      - id: obj/execution/dropper/script::curl-silent-stdout
       - id: powershell-bun-install

@@ -1,0 +1,37 @@
+traits:
+  - id: js
+    desc: Javascript file extension
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: basename
+      regex: '(?i)\.(js|mjs|cjs|ts|jsx|tsx)$'
+
+  - id: py
+    desc: Python file extension
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: basename
+      regex: '(?i)\.(py|pyw|pyc|pyd)$'
+
+  - id: shell
+    desc: Shell script file extension
+    crit: inert
+    conf: 1.0
+    for: [all]
+    if:
+      type: basename
+      regex: '(?i)\.(sh|bash|zsh|dash|ksh)$'
+
+composite_rules:
+  - id: script-file
+    desc: "Any script file"
+    conf: 1.0
+    crit: inert
+    any:
+      - id: meta/format/extension::js
+      - id: meta/format/extension::py
+      - id: meta/format/extension::shell

@@ -47,7 +47,7 @@ composite_rules:
     conf: 0.8
     all:
       - id: js-date-loop
-      - id: obj/exec/interpreter/script/wsh::wscript-sleep
+      - id: obj/execution/interpreter/script/wsh::wscript-sleep
 
   - id: js-obfuscated-timing-evasion
     desc: Obfuscated JScript timing-based analysis evasion
@@ -55,9 +55,9 @@ composite_rules:
     conf: 0.8
     needs: 2
     any:
-      - id: obj/exec/interpreter/script/wsh::timing-fragment-tiny-exact
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-tiny-exact
-      - id: obj/exec/interpreter/script/wsh::readystate-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::timing-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::readystate-fragment-tiny-exact
 
   - id: js-timing-evasion
     desc: JavaScript timing-based analysis evasion

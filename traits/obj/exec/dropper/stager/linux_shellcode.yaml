@@ -7,4 +7,4 @@ composite_rules:
     mbc: B0004
     conditions:
       - id: obj/anti-analysis/obfuscation/code::fpu-getpc
-      - id: obj/exec/dropper/loader::elf-mmap-wx
+      - id: obj/execution/dropper/loader::elf-mmap-wx

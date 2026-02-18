@@ -134,7 +134,7 @@ traits:
       regex: '\.split\(\s*(?:""|'')\s*\)'
 
   # Dynamic code execution patterns (atomic)
-  # Moved to obj/exec/interpreter/eval/dynamic/eval-call
+  # Moved to obj/execution/interpreter/eval/dynamic/eval-call
 
   - id: js-function-call
     desc: Function() constructor
@@ -176,6 +176,16 @@ traits:
     if:
       type: raw
       regex: '\.reverse\(\s*\)'
+
+  # String cleanup using split(key).join("")
+  - id: js-split-join-cleanup
+    desc: String cleanup using split(key).join("")
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\.split\([^)]+\)\.join\(\s*(?:""|'')\s*\)'
 
   # === Density-Based Obfuscation Detection ===
   # Legitimate code rarely has more than a few escape sequences.
@@ -231,7 +241,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "\\[(\"|')(eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)(\"|')\\]"
+      regex: "(?:\\b(?:this|self|window|globalThis|global|document|top|parent|frames|module|exports|process|[A-Za-z_$][\\w$]*)(?:\\s*\\.\\s*[A-Za-z_$][\\w$]*)*)\\s*\\[\\s*['\"](eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)['\"]\\s*\\]\\s*\\("
       count_min: 1
 
 composite_rules:
@@ -275,7 +285,7 @@ composite_rules:
     attack: "T1027"
     for: [javascript, typescript]
     any:
-      - id: obj/exec/interpreter/eval/dynamic::eval-call-js
+      - id: obj/execution/interpreter/eval/dynamic::eval-call-js
       - id: js-function-call
       - id: js-new-function
 

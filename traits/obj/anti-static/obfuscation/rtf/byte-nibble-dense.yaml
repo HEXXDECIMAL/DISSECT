@@ -1,5 +1,5 @@
 traits:
-  - id: obj/anti-static/obfuscation/rtf::byte-nibble-dense
+  - id: byte-nibble-dense
     desc: InQuest RTF dense Byte Nibble obfuscation.
     crit: suspicious
     for: [rtf]

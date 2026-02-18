@@ -1,0 +1,15 @@
+# Synchronous WScript Downloader Behavior
+# Detects JScript downloaders using synchronous wait loops (readyState check)
+
+defaults:
+  crit: hostile
+  conf: 0.9
+  for: [javascript]
+
+composite_rules:
+  - id: js-wsh-synchronous-downloader
+    desc: "JScript/WSH Synchronous Downloader (readyState wait loop)"
+    all:
+      - id: cap/exec/script/wsh::wsh-wait-loop-readystate
+    any:
+      - id: obj/execution/interpreter/script/wsh

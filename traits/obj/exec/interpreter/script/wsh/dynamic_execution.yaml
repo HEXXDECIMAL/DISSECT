@@ -25,10 +25,4 @@ traits:
         - id: meta/library/prototype::version-string
         - id: meta/library/prototype::header-x
     unless:
-      - id: meta/library/jquery::domain
-      - id: meta/library/jquery::version-string
-      - id: meta/library/jquery::copyright
-      - id: meta/library/jquery::fn-extend
-      - id: meta/library/prototype::copyright
-      - id: meta/library/prototype::version-string
-      - id: meta/library/prototype::header-x
+      - id: meta/library/jquery::library

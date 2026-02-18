@@ -194,6 +194,8 @@ composite_rules:
       - id: file-write
       - id: process-exec
       - id: file-delete
+    unless:
+      - id: meta/dev/testing::node-common-require
 
   # Full dropper chain: fetch + write + execute + delete (hostile)
   # complexity = file_types(1) + all(4) = 5

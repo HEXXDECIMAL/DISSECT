@@ -30,5 +30,5 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     all:
-      - id: obj/exec/dropper/script::filename-extconf
+      - id: obj/execution/dropper/script::filename-extconf
       - id: ast-httparty-get

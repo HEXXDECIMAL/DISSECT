@@ -1,0 +1,10 @@
+composite_rules:
+  - id: tbav-evasion
+    desc: TBAV Heuristic Evasion Logic (Assembly)
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: cap/evasion/heuristic/av::tbav-evasion-asm
+    any:
+      - id: cap/fs/disk/partition::mbr-mod-asm
+      - id: cap/os/dos/interrupt::int-vector-calc-asm

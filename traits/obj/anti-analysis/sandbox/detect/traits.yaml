@@ -66,7 +66,7 @@ traits:
 
   - id: username-sandbox
     desc: Common sandbox usernames
-    crit: suspicious
+    crit: notable
     mbc: "B0007"
     attack: "T1497.001"
     conf: 0.8
@@ -74,8 +74,13 @@ traits:
       type: string
       # Use word boundaries and require username-like context
       # Excludes legitimate uses like "entering sandbox" or "sandbox.sb" profiles
-      regex: "\\b(user|USER|username|USERNAME|User|Username)\\s*[=:]\\s*(malware|sandbox|virus|sample|test|admin)\\b"
+      regex: "\\b(user|USER|username|USERNAME|User|Username)\\s*[=:]\\s*(malware|sandbox|virus|sample)\\b"
       case_insensitive: true
+    downgrade:
+      any:
+        - id: meta/quality/testing::test-file-shell
+        - id: known/tools/sysadmin::git-operations
+        - id: known/tools/sysadmin::hg-operations
 
   - id: sleep-accel
     desc: Sleep acceleration detection (sandbox evasion)

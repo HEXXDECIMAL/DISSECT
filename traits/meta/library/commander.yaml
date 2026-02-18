@@ -27,6 +27,19 @@ traits:
       type: raw
       regex: 'exports\.Command\s*=\s*Command'
 
+  - id: commander-require
+    desc: Requires commander library
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (identifier) @req
+          arguments: (arguments (string (string_fragment) @lib))
+          (#eq? @req "require")
+          (#eq? @lib "commander")
+        )
+
 composite_rules:
   - id: commander-legacy
     desc: Commander.js legacy prototype pattern

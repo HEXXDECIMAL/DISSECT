@@ -290,7 +290,7 @@ composite_rules:
   # Many legitimate small packages also match, so crit is notable not suspicious.
   - id: cloned-package-identity
     desc: Package with shorthand repo but missing bugs/homepage (possible copy)
-    crit: notable
+    crit: inert
     conf: 0.75
     attack: "T1195.002"
     all:
@@ -299,6 +299,9 @@ composite_rules:
     none:
       - id: has-bugs-url
       - id: has-homepage
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-files-field
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-engines
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-contributors
 
   # Mature version with cloned identity
   # A package claiming version >= 0.2.0 should have complete metadata.
@@ -308,7 +311,7 @@ composite_rules:
   # Complexity: all(+3) + none(+0.6+2) = 5.6 (meets suspicious threshold)
   - id: mature-cloned-package
     desc: Mature version package with incomplete copied metadata
-    crit: suspicious
+    crit: inert
     conf: 0.85
     attack: "T1195.002"
     mbc: "F0004"
@@ -319,6 +322,9 @@ composite_rules:
     none:
       - id: has-bugs-url
       - id: has-homepage
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-files-field
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-engines
+      - id: obj/lateral/supply-chain/npm-quality/pkg-meta::has-contributors
 
   # === Fake Security Research ===
   # Claims to be a "whitehat" or "research" package but executes code on install.

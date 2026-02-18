@@ -19,6 +19,7 @@ traits:
     unless:
       - type: basename
         regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py|js|ts|go|php|rb|java)$'
+      - id: meta/dev/testing::is-test
 
   - id: very-low-comment-ratio
     desc: "Very low comment-to-code ratio (<1%)"
@@ -32,6 +33,7 @@ traits:
     unless:
       - type: basename
         regex: '(test_|_test\.|\.test\.|\.spec\.).*\.(py|js|ts|go|php|rb|java)$'
+      - id: meta/dev/testing::is-test
 
   - id: very-long-lines
     desc: "Very long lines (>1000 chars)"

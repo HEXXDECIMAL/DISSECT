@@ -98,8 +98,8 @@ traits:
       substr: "subprocess"
     attack: "T1059.006"
 
-  - id: encoded-python-eval
-    desc: "Encoded Python eval() call"
+  - id: encoded-eval
+    desc: "Encoded eval() call"
     crit: suspicious
     conf: 0.95
     for: [python, javascript, shell]
@@ -366,7 +366,7 @@ composite_rules:
     any:
       - id: encoded-python-os-system
       - id: encoded-python-subprocess
-      - id: encoded-python-eval
+      - id: encoded-eval
       - id: encoded-python-exec
       - id: encoded-python-base64-decode
 
@@ -427,6 +427,6 @@ composite_rules:
     needs: 2
     any:
       - id: encoded-js-function-constructor
-      - id: encoded-python-eval
+      - id: encoded-eval
       - id: encoded-node-child-process
       - id: encoded-node-require

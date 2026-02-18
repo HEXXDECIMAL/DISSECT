@@ -14,7 +14,7 @@ composite_rules:
     attack: "T1090.003"
     for: [pe, dll]
     all:
-      - id: obj/exec/reflective-load/memory::dotnet-powershell-host
+      - id: obj/execution/reflective-load/memory::dotnet-powershell-host
       - id: obj/c2/tunnel/tor::hidden-service-setup
       - id: obj/c2/tunnel/tor::torproject-url
       - id: obj/c2/tunnel/tor::onion-domain
@@ -34,7 +34,7 @@ composite_rules:
       - id: obj/c2/tunnel/tor::onion-domain
     any:
       - id: obj/c2/dropper/embedded-payload::writeallbytes
-      - id: obj/exec/interpreter/vbscript/interpreter::wscript-shell-exec
+      - id: obj/execution/interpreter/vbscript/interpreter::wscript-shell-exec
 
   # Tor hidden service exposing sensitive ports (RDP/SMB/SSH)
   # Complexity: all(2) + any(1) = 3 -> suspicious (not enough for hostile)

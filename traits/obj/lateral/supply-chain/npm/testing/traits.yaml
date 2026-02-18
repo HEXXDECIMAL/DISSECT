@@ -58,7 +58,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:assert|expect|should)\\s*[.\\(]|toBe\\(|toEqual\\(|toMatch\\("
+      regex: "(?:assert|expect|should|test)\\s*[.\\(]|toBe\\(|toEqual\\(|toMatch\\("
 
   # Uses popular web framework
   - id: has-test-directory
@@ -366,7 +366,7 @@ composite_rules:
     any:
       - { id: assert-word }
       - { id: should-assertion }
-      - { id: obj/lateral/supply-chain/npm/code-quality }
+
 
   - id: mocha-test-file
     desc: Mocha test file markers
@@ -401,7 +401,7 @@ composite_rules:
       - { id: fixtures-word }
       - { id: testdata-word }
       - { id: jest-fn-call }
-      - { id: obj/lateral/supply-chain/npm/code-quality }
+
 
   # E2E test frameworks
   - id: e2e-test
@@ -414,13 +414,6 @@ composite_rules:
       - { id: obj/lateral/supply-chain/npm/testing::e2e-test }
 
   # Testing Library
-  - id: testing-library-methods
-    desc: Testing Library methods
-    for: [javascript, typescript]
-    any:
-      - { id: render-call-test }
-      - { id: obj/lateral/supply-chain/npm/code-quality }
-
   - id: testing-library
     desc: Testing Library patterns
     crit: notable
@@ -430,7 +423,7 @@ composite_rules:
       - {
           id: obj/lateral/supply-chain/npm/browser-automation::testing-library-imports,
         }
-      - { id: testing-library-methods }
+      - { id: render-call-test }
 
   # Test configuration files
   - id: test-config

@@ -5,5 +5,5 @@ traits:
     for: [javascript]
     if:
       type: raw
-      # ActiveXObject: use obj/exec/interpreter/scripting/host/windows.yaml::activex-object-string (canonical)
+      # ActiveXObject: use obj/execution/interpreter/scripting/host/windows.yaml::activex-object-string (canonical)
       substr: "WScript"

@@ -12,7 +12,7 @@ composite_rules:
       - id: cap/code/obfuscation/string::custom-delimiter-obfuscation
     any:
       - id: cap/code/obfuscation/string::base64-function-keyword
-      - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
+      - id: obj/execution/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: obfuscation-with-duplicate-names
     desc: "Code inflation with duplicate function names"

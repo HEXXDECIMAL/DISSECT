@@ -7,7 +7,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
+      type: raw
       substr: "configure.ac"
 
   - id: makefile-am
@@ -15,7 +15,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
+      type: raw
       substr: "Makefile.am"
 
   - id: config-h-in
@@ -23,7 +23,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
+      type: raw
       substr: "config.h.in"
 
   - id: package-version
@@ -31,7 +31,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
+      type: raw
       substr: "PACKAGE_VERSION"
 
   - id: ac-init
@@ -39,7 +39,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
+      type: raw
       substr: "AC_INIT"
 
 composite_rules:

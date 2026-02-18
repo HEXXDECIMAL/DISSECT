@@ -8,7 +8,7 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: cap/data/encode/gzip::gzip-header-identifier
-      - id: obj/exec/vm/sandbox::base64-long-string
+      - id: obj/execution/vm/sandbox::base64-long-string
     any:
       - id: obj/anti-static/obfuscation/strings/encoding::js-charat-loop
       - id: obj/anti-static/obfuscation/strings/encoding::js-array-swap

@@ -10,9 +10,9 @@ composite_rules:
     for: [javascript]
     platforms: [windows]
     all:
-      - id: obj/exec/activex/com::activex-wshell
-      - id: obj/exec/activex/com::activex-filesystem
-      - id: obj/exec/interpreter/script/wsh::execution-policy-bypass
+      - id: obj/execution/activex/com::activex-wshell
+      - id: obj/execution/activex/com::activex-filesystem
+      - id: obj/execution/interpreter/script/wsh::execution-policy-bypass
 
   - id: embedded-powershell-script
     desc: "Embedded PowerShell code in non-PowerShell file"
@@ -20,8 +20,8 @@ composite_rules:
     conf: 0.9
     for: [javascript, typescript]
     all:
-      - id: obj/exec/interpreter/script/embedded::powershell-vars-in-javascript
-      - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
+      - id: obj/execution/interpreter/script/embedded::powershell-vars-in-javascript
+      - id: obj/execution/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: obfuscated-wsh-dropper
     desc: "Obfuscated WSH dropper with char expansion"
@@ -33,8 +33,8 @@ composite_rules:
       - id: cap/code/obfuscation/string::char-expansion-obfuscation
       - id: cap/code/obfuscation/string::base64-function-keyword
     any:
-      - id: obj/exec/activex/com::activex-wshell
-      - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
+      - id: obj/execution/activex/com::activex-wshell
+      - id: obj/execution/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: public-folder-dropper
     desc: "File dropper using Public folder with random names"
@@ -46,8 +46,8 @@ composite_rules:
     all:
       - id: cap/fs/operate/write::public-folder-short-random
     any:
-      - id: obj/exec/activex/com::activex-filesystem
-      - id: obj/exec/interpreter/script/embedded::powershell-cmdlet-patterns
+      - id: obj/execution/activex/com::activex-filesystem
+      - id: obj/execution/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: base64-payload-dropper
     desc: "Base64-encoded payload with WSH execution"
@@ -58,8 +58,8 @@ composite_rules:
       - id: cap/code/obfuscation/string::base64-function-keyword
       - id: cap/code/obfuscation/string::char-expansion-obfuscation
     any:
-      - id: obj/exec/activex/com::activex-wshell
-      - id: obj/exec/interpreter/script/embedded::powershell-vars-in-javascript
+      - id: obj/execution/activex/com::activex-wshell
+      - id: obj/execution/interpreter/script/embedded::powershell-vars-in-javascript
 
   - id: wsh-js-downloader
     desc: "JScript/WSH Downloader with file write"
@@ -68,8 +68,8 @@ composite_rules:
     for: [javascript]
     platforms: [windows]
     all:
-      - id: obj/exec/interpreter/script/wsh::wsh-save-to-file
-      - id: obj/exec/interpreter/script/wsh::wsh-response-body
+      - id: obj/execution/interpreter/script/wsh::wsh-save-to-file
+      - id: obj/execution/interpreter/script/wsh::wsh-response-body
     any:
-      - id: obj/exec/activex/com::activex-object-create
-      - id: obj/exec/interpreter/script/wsh::wscript-createobject
+      - id: obj/execution/activex/com::activex-object-create
+      - id: obj/execution/interpreter/script/wsh::wscript-createobject

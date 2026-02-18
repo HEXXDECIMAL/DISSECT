@@ -2,7 +2,7 @@
 # Capabilities related to traversing directories
 
 traits:
-  - id: fs-readdir-recursive
+  - id: fs-readdir
     desc: Recursive directory reading (readdir/stat loop)
     crit: notable
     conf: 0.6

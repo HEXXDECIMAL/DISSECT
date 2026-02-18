@@ -5,9 +5,9 @@ composite_rules:
     for: [javascript]
     all:
       - id: cap/code/obfuscation/prototype::return-this
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragments-composite
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragments-composite
     any:
       - id: cap/fs/path/extension::scr
       - id: cap/code/obfuscation/names::fake-jquery-vars
-      - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-tiny-exact

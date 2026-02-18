@@ -347,6 +347,9 @@ composite_rules:
     any:
       - { id: unconfined-labels }
       - { id: object-r-label }
+    downgrade:
+      any:
+        - id: meta/purpose/test-tool::coreutils-test-functions
 
   # NOTE: Debuggers may have SELinux policy file references for:
   # - Analyzing security contexts of target processes
@@ -363,6 +366,8 @@ composite_rules:
     downgrade:
       any:
         - id: cap/dylib/library::debugger-tool-marker
+        - id: meta/purpose/test-tool::coreutils-test-functions
+        - id: meta/builder/autotools::autotools
 
   # Helper: selinux state + enforcing keyword combo
   - id: selinux-state-enforcing

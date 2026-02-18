@@ -7,6 +7,8 @@ traits:
     if:
       type: raw
       regex: '\b(whoami|uname -a|ip a|ifconfig|ps aux|ps -ef|printenv)\b|(?:\s|;|\||^)id(?:\s|;|\||$)|(?:\s|;|\||^)env(?:\s|;|\||$)'
+    unless:
+      - id: meta/dev/testing::is-test
 
   - id: npm-config-discovery
     desc: Shell command accesses NPM configuration

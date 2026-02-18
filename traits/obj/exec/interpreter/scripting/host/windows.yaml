@@ -33,9 +33,9 @@ traits:
       type: string
       substr: "ActiveXObject"
 
-  # Removed shell-application-string duplicate - use obj/exec/activex/com::activex-shell-app
+  # Removed shell-application-string duplicate - use obj/execution/activex/com::activex-shell-app
 
-  # Removed msxml2-xmlhttp-string duplicate - use obj/exec/activex/com::activex-xmlhttp-msxml2
+  # Removed msxml2-xmlhttp-string duplicate - use obj/execution/activex/com::activex-xmlhttp-msxml2
 
   - id: microsoft-xmlhttp-string
     desc: Microsoft.XMLHTTP string reference
@@ -65,7 +65,7 @@ traits:
       type: string
       substr: "winmgmts:"
 
-  # Removed wbemscripting-locator-string duplicate - use obj/exec/activex/com::activex-wmi
+  # Removed wbemscripting-locator-string duplicate - use obj/execution/activex/com::activex-wmi
 
   # ADODB stream (file operations)
   - id: adodb-stream-string
@@ -184,7 +184,7 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: obj/exec/activex/com::activex-xmlhttp-msxml2
+      - id: obj/execution/activex/com::activex-xmlhttp-msxml2
       - id: microsoft-xmlhttp-string
       - id: msxml2-serverxmlhttp-string
 
@@ -197,7 +197,7 @@ composite_rules:
     for: [javascript, typescript, powershell]
     any:
       - id: winmgmts-string
-      - id: obj/exec/activex/com::activex-wmi
+      - id: obj/execution/activex/com::activex-wmi
 
 
   # Schedule.Service variants

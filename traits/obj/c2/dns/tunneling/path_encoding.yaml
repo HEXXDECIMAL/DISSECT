@@ -7,20 +7,21 @@ traits:
       type: ast
       language: javascript
       query: |
-        (call_expression
+        ((call_expression
           function: (member_expression
             property: (property_identifier) @split
           )
           arguments: (arguments . (string (string_fragment) @slash))
         )
         (#eq? @split "split")
-        (#eq? @slash "/")
+        (#eq? @slash "/"))
     unless:
       - id: meta/library::ioredis-auto-pipeline
       - id: cap/data/db/conn/redis::ioredis
       - id: meta/library::commander
       - id: meta/library/nodeunit::nodeunit
       - id: meta/library/nodeunit::nodeunit-require
+      - id: meta/dev/testing::node-common-require
     downgrade:
       any:
         - id: cap/data/db/conn/redis::ioredis
@@ -33,7 +34,7 @@ traits:
       type: ast
       language: javascript
       query: |
-        (assignment_expression
+        ((assignment_expression
           left: (identifier) @str
           right: (binary_expression
             left: (call_expression
@@ -55,4 +56,4 @@ traits:
         )
         (#eq? @str @str2)
         (#eq? @slice "slice")
-        (#eq? @p "p")
+        (#eq? @p "p"))

@@ -17,5 +17,5 @@ composite_rules:
     desc: JScript Counter-Dropper behavior (obfuscated + C2 fragments)
     all:
       - id: obj/c2/uri/fragment::uri-fragment-counter-path-unte
-      - id: obj/exec/downloader/behavior::js-counter-dropper-params
-      - id: obj/exec/interpreter/script/wsh
+      - id: obj/execution/downloader/behavior::js-counter-dropper-params
+      - id: obj/execution/interpreter/script/wsh

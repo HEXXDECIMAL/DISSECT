@@ -21,6 +21,7 @@ traits:
     unless:
       - type: string
         regex: "MathJax|wgxpath|trix|actiontext"
+      - id: meta/dev/testing::is-test
 
   - id: js-iife-heavy
     desc: "Repeated immediately invoked function expressions"

@@ -1,0 +1,23 @@
+composite_rules:
+  - id: trojan-fork-logic
+    desc: Trojan fork logic (standard or daemon)
+    criticality: notable
+    any:
+      - id: cap/process/fork/clone::fork
+      - id: cap/process/daemonize/background::process-fork
+
+  - id: trojan-indicator
+    desc: specific Trojan indicator (fake error or suspicious dev path)
+    criticality: suspicious
+    any:
+      - id: cap/data/text/spoof::fake-bash-error
+      - id: cap/fs/path/device::dev-ptyh
+
+  - id: trojan-wrapper-behavior
+    desc: Trojan wrapper pattern (forks payload + executes legitimate binary)
+    criticality: hostile
+    all:
+      - id: obj/execution/fileless/memory::execve-fn
+      - id: cap/process/create/shell::system-fn
+      - id: obj/persistence/trojan/wrapper::trojan-fork-logic
+      - id: obj/persistence/trojan/wrapper::trojan-indicator

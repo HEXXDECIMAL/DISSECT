@@ -404,7 +404,7 @@ composite_rules:
     any:
       - id: pip-install-string
       - id: pip-module-string
-      - id: obj/exec/autoinstall/pip::pip-install-pattern
+      - id: obj/execution/autoinstall/pip::pip-install-pattern
 
   # === Windows Command Execution ===
   - id: windows-start-exec
@@ -439,6 +439,9 @@ composite_rules:
       - id: cap/comm/http/request::request-python
     unless:
       - id: meta/builder/pip::setuptools-package-index
+    downgrade:
+      any:
+        - id: meta/quality/testing::unittest-module
 
   # === .scr to .exe Extension Mismatch ===
   - id: scr-to-exe-mismatch
@@ -526,7 +529,7 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: obj/exec/autoinstall/pip::main-call-content
+      - id: obj/execution/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-argument-injection
       - id: obj/anti-static/obfuscation/code::advanced-python-obfuscation
 
@@ -539,7 +542,7 @@ composite_rules:
     attack: "T1176"
     all:
       - id: robust-setup-py
-      - id: obj/exec/autoinstall/pip::main-call-content
+      - id: obj/execution/autoinstall/pip::main-call-content
       - id: obj/persist/startup/registry::windows-shortcut-walk-modify
       - id: cap/fs/directory/mkdir::mkdir-python
 
@@ -580,7 +583,7 @@ composite_rules:
       - id: robust-setup-py
       - id: cap/os/info/system::sys-platform-check
       - id: cap/os/info/system::sys-argv-access
-      - id: obj/exec/autoinstall/pip::main-call-content
+      - id: obj/execution/autoinstall/pip::main-call-content
     downgrade:
       any:
         - id: meta/quality/versioned
@@ -607,9 +610,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: obj/exec/dropper/stealth::subprocess-popen
+      - id: obj/execution/dropper/stealth::subprocess-popen
       - id: powershell-download-in-string
-      - id: obj/exec/background/daemon::powershell-hidden
+      - id: obj/execution/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI PowerShell Encoded Dropper ===
   - id: pypi-powershell-encoded-dropper
@@ -620,9 +623,9 @@ composite_rules:
     attack: "T1059.001"
     all:
       - id: robust-setup-py
-      - id: obj/exec/dropper/stealth::subprocess-popen
+      - id: obj/execution/dropper/stealth::subprocess-popen
       - id: powershell-encoded-command-in-string
-      - id: obj/exec/background/daemon::powershell-hidden
+      - id: obj/execution/background/daemon::powershell-hidden
 
   # === HOSTILE: PyPI Setup.py PowerShell Stager ===
   - id: pypi-powershell-stager
@@ -635,7 +638,7 @@ composite_rules:
       - id: robust-setup-py
       - id: powershell-download-in-string
       - id: powershell-expand-archive
-      - id: obj/exec/interpreter/vbscript/interpreter::vbs-powershell-launch
+      - id: obj/execution/interpreter/vbscript/interpreter::vbs-powershell-launch
 
   # === HOSTILE: PyPI Extension Dropper with Admin Gating ===
   - id: pypi-extension-dropper-admin-gated

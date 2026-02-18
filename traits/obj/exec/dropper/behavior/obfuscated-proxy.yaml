@@ -15,4 +15,8 @@ composite_rules:
       - id: cap/code/obfuscation/proxy::identity-function-proxy
     any:
       - id: obj/anti-static/obfuscation/strings/encoding::js-interspersed-hex-escapes
-      - id: obj/exec/interpreter/script/wsh
+      - id: obj/execution/interpreter/script/wsh
+    unless:
+      - id: meta/library::js-module-exports
+      - id: meta/library/structure::js-umd-wrapper
+      - id: meta/quality::versioned

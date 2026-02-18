@@ -19,6 +19,9 @@ traits:
     if:
       type: raw
       regex: 'cp\s+[^|&;\n]+\s+/bin/[a-zA-Z0-9_.-]+'
+    unless:
+      - id: cap/process/create/shell::make-invocation
+      - id: cap/dylib/library::cmake-build-ref
 
   - id: cp-to-sbin
     desc: Copy file to /sbin directory
@@ -29,6 +32,9 @@ traits:
     if:
       type: raw
       regex: 'cp\s+[^|&;\n]+\s+/sbin/[a-zA-Z0-9_.-]+'
+    unless:
+      - id: cap/process/create/shell::make-invocation
+      - id: cap/dylib/library::cmake-build-ref
 
   - id: cp-to-usr-bin
     desc: Copy file to /usr/bin directory
@@ -39,6 +45,9 @@ traits:
     if:
       type: raw
       regex: 'cp\s+[^|&;\n]+\s+/usr/(s?bin|local/s?bin)/[a-zA-Z0-9_.-]+'
+    unless:
+      - id: cap/process/create/shell::make-invocation
+      - id: cap/dylib/library::cmake-build-ref
 
   - id: cp-force-flag
     desc: Copy with force overwrite

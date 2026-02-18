@@ -79,7 +79,7 @@ traits:
         }
 
   - id: dd-of-dev
-    desc: dd writing to device
+    desc: dd writing to block device
     crit: suspicious
     conf: 0.85
     attack: "T1561.002"
@@ -89,9 +89,17 @@ traits:
       source: |
         rule dd_to_device {
           strings:
-            $dd_of = /dd\s+[^\n]*of=\/dev\// ascii
+            $dd_sd = /dd\s+[^\n]*of=\/dev\/[shv]d[a-z]/ ascii
+            $dd_xvd = /dd\s+[^\n]*of=\/dev\/xvd[a-z]/ ascii
+            $dd_mmc = /dd\s+[^\n]*of=\/dev\/mmcblk[0-9]/ ascii
+            $dd_nvme = /dd\s+[^\n]*of=\/dev\/nvme[0-9]/ ascii
+            $dd_mapper = /dd\s+[^\n]*of=\/dev\/mapper\// ascii
+            $dd_disk = /dd\s+[^\n]*of=\/dev\/disk\// ascii
+            $dd_dm = /dd\s+[^\n]*of=\/dev\/dm-[0-9]/ ascii
+            $dd_mtd = /dd\s+[^\n]*of=\/dev\/mtd[0-9]/ ascii
+            $dd_mem = /dd\s+[^\n]*of=\/dev\/(k?mem|port)/ ascii
           condition:
-            $dd_of
+            any of them
         }
 
   - id: proc-mounts-read

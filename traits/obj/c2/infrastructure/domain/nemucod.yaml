@@ -39,6 +39,30 @@ traits:
       type: string
       substr: "nightzax.in"
 
+  - id: nemucod-domain-itek
+    desc: Nemucod campaign domain (itek-products.co.uk)
+    if:
+      type: string
+      substr: "itek-products.co.uk"
+
+  - id: nemucod-domain-mojapijaca
+    desc: Nemucod campaign domain (mojapijaca.si)
+    if:
+      type: string
+      substr: "mojapijaca.si"
+
+  - id: nemucod-domain-rozette
+    desc: Nemucod campaign domain (rozette.ro)
+    if:
+      type: string
+      substr: "rozette.ro"
+
+  - id: nemucod-domain-haraccountants
+    desc: Nemucod campaign domain (haraccountants.co.uk)
+    if:
+      type: string
+      substr: "haraccountants.co.uk"
+
 composite_rules:
   - id: nemucod-domain
     desc: Known Nemucod C2 domain
@@ -48,3 +72,7 @@ composite_rules:
       - id: nemucod-domain-akinave
       - id: nemucod-domain-vetchsoda
       - id: nemucod-domain-nightzax
+      - id: nemucod-domain-itek
+      - id: nemucod-domain-mojapijaca
+      - id: nemucod-domain-rozette
+      - id: nemucod-domain-haraccountants

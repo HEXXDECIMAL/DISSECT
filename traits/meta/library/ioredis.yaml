@@ -12,3 +12,10 @@ traits:
     if:
       type: raw
       regex: 'exports\.(bufferEqual|convertBufferToString|wrapMultiResult|packObject|convertObjectToArray|convertMapToArray|optimizeErrorStack|parseURL|zipMap)'
+
+  - id: ioredis-command
+    desc: ioredis Command class
+    crit: inert
+    if:
+      type: raw
+      regex: 'Command\.FLAGS\s*=\s*\{|VALID_IN_SUBSCRIBER_MODE'

@@ -1,0 +1,8 @@
+traits:
+  - id: js-module-exports
+    desc: "JavaScript module exports"
+    crit: inert
+    for: [javascript, typescript]
+    if:
+      type: raw
+      regex: 'module\.exports|exports\.'

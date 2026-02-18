@@ -1,0 +1,15 @@
+# Library Wrapper Structures
+# Detects common library wrappers (UMD, AMD, etc.)
+
+traits:
+  - id: js-umd-wrapper
+    desc: Universal Module Definition (UMD) wrapper
+    crit: inert
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: raw
+      # Matches typical UMD checks:
+      # if (typeof exports === "object" && typeof module !== "undefined")
+      # OR: if (typeof define === "function" && define.amd)
+      regex: 'if\s*\(\s*typeof\s*exports\s*===\s*["'']object["'']\s*&&\s*typeof\s*module\s*!==\s*["'']undefined["'']\)|typeof\s*define\s*===\s*["'']function["'']\s*&&\s*define\.amd'

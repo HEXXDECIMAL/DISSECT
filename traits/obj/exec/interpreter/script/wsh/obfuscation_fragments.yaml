@@ -4,6 +4,7 @@
 defaults:
   crit: notable
   conf: 0.8
+  for: [javascript, typescript, shell, vbs, html]
 
 traits:
   - id: wscript-shell-fragment
@@ -28,13 +29,15 @@ traits:
     desc: FileSystemObject string fragment
     if:
       type: raw
-      regex: 'SystemObj|temObj|cripting|FileSystem'
+      regex: 'SystemObj|temObj|FileSystem'
 
   - id: expand-env-fragment
     desc: ExpandEnvironmentStrings fragment
     if:
       type: raw
-      regex: 'xpandE|nviro|nviron'
+      regex: 'xpandE|nviron'
+    unless:
+      - id: cap/data/text/keywords::environment-keyword
 
   - id: response-body-fragment
     desc: ResponseBody fragment

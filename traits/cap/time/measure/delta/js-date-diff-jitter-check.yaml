@@ -1,0 +1,47 @@
+traits:
+  - id: js-subtraction-func-ast
+    desc: Function returning simple subtraction (AST)
+    crit: suspicious
+    for: [javascript]
+    if:
+      type: ast
+      lang: javascript
+      # Matches: function f(a,b) { return a-b; }
+      query: |
+        (function_declaration
+          (statement_block
+            (return_statement
+              (binary_expression
+                operator: "-"
+              )
+            )
+          )
+        )
+
+  - id: js-subtraction-func-regex
+    desc: Function returning simple subtraction (Regex)
+    crit: suspicious
+    for: [javascript]
+    if:
+      type: string
+      regex: 'return\s+[a-zA-Z0-9_]+\s*-\s*[a-zA-Z0-9_]+\s*;'
+
+  - id: js-triple-date
+    desc: Triple Date/Time retrieval (t1, t2, t3 pattern)
+    crit: notable
+    for: [javascript]
+    if:
+      type: raw
+      regex: '(Date\s*\.\s*now\s*\(|new\s+Date\s*\()'
+      count_min: 3
+
+composite_rules:
+  - id: js-date-diff-jitter-check
+    desc: JScript timing jitter check (diff1 != diff2)
+    crit: suspicious
+    for: [javascript]
+    all:
+      - id: js-triple-date
+    any:
+      - id: js-subtraction-func-ast
+      - id: js-subtraction-func-regex

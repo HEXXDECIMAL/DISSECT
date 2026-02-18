@@ -14,15 +14,15 @@ composite_rules:
     desc: Tiny obfuscated ADODB/XMLHTTP fragments
     crit: suspicious
     any:
-      - id: obj/exec/interpreter/script/wsh/
+      - id: obj/execution/interpreter/script/wsh/
 
   # Main Rule: Combine loop + fragments + payload handling
   - id: obfuscated-adodb-dropper
     desc: Obfuscated ADODB/XMLHTTP dropper behavior
     all:
       # 1. Probabilistic loader loop
-      - id: obj/exec/dropper/behavior::probabilistic-loader-loop
+      - id: obj/execution/dropper/behavior::probabilistic-loader-loop
       # 2. Any of the fragments
-      - id: obj/exec/script/dropper::obfuscated-adodb-fragments
+      - id: obj/execution/script/dropper::obfuscated-adodb-fragments
       # 3. Payload handling (write/save)
-      - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::payload-handling-fragment-tiny-exact

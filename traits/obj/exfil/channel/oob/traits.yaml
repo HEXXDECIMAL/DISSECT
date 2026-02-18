@@ -218,7 +218,7 @@ traits:
       regex: "[a-z0-9-]+\\.ngrok-free\\.app"
 
   # === NPM preinstall atomic indicators ===
-  # Moved to obj/exec/package-manager/npm.yaml
+  # Moved to obj/execution/package-manager/npm.yaml
 
 composite_rules:
   # Helper composite for all OOB domain patterns
@@ -260,7 +260,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: obj/exec/interpreter/script/npm::npm-preinstall-script }
+      - { id: obj/execution/interpreter/script/npm::npm-preinstall-script }
       - { id: oob-domains }
 
   # Migrated from YARA

@@ -1,9 +1,45 @@
 traits:
-  - id: nemucod-decoder-loop
-    desc: Detects the specific loop structure used by Nemucod to decode strings from integer arrays (loop < 3 + manual 4th element).
+  - id: js-nemucod-decoder-loop
+    desc: "Detects the Nemucod XOR decoding loop structure"
     crit: suspicious
-    conf: 0.9
     for: [javascript]
     if:
-      type: raw
-      regex: '\+=\s*String\.fromCharCode\s*\(\s*[a-zA-Z0-9_$]+\s*\[\s*[a-zA-Z0-9_$]+\s*\]\s*\)\s*;\s*\}\s*[a-zA-Z0-9_$]+\s*\+=\s*String\.fromCharCode\s*\(\s*[a-zA-Z0-9_$]+\s*\[\s*3\s*\]\s*\)'
+      type: ast
+      # This query looks for a while loop where the update expression increments by 3,
+      # and inside the loop there's an XOR operation and a call to fromCharCode.
+      query: |
+        (while_statement
+          body: (statement_block
+            (expression_statement
+              (assignment_expression
+                left: (_)
+                right: (binary_expression
+                  operator: "+"
+                  left: (identifier)
+                  right: (call_expression
+                    function: (member_expression
+                      object: (identifier) @str-obj
+                      property: (property_identifier) @from-char-code)
+                    arguments: (arguments
+                      (call_expression
+                        function: (identifier)
+                        arguments: (arguments
+                          (binary_expression
+                            operator: "^"
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+          update: (update_expression
+            operator: "+="
+            argument: (identifier)
+            value: (number) @increment
+            (#eq? @increment "3")
+            (#match? @from-char-code "fromCharCode")
+          )
+        )

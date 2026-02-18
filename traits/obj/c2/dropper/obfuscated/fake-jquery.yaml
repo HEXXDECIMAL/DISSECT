@@ -16,7 +16,7 @@ composite_rules:
     all:
       - id: obj/c2/dropper/obfuscated::fake-jquery-indicators
     any:
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragments-composite
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragments-composite
       - id: cap/code/obfuscation/prototype::weird-function-syntax
-      - id: obj/exec/interpreter/script/wsh::payload-handling-fragment-tiny-exact
-      - id: obj/exec/interpreter/script/wsh::wscript-dropper-full-composite
+      - id: obj/execution/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+      - id: obj/execution/interpreter/script/wsh::wscript-dropper-full-composite

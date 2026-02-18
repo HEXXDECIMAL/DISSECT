@@ -1,0 +1,7 @@
+traits:
+  - id: send-call-raw
+    desc: Raw socket send call
+    crit: inert
+    if:
+      type: raw
+      regex: '(send|sendto|sendmsg)\s*\('

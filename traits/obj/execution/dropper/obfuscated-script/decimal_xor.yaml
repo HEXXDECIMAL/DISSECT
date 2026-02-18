@@ -1,0 +1,30 @@
+composite_rules:
+  - id: decimal-xor-wsh-indicators
+    desc: "WSH/JScript indicators for decimal XOR dropper"
+    crit: notable
+    any:
+      - id: cap/process/script/wsh::activex-object
+      - id: cap/host/interpreter/jscript::is-jscript
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-tiny-2
+
+  - id: decimal-xor-obfuscation-indicators
+    desc: "Obfuscation indicators for decimal XOR dropper"
+    crit: notable
+    any:
+      - id: obj/anti-static/obfuscation/js::js-comma-sequence-obfuscation-v2
+      - id: cap/code/obfuscation/js::js-comma-constant-obfuscation
+      - id: obj/execution/interpreter/eval/dynamic::bracket-function-access
+
+  - id: decimal-xor-dropper
+    desc: "Detects JScript droppers using decimal string encoding, XOR decryption, and comma obfuscation."
+    crit: hostile
+    conf: 0.95
+    attack: "T1027"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: cap/data/encode/string::decimal-string-blob
+      - id: cap/code/syntax/keyword::js-keyword-xor
+      - id: decimal-xor-wsh-indicators
+      - id: decimal-xor-obfuscation-indicators

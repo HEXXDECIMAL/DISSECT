@@ -61,3 +61,6 @@ composite_rules:
     any:
       - id: ld-preload
       - id: ld-audit
+    downgrade:
+      any:
+        - id: known/tools/sysadmin::stdbuf-tool

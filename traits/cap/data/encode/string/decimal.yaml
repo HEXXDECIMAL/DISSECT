@@ -4,8 +4,8 @@ traits:
     crit: notable
     for: [javascript]
     if:
-      type: ast
-      language: javascript
-      query: |
-        (string_fragment) @str
-        (#match? @str "^[0-9]{50,}$")
+      type: string
+      regex: "^[0-9]{50,}$"
+    unless:
+      - id: meta/dev/testing::node-common-require
+      - id: meta/library/nodeunit::nodeunit

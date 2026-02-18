@@ -7,3 +7,5 @@ composite_rules:
       - id: obj/anti-analysis/sandbox/detect
     unless:
       - id: meta/quality/libxslt::libxslt-configure-js
+      - id: meta/quality/testing::test-file-shell
+      - id: known/tools/sysadmin::hg-operations

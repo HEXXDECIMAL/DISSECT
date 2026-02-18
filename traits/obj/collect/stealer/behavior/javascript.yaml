@@ -38,7 +38,7 @@ composite_rules:
     attack: "T1005"
     for: [javascript]
     all:
-      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: cap/fs/enumerate/directory::fs-readdir
       - id: cap/fs/enumerate/directory::file-search-exclude-common
       - id: cap/comm/http/request::axios
 

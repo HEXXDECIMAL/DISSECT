@@ -34,6 +34,6 @@ composite_rules:
     mbc: B0027
     attack: T1027.002
     all:
-      - id: obj/exec/interpreter/cmd/obfuscation::cmd-caret-excessive-raw
+      - id: obj/execution/interpreter/cmd/obfuscation::cmd-caret-excessive-raw
     unless:
       - id: meta/lang/shebang::perl

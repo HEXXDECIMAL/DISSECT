@@ -16,8 +16,8 @@ composite_rules:
       - id: obj/anti-static/obfuscation/js::js-dynamic-global-access-array
       - id: cap/data/encode/base64::alphabet-script
       - id: obj/exfil/channel/oob::http-b64
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short
 
   - id: js-nemucod-downloader-windows
     desc: Nemucod JScript Downloader (Map-Replace Decoder)
@@ -28,5 +28,14 @@ composite_rules:
       - id: obj/anti-static/obfuscation/js::js-dynamic-global-access-array
       - id: cap/data/encode/base64::alphabet-script
       - id: obj/exfil/channel/oob::http-b64
-      - id: obj/exec/interpreter/script/wsh::adodb-fragment-short
-      - id: obj/exec/interpreter/script/wsh::wscript-shell-fragment-short
+      - id: obj/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short
+
+  - id: js-nemucod-downloader-jitter
+    desc: Nemucod JScript Downloader (Jitter Evasion)
+    all:
+      - id: cap/time/measure/delta::js-date-diff-jitter-check
+    any:
+      - id: obj/execution/interpreter/script/wsh::wsh-tiny-fragment-assignment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: obj/execution/interpreter/script/wsh::wscript-shell-fragment-short

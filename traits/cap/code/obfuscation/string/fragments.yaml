@@ -10,4 +10,4 @@ traits:
     desc: Math.random string fragment
     if:
       type: raw
-      regex: 'Math|Random|ath\.Ra|ath\.r|Mat|andom'
+      regex: 'Math\.ran|ath\.ran|Random\.'

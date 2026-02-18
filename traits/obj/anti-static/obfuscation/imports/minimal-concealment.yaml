@@ -47,7 +47,7 @@ composite_rules:
       # Crypto
       - id: cap/crypto/certificate/store::cert-open-store
       # Memory
-      - id: obj/exec/native/runtime::heap-alloc
+      - id: obj/execution/native/runtime::heap-alloc
     unless:
       - type: import_combination
         min_suspicious: 30  # Has many imports, not minimization
@@ -70,7 +70,7 @@ composite_rules:
       - id: cap/process/create/methods::shell-execute-a
       - id: cap/process/create/methods::shell-execute
       - id: cap/crypto/certificate/store::cert-open-store
-      - id: obj/exec/native/runtime::heap-alloc
+      - id: obj/execution/native/runtime::heap-alloc
       - id: cap/mem/protect/modify::virtual-protect
     unless:
       - type: import_combination

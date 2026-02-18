@@ -1,0 +1,25 @@
+defaults:
+  for: [javascript]
+
+composite_rules:
+  - id: jscript-skip-step-dropper
+    desc: "JScript dropper using skip-step obfuscation loop"
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: cap/data/encode/skip-step::js-skip-step-loop
+    any:
+      - id: cap/data/encode/skip-step::js-concat-chain
+      - id: cap/data/encode/skip-step::js-loop-string-concat
+      - id: obj/anti-static/obfuscation/strings/encoding::js-string-split
+      - id: obj/anti-static/obfuscation/strings/encoding::js-split-join-cleanup
+      - id: cap/code/metrics/obfuscation::high-entropy-strings
+      - id: obj/execution/interpreter/eval/dynamic::js-assign-global-this
+      - id: obj/execution/interpreter/eval/dynamic::js-indirect-eval-this-assign
+      - id: cap/host/interpreter/jscript::activex-object
+    unless:
+      - id: meta/library/async::async-library
+      - id: meta/library/nodeunit::nodeunit
+    needs: 2
+    attack: "T1027"
+    mbc: "B0032"

@@ -16,7 +16,7 @@ composite_rules:
     all:
       - { id: meta/library/jquery::library }
       - { id: meta/library/jquery::version-string }
-      - { id: obj/exec/activex/com::activex-object-create }
+      - { id: obj/execution/activex/com::activex-object-create }
 
   # jQuery + Reverse Shell = HOSTILE
   - id: trojanized-reverse-shell

@@ -19,4 +19,4 @@ composite_rules:
     attack: "T1071.001"
     all:
       - id: tacobell-c2-ip
-      - id: obj/exec/condition/platform::has-execution-capability
+      - id: obj/execution/condition/platform::has-execution-capability

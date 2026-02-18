@@ -1,0 +1,9 @@
+composite_rules:
+  - id: hostile-wiper
+    desc: "Hostile Disk Wiper"
+    crit: hostile
+    conf: 1.0
+    any:
+      - id: cap/fs/disk/wipe::format-c
+      - id: cap/fs/disk/wipe::format-c-no-colon
+      - id: cap/fs/delete/directory::recursive-root

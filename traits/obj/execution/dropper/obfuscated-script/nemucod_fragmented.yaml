@@ -1,0 +1,31 @@
+composite_rules:
+  - id: nemucod-construction-indicators
+    desc: Nemucod fragmented string construction indicators
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: cap/code/obfuscation/wsh::vbscript-regexp-construction
+      - id: cap/code/obfuscation/js::charat-construction
+      - id: cap/code/obfuscation/js::length-construction
+
+  - id: nemucod-structure-indicators
+    desc: Nemucod structural indicators (loop, assignments)
+    crit: notable
+    conf: 0.8
+    for: [javascript]
+    unless:
+      - id: meta/dev/testing::node-common-require
+    any:
+      - id: cap/host/interpreter/jscript::wscript-lister-assignment
+      - id: cap/data/control-flow/analysis::loop-variable-variable-step
+      - id: cap/code/obfuscation/js::js-junk-loop-assignments
+
+  - id: nemucod-fragmented
+    desc: Nemucod dropper using fragmented strings and anti-emulation
+    crit: hostile
+    conf: 1.0
+    for: [javascript]
+    all:
+      - id: nemucod-construction-indicators
+      - id: nemucod-structure-indicators

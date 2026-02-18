@@ -4,13 +4,14 @@ composite_rules:
     crit: suspicious
     any:
       - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
-      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: cap/fs/enumerate/directory::fs-readdir
       - id: obj/impact/ransomware/behavior::readdir-sync
       - id: obj/lateral/supply-chain/npm/behavior::npm-victim-exfil
     unless:
       - id: meta/library::commander
       - id: meta/library/nodeunit::nodeunit
       - id: meta/library/nodeunit::nodeunit-require
+      - id: meta/dev/testing::node-common-require
     downgrade:
       any:
         - id: obj/lateral/supply-chain/npm/testing::test-fixtures

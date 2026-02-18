@@ -11,6 +11,6 @@ composite_rules:
   - id: ruby-file-manipulation
     desc: Ruby file manipulation detected (rename/move)
     any:
-      - id: obj/exec/dropper/script::ruby-ast-file-rename
-      - id: obj/exec/dropper/script::ruby-ast-rename-to-exe
-      - id: obj/exec/dropper/script::ruby-ast-rename-img-to-exe
+      - id: obj/execution/dropper/script::ruby-ast-file-rename
+      - id: obj/execution/dropper/script::ruby-ast-rename-to-exe
+      - id: obj/execution/dropper/script::ruby-ast-rename-img-to-exe

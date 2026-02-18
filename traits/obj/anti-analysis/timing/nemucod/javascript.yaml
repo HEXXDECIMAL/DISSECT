@@ -1,0 +1,12 @@
+composite_rules:
+  - id: nemucod-jitter-check
+    desc: Detects Nemucod-specific timing jitter check for VM evasion
+    crit: hostile
+    for: [javascript]
+    all:
+      - id: cap/host/interpreter/jscript::is-jscript
+      - id: cap/time/measure/delta::js-subtraction-func-regex
+    any:
+      - id: cap/code/obfuscation/js::nemucod-wsh-fragments
+        count_min: 3
+      - id: cap/code/obfuscation/js::js-many-tiny-strings

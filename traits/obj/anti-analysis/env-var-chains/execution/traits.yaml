@@ -97,6 +97,9 @@ traits:
   if:
     type: string
     regex: (LD_PRELOAD=|export LD_PRELOAD|export\s+LD_PRELOAD)
+  downgrade:
+    any:
+    - id: meta/dev/testing/gnu-tests::gnu-coreutils-test
   attack: T1574.006
 composite_rules:
 - id: history-evasion-setup

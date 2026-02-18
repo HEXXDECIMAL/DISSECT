@@ -1,0 +1,8 @@
+traits:
+  - id: complex-lodsb-transform
+    conf: 0.9
+    crit: suspicious
+    desc: Complex byte-by-byte transformation using lodsb (often for custom decryption)
+    if:
+      type: raw
+      regex: 'lodsb\s+(sub|add|xor|adc|sbb) byte ptr \[(e[abcd]x|e[sd]i)\+(e[abcd]x|e[sd]i)\], al\s+inc (e[abcd]x|e[sd]i)\s+lodsb'

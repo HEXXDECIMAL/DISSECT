@@ -31,9 +31,7 @@ traits:
     crit: notable
     if:
       type: string
-      regex: '.XMLH'
-    not:
-      - "Microsoft.XMLHTTP"
+      regex: '.XMLH[^t]'
     downgrade:
       any:
         - id: meta/library/jquery::domain
@@ -43,14 +41,6 @@ traits:
         - id: meta/library/prototype::copyright
         - id: meta/library/prototype::version-string
         - id: meta/library/prototype::header-x
-    unless:
-      - id: meta/library/jquery::domain
-      - id: meta/library/jquery::version-string
-      - id: meta/library/jquery::copyright
-      - id: meta/library/jquery::fn-extend
-      - id: meta/library/prototype::copyright
-      - id: meta/library/prototype::version-string
-      - id: meta/library/prototype::header-x
 
   - id: savetofile-fragment-tiny-2
     desc: Tiny SaveToFile fragment (variant 2)

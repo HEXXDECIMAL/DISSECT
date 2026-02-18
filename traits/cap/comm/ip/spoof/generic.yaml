@@ -79,6 +79,14 @@ traits:
       type: string
       regex: "(SYN|syn).?cookie"
 
+  - id: bitwise-ip-construction
+    desc: IP address construction using bitwise operations (often for spoofing)
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: "(?:rand|rand_cmwc|rand_r)\\s*\\(\\s*\\)\\s*>>\\s*(?:24|16|8)\\s*&\\s*0xFF"
+
 composite_rules:
   # Migrated from YARA
   - id: spoof
@@ -91,6 +99,7 @@ composite_rules:
       - { id: forge-keyword }
       - { id: ip-hdrincl-constant }
       - { id: ipproto-raw-constant }
+      - { id: bitwise-ip-construction }
 
   - id: syncookie
     desc: SYN cookie manipulation

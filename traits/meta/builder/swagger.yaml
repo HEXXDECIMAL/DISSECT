@@ -1,5 +1,5 @@
 traits:
-  - id: meta/builder/swagger::codegen-script
+  - id: codegen-script
     desc: Swagger Codegen git push script
     crit: inert
     if:

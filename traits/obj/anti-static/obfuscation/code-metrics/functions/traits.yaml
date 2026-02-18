@@ -80,6 +80,7 @@ traits:
     unless:
       - type: basename
         regex: "\\.pyi$"
+      - id: meta/dev/testing::is-test
 
   - id: deep-nesting
     desc: "Deeply nested functions (complexity indicator)"

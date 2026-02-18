@@ -1,5 +1,5 @@
 traits:
-  - id: meta/library/rxjs::ajax-observable
+  - id: ajax-observable
     desc: "RxJS AjaxObservable"
     crit: inert
     conf: 1.0
@@ -8,7 +8,7 @@ traits:
       type: string
       substr: "AjaxObservable"
 
-  - id: meta/library/rxjs::generic
+  - id: generic
     desc: "RxJS library"
     crit: inert
     conf: 1.0

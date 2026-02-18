@@ -16,5 +16,5 @@ composite_rules:
       - id: cap/data/encode/hex::hex-encode-xxd
       - id: cap/data/encode/hex::hex-dump-od
     all:
-      - id: obj/exec/dropper/script::curl-download
+      - id: obj/execution/dropper/script::curl-download
       - id: obj/discovery/host/user::whoami

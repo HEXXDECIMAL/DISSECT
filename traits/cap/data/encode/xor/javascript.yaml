@@ -1,16 +1,45 @@
-traits:
-  # Removed fragmented-hex-xor-decoder duplicate - use cap/data/encode/hex_xor::fragmented-hex-xor-decoder
+# JavaScript XOR Obfuscation
+# Detects specific XOR patterns used in JScript malware (e.g., Nemucod)
 
-  - id: js-obfuscated-fragment-xor-decode
-    desc: Obfuscated fragment XOR decode in JS
+traits:
+  - id: js-xor-cyclic-pattern
+    desc: JavaScript cyclic XOR pattern (e.g. key[i % key.length])
     crit: suspicious
-    conf: 0.8
+    conf: 0.85
+    for: [javascript]
     if:
       type: ast
       language: javascript
       query: |
         (binary_expression
           operator: "^"
-          right: (number) @hex
+          right: (call_expression
+            function: (identifier) @fn
+            arguments: (arguments
+              (string)
+              (binary_expression
+                operator: "%"
+              )
+            )
+          )
         )
-        (#match? @hex "^0x")
+
+  - id: js-xor-dynamic-char-at
+    desc: JavaScript dynamic charCodeAt access (often for XOR key)
+    crit: notable
+    for: [javascript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            property: (property_identifier) @prop
+            (#match? @prop "^(charCodeAt|charAt)$")
+          )
+          arguments: (arguments
+            (binary_expression
+              operator: "%"
+            )
+          )
+        )

@@ -1,0 +1,8 @@
+traits:
+  - id: mercurial-js-id
+    desc: "Identifies mercurial.js"
+    crit: inert
+    for: [javascript]
+    if:
+      type: basename # Use basename to match filename
+      regex: "mercurial\\.js" # Regex for mercurial.js

@@ -7,6 +7,6 @@ composite_rules:
     any:
       - id: obj/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
       - id: obj/c2/dns/tunneling::js-dns-tunneling-construction
-      - id: cap/fs/enumerate/directory::fs-readdir-recursive
+      - id: cap/fs/enumerate/directory::fs-readdir
       - id: cap/fs/path/os::hardcoded-windows-root
       - id: cap/data/encode/hex::buffer-to-hex

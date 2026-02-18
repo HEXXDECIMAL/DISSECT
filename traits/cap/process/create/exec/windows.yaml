@@ -5,5 +5,12 @@ traits:
     platforms: [windows]
     for: [javascript]
     if:
-      type: string
-      word: "Run"
+      type: ast
+      language: javascript
+      query: |
+        ((call_expression
+          function: (member_expression
+            property: (property_identifier) @run
+          )
+        )
+        (#eq? @run "Run"))

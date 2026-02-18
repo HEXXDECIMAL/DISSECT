@@ -40,7 +40,7 @@ traits:
       exact: "GetModuleFileNameA"
 
   # === Dynamic Loading ===
-  # NOTE: LoadLibraryW and LoadLibraryExW moved to obj/exec/native/runtime
+  # NOTE: LoadLibraryW and LoadLibraryExW moved to obj/execution/native/runtime
 
   - id: free-library
     desc: Unload dynamic library

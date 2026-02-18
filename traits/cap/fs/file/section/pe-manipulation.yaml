@@ -1,0 +1,9 @@
+traits:
+  - id: asm-pe-header-manipulation
+    conf: 0.8
+    crit: suspicious
+    desc: Assembly source code referencing multiple PE header fields (likely infection/packer)
+    if:
+      type: raw
+      regex: '(IMAGE_DOS_SIGNATURE|IMAGE_NT_SIGNATURE|AddressOfEntryPoint|SizeOfImage|NumberOfSections|SizeOfRawData|VirtualAddress|characteristics|PointerToRawData)'
+      count_min: 3

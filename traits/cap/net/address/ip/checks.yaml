@@ -11,7 +11,7 @@ traits:
             object: (identifier) @ip
             property: (property_identifier) @starts
           )
-          arguments: (arguments (string (string_fragment) @range))
+          arguments: (arguments . (string (string_fragment) @range))
         )
         (#match? @starts "startsWith")
         (#match? @range "^(10\.|172\.|192\.168|127\.|fe80::)")
@@ -20,6 +20,9 @@ traits:
       - id: meta/builder/autotools::configure-ac
       - id: meta/builder/pip::setup-py
       - id: meta/quality/help::usage-title
+      - id: obj/lateral/supply-chain/npm/minifier::esmodule-export
+      - id: meta/library::js-module-exports
+      - id: meta/dev/testing::is-test
 
   - id: private-ip-parts-js
     desc: Checks IP parts for private ranges (JS)

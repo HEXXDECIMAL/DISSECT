@@ -317,7 +317,7 @@ composite_rules:
   # Execution from /proc/self/fd
   - id: proc-fd-exec
     desc: Executes binary from /proc/self/fd (fileless
-    crit: suspicious
+    crit: notable
     conf: 0.95
     for: [python, c, shell]
     all:

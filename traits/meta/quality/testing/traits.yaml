@@ -30,6 +30,23 @@ traits:
       type: string
       substr: "_test.py"
 
+  - id: test-file-shell
+    desc: Shell test file suffix (.t)
+    crit: inert
+    conf: 0.7
+    for: [shell]
+    if:
+      type: basename
+      regex: "\\.t$"
+
+  - id: test-directory
+    desc: File in a test directory
+    crit: inert
+    conf: 1.0
+    if:
+      type: raw
+      regex: "[\\\\/]tests?([\\\\/]|$)"
+
   - id: unittest-module
     desc: unittest module
     crit: inert

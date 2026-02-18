@@ -12,9 +12,9 @@ composite_rules:
     mbc: "B0032.001"
     attack: "T1059.007"
     all:
-      - id: obj/exec/interpreter/scripting/host::activex-object-obfuscated
-      - id: obj/exec/interpreter/scripting/host::xmlhttp-obfuscated
-      - id: obj/exec/interpreter/scripting/host::adodb-stream-obfuscated
+      - id: obj/execution/interpreter/scripting/host::activex-object-obfuscated
+      - id: obj/execution/interpreter/scripting/host::xmlhttp-obfuscated
+      - id: obj/execution/interpreter/scripting/host::adodb-stream-obfuscated
     any:
       - id: cap/data/format/executable::mz-header-check
       - id: obj/anti-static/obfuscation/js::js-property-concatenation-obfuscation

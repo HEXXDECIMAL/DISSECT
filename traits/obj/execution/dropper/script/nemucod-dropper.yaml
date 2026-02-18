@@ -1,0 +1,22 @@
+composite_rules:
+  - id: nemucod-dropper-xor
+    desc: "Detects Nemucod JScript dropper variant using chunked XOR decoding."
+    crit: hostile
+    all:
+      - id: cap/data/encode/xor::js-chunked-xor-loop
+    any:
+      - id: cap/process/script/wsh::activex-object
+      - id: obj/execution/interpreter/script/wsh::wscript-shell
+      - id: cap/fs/write/file::adodb-stream
+      - id: cap/comm/http/client::msxml2-xmlhttp
+
+  - id: nemucod-dropper-delete
+    desc: "Detects Nemucod JScript dropper variant using self-deletion."
+    crit: hostile
+    all:
+      - id: cap/fs/delete/file::js-self-delete
+    any:
+      - id: cap/process/script/wsh::activex-object
+      - id: obj/execution/interpreter/script/wsh::wscript-shell
+      - id: cap/fs/write/file::adodb-stream
+      - id: cap/comm/http/client::msxml2-xmlhttp

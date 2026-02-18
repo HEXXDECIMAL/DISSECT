@@ -143,7 +143,7 @@ composite_rules:
       - id: obj/discovery/host/system/os-fingerprint::os-check-darwin
       - id: arch-string-check
     all:
-      - id: obj/exec/dropper/tmp-run::tmp-path
+      - id: obj/execution/dropper/tmp-run::tmp-path
 
   # Full dropper pattern: detect platform, download, execute
   - id: init-dropper
@@ -162,7 +162,7 @@ composite_rules:
       - id: download-with-delete
       - id: safe-run-call
       - id: import-safe-download
-      - id: obj/exec/dropper/tmp-run::tmp-path
+      - id: obj/execution/dropper/tmp-run::tmp-path
       - id: os-system-call
       - id: platform-os-system-combo
       - id: inline-wget-exec

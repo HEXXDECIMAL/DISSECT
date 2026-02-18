@@ -485,7 +485,7 @@ composite_rules:
       - id: launch-agents
       - id: launchctl-command
       - id: cap/process/create/shell::system-fn
-      - id: obj/exec/fileless/memory::exec-function
+      - id: obj/execution/fileless/memory::exec-function
 
   # Embedded bind-shell plist dropper: binary/source contains full plist template
   # with socket-activated shell + drops to LaunchAgents

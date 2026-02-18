@@ -157,7 +157,7 @@ traits:
   # === DOM Injection Patterns ===
   - id: inject-script-element
     desc: Injects script element into page
-    crit: suspicious
+    crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
@@ -169,11 +169,13 @@ traits:
         - id: meta/library/jquery::version-string
         - id: meta/library/jquery::copyright
         - id: meta/library/jquery::fn-extend
+        - id: meta/library/jquery::library
     unless:
       - id: meta/library/jquery::domain
       - id: meta/library/jquery::version-string
       - id: meta/library/jquery::copyright
       - id: meta/library/jquery::fn-extend
+      - id: meta/library/jquery::library
 
   - id: inject-iframe
     desc: Injects iframe into page

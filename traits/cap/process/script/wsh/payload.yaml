@@ -1,0 +1,7 @@
+traits:
+  - id: wsh-adodb-download
+    desc: "Detects the use of ADODB.Stream to download payloads in WSH scripts."
+    crit: suspicious
+    if:
+      type: raw
+      regex: 'ADODB\.Stream.*ResponseBody.*SaveToFile'

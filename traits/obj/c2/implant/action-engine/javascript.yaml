@@ -26,7 +26,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: obj/exec/interpreter/eval/dynamic::Function-constructor
+      - id: obj/execution/interpreter/eval/dynamic::Function-constructor
     any:
       - id: action-event-script
       - id: execute-script-class
