@@ -62,16 +62,13 @@ pub(crate) fn eval_section_ratio<'a>(
     max_ratio: Option<f64>,
     ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
-    let section_re = match Regex::new(section_pattern) {
-        Ok(re) => re,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            }
-        },
+    let Ok(section_re) = Regex::new(section_pattern) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     // Find matching section(s) and sum their sizes
@@ -97,16 +94,13 @@ pub(crate) fn eval_section_ratio<'a>(
     let compare_size: u64 = if compare_to == "total" {
         ctx.report.sections.iter().map(|s| s.size).sum()
     } else {
-        let compare_re = match Regex::new(compare_to) {
-            Ok(re) => re,
-            Err(_) => {
-                return ConditionResult {
-                    matched: false,
-                    evidence: Vec::new(),
-                    warnings: Vec::new(),
-                    precision: 0.0,
-                }
-            },
+        let Ok(compare_re) = Regex::new(compare_to) else {
+            return ConditionResult {
+                matched: false,
+                evidence: Vec::new(),
+                warnings: Vec::new(),
+                precision: 0.0,
+            };
         };
         ctx.report
             .sections
@@ -328,10 +322,7 @@ pub(crate) fn eval_import_combination<'a>(
     // Check required imports - all must be present
     if let Some(req) = required {
         for pattern in req {
-            let re = match Regex::new(pattern) {
-                Ok(re) => re,
-                Err(_) => continue,
-            };
+            let Ok(re) = Regex::new(pattern) else { continue };
             let found = import_symbols.iter().any(|sym| re.is_match(sym));
             if !found {
                 return ConditionResult {
@@ -354,10 +345,7 @@ pub(crate) fn eval_import_combination<'a>(
     let mut suspicious_count = 0;
     if let Some(susp) = suspicious {
         for pattern in susp {
-            let re = match Regex::new(pattern) {
-                Ok(re) => re,
-                Err(_) => continue,
-            };
+            let Ok(re) = Regex::new(pattern) else { continue };
             for sym in &import_symbols {
                 if re.is_match(sym) {
                     suspicious_count += 1;

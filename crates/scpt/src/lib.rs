@@ -189,11 +189,13 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Get the AppleScript version string
+    #[must_use] 
     pub fn version(&self) -> &str {
         &self.version
     }
 
     /// Check if this is a valid compiled AppleScript file
+    #[must_use] 
     pub fn is_valid(&self) -> bool {
         // Check for footer magic ("ascr") and terminator ("fade dead")
         self.find_footer().is_some() && self.find_terminator().is_some()
@@ -217,6 +219,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Extract all symbols from the compiled AppleScript
+    #[must_use] 
     pub fn symbols(&self) -> Vec<Symbol> {
         let mut symbols = Vec::new();
         let mut seen: HashSet<(String, SymbolKind)> = HashSet::new();
@@ -512,9 +515,8 @@ impl<'a> ScptParser<'a> {
             return false;
         }
 
-        let first = match s.chars().next() {
-            Some(c) => c,
-            None => return false,
+        let Some(first) = s.chars().next() else {
+            return false;
         };
         if !first.is_ascii_alphabetic() && first != '_' {
             return false;
@@ -530,16 +532,15 @@ impl<'a> ScptParser<'a> {
         }
 
         // Skip strings that are just repeated characters
-        let first_char = match s.chars().next() {
-            Some(c) => c,
-            None => return false,
+        let Some(first_char) = s.chars().next() else {
+            return false;
         };
         if s.chars().all(|c| c == first_char) {
             return false;
         }
 
         // Skip strings that are mostly whitespace/control chars
-        let printable: usize = s.chars().filter(|c| c.is_ascii_graphic()).count();
+        let printable: usize = s.chars().filter(char::is_ascii_graphic).count();
         if printable < s.len() / 2 {
             return false;
         }
@@ -597,6 +598,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Get Apple Event information for known event codes in this script
+    #[must_use] 
     pub fn apple_events(&self) -> Vec<AppleEventInfo> {
         let mut events = Vec::new();
         let mut seen = HashSet::new();
@@ -624,6 +626,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Get variable names defined in this script
+    #[must_use] 
     pub fn variables(&self) -> Vec<String> {
         self.symbols()
             .into_iter()
@@ -633,6 +636,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Check if this script contains a specific Apple Event
+    #[must_use] 
     pub fn has_apple_event(&self, class: &str, event: &str) -> bool {
         for ae in self.apple_events() {
             if ae.class_code == class && ae.event_code == event {
@@ -643,17 +647,20 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Check if this script uses "do shell script"
+    #[must_use] 
     pub fn uses_shell_script(&self) -> bool {
         self.has_apple_event("syso", "exec")
     }
 
     /// Check if this script uses delay
+    #[must_use] 
     pub fn uses_delay(&self) -> bool {
         self.has_apple_event("syso", "dela")
     }
 }
 
 /// Check if a byte slice starts with the scpt magic
+#[must_use] 
 pub fn is_scpt(data: &[u8]) -> bool {
     data.len() >= 8 && data.starts_with(SCPT_MAGIC)
 }

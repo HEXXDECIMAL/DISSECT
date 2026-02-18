@@ -105,16 +105,13 @@ pub(crate) fn eval_ast<'a>(
     }
 
     // Use cached AST or parse
-    let source = match std::str::from_utf8(ctx.binary_data) {
-        Ok(s) => s,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            }
-        },
+    let Ok(source) = std::str::from_utf8(ctx.binary_data) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     if let Some(cached_tree) = ctx.cached_ast {
@@ -184,16 +181,13 @@ pub(crate) fn eval_ast<'a>(
         };
     }
 
-    let tree = match parser.parse(source, None) {
-        Some(t) => t,
-        None => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        },
+    let Some(tree) = parser.parse(source, None) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     eval_ast_pattern_multi(
@@ -281,8 +275,7 @@ fn eval_ast_pattern_multi(
 
     // Pattern type specificity
     match match_mode {
-        MatchMode::Exact => precision += 1.0,  // Most specific
-        MatchMode::Regex => precision += 1.0,  // Pattern matching
+        MatchMode::Exact | MatchMode::Regex => precision += 1.0, // Most specific / pattern matching
         MatchMode::Substr => precision += 0.5, // Least specific
     }
 
@@ -333,16 +326,13 @@ fn walk_ast_for_pattern_multi<'a>(
 #[must_use] 
 pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Only works for source code files
-    let source = match std::str::from_utf8(ctx.binary_data) {
-        Ok(s) => s,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        },
+    let Ok(source) = std::str::from_utf8(ctx.binary_data) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     // Get the appropriate parser and language based on file type
@@ -387,16 +377,13 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
         };
     }
 
-    let tree = match parser.parse(source, None) {
-        Some(t) => t,
-        None => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        },
+    let Some(tree) = parser.parse(source, None) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     // Skip query execution if the tree has errors (malformed input)
@@ -410,16 +397,13 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
     }
 
     // Compile the query
-    let query = match tree_sitter::Query::new(&lang, query_str) {
-        Ok(q) => q,
-        Err(_) => {
-            return ConditionResult {
-                matched: false,
-                evidence: Vec::new(),
-                warnings: Vec::new(),
-                precision: 0.0,
-            };
-        },
+    let Ok(query) = tree_sitter::Query::new(&lang, query_str) else {
+        return ConditionResult {
+            matched: false,
+            evidence: Vec::new(),
+            warnings: Vec::new(),
+            precision: 0.0,
+        };
     };
 
     // Execute the query with safety limits

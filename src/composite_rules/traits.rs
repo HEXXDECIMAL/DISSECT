@@ -651,22 +651,7 @@ impl TraitDefinition {
                 // Since hex matching is complex, we'll do a basic check
                 // Hex patterns match byte sequences, so not: exceptions should be regex-based
                 for exc in not_exceptions {
-                    match exc {
-                        NotException::Structured { exact: Some(_), .. }
-                        | NotException::Structured {
-                            substr: Some(_), ..
-                        }
-                        | NotException::Shorthand(_) => {
-                            // For hex matches, exact/substr don't make as much sense
-                            // The matched bytes need to be converted to string representation first
-                            // This is a valid but potentially confusing use case
-                            // We'll allow it but note it in the debug logs if needed
-                        },
-                        NotException::Structured { regex: Some(_), .. } => {
-                            // Regex-based exceptions for hex matches are fine
-                        },
-                        _ => {},
-                    }
+                    let _ = exc; // All exception types are allowed for hex patterns
                 }
             },
             _ => {},

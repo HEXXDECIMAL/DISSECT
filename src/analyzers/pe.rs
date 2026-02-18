@@ -88,16 +88,16 @@ impl PEAnalyzer {
         let mut tools_used = vec!["goblin".to_string()];
 
         // Analyze header and structure
-        self.analyze_structure(&pe, &mut report)?;
+        self.analyze_structure(&pe, &mut report);
 
         // Extract imports and map to capabilities
-        self.analyze_imports(&pe, &mut report)?;
+        self.analyze_imports(&pe, &mut report);
 
         // Analyze exports
-        self.analyze_exports(&pe, &mut report)?;
+        self.analyze_exports(&pe, &mut report);
 
         // Analyze sections and entropy
-        self.analyze_sections(&pe, data, &mut report)?;
+        self.analyze_sections(&pe, data, &mut report);
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
         let r2_strings = if Radare2Analyzer::is_available() {
@@ -351,7 +351,7 @@ impl PEAnalyzer {
         Ok(report)
     }
 
-    fn analyze_structure<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_structure<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) {
         report.structure.push(StructuralFeature {
             id: "pe/header".to_string(),
             desc: format!(
@@ -395,10 +395,9 @@ impl PEAnalyzer {
             });
         }
 
-        Ok(())
     }
 
-    fn analyze_imports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_imports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) {
         for import in &pe.imports {
             report.imports.push(Import::new(
                 import.name.as_ref(),
@@ -414,10 +413,9 @@ impl PEAnalyzer {
             }
         }
 
-        Ok(())
     }
 
-    fn analyze_exports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_exports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) {
         for export in &pe.exports {
             if let Some(name) = export.name {
                 report.exports.push(Export::new(
@@ -428,7 +426,6 @@ impl PEAnalyzer {
             }
         }
 
-        Ok(())
     }
 
     fn analyze_sections<'a>(
@@ -436,7 +433,7 @@ impl PEAnalyzer {
         pe: &PE<'a>,
         data: &[u8],
         report: &mut AnalysisReport,
-    ) -> Result<()> {
+    ) {
         for section in &pe.sections {
             let name =
                 String::from_utf8_lossy(&section.name).trim_matches(char::from(0)).to_string();
@@ -527,7 +524,6 @@ impl PEAnalyzer {
             }
         }
 
-        Ok(())
     }
 
     fn arch_name<'a>(&self, pe: &PE<'a>) -> String {

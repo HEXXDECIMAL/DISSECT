@@ -100,13 +100,13 @@ impl ElfAnalyzer {
                 goblin_code_size = Some(self.compute_code_size(&elf));
 
                 // Analyze header and structure
-                self.analyze_structure(&elf, &mut report)?;
+                self.analyze_structure(&elf, &mut report);
 
                 // Extract dynamic symbols and map to capabilities
-                self.analyze_dynamic_symbols(&elf, data, &mut report)?;
+                self.analyze_dynamic_symbols(&elf, data, &mut report);
 
                 // Analyze sections and entropy
-                self.analyze_sections(&elf, data, &mut report)?;
+                self.analyze_sections(&elf, data, &mut report);
             },
             Err(e) => {
                 // Parsing failed - this is a strong indicator of malformed/hostile binary
@@ -233,9 +233,7 @@ impl ElfAnalyzer {
 
                                 // Map severity to criticality
                                 let criticality = match yara_match.severity.as_str() {
-                                    "critical" => Criticality::Hostile,
-                                    "high" => Criticality::Hostile,
-                                    "medium" => Criticality::Suspicious,
+                                    "critical" | "high" => Criticality::Hostile,
                                     "low" => Criticality::Notable,
                                     _ => Criticality::Suspicious,
                                 };
@@ -285,7 +283,7 @@ impl ElfAnalyzer {
         Ok(report)
     }
 
-    fn analyze_structure<'a>(&self, elf: &Elf<'a>, report: &mut AnalysisReport) -> Result<()> {
+    fn analyze_structure<'a>(&self, elf: &Elf<'a>, report: &mut AnalysisReport) {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/elf".to_string(),
@@ -339,7 +337,6 @@ impl ElfAnalyzer {
             });
         }
 
-        Ok(())
     }
 
     fn analyze_dynamic_symbols<'a>(
@@ -347,7 +344,7 @@ impl ElfAnalyzer {
         elf: &Elf<'a>,
         _data: &[u8],
         report: &mut AnalysisReport,
-    ) -> Result<()> {
+    ) {
         // Analyze dynamic symbols (imports)
         for dynsym in &elf.dynsyms {
             if let Some(name) = elf.dynstrtab.get_at(dynsym.st_name) {
@@ -426,7 +423,6 @@ impl ElfAnalyzer {
             }
         }
 
-        Ok(())
     }
 
     fn analyze_sections<'a>(
@@ -434,7 +430,7 @@ impl ElfAnalyzer {
         elf: &Elf<'a>,
         data: &[u8],
         report: &mut AnalysisReport,
-    ) -> Result<()> {
+    ) {
         for section in &elf.section_headers {
             if let Some(name) = elf.shdr_strtab.get_at(section.sh_name) {
                 let section_offset = section.sh_offset as usize;
@@ -470,7 +466,6 @@ impl ElfAnalyzer {
             }
         }
 
-        Ok(())
     }
 
     fn arch_name<'a>(&self, elf: &Elf<'a>) -> String {

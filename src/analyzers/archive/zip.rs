@@ -162,12 +162,9 @@ pub(crate) fn extract_zip_entries_safe<R: Read + Seek>(
         trace!("Entry {}: {}", i, entry_name);
 
         // Sanitize path to prevent zip slip
-        let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
-                continue; // Skip this file but continue extraction
-            },
+        let Some(outpath) = sanitize_entry_path(&entry_name, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+            continue; // Skip this file but continue extraction
         };
 
         // Check for symlinks (zip files can contain them via external attributes)

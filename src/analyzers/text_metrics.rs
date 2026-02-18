@@ -221,7 +221,6 @@ fn analyze_whitespace(content: &str) -> (f32, u32, u32, bool, u32) {
             match c {
                 '\t' => tabs += 1,
                 ' ' => spaces += 1,
-                '\n' | '\r' => {}
                 // Unusual whitespace characters
                 '\u{00A0}' | // Non-breaking space
                 '\u{2000}'..='\u{200B}' | // Various Unicode spaces + zero-width

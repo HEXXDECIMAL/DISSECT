@@ -297,7 +297,6 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
             },
-            FileType::Certificate => types::Criticality::Notable,
             _ => types::Criticality::Notable,
         };
 

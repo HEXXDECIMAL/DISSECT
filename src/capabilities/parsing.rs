@@ -253,8 +253,7 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
                 "pyproject.toml" => vec![RuleFileType::PyProjectToml],
                 "composer.json" => vec![RuleFileType::ComposerJson],
                 // Logical types with hyphens
-                "chrome-manifest" => vec![RuleFileType::ChromeManifest],
-                "manifest.json" => vec![RuleFileType::ChromeManifest], // Chrome extension manifest
+                "chrome-manifest" | "manifest.json" => vec![RuleFileType::ChromeManifest],
                 "github-actions" => vec![RuleFileType::GithubActions],
                 // Archive/installer formats
                 "ipa" => vec![RuleFileType::Ipa],

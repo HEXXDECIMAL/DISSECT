@@ -49,7 +49,7 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
                         .filter_map(|field| {
                             // Only include public fields
                             if matches!(field.vis, syn::Visibility::Public(_)) {
-                                field.ident.as_ref().map(|ident| ident.to_string())
+                                field.ident.as_ref().map(std::string::ToString::to_string)
                             } else {
                                 None
                             }

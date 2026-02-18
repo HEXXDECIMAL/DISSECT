@@ -629,7 +629,6 @@ impl ArchiveAnalyzer {
             .unwrap_or_else(|_| detect_archive_type(archive_path));
 
         match archive_type {
-            "zip" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
             "crx" => zip::extract_crx_safe(archive_path, dest_dir, guard),
             "7z" => {
                 system_packages::extract_7z_safe(archive_path, dest_dir, guard, &self.zip_passwords)
@@ -655,8 +654,8 @@ impl ArchiveAnalyzer {
             "rpm" => system_packages::extract_rpm(archive_path, dest_dir, guard),
             "pkg" => system_packages::extract_pkg_safe(archive_path, dest_dir, guard),
             "rar" => system_packages::extract_rar(archive_path, dest_dir, guard),
-            // Handle ambiguous "apk" that wasn't resolved by magic detection
-            "apk" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
+            // Handle zip and ambiguous "apk" that wasn't resolved by magic detection
+            "zip" | "apk" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }

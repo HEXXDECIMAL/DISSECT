@@ -67,9 +67,8 @@ pub(crate) fn extract_imports(source: &str, file_type: &FileType, report: &mut A
         return;
     }
 
-    let tree = match parser.parse(source, None) {
-        Some(t) => t,
-        None => return,
+    let Some(tree) = parser.parse(source, None) else {
+        return;
     };
 
     let mut imports = std::collections::HashSet::new();
@@ -270,9 +269,8 @@ pub(crate) fn extract_symbols(
         return;
     }
 
-    let tree = match parser.parse(source, None) {
-        Some(t) => t,
-        None => return,
+    let Some(tree) = parser.parse(source, None) else {
+        return;
     };
 
     extract_symbols_from_tree(&tree, source, call_types, report);

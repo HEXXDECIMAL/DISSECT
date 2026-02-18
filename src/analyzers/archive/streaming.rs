@@ -61,8 +61,7 @@ impl ExtractedFile {
     #[must_use]
     pub(crate) fn path(&self) -> &str {
         match self {
-            ExtractedFile::InMemory { path, .. } => path,
-            ExtractedFile::OnDisk { path, .. } => path,
+            ExtractedFile::InMemory { path, .. } | ExtractedFile::OnDisk { path, .. } => path,
         }
     }
 
@@ -308,20 +307,15 @@ impl ArchiveAnalyzer {
                 }
             },
 
-            // Other manifest files - use kv condition matching via trait evaluation
+            // Manifest, image, certificate, and unknown files - no specific deep analysis beyond YARA/traits
             FileType::CargoToml
             | FileType::PyProjectToml
             | FileType::ComposerJson
-            | FileType::GithubActions => {
-                // These manifest types are handled via kv conditions in trait evaluation
-                // The file content is already extracted and will be processed by the trait matcher
-            },
-
-            // Image and other data formats - currently no specific deep analysis beyond YARA/traits
-            FileType::Jpeg | FileType::Png | FileType::Certificate => {},
-
-            // Unknown files - no specific analyzer, just extract strings/traits
-            FileType::Unknown => {},
+            | FileType::GithubActions
+            | FileType::Jpeg
+            | FileType::Png
+            | FileType::Certificate
+            | FileType::Unknown => {},
         }
 
         // Compute summary
@@ -395,14 +389,11 @@ impl ArchiveAnalyzer {
 
         if use_disk {
             // Extract to temp file
-            let out_path = match sanitize_entry_path(entry_name, temp_dir) {
-                Some(path) => path,
-                None => {
-                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
-                        entry_name.to_string(),
-                    ));
-                    return Ok(None);
-                }
+            let Some(out_path) = sanitize_entry_path(entry_name, temp_dir) else {
+                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                    entry_name.to_string(),
+                ));
+                return Ok(None);
             };
 
             if let Some(parent) = out_path.parent() {
@@ -499,12 +490,9 @@ impl ArchiveAnalyzer {
 
         if use_disk {
             // Extract to temp file
-            let out_path = match sanitize_entry_path(&entry_name, temp_dir) {
-                Some(path) => path,
-                None => {
-                    guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name.clone()));
-                    return Ok(None);
-                }
+            let Some(out_path) = sanitize_entry_path(&entry_name, temp_dir) else {
+                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name.clone()));
+                return Ok(None);
             };
 
             if let Some(parent) = out_path.parent() {
@@ -1484,9 +1472,8 @@ impl ArchiveAnalyzer {
                     }
 
                     let mut limited = LimitedReader::new(reader, MAX_FILE_SIZE);
-                    let mut outfile = match std::fs::File::create(&out_path) {
-                        Ok(f) => f,
-                        Err(_) => return Ok(true),
+                    let Ok(mut outfile) = std::fs::File::create(&out_path) else {
+                        return Ok(true);
                     };
 
                     if std::io::copy(&mut limited, &mut outfile).is_err() {
@@ -1720,14 +1707,11 @@ fn extract_cpio_streaming<R: Read>(
         }
 
         // Sanitize path
-        let out_path = match sanitize_entry_path(clean_name, temp_dir) {
-            Some(path) => path,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
-                let mut sink = std::io::sink();
-                std::io::copy(&mut { entry_reader }, &mut sink).ok();
-                continue;
-            }
+        let Some(out_path) = sanitize_entry_path(clean_name, temp_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
         };
 
         // Detect file type from name (can't use detect_file_type since file doesn't exist on disk)
@@ -1825,12 +1809,12 @@ fn detect_file_type_from_magic(data: &[u8]) -> Option<FileType> {
     match &data[0..4] {
         // ELF
         [0x7f, b'E', b'L', b'F'] => Some(FileType::Elf),
-        // Mach-O
-        [0xfe, 0xed, 0xfa, 0xce] | [0xce, 0xfa, 0xed, 0xfe] => Some(FileType::MachO),
-        // Mach-O 64-bit
-        [0xfe, 0xed, 0xfa, 0xcf] | [0xcf, 0xfa, 0xed, 0xfe] => Some(FileType::MachO),
-        // Mach-O FAT (reversed)
-        [0xbe, 0xba, 0xfe, 0xca] => Some(FileType::MachO),
+        // Mach-O (32-bit, 64-bit, FAT)
+        [0xfe, 0xed, 0xfa, 0xce]
+        | [0xce, 0xfa, 0xed, 0xfe]
+        | [0xfe, 0xed, 0xfa, 0xcf]
+        | [0xcf, 0xfa, 0xed, 0xfe]
+        | [0xbe, 0xba, 0xfe, 0xca] => Some(FileType::MachO),
         // PE
         [b'M', b'Z', ..] => Some(FileType::Pe),
         // ZIP/JAR
@@ -1838,12 +1822,10 @@ fn detect_file_type_from_magic(data: &[u8]) -> Option<FileType> {
             // Could be ZIP or JAR - check extension or contents
             Some(FileType::Archive)
         },
-        // Gzip
-        [0x1f, 0x8b, ..] => Some(FileType::Archive),
-        // XZ
-        [0xfd, b'7', b'z', b'X'] => Some(FileType::Archive),
-        // Bzip2
-        [b'B', b'Z', b'h', ..] => Some(FileType::Archive),
+        // Gzip / XZ / Bzip2
+        [0x1f, 0x8b, ..] | [0xfd, b'7', b'z', b'X'] | [b'B', b'Z', b'h', ..] => {
+            Some(FileType::Archive)
+        }
         _ => None,
     }
 }

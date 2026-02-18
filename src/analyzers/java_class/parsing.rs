@@ -150,10 +150,9 @@ impl super::JavaClassAnalyzer {
                 _ => {
                     // Skip unknown types
                     pos += match tag {
-                        9 | 11 => 4, // Fieldref, InterfaceMethodref
-                        15 => 3,     // MethodHandle
-                        16 => 2,     // MethodType
-                        18 => 4,     // InvokeDynamic
+                        9 | 11 | 18 => 4, // Fieldref, InterfaceMethodref, InvokeDynamic
+                        15 => 3,          // MethodHandle
+                        16 => 2,          // MethodType
                         _ => 0,
                     };
                 },

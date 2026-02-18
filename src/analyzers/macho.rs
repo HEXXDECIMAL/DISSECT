@@ -309,9 +309,7 @@ impl MachOAnalyzer {
 
                                 // Map severity to criticality
                                 let criticality = match yara_match.severity.as_str() {
-                                    "critical" => Criticality::Hostile,
-                                    "high" => Criticality::Hostile,
-                                    "medium" => Criticality::Suspicious,
+                                    "critical" | "high" => Criticality::Hostile,
                                     "low" => Criticality::Notable,
                                     _ => Criticality::Suspicious,
                                 };
@@ -633,7 +631,7 @@ impl MachOAnalyzer {
         macho: &MachO<'a>,
         report: &mut AnalysisReport,
         _codesig: Option<&macho_codesign::CodeSignature>,
-    ) -> Result<()> {
+    ) {
         // Binary format
         report.structure.push(StructuralFeature {
             id: "binary/format/macho".to_string(),

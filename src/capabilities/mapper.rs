@@ -2239,9 +2239,10 @@ impl CapabilityMapper {
         // Build capability ID from path components
         // Example: exec/cmd/cmd.yara → exec/command/shell
         match (parts.first(), parts.get(1)) {
-            (Some(&"exec"), Some(&"cmd")) => Some("exec/command/shell".to_string()),
+            (Some(&"exec"), Some(&"cmd")) | (Some(&"exec"), Some(&"shell")) => {
+                Some("exec/command/shell".to_string())
+            }
             (Some(&"exec"), Some(&"program")) => Some("exec/command/direct".to_string()),
-            (Some(&"exec"), Some(&"shell")) => Some("exec/command/shell".to_string()),
             (Some(&"net"), Some(&"ftp")) => Some("net/ftp/client".to_string()),
             (Some(&"net"), Some(&"http")) => Some("net/http/client".to_string()),
             (Some(&"crypto"), sub) => Some(format!("crypto/{}", sub.unwrap_or(&"generic"))),

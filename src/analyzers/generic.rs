@@ -67,9 +67,7 @@ impl GenericAnalyzer {
             )),
             FileType::Zig => Some((tree_sitter_zig::LANGUAGE.into(), &["call_expression"])),
             FileType::Elixir => Some((tree_sitter_elixir::LANGUAGE.into(), &["call"])),
-            // No tree-sitter for these
-            FileType::Batch | FileType::Unknown => None,
-            // These should use dedicated analyzers, but handle as fallback
+            // No tree-sitter for these; also fallback for dedicated analyzer types
             _ => None,
         }
     }

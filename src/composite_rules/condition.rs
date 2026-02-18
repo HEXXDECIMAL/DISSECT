@@ -1402,12 +1402,12 @@ impl Condition {
     #[must_use] 
     pub(crate) fn check_greedy_patterns(&self) -> Option<String> {
         let regex_to_check = match self {
-            Condition::String { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Symbol { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Ast { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Basename { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Kv { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::String { regex: Some(r), .. }
+            | Condition::Raw { regex: Some(r), .. }
+            | Condition::Symbol { regex: Some(r), .. }
+            | Condition::Ast { regex: Some(r), .. }
+            | Condition::Basename { regex: Some(r), .. }
+            | Condition::Kv { regex: Some(r), .. } => Some(r.as_str()),
             _ => None,
         };
 
@@ -1427,8 +1427,8 @@ impl Condition {
     #[must_use] 
     pub(crate) fn check_word_boundary_regex(&self) -> Option<String> {
         let regex_to_check = match self {
-            Condition::String { regex: Some(r), .. } => Some(r.as_str()),
-            Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::String { regex: Some(r), .. }
+            | Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
             _ => None,
         };
 
@@ -1496,39 +1496,39 @@ impl Condition {
                 exact: Some(s),
                 case_insensitive: true,
                 ..
-            } => check_pattern(s),
-            Condition::String {
-                substr: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::String {
-                word: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Raw {
+            }
+            | Condition::Raw {
                 exact: Some(s),
                 case_insensitive: true,
                 ..
-            } => check_pattern(s),
-            Condition::Raw {
-                substr: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Raw {
-                word: Some(s),
-                case_insensitive: true,
-                ..
-            } => check_pattern(s),
-            Condition::Ast {
+            }
+            | Condition::Ast {
                 exact: Some(s),
                 case_insensitive: true,
                 ..
-            } => check_pattern(s),
-            Condition::Ast {
+            }
+            | Condition::String {
                 substr: Some(s),
+                case_insensitive: true,
+                ..
+            }
+            | Condition::Raw {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            }
+            | Condition::Ast {
+                substr: Some(s),
+                case_insensitive: true,
+                ..
+            }
+            | Condition::String {
+                word: Some(s),
+                case_insensitive: true,
+                ..
+            }
+            | Condition::Raw {
+                word: Some(s),
                 case_insensitive: true,
                 ..
             } => check_pattern(s),
@@ -1567,23 +1567,18 @@ impl Condition {
         };
 
         match self {
-            Condition::String { exact: Some(s), .. } => check_empty(s, "exact"),
-            Condition::String {
-                substr: Some(s), ..
-            } => check_empty(s, "substr"),
-            Condition::String { regex: Some(s), .. } => check_empty(s, "regex"),
-            Condition::String { word: Some(s), .. } => check_empty(s, "word"),
-            Condition::Raw { exact: Some(s), .. } => check_empty(s, "exact"),
-            Condition::Raw {
-                substr: Some(s), ..
-            } => check_empty(s, "substr"),
-            Condition::Raw { regex: Some(s), .. } => check_empty(s, "regex"),
-            Condition::Raw { word: Some(s), .. } => check_empty(s, "word"),
-            Condition::Symbol { exact: Some(s), .. } => check_empty(s, "exact"),
-            Condition::Symbol {
-                substr: Some(s), ..
-            } => check_empty(s, "substr"),
-            Condition::Symbol { regex: Some(s), .. } => check_empty(s, "regex"),
+            Condition::String { exact: Some(s), .. }
+            | Condition::Raw { exact: Some(s), .. }
+            | Condition::Symbol { exact: Some(s), .. } => check_empty(s, "exact"),
+            Condition::String { substr: Some(s), .. }
+            | Condition::Raw { substr: Some(s), .. }
+            | Condition::Symbol { substr: Some(s), .. } => check_empty(s, "substr"),
+            Condition::String { regex: Some(s), .. }
+            | Condition::Raw { regex: Some(s), .. }
+            | Condition::Symbol { regex: Some(s), .. } => check_empty(s, "regex"),
+            Condition::String { word: Some(s), .. } | Condition::Raw { word: Some(s), .. } => {
+                check_empty(s, "word")
+            }
             _ => None,
         }
     }
@@ -1776,8 +1771,8 @@ impl Condition {
                 substr,
                 regex,
                 ..
-            } => check_exclusive(exact.is_some(), substr.is_some(), regex.is_some(), false),
-            Condition::Ast {
+            }
+            | Condition::Ast {
                 exact,
                 substr,
                 regex,
@@ -1801,9 +1796,6 @@ impl Condition {
                 *compiled_regex = Some(regex::Regex::new(regex_pattern).map_err(|e| {
                     anyhow::anyhow!("Failed to compile symbol regex '{}': {}", regex_pattern, e)
                 })?);
-            },
-            Condition::Symbol { regex: None, .. } => {
-                // No regex to compile
             },
             Condition::String {
                 regex,

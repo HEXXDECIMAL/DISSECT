@@ -292,9 +292,8 @@ fn validate_decrypted_content(plaintext: &[u8]) -> bool {
 /// Detect the type of decrypted payload
 fn detect_payload_type(data: &[u8]) -> FileType {
     // Check if valid UTF-8
-    let text = match std::str::from_utf8(data) {
-        Ok(s) => s,
-        Err(_) => return FileType::Unknown,
+    let Ok(text) = std::str::from_utf8(data) else {
+        return FileType::Unknown;
     };
 
     // JavaScript indicators
@@ -348,9 +347,8 @@ pub(crate) fn extract_aes_payloads(content: &[u8]) -> Vec<AesExtractedPayload> {
     let mut payloads = Vec::new();
 
     // Convert to string (AES patterns are in text)
-    let content_str = match std::str::from_utf8(content) {
-        Ok(s) => s,
-        Err(_) => return payloads,
+    let Ok(content_str) = std::str::from_utf8(content) else {
+        return payloads;
     };
 
     // Extract AES parameters and ciphertext
@@ -414,9 +412,8 @@ fn decrypt_nested(data: &[u8], chain: Vec<String>, depth: usize) -> (Vec<u8>, Ve
     }
 
     // Try to find AES patterns in decrypted content
-    let content_str = match std::str::from_utf8(data) {
-        Ok(s) => s,
-        Err(_) => return (data.to_vec(), chain),
+    let Ok(content_str) = std::str::from_utf8(data) else {
+        return (data.to_vec(), chain);
     };
 
     let params_list = extract_aes_params(content_str);

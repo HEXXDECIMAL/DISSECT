@@ -57,7 +57,6 @@ unnecessary_wraps = "warn"
 match_same_arms = "warn"
 redundant_closure_for_method_calls = "warn"
 manual_let_else = "warn"
-option_if_let_else = "warn"
 
 # Allow pragmatic exceptions
 # These are too noisy or conflict with readability

@@ -230,7 +230,7 @@ impl YaraEngine {
         let mut files_by_dir: std::collections::BTreeMap<PathBuf, Vec<PathBuf>> =
             std::collections::BTreeMap::new();
 
-        for entry in WalkDir::new(dir).follow_links(false).into_iter().filter_map(|e| e.ok()) {
+        for entry in WalkDir::new(dir).follow_links(false).into_iter().filter_map(std::result::Result::ok) {
             let path = entry.path();
             if path.is_file()
                 && path.extension().map(|e| e == "yar" || e == "yara").unwrap_or(false)
@@ -466,7 +466,7 @@ impl YaraEngine {
             if is_third_party && rule_filetypes.is_empty() {
                 let inferred =
                     crate::third_party_yara::infer_filetypes(&rule_name, os_meta.as_deref());
-                rule_filetypes = inferred.iter().map(|s| s.to_string()).collect();
+                rule_filetypes = inferred.iter().map(std::string::ToString::to_string).collect();
             }
 
             // Apply file type filtering if specified
@@ -594,9 +594,8 @@ impl YaraEngine {
         let parts: Vec<&str> = namespace.split('.').collect();
 
         match parts.as_slice() {
-            ["exec", "cmd"] => Some("exec/command/shell".to_string()),
+            ["exec", "cmd"] | ["exec", "shell"] => Some("exec/command/shell".to_string()),
             ["exec", "program"] => Some("exec/command/direct".to_string()),
-            ["exec", "shell"] => Some("exec/command/shell".to_string()),
             ["net", sub] => Some(format!("net/{}", sub)),
             ["crypto", sub] => Some(format!("crypto/{}", sub)),
             ["fs", sub] => Some(format!("fs/{}", sub)),

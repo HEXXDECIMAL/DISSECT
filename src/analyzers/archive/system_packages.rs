@@ -112,12 +112,9 @@ pub(crate) fn extract_7z_safe(
         }
 
         // Sanitize path to prevent path traversal
-        let outpath = match sanitize_entry_path(name, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.to_string()));
-                return Ok(true); // Continue extraction
-            },
+        let Some(outpath) = sanitize_entry_path(name, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.to_string()));
+            return Ok(true); // Continue extraction
         };
 
         // Check if entry is a directory
@@ -182,12 +179,9 @@ pub(crate) fn extract_pkg_safe(
         }
 
         // Sanitize path
-        let out_path = match sanitize_entry_path(&path, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(path.clone()));
-                continue;
-            },
+        let Some(out_path) = sanitize_entry_path(&path, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(path.clone()));
+            continue;
         };
 
         // Check file size
@@ -443,14 +437,11 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path, guard: &ExtractionGuard
         }
 
         // Sanitize path to prevent traversal
-        let out_path = match sanitize_entry_path(clean_name, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
-                let mut sink = std::io::sink();
-                std::io::copy(&mut { entry_reader }, &mut sink).ok();
-                continue;
-            },
+        let Some(out_path) = sanitize_entry_path(clean_name, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(name.clone()));
+            let mut sink = std::io::sink();
+            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            continue;
         };
 
         let mode = entry.mode();
@@ -542,15 +533,12 @@ pub(crate) fn extract_rar(
                     // compression ratio directly. We rely on unpacked_size limit above.
 
                     // Sanitize path
-                    let out_path = match sanitize_entry_path(&filename, dest_dir) {
-                        Some(p) => p,
-                        None => {
-                            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
-                                filename.clone(),
-                            ));
-                            archive = file_archive.skip().context("Failed to skip RAR entry")?;
-                            continue;
-                        },
+                    let Some(out_path) = sanitize_entry_path(&filename, dest_dir) else {
+                        guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                            filename.clone(),
+                        ));
+                        archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                        continue;
                     };
 
                     // Create parent directories
@@ -568,15 +556,12 @@ pub(crate) fn extract_rar(
                         anyhow::bail!("Exceeded maximum total extraction size");
                     }
                 } else if is_directory {
-                    let dir_path = match sanitize_entry_path(&filename, dest_dir) {
-                        Some(p) => p,
-                        None => {
-                            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
-                                filename.clone(),
-                            ));
-                            archive = file_archive.skip().context("Failed to skip RAR entry")?;
-                            continue;
-                        },
+                    let Some(dir_path) = sanitize_entry_path(&filename, dest_dir) else {
+                        guard.add_hostile_reason(HostileArchiveReason::PathTraversal(
+                            filename.clone(),
+                        ));
+                        archive = file_archive.skip().context("Failed to skip RAR entry")?;
+                        continue;
                     };
                     fs::create_dir_all(&dir_path)?;
                     archive = file_archive.skip().context("Failed to skip RAR directory")?;

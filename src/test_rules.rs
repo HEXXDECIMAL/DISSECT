@@ -1909,8 +1909,8 @@ impl<'a> RuleDebugger<'a> {
     ) -> ConditionDebugResult {
         let desc = format!(
             "import_combination: required={}, suspicious={}, min_suspicious={:?}, max_total={:?}",
-            required.map(|r| r.len()).unwrap_or(0),
-            suspicious.map(|s| s.len()).unwrap_or(0),
+            required.map(std::vec::Vec::len).unwrap_or(0),
+            suspicious.map(std::vec::Vec::len).unwrap_or(0),
             min_suspicious,
             max_total
         );
@@ -2164,8 +2164,8 @@ fn describe_condition(condition: &Condition) -> String {
         } => {
             format!(
                 "import_combination: req={}, susp={}, min={}",
-                required.as_ref().map(|r| r.len()).unwrap_or(0),
-                suspicious.as_ref().map(|s| s.len()).unwrap_or(0),
+                required.as_ref().map(std::vec::Vec::len).unwrap_or(0),
+                suspicious.as_ref().map(std::vec::Vec::len).unwrap_or(0),
                 min_suspicious.unwrap_or(0)
             )
         },

@@ -27,16 +27,7 @@ fn stng_method_to_string(method: StringMethod) -> String {
         StringMethod::UnicodeEscapeDecode => "unicode-escape",
         StringMethod::WideString => "wide",
 
-        // Extraction sources - not worth tracking (all strings are equally valid)
-        StringMethod::R2String
-        | StringMethod::R2Symbol
-        | StringMethod::RawScan
-        | StringMethod::InstructionPattern
-        | StringMethod::Structure
-        | StringMethod::Heuristic
-        | StringMethod::CodeSignature => return String::new(),
-
-        // Future variants from stng
+        // Extraction sources and future variants - not worth tracking
         _ => return String::new(),
     }
     .to_string()

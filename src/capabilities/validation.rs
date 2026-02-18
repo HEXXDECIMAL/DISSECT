@@ -2403,8 +2403,8 @@ pub(crate) fn find_alternation_merge_candidates(
 
     for t in trait_definitions {
         let regex_pattern = match &t.r#if.condition {
-            Condition::String { regex: Some(r), .. } => Some(r.clone()),
-            Condition::Raw { regex: Some(r), .. } => Some(r.clone()),
+            Condition::String { regex: Some(r), .. }
+            | Condition::Raw { regex: Some(r), .. } => Some(r.clone()),
             _ => None,
         };
 
@@ -2753,8 +2753,8 @@ pub(crate) fn find_missing_search_patterns(trait_definitions: &[TraitDefinition]
                 regex,
                 word,
                 ..
-            } => exact.is_some() || substr.is_some() || regex.is_some() || word.is_some(),
-            Condition::Encoded {
+            }
+            | Condition::Encoded {
                 exact,
                 substr,
                 regex,

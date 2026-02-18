@@ -67,9 +67,8 @@ pub(crate) fn analyze_overlay(
     yara_engine: Option<Arc<YaraEngine>>,
 ) -> Result<Option<OverlayAnalysis>> {
     // Check if overlay contains an archive
-    let archive_type = match detect_archive_from_bytes(overlay_data) {
-        Some(t) => t,
-        None => return Ok(None), // Not an archive - might be signature, resources, etc.
+    let Some(archive_type) = detect_archive_from_bytes(overlay_data) else {
+        return Ok(None); // Not an archive - might be signature, resources, etc.
     };
 
     eprintln!(

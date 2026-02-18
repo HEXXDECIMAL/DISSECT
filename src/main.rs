@@ -269,7 +269,7 @@ fn main() -> Result<()> {
         Vec::new()
     } else {
         let mut passwords: Vec<String> =
-            cli::DEFAULT_ZIP_PASSWORDS.iter().map(|s| s.to_string()).collect();
+            cli::DEFAULT_ZIP_PASSWORDS.iter().map(std::string::ToString::to_string).collect();
         passwords.extend(args.zip_passwords.clone());
         passwords
     };
@@ -812,7 +812,7 @@ fn scan_paths(
                     let file_name = e.file_name().to_string_lossy();
                     !file_name.starts_with(".git")
                 })
-                .filter_map(|e| e.ok())
+                .filter_map(std::result::Result::ok)
             {
                 if entry.file_type().is_file() {
                     let file_path = entry.path().to_string_lossy().to_string();
@@ -3274,7 +3274,7 @@ fn test_match_debug(
             let result = eval_hex(
                 pattern,
                 &composite_rules::evaluators::ContentLocationParams {
-                    section: section.map(|s| s.to_string()),
+                    section: section.map(std::string::ToString::to_string),
                     offset,
                     offset_range,
                     section_offset,

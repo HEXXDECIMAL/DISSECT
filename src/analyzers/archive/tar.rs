@@ -53,12 +53,9 @@ pub(crate) fn extract_tar_safe(
         let entry_name = entry_path.to_string_lossy().to_string();
 
         // Sanitize path
-        let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
-                continue;
-            },
+        let Some(outpath) = sanitize_entry_path(&entry_name, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+            continue;
         };
 
         // Check for symlinks
@@ -119,12 +116,9 @@ pub(crate) fn extract_tar_entries_safe<R: Read>(
         let entry_path = entry.path()?;
         let entry_name = entry_path.to_string_lossy().to_string();
 
-        let outpath = match sanitize_entry_path(&entry_name, dest_dir) {
-            Some(p) => p,
-            None => {
-                guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
-                continue;
-            },
+        let Some(outpath) = sanitize_entry_path(&entry_name, dest_dir) else {
+            guard.add_hostile_reason(HostileArchiveReason::PathTraversal(entry_name));
+            continue;
         };
 
         let entry_type = entry.header().entry_type();
