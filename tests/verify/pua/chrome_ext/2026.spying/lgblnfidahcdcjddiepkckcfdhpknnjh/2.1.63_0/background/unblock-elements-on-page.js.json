@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "id": "objectives/lateral-movement/supply-chain/npm/language-features::has-promise",
       "kind": "capability",
       "desc": "Code uses Promises",
       "conf": 0.7,
@@ -24,10 +24,10 @@
           "value": "Promise.all"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/language-features/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -39,7 +39,7 @@
           "value": "unblock-elements-on-page.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::pagedatacomponent/refreshbulk",

@@ -15,7 +15,7 @@ use std::sync::Arc;
 
 /// Analyzer for Windows PE binaries (executables, DLLs, drivers)
 #[derive(Debug)]
-pub(crate) struct PEAnalyzer {
+pub struct PEAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
@@ -25,7 +25,7 @@ pub(crate) struct PEAnalyzer {
 impl PEAnalyzer {
     /// Creates a new PE analyzer with default configuration
     #[must_use] 
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
@@ -460,7 +460,7 @@ impl PEAnalyzer {
                 report.findings.push(Finding {
                     kind: FindingKind::Capability,
                     trait_refs: vec![],
-                    id: "exec/memory/wx".to_string(),
+                    id: "execution/memory/wx".to_string(),
                     desc: format!("Writable+executable section '{}'", name),
                     conf: 1.0,
                     crit: Criticality::Suspicious,

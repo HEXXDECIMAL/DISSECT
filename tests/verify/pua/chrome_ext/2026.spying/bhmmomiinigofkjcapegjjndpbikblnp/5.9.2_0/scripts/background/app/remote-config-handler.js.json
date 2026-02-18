@@ -34,7 +34,7 @@
       "source_file": "meta/quality/config/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "micro-behaviors/data/encoding/charset::json-parse-js",
       "kind": "capability",
       "desc": "JavaScript JSON.parse",
       "conf": 0.85,
@@ -46,10 +46,10 @@
           "value": "JSON.parse"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -63,10 +63,10 @@
           "value": "functions.one_liners = 13.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
       "conf": 0.65,
@@ -80,10 +80,10 @@
           "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "id": "objectives/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
       "conf": 0.5,
@@ -105,10 +105,10 @@
           "value": "Object.keys.filter"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
       "conf": 0.6,
@@ -122,10 +122,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
       "conf": 0.85,
@@ -139,10 +139,10 @@
           "value": "functions.density_per_100_lines = 1300.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -156,10 +156,10 @@
           "value": "text.max_line_length = 2766.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
       "conf": 0.8,
@@ -173,10 +173,10 @@
           "value": "identifiers.sequential_names = 8.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -190,10 +190,10 @@
           "value": "text.whitespace_ratio = 0.02"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
+      "id": "micro-behaviors/execution/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
       "conf": 0.6,
@@ -208,10 +208,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/loader/node-fetch.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
       "conf": 0.85,
@@ -225,10 +225,10 @@
           "value": "functions.high_entropy_names = 3.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
       "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
@@ -242,10 +242,10 @@
           "value": "text.max_line_length = 2766.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "micro-behaviors/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
       "conf": 0.9,
@@ -258,10 +258,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
+      "id": "objectives/lateral-movement/supply-chain/electron::electron-resources-path",
       "kind": "capability",
       "desc": "Electron resources directory",
       "conf": 0.7,
@@ -282,10 +282,10 @@
           "location": "0x2fb"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -297,7 +297,7 @@
           "value": "remote-config-handler.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/quality::config-management",
@@ -322,7 +322,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -344,10 +344,10 @@
           "value": "Object.keys.filter"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -381,10 +381,10 @@
           "value": "identifiers.sequential_names = 8.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -396,7 +396,7 @@
           "value": "JSON.parse"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
       "id": "meta/internal/imported::settimeout",

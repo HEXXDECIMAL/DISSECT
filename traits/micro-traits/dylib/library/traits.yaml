@@ -1,0 +1,380 @@
+defaults:
+  for:
+  - all
+traits:
+- id: libcurl-ref
+  desc: libcurl library reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    substr: libcurl
+- id: gnu-coreutils-ref
+  desc: GNU coreutils reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    substr: GNU coreutils
+- id: glibc-ref
+  desc: glibc reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    substr: glibc
+- id: libcxx-ref
+  desc: LLVM libc++ stdlib
+  crit: inert
+  conf: 0.9
+  if:
+    type: string
+    regex: libc\+\+\.so|libc\+\+abi|_LIBCPP_VERSION|__libcpp_
+- id: libstdcxx-ref
+  desc: GNU libstdc++ stdlib
+  crit: inert
+  conf: 0.9
+  if:
+    type: string
+    regex: libstdc\+\+\.so|__gnu_cxx|__cxxabiv1
+- id: cxx-abi-symbols
+  desc: C++ ABI symbols
+  crit: inert
+  conf: 0.8
+  if:
+    type: symbol
+    regex: ^(__cxa_|__gxx_|_ZN[A-Z]|_ZSt|_ZNSt|_ZNK[A-Z])
+- id: system-debug-lib
+  desc: System debug library
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    regex: lib.{1,20}_debug\.so
+- id: lzma-ref
+  desc: lzma compression reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    regex: (?i)\blzma\b
+- id: xz-ref
+  desc: xz compression reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    regex: (?i)\bxz\b
+- id: zlib-ref
+  desc: zlib compression reference
+  crit: inert
+  conf: 0.3
+  if:
+    type: string
+    regex: (?i)\bzlib\b
+- id: mesa-ref
+  desc: Mesa 3D graphics reference
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    regex: (?i)(?:mesa|gallium|libGL|libEGL|libGLX|dri_|swrast|pipe_loader|_mesa_)
+- id: opengl-ref
+  desc: OpenGL graphics reference
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    regex: (?i)(?:opengl|glx|\begl\b|vulkan|GL_VERSION|GL_RENDERER|glX[A-Z])
+- id: dri-driver-ref
+  desc: DRI graphics driver reference
+  crit: inert
+  conf: 0.6
+  for:
+  - elf
+  - so
+  if:
+    type: string
+    regex: /usr/(?:lib|X11R6/lib)/(?:dri|modules/dri)/|_dri\.so|drirc|DRI_PRIME
+- id: x11-dga-marker
+  desc: X11 DGA library marker
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - so
+  if:
+    type: string
+    regex: (?i)(?:XF86DGA|XDGAOpenFramebuffer|XDGACloseFramebuffer|libXxf86dga|XFree86-DGA)
+- id: vdpau-ref
+  desc: VDPAU video acceleration library
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - so
+  if:
+    type: string
+    regex: (?i)(?:vdpau|VdpDevice|VdpVideoSurface|libvdpau)
+- id: drm-driver-ref
+  desc: DRM/KMS graphics driver reference
+  crit: inert
+  conf: 0.8
+  for:
+  - elf
+  - so
+  if:
+    type: string
+    regex: (?i)(?:libdrm|drmOpen|drmModeGetResources|DRM_IOCTL|drm_mode_|/dev/dri/)
+- id: shell-keyword-marker
+  desc: Shell interpreter keyword marker
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  if:
+    type: string
+    substr: is a shell keyword
+- id: shell-builtin-marker
+  desc: Shell interpreter builtin marker
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  if:
+    type: string
+    substr: shell builtin
+- id: debugger-ptrace-marker
+  desc: Debugger ptrace usage marker
+  crit: inert
+  conf: 0.7
+  for:
+  - elf
+  - macho
+  if:
+    type: string
+    regex: PTRACE_(?:ATTACH|DETACH|CONT|PEEKDATA|POKEDATA|SINGLESTEP|GETREGS|SETREGS)
+- id: llvm-project-ref
+  desc: LLVM project reference
+  crit: inert
+  conf: 0.8
+  if:
+    type: string
+    regex: (?i)\b(llvm|clang)\s+(version|compiler|project|IR)
+- id: gcc-project-ref
+  desc: GCC project reference
+  crit: inert
+  conf: 0.8
+  if:
+    type: string
+    regex: (?i)\bgcc\s+(version|compiler)|\bgnuc\b
+- id: cmake-build-ref
+  desc: CMake build tool reference
+  crit: inert
+  conf: 0.7
+  for:
+  - c
+  - cpp
+  - shell
+  - elf
+  - macho
+  - pe
+  if:
+    type: string
+    word: cmake
+    case_insensitive: true
+- id: x11-sm-ref
+  desc: X11 Session Management library
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    regex: (?i)(?:libSM|SmcConn|SmcOpenConnection|SmcCloseConnection)
+- id: x11-auth-protocol
+  desc: X11 MIT-MAGIC-COOKIE authentication
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    substr: MIT-MAGIC-COOKIE-1
+- id: collectd-plugin-marker
+  desc: Collectd plugin marker
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - so
+  if:
+    type: symbol
+    regex: ^(plugin_register_|plugin_log|module_register)
+- id: libc-version-string
+  desc: libc version string pattern
+  crit: inert
+  conf: 0.8
+  if:
+    type: string
+    regex: (?i)(?:^|\b)(?:libc\.so\.[0-9]|glibc|musl libc|openbsd libc|freebsd libc|bionic|uclibc)
+- id: libc-internal-functions
+  desc: libc internal functions (malloc, etc)
+  crit: inert
+  conf: 0.7
+  if:
+    type: symbol
+    regex: ^(__libc_|__ctype_|__tzname|__progname|__environ|__cxa_|_obstack_|_IO_|__malloc_|__free_|__realloc_)
+- id: libc-characteristic-symbols
+  desc: Characteristic system library exports
+  crit: inert
+  conf: 0.5
+  if:
+    type: symbol
+    regex: ^__libc_start_main$|^gnu_get_libc_version$|^__errno_location$|^__atan2_finite$|^feenableexcept$|^__log_finite$|^exp2f$|^__cxa_atexit$|^__cxa_finalize$|^__stack_chk_fail$|^__assert_fail$
+- id: x11-ref
+  desc: X11 windowing reference
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    regex: (?i)libX11|(?i)libXpm|(?i)libxcb|(?i)libICE|(?i)libSM|(?i)xorg|(?i)xenocara|(?i)XOpenDisplay|(?i)XCreateWindow|(?i)XpmCreate|(?i)XpmRead|(?i)IceConn|(?i)SmcConn
+- id: vaapi-ref
+  desc: VA-API video acceleration library
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - so
+  if:
+    type: string
+    regex: (?i)libva\b|(?i)vaGetDisplay|(?i)VA_STATUS|(?i)VA-API|(?i)vaInitialize|(?i)vaTerminate|(?i)LIBVA_DRIVER
+- id: gdb-debugger-ref
+  desc: GDB debugger reference
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  if:
+    type: string
+    regex: (?i)\bGNU gdb\b|(?i)\bgdb\s+(?:version|debugging|remote|server)|(?i)\bgdbserver\b|(?i)\bgdb-multiarch\b
+- id: lldb-debugger-ref
+  desc: LLDB debugger reference
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  if:
+    type: string
+    regex: (?i)\blldb\b.{0,30}(?:debugger|command|version|breakpoint|frame|thread)|(?i)lldb-server|(?i)lldb-argdumper|(?i)SBDebugger|(?i)SBTarget|(?i)SBProcess|(?i)SBBreakpoint|(?i)SBFrame|(?i)\bLLDB\b.{0,20}(?:module|plugin)
+- id: x11-ice-ref
+  desc: X11 Inter-Client Exchange library
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    regex: (?i)libICE|(?i)IceConn|(?i)IceProcessMessage|(?i)IceSetIOErrorHandler|(?i)IceRegisterForProtocolSetup
+composite_rules:
+- id: x11-ipc-lib-marker
+  desc: X11 IPC library markers (ICE, SM)
+  crit: inert
+  conf: 0.6
+  any:
+  - id: x11-ice-ref
+  - id: x11-sm-ref
+  - id: x11-auth-protocol
+- id: network-lib-marker
+  desc: Known network library markers
+  crit: inert
+  conf: 0.5
+  any:
+  - id: micro-traits/dylib/library/ssl::libssl-ref
+  - id: micro-traits/dylib/library/ssl::libcrypto-ref
+  - id: libcurl-ref
+  - id: micro-traits/comm/ssh/client::libssh
+  - id: x11-ipc-lib-marker
+- id: video-lib-marker
+  desc: Video acceleration library markers (VA-API, VDPAU)
+  crit: inert
+  conf: 0.9
+  any:
+  - id: vaapi-ref
+  - id: vdpau-ref
+  - id: drm-driver-ref
+- id: graphics-lib-marker
+  desc: Graphics/OpenGL library markers
+  crit: inert
+  conf: 0.6
+  any:
+  - id: mesa-ref
+  - id: opengl-ref
+  - id: x11-ref
+  - id: dri-driver-ref
+  - id: video-lib-marker
+- id: cxx-stdlib-marker
+  desc: C++ standard library markers (libc++, libstdc++)
+  crit: inert
+  conf: 0.9
+  any:
+  - id: libcxx-ref
+  - id: libstdcxx-ref
+  - id: cxx-abi-symbols
+- id: system-lib-marker
+  desc: Known system library markers
+  crit: inert
+  conf: 0.5
+  any:
+  - id: gnu-coreutils-ref
+  - id: glibc-ref
+  - id: libc-characteristic-symbols
+  - id: libc-version-string
+  - id: libc-internal-functions
+  - id: system-debug-lib
+  - id: graphics-lib-marker
+  - id: cxx-stdlib-marker
+  - id: collectd-plugin-marker
+  - id: micro-traits/os/pam/auth::libpam-string
+- id: compression-lib
+  desc: Compression library markers
+  crit: inert
+  conf: 0.4
+  any:
+  - id: lzma-ref
+  - id: xz-ref
+  - id: zlib-ref
+- id: shell-interpreter
+  desc: Shell interpreter binary
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  any:
+  - id: shell-keyword-marker
+  - id: shell-builtin-marker
+- id: compiler-tool-marker
+  desc: Compiler or build tool binary
+  crit: inert
+  conf: 0.8
+  any:
+  - id: llvm-project-ref
+  - id: metadata/lang/compiler::libllvm
+  - id: gcc-project-ref
+  - id: cmake-build-ref
+- id: async-io-lib-marker
+  desc: Async I/O library (libevent, libev, etc.)
+  crit: inert
+  conf: 0.9
+  all:
+  - id: micro-traits/comm/async
+- id: debugger-tool-marker
+  desc: Debugger tool (gdb, lldb, etc.)
+  crit: inert
+  conf: 0.9
+  for:
+  - elf
+  - macho
+  any:
+  - id: gdb-debugger-ref
+  - id: lldb-debugger-ref
+  - id: debugger-ptrace-marker

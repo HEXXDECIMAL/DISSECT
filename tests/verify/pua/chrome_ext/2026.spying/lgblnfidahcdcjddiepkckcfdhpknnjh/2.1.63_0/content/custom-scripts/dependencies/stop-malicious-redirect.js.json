@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -41,10 +41,10 @@
           "location": "4:3"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -56,10 +56,10 @@
           "value": "stop-malicious-redirect.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -78,7 +78,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/internal/imported::stopmaliciousredirect",

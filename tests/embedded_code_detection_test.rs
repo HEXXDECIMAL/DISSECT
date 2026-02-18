@@ -131,8 +131,8 @@ fn test_analyze_hex_encoded_javascript() {
             );
             // Should have auto-generated language trait
             assert!(
-                file_analysis.findings.iter().any(|f| f.id.contains("meta/lang/encoded/hex")),
-                "Should have auto-generated meta/lang/encoded/hex trait"
+                file_analysis.findings.iter().any(|f| f.id.contains("metadata/lang/encoded/hex")),
+                "Should have auto-generated metadata/lang/encoded/hex trait"
             );
         },
         EmbeddedAnalysisResult::PlainEmbedded(_) => {
@@ -170,8 +170,8 @@ fn test_analyze_plain_embedded_python() {
             assert!(!findings.is_empty(), "Should detect capabilities in Python");
             // Should have auto-generated language trait
             assert!(
-                findings.iter().any(|f| f.id.contains("meta/lang/embedded")),
-                "Should have auto-generated meta/lang/embedded trait"
+                findings.iter().any(|f| f.id.contains("metadata/lang/embedded")),
+                "Should have auto-generated metadata/lang/embedded trait"
             );
         },
         EmbeddedAnalysisResult::EncodedLayer(_) => {

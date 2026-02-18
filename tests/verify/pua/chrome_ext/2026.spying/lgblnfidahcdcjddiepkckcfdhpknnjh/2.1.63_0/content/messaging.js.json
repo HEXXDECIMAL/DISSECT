@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -24,10 +24,10 @@
           "value": "browser.runtime.onMessage.addListener"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::payload",
+      "id": "micro-behaviors/data/text/keywords::payload",
       "kind": "capability",
       "desc": "payload keyword",
       "conf": 0.2,
@@ -39,10 +39,10 @@
           "value": "payload"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "id": "objectives/command-and-control/infrastructure/domain::hardcoded-domain-com",
       "kind": "capability",
       "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
       "conf": 0.7,
@@ -63,10 +63,10 @@
           "location": "0xf0"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::onMessage",
       "kind": "capability",
       "desc": "chrome.runtime.onMessage listener",
       "conf": 0.9,
@@ -78,10 +78,10 @@
           "value": "browser.runtime.onMessage.addListener"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::browser-namespace",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::browser-namespace",
       "kind": "capability",
       "desc": "Uses browser.* namespace (Firefox/WebExtension)",
       "conf": 0.95,
@@ -93,10 +93,10 @@
           "value": "browser.runtime"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -108,10 +108,10 @@
           "value": "messaging.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::is-extension",
       "kind": "capability",
       "desc": "File is part of a browser extension",
       "conf": 0.9,
@@ -123,7 +123,7 @@
           "value": "browser.runtime"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "meta/internal/imported::clearcustomblockednodes",

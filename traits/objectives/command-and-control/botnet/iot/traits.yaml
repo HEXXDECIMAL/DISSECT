@@ -1,0 +1,288 @@
+# IoT Botnet Detection
+# Patterns common to Mirai, Gafgyt, and similar IoT malware
+# ATT&CK: T1059.004, T1110.001
+
+traits:
+  # NOTE: Individual "/bin/busybox" string is notable, not suspicious
+  # Real IoT malware detection requires multiple indicators (see composite rules)
+  - id: busybox
+    desc: "BusyBox reference (IoT device targeting)"
+    crit: notable
+    conf: 0.5
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      substr: "/bin/busybox"
+
+  - id: busybox-wget
+    desc: "BusyBox wget payload download"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: "busybox wget"
+
+  - id: busybox-tftp
+    desc: "BusyBox tftp payload download"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: "busybox tftp"
+
+  - id: busybox-ftpget
+    desc: "BusyBox ftpget payload download"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: "busybox ftpget"
+
+  # === Pipe to shell micro-traits ===
+  - id: curl-cmd
+    desc: "curl command"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "curl "
+
+  - id: wget-cmd
+    desc: "wget command"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      exact: "wget "
+
+  - id: pipe-sh
+    desc: "pipe to sh"
+    crit: notable
+    conf: 0.6
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: " \\|\\s*sh\\b"
+
+  - id: pipe-bash
+    desc: "pipe to bash"
+    crit: notable
+    conf: 0.6
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: " \\|\\s*bash\\b"
+
+  - id: output-pipe-sh
+    desc: "-O- | sh pattern"
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: "-[Oo]-?\\s*\\|\\s*sh\\b"
+
+  - id: telnet-target
+    desc: "Telnet service targeting"
+    crit: suspicious
+    conf: 0.8
+    attack: "T1021.007"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      regex: "telnetadmin|:23[^0-9]"
+
+  - id: send-func
+    desc: "send function"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      regex: "send\\("
+
+  - id: sendto-func
+    desc: "sendto function"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      regex: "sendto\\("
+
+  - id: sendfile-func
+    desc: "sendfile function"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: symbol
+      regex: "sendfile\\("
+
+  - id: tftp-string
+    desc: "tftp command invocation"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      # Require tftp to look like a command invocation (space after, or path prefix)
+      # Exclude "tftp" appearing in lists of module/application names
+      regex: "(?:/usr)?(?:/s?bin/)?tftp\\s|\\btftp\\s+-"
+
+  - id: curl-http-download
+    desc: "Curl HTTP payload download"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    if:
+      type: string
+      substr: "curl http://"
+
+composite_rules:
+  # Helper: curl or wget download command
+  - id: download-cmd
+    desc: "curl or wget download command"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    any:
+      - id: curl-cmd
+      - id: wget-cmd
+
+  # Helper: pipe to sh or bash
+  - id: pipe-sh-or-bash
+    desc: "Pipe to shell (sh or bash)"
+    crit: notable
+    conf: 0.6
+    for: [elf]
+    platforms: [linux]
+    any:
+      - id: pipe-sh
+      - id: pipe-bash
+
+  # Helper: download + pipe to shell
+  - id: download-pipe-shell
+    desc: "Download command piped to shell"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: download-cmd
+      - id: pipe-sh-or-bash
+
+  # Pipe to shell composite (migrated from YARA)
+  - id: pipe-to-shell
+    desc: "Download and pipe to shell"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    platforms: [linux]
+    any:
+      - id: download-pipe-shell
+      - id: output-pipe-sh
+
+  # Helper: send functions or download tools
+  - id: send-or-download
+    desc: "Send functions or download tools"
+    crit: notable
+    conf: 0.3
+    for: [elf]
+    platforms: [linux]
+    any:
+      - id: send-func
+      - id: sendto-func
+      - id: sendfile-func
+      - id: tftp-string
+      - id: wget-cmd
+      - id: curl-cmd
+
+  # Self-propagate composite (migrated from YARA)
+  - id: self-propagate
+    desc: "Read own executable for propagation"
+    crit: suspicious
+    conf: 0.8
+    mbc: "E1036"
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: micro-traits/fs/proc/info::process-self-exe
+      - id: send-or-download
+
+  - id: mirai-variant
+    desc: "Mirai-like IoT botnet (credential brute-force targeting)"
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1110.001"
+    for: [elf]
+    platforms: [linux]
+    needs: 2
+    any:
+      - id: objectives/lateral-movement/brute-force/iot-creds::mirai-cred-admin
+      - id: busybox
+      - id: pipe-to-shell
+
+  - id: multi-protocol
+    desc: "Multi-protocol payload dropper (wget/tftp/ftpget/curl)"
+    crit: suspicious
+    conf: 0.9
+    mbc: "B0024"
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    needs: 2
+    any:
+      - id: busybox-wget
+      - id: busybox-tftp
+      - id: busybox-ftpget
+      - id: curl-http-download
+
+  - id: shellcode-stager-botnet
+    desc: "Shellcode stager with botnet self-propagation"
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0030"
+    attack: "T1105"
+    for: [elf]
+    platforms: [linux]
+    all:
+      - id: micro-traits/fs/proc/info::process-self-exe
+      - id: micro-traits/mem/protect/modify::rwx-prot-bytes
+      - id: well-known/tools/offensive/stagers::x64-jmp-register

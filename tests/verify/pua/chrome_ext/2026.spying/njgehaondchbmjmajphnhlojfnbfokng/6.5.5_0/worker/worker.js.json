@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -49,10 +49,10 @@
           "location": "0x5f4"
         }
       ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -83,10 +83,10 @@
           "location": "165:3"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
+      "id": "micro-behaviors/execution/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
       "conf": 0.6,
@@ -101,7 +101,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/loader/node-fetch.yaml"
     },
     {
       "id": "meta/quality/error-handling::catch-keyword",
@@ -119,7 +119,7 @@
       "source_file": "meta/quality/error-handling/traits.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::variable-immediate-call",
+      "id": "micro-behaviors/execution/eval/dynamic::variable-immediate-call",
       "kind": "capability",
       "desc": "Variable called immediately as function",
       "conf": 0.7,
@@ -132,10 +132,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/c2/network/beacon::http-response-text",
+      "id": "objectives/command-and-control/network/beacon::http-response-text",
       "kind": "capability",
       "desc": "HTTP response text extraction",
       "conf": 0.65,
@@ -149,10 +149,10 @@
           "value": "response.text"
         }
       ],
-      "source_file": "obj/c2/network/beacon/json-c2.yaml"
+      "source_file": "objectives/command-and-control/network/beacon/json-c2.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -189,7 +189,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/internal/imported::parseplaylist",

@@ -1,8 +1,0 @@
-# HTTP/FTP Upload Symbols - Deleted
-# This was a taxonomy violation - atomic symbol detection belongs in cap/
-# The capabilities already exist at:
-# - cap/comm/http/upload::http-upload-symbol
-# - cap/comm/ftp/upload::ftp-upload-symbol
-#
-# For proper exfiltration objectives, combine upload capabilities with other
-# evidence of malicious intent (sensitive file paths, encoding, etc.)

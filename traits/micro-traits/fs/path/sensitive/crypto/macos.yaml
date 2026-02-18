@@ -1,0 +1,11 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: crypto-wallets
+    desc: Reference to cryptocurrency wallet data
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      regex: "(\\.wallet|wallet\\.dat)"

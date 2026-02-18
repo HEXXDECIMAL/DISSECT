@@ -1,0 +1,12 @@
+traits:
+- id: js-umd-wrapper
+  desc: Universal Module Definition (UMD) wrapper
+  crit: inert
+  conf: 0.9
+  for:
+  - javascript
+  - typescript
+  if:
+    type: raw
+    regex: if\s*\(\s*typeof\s*exports\s*===\s*["']object["']\s*&&\s*typeof\s*module\s*!==\s*["']undefined["']\)|typeof\s*define\s*===\s*["']function["']\s*&&\s*define\.amd
+composite_rules: []

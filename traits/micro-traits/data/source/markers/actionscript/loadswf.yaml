@@ -1,0 +1,33 @@
+# ActionScript LoadSWF Dropper Identifiers
+# Specific identifiers found in the 'loadswf' malware family (CVE-2018-4878 dropper).
+
+defaults:
+  for: [all]
+  crit: suspicious
+  conf: 0.9
+
+traits:
+  - id: loadswf-typos
+    desc: Function name typos in LoadSWF (Reqest, Decript)
+    if:
+      type: raw
+      regex: 'SendGetSwfKeyReqest|Decript'
+
+  - id: loadswf-fingerprint-params
+    desc: System fingerprinting parameters (fp_vs, os_vs)
+    if:
+      type: raw
+      regex: 'fp_vs=|os_vs='
+
+  - id: loadswf-xor-loop
+    desc: XOR decryption loop logic
+    if:
+      type: raw
+      regex: '\^ swf_key\['
+
+  - id: loadswf-class-name
+    desc: Class name 'loadswf' or 'loadswf_MyURL'
+    crit: notable
+    if:
+      type: raw
+      regex: 'loadswf|loadswf_MyURL|loadswf_SWFBClass'

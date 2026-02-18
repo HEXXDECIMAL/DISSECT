@@ -1,0 +1,66 @@
+# Windows Script and Executable Indicators
+# Generic markers for Windows executable file types and script engines
+# These are neutral capabilities that gain significance in context
+
+defaults:
+  for: [all]
+  crit: notable
+  conf: 0.5
+  platforms: [windows]
+
+traits:
+  # === File Extension Indicators ===
+  - id: exe-extension
+    desc: .exe executable file extension reference
+    conf: 0.4
+    if:
+      type: string
+      exact: ".exe"
+
+  - id: bat-extension
+    desc: .bat batch script file extension reference
+    conf: 0.4
+    if:
+      type: string
+      exact: ".bat"
+
+  - id: ps1-extension
+    desc: .ps1 PowerShell script file extension reference
+    if:
+      type: string
+      exact: ".ps1"
+
+  - id: vbs-extension
+    desc: .vbs VBScript file extension reference
+    if:
+      type: string
+      exact: ".vbs"
+
+  # === Command References ===
+  - id: cmd-exe
+    desc: cmd.exe Windows command shell reference
+    conf: 0.4
+    if:
+      type: string
+      substr: "cmd.exe"
+
+  - id: powershell-exe
+    desc: powershell.exe executable reference
+    if:
+      type: string
+      substr: "powershell.exe"
+
+composite_rules:
+  # Composite for any Windows executable file type reference
+  - id: windows-executable-ref
+    desc: Windows executable or script file type reference
+    crit: notable
+    conf: 0.6
+    platforms: [windows]
+    any:
+      - id: exe-extension
+      - id: bat-extension
+      - id: ps1-extension
+      - id: vbs-extension
+      - id: micro-traits/data/text/keywords::powershell
+      - id: cmd-exe

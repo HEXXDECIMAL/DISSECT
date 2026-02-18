@@ -1,0 +1,144 @@
+defaults:
+  for:
+  - all
+traits:
+- id: icmp-hdr-struct
+  desc: ICMP header structure (C)
+  crit: notable
+  conf: 0.6
+  for:
+  - c
+  if:
+    type: string
+    substr: struct icmphdr
+- id: icmp-rcv
+  desc: ICMP receive handler
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    substr: icmp_rcv
+- id: magic-0x539
+  desc: Magic value 0x539 (1337)
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    substr: '0x539'
+- id: revshell-keyword-upper
+  desc: REVSHELL keyword (uppercase)
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    substr: REVSHELL
+- id: revshell-keyword-title
+  desc: Revshell keyword (titlecase)
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    substr: Revshell
+- id: icmp-echo-const
+  desc: ICMP_ECHO constant
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    substr: ICMP_ECHO
+- id: magic-1337
+  desc: Magic value 1337 (common trigger)
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    regex: (?:port|pass|key|magic|secret|trigger|backdoor|c2)[=:_\-\s]*1337|1337[=:_\-\s]*(?:port|pass|key|magic|secret|trigger|backdoor|c2)
+- id: trigger-keyword-lower
+  desc: trigger keyword (lowercase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\-\s]*trigger|trigger[_\-\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)
+- id: trigger-keyword-upper
+  desc: TRIGGER keyword (uppercase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\-\s]*TRIGGER|TRIGGER[_\-\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)
+- id: trigger-keyword-title
+  desc: Trigger keyword (titlecase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\-\s]*Trigger|Trigger[_\-\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)
+- id: activate-keyword-lower
+  desc: activate keyword (lowercase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\-\s]*activate|activate[_\-\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)
+- id: activate-keyword-upper
+  desc: ACTIVATE keyword (uppercase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\-\s]*ACTIVATE|ACTIVATE[_\-\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)
+- id: activate-keyword-title
+  desc: Activate keyword (titlecase)
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: (?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\-\s]*Activate|Activate[_\-\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)
+- id: revshell-keyword-lower
+  desc: revshell keyword (lowercase)
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    regex: (?:trigger|activate|backdoor|payload)[_\-\s]*revshell|revshell[_\-\s]*(?:trigger|activate)
+composite_rules:
+- id: icmp-context
+  desc: ICMP packet handling context
+  any:
+  - id: icmp-hdr-struct
+  - id: icmp-rcv
+  crit: notable
+- id: magic-values
+  desc: Magic trigger values
+  any:
+  - id: magic-1337
+  - id: magic-0x539
+  crit: notable
+- id: trigger-keywords
+  desc: C2 trigger activation keywords
+  any:
+  - id: trigger-keyword-lower
+  - id: trigger-keyword-upper
+  - id: trigger-keyword-title
+  - id: activate-keyword-lower
+  - id: activate-keyword-upper
+  - id: activate-keyword-title
+  - id: revshell-keyword-lower
+  - id: revshell-keyword-upper
+  - id: revshell-keyword-title
+  - id: icmp-echo-const
+  crit: notable
+- id: icmp-magic-packet
+  desc: ICMP packet inspection for magic
+  crit: suspicious
+  conf: 0.95
+  attack: T1205.001
+  for:
+  - c
+  - go
+  - python
+  all:
+  - id: icmp-context
+  - id: magic-values
+  - id: trigger-keywords

@@ -1,7 +1,0 @@
-traits:
-  - id: moment-locale
-    desc: Moment.js locale file
-    crit: inert
-    if:
-      type: raw
-      regex: "moment\\.js language configuration"

@@ -1,0 +1,21 @@
+# Environment Variable Access (Python)
+# Basic Python environment variable access functions
+# MBC: E1082 (System Information Discovery)
+# ATT&CK: T1082 (System Information Discovery)
+
+defaults:
+  for: [python]
+  platforms: [linux, unix, macos, windows]
+  crit: inert
+  mbc: "E1082"
+  attack: "T1082"
+
+traits:
+  # Removed os-getenv-symbol duplicate - use micro-traits/os/env/vars::getenv (symbol works across all platforms)
+
+  - id: os-environ-symbol
+    desc: os.environ attribute
+    conf: 0.6
+    if:
+      type: symbol
+      exact: "os.environ"

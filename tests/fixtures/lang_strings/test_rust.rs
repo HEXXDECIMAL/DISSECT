@@ -30,7 +30,7 @@ static SERVER: Server = Server {
     port: "9443",
 };
 
-static CREDS: Credentials = Credentials {
+static credential-access: Credentials = Credentials {
     username: "rust_admin",
     password: "rust_secret123",
     token: "rs_live_token_xyz789",
@@ -50,7 +50,7 @@ fn main() {
 
     // Use static structs
     println!("Server: {} at {}:{}", SERVER.name, SERVER.host, SERVER.port);
-    println!("Creds: {} / {} / {}", CREDS.username, CREDS.password, CREDS.token);
+    println!("credential-access: {} / {} / {}", credential-access.username, credential-access.password, credential-access.token);
 
     // ============== LOCAL VARIABLES ==============
     let local_path = "/etc/shadow";

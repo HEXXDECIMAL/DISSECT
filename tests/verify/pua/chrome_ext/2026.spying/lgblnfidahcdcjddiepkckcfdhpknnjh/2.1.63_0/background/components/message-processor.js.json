@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/strings::few-strings",
+      "id": "objectives/anti-static/obfuscation/code-metrics/strings::few-strings",
       "kind": "capability",
       "desc": "Very few string literals (string",
       "conf": 0.4,
@@ -26,10 +26,10 @@
           "value": "strings.total = 4.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/strings/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/strings/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -43,10 +43,10 @@
           "value": "text.whitespace_ratio = 0.10"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -58,7 +58,7 @@
           "value": "message-processor.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::result",

@@ -1,0 +1,22 @@
+traits:
+- id: js-many-tiny-strings
+  desc: Many tiny strings (1-3 chars)
+  crit: notable
+  for:
+  - javascript
+  if:
+    type: string
+    regex: ^.{1,3}$
+    count_min: 50
+- id: js-fragmented-property-access
+  desc: Computed property access using concatenation (obfuscation)
+  crit: suspicious
+  conf: 0.8
+  for:
+  - javascript
+  attack: T1027
+  mbc: B0032
+  if:
+    type: raw
+    regex: '[\w$]+\s*\[\s*(?:[a-zA-Z_$][\w$]*|[''"][^''"]{0,120}[''"])\s*(?:\+\s*(?:[a-zA-Z_$][\w$]*|[''"][^''"]{0,120}[''"])\s*){1,8}\]'
+composite_rules: []

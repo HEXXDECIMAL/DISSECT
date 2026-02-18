@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::overflow",
+      "id": "micro-behaviors/data/text/keywords::overflow",
       "kind": "capability",
       "desc": "overflow keyword",
       "conf": 0.2,
@@ -67,10 +67,10 @@
           "location": "0x18c"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
       "kind": "capability",
       "desc": "MutationObserver DOM monitoring",
       "conf": 0.9,
@@ -83,10 +83,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
       "conf": 0.9,
@@ -99,10 +99,10 @@
           "location": "3:1"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -114,7 +114,7 @@
           "value": "inquirer.net.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::body/style/setproperty",

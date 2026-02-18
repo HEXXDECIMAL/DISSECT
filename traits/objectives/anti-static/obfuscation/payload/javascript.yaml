@@ -1,0 +1,44 @@
+# JavaScript Encrypted Payload Decoder Detection
+# Detects JS modules that serve as decryptors for encrypted payloads
+# Common in supply chain attacks: separate decoder module + encrypted data file
+# ATT&CK: T1027 (Obfuscated Files or Information)
+# MBC: B0032 (Obfuscated Files or Information)
+
+defaults:
+  for: [javascript, typescript]
+  attack: "T1027"
+  mbc: "B0032"
+
+traits:
+  # Exported decryption function - module.exports a function using createDecipheriv
+  - id: exported-decryptor
+    desc: Module exports decryption function
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: "module\\.exports\\s*=\\s*function"
+
+  # Base64 decode and execute
+  - id: decode-exec-js
+    desc: Base64 decode followed by eval/Function
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "atob.{0,64}(eval|Function)"
+
+composite_rules:
+  # Standalone decryption utility with hardcoded key material
+  # Pattern: require('crypto') + createDecipheriv + hardcoded hex key/IV
+  # Suspicious: legitimate crypto modules don't hardcode keys
+  - id: hardcoded-key-decryptor
+    desc: Decryption module with hardcoded key material
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: micro-traits/crypto/symmetric/aes::createDecipheriv
+      - id: micro-traits/crypto/symmetric/aes::hardcoded-key
+    any:
+      - id: micro-traits/crypto/symmetric/aes::buffer-hex-key-material
+      - id: exported-decryptor

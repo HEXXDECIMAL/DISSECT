@@ -17,73 +17,6 @@ fn create_test_report() -> AnalysisReport {
     AnalysisReport::new(target)
 }
 
-fn create_test_report_with_encoded_strings() -> AnalysisReport {
-    let mut report = create_test_report();
-
-    // Add test strings with encoding chains for testing eval_base64 and eval_xor
-    report.strings.push(StringInfo {
-        value: "secret_password".to_string(),
-        offset: Some(0x1000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Const,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["base64".to_string()],
-        fragments: None,
-    });
-
-    report.strings.push(StringInfo {
-        value: "https://evil.com/payload".to_string(),
-        offset: Some(0x2000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Url,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["base64".to_string()],
-        fragments: None,
-    });
-
-    report.strings.push(StringInfo {
-        value: "192.168.1.1".to_string(),
-        offset: Some(0x3000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::IP,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["base64".to_string()],
-        fragments: None,
-    });
-
-    report.strings.push(StringInfo {
-        value: "malware".to_string(),
-        offset: Some(0x4000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Const,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["xor".to_string()],
-        fragments: None,
-    });
-
-    report.strings.push(StringInfo {
-        value: "secret1".to_string(),
-        offset: Some(0x5000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Const,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["xor".to_string()],
-        fragments: None,
-    });
-
-    report.strings.push(StringInfo {
-        value: "MALWARE_UPPERCASE".to_string(),
-        offset: Some(0x6000),
-        encoding: "utf8".to_string(),
-        string_type: crate::types::StringType::Const,
-        section: Some(".data".to_string()),
-        encoding_chain: vec!["xor".to_string()],
-        fragments: None,
-    });
-
-    report
-}
-
 fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> EvaluationContext<'a> {
     EvaluationContext {
         report,
@@ -642,17 +575,6 @@ fn test_eval_string_in_imports() {
 }
 
 /// Helper to create an empty report (no strings extracted)
-fn create_empty_report() -> AnalysisReport {
-    let target = TargetInfo {
-        path: "/test/binary".to_string(),
-        file_type: "elf".to_string(),
-        size_bytes: 1024,
-        sha256: "abc123".to_string(),
-        architectures: Some(vec!["x86_64".to_string()]),
-    };
-    AnalysisReport::new(target)
-}
-
 // =============================================================================
 // eval_raw tests
 // =============================================================================

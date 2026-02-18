@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
       "kind": "capability",
       "desc": "MutationObserver DOM monitoring",
       "conf": 0.9,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
       "conf": 0.9,
@@ -41,10 +41,10 @@
           "location": "10:3"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -56,7 +56,7 @@
           "value": "dailymail.co.uk.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::fn",

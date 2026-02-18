@@ -35,7 +35,7 @@ pub(crate) fn is_zero_i64(v: &i64) -> bool {
 }
 
 // Module declarations
-pub(crate) mod binary;
+pub mod binary;
 pub(crate) mod binary_metrics;
 pub(crate) mod code_structure;
 pub(crate) mod container_metrics;
@@ -53,7 +53,7 @@ pub(crate) mod traits_findings;
 // Re-export all public types to maintain API compatibility
 // These re-exports are part of the public library API even if not used directly in the binary
 #[allow(unused_imports)]
-pub(crate) use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
+pub use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
 
 #[allow(unused_imports)]
 pub(crate) use file_analysis::{
@@ -62,7 +62,7 @@ pub(crate) use file_analysis::{
 };
 
 #[allow(unused_imports)]
-pub(crate) use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};
+pub use traits_findings::{Evidence, Finding, FindingKind, StructuralFeature, Trait, TraitKind};
 
 #[allow(unused_imports)]
 pub(crate) use paths_env::{
@@ -71,7 +71,7 @@ pub(crate) use paths_env::{
 };
 
 #[allow(unused_imports)]
-pub(crate) use binary::{
+pub use binary::{
     AnalysisMetadata, DecodedString, Export, Function, Import, MatchedString, Section, StringInfo,
     StringType, SyscallInfo, YaraMatch,
 };

@@ -1,0 +1,16 @@
+defaults:
+  crit: notable
+  conf: 1.0
+  for:
+  - all
+traits:
+- id: inline__curl-silent-stdout__any_1
+  desc: Derived raw condition
+  if:
+    type: raw
+    regex: curl\s+[^|&\n]{0,120}-s[^|&\n]{0,120}(https?://|ftp://)
+- id: inline__curl-silent-stdout__any_2
+  desc: Derived raw condition
+  if:
+    type: raw
+    regex: curl\s+[^|&\n]{0,120}--silent[^|&\n]{0,120}(https?://|ftp://)

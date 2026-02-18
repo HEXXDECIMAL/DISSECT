@@ -34,7 +34,7 @@
       "source_file": "meta/quality/logging/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -53,10 +53,10 @@
           "location": "0x53"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
       "conf": 0.65,
@@ -70,10 +70,10 @@
           "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
       "conf": 0.6,
@@ -87,10 +87,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "id": "objectives/discovery/host/fingerprint::md5-keyword",
       "kind": "capability",
       "desc": "md5 hash algorithm",
       "conf": 0.6,
@@ -109,7 +109,7 @@
           "location": "0x373"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "known/malware/backdoor/melofee::heartbeat-string",
@@ -134,7 +134,7 @@
       "source_file": "known/malware/backdoor/melofee/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -148,10 +148,10 @@
           "value": "text.whitespace_ratio = 0.07"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "id": "micro-behaviors/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
       "conf": 0.85,
@@ -165,10 +165,10 @@
           "value": "identifiers.avg_entropy = 3.09"
         }
       ],
-      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+      "source_file": "micro-behaviors/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/vscode::activate-word",
+      "id": "objectives/lateral-movement/supply-chain/vscode::activate-word",
       "kind": "capability",
       "desc": "activate keyword",
       "conf": 0.7,
@@ -187,10 +187,10 @@
           "location": "0x526"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "id": "micro-behaviors/execution/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
       "conf": 0.4,
@@ -221,10 +221,10 @@
           "location": "0x66d"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
+      "id": "objectives/lateral-movement/supply-chain/electron::electron-resources-path",
       "kind": "capability",
       "desc": "Electron resources directory",
       "conf": 0.7,
@@ -245,10 +245,10 @@
           "location": "0x140"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -260,10 +260,10 @@
           "value": "background.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -282,10 +282,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::hash-algorithms",
+      "id": "objectives/discovery/host/fingerprint::hash-algorithms",
       "kind": "capability",
       "desc": "Hash algorithm keywords",
       "conf": 1.0,
@@ -304,7 +304,7 @@
           "location": "0x373"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "known/malware/backdoor/melofee::c2-protocols",

@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-string-split",
       "kind": "capability",
       "desc": "Split to empty-delimiter char array",
       "conf": 0.6,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "id": "micro-behaviors/execution/eval/dynamic::iife-pattern",
       "kind": "capability",
       "desc": "Immediately invoked function expression",
       "conf": 0.9,
@@ -41,10 +41,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -56,10 +56,10 @@
           "value": "page_embed_script.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::auto-execute",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::auto-execute",
       "kind": "capability",
       "desc": "Code auto-executes on require/import",
       "conf": 0.8,
@@ -72,7 +72,7 @@
           "location": "offset:0"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
       "id": "meta/internal/imported::window/_docs_chrome_extension_permissions",

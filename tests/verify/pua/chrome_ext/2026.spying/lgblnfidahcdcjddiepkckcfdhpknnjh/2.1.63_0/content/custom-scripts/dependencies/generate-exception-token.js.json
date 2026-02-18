@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::token",
+      "id": "micro-behaviors/data/text/keywords::token",
       "kind": "capability",
       "desc": "token keyword",
       "conf": 0.2,
@@ -24,10 +24,10 @@
           "value": "token"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::fromcharcode",
       "kind": "capability",
       "desc": "String obfuscation via fromCharCode",
       "conf": 0.66,
@@ -41,10 +41,10 @@
           "value": "String.fromCharCode"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -56,7 +56,7 @@
           "value": "generate-exception-token.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::date/now",

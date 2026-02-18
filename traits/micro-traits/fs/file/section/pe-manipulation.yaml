@@ -1,0 +1,13 @@
+defaults:
+  for:
+  - all
+traits:
+- id: asm-pe-header-manipulation
+  conf: 0.8
+  crit: suspicious
+  desc: Assembly source code referencing multiple PE header
+  if:
+    type: raw
+    count_min: 3
+    regex: IMAGE_DOS_SIGNATURE|IMAGE_NT_SIGNATURE|AddressOfEntryPoint|SizeOfImage|NumberOfSections|SizeOfRawData|VirtualAddress|characteristics|PointerToRawData
+composite_rules: []

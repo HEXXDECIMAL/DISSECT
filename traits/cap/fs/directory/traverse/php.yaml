@@ -1,9 +1,0 @@
-traits:
-  - id: php-dir-traverse
-    description: "Iterate directory contents in PHP"
-    crit: notable
-    attack: T1083
-    if:
-      type: raw
-      regex: '(?:open|read|scan)dir\s*[(]|glob\s*[(]|(?:Directory|Filesystem|RecursiveDirectory)Iterator'
-      case_insensitive: true

@@ -1,8 +1,0 @@
-traits:
-  - id: gcc-compiler
-    desc: GCC compiler signature
-    crit: inert
-    conf: 0.9
-    if:
-      type: string
-      substr: "GCC: (GNU)"

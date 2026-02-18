@@ -1,0 +1,22 @@
+# SSL/TLS Library References
+# Generic library string references (inert markers)
+
+defaults:
+  for: [all]
+
+traits:
+  - id: libssl-ref
+    desc: libssl library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      substr: "libssl"
+
+  - id: libcrypto-ref
+    desc: libcrypto library reference
+    crit: inert
+    conf: 0.3
+    if:
+      type: string
+      substr: "libcrypto"

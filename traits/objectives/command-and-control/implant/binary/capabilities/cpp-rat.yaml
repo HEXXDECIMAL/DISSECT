@@ -1,0 +1,196 @@
+defaults:
+  for:
+  - elf
+  - macho
+  - pe
+  mbc: B0030
+traits:
+- id: rshell-function
+  desc: Remote shell function pattern
+  crit: suspicious
+  conf: 0.95
+  attack: T1059.004
+  if:
+    type: string
+    regex: (RShell(Run|Init|CleanUp)|InitRShellFDS|OnReceivedPacket.{0,30}RShell)
+- id: remote-cmd-exec
+  desc: Remote command execution pattern
+  crit: suspicious
+  conf: 0.9
+  attack: T1059
+  if:
+    type: string
+    regex: (ExecShellCmd|RunShellCmd|RemoteExec|ExecCommand|CmdExec)\b
+- id: heartbeat-thread
+  desc: Heartbeat thread procedure
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: ThreadProc.{0,20}HeartBeat|HeartBeatThread
+- id: register-to-server
+  desc: C2 registration function
+  crit: suspicious
+  conf: 0.9
+  attack: T1071.001
+  if:
+    type: string
+    regex: (RegisterSelfToServer|RegisterToServer|RegisterClient|SelfRegister)\b
+- id: session-id-mgmt
+  desc: C2 session management
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: (g_szSessionID|GetSessionID|SessionUDFromServer|m_SessionID)\b
+- id: server-config-vars
+  desc: C2 server config variables
+  crit: notable
+  conf: 0.8
+  if:
+    type: string
+    regex: (g_tagSockAddrInServer|g_lpLinuxClientHostCfg|g_lpLinuxClientDefaultCfg)\b
+- id: basic-info-gather-class
+  desc: Victim info gathering class
+  crit: suspicious
+  conf: 0.95
+  attack: T1082
+  if:
+    type: string
+    regex: (CBasicInfoGather|BasicInfoGather|SystemInfoGather)
+- id: victim-profile-format
+  desc: Victim profile format strings
+  crit: suspicious
+  conf: 0.9
+  attack: T1082
+  if:
+    type: string
+    regex: (OSInfo:%s|MachineName:%s|LanIP:%s|Userame:%s|OSBits:%s|GateWay:%s)
+- id: dir-op-functions
+  desc: Remote directory operations
+  crit: notable
+  conf: 0.85
+  attack: T1083
+  if:
+    type: string
+    regex: (DirOp(Directory|GetDirectoryData|DirectoryDelete)|OnReceiveDirOPTypeCmd)
+- id: task-dispatch
+  desc: C2 task dispatch functions
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: (OnReceivedPacket.{0,20}Task|RunChildTask|OnReceive.{0,20}NewTask)
+- id: packet-data-struct
+  desc: C2 packet structures
+  crit: notable
+  conf: 0.8
+  if:
+    type: string
+    regex: (TAG_PACKET_TO_SEND|ListPacketToSend|DataReceiver|DataSender)
+- id: heartbeat-function
+  desc: C2 heartbeat function
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: string
+    regex: (SendHeart|setHeart|g_threadHeartBeat|HeartBeat(Thread|Loop|Task)|heartbeat_(task|loop|thread))\b
+- id: file-op-functions
+  desc: Remote file operation functions
+  crit: notable
+  conf: 0.85
+  attack: T1105
+  if:
+    type: string
+    regex: (FileOP(DeleteFile|CreateNewFile|SendDirData|Rename|GetFileSize|ModFileTime|WriteNewFileData)|OnReceive.{0,30}FileOP)
+composite_rules:
+- id: cpp-rat-rshell-beacon
+  desc: C++ RAT with remote shell
+  crit: hostile
+  conf: 0.95
+  mbc: B0030
+  attack: T1059.004
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: rshell-function
+  - id: heartbeat-function
+  - id: micro-traits/process/create/shell::shell-symbols
+- id: cpp-rat-full-implant
+  desc: Full C++ RAT implant
+  crit: hostile
+  conf: 0.95
+  mbc: B0030
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: heartbeat-function
+  - id: register-to-server
+  - id: basic-info-gather-class
+  - id: micro-traits/process/create/shell::shell-symbols
+- id: cpp-rat-c2-registration
+  desc: C++ RAT with C2 registration
+  crit: hostile
+  conf: 0.95
+  mbc: B0030
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: heartbeat-function
+  - id: register-to-server
+  - id: micro-traits/comm/socket/create
+- id: cpp-rat-file-mgmt
+  desc: C++ RAT with file management
+  crit: hostile
+  conf: 0.93
+  mbc: B0030
+  attack: T1105
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: heartbeat-function
+  - id: file-op-functions
+  - id: dir-op-functions
+  - id: micro-traits/comm/socket/create
+- id: cpp-rat-with-profiling
+  desc: C++ RAT with victim profiling
+  crit: hostile
+  conf: 0.95
+  mbc: B0030
+  attack: T1082
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: heartbeat-function
+  - id: basic-info-gather-class
+  - id: victim-profile-format
+  any:
+  - id: register-to-server
+  - id: rshell-function
+  - id: objectives/persist/cron/schedule::crontab-string
+- id: cpp-rat-command-control
+  desc: C++ RAT command and control
+  crit: hostile
+  conf: 0.92
+  mbc: B0030
+  for:
+  - elf
+  - macho
+  - pe
+  all:
+  - id: heartbeat-function
+  - id: session-id-mgmt
+  - id: task-dispatch
+  - id: micro-traits/comm/socket/create

@@ -1,9 +1,0 @@
-traits:
-  - id: asm-manual-import-parsing
-    conf: 0.9
-    crit: suspicious
-    desc: Manually parses Export Table (often shellcode/malware)
-    if:
-      type: raw
-      regex: '(IMAGE_EXPORT_DIRECTORY|AddressOfNames|AddressOfFunctions|AddressOfOrdinals|GetProcAddressET)'
-      count_min: 2

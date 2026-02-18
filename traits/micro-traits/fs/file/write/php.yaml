@@ -1,0 +1,12 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: php-file-write
+    description: "Writes data to a file"
+    crit: notable
+    attack: T1546
+    if:
+      type: raw
+      regex: '[$]?(?:fwrite|fputs|file_put_contents|fopen)\s*[(]|SplFileObject'
+      case_insensitive: true

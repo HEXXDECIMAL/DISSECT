@@ -1,0 +1,30 @@
+# UI Delivery (JavaScript)
+# Detects patterns related to dynamic ad or malicious content delivery
+
+defaults:
+  for: [all]
+
+traits:
+  - id: ui-delivery-class
+    desc: JavaScript referring to .ui-delivery CSS class
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      substr: ".ui-delivery"
+
+  - id: dynamic-ad-injection
+    desc: Potential dynamic ad or content injection pattern
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: '(?i)(innerHTML|appendChild|insertBefore).*?(delivery|ads|promo)'
+
+  - id: news-delivery-pattern
+    desc: Potential malicious news or content delivery pattern
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: '(?i)\.(news|tips|rm|adb)\.js'

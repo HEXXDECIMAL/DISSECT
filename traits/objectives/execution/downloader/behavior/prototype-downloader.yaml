@@ -1,0 +1,13 @@
+composite_rules:
+  - id: js-prototype-downloader
+    desc: Hostile JScript Downloader using String.prototype trick
+    crit: hostile
+    for: [javascript]
+    all:
+      - id: objectives/anti-static/obfuscation/source/prototype::return-this
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragments-composite
+    any:
+      - id: micro-traits/fs/path/extension::scr
+      - id: objectives/anti-static/obfuscation/source/names::fake-jquery-vars
+      - id: objectives/execution/interpreter/script/wsh::payload-handling-fragment-tiny-exact
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-tiny-exact

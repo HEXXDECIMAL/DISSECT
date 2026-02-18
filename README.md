@@ -47,9 +47,9 @@ dissect strings malware.exe --min-length 10
 
 Rules follow [MBC (Malware Behavior Catalog)](https://github.com/MBCProject/mbc-markdown) hierarchy:
 
-- **Traits** (`cap/`): Atomic detections—individual capabilities with no judgment
-- **Composites** (`obj/`): Behavioral patterns—traits combined into tactics and objectives
-- **Known** (`known/`): Malware families and tool signatures
+- **Traits** (`micro-behaviors/`): Atomic detections—individual capabilities with no judgment
+- **Composites** (`objectives/`): Behavioral patterns—traits combined into tactics and objectives
+- **Known** (`well-known/`): Malware families and tool signatures
 
 Confidence ranges from 1.0 (AST-level certainty) to heuristic matches (0.7–0.9). Criticality is independent of confidence—a socket import is certain but inert; a Telegram API endpoint is uncertain but hostile.
 

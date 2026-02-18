@@ -1,0 +1,39 @@
+# Obfuscated WSH String Fragments (Extended)
+# Detects smaller fragmented strings common in specific JScript obfuscation (e.g. 2016 samples)
+
+defaults:
+  crit: suspicious
+  conf: 0.9
+  for: [javascript]
+
+traits:
+  - id: wscript-shell-fragment-short
+    desc: WScript.Shell string fragment (short)
+    crit: notable
+    if:
+      type: string
+      regex: 'WScr|\.Shel|ript\.S|hell'
+    unless:
+      - id: metadata/builder/autotools::autotools
+      - id: metadata/builder/autotools::configure-ac
+      - id: metadata/builder/pip::setup-py
+      - id: metadata/quality/help::usage-title
+
+  - id: msxml-fragment-short
+    desc: MSXML2.XMLHTTP string fragment (short)
+    crit: notable
+    if:
+      type: string
+      regex: '2\.XML'
+
+  - id: adodb-fragment-short
+    desc: ADODB.Stream string fragment (short)
+    if:
+      type: string
+      regex: 'DODB'
+
+  - id: expand-env-fragment-short
+    desc: ExpandEnvironmentStrings fragment (short)
+    if:
+      type: string
+      regex: 'EnvStrings'

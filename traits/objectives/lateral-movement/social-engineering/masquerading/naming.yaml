@@ -1,0 +1,73 @@
+# Social Engineering - Generic Naming Patterns
+# GAP #5: Detects generic/suspicious application naming used for masquerading
+# Malware often uses generic names to appear legitimate while hiding true purpose
+# ATT&CK: T1036.005 (Match Legitimate Name and Location)
+
+defaults:
+  for: [macho]
+  platforms: [macos, ios]
+  attack: "T1036.005"
+  mbc: "F0009"
+
+traits:
+  # Generic executable names
+  - id: generic-executable-name
+    desc: "Generic executable name"
+    crit: notable
+    conf: 0.6
+    if:
+      type: basename
+      regex: "^(Application|Installer|Update|Setup|Service|Helper|Tool|Utility)$"
+      case_insensitive: true
+
+composite_rules:
+  # Match bundle IDs with generic utility/app patterns
+  # The metadata/signed/id:: trait is already extracted by macho parser
+  - id: generic-bundle-id-pattern
+    desc: "Generic bundle identifier pattern"
+    crit: notable
+    conf: 0.75
+    any:
+      - id: metadata/signed/id::com.utils.application
+      - id: metadata/signed/id::com.util.application
+      - id: metadata/signed/id::com.utility.application
+      - id: metadata/signed/id::com.app.application
+      - id: metadata/signed/id::com.tools.application
+      - id: metadata/signed/id::com.tool.application
+      - id: metadata/signed/id::com.helper.application
+      - id: metadata/signed/id::com.service.application
+
+  # Combination of generic bundle ID + unsigned = suspicious
+  - id: suspicious-generic-naming
+    desc: "Suspicious generic application naming"
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: generic-bundle-id-pattern
+      - id: metadata/signed/adhoc::unsigned
+
+  # Generic naming + malicious capabilities = masquerading malware
+  - id: masquerading-malware-generic
+    desc: "Masquerading malware with generic name"
+    crit: suspicious
+    conf: 0.9
+    attack: "T1036.005"
+    all:
+      - id: generic-bundle-id-pattern
+    any:
+      - id: micro-traits/process/create/shell::c-popen
+      - id: micro-traits/process/create/shell::c-system
+      - id: objectives/persist/daemon/init::daemon-fork
+    none:
+      - id: metadata/signed/platform::apple
+
+  # Very suspicious: generic name + ad-hoc signature + shell execution
+  - id: unsigned-generic-shell-exec
+    desc: "Unsigned generic app with shell"
+    crit: suspicious
+    conf: 0.95
+    attack: "T1036.005"
+    all:
+      - id: metadata/signed/adhoc::unsigned
+      - id: generic-executable-name
+      - id: micro-traits/process/create/shell::shell-execution

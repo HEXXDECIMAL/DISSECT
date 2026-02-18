@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -25,10 +25,10 @@
           "value": "webextApi.runtime.sendMessage"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -42,10 +42,10 @@
           "value": "functions.one_liners = 27.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
       "conf": 0.65,
@@ -59,10 +59,10 @@
           "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
       "kind": "capability",
       "desc": "Low identifier reuse (each variable",
       "conf": 0.7,
@@ -76,10 +76,10 @@
           "value": "identifiers.reuse_ratio = 0.15"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "id": "objectives/lateral-movement/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
       "desc": "Code uses frontend framework patterns",
       "conf": 0.9,
@@ -91,10 +91,10 @@
           "value": "React.createElement"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
       "conf": 0.6,
@@ -108,10 +108,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
       "conf": 0.85,
@@ -125,10 +125,10 @@
           "value": "functions.density_per_100_lines = 2700.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -142,10 +142,10 @@
           "value": "text.max_line_length = 7307.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
       "conf": 0.8,
@@ -159,10 +159,10 @@
           "value": "identifiers.sequential_names = 9.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -176,10 +176,10 @@
           "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "id": "micro-behaviors/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
       "conf": 0.85,
@@ -193,10 +193,10 @@
           "value": "identifiers.avg_entropy = 2.53"
         }
       ],
-      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+      "source_file": "micro-behaviors/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::runtime-send-message",
       "kind": "capability",
       "desc": "Sends message between extension contexts",
       "conf": 0.9,
@@ -209,10 +209,10 @@
           "location": "1:6277"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
       "conf": 0.85,
@@ -226,10 +226,10 @@
           "value": "functions.high_entropy_names = 4.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
       "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
@@ -243,7 +243,7 @@
           "value": "text.max_line_length = 7307.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "meta/library/react::react-dom",
@@ -261,7 +261,7 @@
       "source_file": "meta/library/react/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "micro-behaviors/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
       "conf": 0.9,
@@ -274,10 +274,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::sendMessage",
       "kind": "capability",
       "desc": "chrome.runtime.sendMessage",
       "conf": 0.9,
@@ -290,10 +290,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -327,10 +327,10 @@
           "value": "identifiers.sequential_names = 9.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
       "kind": "capability",
       "desc": "Identifier obfuscation (random/encoded names)",
       "conf": 0.9,
@@ -354,10 +354,10 @@
           "value": "identifiers.reuse_ratio = 0.15"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-npm-malware-pattern",
       "kind": "capability",
       "desc": "npm malware obfuscation pattern (install",
       "conf": 0.9,
@@ -391,7 +391,7 @@
           "value": "negative_conditions_not_found"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
       "id": "meta/internal/imported::n/bottom",

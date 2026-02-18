@@ -1,0 +1,27 @@
+traits:
+- id: async-module-exports
+  desc: Exports async object
+  crit: inert
+  for:
+  - javascript
+  if:
+    type: raw
+    regex: module\.exports\s*=\s*async
+- id: async-exports-utility-regex
+  desc: Exports from async library
+  crit: inert
+  for:
+  - javascript
+  if:
+    type: raw
+    regex: async\.(?:forEach|series|parallel|waterfall|map|filter|reduce)\s*=\s*(?:function|root\.async)
+    count_min: 3
+composite_rules:
+- id: async-library
+  desc: Async utility library (caolan/async)
+  crit: notable
+  for:
+  - javascript
+  any:
+  - id: async-exports-utility-regex
+  - id: async-module-exports

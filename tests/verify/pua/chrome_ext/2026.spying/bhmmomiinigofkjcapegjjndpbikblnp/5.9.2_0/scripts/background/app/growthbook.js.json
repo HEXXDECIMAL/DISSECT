@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::payload",
+      "id": "micro-behaviors/data/text/keywords::payload",
       "kind": "capability",
       "desc": "payload keyword",
       "conf": 0.2,
@@ -31,10 +31,10 @@
           "location": "0x1ee"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "id": "objectives/command-and-control/infrastructure/domain::hardcoded-domain-com",
       "kind": "capability",
       "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
       "conf": 0.7,
@@ -55,10 +55,10 @@
           "location": "0x147"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -72,10 +72,10 @@
           "value": "functions.one_liners = 5.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "id": "objectives/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
       "conf": 0.5,
@@ -87,10 +87,10 @@
           "value": "Object.keys"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "id": "objectives/command-and-control/infrastructure/domain::http-url-script",
       "kind": "capability",
       "desc": "Network URL with domain name (script)",
       "conf": 0.7,
@@ -111,10 +111,10 @@
           "location": "0x147"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::storage-local",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::storage-local",
       "kind": "capability",
       "desc": "Accesses local extension storage",
       "conf": 0.9,
@@ -139,10 +139,10 @@
           "location": "1:226"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
       "conf": 0.8,
@@ -156,10 +156,10 @@
           "value": "identifiers.sequential_names = 6.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -173,10 +173,10 @@
           "value": "text.whitespace_ratio = 0.02"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
+      "id": "micro-behaviors/execution/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
       "conf": 0.6,
@@ -191,10 +191,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/loader/node-fetch.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
+      "id": "objectives/lateral-movement/supply-chain/electron::electron-resources-path",
       "kind": "capability",
       "desc": "Electron resources directory",
       "conf": 0.7,
@@ -215,10 +215,10 @@
           "location": "0x1ee"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -230,10 +230,10 @@
           "value": "growthbook.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -245,10 +245,10 @@
           "value": "Object.keys"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -272,7 +272,7 @@
           "value": "identifiers.sequential_names = 6.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "meta/internal/imported::this/store/dispatch",

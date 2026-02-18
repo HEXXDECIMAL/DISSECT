@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "id": "objectives/discovery/host/fingerprint::md5-keyword",
       "kind": "capability",
       "desc": "md5 hash algorithm",
       "conf": 0.6,
@@ -31,10 +31,10 @@
           "location": "0x65"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -46,10 +46,10 @@
           "value": "main.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::hash-algorithms",
+      "id": "objectives/discovery/host/fingerprint::hash-algorithms",
       "kind": "capability",
       "desc": "Hash algorithm keywords",
       "conf": 1.0,
@@ -68,7 +68,7 @@
           "location": "0x65"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "meta/internal/imported::self/document",

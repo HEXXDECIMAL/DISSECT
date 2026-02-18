@@ -1,0 +1,13 @@
+composite_rules:
+  - id: dos-file-infector-c-source
+    desc: DOS File Infector Virus (C Source Code)
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: micro-traits/os/dos/interrupt::int-21h-inline-asm
+      - id: micro-traits/os/dos/interrupt::write-file
+      - id: micro-traits/os/dos/interrupt::find-first-file
+    any:
+      - id: micro-traits/fs/directory/traverse::set-current-directory-interrupt
+      - id: micro-traits/os/dos/interrupt::get-set-file-time
+      - id: micro-traits/os/dos/interrupt::set-file-attributes

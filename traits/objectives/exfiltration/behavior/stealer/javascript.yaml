@@ -1,0 +1,8 @@
+composite_rules:
+  - id: full-disk-upload
+    desc: Recursively scans filesystem and uploads files
+    crit: hostile
+    conf: 0.95
+    all:
+      - id: micro-traits/fs/directory/traverse::multi-os-root-scan
+      - id: micro-traits/comm/http/upload::form-data-stream-upload

@@ -1,9 +1,0 @@
-composite_rules:
-  - id: obj/impact/infect/script::blackhawk-virus
-    crit: hostile
-    desc: "Detects the Blackhawk virus, which infects shell scripts."
-    all:
-      - id: known/malware/virus/blackhawk::family-signature
-      - id: cap/fs/acl/chmod::suspicious-value
-      - id: known/malware/virus/ghotdog::ghostdog-infection-marker
-      - id: cap/process/create/shell::embedded-shebang-sh

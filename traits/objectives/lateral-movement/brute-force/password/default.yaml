@@ -1,0 +1,177 @@
+traits:
+  - id: numeric-123456
+    desc: "Default credential: 123456"
+    crit: suspicious
+    conf: 0.8
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      exact: "123456"
+  - id: literal-password
+    desc: "Default credential: password"
+    crit: notable
+    conf: 0.4
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      regex: (?:[\x00-\x1f]password[\x00-\x1f]?|\b\w+:password\b)
+  - id: admin123
+    desc: "Default credential: admin123"
+    crit: suspicious
+    conf: 0.85
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      substr: admin123
+  - id: literal-default
+    desc: "Default credential: default"
+    crit: notable
+    conf: 0.5
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      regex: '[\x00-\x1f]default[\x00-\x1f]?'
+  - id: guest
+    desc: "Default credential: guest"
+    crit: notable
+    conf: 0.7
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      regex: (?:[\x00-\x1f]guest[\x00-\x1f]?|\bguest:)
+  - id: iot-pte521
+    desc: "Default IoT credential: Pte521"
+    crit: suspicious
+    conf: 0.9
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      substr: Pte521
+  - id: iot-pon521
+    desc: "Default IoT credential: Pon521"
+    crit: suspicious
+    conf: 0.9
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      substr: Pon521
+  - id: iot-zxic521
+    desc: "Default IoT credential: Zxic521"
+    crit: suspicious
+    conf: 0.9
+    attack: T1110.001
+    for:
+      - elf
+    if:
+      type: string
+      substr: Zxic521
+  - id: credential-wordlist
+    desc: Dense credential wordlist (brute-force dictionary)
+    crit: suspicious
+    conf: 0.92
+    attack: T1110.001
+    for:
+      - elf
+    size_max: 200000
+    unless:
+      - id: micro-traits/interface/usage/usage-help
+    if:
+      type: string
+      regex: (?:[\x00-\x1f](?:admin|root|password|default|guest|user|1234|qwerty)[\x00-\x1f]?)
+      count_min: 15
+      per_kb_min: 0.5
+composite_rules:
+  - id: iot-zte
+    desc: "Default IoT credential: ZTE router"
+    crit: suspicious
+    conf: 0.95
+    attack: T1110.001
+    for:
+      - elf
+    any:
+      - id: objectives/lateral-movement/brute-force/iot-creds::router-cred-zte
+      - id: iot-pte521
+      - id: iot-pon521
+      - id: iot-zxic521
+  - id: dictionary
+    desc: Embedded credential brute-force dictionary
+    crit: suspicious
+    conf: 0.9
+    mbc: E1040
+    attack: T1110.001
+    for:
+      - elf
+    needs: 4
+    any:
+      - id: objectives/credential-access/username/admin::detected
+      - id: objectives/credential-access/username/root::detected
+      - id: guest
+      - id: numeric-123456
+      - id: literal-password
+      - id: admin123
+      - id: literal-default
+  - id: telnet-combo
+    desc: Telnet username:password combo format
+    crit: suspicious
+    conf: 0.8
+    attack: T1110.001
+    for:
+      - elf
+    size_max: 100000
+    unless:
+      - id: micro-traits/comm/download/curl::curl-easy-init
+    any:
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_1
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_2
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_3
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_4
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_5
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_6
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_7
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_8
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_9
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_10
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_11
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_12
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_13
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_14
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_15
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_16
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_17
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_18
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_19
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_20
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_21
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_22
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_23
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_24
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_25
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_26
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_27
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_28
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_29
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_30
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_31
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_32
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_33
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_34
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_35
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_36
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_37
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_38
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_39
+      - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_40

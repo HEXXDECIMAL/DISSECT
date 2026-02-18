@@ -1,0 +1,45 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: private-ip-check-js
+    desc: Checks for private IP address ranges (JS)
+    crit: notable
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @ip
+            property: (property_identifier) @starts
+          )
+          arguments: (arguments . (string (string_fragment) @range))
+        )
+        (#match? @starts "startsWith")
+        (#match? @range "^(10\.|172\.|192\.168|127\.|fe80::)")
+    unless:
+      - id: metadata/builder/autotools::autotools
+      - id: metadata/builder/autotools::configure-ac
+      - id: metadata/builder/pip::setup-py
+      - id: metadata/quality/help::usage-title
+      - id: objectives/lateral-movement/supply-chain/npm/minifier::esmodule-export
+      - id: metadata/library::js-module-exports
+      - id: metadata/dev/testing::is-test
+
+  - id: private-ip-parts-js
+    desc: Checks IP parts for private ranges (JS)
+    crit: notable
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (binary_expression
+          left: (subscript_expression
+            object: (identifier) @parts
+            index: (number) @idx
+          )
+          operator: "==="
+          right: (string (string_fragment) @val)
+        )
+        (#match? @val "^(10|172|192|127)$")

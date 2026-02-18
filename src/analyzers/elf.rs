@@ -960,7 +960,7 @@ mod tests {
         ));
 
         unpacked.findings.push(Finding::capability(
-            "exec/shell".to_string(),
+            "execution/shell".to_string(),
             "Shell execution".to_string(),
             0.9,
         ));
@@ -970,7 +970,7 @@ mod tests {
         // Should have both findings
         assert_eq!(packed.findings.len(), 2);
         assert!(packed.findings.iter().any(|f| f.id == "net/socket"));
-        assert!(packed.findings.iter().any(|f| f.id == "exec/shell"));
+        assert!(packed.findings.iter().any(|f| f.id == "execution/shell"));
     }
 
     #[test]

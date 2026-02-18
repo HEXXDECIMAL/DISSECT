@@ -66,7 +66,7 @@ pub struct Trait {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum FindingKind {
-    /// What the code CAN do (behavioral) - e.g., net/socket, fs/write, exec/eval, anti-debug
+    /// What the code CAN do (behavioral) - e.g., net/socket, fs/write, execution/eval, anti-debug
     #[default]
     Capability,
     /// How the file is built/hidden - e.g., obfuscation, packing, high entropy, missing security features
@@ -81,7 +81,7 @@ pub enum FindingKind {
 /// Findings represent what we CONCLUDE from traits (capabilities, threats, behaviors)
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Finding {
-    /// Finding identifier using / delimiter (e.g., "c2/hardcoded-ip", "net/socket")
+    /// Finding identifier using / delimiter (e.g., "command-and-control/hardcoded-ip", "net/socket")
     pub id: String,
     /// Kind of finding (capability, structural, indicator, weakness)
     #[serde(default)]
@@ -130,19 +130,19 @@ impl Finding {
     }
 
     /// Create a capability finding
-    #[must_use] 
+    #[must_use]
     pub fn capability(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Capability, desc, conf)
     }
 
     /// Create a structural finding (obfuscation, packing, etc.)
-    #[must_use] 
+    #[must_use]
     pub fn structural(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Structural, desc, conf)
     }
 
     /// Create an indicator finding (threat signals)
-    #[must_use] 
+    #[must_use]
     pub fn indicator(id: String, desc: String, conf: f32) -> Self {
         Self::new(id, FindingKind::Indicator, desc, conf)
     }
@@ -336,7 +336,7 @@ mod tests {
     #[test]
     fn test_finding_indicator() {
         let f = Finding::indicator(
-            "c2/beacon".to_string(),
+            "command-and-control/beacon".to_string(),
             "C2 beacon pattern".to_string(),
             0.95,
         );

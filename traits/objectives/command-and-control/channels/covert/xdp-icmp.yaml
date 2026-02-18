@@ -1,0 +1,31 @@
+# XDP ICMP Covert Channel Detection
+# Detects XDP programs used for ICMP-based covert channels
+# ATT&CK: T1095 (Non-Application Layer Protocol)
+
+composite_rules:
+  # XDP program + ICMP manipulation + packet reflection = ICMP covert channel
+  - id: xdp-icmp-covert
+    desc: XDP ICMP covert channel
+    crit: suspicious
+    conf: 0.95
+    attack: "T1095"
+    for: [c, elf]
+    all:
+      - id: micro-traits/os/bpf/program/loader::sec-xdp
+      - id: micro-traits/os/bpf/program/icmp::icmp-parsing
+      - id: micro-traits/os/bpf/program/network::xdp-tx
+
+  # XDP loader with ICMP covert channel markers
+  # Userspace loader that attaches XDP program for ICMP manipulation
+  - id: xdp-icmp-loader
+    desc: XDP ICMP covert channel loader
+    crit: suspicious
+    conf: 0.9
+    attack: "T1095"
+    for: [c, elf]
+    all:
+      - id: micro-traits/os/bpf/program/network::xdp-attach
+      - id: micro-traits/os/bpf/program/icmp::icmp-indicators
+    any:
+      - id: micro-traits/os/bpf/program/network::bpf-skeleton-include
+      - id: micro-traits/comm/ip/services::services-icmp

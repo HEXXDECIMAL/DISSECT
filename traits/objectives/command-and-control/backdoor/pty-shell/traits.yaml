@@ -1,0 +1,105 @@
+# PTY Backdoor Detection
+# Detects backdoors that allocate PTY for interactive shell access over network
+# MBC: B0024 (Remote Access), E1059 (Command Execution)
+# ATT&CK: T1059.004 (Unix Shell), T1071.001 (Web Protocols)
+
+defaults:
+  for: [elf, macho]
+  mbc: "B0024"
+  attack: "T1059.004"
+
+traits:
+  # PTY allocation functions - used to create interactive shell
+  - id: pty-alloc-symbols
+    desc: PTY allocation symbols
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "^(grantpt|ptsname|unlockpt|posix_openpt|openpty|forkpty)$"
+
+  # vhangup - use canonical micro-traits/ trait
+
+  # Terminal attribute control - for PTY configuration
+  - id: termios-symbols
+    desc: Terminal attribute control symbols
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "^(tcgetattr|tcsetattr|cfmakeraw|cfsetispeed|cfsetospeed)$"
+
+  # File descriptor duplication - use canonical micro-traits/ trait
+
+  # Daemon/background process symbols
+  - id: daemon-symbols
+    desc: Daemonization symbols
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "^(daemon|setsid|fork)$"
+
+  # /dev/ptm* string - PTY master device
+  - id: pty-device-string
+    desc: PTY device path string
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: '/dev/pt[msy]'
+
+  # Terminal type strings (vt100, xterm, ansi, linux) - for PTY negotiation
+  - id: terminal-type-string
+    desc: Terminal type identifier string
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: '^(vt10[02]|xterm|ansi|linux|dumb|screen)$'
+
+composite_rules:
+  # PTY shell backdoor - allocates PTY and has network capability
+  # This is the core pattern: PTY + network = interactive remote shell
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: pty-backdoor
+    desc: PTY backdoor (interactive remote shell)
+    crit: hostile
+    conf: 0.95
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    all:
+      - id: pty-alloc-symbols
+      - id: micro-traits/comm/socket/
+      - id: micro-traits/process/fd/dup::dup2
+
+  # Full PTY backdoor with terminal control
+  # More confidence when termios and daemon functions present
+  # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
+  - id: pty-backdoor-full
+    desc: Full PTY backdoor with terminal control
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf]
+    all:
+      - id: pty-alloc-symbols
+      - id: termios-symbols
+      - id: micro-traits/comm/socket/
+      - id: daemon-symbols
+
+  # Bind shell with PTY - waits for incoming connections
+  # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
+  - id: pty-bind-shell
+    desc: PTY bind shell (listens for connections)
+    crit: hostile
+    conf: 0.95
+    mbc: "B0024"
+    for: [elf]
+    all:
+      - id: pty-alloc-symbols
+      - id: micro-traits/comm/socket/
+      - id: micro-traits/process/fd/dup::dup2
+      - id: micro-traits/process/create/shell::shell-symbols

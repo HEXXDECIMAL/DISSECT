@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
       "kind": "capability",
       "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
@@ -24,10 +24,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
       "conf": 0.85,
@@ -41,10 +41,10 @@
           "value": "functions.high_entropy_names = 3.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "id": "objectives/discovery/host/fingerprint::json-stringify-call",
       "kind": "capability",
       "desc": "JSON.stringify call",
       "conf": 0.5,
@@ -56,10 +56,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -71,10 +71,10 @@
           "value": "popups.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -86,10 +86,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -101,7 +101,7 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
       "id": "meta/internal/imported::script",

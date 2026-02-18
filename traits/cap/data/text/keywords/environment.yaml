@@ -1,7 +1,0 @@
-traits:
-  - id: environment-keyword
-    desc: '"Environment" keyword'
-    crit: inert
-    if:
-      type: string
-      regex: "(?i)environment"

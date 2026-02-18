@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -30,10 +30,10 @@
           "value": "webextApi.runtime.getURL"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/os/admin/observability::datadog",
+      "id": "micro-behaviors/os/admin/observability::datadog",
       "kind": "capability",
       "desc": "Datadog monitoring agent",
       "conf": 0.9,
@@ -76,10 +76,10 @@
           "location": "offset:1142"
         }
       ],
-      "source_file": "cap/os/admin/observability/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/observability/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -93,10 +93,10 @@
           "value": "functions.one_liners = 7.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::runtime-get-url",
       "kind": "capability",
       "desc": "Gets extension resource URL",
       "conf": 0.9,
@@ -121,10 +121,10 @@
           "location": "1:1022"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-function-density",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-function-density",
       "kind": "capability",
       "desc": "High function density (>20 functions",
       "conf": 0.85,
@@ -138,10 +138,10 @@
           "value": "functions.density_per_100_lines = 700.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -155,10 +155,10 @@
           "value": "text.max_line_length = 1191.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -172,10 +172,10 @@
           "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
       "desc": "setTimeout with code execution",
       "conf": 0.75,
@@ -188,10 +188,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "id": "objectives/discovery/host/fingerprint::hostname-keyword",
       "kind": "capability",
       "desc": "hostname keyword",
       "conf": 0.5,
@@ -209,10 +209,10 @@
           "value": "hostname"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
       "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
@@ -226,10 +226,10 @@
           "value": "text.max_line_length = 1191.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "micro-behaviors/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
       "conf": 0.9,
@@ -242,10 +242,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -257,10 +257,10 @@
           "value": "addReviewHandler.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "id": "objectives/discovery/host/fingerprint::system-id-sources",
       "kind": "capability",
       "desc": "System identification sources",
       "conf": 1.0,
@@ -278,10 +278,10 @@
           "value": "hostname"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -305,10 +305,10 @@
           "value": "functions.one_liners = 7.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::is-extension",
       "kind": "capability",
       "desc": "File is part of a browser extension",
       "conf": 0.9,
@@ -333,7 +333,7 @@
           "location": "1:1022"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
       "id": "meta/internal/imported::e/remove",

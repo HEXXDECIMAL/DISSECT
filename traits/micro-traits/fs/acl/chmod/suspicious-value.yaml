@@ -1,0 +1,19 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: suspicious-value
+    crit: suspicious
+    attack: T1222
+    desc: "Detects dangerous chmod values (world writable)"
+    if:
+      type: string
+      regex: "chmod\\s+(0?777|0?666|0?775|0?888)"
+
+  - id: chmod-exec
+    crit: notable
+    attack: T1222
+    desc: "Detects chmod making file executable"
+    if:
+      type: string
+      regex: "chmod\\s+(\\+x|u\\+x|a\\+x|755|0755)"

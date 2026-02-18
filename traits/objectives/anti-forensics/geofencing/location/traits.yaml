@@ -1,0 +1,137 @@
+defaults:
+  for:
+  - all
+  attack: T1614
+  mbc: B0024
+traits:
+- id: ru-locale-check
+  desc: Russian locale string check
+  crit: notable
+  conf: 0.9
+  size_max: 500000
+  if:
+    type: string
+    regex: ru[_-]RU|ru[_-]ru
+- id: russian-language-string
+  desc: Russian language identifier
+  crit: notable
+  conf: 0.8
+  if:
+    type: string
+    substr: Russian
+- id: moscow-timezone
+  desc: Moscow timezone check
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - macho
+  - pe
+  if:
+    type: string
+    substr: Europe/Moscow
+- id: lang-env-check
+  desc: LANG environment variable access
+  crit: notable
+  conf: 0.5
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    substr: process.env.LANG
+- id: lc-all-env-check
+  desc: LC_ALL environment variable access
+  crit: notable
+  conf: 0.5
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    substr: process.env.LC_ALL
+- id: language-env-check
+  desc: LANGUAGE environment variable access
+  crit: notable
+  conf: 0.5
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    substr: process.env.LANGUAGE
+- id: timezone-offset-js
+  desc: getTimezoneOffset() call
+  crit: notable
+  conf: 0.6
+  for:
+  - javascript
+  - typescript
+  if:
+    type: ast
+    kind: call
+    exact: getTimezoneOffset
+- id: intl-timezone-js
+  desc: Intl.DateTimeFormat timezone resolution
+  crit: notable
+  conf: 0.6
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: Intl\.DateTimeFormat.{0,50}resolvedOptions.{0,30}timeZone
+- id: cis-country-codes
+  desc: CIS country code check
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: '[''"]RU[''"] |[''"]BY[''"] |[''"]KZ[''"] |[''"]UA[''"] |[''"]UZ[''"] |[''"]AZ[''"]
+      |[''"]AM[''"] |[''"]GE[''"] |[''"]MD[''"] |[''"]TJ[''"] |[''"]TM[''"] |[''"]KG[''"]
+      |\[.{0,50}[''"]RU[''"] |\[.{0,50}[''"]BY[''"] |countries.{0,20}[''"]RU[''"]
+      |countries.{0,20}[''"]BY[''"] |==\s*[''"]RU[''"] |==\s*[''"]BY[''"] |==\s*[''"]UA[''"] '
+composite_rules:
+- id: locale-env-checks
+  desc: Multiple locale environment checks
+  crit: notable
+  conf: 0.7
+  needs: 2
+  any:
+  - id: lang-env-check
+  - id: lc-all-env-check
+  - id: language-env-check
+- id: cis-timezone-checks
+  desc: CIS region timezone checks
+  crit: suspicious
+  conf: 0.85
+  any:
+  - id: moscow-timezone
+  - id: objectives/anti-analysis/geofencing/location::tz-europe-minsk
+  - id: objectives/anti-analysis/geofencing/location::tz-europe-kiev
+- id: russian-system-check
+  desc: Detects Russian system to avoid execution (CIS exclusion)
+  crit: suspicious
+  conf: 0.95
+  attack: T1614
+  needs: 2
+  any:
+  - id: ru-locale-check
+  - id: russian-language-string
+  - id: moscow-timezone
+  - id: locale-env-checks
+  - id: cis-country-codes
+  downgrade:
+    any:
+    - id: well-known/lib::gnulib-locale-functions
+- id: cis-geofencing
+  desc: CIS region geofencing (avoids Russian/Ukrainian systems)
+  crit: suspicious
+  conf: 0.95
+  attack: T1614
+  all:
+  - id: russian-system-check
+  any:
+  - id: timezone-offset-js
+  - id: intl-timezone-js
+  - id: cis-timezone-checks

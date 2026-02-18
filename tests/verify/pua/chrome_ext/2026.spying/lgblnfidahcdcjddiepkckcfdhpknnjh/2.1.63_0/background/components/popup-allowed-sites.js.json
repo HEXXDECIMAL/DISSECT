@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "id": "objectives/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
       "conf": 0.5,
@@ -24,10 +24,10 @@
           "value": "Object.keys"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -39,10 +39,10 @@
           "value": "popup-allowed-sites.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -54,7 +54,7 @@
           "value": "Object.keys"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "meta/internal/imported::object/keys",

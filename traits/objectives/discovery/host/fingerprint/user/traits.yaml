@@ -1,0 +1,21 @@
+# User Information Fingerprinting
+# ATT&CK: T1033 (System Owner/User Discovery)
+# NOTE: All neutral user query functions moved to micro-traits/process/user/ and micro-traits/process/env/
+
+defaults:
+  attack: "T1033"
+
+traits:
+
+composite_rules:
+  # User info composite
+  - id: user-info
+    desc: User information fingerprinting
+    crit: notable
+    conf: 0.7
+    needs: 2
+    any:
+      - id: micro-traits/process/user/query
+      - id: micro-traits/process/env/access::getenv-user
+      - id: micro-traits/process/env/access::getenv-home
+      - id: micro-traits/fs/path/config/accounts::etc-passwd

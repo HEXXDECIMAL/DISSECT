@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "cap/fs/file/operations::binary-file-ops",
+      "id": "micro-behaviors/fs/file/operations::binary-file-ops",
       "kind": "capability",
       "desc": "Binary file operations",
       "conf": 0.8,
@@ -32,10 +32,10 @@
           "location": "0x389fb"
         }
       ],
-      "source_file": "cap/fs/file/operations/traits.yaml"
+      "source_file": "micro-behaviors/fs/file/operations/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::temp",
+      "id": "micro-behaviors/data/text/keywords::temp",
       "kind": "capability",
       "desc": "temp keyword",
       "conf": 0.2,
@@ -47,10 +47,10 @@
           "value": "temp"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/comm/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -63,10 +63,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
     },
     {
-      "id": "cap/data/encode/base64::padding-char",
+      "id": "micro-behaviors/data/encode/base64::padding-char",
       "kind": "capability",
       "desc": "Base64 padding character reference",
       "conf": 0.5,
@@ -80,10 +80,10 @@
           "value": "pad_char"
         }
       ],
-      "source_file": "cap/data/encode/base64/custom.yaml"
+      "source_file": "micro-behaviors/data/encode/base64/custom.yaml"
     },
     {
-      "id": "cap/data/text/keywords::buffer",
+      "id": "micro-behaviors/data/text/keywords::buffer",
       "kind": "capability",
       "desc": "buffer keyword",
       "conf": 0.2,
@@ -122,10 +122,10 @@
           "value": "buffer"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -138,7 +138,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/quality/logging::logger-lower",
@@ -262,7 +262,7 @@
       "source_file": "meta/quality/logging/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::offset",
+      "id": "micro-behaviors/data/text/keywords::offset",
       "kind": "capability",
       "desc": "offset keyword",
       "conf": 0.2,
@@ -811,10 +811,10 @@
           "value": "to2._offset"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::output",
+      "id": "micro-behaviors/data/text/keywords::output",
       "kind": "capability",
       "desc": "output keyword",
       "conf": 0.2,
@@ -846,10 +846,10 @@
           "value": "output.join"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/creds/browser/chromium::cookies",
+      "id": "objectives/credential-access/browser/chromium::cookies",
       "kind": "capability",
       "desc": "Chromium Cookies database path",
       "conf": 0.8,
@@ -909,10 +909,10 @@
           "value": "OnboardingCookies"
         }
       ],
-      "source_file": "obj/creds/browser/chromium/paths.yaml"
+      "source_file": "objectives/credential-access/browser/chromium/paths.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::firefox-name",
+      "id": "objectives/discovery/host/browser::firefox-name",
       "kind": "capability",
       "desc": "Firefox browser name",
       "conf": 0.4,
@@ -932,10 +932,10 @@
           "location": "0x1be258"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/crypto/kdf/operations::scrypt",
+      "id": "micro-behaviors/crypto/kdf/operations::scrypt",
       "kind": "capability",
       "desc": "scrypt key derivation",
       "conf": 0.75,
@@ -947,10 +947,10 @@
           "value": "msCrypto.getRandomValues"
         }
       ],
-      "source_file": "cap/crypto/kdf/operations/traits.yaml"
+      "source_file": "micro-behaviors/crypto/kdf/operations/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -996,10 +996,10 @@
           "value": "chrome.runtime.sendMessage"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::padding",
+      "id": "micro-behaviors/data/text/keywords::padding",
       "kind": "capability",
       "desc": "padding keyword",
       "conf": 0.2,
@@ -1087,10 +1087,10 @@
           "value": "padding_end_value"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -2783,7 +2783,7 @@
           "location": "36061:7"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "known/malware/trojan::powersuite-credits-text-3",
@@ -2802,7 +2802,7 @@
       "source_file": "known/malware/trojan/powersuite.yaml"
     },
     {
-      "id": "cap/comm/ssh/connect::ssh-string",
+      "id": "micro-behaviors/comm/ssh/connect::ssh-string",
       "kind": "capability",
       "desc": "ssh string",
       "conf": 0.4,
@@ -2822,10 +2822,10 @@
           "location": "0x3fbf5"
         }
       ],
-      "source_file": "cap/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::token",
+      "id": "micro-behaviors/data/text/keywords::token",
       "kind": "capability",
       "desc": "token keyword",
       "conf": 0.2,
@@ -3093,10 +3093,10 @@
           "value": "Token"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/comm/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -3109,10 +3109,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
     },
     {
-      "id": "cap/os/admin/observability::datadog",
+      "id": "micro-behaviors/os/admin/observability::datadog",
       "kind": "capability",
       "desc": "Datadog monitoring agent",
       "conf": 0.9,
@@ -3125,7 +3125,7 @@
           "location": "offset:1940114"
         }
       ],
-      "source_file": "cap/os/admin/observability/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/observability/traits.yaml"
     },
     {
       "id": "meta/builder/npm::node-modules",
@@ -3486,7 +3486,7 @@
       "source_file": "meta/builder/npm/traits.yaml"
     },
     {
-      "id": "cap/exec/interception/hook::interceptor-class",
+      "id": "micro-behaviors/execution/interception/hook::interceptor-class",
       "kind": "capability",
       "desc": "Interceptor class reference",
       "conf": 0.6,
@@ -3528,10 +3528,10 @@
           "value": "PostResolutionInterceptors"
         }
       ],
-      "source_file": "cap/exec/interception/hook/dotnet.yaml"
+      "source_file": "micro-behaviors/execution/interception/hook/dotnet.yaml"
     },
     {
-      "id": "cap/data/text/keywords::execute",
+      "id": "micro-behaviors/data/text/keywords::execute",
       "kind": "capability",
       "desc": "execute keyword",
       "conf": 0.2,
@@ -3748,10 +3748,10 @@
           "value": "Scenario3.prototype.executePages"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::chrome-name",
+      "id": "objectives/discovery/host/browser::chrome-name",
       "kind": "capability",
       "desc": "Chrome browser name",
       "conf": 0.4,
@@ -3771,10 +3771,10 @@
           "location": "0x1be205"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::tmp",
+      "id": "micro-behaviors/data/text/keywords::tmp",
       "kind": "capability",
       "desc": "tmp keyword",
       "conf": 0.2,
@@ -3786,10 +3786,10 @@
           "value": "tmp"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/comm/http/remote-config::remote-config-service",
+      "id": "micro-behaviors/comm/http/remote-config::remote-config-service",
       "kind": "capability",
       "desc": "Remote configuration or shepherd service",
       "conf": 0.7,
@@ -3808,7 +3808,7 @@
           "location": "0x1b4c1c"
         }
       ],
-      "source_file": "cap/comm/http/remote-config/javascript.yaml"
+      "source_file": "micro-behaviors/comm/http/remote-config/javascript.yaml"
     },
     {
       "id": "meta/quality/versioning::version-upper",
@@ -3826,7 +3826,7 @@
       "source_file": "meta/quality/versioning/traits.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "id": "objectives/command-and-control/infrastructure/domain::hardcoded-domain-com",
       "kind": "capability",
       "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
       "conf": 0.7,
@@ -3955,10 +3955,10 @@
           "location": "0x21abca"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-parse-js",
+      "id": "micro-behaviors/data/encoding/charset::json-parse-js",
       "kind": "capability",
       "desc": "JavaScript JSON.parse",
       "conf": 0.85,
@@ -3970,7 +3970,7 @@
           "value": "JSON.parse"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
       "id": "meta/quality/logging::logger-title",
@@ -4003,7 +4003,7 @@
       "source_file": "meta/quality/versioning/traits.yaml"
     },
     {
-      "id": "cap/fs/path/sensitive/browser::cookies",
+      "id": "micro-behaviors/fs/path/sensitive/browser::cookies",
       "kind": "capability",
       "desc": "Reference to browser cookies",
       "conf": 0.7,
@@ -4063,10 +4063,10 @@
           "value": "OnboardingCookies"
         }
       ],
-      "source_file": "cap/fs/path/sensitive/browser/macos.yaml"
+      "source_file": "micro-behaviors/fs/path/sensitive/browser/macos.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-symbol",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-symbol",
       "kind": "capability",
       "desc": "for loop (symbol)",
       "conf": 0.3,
@@ -4343,10 +4343,10 @@
           "location": "0x8d11c"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::overflow",
+      "id": "micro-behaviors/data/text/keywords::overflow",
       "kind": "capability",
       "desc": "overflow keyword",
       "conf": 0.2,
@@ -4390,10 +4390,10 @@
           "value": "overflow"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::country-code-camel",
+      "id": "objectives/discovery/host/geo::country-code-camel",
       "kind": "capability",
       "desc": "countryCode field (camelCase)",
       "conf": 0.5,
@@ -4406,10 +4406,10 @@
           "value": "countryCode"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::chrome-extension-url",
+      "id": "objectives/discovery/host/browser::chrome-extension-url",
       "kind": "capability",
       "desc": "chrome-extension:// URL",
       "conf": 0.6,
@@ -4429,10 +4429,10 @@
           "location": "0x213e21"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/os/admin/observability::prometheus",
+      "id": "micro-behaviors/os/admin/observability::prometheus",
       "kind": "capability",
       "desc": "Prometheus monitoring stack",
       "conf": 0.9,
@@ -4463,10 +4463,10 @@
           "location": "offset:504707"
         }
       ],
-      "source_file": "cap/os/admin/observability/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/observability/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
       "kind": "capability",
       "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
@@ -4478,10 +4478,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "cap/exec/load/library::mesa-ref",
+      "id": "micro-behaviors/execution/load/library::mesa-ref",
       "kind": "capability",
       "desc": "Mesa 3D graphics reference",
       "conf": 0.5,
@@ -4500,10 +4500,10 @@
           "location": "0x1d6eaf"
         }
       ],
-      "source_file": "cap/exec/load/library/traits.yaml"
+      "source_file": "micro-behaviors/execution/load/library/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/complexity::monster-function",
+      "id": "objectives/anti-static/obfuscation/code-metrics/complexity::monster-function",
       "kind": "capability",
       "desc": "Extremely large function (>500 lines)",
       "conf": 0.8,
@@ -4517,10 +4517,10 @@
           "value": "functions.over_500_lines = 10.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -4534,10 +4534,10 @@
           "value": "functions.one_liners = 323.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-string-split",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-string-split",
       "kind": "capability",
       "desc": "Split to empty-delimiter char array",
       "conf": 0.6,
@@ -4550,10 +4550,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-runtime",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::chrome-runtime",
       "kind": "capability",
       "desc": "chrome.runtime API usage",
       "conf": 0.9,
@@ -4575,10 +4575,10 @@
           "value": "chrome.runtime.sendMessage"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-deep-callback-nesting",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-deep-callback-nesting",
       "kind": "capability",
       "desc": "Deep function nesting (callback hell",
       "conf": 0.75,
@@ -4592,10 +4592,10 @@
           "value": "functions.max_nesting_depth = 7.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::bracket-function-access",
+      "id": "micro-behaviors/execution/eval/dynamic::bracket-function-access",
       "kind": "capability",
       "desc": "Function access via bracket notation",
       "conf": 0.65,
@@ -4609,10 +4609,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-di-pattern",
+      "id": "objectives/lateral-movement/supply-chain/npm/web-frameworks::has-di-pattern",
       "kind": "capability",
       "desc": "Code uses dependency injection",
       "conf": 0.85,
@@ -4723,10 +4723,10 @@
           "value": "provide"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm-quality/errors::has-named-functions",
+      "id": "objectives/lateral-movement/supply-chain/npm-quality/errors::has-named-functions",
       "kind": "capability",
       "desc": "Code has named function definitions",
       "conf": 0.8,
@@ -4739,10 +4739,10 @@
           "location": "0x782cb"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm-quality/errors/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm-quality/errors/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
       "kind": "capability",
       "desc": "Low identifier reuse (each variable",
       "conf": 0.7,
@@ -4756,10 +4756,10 @@
           "value": "identifiers.reuse_ratio = 0.08"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "cap/exec/native/api::node-addon",
+      "id": "micro-behaviors/execution/native/api::node-addon",
       "kind": "capability",
       "desc": "Package contains native Node.js addon",
       "conf": 0.7,
@@ -4784,10 +4784,10 @@
           "location": "offset:307240"
         }
       ],
-      "source_file": "cap/exec/native/api/suspicious.yaml"
+      "source_file": "micro-behaviors/execution/native/api/suspicious.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-promise",
+      "id": "objectives/lateral-movement/supply-chain/npm/language-features::has-promise",
       "kind": "capability",
       "desc": "Code uses Promises",
       "conf": 0.7,
@@ -4814,10 +4814,10 @@
           "value": "Promise.all"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/language-features/traits.yaml"
     },
     {
-      "id": "obj/creds/browser/chromium::cookies-path",
+      "id": "objectives/credential-access/browser/chromium::cookies-path",
       "kind": "capability",
       "desc": "Chromium Cookies file path",
       "conf": 0.75,
@@ -4831,10 +4831,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/creds/browser/chromium/traits.yaml"
+      "source_file": "objectives/credential-access/browser/chromium/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/system/os-fingerprint::os-check-windows",
+      "id": "objectives/discovery/host/system/os-fingerprint::os-check-windows",
       "kind": "capability",
       "desc": "Windows OS detection string",
       "conf": 0.6,
@@ -5335,10 +5335,10 @@
           "location": "0x1bed68"
         }
       ],
-      "source_file": "obj/discovery/host/system/os-fingerprint/platform-detection.yaml"
+      "source_file": "objectives/discovery/host/system/os-fingerprint/platform-detection.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/complexity::many-large-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/complexity::many-large-functions",
       "kind": "capability",
       "desc": "Multiple very large functions (>100",
       "conf": 0.7,
@@ -5352,10 +5352,10 @@
           "value": "functions.over_100_lines = 60.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/complexity/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::onMessage",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::onMessage",
       "kind": "capability",
       "desc": "chrome.runtime.onMessage listener",
       "conf": 0.9,
@@ -5367,10 +5367,10 @@
           "value": "chrome.runtime.onMessage.addListener"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "id": "objectives/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
       "conf": 0.5,
@@ -5397,10 +5397,10 @@
           "value": "Object.keys.forEach"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/c2/implant/action-engine::execute-script-class",
+      "id": "objectives/command-and-control/implant/action-engine::execute-script-class",
       "kind": "capability",
       "desc": "Class designed to execute script actions",
       "conf": 0.85,
@@ -5442,10 +5442,10 @@
           "value": "ExecuteScriptAction"
         }
       ],
-      "source_file": "obj/c2/implant/action-engine/javascript.yaml"
+      "source_file": "objectives/command-and-control/implant/action-engine/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::href-assignment",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::href-assignment",
       "kind": "capability",
       "desc": "Link href modification",
       "conf": 0.85,
@@ -5458,10 +5458,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-anonymous-functions",
       "kind": "capability",
       "desc": "Many anonymous functions",
       "conf": 0.75,
@@ -5475,10 +5475,10 @@
           "value": "functions.anonymous = 1518.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/system/os-fingerprint::os-check-linux",
+      "id": "objectives/discovery/host/system/os-fingerprint::os-check-linux",
       "kind": "capability",
       "desc": "Linux OS detection string",
       "conf": 0.6,
@@ -5511,10 +5511,10 @@
           "location": "0x1be3da"
         }
       ],
-      "source_file": "obj/discovery/host/system/os-fingerprint/platform-detection.yaml"
+      "source_file": "objectives/discovery/host/system/os-fingerprint/platform-detection.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::runInContext-call",
+      "id": "micro-behaviors/execution/eval/dynamic::runInContext-call",
       "kind": "capability",
       "desc": "runInContext call",
       "conf": 0.7,
@@ -5532,10 +5532,10 @@
           "value": "lodash.runInContext"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "id": "objectives/command-and-control/infrastructure/domain::http-url-script",
       "kind": "capability",
       "desc": "Network URL with domain name (script)",
       "conf": 0.7,
@@ -5580,10 +5580,10 @@
           "location": "0x1bfa99"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-get-url",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::runtime-get-url",
       "kind": "capability",
       "desc": "Gets extension resource URL",
       "conf": 0.9,
@@ -5614,10 +5614,10 @@
           "location": "36495:29"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "cap/exec/dropper/archive::unzip-call",
+      "id": "micro-behaviors/execution/dropper/archive::unzip-call",
       "kind": "capability",
       "desc": "unzip reference",
       "conf": 0.5,
@@ -5644,10 +5644,10 @@
           "value": "unzip"
         }
       ],
-      "source_file": "cap/exec/dropper/archive/traits.yaml"
+      "source_file": "micro-behaviors/execution/dropper/archive/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-path-split-double",
+      "id": "micro-behaviors/data/exploitation/memory::js-path-split-double",
       "kind": "capability",
       "desc": "Dot-notation path splitting (double quotes)",
       "conf": 0.8,
@@ -5660,7 +5660,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
       "id": "meta/lang::template-literal",
@@ -5697,7 +5697,7 @@
       "source_file": "meta/lang/javascript-es6.yaml"
     },
     {
-      "id": "obj/persist/env-vars/profile::localappdata-string",
+      "id": "objectives/persist/env-vars/profile::localappdata-string",
       "kind": "capability",
       "desc": "Local AppData reference",
       "conf": 0.4,
@@ -6145,10 +6145,10 @@
           "value": "momentPrototype__proto.isLocal"
         }
       ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+      "source_file": "objectives/persist/env-vars/profile/javascript.yaml"
     },
     {
-      "id": "cap/data/telemetry/logging::telemetry-send",
+      "id": "micro-behaviors/data/telemetry/logging::telemetry-send",
       "kind": "capability",
       "desc": "Generic telemetry/analytics send message",
       "conf": 0.7,
@@ -6167,10 +6167,10 @@
           "location": "0xba469"
         }
       ],
-      "source_file": "cap/data/telemetry/logging/traits.yaml"
+      "source_file": "micro-behaviors/data/telemetry/logging/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -6184,10 +6184,10 @@
           "value": "text.max_line_length = 76014.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::fromcharcode",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::fromcharcode",
       "kind": "capability",
       "desc": "String obfuscation via fromCharCode",
       "conf": 0.66,
@@ -6201,10 +6201,10 @@
           "value": "String.fromCharCode"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/tracking::tracking-utm-params",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/tracking::tracking-utm-params",
       "kind": "capability",
       "desc": "UTM tracking parameters",
       "conf": 0.7,
@@ -6235,10 +6235,10 @@
           "location": "0x1bfb10"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/tracking/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/tracking/traits.yaml"
     },
     {
-      "id": "obj/impact/ransomware/behavior::crypto-module",
+      "id": "objectives/impact/ransomware/behavior::crypto-module",
       "kind": "capability",
       "desc": "crypto module",
       "conf": 0.3,
@@ -6251,10 +6251,10 @@
           "value": "crypto.getRandomValues"
         }
       ],
-      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+      "source_file": "objectives/impact/ransomware/behavior/patterns.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
       "conf": 0.8,
@@ -6268,10 +6268,10 @@
           "value": "identifiers.sequential_names = 52.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/vscode::exec-pattern",
+      "id": "objectives/lateral-movement/supply-chain/vscode::exec-pattern",
       "kind": "capability",
       "desc": "exec function pattern",
       "conf": 0.7,
@@ -6599,10 +6599,10 @@
           "value": "exec"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/bundlers::typescript-compiled",
+      "id": "objectives/lateral-movement/supply-chain/npm/bundlers::typescript-compiled",
       "kind": "capability",
       "desc": "Code compiled from TypeScript",
       "conf": 0.9,
@@ -6881,10 +6881,10 @@
           "value": "__esModule"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/bundlers/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/bundlers/traits.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-dynamic-key-create",
+      "id": "micro-behaviors/data/exploitation/memory::js-dynamic-key-create",
       "kind": "capability",
       "desc": "Dynamic property creation via bracket notation",
       "conf": 0.7,
@@ -6897,10 +6897,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "cap/data/telemetry/activity::telemetry-send",
+      "id": "micro-behaviors/data/telemetry/activity::telemetry-send",
       "kind": "capability",
       "desc": "Generic telemetry/analytics send message",
       "conf": 0.7,
@@ -6919,10 +6919,10 @@
           "location": "0xba469"
         }
       ],
-      "source_file": "cap/data/telemetry/activity/javascript.yaml"
+      "source_file": "micro-behaviors/data/telemetry/activity/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/string-array::obfuscated-string-array",
+      "id": "objectives/anti-static/obfuscation/string-array::obfuscated-string-array",
       "kind": "capability",
       "desc": "Obfuscated string array declaration",
       "conf": 0.82,
@@ -6937,10 +6937,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/string-array/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/string-array/javascript.yaml"
     },
     {
-      "id": "obj/c2/rat/script::require-resolve-check",
+      "id": "objectives/command-and-control/rat/script::require-resolve-check",
       "kind": "capability",
       "desc": "Module installation check",
       "conf": 0.7,
@@ -7775,10 +7775,10 @@
           "location": "37628:38"
         }
       ],
-      "source_file": "obj/c2/rat/script/javascript.yaml"
+      "source_file": "objectives/command-and-control/rat/script/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-function-call",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-function-call",
       "kind": "capability",
       "desc": "Function() constructor",
       "conf": 0.5,
@@ -7793,10 +7793,10 @@
           "location": "import"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/persist/env-vars/profile::windows-path-backslash",
+      "id": "objectives/persist/env-vars/profile::windows-path-backslash",
       "kind": "capability",
       "desc": "Hardcoded Windows path separators",
       "conf": 0.6,
@@ -7809,10 +7809,10 @@
           "location": "0x48594"
         }
       ],
-      "source_file": "obj/persist/env-vars/profile/javascript.yaml"
+      "source_file": "objectives/persist/env-vars/profile/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::buffer-write-loop",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::buffer-write-loop",
       "kind": "capability",
       "desc": "Staged buffer payload assembly",
       "conf": 0.85,
@@ -7827,10 +7827,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::url-tostring",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::url-tostring",
       "kind": "capability",
       "desc": "Converts URL object to string",
       "conf": 0.8,
@@ -7999,10 +7999,10 @@
           "location": "13555:83"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/hijacking.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/minifier::esmodule-export",
+      "id": "objectives/lateral-movement/supply-chain/npm/minifier::esmodule-export",
       "kind": "capability",
       "desc": "__esModule property",
       "conf": 0.6,
@@ -8247,10 +8247,10 @@
           "value": "exports2.__esModule"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/minifier/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-namespace",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::chrome-namespace",
       "kind": "capability",
       "desc": "Uses chrome.* namespace",
       "conf": 0.95,
@@ -8272,10 +8272,10 @@
           "value": "chrome.runtime"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/language-features::has-symbols",
+      "id": "objectives/lateral-movement/supply-chain/npm/language-features::has-symbols",
       "kind": "capability",
       "desc": "Code uses Symbol for private",
       "conf": 0.85,
@@ -8379,10 +8379,10 @@
           "value": "Symbol.iterator"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/language-features/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/language-features/traits.yaml"
     },
     {
-      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "id": "micro-behaviors/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
       "conf": 0.85,
@@ -8396,10 +8396,10 @@
           "value": "identifiers.avg_entropy = 2.92"
         }
       ],
-      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+      "source_file": "micro-behaviors/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::executeScript",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::executeScript",
       "kind": "capability",
       "desc": "chrome.scripting.executeScript call",
       "conf": 0.9,
@@ -8435,10 +8435,10 @@
           "value": "ActionEvents3.executeScript"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "id": "micro-behaviors/execution/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
       "conf": 0.4,
@@ -8718,10 +8718,10 @@
           "value": "executePostResolutionInterceptor"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/minifier::object-define-property",
+      "id": "objectives/lateral-movement/supply-chain/npm/minifier::object-define-property",
       "kind": "capability",
       "desc": "Object.defineProperty call",
       "conf": 0.6,
@@ -8733,10 +8733,10 @@
           "value": "Object.defineProperty"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/minifier/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/minifier/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-charat-loop",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-charat-loop",
       "kind": "capability",
       "desc": "charAt in loop pattern",
       "conf": 0.7,
@@ -8763,10 +8763,10 @@
           "location": "import"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::deep-nesting",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::deep-nesting",
       "kind": "capability",
       "desc": "Deeply nested functions (complexity indicator)",
       "conf": 0.75,
@@ -8780,10 +8780,10 @@
           "value": "functions.max_nesting_depth = 7.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::numeric-suffix-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::numeric-suffix-identifiers",
       "kind": "capability",
       "desc": "Many numeric suffix identifiers (var1,",
       "conf": 0.75,
@@ -8797,10 +8797,10 @@
           "value": "identifiers.numeric_suffix_count = 777.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/lateral/phishing/captcha::spinner-i-element",
+      "id": "objectives/lateral-movement/phishing/captcha::spinner-i-element",
       "kind": "capability",
       "desc": "Spinner UI element identifier",
       "conf": 0.4,
@@ -8831,10 +8831,10 @@
           "location": "0x19526c"
         }
       ],
-      "source_file": "obj/lateral/phishing/captcha/fake.yaml"
+      "source_file": "objectives/lateral-movement/phishing/captcha/fake.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::should-word",
+      "id": "objectives/lateral-movement/supply-chain/npm/testing::should-word",
       "kind": "capability",
       "desc": "should keyword",
       "conf": 0.6,
@@ -8853,10 +8853,10 @@
           "location": "0x7768"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/tracking::affiliate-domain-pattern",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/tracking::affiliate-domain-pattern",
       "kind": "capability",
       "desc": "Affiliate tracking domain",
       "conf": 0.75,
@@ -8935,10 +8935,10 @@
           "location": "0x2187dc"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/tracking/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/tracking/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-array-join-symbol",
       "kind": "capability",
       "desc": "Join using empty string delimiter",
       "conf": 0.5,
@@ -8951,10 +8951,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::runtime-send-message",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::runtime-send-message",
       "kind": "capability",
       "desc": "Sends message between extension contexts",
       "conf": 0.9,
@@ -8979,10 +8979,10 @@
           "location": "13106:16"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::high-entropy-function-names",
       "kind": "capability",
       "desc": "Functions with random-looking names",
       "conf": 0.85,
@@ -8996,10 +8996,10 @@
           "value": "functions.high_entropy_names = 398.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "cap/os/env/access::javascript",
+      "id": "micro-behaviors/os/env/access::javascript",
       "kind": "capability",
       "desc": "Access environment variables",
       "conf": 0.8,
@@ -9030,10 +9030,10 @@
           "location": "12398:79"
         }
       ],
-      "source_file": "cap/os/env/access/javascript.yaml"
+      "source_file": "micro-behaviors/os/env/access/javascript.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::variable-immediate-call",
+      "id": "micro-behaviors/execution/eval/dynamic::variable-immediate-call",
       "kind": "capability",
       "desc": "Variable called immediately as function",
       "conf": 0.7,
@@ -9046,10 +9046,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
       "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
@@ -9063,10 +9063,10 @@
           "value": "text.max_line_length = 76014.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "cap/exec/eval/dynamic::iife-pattern",
+      "id": "micro-behaviors/execution/eval/dynamic::iife-pattern",
       "kind": "capability",
       "desc": "Immediately invoked function expression",
       "conf": 0.9,
@@ -9079,10 +9079,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/eval/dynamic/javascript.yaml"
+      "source_file": "micro-behaviors/execution/eval/dynamic/javascript.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "id": "objectives/discovery/host/fingerprint::json-stringify-call",
       "kind": "capability",
       "desc": "JSON.stringify call",
       "conf": 0.5,
@@ -9094,10 +9094,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "micro-behaviors/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
       "conf": 0.9,
@@ -9110,10 +9110,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "obj/creds/wallet/mnemonic::crypto-word",
+      "id": "objectives/credential-access/wallet/mnemonic::crypto-word",
       "kind": "capability",
       "desc": "crypto term",
       "conf": 0.5,
@@ -9127,10 +9127,10 @@
           "value": "crypto"
         }
       ],
-      "source_file": "obj/creds/wallet/mnemonic/traits.yaml"
+      "source_file": "objectives/credential-access/wallet/mnemonic/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/electron::electron-resources-path",
+      "id": "objectives/lateral-movement/supply-chain/electron::electron-resources-path",
       "kind": "capability",
       "desc": "Electron resources directory",
       "conf": 0.7,
@@ -9178,10 +9178,10 @@
           "value": "options.resources"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/electron/trojanize.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/electron/trojanize.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/payload::exported-decryptor",
+      "id": "objectives/anti-static/obfuscation/payload::exported-decryptor",
       "kind": "capability",
       "desc": "Module exports decryption function",
       "conf": 0.8,
@@ -9196,10 +9196,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/payload/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/payload/javascript.yaml"
     },
     {
-      "id": "cap/comm/http/server::listen-keyword",
+      "id": "micro-behaviors/comm/http/server::listen-keyword",
       "kind": "capability",
       "desc": "listen() socket call",
       "conf": 0.5,
@@ -9213,10 +9213,10 @@
           "value": "listen"
         }
       ],
-      "source_file": "cap/comm/http/server/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/server/generic.yaml"
     },
     {
-      "id": "obj/anti-analysis/sandbox/detect::js-debugger-stmt",
+      "id": "objectives/anti-analysis/sandbox/detect::js-debugger-stmt",
       "kind": "capability",
       "desc": "JavaScript debugger statement",
       "conf": 0.4,
@@ -9230,10 +9230,10 @@
           "value": "window2.debuggerTRANSLATE"
         }
       ],
-      "source_file": "obj/anti-analysis/sandbox/detect/generic.yaml"
+      "source_file": "objectives/anti-analysis/sandbox/detect/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::sendMessage",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::sendMessage",
       "kind": "capability",
       "desc": "chrome.runtime.sendMessage",
       "conf": 0.9,
@@ -9246,10 +9246,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/c2/reverse-shell/pty::raw-mode",
+      "id": "objectives/command-and-control/reverse-shell/pty::raw-mode",
       "kind": "capability",
       "desc": "raw mode reference",
       "conf": 0.4,
@@ -9273,10 +9273,10 @@
           "value": "raw"
         }
       ],
-      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+      "source_file": "objectives/command-and-control/reverse-shell/pty/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::new-url-constructor",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::new-url-constructor",
       "kind": "capability",
       "desc": "Creates URL object for manipulation",
       "conf": 0.9,
@@ -9295,10 +9295,10 @@
           "location": "14399:19"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/hijacking.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/hijacking.yaml"
     },
     {
-      "id": "cap/exec/load/library::graphics-lib-marker",
+      "id": "micro-behaviors/execution/load/library::graphics-lib-marker",
       "kind": "capability",
       "desc": "Graphics/OpenGL library markers",
       "conf": 0.6,
@@ -9317,10 +9317,10 @@
           "location": "0x1d6eaf"
         }
       ],
-      "source_file": "cap/exec/load/library/traits.yaml"
+      "source_file": "micro-behaviors/execution/load/library/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::chrome-extension-context",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::chrome-extension-context",
       "kind": "capability",
       "desc": "Chrome extension API context",
       "conf": 0.95,
@@ -9342,10 +9342,10 @@
           "value": "chrome.runtime.sendMessage"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/code-quality::terser-minifier-helpers",
+      "id": "objectives/lateral-movement/supply-chain/npm/code-quality::terser-minifier-helpers",
       "kind": "capability",
       "desc": "Minifier helper patterns",
       "conf": 1.0,
@@ -9595,7 +9595,7 @@
           "value": "Object.defineProperty"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/code-quality/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
       "id": "meta/builder/npm::npm",
@@ -9956,7 +9956,7 @@
       "source_file": "meta/builder/npm/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/strings/encoding::js-dynamic-exec",
+      "id": "objectives/anti-static/obfuscation/strings/encoding::js-dynamic-exec",
       "kind": "capability",
       "desc": "Dynamic code execution capability",
       "conf": 0.7,
@@ -9971,10 +9971,10 @@
           "location": "import"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/strings/encoding/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/strings/encoding/javascript.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::extensions",
+      "id": "objectives/discovery/host/browser::extensions",
       "kind": "capability",
       "desc": "Browser extensions access",
       "conf": 0.8,
@@ -9994,10 +9994,10 @@
           "location": "0x213e21"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "id": "objectives/collection/stealer/behavior::js-browser-target",
       "kind": "capability",
       "desc": "Targets browser data paths",
       "conf": 0.8,
@@ -10061,10 +10061,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+      "source_file": "objectives/collection/stealer/behavior/javascript.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-path-split",
+      "id": "micro-behaviors/data/exploitation/memory::js-path-split",
       "kind": "capability",
       "desc": "Dot-notation path splitting for property traversal",
       "conf": 0.8,
@@ -10077,10 +10077,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-clients",
+      "id": "micro-behaviors/execution/vm/sandbox::http-clients",
       "kind": "capability",
       "desc": "HTTP client library usage",
       "conf": 0.6,
@@ -10093,10 +10093,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -10128,10 +10128,10 @@
           "value": "Object.keys.forEach"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/phishing/captcha::turnstile-ui-elements",
+      "id": "objectives/lateral-movement/phishing/captcha::turnstile-ui-elements",
       "kind": "capability",
       "desc": "Cloudflare Turnstile UI elements present",
       "conf": 0.6,
@@ -10162,10 +10162,10 @@
           "location": "0x19526c"
         }
       ],
-      "source_file": "obj/lateral/phishing/captcha/fake.yaml"
+      "source_file": "objectives/lateral-movement/phishing/captcha/fake.yaml"
     },
     {
-      "id": "cap/fs/file/operations::temp-dir-reference",
+      "id": "micro-behaviors/fs/file/operations::temp-dir-reference",
       "kind": "capability",
       "desc": "Reference to a temporary directory",
       "conf": 0.4,
@@ -10177,10 +10177,10 @@
           "value": "tmp"
         }
       ],
-      "source_file": "cap/fs/file/operations/patterns.yaml"
+      "source_file": "micro-behaviors/fs/file/operations/patterns.yaml"
     },
     {
-      "id": "cap/exec/interception/hook::interceptor",
+      "id": "micro-behaviors/execution/interception/hook::interceptor",
       "kind": "capability",
       "desc": "Method interception capability",
       "conf": 0.75,
@@ -10222,10 +10222,10 @@
           "value": "PostResolutionInterceptors"
         }
       ],
-      "source_file": "cap/exec/interception/hook/dotnet.yaml"
+      "source_file": "micro-behaviors/execution/interception/hook/dotnet.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::country-code-field",
+      "id": "objectives/discovery/host/geo::country-code-field",
       "kind": "capability",
       "desc": "Country code JSON field (geo",
       "conf": 0.6,
@@ -10238,10 +10238,10 @@
           "value": "countryCode"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::mocha-assertions-or-hooks",
+      "id": "objectives/lateral-movement/supply-chain/npm/testing::mocha-assertions-or-hooks",
       "kind": "capability",
       "desc": "Mocha assertions or hooks",
       "conf": 1.0,
@@ -10260,10 +10260,10 @@
           "location": "0x7768"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "obj/c2/shells/remote-exec::js-output-command-var",
+      "id": "objectives/command-and-control/shells/remote-exec::js-output-command-var",
       "kind": "capability",
       "desc": "Variable names suggesting command output",
       "conf": 0.3,
@@ -10295,7 +10295,7 @@
           "value": "output.join"
         }
       ],
-      "source_file": "obj/c2/shells/remote-exec/javascript.yaml"
+      "source_file": "objectives/command-and-control/shells/remote-execution/javascript.yaml"
     },
     {
       "id": "meta/quality::has-logging",
@@ -10424,7 +10424,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "cap/crypto/kdf/operations::key-derivation",
+      "id": "micro-behaviors/crypto/kdf/operations::key-derivation",
       "kind": "capability",
       "desc": "Key derivation function usage",
       "conf": 0.75,
@@ -10436,10 +10436,10 @@
           "value": "msCrypto.getRandomValues"
         }
       ],
-      "source_file": "cap/crypto/kdf/operations/traits.yaml"
+      "source_file": "micro-behaviors/crypto/kdf/operations/traits.yaml"
     },
     {
-      "id": "obj/exec/condition/platform::has-os-check",
+      "id": "objectives/execution/condition/platform::has-os-check",
       "kind": "capability",
       "desc": "Checks for OS platform",
       "conf": 0.6,
@@ -10962,7 +10962,7 @@
           "location": "0x1be3da"
         }
       ],
-      "source_file": "obj/exec/condition/platform/os.yaml"
+      "source_file": "objectives/execution/condition/platform/os.yaml"
     },
     {
       "id": "meta/quality::versioned",
@@ -10985,7 +10985,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
       "kind": "capability",
       "desc": "Identifier obfuscation (random/encoded names)",
       "conf": 0.9,
@@ -11009,10 +11009,10 @@
           "value": "identifiers.reuse_ratio = 0.08"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-fetch-methods",
+      "id": "micro-behaviors/execution/vm/sandbox::http-fetch-methods",
       "kind": "capability",
       "desc": "HTTP fetch methods",
       "conf": 0.6,
@@ -11025,10 +11025,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/c2/ddos/attack::http-methods",
+      "id": "objectives/command-and-control/ddos/attack::http-methods",
       "kind": "capability",
       "desc": "HTTP request methods detected",
       "conf": 1.0,
@@ -11043,10 +11043,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/c2/ddos/attack/generic.yaml"
+      "source_file": "objectives/command-and-control/ddos/attack/generic.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::browser-names",
+      "id": "objectives/discovery/host/browser::browser-names",
       "kind": "capability",
       "desc": "Browser name references",
       "conf": 0.5,
@@ -11078,10 +11078,10 @@
           "location": "0x1be258"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::is-extension",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::is-extension",
       "kind": "capability",
       "desc": "File is part of a browser extension",
       "conf": 0.9,
@@ -11127,10 +11127,10 @@
           "location": "36495:29"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/c2/reverse-shell/pty::terminal-setup",
+      "id": "objectives/command-and-control/reverse-shell/pty::terminal-setup",
       "kind": "capability",
       "desc": "Terminal setup markers",
       "conf": 0.4,
@@ -11154,10 +11154,10 @@
           "value": "raw"
         }
       ],
-      "source_file": "obj/c2/reverse-shell/pty/traits.yaml"
+      "source_file": "objectives/command-and-control/reverse-shell/pty/traits.yaml"
     },
     {
-      "id": "cap/comm/ssh/connect::connect",
+      "id": "micro-behaviors/comm/ssh/connect::connect",
       "kind": "capability",
       "desc": "SSH connection",
       "conf": 0.66,
@@ -11177,10 +11177,10 @@
           "location": "0x3fbf5"
         }
       ],
-      "source_file": "cap/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
     },
     {
-      "id": "obj/collect/stealer/data::sensitive-paths",
+      "id": "objectives/collection/stealer/data::sensitive-paths",
       "kind": "capability",
       "desc": "Browser or wallet file paths",
       "conf": 0.8,
@@ -11240,10 +11240,10 @@
           "value": "OnboardingCookies"
         }
       ],
-      "source_file": "obj/collect/stealer/data/browser-wallet.yaml"
+      "source_file": "objectives/collection/stealer/data/browser-wallet.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -13212,10 +13212,10 @@
           "location": "0x8d11c"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -13232,10 +13232,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::testing-library-methods",
+      "id": "objectives/lateral-movement/supply-chain/npm/testing::testing-library-methods",
       "kind": "capability",
       "desc": "Testing Library methods",
       "conf": 1.0,
@@ -13485,10 +13485,10 @@
           "value": "Object.defineProperty"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "cap/exec/load/library::system-lib-marker",
+      "id": "micro-behaviors/execution/load/library::system-lib-marker",
       "kind": "capability",
       "desc": "Known system library markers",
       "conf": 0.5,
@@ -13507,10 +13507,10 @@
           "location": "0x1d6eaf"
         }
       ],
-      "source_file": "cap/exec/load/library/traits.yaml"
+      "source_file": "micro-behaviors/execution/load/library/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/tracking::affiliate-adware",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/tracking::affiliate-adware",
       "kind": "capability",
       "desc": "Affiliate/adware extension",
       "conf": 0.85,
@@ -13604,10 +13604,10 @@
           "location": "0x2187dc"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/tracking/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/tracking/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::test-fixtures",
+      "id": "objectives/lateral-movement/supply-chain/npm/testing::test-fixtures",
       "kind": "capability",
       "desc": "Test fixture or mock data",
       "conf": 0.9,
@@ -13857,10 +13857,10 @@
           "value": "Object.defineProperty"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::geo-response-field",
+      "id": "objectives/discovery/host/geo::geo-response-field",
       "kind": "capability",
       "desc": "Geolocation response field",
       "conf": 0.5,
@@ -13873,10 +13873,10 @@
           "value": "countryCode"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/testing::testing-library",
+      "id": "objectives/lateral-movement/supply-chain/npm/testing::testing-library",
       "kind": "capability",
       "desc": "Testing Library patterns",
       "conf": 0.95,
@@ -14126,7 +14126,7 @@
           "value": "Object.defineProperty"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/testing/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
       "id": "meta/internal/imported::privatemap/get",
@@ -17839,7 +17839,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/k/push",
+      "id": "meta/internal/imported::objectives/k/push",
       "kind": "structural",
       "desc": "calls obj.k.push",
       "conf": 0.95,
@@ -20877,7 +20877,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/__",
+      "id": "meta/internal/imported::objectives/__",
       "kind": "structural",
       "desc": "calls obj.__",
       "conf": 0.95,
@@ -32329,7 +32329,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::newobj/key",
+      "id": "meta/internal/imported::newobjectives/key",
       "kind": "structural",
       "desc": "calls newObj.key",
       "conf": 0.95,
@@ -45055,7 +45055,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/k",
+      "id": "meta/internal/imported::objectives/k",
       "kind": "structural",
       "desc": "calls obj.k",
       "conf": 0.95,
@@ -45167,7 +45167,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::newobj/default",
+      "id": "meta/internal/imported::newobjectives/default",
       "kind": "structural",
       "desc": "calls newObj.default",
       "conf": 0.95,
@@ -49577,7 +49577,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/foreach",
+      "id": "meta/internal/imported::objectives/foreach",
       "kind": "structural",
       "desc": "calls obj.forEach",
       "conf": 0.95,
@@ -63759,7 +63759,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/prop",
+      "id": "meta/internal/imported::objectives/prop",
       "kind": "structural",
       "desc": "calls obj.prop",
       "conf": 0.95,
@@ -70087,7 +70087,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/k/concat",
+      "id": "meta/internal/imported::objectives/k/concat",
       "kind": "structural",
       "desc": "calls obj.k.concat",
       "conf": 0.95,
@@ -94657,7 +94657,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::obj/key",
+      "id": "meta/internal/imported::objectives/key",
       "kind": "structural",
       "desc": "calls obj.key",
       "conf": 0.95,

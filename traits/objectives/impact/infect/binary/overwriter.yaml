@@ -1,0 +1,22 @@
+defaults:
+  for: [c, cpp]
+
+composite_rules:
+  - id: overwriter-virus-traversal
+    desc: "Helper: DOS directory traversal"
+    conf: 1.0
+    crit: notable
+    any:
+      - id: micro-traits/fs/directory/traverse::findfirst
+      - id: micro-traits/fs/directory/traverse::findnext
+
+  - id: overwriter-virus-logic
+    desc: Detects logic typical of overwriting viruses (file enumeration + self-read + write)
+    conf: 0.9
+    crit: hostile
+    all:
+      - id: objectives/impact/infect/binary::overwriter-virus-traversal
+      - id: micro-traits/os/process/info::check-argv-0
+      - id: micro-traits/fs/file/open::open
+      - id: micro-traits/fs/file/read::read
+      - id: micro-traits/fs/file/write::write

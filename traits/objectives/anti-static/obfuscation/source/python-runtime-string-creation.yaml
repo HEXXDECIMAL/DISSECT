@@ -1,0 +1,37 @@
+defaults:
+  crit: suspicious
+  conf: 0.85
+  for:
+  - python
+  attack: T1027
+  mbc: E1014
+traits:
+- id: join-map-getattr
+  desc: String reconstruction via join(map(getattr(...)))
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: raw
+    regex: \.join\s*\(\s*map\s*\(\s*getattr
+- id: obfuscated-chr-lookup
+  desc: Obfuscated lookup of 'chr' function
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    regex: (?:oct|hex)\.__str__\(\)\[[^\]]{1,120}\]\s*\+\s*(?:oct|hex)\.__str__\(\)\[[^\]]{1,120}\]\s*\+\s*copyright\.__str__\(\)
+- id: builtin-str-slice-construction
+  desc: Constructs strings by slicing builtin type representations
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: raw
+    regex: int\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|int\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|str\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|str\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|float\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|float\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|oct\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|oct\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|hex\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|hex\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|list\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|list\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|tuple\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|tuple\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|dict\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|dict\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|copyright\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|copyright\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|credits\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|credits\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]|license\.__str__\s*\(\s*\)\s*\[[^\]]{1,120}\]|license\.__repr__\s*\(\s*\)\s*\[[^\]]{1,120}\]
+- id: getattr-builtins-bitwise
+  desc: getattr on builtins with bitwise operations
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: raw
+    regex: getattr\s*\(\s*__builtins__\s*,[^,]{1,120}<<[^,]{1,120}\)|getattr\s*\(\s*__builtins__\s*,[^,]{1,120}>>[^,]{1,120}\)|getattr\s*\(\s*__builtins__\s*,[^,]{1,120}\[^,]{1,120}\)|getattr\s*\(\s*__builtins__\s*,[^,]{1,120}[^,]{1,120}\)|getattr\s*\(\s*__builtins__\s*,[^,]{1,120}&[^,]{1,120}\)|getattr\s*\(\s*__builtins__\s*,[^,]{1,120}\^[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}<<[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}>>[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}\[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}&[^,]{1,120}\)|getattr\s*\(\s*builtins\s*,[^,]{1,120}\^[^,]{1,120}\)
+composite_rules: []

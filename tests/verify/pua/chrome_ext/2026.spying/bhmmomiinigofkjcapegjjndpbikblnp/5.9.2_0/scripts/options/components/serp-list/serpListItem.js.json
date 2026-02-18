@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -41,10 +41,10 @@
           "location": "1:53"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "id": "objectives/lateral-movement/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
       "desc": "Code uses frontend framework patterns",
       "conf": 0.9,
@@ -56,10 +56,10 @@
           "value": "React.createElement"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::sequential-identifiers",
       "kind": "capability",
       "desc": "Sequential identifiers (a, b, c,",
       "conf": 0.8,
@@ -73,10 +73,10 @@
           "value": "identifiers.sequential_names = 9.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -90,10 +90,10 @@
           "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -105,10 +105,10 @@
           "value": "serpListItem.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -127,10 +127,10 @@
           "value": "identifiers.sequential_names = 9.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -149,7 +149,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/internal/imported::array/from",

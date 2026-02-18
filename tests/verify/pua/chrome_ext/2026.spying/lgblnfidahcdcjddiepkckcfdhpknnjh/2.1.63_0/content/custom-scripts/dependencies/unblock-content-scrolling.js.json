@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/text/keywords::overflow",
+      "id": "micro-behaviors/data/text/keywords::overflow",
       "kind": "capability",
       "desc": "overflow keyword",
       "conf": 0.2,
@@ -91,10 +91,10 @@
           "location": "0x2c6"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
       "desc": "setTimeout with code execution",
       "conf": 0.75,
@@ -107,10 +107,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -122,7 +122,7 @@
           "value": "unblock-content-scrolling.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::document/body/style/getpropertyvalue",

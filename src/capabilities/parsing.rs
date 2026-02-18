@@ -97,10 +97,10 @@ pub(crate) fn apply_trait_defaults(
     // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
     if criticality == Criticality::Hostile {
         warnings.push(format!(
-            "Trait '{}' is an atomic trait marked 'crit: hostile'. Atomic (cap/) traits cannot \
-             be hostile — hostile criticality requires intent inference and belongs in obj/. \
-             Move this to obj/ and categorize by attacker objective (e.g., obj/c2/, obj/exfil/, \
-             obj/impact/). See TAXONOMY.md: cap/ max criticality is 'suspicious'.",
+            "Trait '{}' is an atomic trait marked 'crit: hostile'. Atomic (micro-behaviors/) traits cannot \
+             be hostile — hostile criticality requires intent inference and belongs in objectives/. \
+             Move this to objectives/ and categorize by attacker objective (e.g., objectives/command-and-control/, objectives/exfiltration/, \
+             objectives/impact/). See TAXONOMY.md: micro-behaviors/ max criticality is 'suspicious'.",
             raw.id
         ));
         criticality = Criticality::Suspicious;
@@ -538,15 +538,15 @@ fn check_regex_length(
     use crate::composite_rules::Condition;
 
     let regex = match condition {
-        Condition::Symbol { regex, .. } => regex.as_deref(),
-        Condition::String { regex, .. } => regex.as_deref(),
-        Condition::Raw { regex, .. } => regex.as_deref(),
-        Condition::Ast { regex, .. } => regex.as_deref(),
-        Condition::StringCount { regex, .. } => regex.as_deref(),
-        Condition::Section { regex, .. } => regex.as_deref(),
-        Condition::Encoded { regex, .. } => regex.as_deref(),
-        Condition::Basename { regex, .. } => regex.as_deref(),
-        Condition::Kv { regex, .. } => regex.as_deref(),
+        Condition::Symbol { regex, .. }
+        | Condition::String { regex, .. }
+        | Condition::Raw { regex, .. }
+        | Condition::Ast { regex, .. }
+        | Condition::StringCount { regex, .. }
+        | Condition::Section { regex, .. }
+        | Condition::Encoded { regex, .. }
+        | Condition::Basename { regex, .. }
+        | Condition::Kv { regex, .. } => regex.as_deref(),
         _ => None,
     };
 

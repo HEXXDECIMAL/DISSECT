@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -26,10 +26,10 @@
           "value": "functions.one_liners = 5.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/web-frameworks::has-frontend-framework",
+      "id": "objectives/lateral-movement/supply-chain/npm/web-frameworks::has-frontend-framework",
       "kind": "capability",
       "desc": "Code uses frontend framework patterns",
       "conf": 0.9,
@@ -41,10 +41,10 @@
           "value": "React.createElement"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/web-frameworks/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/web-frameworks/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::tabs-query",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::tabs-query",
       "kind": "capability",
       "desc": "Queries browser tabs",
       "conf": 0.9,
@@ -63,10 +63,10 @@
           "location": "1:66"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::low-whitespace",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::low-whitespace",
       "kind": "capability",
       "desc": "Very low whitespace ratio (minified/compressed)",
       "conf": 0.7,
@@ -80,10 +80,10 @@
           "value": "text.whitespace_ratio = 0.01"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "id": "micro-behaviors/execution/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
       "conf": 0.4,
@@ -95,7 +95,7 @@
           "value": "getCurrentTabFromPopupQueryString"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
       "id": "meta/library/react::react-dom",
@@ -113,7 +113,7 @@
       "source_file": "meta/library/react/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -125,10 +125,10 @@
           "value": "index.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::minified-code",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::minified-code",
       "kind": "capability",
       "desc": "Minified/compressed code (multiple indicators)",
       "conf": 0.9,
@@ -147,7 +147,7 @@
           "value": "functions.one_liners = 5.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
       "id": "meta/internal/imported::react/createelement",

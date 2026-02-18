@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -53,10 +53,10 @@
           "location": "30:11"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
       "kind": "capability",
       "desc": "MutationObserver DOM monitoring",
       "conf": 0.9,
@@ -69,10 +69,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
       "conf": 0.9,
@@ -97,10 +97,10 @@
           "location": "56:7"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::settimeout-code-exec",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::settimeout-code-exec",
       "kind": "capability",
       "desc": "setTimeout with code execution",
       "conf": 0.75,
@@ -113,10 +113,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -128,10 +128,10 @@
           "value": "hide-elems-in-shadow-dom.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -162,7 +162,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/internal/imported::shadowroot/matches",

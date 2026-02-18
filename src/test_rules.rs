@@ -703,7 +703,7 @@ impl<'a> RuleDebugger<'a> {
         let slash_count = id.matches('/').count();
 
         if slash_count == 0 {
-            // Short name: suffix match (e.g., "terminate" matches "exec/process/terminate")
+            // Short name: suffix match (e.g., "terminate" matches "execution/process/terminate")
             let suffix = format!("/{}", id);
             let matching_findings: Vec<_> =
                 self.report.findings.iter().filter(|f| f.id.ends_with(&suffix)).collect();
@@ -2543,8 +2543,8 @@ mod tests {
     fn test_debug_rule_match_consistency_with_real_evaluation() {
         // Create a report with findings that should match certain rules
         let findings = vec![
-            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
-            create_test_finding("cap/data/user-input/request/get"),
+            create_test_finding("objectives/anti-static/obfuscation/encoding/test"),
+            create_test_finding("micro-behaviors/data/user-input/request/get"),
         ];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"<?php test ?>";
@@ -2564,7 +2564,7 @@ mod tests {
 
         // Test a composite rule that references traits by prefix
         // The rule should match if the findings contain matching prefixes
-        if let Some(result) = debugger.debug_rule("obj/c2/webshell/backdoor/php-rce") {
+        if let Some(result) = debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce") {
             // Verify consistency: if matched is true, at least one condition should show as matched
             if result.matched {
                 let has_matched_condition = result.condition_results.iter().any(|c| c.matched);
@@ -2597,7 +2597,7 @@ mod tests {
         );
 
         // Test a rule that requires ELF file type (zstd-magic is for binaries)
-        if let Some(result) = debugger.debug_rule("cap/data/embedded/zstd-magic") {
+        if let Some(result) = debugger.debug_rule("micro-behaviors/data/embedded/zstd-magic") {
             assert!(!result.matched, "Rule should not match for PHP file");
             assert!(
                 result.skipped_reason.is_some(),
@@ -2660,8 +2660,8 @@ mod tests {
     fn test_debug_condition_prefix_matching() {
         // Create findings with specific prefixes
         let findings = vec![
-            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
-            create_test_finding("obj/anti-static/obfuscation/code-metrics/test2"),
+            create_test_finding("objectives/anti-static/obfuscation/encoding/test"),
+            create_test_finding("objectives/anti-static/obfuscation/code-metrics/test2"),
         ];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
@@ -2681,13 +2681,13 @@ mod tests {
 
         // Directly test the prefix matching in debug_condition
         let condition = Condition::Trait {
-            id: "obj/anti-static/obfuscation".to_string(),
+            id: "objectives/anti-static/obfuscation".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
         assert!(
             result.matched,
-            "Prefix 'obj/anti-static/obfuscation' should match findings with that prefix"
+            "Prefix 'objectives/anti-static/obfuscation' should match findings with that prefix"
         );
         assert!(
             !result.details.is_empty(),
@@ -2698,7 +2698,7 @@ mod tests {
     /// Test that non-matching prefix returns false
     #[test]
     fn test_debug_condition_prefix_no_match() {
-        let findings = vec![create_test_finding("cap/data/user-input/request/get")];
+        let findings = vec![create_test_finding("micro-behaviors/data/user-input/request/get")];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2717,7 +2717,7 @@ mod tests {
 
         // Test a prefix that doesn't match any findings
         let condition = Condition::Trait {
-            id: "obj/anti-static/obfuscation".to_string(),
+            id: "objectives/anti-static/obfuscation".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
@@ -2731,8 +2731,8 @@ mod tests {
     #[test]
     fn test_debug_composite_condition_count_consistency() {
         let findings = vec![
-            create_test_finding("obj/anti-static/obfuscation/encoding/test"),
-            create_test_finding("cap/data/user-input/request/get"),
+            create_test_finding("objectives/anti-static/obfuscation/encoding/test"),
+            create_test_finding("micro-behaviors/data/user-input/request/get"),
         ];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"<?php test ?>";
@@ -2751,7 +2751,7 @@ mod tests {
         );
 
         // Find and debug a composite rule
-        if let Some(result) = debugger.debug_rule("obj/c2/webshell/backdoor/php-rce") {
+        if let Some(result) = debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce") {
             // For each condition group (all/any/none), verify count matches
             for cond_result in &result.condition_results {
                 // Parse the condition description to get claimed count
@@ -2780,7 +2780,7 @@ mod tests {
     /// Test that exact trait ID match in findings is detected
     #[test]
     fn test_debug_trait_reference_exact_match_in_findings() {
-        let findings = vec![create_test_finding("cap/comm/socket/send/send")];
+        let findings = vec![create_test_finding("micro-behaviors/comm/socket/send/send")];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2799,7 +2799,7 @@ mod tests {
 
         // Test exact match - should find the finding directly
         let condition = Condition::Trait {
-            id: "cap/comm/socket/send/send".to_string(),
+            id: "micro-behaviors/comm/socket/send/send".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
@@ -2817,7 +2817,7 @@ mod tests {
     /// Test that suffix matching works for short trait names
     #[test]
     fn test_debug_trait_reference_suffix_match() {
-        let findings = vec![create_test_finding("cap/exec/process/terminate")];
+        let findings = vec![create_test_finding("micro-behaviors/execution/process/terminate")];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2857,9 +2857,9 @@ mod tests {
     fn test_debug_composite_no_condition_overall_mismatch() {
         // Create findings that should satisfy a composite's conditions
         let findings = vec![
-            create_test_finding("cap/exec/dylib/load/objc-method-swizzle"),
-            create_test_finding("cap/exec/dylib/load/nsbundle"),
-            create_test_finding("cap/comm/socket/send/send"),
+            create_test_finding("micro-behaviors/execution/dylib/load/objc-method-swizzle"),
+            create_test_finding("micro-behaviors/execution/dylib/load/nsbundle"),
+            create_test_finding("micro-behaviors/comm/socket/send/send"),
         ];
 
         // Create a MachO file type report
@@ -2888,7 +2888,7 @@ mod tests {
         );
 
         // Test the objc-app-hook composite if it exists
-        if let Some(result) = debugger.debug_rule("obj/lateral/trojanize/app/objc-app-hook") {
+        if let Some(result) = debugger.debug_rule("objectives/lateral-movement/trojanize/app/objc-app-hook") {
             // KEY INVARIANT: If all condition groups show matched, overall should be matched
             // (unless there's a skip reason or other constraint that explains the difference)
             let all_condition_groups_matched = result
@@ -2946,7 +2946,7 @@ mod tests {
 
         // Test a trait that exists in definitions but not in findings
         let condition = Condition::Trait {
-            id: "cap/exec/process/terminate".to_string(),
+            id: "micro-behaviors/execution/process/terminate".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
@@ -2963,8 +2963,8 @@ mod tests {
     fn test_debug_trait_reference_prefix_match_mirrors_eval() {
         // Create findings with a specific path
         let findings = vec![
-            create_test_finding("cap/comm/socket/send/unix"),
-            create_test_finding("cap/comm/socket/send/windows"),
+            create_test_finding("micro-behaviors/comm/socket/send/unix"),
+            create_test_finding("micro-behaviors/comm/socket/send/windows"),
         ];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
@@ -2984,13 +2984,13 @@ mod tests {
 
         // Test prefix match - should find both findings
         let condition = Condition::Trait {
-            id: "cap/comm/socket/send".to_string(),
+            id: "micro-behaviors/comm/socket/send".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
         assert!(
             result.matched,
-            "Prefix 'cap/comm/socket/send' should match findings with that prefix"
+            "Prefix 'micro-behaviors/comm/socket/send' should match findings with that prefix"
         );
         // Should mention both matched findings
         let detail_text = result.details.join(" ");

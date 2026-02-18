@@ -317,7 +317,7 @@ pub(crate) enum Command {
         target: String,
 
         /// Comma-separated list of rule/trait IDs to debug
-        /// (e.g., "lateral/supply-chain/npm/obfuscated-trojan,anti-static/obfuscation/code-metrics")
+        /// (e.g., "lateral-movement/supply-chain/npm/obfuscated-trojan,anti-static/obfuscation/code-metrics")
         #[arg(short, long, value_name = "RULE_IDS")]
         rules: String,
     },
@@ -447,7 +447,7 @@ pub(crate) enum Command {
 
     /// Generate a graph visualization of trait relationships
     Graph {
-        /// Directory depth level (2 = cap/comm, 3 = cap/comm/socket, etc.)
+        /// Directory depth level (2 = micro-behaviors/comm, 3 = micro-behaviors/comm/socket, etc.)
         #[arg(short, long, default_value = "3")]
         depth: usize,
 

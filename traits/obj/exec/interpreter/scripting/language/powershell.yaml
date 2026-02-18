@@ -1,8 +1,0 @@
-traits:
-  - id: powershell
-    desc: Strings indicative of PowerShell command execution.
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      regex: "PowerShell|AddCommand|Invoke|Interaction\\.Shell"

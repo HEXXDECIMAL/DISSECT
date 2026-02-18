@@ -1,0 +1,145 @@
+# Obfuscated JScript Dropper Detection
+# Detects combinations of obfuscated WSH components indicating a downloader
+
+defaults:
+  crit: hostile
+  conf: 0.9
+  for: [javascript]
+
+composite_rules:
+  - id: obfuscated-downloader-fragments-strict
+    desc: Obfuscated WSH downloader fragment cluster (Strict)
+    all:
+      - id: objectives/execution/interpreter/script/wsh::msxml-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
+    any:
+      - id: objectives/execution/interpreter/script/wsh::expand-env-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::response-body-fragment
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+
+  - id: obfuscated-downloader-tiny-fragments
+    desc: "Obfuscated WSH downloader (Tiny Fragments)"
+    crit: hostile
+    all:
+      - id: objectives/execution/interpreter/script/wsh::wsh-tiny-fragment-assignment
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
+    any:
+      - id: objectives/execution/interpreter/script/wsh::response-body-fragment
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+
+  - id: obfuscated-adodb-dropper
+    desc: "Obfuscated ADODB.Stream payload writer"
+    crit: hostile
+    all:
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::response-body-fragment
+    any:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-split-string-property
+      - id: objectives/anti-static/obfuscation/strings/encoding::fromcharcode
+
+  - id: wscript-dropper-env-check
+    desc: "WSH Dropper with Environment Checks"
+    crit: hostile
+    all:
+      - id: micro-traits/env/check/wsh::env-check-no-document
+    any:
+      - id: objectives/execution/interpreter/scripting/host::activex-object-obfuscated
+      - id: objectives/execution/interpreter/scripting/host::wscript-shell-obfuscated
+      - id: objectives/anti-static/obfuscation/interpreter/cmd::cmd-caret-obfuscation
+      - id: micro-traits/fs/path/location::path-suspicious-appdata-exe
+
+  - id: obfuscated-jscript-powershell-dropper
+    desc: "Obfuscated JScript PowerShell dropper"
+    crit: hostile
+    all:
+      - id: objectives/execution/interpreter/scripting/host::wscript-shell-obfuscated
+      - id: objectives/anti-static/obfuscation/interpreter/cmd::cmd-caret-obfuscation
+      - id: objectives/execution/interpreter/powershell::pwsh-downloader
+
+  - id: obfuscated-property-access-dropper
+    desc: "Obfuscated JScript Dropper using Property Access Obfuscation"
+    crit: hostile
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-property-concatenation-obfuscation
+    any:
+      - id: objectives/anti-static/obfuscation/control-flow::retry-loop
+      - id: objectives/anti-analysis/deception/social::fake-error-document-corrupted
+      - id: objectives/execution/process/control::start-process
+
+  - id: jscript-array-obfuscated-dropper
+    desc: "Obfuscated JScript Dropper using Array Function Loop"
+    crit: hostile
+    all:
+      - id: objectives/execution/interpreter/script/wsh::jscript-array-function-loop
+      - id: objectives/execution/interpreter/script/wsh::jscript-obfuscated-string-builder
+    any:
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: objectives/execution/interpreter/script/wsh::response-body-fragment
+      - id: objectives/execution/interpreter/script/dropper::obfuscated-jscript-dynamic-execution
+
+  - id: jscript-nested-array-dropper
+    desc: "Obfuscated JScript Dropper using Nested Array Map"
+    crit: hostile
+    all:
+      - id: micro-traits/data/encode/map::js-nested-array-table-mapping
+      - id: micro-traits/data/manipulation/string::js-split-string-array
+    any:
+      - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-on
+      - id: objectives/execution/interpreter/eval/dynamic::eval-call-js
+
+  - id: jscript-regex-cleanup-dropper
+    desc: "Obfuscated JScript Dropper using RegExp Cleanup"
+    crit: hostile
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-regex-string-cleanup
+    any:
+      - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-eval
+      - id: objectives/execution/interpreter/eval/dynamic::eval-call-js
+
+  - id: jscript-function-assembly-dropper
+    desc: "Obfuscated JScript Dropper using Function Assembly Loop"
+    crit: hostile
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-function-assembly-loop
+    any:
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: micro-traits/net/http/client::http-client-msxml-fragment
+
+  - id: jscript-array-url-dropper
+    desc: "JScript Dropper using Array URL Construction"
+    crit: hostile
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-array-index-concatenation
+      - id: objectives/lateral-movement/supply-chain/dropper::adodb-stream
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
+
+  - id: nemucod-downloader
+    desc: "Nemucod JScript Downloader"
+    crit: hostile
+    all:
+      - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-on
+    any:
+      - id: micro-traits/data/encode/map::js-nested-array-table-mapping
+      - id: objectives/execution/lolbin/os::nemucod-export-fragments
+      - id: micro-traits/env/check/wsh::env-check-comspec-cmd
+      - id: objectives/command-and-control/infrastructure/domain/family::nemucod-domain
+
+  - id: jscript-error-key-gen-dropper
+    desc: "JScript Dropper using Error Object for Key Generation"
+    crit: hostile
+    all:
+      - id: micro-traits/data/control-flow/analysis::js-try-catch-error-method-call
+    any:
+      - id: micro-traits/host/interpreter/jscript::is-jscript
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
+
+  - id: jscript-xor-decoder-dropper
+    desc: "JScript Dropper using Custom XOR Decoder Loop"
+    crit: hostile
+    all:
+      - id: micro-traits/data/encode/xor::js-xor-decoder-loop
+    any:
+      - id: objectives/execution/interpreter/script/wsh

@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -33,10 +33,10 @@
           "location": "0x14b"
         }
       ],
-      "source_file": "cap/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
     },
     {
-      "id": "cap/comm/http/post::post-method",
+      "id": "micro-behaviors/comm/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -57,10 +57,10 @@
           "location": "0x12a"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
       "kind": "capability",
       "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
@@ -72,10 +72,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics/functions::many-one-liner-functions",
       "kind": "capability",
       "desc": "Many one-liner functions (minified code",
       "conf": 0.7,
@@ -89,10 +89,10 @@
           "value": "functions.one_liners = 7.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/functions/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/functions/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-keys-call",
+      "id": "objectives/discovery/host/fingerprint::object-keys-call",
       "kind": "capability",
       "desc": "Object.keys call",
       "conf": 0.5,
@@ -114,10 +114,10 @@
           "value": "Object.keys.map"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/c2/network/beacon::json-content-type",
+      "id": "objectives/command-and-control/network/beacon::json-content-type",
       "kind": "capability",
       "desc": "JSON content-type header",
       "conf": 0.7,
@@ -138,10 +138,10 @@
           "location": "0x15a"
         }
       ],
-      "source_file": "obj/c2/network/beacon/json-c2.yaml"
+      "source_file": "objectives/command-and-control/network/beacon/json-c2.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
+      "id": "micro-behaviors/execution/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
       "conf": 0.6,
@@ -156,10 +156,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/loader/node-fetch.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "id": "objectives/discovery/host/fingerprint::json-stringify-call",
       "kind": "capability",
       "desc": "JSON.stringify call",
       "conf": 0.5,
@@ -171,10 +171,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/data/exploitation/memory::js-proto-pollution-guard",
+      "id": "micro-behaviors/data/exploitation/memory::js-proto-pollution-guard",
       "kind": "capability",
       "desc": "Prototype pollution guard check present",
       "conf": 0.9,
@@ -187,10 +187,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/exploitation/memory/generic.yaml"
+      "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -202,10 +202,10 @@
           "value": "googleFormApi.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "cap/comm/http/request::application-json",
+      "id": "micro-behaviors/comm/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -226,10 +226,10 @@
           "location": "0x15a"
         }
       ],
-      "source_file": "cap/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/vscode::send-methods",
+      "id": "objectives/lateral-movement/supply-chain/vscode::send-methods",
       "kind": "capability",
       "desc": "HTTP send methods",
       "conf": 0.7,
@@ -248,10 +248,10 @@
           "location": "0x12a"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/vscode/malicious.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "cap/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/comm/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -272,10 +272,10 @@
           "location": "0x12a"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-clients",
+      "id": "micro-behaviors/execution/vm/sandbox::http-clients",
       "kind": "capability",
       "desc": "HTTP client library usage",
       "conf": 0.6,
@@ -294,10 +294,10 @@
           "location": "0x15a"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -324,10 +324,10 @@
           "value": "Object.keys.map"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/comm/http/post::post",
+      "id": "micro-behaviors/comm/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -348,10 +348,10 @@
           "location": "0x12a"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::http-fetch-methods",
+      "id": "micro-behaviors/execution/vm/sandbox::http-fetch-methods",
       "kind": "capability",
       "desc": "HTTP fetch methods",
       "conf": 0.6,
@@ -370,10 +370,10 @@
           "location": "0x15a"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/c2/ddos/attack::http-methods",
+      "id": "objectives/command-and-control/ddos/attack::http-methods",
       "kind": "capability",
       "desc": "HTTP request methods detected",
       "conf": 1.0,
@@ -406,10 +406,10 @@
           "location": "0x15a"
         }
       ],
-      "source_file": "obj/c2/ddos/attack/generic.yaml"
+      "source_file": "objectives/command-and-control/ddos/attack/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -421,10 +421,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/malicious-patterns::http-post-exfil",
+      "id": "objectives/lateral-movement/supply-chain/npm/malicious-patterns::http-post-exfil",
       "kind": "capability",
       "desc": "HTTP POST exfiltration",
       "conf": 0.75,
@@ -443,7 +443,7 @@
           "location": "0x12a"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/malicious-patterns/behavioral.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/malicious-patterns/behavioral.yaml"
     },
     {
       "id": "meta/internal/imported::fetch",

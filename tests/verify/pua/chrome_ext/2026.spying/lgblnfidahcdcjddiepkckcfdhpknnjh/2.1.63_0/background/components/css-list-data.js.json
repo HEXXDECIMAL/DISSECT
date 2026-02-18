@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-ast",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
       "kind": "capability",
       "desc": "for loop (AST)",
       "conf": 0.3,
@@ -65,7 +65,7 @@
           "location": "91:7"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
       "id": "meta/quality/versioning::version-word-lower",
@@ -90,7 +90,7 @@
       "source_file": "meta/quality/versioning/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
       "kind": "capability",
       "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
@@ -102,10 +102,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
       "conf": 0.65,
@@ -119,10 +119,10 @@
           "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
       "conf": 0.6,
@@ -136,10 +136,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::md5-keyword",
+      "id": "objectives/discovery/host/fingerprint::md5-keyword",
       "kind": "capability",
       "desc": "md5 hash algorithm",
       "conf": 0.6,
@@ -151,10 +151,10 @@
           "value": "md5"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/code/metrics/obfuscation::high-entropy-identifiers",
+      "id": "micro-behaviors/code/metrics/obfuscation::high-entropy-identifiers",
       "kind": "capability",
       "desc": "High entropy identifiers (random variable names)",
       "conf": 0.85,
@@ -168,10 +168,10 @@
           "value": "identifiers.avg_entropy = 2.61"
         }
       ],
-      "source_file": "cap/code/metrics/obfuscation/traits.yaml"
+      "source_file": "micro-behaviors/code/metrics/obfuscation/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/loader::fetch-call",
+      "id": "micro-behaviors/execution/dropper/loader::fetch-call",
       "kind": "capability",
       "desc": "fetch() API call",
       "conf": 0.6,
@@ -186,10 +186,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/loader/node-fetch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/loader/node-fetch.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::json-stringify-call",
+      "id": "objectives/discovery/host/fingerprint::json-stringify-call",
       "kind": "capability",
       "desc": "JSON.stringify call",
       "conf": 0.5,
@@ -201,10 +201,10 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -216,10 +216,10 @@
           "value": "css-list-data.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::object-serialization",
+      "id": "objectives/discovery/host/fingerprint::object-serialization",
       "kind": "capability",
       "desc": "Object serialization methods",
       "conf": 1.0,
@@ -231,7 +231,7 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "meta/quality::versioned",
@@ -256,7 +256,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::hash-algorithms",
+      "id": "objectives/discovery/host/fingerprint::hash-algorithms",
       "kind": "capability",
       "desc": "Hash algorithm keywords",
       "conf": 1.0,
@@ -268,10 +268,10 @@
           "value": "md5"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -314,10 +314,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -329,7 +329,7 @@
           "value": "JSON.stringify"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
       "id": "meta/internal/imported::newlist/key/delete_rule/includes",

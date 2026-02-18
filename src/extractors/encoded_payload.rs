@@ -14,7 +14,7 @@ use std::path::PathBuf;
 
 /// Represents an extracted payload
 #[derive(Debug)]
-pub(crate) struct ExtractedPayload {
+pub struct ExtractedPayload {
     /// Path to temp file containing decoded content
     pub temp_path: PathBuf,
     /// Chain of encodings (e.g., ["base64", "zlib"])
@@ -119,6 +119,18 @@ fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
     }
 
     Some(decoded)
+}
+
+/// Check if raw bytes represent a hex-encoded payload (for direct use by tests/external callers)
+pub fn is_hex_encoded(data: &[u8]) -> bool {
+    let Ok(s) = std::str::from_utf8(data) else { return false };
+    is_hex_string(s.trim())
+}
+
+/// Decode raw hex-encoded bytes into the original payload
+pub fn decode_hex(data: &[u8]) -> Option<Vec<u8>> {
+    let s = std::str::from_utf8(data).ok()?;
+    decode_hex_string(s.trim())
 }
 
 /// Maximum size for decompressed payloads to prevent decompression bombs
@@ -357,7 +369,7 @@ fn decompress_and_nest(
 
 /// Extract all encoded payloads from stng-extracted strings
 /// stng_strings should be the result of calling stng::extract_strings_with_options() once
-pub(crate) fn extract_encoded_payloads(stng_strings: &[stng::ExtractedString]) -> Vec<ExtractedPayload> {
+pub fn extract_encoded_payloads(stng_strings: &[stng::ExtractedString]) -> Vec<ExtractedPayload> {
     let mut payloads = Vec::new();
 
     // Filter for decoded strings from ANY encoding method

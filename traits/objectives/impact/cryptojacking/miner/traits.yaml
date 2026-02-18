@@ -1,0 +1,87 @@
+defaults:
+  for:
+  - all
+traits:
+- id: stratum-tcp
+  desc: stratum+tcp protocol
+  crit: notable
+  conf: 0.6
+  mbc: B0041
+  attack: T1496
+  if:
+    type: string
+    substr: stratum+tcp
+- id: miner-word
+  desc: miner keyword
+  crit: notable
+  conf: 0.4
+  if:
+    type: string
+    word: miner
+- id: hashrate-str
+  desc: hashrate keyword
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    substr: hashrate
+- id: wallet-ref
+  desc: wallet keyword
+  crit: notable
+  conf: 0.4
+  if:
+    type: string
+    word: wallet
+- id: coinhive-str
+  desc: coinhive reference
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    substr: coinhive
+- id: cryptonight-str
+  desc: cryptonight algorithm
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    substr: cryptonight
+- id: monero-lower
+  desc: monero cryptocurrency reference
+  crit: notable
+  conf: 0.5
+  if:
+    type: string
+    exact: monero
+- id: miner-stratum
+  desc: Stratum mining protocol
+  crit: suspicious
+  conf: 0.66
+  if:
+    type: string
+    regex: stratum\+tcp://
+- id: pool-url
+  desc: Mining pool URL pattern
+  crit: notable
+  conf: 0.7
+  if:
+    type: string
+    regex: (?:stratum\+(?:tcp|ssl)://|https?://)[^\s]{1,120}pool[^\s]{0,120}|pool\.[a-z0-9-]+\.(?:com|net|org|io)
+composite_rules:
+- id: miner
+  desc: Cryptocurrency mining patterns
+  crit: suspicious
+  conf: 0.66
+  mbc: B0041
+  attack: T1496
+  needs: 2
+  any:
+  - id: stratum-tcp
+  - id: pool-url
+  - id: miner-word
+  - id: well-known/malware/miner/xmrig::xmrig-name
+  - id: objectives/impact/cryptojacking/miner::monero-lower
+  - id: hashrate-str
+  - id: objectives/impact/cryptojacking/miner::wallet-ref
+  - id: coinhive-str
+  - id: cryptonight-str

@@ -63,9 +63,9 @@ fn verify_trait_structure(yaml: &serde_yaml::Value, expected_ids: &[&str]) {
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/anti-analysis/applescript/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/anti-analysis/applescript/traits.yaml"]
 fn test_applescript_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/obj/anti-analysis/applescript/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/anti-analysis/applescript/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(
@@ -81,7 +81,7 @@ fn test_applescript_traits_yaml_valid() {
 
 #[test]
 fn test_desktop_wallet_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/obj/creds/wallet/desktop/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/credential-access/wallet/desktop/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(
@@ -98,27 +98,27 @@ fn test_desktop_wallet_traits_yaml_valid() {
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/creds/macos/validation/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/credential-access/macos/validation/traits.yaml"]
 fn test_macos_validation_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/obj/creds/macos/validation/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/credential-access/macos/validation/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(&yaml, &["dscl-authonly", "dscl-read", "dscl-list"]);
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/collect/archive/macos/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/collection/archive/macos/traits.yaml"]
 fn test_macos_archive_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/obj/collect/archive/macos/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/collection/archive/macos/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(&yaml, &["ditto-compress", "hdiutil-create", "tar-compress"]);
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/exfil/stealer/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/exfiltration/stealer/traits.yaml"]
 fn test_exfil_stealer_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/obj/exfil/stealer/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/exfiltration/stealer/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(
@@ -128,9 +128,9 @@ fn test_exfil_stealer_traits_yaml_valid() {
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/anti-analysis/applescript/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/anti-analysis/applescript/traits.yaml"]
 fn test_applescript_traits_have_attack_mapping() {
-    let yaml = verify_trait_file("traits/obj/anti-analysis/applescript/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/anti-analysis/applescript/traits.yaml");
 
     if let Some(defaults) = yaml.get("defaults") {
         assert!(
@@ -142,7 +142,7 @@ fn test_applescript_traits_have_attack_mapping() {
 
 #[test]
 fn test_desktop_wallet_traits_have_criticality() {
-    let yaml = verify_trait_file("traits/obj/creds/wallet/desktop/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/credential-access/wallet/desktop/traits.yaml");
 
     if let Some(traits) = yaml.get("traits").and_then(|t| t.as_sequence()) {
         for trait_def in traits {
@@ -156,9 +156,9 @@ fn test_desktop_wallet_traits_have_criticality() {
 }
 
 #[test]
-#[ignore = "Trait file not yet created - traits/obj/exfil/stealer/traits.yaml"]
+#[ignore = "Trait file not yet created - traits/objectives/exfiltration/stealer/traits.yaml"]
 fn test_exfil_stealer_has_composite_rules() {
-    let yaml = verify_trait_file("traits/obj/exfil/stealer/traits.yaml");
+    let yaml = verify_trait_file("traits/objectives/exfiltration/stealer/traits.yaml");
 
     assert!(
         yaml.get("composite_rules").is_some(),
@@ -170,11 +170,11 @@ fn test_exfil_stealer_has_composite_rules() {
 #[ignore = "Several trait files not yet created (applescript, macos validation, macos archive, exfil stealer)"]
 fn test_all_new_trait_files_exist() {
     let trait_files = [
-        "traits/obj/anti-analysis/applescript/traits.yaml",
-        "traits/obj/creds/wallet/desktop/traits.yaml",
-        "traits/obj/creds/macos/validation/traits.yaml",
-        "traits/obj/collect/archive/macos/traits.yaml",
-        "traits/obj/exfil/stealer/traits.yaml",
+        "traits/objectives/anti-analysis/applescript/traits.yaml",
+        "traits/objectives/credential-access/wallet/desktop/traits.yaml",
+        "traits/objectives/credential-access/macos/validation/traits.yaml",
+        "traits/objectives/collection/archive/macos/traits.yaml",
+        "traits/objectives/exfiltration/stealer/traits.yaml",
     ];
 
     for file in trait_files {
@@ -192,9 +192,9 @@ fn test_trait_ids_are_short_format() {
     // Verify trait IDs use short format (no path prefix)
     // The Rust loader auto-prefixes based on directory path
     let checks = [
-        "traits/obj/anti-analysis/applescript/traits.yaml",
-        "traits/obj/creds/wallet/desktop/traits.yaml",
-        "traits/obj/exfil/stealer/traits.yaml",
+        "traits/objectives/anti-analysis/applescript/traits.yaml",
+        "traits/objectives/credential-access/wallet/desktop/traits.yaml",
+        "traits/objectives/exfiltration/stealer/traits.yaml",
     ];
 
     for file_path in checks {

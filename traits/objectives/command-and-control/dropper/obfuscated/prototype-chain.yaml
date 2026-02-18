@@ -1,0 +1,12 @@
+composite_rules:
+  - id: prototype-chain-dropper
+    desc: "Hostile JScript Dropper using prototype chaining obfuscation"
+    crit: hostile
+    conf: 0.95
+    for: [javascript]
+    attack: "T1027"
+    mbc: "B0032"
+    all:
+      - id: objectives/anti-static/obfuscation/source/prototype::weird-function-syntax
+      - id: objectives/anti-static/obfuscation/source/eval::eval-unescape
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragments-composite

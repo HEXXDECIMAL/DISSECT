@@ -1,0 +1,41 @@
+# Nemucod Downloader Detection
+# Detects the Nemucod JScript downloader family via its unique obfuscation patterns
+
+defaults:
+  crit: hostile
+  conf: 0.95
+  for: [javascript]
+
+composite_rules:
+  - id: js-nemucod-downloader-windows4
+    desc: Nemucod JScript Downloader (Split-Join Decoder)
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-prototype-extension
+      - id: objectives/anti-static/obfuscation/source/syntax::js-split-join-empty
+    any:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-dynamic-global-access-array
+      - id: micro-traits/data/encode/base64::alphabet-script
+      - id: objectives/exfiltration/channel/oob::http-b64
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
+
+  - id: js-nemucod-downloader-windows
+    desc: Nemucod JScript Downloader (Map-Replace Decoder)
+    all:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-prototype-extension
+      - id: objectives/anti-static/obfuscation/source/syntax::js-replace-map
+    any:
+      - id: objectives/anti-static/obfuscation/source/syntax::js-dynamic-global-access-array
+      - id: micro-traits/data/encode/base64::alphabet-script
+      - id: objectives/exfiltration/channel/oob::http-b64
+      - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
+
+  - id: js-nemucod-downloader-jitter
+    desc: Nemucod JScript Downloader (Jitter Evasion)
+    all:
+      - id: micro-traits/time/measure/delta::js-date-diff-jitter-check
+    any:
+      - id: objectives/execution/interpreter/script/wsh::wsh-tiny-fragment-assignment
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short

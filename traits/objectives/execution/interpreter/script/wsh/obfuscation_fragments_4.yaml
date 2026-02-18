@@ -1,0 +1,69 @@
+# More Tiny Obfuscated WSH Fragments
+# Specific for 2015-era JScript malware
+
+defaults:
+  crit: suspicious
+  conf: 1.0
+  for: [javascript]
+
+traits:
+  - id: wscript-shell-fragment-tiny-2
+    desc: Tiny WScript.Shell fragment (variant 2)
+    crit: notable
+    if:
+      type: raw
+      # Removed backslash, added t.She, removed hell (FP on powershell)
+      regex: 'WScri|ipt\.S|pt\.She'
+    unless:
+      - id: metadata/builder/autotools::autotools
+      - id: metadata/builder/autotools::configure-ac
+      - id: metadata/builder/pip::setup-py
+      - id: metadata/quality/help::usage-title
+
+  - id: adodb-fragment-tiny-2
+    desc: Tiny ADODB.Stream fragment (variant 2)
+    if:
+      type: string
+      regex: 'ODB.S|trea'
+
+  - id: xmlhttp-fragment-tiny-2
+    desc: Tiny XMLHTTP fragment (variant 2)
+    crit: notable
+    if:
+      type: string
+      regex: '.XMLH[^t]'
+    downgrade:
+      any:
+        - id: metadata/library/jquery::domain
+        - id: metadata/library/jquery::version-string
+        - id: metadata/library/jquery::copyright
+        - id: metadata/library/jquery::fn-extend
+        - id: metadata/library/prototype::copyright
+        - id: metadata/library/prototype::version-string
+        - id: metadata/library/prototype::header-x
+
+  - id: savetofile-fragment-tiny-2
+    desc: Tiny SaveToFile fragment (variant 2)
+    if:
+      type: string
+      regex: 'veToF|ile'
+
+  - id: activex-fragment-tiny-2
+    desc: Tiny ActiveXObject fragment (variant 2)
+    conf: 0.9
+    if:
+      type: string
+      regex: 'Activ($|[^e])|eXObj'
+    downgrade:
+      any:
+        - id: metadata/library/jquery::domain
+        - id: metadata/library/jquery::version-string
+        - id: metadata/library/jquery::copyright
+        - id: metadata/library/jquery::fn-extend
+    unless:
+      - id: micro-traits/host/interpreter/jscript::activex-object
+      - id: micro-traits/data/db/conn/redis::ioredis
+      - id: metadata/library/jquery::domain
+      - id: metadata/library/jquery::version-string
+      - id: metadata/library/jquery::copyright
+      - id: metadata/library/jquery::fn-extend

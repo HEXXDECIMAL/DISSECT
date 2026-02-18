@@ -1,3 +1,0 @@
-# Filesystem file opening
-traits:
-  # Removed open-go duplicate - use cap/fs/file/operations/go::os-open (symbol is more precise)

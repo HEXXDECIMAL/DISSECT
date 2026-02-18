@@ -1,0 +1,42 @@
+defaults:
+  for:
+  - all
+traits:
+- id: complex-lodsb-transform
+  conf: 0.9
+  crit: suspicious
+  desc: Complex byte-by-byte transformation using lodsb (often for
+  if:
+    type: raw
+    regex: lodsb\s+sub byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sub
+      byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc e[sd]i\s+lodsb|lodsb\s+sub byte ptr
+      \[e[abcd]x\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sub byte ptr \[e[abcd]x\+e[sd]i\],
+      al\s+inc e[sd]i\s+lodsb|lodsb\s+sub byte ptr \[e[sd]i\+e[abcd]x\], al\s+inc
+      e[abcd]x\s+lodsb|lodsb\s+sub byte ptr \[e[sd]i\+e[abcd]x\], al\s+inc e[sd]i\s+lodsb|lodsb\s+sub
+      byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sub byte ptr
+      \[e[sd]i\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+add byte ptr \[e[abcd]x\+e[abcd]x\],
+      al\s+inc e[abcd]x\s+lodsb|lodsb\s+add byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc
+      e[sd]i\s+lodsb|lodsb\s+add byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+add
+      byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+add byte ptr
+      \[e[sd]i\+e[abcd]x\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+add byte ptr \[e[sd]i\+e[abcd]x\],
+      al\s+inc e[sd]i\s+lodsb|lodsb\s+add byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+add
+      byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+xor byte ptr \[e[abcd]x\+e[abcd]x\],
+      al\s+inc e[abcd]x\s+lodsb|lodsb\s+xor byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc
+      e[sd]i\s+lodsb|lodsb\s+xor byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+xor
+      byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+xor byte ptr
+      \[e[sd]i\+e[abcd]x\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+xor byte ptr \[e[sd]i\+e[abcd]x\],
+      al\s+inc e[sd]i\s+lodsb|lodsb\s+xor byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+xor
+      byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+adc byte ptr \[e[abcd]x\+e[abcd]x\],
+      al\s+inc e[abcd]x\s+lodsb|lodsb\s+adc byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc
+      e[sd]i\s+lodsb|lodsb\s+adc byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+adc
+      byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+adc byte ptr
+      \[e[sd]i\+e[abcd]x\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+adc byte ptr \[e[sd]i\+e[abcd]x\],
+      al\s+inc e[sd]i\s+lodsb|lodsb\s+adc byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+adc
+      byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+sbb byte ptr \[e[abcd]x\+e[abcd]x\],
+      al\s+inc e[abcd]x\s+lodsb|lodsb\s+sbb byte ptr \[e[abcd]x\+e[abcd]x\], al\s+inc
+      e[sd]i\s+lodsb|lodsb\s+sbb byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sbb
+      byte ptr \[e[abcd]x\+e[sd]i\], al\s+inc e[sd]i\s+lodsb|lodsb\s+sbb byte ptr
+      \[e[sd]i\+e[abcd]x\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sbb byte ptr \[e[sd]i\+e[abcd]x\],
+      al\s+inc e[sd]i\s+lodsb|lodsb\s+sbb byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[abcd]x\s+lodsb|lodsb\s+sbb
+      byte ptr \[e[sd]i\+e[sd]i\], al\s+inc e[sd]i\s+lodsb
+composite_rules: []

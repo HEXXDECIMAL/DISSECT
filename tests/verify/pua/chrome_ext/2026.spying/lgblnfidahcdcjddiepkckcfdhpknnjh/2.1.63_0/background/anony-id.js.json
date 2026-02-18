@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/impact/ransomware/behavior::crypto-module",
+      "id": "objectives/impact/ransomware/behavior::crypto-module",
       "kind": "capability",
       "desc": "crypto module",
       "conf": 0.3,
@@ -25,10 +25,10 @@
           "value": "crypto.randomUUID"
         }
       ],
-      "source_file": "obj/impact/ransomware/behavior/patterns.yaml"
+      "source_file": "objectives/impact/ransomware/behavior/patterns.yaml"
     },
     {
-      "id": "obj/creds/wallet/mnemonic::crypto-word",
+      "id": "objectives/credential-access/wallet/mnemonic::crypto-word",
       "kind": "capability",
       "desc": "crypto term",
       "conf": 0.5,
@@ -42,10 +42,10 @@
           "value": "crypto"
         }
       ],
-      "source_file": "obj/creds/wallet/mnemonic/traits.yaml"
+      "source_file": "objectives/credential-access/wallet/mnemonic/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -57,7 +57,7 @@
           "value": "anony-id.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
       "id": "meta/internal/imported::crypto/randomuuid",

@@ -196,7 +196,7 @@ pub struct SourceCodeMetrics {
     pub local_imports: u32,
 
     // Complexity indicators
-    /// Lines with eval/exec/compile
+    /// Lines with eval/execution/compile
     #[serde(default, skip_serializing_if = "is_zero_u32")]
     pub dynamic_execution_count: u32,
     /// Obfuscation indicators (base64, hex strings, etc.)

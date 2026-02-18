@@ -32,8 +32,6 @@
 // even though they ARE reachable via the library crate. Suppress this false positive.
 #![allow(unreachable_pub)]
 
-// AMOS cipher detection now handled by stng library internally
-// mod amos_cipher;
 mod analyzers;
 mod archive_utils;
 mod cache;
@@ -307,11 +305,6 @@ fn main() -> Result<()> {
         None
     };
 
-    // Handle commands that manage their own output before entering the result-formatting match.
-    if let Some(cli::Command::YaraProfile { target, min_ms }) = &args.command {
-        return yara_profile(Path::new(target), *min_ms);
-    }
-
     let result = match args.command {
         Some(cli::Command::Analyze { targets }) => {
             let enable_third_party = enable_third_party_global;
@@ -465,7 +458,9 @@ fn main() -> Result<()> {
             min_refs,
             namespaces.as_deref(),
         )?,
-        Some(cli::Command::YaraProfile { .. }) => unreachable!("handled above"),
+        Some(cli::Command::YaraProfile { target, min_ms }) => {
+            return yara_profile(Path::new(&target), min_ms);
+        },
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -1337,7 +1332,7 @@ fn analyze_file_with_shared_mapper(
     // Add finding for extension/content mismatch if detected
     if let Some((expected, actual)) = mismatch {
         report.findings.push(types::Finding {
-            id: "meta/file-extension-mismatch".to_string(),
+            id: "metadata/file-extension-mismatch".to_string(),
             kind: types::FindingKind::Indicator,
             desc: format!(
                 "File extension claims {} but content is {}",
@@ -1369,7 +1364,7 @@ fn analyze_file_with_shared_mapper(
         };
 
         report.findings.push(types::Finding {
-            id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
+            id: format!("metadata/encoded-payload/{}", payload.encoding_chain.join("-")),
             kind: types::FindingKind::Structural,
             desc: format!(
                 "Encoded payload detected: {}",
@@ -4415,7 +4410,7 @@ fn yara_profile(target: &Path, min_ms: u64) -> Result<()> {
     let rule_files: Vec<_> = WalkDir::new(third_party_dir)
         .follow_links(false)
         .into_iter()
-        .filter_map(|e| e.ok())
+        .filter_map(Result::ok)
         .filter(|e| {
             let p = e.path();
             p.is_file() && p.extension().map(|x| x == "yar" || x == "yara").unwrap_or(false)
@@ -4475,7 +4470,7 @@ fn yara_profile(target: &Path, min_ms: u64) -> Result<()> {
     };
 
     if !results.is_empty() {
-        println!("{:>8}  {}", "ms", "rule file");
+        println!("{:>8}  rule file", "ms");
         println!("{}", "-".repeat(72));
         for (ms, label) in &results {
             println!("{:>8}  {}", ms, label);

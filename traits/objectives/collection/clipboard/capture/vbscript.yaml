@@ -1,0 +1,99 @@
+defaults:
+  for:
+  - scripts
+  platforms:
+  - windows
+traits:
+- id: vbs-clipboard-get
+  desc: Clipboard data retrieval
+  crit: suspicious
+  conf: 0.85
+  attack: T1115
+  if:
+    type: string
+    regex: ClipboardData\.GetData|ParentWindow\.ClipboardData
+- id: monero-address
+  desc: Monero address embedded
+  crit: notable
+  conf: 0.8
+  attack: T1649
+  if:
+    type: string
+    regex: 4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}
+- id: ethereum-address
+  desc: Ethereum address embedded
+  crit: notable
+  conf: 0.8
+  attack: T1649
+  if:
+    type: string
+    regex: 0x[a-fA-F0-9]{40}
+- id: crypto-address-check
+  desc: Cryptocurrency address validation
+  crit: suspicious
+  conf: 0.85
+  attack: T1649
+  if:
+    type: string
+    regex: Left.{0,30}, ?1[)]|Len.{0,30}, ?(?:26|35|95)
+- id: address-replacement
+  desc: Clipboard content replacement
+  crit: suspicious
+  conf: 0.9
+  attack: T1649
+  if:
+    type: string
+    regex: echo.{0,30}clip|\\.run.{0,30}clip|(?i)\\bReplace\\b.{0,30}address
+- id: htmlfile-object
+  desc: HTMLFile object for clipboard access
+  crit: notable
+  conf: 0.75
+  attack: T1115
+  if:
+    type: string
+    regex: HTMLfile|CreateObject.{0,30}HTML
+- id: bitcoin-address
+  desc: Bitcoin address embedded
+  crit: notable
+  conf: 0.8
+  attack: T1649
+  if:
+    type: string
+    regex: \bbc1[a-zA-Z0-9]{25,59}\b|\b1[a-km-zA-HJ-NP-Z1-9]{25,34}\b|\b3[a-km-zA-HJ-NP-Z1-9]{25,34}\b
+composite_rules:
+- id: crypto-clipboard-hijacker
+  desc: Cryptocurrency clipboard hijacker
+  crit: suspicious
+  conf: 0.95
+  attack: T1649
+  needs: 4
+  any:
+  - id: vbs-clipboard-get
+  - id: vbs-clipboard-loop
+  - id: bitcoin-address
+  - id: monero-address
+  - id: ethereum-address
+  - id: crypto-address-check
+  - id: address-replacement
+- id: vbs-clipboard-monitor
+  desc: VBScript clipboard monitor
+  crit: suspicious
+  conf: 0.88
+  attack: T1115
+  needs: 2
+  any:
+  - id: vbs-clipboard-get
+  - id: vbs-clipboard-loop
+  - id: htmlfile-object
+- id: vbs-clipboard-loop
+  desc: Continuous clipboard monitoring
+  crit: notable
+  conf: 0.9
+  attack: T1115
+  size_max: 5000
+  unless:
+  - id: objectives/collection/clipboard/capture/vbscript::inline__vbs-clipboard-loop__unless_1
+  any:
+  - id: objectives/collect/clipboard/capture/vbscript::inline__vbs-clipboard-loop__any_1
+  - id: objectives/collect/clipboard/capture/vbscript::inline__vbs-clipboard-loop__any_2
+  - id: objectives/collect/clipboard/capture/vbscript::inline__vbs-clipboard-loop__any_3

@@ -563,7 +563,7 @@ mod path_mapper_tests {
         let traits = generate_traits_from_directories(&[dir]);
 
         assert!(traits.iter().any(|t|
-            t.id == "cap/fs/path/log/multiple-access"
+            t.id == "micro-behaviors/fs/path/log/multiple-access"
             && t.crit == Criticality::Notable
         ));
     }
@@ -736,7 +736,7 @@ mod path_mapper_tests {
 
         // Should detect multiple log file access
         assert!(report.findings.iter().any(|f|
-            f.id == "cap/fs/path/log/multiple-access" && f.crit == Criticality::Notable
+            f.id == "micro-behaviors/fs/path/log/multiple-access" && f.crit == Criticality::Notable
         ));
 
         // Should group into /var/log/ directory

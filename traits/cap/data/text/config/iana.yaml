@@ -1,8 +1,0 @@
-traits:
-  - id: iana-port-definition
-    desc: "IANA port definition structure"
-    crit: inert
-    conf: 1.0
-    if:
-      type: raw
-      regex: '\{ ".{0,220}", \{ NULL \}, \d+, ".{0,220}" \}'

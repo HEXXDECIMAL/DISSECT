@@ -462,7 +462,7 @@ pub(crate) fn generate_traits_from_directories(directories: &[DirectoryAccess]) 
             traits.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "cap/fs/path/log/multiple-access".to_string(),
+                id: "micro-behaviors/fs/path/log/multiple-access".to_string(),
                 desc: format!("Accesses {} log files in {}", dir.file_count, dir.directory),
                 conf: 0.7,
                 crit: Criticality::Notable,

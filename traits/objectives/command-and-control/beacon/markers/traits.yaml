@@ -1,0 +1,13 @@
+defaults:
+  for:
+  - all
+traits:
+- id: backdoor
+  desc: Backdoor marker string
+  crit: suspicious
+  conf: 0.7
+  if:
+    type: string
+    regex: backdoor[_-]?(shell|c2|trojan|server|client|agent|payload|access|connection|remote)
+    case_insensitive: true
+composite_rules: []

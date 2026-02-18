@@ -1,0 +1,10 @@
+# Browser Storage APIs - Deleted
+# This was a taxonomy violation - atomic browser API detection belongs in micro-traits/
+# The capabilities now exist at:
+# - micro-traits/data/browser/storage::localstorage-get
+# - micro-traits/data/browser/storage::localstorage-set
+# - micro-traits/data/browser/storage::indexeddb
+# - micro-traits/data/browser/analytics::google-analytics-id
+#
+# For proper collection objectives, combine storage APIs with other
+# evidence of malicious intent (exfiltration, sensitive data patterns, etc.)

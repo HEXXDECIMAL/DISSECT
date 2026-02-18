@@ -135,7 +135,7 @@ mod tests {
 
         assert_eq!(report.target.file_type, "java_class");
 
-        // Should detect exec/process capability (Runtime.exec, ProcessBuilder)
+        // Should detect execution/process capability (Runtime.exec, ProcessBuilder)
         let has_exec = report.findings.iter().any(|f| f.id.contains("exec"));
         assert!(
             has_exec,

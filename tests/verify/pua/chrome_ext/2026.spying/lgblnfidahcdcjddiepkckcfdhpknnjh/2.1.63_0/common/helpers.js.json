@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/discovery/host/fingerprint::hostname-keyword",
+      "id": "objectives/discovery/host/fingerprint::hostname-keyword",
       "kind": "capability",
       "desc": "hostname keyword",
       "conf": 0.5,
@@ -29,10 +29,10 @@
           "value": "hostname"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -44,10 +44,10 @@
           "value": "helpers.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/fingerprint::system-id-sources",
+      "id": "objectives/discovery/host/fingerprint::system-id-sources",
       "kind": "capability",
       "desc": "System identification sources",
       "conf": 1.0,
@@ -64,7 +64,7 @@
           "value": "hostname"
         }
       ],
-      "source_file": "obj/discovery/host/fingerprint/node.yaml"
+      "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
       "id": "meta/internal/imported::urldetails/hostname/substring",

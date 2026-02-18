@@ -673,7 +673,7 @@ impl DiffAnalyzer {
     fn assess_risk_increase(&self, new_caps: &[Finding], removed_caps: &[Finding]) -> bool {
         // High-risk capability categories
         let high_risk_prefixes = [
-            "exec/",
+            "execution/",
             "anti-analysis/",
             "privilege/",
             "persistence/",

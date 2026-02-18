@@ -1,0 +1,13 @@
+defaults:
+  for:
+  - all
+  crit: notable
+  conf: 0.8
+traits:
+- id: mz-header-check
+  desc: Check for MZ executable header
+  mbc: C0017
+  if:
+    type: encoded
+    regex: MZ|(?:==|===)\s*['"]MZ['"]|(?:==|===)\{[^:]+:['"]M['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]Z['"]\}\.[a-zA-Z0-9_$]+
+composite_rules: []

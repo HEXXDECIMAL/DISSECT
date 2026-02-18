@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/c2/infrastructure/ip::hardcoded-ipv4-script",
+      "id": "objectives/command-and-control/infrastructure/ip::hardcoded-ipv4-script",
       "kind": "capability",
       "desc": "Hardcoded external IPv4 address",
       "conf": 0.85,
@@ -33,10 +33,10 @@
           "location": "0x2a"
         }
       ],
-      "source_file": "obj/c2/infrastructure/ip/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/ip/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -48,10 +48,10 @@
           "value": "wot-config.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/c2/network/beacon::direct-http-c2",
+      "id": "objectives/command-and-control/network/beacon::direct-http-c2",
       "kind": "capability",
       "desc": "Direct HTTP C2 infrastructure",
       "conf": 0.95,
@@ -72,7 +72,7 @@
           "location": "0x2a"
         }
       ],
-      "source_file": "obj/c2/network/beacon/traits.yaml"
+      "source_file": "objectives/command-and-control/network/beacon/traits.yaml"
     },
     {
       "id": "meta/internal/imported::wot_config",

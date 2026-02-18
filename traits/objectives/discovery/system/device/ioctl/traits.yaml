@@ -1,0 +1,4 @@
+# Device I/O Control - Deleted
+# This was a taxonomy violation - atomic symbol detection belongs in micro-traits/
+# The capability already exists at: micro-traits/fs/device/ioctl::ioctl
+# For proper discovery objectives, combine ioctl with other evidence of system enumeration

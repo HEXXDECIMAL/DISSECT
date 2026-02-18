@@ -187,7 +187,7 @@ pub(crate) struct DowngradeConditions {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct TraitDefinition {
-    /// Unique identifier for this trait (e.g., "net/socket", "exec/eval")
+    /// Unique identifier for this trait (e.g., "net/socket", "execution/eval")
     pub id: String,
     /// Human-readable description of what this trait detects
     pub desc: String,
@@ -768,7 +768,7 @@ impl TraitDefinition {
             // Return a timeout warning finding instead of the actual result
             // This flags the file as suspicious for causing analysis slowdown
             let timeout_warning = Finding {
-                id: "obj/anti-analysis/analysis-bomb/rule-timeout".to_string(),
+                id: "objectives/anti-analysis/analysis-bomb/rule-timeout".to_string(),
                 desc: format!(
                     "Rule evaluation timeout: {} took {}ms (limit: {}ms)",
                     self.id,
@@ -1716,7 +1716,7 @@ impl CompositeTrait {
                 );
 
                 return Some(Finding {
-                    id: "obj/anti-analysis/analysis-bomb/rule-timeout".to_string(),
+                    id: "objectives/anti-analysis/analysis-bomb/rule-timeout".to_string(),
                     desc: format!(
                         "Composite rule evaluation timeout: {} took {}ms (limit: {}ms)",
                         self.id,

@@ -27,7 +27,7 @@ fn ansi_strip_regex() -> &'static regex::Regex {
 
 
 /// Extract directory path from trait ID (everything except the last component)
-/// e.g., "exec/command/subprocess/popen" -> "exec/command/subprocess"
+/// e.g., "execution/command/subprocess/popen" -> "execution/command/subprocess"
 /// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
 #[allow(dead_code)] // Used by binary target
 #[must_use]
@@ -44,7 +44,7 @@ fn get_directory_path(id: &str) -> String {
 #[allow(dead_code)] // Used by binary target
 #[derive(Clone)]
 struct AggregatedFinding {
-    /// The directory path (e.g., "exec/command/subprocess")
+    /// The directory path (e.g., "execution/command/subprocess")
     directory: String,
     /// The best (highest criticality) finding
     best: Finding,
@@ -140,8 +140,8 @@ fn risk_emoji(crit: &Criticality) -> &'static str {
 
 /// Get risk level name
 /// Split trait ID into namespace and rest, skipping "cap"/"obj" prefixes
-/// e.g., "cap/exec/command/subprocess" -> ("exec", "command/subprocess")
-/// e.g., "obj/anti-analysis/debugger/detect" -> ("anti-analysis", "debugger/detect")
+/// e.g., "micro-behaviors/execution/command/subprocess" -> ("exec", "command/subprocess")
+/// e.g., "objectives/anti-analysis/debugger/detect" -> ("anti-analysis", "debugger/detect")
 /// e.g., "intel/discover/process/getuid" -> ("intel", "discover/process/getuid")
 #[allow(dead_code)] // Used by binary target
 fn split_trait_id(id: &str) -> (String, String) {
@@ -181,12 +181,12 @@ fn namespace_long_name(ns: &str) -> String {
         "anti-analysis" => Some("ANTI-ANALYSIS"),
         "anti-static" => Some("STATIC EVASION"),
         "anti-forensics" => Some("ANTI-FORENSICS"),
-        "privesc" => Some("PRIVILEGE ESCALATION"),
+        "privilege-escalation" => Some("PRIVILEGE ESCALATION"),
         "process" => Some("PROCESS"),
         "mem" => Some("MEMORY"),
         "data" => Some("DATA"),
         "impact" => Some("IMPACT"),
-        "creds" => Some("CREDENTIALS"),
+        "credential-access" => Some("CREDENTIALS"),
         "lateral" => Some("LATERAL MOVEMENT"),
         "persist" => Some("PERSISTENCE"),
         "discovery" => Some("DISCOVERY"),
@@ -681,7 +681,7 @@ mod tests {
             Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/shell/bash".to_string(),
+                id: "execution/shell/bash".to_string(),
                 desc: "Execute bash".to_string(),
                 conf: 0.9,
                 crit: Criticality::Hostile,
@@ -707,7 +707,7 @@ mod tests {
         assert_eq!(aggregated.len(), 2);
         // IDs should be directory paths
         let ids: Vec<_> = aggregated.iter().map(|f| f.id.as_str()).collect();
-        assert!(ids.contains(&"exec/shell"));
+        assert!(ids.contains(&"execution/shell"));
         assert!(ids.contains(&"net/http"));
     }
 
@@ -717,7 +717,7 @@ mod tests {
             Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/shell/bash".to_string(),
+                id: "execution/shell/bash".to_string(),
                 desc: "Execute bash".to_string(),
                 conf: 0.7,
                 crit: Criticality::Suspicious,
@@ -729,7 +729,7 @@ mod tests {
             Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/shell/sh".to_string(),
+                id: "execution/shell/sh".to_string(),
                 desc: "Execute sh".to_string(),
                 conf: 0.7,
                 crit: Criticality::Hostile,
@@ -741,7 +741,7 @@ mod tests {
         ];
         let aggregated = aggregate_findings_by_directory(&findings);
         assert_eq!(aggregated.len(), 1);
-        assert_eq!(aggregated[0].id, "exec/shell");
+        assert_eq!(aggregated[0].id, "execution/shell");
         assert_eq!(aggregated[0].crit, Criticality::Hostile);
         // Should have both trait IDs in trait_refs
         assert_eq!(aggregated[0].trait_refs.len(), 2);
@@ -753,7 +753,7 @@ mod tests {
             Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/shell/bash".to_string(),
+                id: "execution/shell/bash".to_string(),
                 desc: "Execute bash".to_string(),
                 conf: 0.6,
                 crit: Criticality::Hostile,
@@ -765,7 +765,7 @@ mod tests {
             Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/shell/sh".to_string(),
+                id: "execution/shell/sh".to_string(),
                 desc: "Execute sh".to_string(),
                 conf: 0.9,
                 crit: Criticality::Hostile,
@@ -777,7 +777,7 @@ mod tests {
         ];
         let aggregated = aggregate_findings_by_directory(&findings);
         assert_eq!(aggregated.len(), 1);
-        assert_eq!(aggregated[0].id, "exec/shell");
+        assert_eq!(aggregated[0].id, "execution/shell");
         assert_eq!(aggregated[0].conf, 0.9);
     }
 
@@ -809,7 +809,7 @@ mod tests {
         assert_eq!(namespace_long_name("c2"), "COMMAND & CONTROL");
         assert_eq!(namespace_long_name("discovery"), "DISCOVERY");
         assert_eq!(namespace_long_name("crypto"), "CRYPTOGRAPHY");
-        assert_eq!(namespace_long_name("creds"), "CREDENTIALS");
+        assert_eq!(namespace_long_name("credential-access"), "CREDENTIALS");
         assert_eq!(namespace_long_name("anti-static"), "STATIC EVASION");
         assert_eq!(namespace_long_name("comm"), "COMMUNICATION");
         assert_eq!(namespace_long_name("collect"), "COLLECTION");
@@ -879,7 +879,7 @@ mod tests {
         let capabilities = vec![Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: "exec/shell".to_string(),
+            id: "execution/shell".to_string(),
             desc: "Execute shell commands".to_string(),
             conf: 0.9,
             crit: Criticality::Hostile,
@@ -890,7 +890,7 @@ mod tests {
         }];
         let report = create_test_report(capabilities, vec![]);
         let output = format_terminal(&report);
-        assert!(output.contains("exec/shell") || output.contains("shell"));
+        assert!(output.contains("execution/shell") || output.contains("shell"));
     }
 
 

@@ -1,9 +1,0 @@
-traits:
-  - id: base64
-    desc: Presence of Base64 encoded content.
-    crit: notable
-    if:
-      type: encoded
-      encoding: base64
-      regex: "."
-      count_min: 1

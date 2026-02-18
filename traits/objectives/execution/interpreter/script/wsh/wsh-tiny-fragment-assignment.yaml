@@ -1,0 +1,20 @@
+traits:
+- id: wsh-tiny-fragment-assignment-network
+  desc: Variable assignment of known network fragments (Nemucod)
+  crit: suspicious
+  for:
+  - javascript
+  if:
+    type: string
+    regex: var\s+[a-zA-Z0-9_]+\s*=\s*"(?:op|en|se|nd)";
+    case_insensitive: false
+- id: wsh-tiny-fragment-assignment
+  desc: Variable assignment of known WSH fragments (Nemucod)
+  crit: suspicious
+  for:
+  - javascript
+  if:
+    type: string
+    case_insensitive: false
+    regex: var\s+[a-zA-Z0-9_]+\s*=\s*"Fil";|var\s+[a-zA-Z0-9_]+\s*=\s*"eTo";|var\s+[a-zA-Z0-9_]+\s*=\s*"Sav";|var\s+[a-zA-Z0-9_]+\s*=\s*"ADOD";|var\s+[a-zA-Z0-9_]+\s*=\s*"DODB";|var\s+[a-zA-Z0-9_]+\s*=\s*"onseB";|var\s+[a-zA-Z0-9_]+\s*=\s*"ect";|var\s+[a-zA-Z0-9_]+\s*=\s*"rea";|var\s+[a-zA-Z0-9_]+\s*=\s*"Obj";|var\s+[a-zA-Z0-9_]+\s*=\s*"WScr";|var\s+[a-zA-Z0-9_]+\s*=\s*"ipt";|var\s+[a-zA-Z0-9_]+\s*=\s*"Sle";|var\s+[a-zA-Z0-9_]+\s*=\s*"ep";|var\s+[a-zA-Z0-9_]+\s*=\s*"posi";|var\s+[a-zA-Z0-9_]+\s*=\s*"onse";|var\s+[a-zA-Z0-9_]+\s*=\s*"Resp";|var\s+[a-zA-Z0-9_]+\s*=\s*"dy";|var\s+[a-zA-Z0-9_]+\s*=\s*"eam";|var\s+[a-zA-Z0-9_]+\s*=\s*"SaveT";|var\s+[a-zA-Z0-9_]+\s*=\s*"ready";|var\s+[a-zA-Z0-9_]+\s*=\s*"state";|var\s+[a-zA-Z0-9_]+\s*=\s*"open";
+composite_rules: []

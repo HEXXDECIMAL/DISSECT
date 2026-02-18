@@ -16,7 +16,6 @@
 //! }
 //! ```
 
-// mod amos_cipher; // Temporarily disabled during lint strictness update
 mod archive_utils;
 mod cache;
 pub mod decoders;
@@ -266,7 +265,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // Add finding for extension/content mismatch if detected
     if let Some((expected, actual)) = mismatch {
         report.findings.push(types::Finding {
-            id: "meta/file-extension-mismatch".to_string(),
+            id: "metadata/file-extension-mismatch".to_string(),
             kind: types::FindingKind::Indicator,
             desc: format!(
                 "File extension claims {} but content is {}",
@@ -298,7 +297,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         };
 
         report.findings.push(types::Finding {
-            id: format!("meta/encoded-payload/{}", payload.encoding_chain.join("-")),
+            id: format!("metadata/encoded-payload/{}", payload.encoding_chain.join("-")),
             kind: types::FindingKind::Structural,
             desc: format!(
                 "Encoded payload detected: {}",

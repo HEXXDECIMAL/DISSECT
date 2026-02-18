@@ -1,0 +1,47 @@
+composite_rules:
+  # Helper for any install hook (KV or Regex)
+  - id: npm-any-install-hook
+    desc: Any NPM install hook (preinstall, postinstall, install)
+    crit: notable
+    conf: 0.7
+    any:
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::postinstall-hook-key
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::preinstall-hook-key
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hook-key
+      - id: objectives/execution/interpreter/script/npm::npm-postinstall-script
+      - id: objectives/execution/interpreter/script/npm::npm-preinstall-script
+      - id: objectives/execution/interpreter/script/npm::npm-install-script
+
+  - id: npm-exfil-method
+    desc: Exfiltration method for npm scripts
+    crit: notable
+    conf: 0.7
+    any:
+      - id: objectives/exfiltration/channel/oob::oastify-domain
+      - id: objectives/exfiltration/channel/oob::oob-domains
+      - id: objectives/command-and-control/dns-tunnel/exfil::subdomain-encode
+      - id: objectives/lateral-movement/supply-chain/npm/install::script-curl
+      - id: objectives/lateral-movement/supply-chain/npm/install::script-wget
+      - id: micro-traits/process/create/methods::curl-pipe-sh
+      - id: objectives/exfiltration/channel/http::curl-upload-file
+
+  - id: npm-recon-commands
+    desc: Reconnaissance commands for npm scripts
+    crit: notable
+    conf: 0.7
+    any:
+      - id: micro-traits/process/create/recon::sys-info-discovery
+      - id: micro-traits/process/create/recon::process-discovery
+      - id: micro-traits/process/create/recon::npm-config-discovery
+    unless:
+      - id: metadata/dev/testing::is-test
+
+  - id: npm-install-recon-exfil
+    desc: NPM install hook performs system reconnaissance and exfiltration
+    conf: 0.95
+    crit: hostile
+    attack: "T1082,T1016,T1041"
+    all:
+      - id: npm-any-install-hook
+      - id: npm-recon-commands
+      - id: npm-exfil-method

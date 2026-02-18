@@ -1,0 +1,14 @@
+traits:
+- id: js-dict-lookup-loop
+  desc: Loop rebuilds string from token lookup
+  crit: suspicious
+  conf: 0.85
+  for:
+  - javascript
+  - typescript
+  if:
+    type: raw
+    regex: 'for\s*\(\s*[A-Za-z0-9_]+\s*=\s*0\s*;\s*[A-Za-z0-9_]+\s*<\s*\w+\s*\[\s*["'']l["'']\s*\+\s*["'']ength["'']\s*\]\s*;\s*[A-Za-z0-9_]+\+\+\s*\)\s*\{[\s\S]{0,250}[A-Za-z0-9_]+\s*=\s*\w+\s*\[\s*[A-Za-z0-9_]+\s*\]\s*;[\s\S]{0,250}[A-Za-z0-9_]+\s*=\s*[\s\S]{0,80}\+\s*[\s\S]{0,80}\w+\s*\[\s*[A-Za-z0-9_]+\s*\]\s*;
+
+      '
+composite_rules: []

@@ -1,0 +1,135 @@
+defaults:
+  for:
+  - shell
+traits:
+- id: wget-download
+  desc: Download via wget
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: symbol
+    exact: wget
+- id: cli-output-dash-upper-o
+  desc: CLI tool with -O flag
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: string
+    substr: ' -O '
+- id: wget-output-document
+  desc: Wget with --output-document
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: string
+    substr: --output-document
+- id: wget-silent-stdout
+  desc: Silent wget output to stdout
+  crit: suspicious
+  conf: 0.9
+  mbc: C0002
+  attack: T1105
+  if:
+    type: raw
+    regex: wget\s+.{0,100}-q.{0,100}-O\s*-|wget\s+.{0,100}-O\s*.{0,100}-q
+  unless:
+  - type: raw
+    regex: \|\s*([a-z/]+/)?gpg\b\s+--import
+- id: curl-download
+  desc: Download via curl
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: symbol
+    exact: curl
+- id: curl-output-dash-o
+  desc: Curl with -o flag
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: string
+    substr: ' -o '
+- id: curl-output-flag
+  desc: Curl with --output
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: string
+    substr: --output
+- id: execute-dot-slash
+  desc: ./ execution pattern
+  crit: notable
+  conf: 0.5
+  attack: T1059.004
+  if:
+    type: raw
+    regex: \./[a-zA-Z0-9_.-]+
+  unless:
+  - type: raw
+    regex: \./([a-zA-Z0-9_.-]+\.(txt|md|log|conf|html|json|xml|yml|yaml)|ChangeLog)
+  - type: raw
+    regex: s/\./
+- id: execute-tmp-staging
+  desc: Execute from /tmp staging directory
+  crit: notable
+  conf: 0.75
+  attack: T1059.004
+  if:
+    type: raw
+    regex: /(tmp|var/tmp|dev/shm)/[a-zA-Z0-9_.-]+
+- id: curl-download-file
+  desc: curl downloading to file (-o, -O, --output)
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1105
+  if:
+    type: raw
+    regex: curl\s+(?:[^|&\n]{1,120}\s+)?(-o\s+|--output\s+|-[a-zA-Z]*O)
+- id: chmod-plus-x-cmd
+  desc: chmod +x command
+  crit: notable
+  conf: 0.7
+  attack: T1222
+  if:
+    type: raw
+    regex: chmod\s+\+x
+- id: chmod-7xx-cmd
+  desc: chmod 7xx command (make executable)
+  crit: notable
+  conf: 0.7
+  attack: T1222
+  if:
+    type: raw
+    regex: chmod\s+0?7[0-7][0-7]\s
+composite_rules:
+- id: curl-silent-stdout
+  desc: Silent curl output to stdout
+  crit: notable
+  conf: 0.9
+  mbc: C0002
+  attack: T1105
+  size_max: 5000
+  not:
+  - regex: (?i)netbsd\.org
+  - regex: (?i)freebsd\.org
+  - regex: (?i)openbsd\.org
+  - regex: (?i)dragonflybsd\.org
+  - regex: (?i)kernel\.org
+  - regex: (?i)github\.com
+  - regex: (?i)google\.com
+  any:
+  - id: objectives/execution/dropper/script::inline__curl-silent-stdout__any_1
+  - id: objectives/execution/dropper/script::inline__curl-silent-stdout__any_2

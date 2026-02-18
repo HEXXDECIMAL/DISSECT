@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "obj/creds/browser/chromium::cookies",
+      "id": "objectives/credential-access/browser/chromium::cookies",
       "kind": "capability",
       "desc": "Chromium Cookies database path",
       "conf": 0.8,
@@ -34,10 +34,10 @@
           "location": "0x107"
         }
       ],
-      "source_file": "obj/creds/browser/chromium/paths.yaml"
+      "source_file": "objectives/credential-access/browser/chromium/paths.yaml"
     },
     {
-      "id": "cap/fs/path/sensitive/browser::cookies",
+      "id": "micro-behaviors/fs/path/sensitive/browser::cookies",
       "kind": "capability",
       "desc": "Reference to browser cookies",
       "conf": 0.7,
@@ -58,10 +58,10 @@
           "location": "0x107"
         }
       ],
-      "source_file": "cap/fs/path/sensitive/browser/macos.yaml"
+      "source_file": "micro-behaviors/fs/path/sensitive/browser/macos.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -75,10 +75,10 @@
           "value": "text.max_line_length = 1246.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate::ext-mutation-observer",
       "kind": "capability",
       "desc": "MutationObserver DOM monitoring",
       "conf": 0.9,
@@ -91,10 +91,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/affiliate/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/affiliate/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/api::mutation-observer",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::mutation-observer",
       "kind": "capability",
       "desc": "Observes DOM mutations",
       "conf": 0.9,
@@ -107,10 +107,10 @@
           "location": "8:3"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/api/api.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::high-text-entropy",
       "kind": "capability",
       "desc": "High overall text entropy (encoded",
       "conf": 0.8,
@@ -124,10 +124,10 @@
           "value": "text.char_entropy = 5.75"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/unicode::dense-non-ascii",
+      "id": "objectives/anti-static/obfuscation/unicode::dense-non-ascii",
       "kind": "capability",
       "desc": "Dense non-ASCII character payload",
       "conf": 0.88,
@@ -196,10 +196,10 @@
           "location": "0x46f"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/unicode/javascript.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::js-webpack-minified",
+      "id": "objectives/anti-static/obfuscation/code-metrics::js-webpack-minified",
       "kind": "capability",
       "desc": "Webpack/bundler minified output pattern",
       "conf": 0.7,
@@ -213,10 +213,10 @@
           "value": "text.max_line_length = 1246.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/javascript.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -228,10 +228,10 @@
           "value": "facebook.com.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/unicode::international-script-obfuscation",
+      "id": "objectives/anti-static/obfuscation/unicode::international-script-obfuscation",
       "kind": "capability",
       "desc": "International script character obfuscation",
       "conf": 0.75,
@@ -336,10 +336,10 @@
           "location": "0x50c"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/unicode/javascript.yaml"
+      "source_file": "objectives/anti-static/obfuscation/unicode/javascript.yaml"
     },
     {
-      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "id": "objectives/collection/stealer/behavior::js-browser-target",
       "kind": "capability",
       "desc": "Targets browser data paths",
       "conf": 0.8,
@@ -358,10 +358,10 @@
           "location": "0x107"
         }
       ],
-      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+      "source_file": "objectives/collection/stealer/behavior/javascript.yaml"
     },
     {
-      "id": "obj/collect/stealer/data::sensitive-paths",
+      "id": "objectives/collection/stealer/data::sensitive-paths",
       "kind": "capability",
       "desc": "Browser or wallet file paths",
       "conf": 0.8,
@@ -382,7 +382,7 @@
           "location": "0x107"
         }
       ],
-      "source_file": "obj/collect/stealer/data/browser-wallet.yaml"
+      "source_file": "objectives/collection/stealer/data/browser-wallet.yaml"
     },
     {
       "id": "meta/internal/imported::btns",

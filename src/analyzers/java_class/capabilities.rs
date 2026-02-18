@@ -9,12 +9,12 @@ impl super::JavaClassAnalyzer {
         let suspicious_classes = [
             (
                 "java/lang/Runtime",
-                "exec/process",
+                "execution/process",
                 "Process execution capability",
             ),
             (
                 "java/lang/ProcessBuilder",
-                "exec/process",
+                "execution/process",
                 "Process execution via ProcessBuilder",
             ),
             ("java/net/Socket", "net/socket", "Network socket operations"),
@@ -60,7 +60,7 @@ impl super::JavaClassAnalyzer {
                 "intel/system",
                 "System information access",
             ),
-            ("java/lang/Thread", "exec/thread", "Thread manipulation"),
+            ("java/lang/Thread", "execution/thread", "Thread manipulation"),
             ("sun/misc/Unsafe", "mem/unsafe", "Unsafe memory operations"),
         ];
 
@@ -116,7 +116,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "exec/command",
+                    "execution/command",
                     "Command execution method",
                     &method.name,
                     Criticality::Hostile,
@@ -134,7 +134,7 @@ impl super::JavaClassAnalyzer {
             if method_lower.contains("inject") || method_lower.contains("hook") {
                 self.add_capability(
                     report,
-                    "exec/inject",
+                    "execution/inject",
                     "Code injection method",
                     &method.name,
                     Criticality::Hostile,
@@ -165,7 +165,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "exec/shell",
+                    "execution/shell",
                     "Shell command string",
                     s,
                     Criticality::Hostile,
@@ -233,7 +233,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "c2/dropper",
+                    "command-and-control/dropper",
                     "Download and execute capability",
                     s,
                     Criticality::Hostile,
@@ -263,7 +263,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "privesc/indicator",
+                    "privilege-escalation/indicator",
                     "Privilege escalation indicator",
                     s,
                     Criticality::Suspicious,
@@ -296,7 +296,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "exfil/data",
+                    "exfiltration/data",
                     "Data exfiltration capability",
                     s,
                     Criticality::Suspicious,
@@ -310,7 +310,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "exfil/screenshot",
+                    "exfiltration/screenshot",
                     "Screenshot capability",
                     s,
                     Criticality::Hostile,
@@ -325,7 +325,7 @@ impl super::JavaClassAnalyzer {
             {
                 self.add_capability(
                     report,
-                    "exfil/av-capture",
+                    "exfiltration/av-capture",
                     "Audio/video capture capability",
                     s,
                     Criticality::Hostile,

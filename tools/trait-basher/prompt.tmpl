@@ -15,16 +15,16 @@ Reverse-engineering tools like r2 (radare2), nm, readelf are also available. You
 to better understand the strings that dissect can see in a program, often hidden ones. There is also the "dissect symbols" subcommand to dump symbols.
 
 **Critical rules** (from TAXONOMY.md):
-- `cap/` cannot reference `obj/` (capabilities are atomic, not intent-inferring)
-- `cap/` cannot use `crit: hostile` (hostile requires intent, belongs in `obj/`)
+- `micro-behaviors/` cannot reference `objectives/` (capabilities are atomic, not intent-inferring)
+- `micro-behaviors/` cannot use `crit: hostile` (hostile requires intent, belongs in `objectives/`)
 - Trait references are <directory> (any rule within it, recursively) or <directory>::<specific rule id>
 - Filenames are NOT part of trait IDs - only directory paths are prefixes
-- Tier dependencies: `cap/`→`cap/`+`meta/`, `obj/`→`cap/`+`obj/`+`meta/`, `known/`→all
+- Tier dependencies: `micro-behaviors/`→`micro-behaviors/`+`meta/`, `objectives/`→`micro-behaviors/`+`objectives/`+`meta/`, `known/`→all
 - 'type: string' matches literal strings. 'symbol' matches symbols, 'raw' matches raw content, 'encoded' matches encoded content.
 
 **Taxonomy** (from TAXONOMY.md):
-- `cap/*` = atomic observable capability (inert→notable→suspicious max)
-- `obj/*` = composed attacker objective (notable→suspicious→hostile)
+- `micro-behaviors/*` = atomic observable capability (inert→notable→suspicious max)
+- `objectives/*` = composed attacker objective (notable→suspicious→hostile)
 - `known/*` = specific malware/tool signature for noteworthy well-known malware (family-unique only)
 - Traits get 3-4 subdirectories under the top-level; each directory should have semantic meaning for ML analysis - no generic directory names allowed.
 - Atomic traits need to be in the ideally named directory for each trait - not beside the composite you are creating.
@@ -37,7 +37,7 @@ to better understand the strings that dissect can see in a program, often hidden
 - Use reusable patterns, not sample-specific fingerprints
 - Prefer improving existing traits over creating duplicates
 - Adjust criticality if behavior is correct but severity wrong
-- Build `cap/` first, then compose `obj/` from capabilities
+- Build `micro-behaviors/` first, then compose `objectives/` from capabilities
 - For source code, consider AST-based treesitter queries as they have the highest precision.
 - Pattern-matching precision in descending order: `ast`, `symbol`, `kv`, `string`, `base64`, `xor`, `content`, `hex`
 - Tighten queries using techniques like `size_min`, `not`, `near_min', `count_min`', `per_kb_min`, `section`, `near_bytes`, `near_lines`, before using `unless:`/`downgrade:` (see PRECISION.md)

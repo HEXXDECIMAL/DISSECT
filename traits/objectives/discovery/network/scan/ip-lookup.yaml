@@ -1,0 +1,311 @@
+# Intelligence Gathering - External IP Discovery
+# ATT&CK: T1016.001 (Internet Connection Discovery)
+
+traits:
+  - id: ipify
+    desc: ipify.org IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ipify.org"
+
+  - id: ipinfo
+    desc: ipinfo.io IP lookup service
+    crit: suspicious
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ipinfo.io"
+
+  - id: ifconfig-me
+    desc: ifconfig.me IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ifconfig.me"
+
+  - id: icanhazip
+    desc: icanhazip.com IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "icanhazip"
+
+  - id: wtfismyip
+    desc: wtfismyip.com IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "wtfismyip"
+
+  # iplogger: use objectives/command-and-control/infrastructure/domain::iplogger-domain (canonical)
+
+  - id: iplogger-keyword
+    desc: iplogger keyword reference
+    crit: suspicious
+    conf: 0.8
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "iplogger"
+
+  - id: ifconfig-io
+    desc: ifconfig.io IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ifconfig.io"
+
+  - id: ifconfig-co
+    desc: ifconfig.co IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ifconfig.co"
+
+  - id: ident-me
+    desc: ident.me IP lookup service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "ident.me"
+
+  - id: grabify
+    desc: grabify.link IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "grabify.link"
+
+  - id: blasze
+    desc: blasze.com IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "blasze.com"
+
+  - id: yip-su
+    desc: yip.su IP logging service
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "yip.su"
+
+  - id: checkip-amazonaws
+    desc: AWS checkip service
+    crit: notable
+    conf: 0.85
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "checkip.amazonaws.com"
+
+  # Base64 encoded variants (common evasion)
+  - id: ipify-b64
+    desc: ipify.org (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aXBpZnkub3Jn"
+
+  - id: ipinfo-b64
+    desc: ipinfo.io (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aXBpbmZvLmlv"
+
+  - id: wtfismyip-b64
+    desc: wtfismyip (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "d3RmaXNteWlw"
+
+  - id: iplogger-b64
+    desc: iplogger.org (base64 encoded)
+    crit: suspicious
+    conf: 0.95
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aXBsb2dnZXIub3Jn"
+
+  - id: icanhazip-b64
+    desc: icanhazip.com (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aWNhbmhhemlw"
+
+  - id: checkip-amazonaws-b64
+    desc: checkip.amazonaws.com (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "Y2hlY2tpcC5hbWF6b25hd3MuY29t"
+
+  - id: ifconfig-me-b64
+    desc: ifconfig.me (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aWZjb25maWcubWU="
+
+  - id: ifconfig-io-b64
+    desc: ifconfig.io (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aWZjb25maWcuaW8="
+
+  - id: ifconfig-co-b64
+    desc: ifconfig.co (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aWZjb25maWcuY28="
+
+  - id: ident-me-b64
+    desc: ident.me (base64 encoded)
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    for: [all]
+    if:
+      type: string
+      substr: "aWRlbnQubWU="
+
+  # NOTE: The YARA rule below remains because DISSECT doesn't yet support
+  # XOR obfuscation (xor(1-255)) in native traits. Once XOR support is added,
+  # this can be migrated to atomic traits with type: string_xor
+  - id: ip-recon-obfuscated-yara
+    desc: Obfuscated IP reconnaissance via YARA
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    mbc: "B0046"
+    for: [all]
+    if:
+      type: yara
+      source: |
+        rule ip_recon_obfuscated {
+          strings:
+            $ipify_x = "ipify.org" xor(1-255)
+            $ipinfo_x = "ipinfo.io" xor(1-255)
+            $wtfismyip_x = "wtfismyip" xor(1-255)
+            $iplogger_x = "iplogger.org" xor(1-255)
+          condition:
+            filesize < 50MB and any of them
+        }
+
+composite_rules:
+  # Helper composite for all plaintext IP lookup services
+  - id: plaintext-ip-services
+    desc: Plaintext IP lookup service references
+    for: [all]
+    any:
+      - { id: ipify }
+      - { id: ipinfo }
+      - { id: ifconfig-me }
+      - { id: icanhazip }
+      - { id: wtfismyip }
+      - { id: objectives/command-and-control/infrastructure/domain::iplogger-domain }
+      - { id: iplogger-keyword }
+      - { id: ifconfig-io }
+      - { id: ifconfig-co }
+      - { id: ident-me }
+      - { id: checkip-amazonaws }
+      - { id: grabify }
+      - { id: blasze }
+      - { id: yip-su }
+    crit: notable
+
+  # Helper composite for all base64-encoded IP lookup services
+  - id: base64-ip-services
+    desc: Base64-encoded IP lookup service references
+    for: [all]
+    any:
+      - { id: ipify-b64 }
+      - { id: ipinfo-b64 }
+      - { id: wtfismyip-b64 }
+      - { id: iplogger-b64 }
+      - { id: icanhazip-b64 }
+      - { id: checkip-amazonaws-b64 }
+      - { id: ifconfig-me-b64 }
+      - { id: ifconfig-io-b64 }
+      - { id: ifconfig-co-b64 }
+      - { id: ident-me-b64 }
+    crit: notable
+
+  # Migrated from YARA (partial) - requires 2 different IP lookup services
+  - id: ip-recon-detected
+    desc: External IP address reconnaissance
+    crit: suspicious
+    conf: 0.9
+    attack: "T1016.001"
+    mbc: "B0046"
+    for: [all]
+    needs: 2
+    any:
+      - { id: plaintext-ip-services }
+      - { id: base64-ip-services }

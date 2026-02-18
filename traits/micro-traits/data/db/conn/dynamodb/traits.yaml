@@ -1,0 +1,32 @@
+# Database Connection - DYNAMODB
+
+defaults:
+  for: [all]
+
+traits:
+  # === DynamoDB micro-traits ===
+  - id: dynamodb-string
+    desc: dynamodb string
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "(?i)dynamodb"
+
+  - id: aws-sdk
+    desc: aws-sdk package
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      substr: "aws-sdk"
+
+composite_rules:
+  # DynamoDB composite (migrated from YARA)
+  - id: dynamodb
+    desc: AWS DynamoDB connectivity
+    crit: notable
+    conf: 0.9
+    any:
+      - id: dynamodb-string
+      - id: aws-sdk

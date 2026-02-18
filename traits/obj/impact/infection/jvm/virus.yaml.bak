@@ -1,8 +1,0 @@
-composite_rules:
-  - id: java-bytecode-virus
-    desc: Build script references known malware components (BytecodeVirus + Javassist)
-    crit: hostile
-    conf: 0.9
-    all:
-      - id: cap/data/string/library/java::javassist
-      - id: cap/data/string/malware/indicators::bytecode-virus

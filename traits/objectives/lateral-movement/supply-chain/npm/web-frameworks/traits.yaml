@@ -1,0 +1,72 @@
+traits:
+- id: has-eventemitter
+  desc: Code uses EventEmitter pattern
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: extends\s+EventEmitter|require\(['"]events['"]\)
+- id: has-stream
+  desc: Code uses Node.js streams
+  crit: notable
+  conf: 0.75
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: require\(['"]stream['"]\)|Readable|Writable|Transform|Duplex
+- id: has-middleware
+  desc: Code uses middleware pattern
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: (?:app|router)\.use\(|middleware\s*[=:]
+- id: has-routes
+  desc: Code defines HTTP routes
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: (?:app|router)\.(?:get|post|put|delete|patch)\s*\(['"]/
+- id: has-di-pattern
+  desc: Code uses dependency injection
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: (@Inject|container\.resolve|inversify|\.provide|\.inject)
+- id: uses-web-framework
+  desc: Code uses established web framework
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: require\(['"](?:express|koa|fastify|hapi|next|nuxt)['"]\)|from ['"](?:express|koa|fastify|hapi|next|nuxt)['"]
+- id: has-frontend-framework
+  desc: Code uses frontend framework patterns
+  crit: notable
+  conf: 0.9
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: (?:React|Vue|Component)\.(?:createElement|defineComponent)|@Component\(|useEffect\(|useState\(
+composite_rules: []

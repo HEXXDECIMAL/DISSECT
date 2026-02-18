@@ -165,7 +165,7 @@
       "source_file": "meta/format/json/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::externally-connectable",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::externally-connectable",
       "kind": "capability",
       "desc": "Extension allows external connections",
       "conf": 0.9,
@@ -178,10 +178,10 @@
           "location": "externally_connectable"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::manifest-v3",
       "kind": "capability",
       "desc": "Chrome extension using Manifest V3",
       "conf": 0.95,
@@ -194,10 +194,10 @@
           "location": "manifest_version"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-all-urls",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::content-script-all-urls",
       "kind": "capability",
       "desc": "Content script on all URLs",
       "conf": 0.95,
@@ -210,10 +210,10 @@
           "location": "content_scripts[*].matches"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-all-frames",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::content-script-all-frames",
       "kind": "capability",
       "desc": "Content script runs in all frames",
       "conf": 0.8,
@@ -226,10 +226,10 @@
           "location": "content_scripts[*].all_frames"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-tabs",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::permission-tabs",
       "kind": "capability",
       "desc": "Extension requests tabs permission",
       "conf": 0.9,
@@ -242,10 +242,10 @@
           "location": "permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::content-script-run-at-start",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::content-script-run-at-start",
       "kind": "capability",
       "desc": "Content script runs at document_start",
       "conf": 0.85,
@@ -258,10 +258,10 @@
           "location": "content_scripts[*].run_at"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::background-service-worker",
       "kind": "capability",
       "desc": "Extension uses service worker (MV3)",
       "conf": 0.9,
@@ -274,10 +274,10 @@
           "location": "background.service_worker"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::host-all-http",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::host-all-http",
       "kind": "capability",
       "desc": "Access to all HTTP sites",
       "conf": 0.95,
@@ -290,10 +290,10 @@
           "location": "host_permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-scripting",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::permission-scripting",
       "kind": "capability",
       "desc": "Extension requests scripting permission (MV3)",
       "conf": 0.9,
@@ -306,10 +306,10 @@
           "location": "permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::update-url-google",
       "kind": "capability",
       "desc": "Uses Google update URL",
       "conf": 0.95,
@@ -322,10 +322,10 @@
           "location": "update_url"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::is-chrome-manifest",
       "kind": "capability",
       "desc": "Chrome extension manifest file",
       "conf": 0.95,
@@ -338,10 +338,10 @@
           "location": "manifest_version"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::update-url-present",
       "kind": "capability",
       "desc": "Has update_url field",
       "conf": 0.9,
@@ -354,10 +354,10 @@
           "location": "update_url"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::web-accessible-resources",
       "kind": "capability",
       "desc": "Exposes resources to web",
       "conf": 0.85,
@@ -370,10 +370,10 @@
           "location": "web_accessible_resources"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::permission-web-request",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::permission-web-request",
       "kind": "capability",
       "desc": "Extension requests webRequest permission",
       "conf": 0.95,
@@ -386,10 +386,10 @@
           "location": "permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::broad-content-injection",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::broad-content-injection",
       "kind": "capability",
       "desc": "Extension can inject content into many sites",
       "conf": 0.9,
@@ -414,10 +414,10 @@
           "location": "host_permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::data-theft-permissions",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::data-theft-permissions",
       "kind": "capability",
       "desc": "Extension has permissions enabling data theft",
       "conf": 0.95,
@@ -436,7 +436,7 @@
           "location": "permissions"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
       "id": "meta/encoded-payload/base64",

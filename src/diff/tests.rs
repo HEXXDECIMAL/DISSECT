@@ -15,7 +15,7 @@ fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisRepo
             kind: FindingKind::Capability,
             desc: format!("Test {}", id),
             conf: 0.8,
-            crit: if id.starts_with("exec/") {
+            crit: if id.starts_with("execution/") {
                 Criticality::Hostile
             } else {
                 Criticality::Notable
@@ -119,11 +119,11 @@ fn test_compare_reports_removed_capabilities() {
 fn test_compare_reports_risk_increase() {
     let analyzer = DiffAnalyzer::new("/baseline", "/target");
     let baseline = create_test_report_for_diff("/baseline/file", vec!["net/http"]);
-    let target = create_test_report_for_diff("/target/file", vec!["net/http", "exec/shell"]);
+    let target = create_test_report_for_diff("/target/file", vec!["net/http", "execution/shell"]);
 
     let analysis = analyzer.compare_reports("file", &baseline, &target);
     assert!(analysis.risk_increase);
-    assert!(analysis.new_capabilities.iter().any(|c| c.id == "exec/shell"));
+    assert!(analysis.new_capabilities.iter().any(|c| c.id == "execution/shell"));
 }
 
 fn make_test_cap(id: &str) -> Finding {
@@ -149,7 +149,7 @@ fn make_test_cap(id: &str) -> Finding {
 #[test]
 fn test_assess_risk_increase_new_high_risk() {
     let analyzer = DiffAnalyzer::new("/baseline", "/target");
-    let new_caps = vec![make_test_cap("exec/shell")];
+    let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![];
 
     assert!(analyzer.assess_risk_increase(&new_caps, &removed_caps));
@@ -167,7 +167,7 @@ fn test_assess_risk_increase_no_high_risk() {
 #[test]
 fn test_assess_risk_increase_balanced() {
     let analyzer = DiffAnalyzer::new("/baseline", "/target");
-    let new_caps = vec![make_test_cap("exec/shell")];
+    let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![make_test_cap("anti-analysis/debugger")];
 
     assert!(!analyzer.assess_risk_increase(&new_caps, &removed_caps));
@@ -176,7 +176,7 @@ fn test_assess_risk_increase_balanced() {
 #[test]
 fn test_assess_risk_increase_more_removed_than_added() {
     let analyzer = DiffAnalyzer::new("/baseline", "/target");
-    let new_caps = vec![make_test_cap("exec/shell")];
+    let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![
         make_test_cap("anti-analysis/debugger"),
         make_test_cap("persistence/registry"),
@@ -245,7 +245,7 @@ fn test_format_diff_terminal_with_changes() {
         },
         modified_analysis: vec![ModifiedFileAnalysis {
             file: "changed_file.bin".to_string(),
-            new_capabilities: vec![make_test_cap("exec/shell")],
+            new_capabilities: vec![make_test_cap("execution/shell")],
             removed_capabilities: vec![],
             capability_delta: 1,
             risk_increase: true,
@@ -261,7 +261,7 @@ fn test_format_diff_terminal_with_changes() {
     assert!(output.contains("new_file.bin"));
     assert!(output.contains("old_file.bin"));
     assert!(output.contains("changed_file.bin"));
-    assert!(output.contains("exec/shell"));
+    assert!(output.contains("execution/shell"));
     assert!(output.contains("increased risk"));
 }
 
@@ -289,7 +289,7 @@ fn test_format_diff_terminal_multiple_modified() {
             },
             ModifiedFileAnalysis {
                 file: "file2.bin".to_string(),
-                new_capabilities: vec![make_test_cap("exec/command/shell")],
+                new_capabilities: vec![make_test_cap("execution/command/shell")],
                 removed_capabilities: vec![make_test_cap("fs/file/read")],
                 capability_delta: 0,
                 risk_increase: true,
@@ -307,7 +307,7 @@ fn test_format_diff_terminal_multiple_modified() {
     assert!(output.contains("file2.bin"));
     // Capabilities are aggregated by directory (objective/behavior)
     assert!(output.contains("net/http"));
-    assert!(output.contains("exec/command"));
+    assert!(output.contains("execution/command"));
     assert!(output.contains("fs/file"));
 }
 

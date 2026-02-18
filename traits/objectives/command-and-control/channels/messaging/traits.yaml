@@ -1,0 +1,46 @@
+# C2 Communication Channels
+# MBC: OB0004 (Command & Control) → B0030 (C2 Communication)
+# ATT&CK: T1071 (Application Layer Protocol)
+
+defaults:
+  for: [all]
+
+traits:
+  # Messaging platforms
+  # NOTE: Telegram API traits are defined in comm/messaging/telegram/
+  # NOTE: Discord webhook traits are defined in comm/messaging/discord/
+  # Use those directory references in composite rules
+
+  - id: discord-invite
+    desc: Discord invite URL (potential command-and-control/support)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "discord\\.gg/[a-zA-Z0-9]+"
+
+  # HTTP C2
+  - id: http-post
+    desc: HTTP POST requests (potential C2)
+    crit: notable
+    mbc: "B0030"
+    attack: "T1071.001"
+    conf: 0.5
+    if:
+      type: symbol
+      # POST: use micro-traits/comm/http/post/generic.yaml::post-method (canonical)
+      regex: http_post|HttpPost
+
+  # Removed user-agent-custom duplicate - use micro-traits/comm/http/request::user-agent-header
+
+  # DNS C2
+  - id: dns-query
+    desc: DNS queries (potential C2 channel)
+    crit: notable
+    mbc: "B0030"
+    attack: "T1071.004"
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      regex: res_query|dns_query

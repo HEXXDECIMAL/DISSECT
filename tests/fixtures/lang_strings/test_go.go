@@ -97,12 +97,12 @@ func main() {
 	}
 	fmt.Printf("Server: %+v\n", server)
 
-	creds := Credentials{
+	credential-access := Credentials{
 		Username: credUsername,
 		Password: credPassword,
 		Token:    credToken,
 	}
-	fmt.Printf("Creds: %+v\n", creds)
+	fmt.Printf("credential-access: %+v\n", credential-access)
 
 	// ============== MAP FROM VARIABLES ==============
 	// Keys and values from variables create structures

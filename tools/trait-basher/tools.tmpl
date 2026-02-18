@@ -24,8 +24,8 @@
 
 | Tier | Purpose | Criticality Range | Can Reference |
 |------|---------|------------------|---------------|
-| `cap/*` | Atomic observable capability | inert → notable → suspicious | `cap/` + `meta/` |
-| `obj/*` | Composed attacker objective | notable → suspicious → hostile | `cap/` + `obj/` + `meta/` |
+| `micro-behaviors/*` | Atomic observable capability | inert → notable → suspicious | `micro-behaviors/` + `meta/` |
+| `objectives/*` | Composed attacker objective | notable → suspicious → hostile | `micro-behaviors/` + `objectives/` + `meta/` |
 | `known/*` | Specific malware/tool signature | any | all tiers |
 
 NOTE: Composite rules are rarely in the same subdirectary as the atomic rules they depend on. Be precise in your directory selection as the subcategory you choose will be read by humans and ML pipelines alike.
@@ -34,7 +34,7 @@ NOTE: Composite rules are rarely in the same subdirectary as the atomic rules th
 - Trait ID references are either use subdirectory or subdirectory::specific_trait_id - filenames are not part of the trait ID
 - Traits require 3-4 semantic subdirectories (no generic names)
 - Atomic traits belong in their ideal directory, not alongside composites
-- `cap/` traits are atomic (cannot reference `obj/` or use `crit: hostile`)
+- `micro-behaviors/` traits are atomic (cannot reference `objectives/` or use `crit: hostile`)
 
 ### Pattern Types (by precision)
 
@@ -64,7 +64,7 @@ Before using `unless:`/`downgrade:`, tighten with:
 
 - ✓ Search existing traits before creating (avoid duplicates)
 - ✓ Use reusable patterns (not sample-specific fingerprints)
-- ✓ Build atomic `cap/` first, then compose `obj/`
+- ✓ Build atomic `micro-behaviors/` first, then compose `objectives/`
 - ✓ Validate taxonomy placement (semantic directories)
 - ✓ Prefer `downgrade:` over `unless:` (keep detections visible)
 - ✓ Use AST patterns for source code (highest precision)

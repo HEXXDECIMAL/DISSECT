@@ -1707,13 +1707,13 @@ pub(crate) fn find_redundant_any_refs(
     for cond in any_conditions {
         if let Condition::Trait { id } = cond {
             // Only process specific trait references (with ::)
-            // Skip directory references like "obj/creds/browser/chromium"
+            // Skip directory references like "objectives/credential-access/browser/chromium"
             if let Some(idx) = id.find("::") {
                 let trait_dir = &id[..idx];
 
                 // Only flag external directories (different from rule's directory)
-                // Skip meta/ paths since those are auto-generated and can't use directory notation
-                if trait_dir != rule_dir && !trait_dir.starts_with("meta/") {
+                // Skip metadata/ paths since those are auto-generated and can't use directory notation
+                if trait_dir != rule_dir && !trait_dir.starts_with("metadata/") {
                     dir_refs.entry(trait_dir.to_string()).or_default().push(id.clone());
                 }
             }
@@ -1783,7 +1783,7 @@ pub(crate) fn find_single_item_clauses(
 
 /// Find composite rules where an `all:` or `any:` clause contains overlapping IDs.
 /// Overlap occurs when one entry is a directory reference that is a prefix of another
-/// specific trait reference in the same clause (e.g. `cap/foo` subsumes `cap/foo::bar`).
+/// specific trait reference in the same clause (e.g. `micro-behaviors/foo` subsumes `micro-behaviors/foo::bar`).
 /// Returns a list of `(rule_id, clause_type, dir_ref, specific_ref)` for each overlap.
 pub(crate) fn find_overlapping_conditions(
     rule: &CompositeTrait,
@@ -1822,9 +1822,9 @@ pub(crate) fn find_overlapping_conditions(
     violations
 }
 
-/// Find cap/ rules with hostile criticality.
+/// Find micro-behaviors/ rules with hostile criticality.
 /// Cap rules represent observable capabilities and should never be hostile.
-/// Hostile criticality requires objective-level evidence and belongs in obj/.
+/// Hostile criticality requires objective-level evidence and belongs in objectives/.
 /// Returns (rule_id, source_file) for violations.
 pub(crate) fn find_hostile_cap_rules(
     trait_definitions: &[TraitDefinition],
@@ -1833,7 +1833,7 @@ pub(crate) fn find_hostile_cap_rules(
 ) -> Vec<(String, String)> {
     let mut violations = Vec::new();
 
-    // Helper to check if rule is in cap/
+    // Helper to check if rule is in micro-behaviors/
     fn is_cap_rule(id: &str) -> bool {
         if let Some(idx) = id.find("::") {
             let prefix = &id[..idx];
@@ -1872,9 +1872,9 @@ pub(crate) fn find_hostile_cap_rules(
     violations
 }
 
-/// Find obj/ rules with inert criticality.
+/// Find objectives/ rules with inert criticality.
 /// Obj rules represent attacker objectives and must carry analytical signal.
-/// Inert rules either belong in cap/ or meta/ (if truly neutral),
+/// Inert rules either belong in micro-behaviors/ or metadata/ (if truly neutral),
 /// or should be upgraded to notable (if they indicate program purpose).
 /// Returns (rule_id, source_file) for violations.
 pub(crate) fn find_inert_obj_rules(
@@ -1915,7 +1915,7 @@ pub(crate) fn find_inert_obj_rules(
     violations
 }
 
-/// Find cap/ rules that reference obj/ rules.
+/// Find micro-behaviors/ rules that reference objectives/ rules.
 /// Cap contains micro-behaviors while obj contains larger behaviors.
 /// Cap rules should not depend on obj rules.
 /// Returns (rule_id, ref_id, source_file) for violations.
@@ -1944,7 +1944,7 @@ pub(crate) fn find_cap_obj_violations(
 
     // Check trait definitions
     for trait_def in trait_definitions {
-        // Only check cap/ traits
+        // Only check micro-behaviors/ traits
         if let Some(tier) = extract_tier(&trait_def.id) {
             if tier != "cap" {
                 continue;
@@ -1967,7 +1967,7 @@ pub(crate) fn find_cap_obj_violations(
 
     // Check composite rules
     for rule in composite_rules {
-        // Only check cap/ rules
+        // Only check micro-behaviors/ rules
         if let Some(tier) = extract_tier(&rule.id) {
             if tier != "cap" {
                 continue;
@@ -1992,9 +1992,9 @@ pub(crate) fn find_cap_obj_violations(
     violations
 }
 
-/// Find rules that use `malware/` as a subcategory of `obj/` or `cap/`.
+/// Find rules that use `malware/` as a subcategory of `objectives/` or `micro-behaviors/`.
 ///
-/// Malware-specific signatures belong in `known/malware/`, not as subcategories
+/// Malware-specific signatures belong in `well-known/malware/`, not as subcategories
 /// of objectives or capabilities. See TAXONOMY.md for the correct structure.
 ///
 /// Returns `(rule_id, source_file)` for violations.
@@ -2007,7 +2007,7 @@ pub(crate) fn find_malware_subcategory_violations(
 
     fn is_misplaced(id: &str) -> bool {
         let path = id.find("::").map_or(id, |i| &id[..i]);
-        path.starts_with("obj/malware/") || path.starts_with("cap/malware/")
+        path.starts_with("objectives/malware/") || path.starts_with("micro-behaviors/malware/")
     }
 
     for trait_def in trait_definitions {
@@ -2059,7 +2059,7 @@ const PLATFORM_NAMES: &[&str] = &[
     // Note: "dylib", "so", "dll" excluded - they represent library operation categories
     "objectivec",
     "applescript",
-    // Binary formats (allowed in meta/format/)
+    // Binary formats (allowed in metadata/format/)
     "elf",
     "macho",
     "pe",
@@ -2089,13 +2089,13 @@ pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(Str
     let mut violations = Vec::new();
 
     for dir_path in trait_dirs {
-        // Skip meta/format/ paths - binary format names are legitimate there
-        if dir_path.starts_with("meta/format/") {
+        // Skip metadata/format/ paths - binary format names are legitimate there
+        if dir_path.starts_with("metadata/format/") {
             continue;
         }
 
         // Skip interpreter/<language> paths - language names are expected there
-        // e.g., obj/exec/interpreter/powershell, obj/exec/interpreter/python
+        // e.g., objectives/execution/interpreter/powershell, objectives/execution/interpreter/python
         if dir_path.contains("/interpreter/") {
             continue;
         }
@@ -2113,9 +2113,9 @@ pub(crate) fn find_platform_named_directories(trait_dirs: &[String]) -> Vec<(Str
     violations
 }
 
-/// Check for duplicate second-level directories across meta/, cap/, obj/, and known/.
+/// Check for duplicate second-level directories across metadata/, micro-behaviors/, objectives/, and well-known/.
 /// This indicates taxonomy violations - directories should not be repeated across namespaces.
-/// For example, cap/c2/ and obj/c2/ suggests cap/c2/ is misplaced (C2 is an objective, not a capability).
+/// For example, micro-behaviors/command-and-control/ and objectives/command-and-control/ suggests micro-behaviors/command-and-control/ is misplaced (C2 is an objective, not a capability).
 /// Returns a list of (second_level_dir, namespaces_found_in) violations.
 pub(crate) fn find_duplicate_second_level_directories(
     trait_dirs: &[String],
@@ -2123,7 +2123,7 @@ pub(crate) fn find_duplicate_second_level_directories(
     let mut second_level_map: HashMap<String, Vec<String>> = HashMap::new();
 
     for dir_path in trait_dirs {
-        // Split path: "cap/comm/http" -> ["cap", "comm", "http"]
+        // Split path: "micro-behaviors/comm/http" -> ["cap", "comm", "http"]
         let parts: Vec<&str> = dir_path.split('/').collect();
         if parts.len() < 2 {
             continue; // Need at least namespace/second-level
@@ -2161,20 +2161,20 @@ pub(crate) fn find_duplicate_second_level_directories(
     violations
 }
 
-/// Check if YAML file paths in cap/ or obj/ are at the correct depth.
-/// Valid depths are 3 or 4 subdirectories: cap/a/b/c/x.yaml or cap/a/b/c/d/x.yaml
+/// Check if YAML file paths in micro-behaviors/ or objectives/ are at the correct depth.
+/// Valid depths are 3 or 4 subdirectories: micro-behaviors/a/b/c/x.yaml or micro-behaviors/a/b/c/d/x.yaml
 /// Returns (path, depth, "shallow" or "deep") for violations.
 pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize, &'static str)> {
     let mut violations = Vec::new();
 
     for path in yaml_files {
-        // Only check cap/ and obj/ paths
-        if !path.starts_with("cap/") && !path.starts_with("obj/") {
+        // Only check micro-behaviors/ and objectives/ paths
+        if !path.starts_with("micro-behaviors/") && !path.starts_with("objectives/") {
             continue;
         }
 
-        // Count directory components (excluding the root cap/ or obj/ and the filename)
-        // e.g., "cap/comm/http/client/shell.yaml" -> ["cap", "comm", "http", "client", "shell.yaml"]
+        // Count directory components (excluding the root micro-behaviors/ or objectives/ and the filename)
+        // e.g., "micro-behaviors/comm/http/client/shell.yaml" -> ["cap", "comm", "http", "client", "shell.yaml"]
         let parts: Vec<&str> = path.split('/').collect();
         if parts.len() < 2 {
             continue;
@@ -2183,9 +2183,9 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
         // Subdirectory count = total parts - 1 (root) - 1 (filename)
         let subdir_count = parts.len() - 2;
 
-        // cap/dylib/ is a foundational namespace with atomic, non-decomposable operations
+        // micro-behaviors/dylib/ is a foundational namespace with atomic, non-decomposable operations
         // (load, lookup, enumerate, library markers). Adding depth here would be padding.
-        if subdir_count < 3 && path.starts_with("cap/dylib/") {
+        if subdir_count < 3 && path.starts_with("micro-behaviors/dylib/") {
             continue;
         }
 
@@ -2647,6 +2647,7 @@ const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
     "composite",  // vague
     "composites", // vague
     "default",    // meaningless
+    "derived",    // yes
     "generic",    // says nothing about what's inside
     "helpers",    // too vague
     "hostile",    // dumping ground
@@ -2696,7 +2697,7 @@ pub(crate) fn find_banned_directory_segments(trait_dirs: &[String]) -> Vec<(Stri
 }
 
 /// Find directories where a segment duplicates its immediate parent.
-/// e.g., "cap/exec/exec/" or "obj/creds/credentials/"
+/// e.g., "micro-behaviors/execution/execution/" or "objectives/credential-access/credentials/"
 /// Returns: Vec<(directory_path, duplicated_segment)>
 pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(String, String)> {
     let mut violations = Vec::new();
@@ -2716,7 +2717,7 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
 
             // Plural/singular variants (simple check)
             if parent.len() >= 3 && child.len() >= 3 {
-                // "cred" vs "creds" or "credentials"
+                // "cred" vs "credential-access" or "credentials"
                 let parent_stem = parent.trim_end_matches('s');
                 let child_stem = child.trim_end_matches('s');
                 if parent_stem == child_stem {
@@ -3056,8 +3057,8 @@ mod tests {
     #[test]
     fn test_find_platform_named_directories_no_violations() {
         let dirs = vec![
-            "cap/comm/http/client".to_string(),
-            "obj/creds/browser".to_string(),
+            "micro-behaviors/comm/http/client".to_string(),
+            "objectives/credential-access/browser".to_string(),
         ];
         assert!(find_platform_named_directories(&dirs).is_empty());
     }
@@ -3065,7 +3066,7 @@ mod tests {
     #[test]
     fn test_find_platform_named_directories_with_violation() {
         let dirs = vec![
-            "cap/exec/python/imports".to_string(), // "python" is a platform name
+            "micro-behaviors/execution/python/imports".to_string(), // "python" is a platform name
         ];
         let violations = find_platform_named_directories(&dirs);
         assert_eq!(violations.len(), 1);
@@ -3075,7 +3076,7 @@ mod tests {
     #[test]
     fn test_find_platform_named_directories_skips_meta_format() {
         let dirs = vec![
-            "meta/format/elf".to_string(), // Should be skipped
+            "metadata/format/elf".to_string(), // Should be skipped
         ];
         assert!(find_platform_named_directories(&dirs).is_empty());
     }
@@ -3085,9 +3086,9 @@ mod tests {
     #[test]
     fn test_find_depth_violations_valid_depths() {
         let files = vec![
-            "cap/a/b/c/test.yaml".to_string(),   // depth 3, valid
-            "cap/a/b/c/d/test.yaml".to_string(), // depth 4, valid
-            "obj/x/y/z/file.yaml".to_string(),   // depth 3, valid
+            "micro-behaviors/a/b/c/test.yaml".to_string(),   // depth 3, valid
+            "micro-behaviors/a/b/c/d/test.yaml".to_string(), // depth 4, valid
+            "objectives/x/y/z/file.yaml".to_string(),   // depth 3, valid
         ];
         assert!(find_depth_violations(&files).is_empty());
     }
@@ -3095,8 +3096,8 @@ mod tests {
     #[test]
     fn test_find_depth_violations_too_shallow() {
         let files = vec![
-            "cap/a/test.yaml".to_string(),   // depth 1, too shallow
-            "cap/a/b/test.yaml".to_string(), // depth 2, too shallow
+            "micro-behaviors/a/test.yaml".to_string(),   // depth 1, too shallow
+            "micro-behaviors/a/b/test.yaml".to_string(), // depth 2, too shallow
         ];
         let violations = find_depth_violations(&files);
         assert_eq!(violations.len(), 2);
@@ -3107,7 +3108,7 @@ mod tests {
     #[test]
     fn test_find_depth_violations_too_deep() {
         let files = vec![
-            "cap/a/b/c/d/e/test.yaml".to_string(), // depth 5, too deep
+            "micro-behaviors/a/b/c/d/e/test.yaml".to_string(), // depth 5, too deep
         ];
         let violations = find_depth_violations(&files);
         assert_eq!(violations.len(), 1);
@@ -3117,8 +3118,8 @@ mod tests {
     #[test]
     fn test_find_depth_violations_skips_other_paths() {
         let files = vec![
-            "meta/test.yaml".to_string(),          // Not cap/ or obj/, skipped
-            "known/malware/test.yaml".to_string(), // Not cap/ or obj/, skipped
+            "metadata/test.yaml".to_string(),          // Not micro-behaviors/ or objectives/, skipped
+            "well-known/malware/test.yaml".to_string(), // Not micro-behaviors/ or objectives/, skipped
         ];
         assert!(find_depth_violations(&files).is_empty());
     }
@@ -3368,7 +3369,7 @@ mod tests {
     #[test]
     fn test_find_overlapping_conditions_no_overlap() {
         let rule = CompositeTrait {
-            id: "cap/code/syntax/actionscript::rule".to_string(),
+            id: "micro-behaviors/code/syntax/actionscript::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3380,10 +3381,10 @@ mod tests {
             size_max: None,
             all: Some(vec![
                 Condition::Trait {
-                    id: "cap/code/syntax/actionscript::trait-a".to_string(),
+                    id: "micro-behaviors/code/syntax/actionscript::trait-a".to_string(),
                 },
                 Condition::Trait {
-                    id: "cap/code/syntax/actionscript::trait-b".to_string(),
+                    id: "micro-behaviors/code/syntax/actionscript::trait-b".to_string(),
                 },
             ]),
             any: None,
@@ -3403,7 +3404,7 @@ mod tests {
     #[test]
     fn test_find_overlapping_conditions_all_overlap() {
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3415,10 +3416,10 @@ mod tests {
             size_max: None,
             all: Some(vec![
                 Condition::Trait {
-                    id: "cap/code/syntax/actionscript::obfuscated-identifier-section".to_string(),
+                    id: "micro-behaviors/code/syntax/actionscript::obfuscated-identifier-section".to_string(),
                 },
                 Condition::Trait {
-                    id: "cap/code/syntax/actionscript".to_string(),
+                    id: "micro-behaviors/code/syntax/actionscript".to_string(),
                 },
             ]),
             any: None,
@@ -3435,17 +3436,17 @@ mod tests {
         let violations = find_overlapping_conditions(&rule);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "all");
-        assert_eq!(violations[0].2, "cap/code/syntax/actionscript");
+        assert_eq!(violations[0].2, "micro-behaviors/code/syntax/actionscript");
         assert_eq!(
             violations[0].3,
-            "cap/code/syntax/actionscript::obfuscated-identifier-section"
+            "micro-behaviors/code/syntax/actionscript::obfuscated-identifier-section"
         );
     }
 
     #[test]
     fn test_find_overlapping_conditions_any_overlap() {
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3458,10 +3459,10 @@ mod tests {
             all: None,
             any: Some(vec![
                 Condition::Trait {
-                    id: "cap/code/syntax/javascript".to_string(),
+                    id: "micro-behaviors/code/syntax/javascript".to_string(),
                 },
                 Condition::Trait {
-                    id: "cap/code/syntax/javascript::eval-obfuscation".to_string(),
+                    id: "micro-behaviors/code/syntax/javascript::eval-obfuscation".to_string(),
                 },
             ]),
             needs: None,
@@ -3477,14 +3478,14 @@ mod tests {
         let violations = find_overlapping_conditions(&rule);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "any");
-        assert_eq!(violations[0].2, "cap/code/syntax/javascript");
-        assert_eq!(violations[0].3, "cap/code/syntax/javascript::eval-obfuscation");
+        assert_eq!(violations[0].2, "micro-behaviors/code/syntax/javascript");
+        assert_eq!(violations[0].3, "micro-behaviors/code/syntax/javascript::eval-obfuscation");
     }
 
     #[test]
     fn test_find_overlapping_conditions_different_dirs_no_overlap() {
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3496,10 +3497,10 @@ mod tests {
             size_max: None,
             all: Some(vec![
                 Condition::Trait {
-                    id: "cap/code/syntax/actionscript".to_string(),
+                    id: "micro-behaviors/code/syntax/actionscript".to_string(),
                 },
                 Condition::Trait {
-                    id: "cap/code/syntax/javascript::eval-obfuscation".to_string(),
+                    id: "micro-behaviors/code/syntax/javascript::eval-obfuscation".to_string(),
                 },
             ]),
             any: None,
@@ -3521,7 +3522,7 @@ mod tests {
     #[test]
     fn test_autoprefix_trait_refs_local_ids() {
         let mut rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3546,10 +3547,10 @@ mod tests {
             precision: None,
         };
 
-        autoprefix_trait_refs(&mut rule, "cap/test");
+        autoprefix_trait_refs(&mut rule, "micro-behaviors/test");
 
         if let Some(Condition::Trait { id }) = rule.all.as_ref().and_then(|v| v.first()) {
-            assert_eq!(id, "cap/test::local-trait");
+            assert_eq!(id, "micro-behaviors/test::local-trait");
         } else {
             panic!("Expected trait condition");
         }
@@ -3558,7 +3559,7 @@ mod tests {
     #[test]
     fn test_autoprefix_trait_refs_already_qualified() {
         let mut rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -3583,7 +3584,7 @@ mod tests {
             precision: None,
         };
 
-        autoprefix_trait_refs(&mut rule, "cap/test");
+        autoprefix_trait_refs(&mut rule, "micro-behaviors/test");
 
         // Should NOT be modified since it already has ::
         if let Some(Condition::Trait { id }) = rule.all.as_ref().and_then(|v| v.first()) {
@@ -4329,15 +4330,15 @@ mod tests {
     #[test]
     fn test_find_banned_directory_segments_valid() {
         let dirs = vec![
-            "cap/comm/http/client".to_string(),
-            "obj/creds/browser/chromium".to_string(),
+            "micro-behaviors/comm/http/client".to_string(),
+            "objectives/credential-access/browser/chromium".to_string(),
         ];
         assert!(find_banned_directory_segments(&dirs).is_empty());
     }
 
     #[test]
     fn test_find_banned_directory_segments_generic() {
-        let dirs = vec!["cap/exec/generic/shell".to_string()];
+        let dirs = vec!["micro-behaviors/execution/generic/shell".to_string()];
         let violations = find_banned_directory_segments(&dirs);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "generic");
@@ -4345,7 +4346,7 @@ mod tests {
 
     #[test]
     fn test_find_banned_directory_segments_method() {
-        let dirs = vec!["obj/c2/reverse-shell/method".to_string()];
+        let dirs = vec!["objectives/command-and-control/reverse-shell/method".to_string()];
         let violations = find_banned_directory_segments(&dirs);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "method");
@@ -4353,7 +4354,7 @@ mod tests {
 
     #[test]
     fn test_find_banned_directory_segments_misc() {
-        let dirs = vec!["cap/misc/utils".to_string()];
+        let dirs = vec!["micro-behaviors/misc/utils".to_string()];
         let violations = find_banned_directory_segments(&dirs);
         assert_eq!(violations.len(), 1);
         // First banned segment found
@@ -4369,15 +4370,15 @@ mod tests {
     #[test]
     fn test_find_parent_duplicate_segments_valid() {
         let dirs = vec![
-            "cap/exec/shell".to_string(),
-            "obj/creds/browser".to_string(),
+            "micro-behaviors/execution/shell".to_string(),
+            "objectives/credential-access/browser".to_string(),
         ];
         assert!(find_parent_duplicate_segments(&dirs).is_empty());
     }
 
     #[test]
     fn test_find_parent_duplicate_segments_exact() {
-        let dirs = vec!["cap/exec/exec".to_string()];
+        let dirs = vec!["micro-behaviors/execution/exec".to_string()];
         let violations = find_parent_duplicate_segments(&dirs);
         assert_eq!(violations.len(), 1);
         assert_eq!(violations[0].1, "exec");
@@ -4385,7 +4386,7 @@ mod tests {
 
     #[test]
     fn test_find_parent_duplicate_segments_plural() {
-        let dirs = vec!["obj/creds/cred".to_string()];
+        let dirs = vec!["objectives/credential-access/cred".to_string()];
         let violations = find_parent_duplicate_segments(&dirs);
         assert_eq!(violations.len(), 1);
     }
@@ -4402,11 +4403,11 @@ mod tests {
         let traits: Vec<TraitDefinition> = (0..5)
             .map(|i| {
                 let mut t = make_string_trait(
-                    &format!("cap/test/dir::trait-{}", i),
+                    &format!("micro-behaviors/test/dir::trait-{}", i),
                     "test",
                     Criticality::Notable,
                 );
-                t.id = format!("cap/test/dir::trait-{}", i);
+                t.id = format!("micro-behaviors/test/dir::trait-{}", i);
                 t
             })
             .collect();
@@ -4419,17 +4420,17 @@ mod tests {
         let traits: Vec<TraitDefinition> = (0..85)
             .map(|i| {
                 let mut t = make_string_trait(
-                    &format!("cap/test/oversized::trait-{}", i),
+                    &format!("micro-behaviors/test/oversized::trait-{}", i),
                     "test",
                     Criticality::Notable,
                 );
-                t.id = format!("cap/test/oversized::trait-{}", i);
+                t.id = format!("micro-behaviors/test/oversized::trait-{}", i);
                 t
             })
             .collect();
         let violations = find_oversized_trait_directories(&traits);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/test/oversized");
+        assert_eq!(violations[0].0, "micro-behaviors/test/oversized");
         assert_eq!(violations[0].1, 85);
     }
 
@@ -4439,31 +4440,31 @@ mod tests {
         let mut traits: Vec<TraitDefinition> = (0..85)
             .map(|i| {
                 let mut t = make_string_trait(
-                    &format!("cap/test/big::trait-{}", i),
+                    &format!("micro-behaviors/test/big::trait-{}", i),
                     "test",
                     Criticality::Notable,
                 );
-                t.id = format!("cap/test/big::trait-{}", i);
+                t.id = format!("micro-behaviors/test/big::trait-{}", i);
                 t
             })
             .collect();
 
         for i in 0..10 {
             let mut t = make_string_trait(
-                &format!("cap/test/small::trait-{}", i),
+                &format!("micro-behaviors/test/small::trait-{}", i),
                 "test",
                 Criticality::Notable,
             );
-            t.id = format!("cap/test/small::trait-{}", i);
+            t.id = format!("micro-behaviors/test/small::trait-{}", i);
             traits.push(t);
         }
 
         let violations = find_oversized_trait_directories(&traits);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/test/big");
+        assert_eq!(violations[0].0, "micro-behaviors/test/big");
     }
 
-    // ==================== Cap/Obj Violation Tests ====================
+    // ==================== micro-behaviors/Obj Violation Tests ====================
 
     #[test]
     fn test_find_cap_obj_violations_empty() {
@@ -4477,7 +4478,7 @@ mod tests {
     fn test_find_cap_obj_violations_no_violations() {
         // Cap rule referencing another cap rule is OK
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4488,7 +4489,7 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![Condition::Trait {
-                id: "cap/other::trait1".to_string(),
+                id: "micro-behaviors/other::trait1".to_string(),
             }]),
             any: None,
             needs: None,
@@ -4511,7 +4512,7 @@ mod tests {
     fn test_find_cap_obj_violations_cap_references_obj() {
         // Cap rule referencing an obj rule is a VIOLATION
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4522,7 +4523,7 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![Condition::Trait {
-                id: "obj/c2/backdoor::trait1".to_string(),
+                id: "objectives/command-and-control/backdoor::trait1".to_string(),
             }]),
             any: None,
             needs: None,
@@ -4538,19 +4539,19 @@ mod tests {
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
         let mut sources = HashMap::new();
-        sources.insert("cap/test::rule".to_string(), "test.yaml".to_string());
+        sources.insert("micro-behaviors/test::rule".to_string(), "test.yaml".to_string());
 
         let violations = find_cap_obj_violations(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/test::rule");
-        assert_eq!(violations[0].1, "obj/c2/backdoor::trait1");
+        assert_eq!(violations[0].0, "micro-behaviors/test::rule");
+        assert_eq!(violations[0].1, "objectives/command-and-control/backdoor::trait1");
     }
 
     #[test]
     fn test_find_cap_obj_violations_obj_references_cap_ok() {
         // Obj rule referencing a cap rule is OK (objectives can use capabilities)
         let rule = CompositeTrait {
-            id: "obj/test::rule".to_string(),
+            id: "objectives/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4561,7 +4562,7 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![Condition::Trait {
-                id: "cap/exec/shell::exec".to_string(),
+                id: "micro-behaviors/execution/shell::exec".to_string(),
             }]),
             any: None,
             needs: None,
@@ -4584,7 +4585,7 @@ mod tests {
     fn test_find_cap_obj_violations_known_references_obj_ok() {
         // Known rule referencing an obj rule is OK
         let rule = CompositeTrait {
-            id: "known/malware/test::rule".to_string(),
+            id: "well-known/malware/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4595,7 +4596,7 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![Condition::Trait {
-                id: "obj/c2/backdoor::trait1".to_string(),
+                id: "objectives/command-and-control/backdoor::trait1".to_string(),
             }]),
             any: None,
             needs: None,
@@ -4618,7 +4619,7 @@ mod tests {
     fn test_find_cap_obj_violations_multiple_violations() {
         // Multiple references to obj in a single cap rule
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4629,10 +4630,10 @@ mod tests {
             size_min: None,
             size_max: None,
             all: Some(vec![Condition::Trait {
-                id: "obj/c2/backdoor::trait1".to_string(),
+                id: "objectives/command-and-control/backdoor::trait1".to_string(),
             }]),
             any: Some(vec![Condition::Trait {
-                id: "obj/exfil/data::trait2".to_string(),
+                id: "objectives/exfiltration/data::trait2".to_string(),
             }]),
             needs: None,
             none: None,
@@ -4647,7 +4648,7 @@ mod tests {
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
         let mut sources = HashMap::new();
-        sources.insert("cap/test::rule".to_string(), "test.yaml".to_string());
+        sources.insert("micro-behaviors/test::rule".to_string(), "test.yaml".to_string());
 
         let violations = find_cap_obj_violations(&traits, &composites, &sources);
         assert_eq!(violations.len(), 2);
@@ -4667,7 +4668,7 @@ mod tests {
     fn test_find_hostile_cap_rules_no_violations() {
         // Cap rule with suspicious criticality is OK
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Suspicious,
@@ -4699,7 +4700,7 @@ mod tests {
     fn test_find_hostile_cap_rules_violation() {
         // Cap rule with hostile criticality is a VIOLATION
         let rule = CompositeTrait {
-            id: "cap/test::rule".to_string(),
+            id: "micro-behaviors/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Hostile,
@@ -4724,18 +4725,18 @@ mod tests {
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
         let mut sources = HashMap::new();
-        sources.insert("cap/test::rule".to_string(), "test.yaml".to_string());
+        sources.insert("micro-behaviors/test::rule".to_string(), "test.yaml".to_string());
 
         let violations = find_hostile_cap_rules(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/test::rule");
+        assert_eq!(violations[0].0, "micro-behaviors/test::rule");
     }
 
     #[test]
     fn test_find_hostile_cap_rules_obj_ok() {
         // Obj rule with hostile criticality is OK
         let rule = CompositeTrait {
-            id: "obj/c2/backdoor::rule".to_string(),
+            id: "objectives/command-and-control/backdoor::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Hostile,
@@ -4767,7 +4768,7 @@ mod tests {
     fn test_find_hostile_cap_rules_known_ok() {
         // Known rule with hostile criticality is OK
         let rule = CompositeTrait {
-            id: "known/malware/test::rule".to_string(),
+            id: "well-known/malware/test::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Hostile,
@@ -4798,17 +4799,17 @@ mod tests {
     #[test]
     fn test_find_hostile_cap_rules_trait_violation() {
         // Cap trait with hostile criticality is a VIOLATION
-        let mut trait_def = make_string_trait("cap/test::trait", "test", Criticality::Hostile);
-        trait_def.id = "cap/test::trait".to_string();
+        let mut trait_def = make_string_trait("micro-behaviors/test::trait", "test", Criticality::Hostile);
+        trait_def.id = "micro-behaviors/test::trait".to_string();
 
         let traits = vec![trait_def];
         let composites: Vec<CompositeTrait> = vec![];
         let mut sources = HashMap::new();
-        sources.insert("cap/test::trait".to_string(), "test.yaml".to_string());
+        sources.insert("micro-behaviors/test::trait".to_string(), "test.yaml".to_string());
 
         let violations = find_hostile_cap_rules(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/test::trait");
+        assert_eq!(violations[0].0, "micro-behaviors/test::trait");
     }
 
     // ==================== Inert Obj Rule Tests ====================
@@ -4825,7 +4826,7 @@ mod tests {
     fn test_find_inert_obj_rules_no_violations() {
         // Obj rule with notable criticality is OK
         let rule = CompositeTrait {
-            id: "obj/c2/backdoor::rule".to_string(),
+            id: "objectives/command-and-control/backdoor::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Notable,
@@ -4857,7 +4858,7 @@ mod tests {
     fn test_find_inert_obj_rules_violation() {
         // Obj rule with inert criticality is a VIOLATION
         let rule = CompositeTrait {
-            id: "obj/c2/backdoor::rule".to_string(),
+            id: "objectives/command-and-control/backdoor::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Inert,
@@ -4882,18 +4883,18 @@ mod tests {
         let traits: Vec<TraitDefinition> = vec![];
         let composites = vec![rule];
         let mut sources = HashMap::new();
-        sources.insert("obj/c2/backdoor::rule".to_string(), "test.yaml".to_string());
+        sources.insert("objectives/command-and-control/backdoor::rule".to_string(), "test.yaml".to_string());
 
         let violations = find_inert_obj_rules(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "obj/c2/backdoor::rule");
+        assert_eq!(violations[0].0, "objectives/command-and-control/backdoor::rule");
     }
 
     #[test]
     fn test_find_inert_obj_rules_cap_ok() {
         // Cap rule with inert criticality is fine (handled by other validators)
         let rule = CompositeTrait {
-            id: "cap/comm/socket::rule".to_string(),
+            id: "micro-behaviors/comm/socket::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Inert,
@@ -4924,17 +4925,17 @@ mod tests {
     #[test]
     fn test_find_inert_obj_rules_trait_violation() {
         // Obj trait definition with inert criticality is a VIOLATION
-        let mut trait_def = make_string_trait("obj/exfil/test::trait", "test", Criticality::Inert);
-        trait_def.id = "obj/exfil/test::trait".to_string();
+        let mut trait_def = make_string_trait("objectives/exfiltration/test::trait", "test", Criticality::Inert);
+        trait_def.id = "objectives/exfiltration/test::trait".to_string();
 
         let traits = vec![trait_def];
         let composites: Vec<CompositeTrait> = vec![];
         let mut sources = HashMap::new();
-        sources.insert("obj/exfil/test::trait".to_string(), "test.yaml".to_string());
+        sources.insert("objectives/exfiltration/test::trait".to_string(), "test.yaml".to_string());
 
         let violations = find_inert_obj_rules(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "obj/exfil/test::trait");
+        assert_eq!(violations[0].0, "objectives/exfiltration/test::trait");
     }
 
     // ==================== Malware Subcategory Violation Tests ====================
@@ -4949,9 +4950,9 @@ mod tests {
 
     #[test]
     fn test_find_malware_subcategory_violations_known_ok() {
-        // known/malware/ is the correct location — not a violation
+        // well-known/malware/ is the correct location — not a violation
         let rule = CompositeTrait {
-            id: "known/malware/apt/rule::rule".to_string(),
+            id: "well-known/malware/apt/rule::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Hostile,
@@ -4981,9 +4982,9 @@ mod tests {
 
     #[test]
     fn test_find_malware_subcategory_violations_obj_malware() {
-        // obj/malware/ is a violation
+        // objectives/malware/ is a violation
         let rule = CompositeTrait {
-            id: "obj/malware/backdoor::rule".to_string(),
+            id: "objectives/malware/backdoor::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Hostile,
@@ -5009,29 +5010,29 @@ mod tests {
         let composites = vec![rule];
         let mut sources = HashMap::new();
         sources.insert(
-            "obj/malware/backdoor::rule".to_string(),
-            "obj/malware/backdoor/rule.yaml".to_string(),
+            "objectives/malware/backdoor::rule".to_string(),
+            "objectives/malware/backdoor/rule.yaml".to_string(),
         );
         let violations = find_malware_subcategory_violations(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "obj/malware/backdoor::rule");
+        assert_eq!(violations[0].0, "objectives/malware/backdoor::rule");
     }
 
     #[test]
     fn test_find_malware_subcategory_violations_cap_malware() {
-        // cap/malware/ is a violation
+        // micro-behaviors/malware/ is a violation
         let trait_def =
-            make_string_trait("cap/malware/dropper::trait", "test", Criticality::Suspicious);
+            make_string_trait("micro-behaviors/malware/dropper::trait", "test", Criticality::Suspicious);
         let traits = vec![trait_def];
         let composites: Vec<CompositeTrait> = vec![];
         let mut sources = HashMap::new();
         sources.insert(
-            "cap/malware/dropper::trait".to_string(),
-            "cap/malware/dropper/trait.yaml".to_string(),
+            "micro-behaviors/malware/dropper::trait".to_string(),
+            "micro-behaviors/malware/dropper/trait.yaml".to_string(),
         );
         let violations = find_malware_subcategory_violations(&traits, &composites, &sources);
         assert_eq!(violations.len(), 1);
-        assert_eq!(violations[0].0, "cap/malware/dropper::trait");
+        assert_eq!(violations[0].0, "micro-behaviors/malware/dropper::trait");
     }
 
     // ==================== File Type Overlap Tests ====================
@@ -5506,8 +5507,8 @@ mod tests {
     fn test_string_pattern_exact_duplicate_different_files() {
         // Two traits with identical substr pattern in different files for same file type
         let mut trait1 =
-            make_string_trait("cap/fs/proc/info::proc-net-tcp", "", Criticality::Notable);
-        trait1.defined_in = std::path::PathBuf::from("traits/cap/fs/proc/info/linux.yaml");
+            make_string_trait("micro-behaviors/fs/proc/info::proc-net-tcp", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/micro-behaviors/fs/proc/info/linux.yaml");
         trait1.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,
@@ -5527,11 +5528,11 @@ mod tests {
         trait1.r#for = vec![RuleFileType::Elf];
 
         let mut trait2 = make_string_trait(
-            "obj/discovery/network/scan::tcp-connections",
+            "objectives/discovery/network/scan::tcp-connections",
             "",
             Criticality::Suspicious,
         );
-        trait2.defined_in = std::path::PathBuf::from("traits/obj/discovery/network/scan/proc.yaml");
+        trait2.defined_in = std::path::PathBuf::from("traits/objectives/discovery/network/scan/proc.yaml");
         trait2.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,
@@ -5558,15 +5559,15 @@ mod tests {
         assert_eq!(warnings.len(), 1);
         assert!(warnings[0].contains("/proc/net/tcp"));
         assert!(warnings[0].contains("2 files"));
-        assert!(warnings[0].contains("cap/fs/proc/info/linux.yaml"));
-        assert!(warnings[0].contains("obj/discovery/network/scan/proc.yaml"));
+        assert!(warnings[0].contains("micro-behaviors/fs/proc/info/linux.yaml"));
+        assert!(warnings[0].contains("objectives/discovery/network/scan/proc.yaml"));
     }
 
     #[test]
     fn test_string_pattern_exact_duplicate_no_overlap() {
         // Two traits with identical pattern but different file types - should NOT warn
-        let mut trait1 = make_string_trait("cap/test::pattern-a", "", Criticality::Notable);
-        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        let mut trait1 = make_string_trait("micro-behaviors/test::pattern-a", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file1.yaml");
         trait1.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,
@@ -5585,8 +5586,8 @@ mod tests {
         };
         trait1.r#for = vec![RuleFileType::Elf];
 
-        let mut trait2 = make_string_trait("cap/test::pattern-b", "", Criticality::Notable);
-        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        let mut trait2 = make_string_trait("micro-behaviors/test::pattern-b", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file2.yaml");
         trait2.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,
@@ -5616,8 +5617,8 @@ mod tests {
     #[test]
     fn test_string_pattern_cross_type_duplicate() {
         // Same pattern in String and Symbol conditions - should warn
-        let mut trait1 = make_string_trait("cap/exec/load::dlsym-import", "", Criticality::Notable);
-        trait1.defined_in = std::path::PathBuf::from("traits/cap/exec/load/unix.yaml");
+        let mut trait1 = make_string_trait("micro-behaviors/execution/load::dlsym-import", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/micro-behaviors/execution/load/unix.yaml");
         trait1.r#if.condition = Condition::Symbol {
             exact: Some("dlsym".to_string()),
             substr: None,
@@ -5627,8 +5628,8 @@ mod tests {
         };
         trait1.r#for = vec![RuleFileType::Elf];
 
-        let mut trait2 = make_string_trait("cap/exec/load::dlsym-string", "", Criticality::Notable);
-        trait2.defined_in = std::path::PathBuf::from("traits/cap/exec/load/linux.yaml");
+        let mut trait2 = make_string_trait("micro-behaviors/execution/load::dlsym-string", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/micro-behaviors/execution/load/linux.yaml");
         trait2.r#if.condition = Condition::String {
             substr: Some("dlsym".to_string()),
             exact: None,
@@ -5661,8 +5662,8 @@ mod tests {
     #[test]
     fn test_string_pattern_regex_anchor_normalization() {
         // Regex with anchors should match exact pattern
-        let mut trait1 = make_string_trait("cap/test::pattern-regex", "", Criticality::Notable);
-        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        let mut trait1 = make_string_trait("micro-behaviors/test::pattern-regex", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file1.yaml");
         trait1.r#if.condition = Condition::String {
             exact: None,
             substr: None,
@@ -5681,8 +5682,8 @@ mod tests {
         };
         trait1.r#for = vec![RuleFileType::Elf];
 
-        let mut trait2 = make_string_trait("cap/test::pattern-exact", "", Criticality::Notable);
-        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        let mut trait2 = make_string_trait("micro-behaviors/test::pattern-exact", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file2.yaml");
         trait2.r#if.condition = Condition::String {
             exact: Some("test_pattern".to_string()),
             substr: None,
@@ -5713,8 +5714,8 @@ mod tests {
     #[test]
     fn test_string_pattern_no_restrictions_overlaps_all() {
         // Trait with no `for:` restrictions should overlap with everything
-        let mut trait1 = make_string_trait("cap/test::unrestricted", "", Criticality::Notable);
-        trait1.defined_in = std::path::PathBuf::from("traits/cap/test/file1.yaml");
+        let mut trait1 = make_string_trait("micro-behaviors/test::unrestricted", "", Criticality::Notable);
+        trait1.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file1.yaml");
         trait1.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,
@@ -5734,8 +5735,8 @@ mod tests {
         // No `for:` restriction - applies to all file types
         trait1.r#for = Vec::new();
 
-        let mut trait2 = make_string_trait("cap/test::elf-only", "", Criticality::Notable);
-        trait2.defined_in = std::path::PathBuf::from("traits/cap/test/file2.yaml");
+        let mut trait2 = make_string_trait("micro-behaviors/test::elf-only", "", Criticality::Notable);
+        trait2.defined_in = std::path::PathBuf::from("traits/micro-behaviors/test/file2.yaml");
         trait2.r#if.condition = Condition::String {
             substr: Some("/proc/net/tcp".to_string()),
             exact: None,

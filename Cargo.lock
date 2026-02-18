@@ -241,17 +241,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "atty"
-version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9b39be18770d11421cdb1b9947a45dd3f37e93092cbf377614828a319d5fee8"
-dependencies = [
- "hermit-abi",
- "libc",
- "winapi",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -997,7 +986,6 @@ dependencies = [
  "apple-xar",
  "ar",
  "assert_cmd",
- "atty",
  "base64",
  "bincode",
  "bzip2 0.4.4",
@@ -1483,15 +1471,6 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
-
-[[package]]
-name = "hermit-abi"
-version = "0.1.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
-dependencies = [
- "libc",
-]
 
 [[package]]
 name = "hex"
@@ -3179,7 +3158,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stng"
 version = "0.1.0"
-source = "git+https://github.com/HEXXDECIMAL/stng#78d54a7711fd9252be3c1fd8f412ba70a05c0798"
+source = "git+https://github.com/HEXXDECIMAL/stng?rev=73aee7d376c6f9c62206a1aab3bd819aa46aa617#73aee7d376c6f9c62206a1aab3bd819aa46aa617"
 dependencies = [
  "aho-corasick",
  "anyhow",

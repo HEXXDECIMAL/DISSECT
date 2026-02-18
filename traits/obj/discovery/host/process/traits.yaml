@@ -1,9 +1,0 @@
-# Process Discovery Traits - Deleted
-# These simple symbol-based detections were taxonomy violations
-# They belong in cap/ as simple capabilities, not obj/ as objectives
-# Capabilities already exist:
-# - cap/process/identity/query::get-pid
-# - cap/process/identity/query::get-uid
-# - cap/process/identity/query::get-gid
-# See python.yaml and rust.yaml for proper objective-level process discovery
-

@@ -60,7 +60,7 @@ fn test_host_info_composite_fires_with_4_atomics() {
     // Evaluate all rules and merge findings
     let binary_data =
         b"LanIP: 192.168.1.1\x00GateWay: 192.168.1.254\x00OSInfo: Linux\x00Userame: root\x00";
-    mapper.evaluate_and_merge_findings(&mut report, binary_data, None);
+    mapper.evaluate_and_merge_findings(&mut report, binary_data, None, None);
 
     // Debug: Print all findings
     println!("\n=== All findings ({}) ===", report.findings.len());

@@ -1,0 +1,48 @@
+defaults:
+  for:
+  - all
+  crit: notable
+  conf: 0.8
+traits:
+- id: php-collect
+  desc: PHP collection endpoint
+  attack: T1041
+  if:
+    type: string
+    regex: \.php\?.{0,200}(?:collect|data|info)
+- id: php-log
+  desc: PHP logging endpoint
+  attack: T1041
+  if:
+    type: string
+    regex: \.php\?.{0,200}log
+- id: php-report
+  desc: PHP reporting endpoint
+  attack: T1041
+  if:
+    type: string
+    regex: \.php\?.{0,200}report
+- id: php-beacon
+  desc: PHP beacon endpoint
+  attack: T1041
+  if:
+    type: string
+    regex: \.php\?.{0,200}beacon
+- id: payload-path
+  desc: URL path suggesting payload download
+  crit: suspicious
+  attack: T1105
+  if:
+    type: string
+    regex: (?:GET|POST|PUT)\s+/[a-zA-Z0-9_./-]*\.(bin|exe|sh|elf|dll|so|dat|payload|bot|drop)
+composite_rules:
+- id: php-collector
+  desc: Contacts PHP data collection endpoint
+  crit: notable
+  conf: 0.85
+  attack: T1041
+  any:
+  - id: php-collect
+  - id: php-log
+  - id: php-report
+  - id: php-beacon

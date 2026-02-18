@@ -1,0 +1,21 @@
+defaults:
+  for:
+  - all
+traits:
+- id: run-key-string
+  desc: Reference to Registry Run key
+  crit: notable
+  conf: 0.8
+  if:
+    type: raw
+    regex: (?i)(HKCU|HKLM|HKEY_CURRENT_USER|HKEY_LOCAL_MACHINE).{1,50}Software.{1,2}Microsoft.{1,2}Windows.{1,2}CurrentVersion.{1,2}Run
+- id: run-key-write-ps
+  desc: Writes to Registry Run key via PowerShell
+  crit: suspicious
+  conf: 0.9
+  for:
+  - powershell
+  if:
+    type: raw
+    regex: (?i)(Set-ItemProperty|New-ItemProperty|reg add).{1,200}Software.{1,2}Microsoft.{1,2}Windows.{1,2}CurrentVersion.{1,2}Run
+composite_rules: []

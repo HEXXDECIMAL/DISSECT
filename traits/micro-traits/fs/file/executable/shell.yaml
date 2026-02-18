@@ -1,0 +1,49 @@
+# Make File Executable
+# MBC: E1222 (File Permission Modification)
+# ATT&CK: T1222
+
+defaults:
+  for: [all]
+
+traits:
+  - id: chmod-plus-x
+    desc: chmod +x command (add execute
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      substr: "chmod +x"
+
+  - id: chmod-755
+    desc: chmod 755 command (rwxr-xr-x permissions)
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      substr: "chmod 755"
+
+  - id: chmod-0755
+    desc: chmod 0755 command (rwxr-xr-x permissions,
+    crit: notable
+    conf: 0.7
+    mbc: E1222
+    attack: T1222
+    if:
+      type: string
+      substr: "chmod 0755"
+
+composite_rules:
+  - id: executable
+    desc: Make file executable with chmod
+    crit: notable
+    conf: 0.66
+    mbc: E1222
+    attack: T1222
+    any:
+      - id: chmod-plus-x
+      - id: chmod-755
+      - id: chmod-0755

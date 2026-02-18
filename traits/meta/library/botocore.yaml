@@ -1,7 +1,0 @@
-traits:
-  - id: botocore-lib
-    desc: botocore library detected
-    crit: inert
-    if:
-      type: string
-      substr: "botocore"

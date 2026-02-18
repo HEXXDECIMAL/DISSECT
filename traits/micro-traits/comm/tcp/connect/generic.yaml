@@ -1,0 +1,59 @@
+defaults:
+  for:
+  - all
+traits:
+- id: sock-stream
+  desc: SOCK_STREAM socket type
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    substr: SOCK_STREAM
+- id: net-dial
+  desc: net.Dial Go function
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    substr: net.Dial
+- id: tcp-conn
+  desc: TCPConn type
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    substr: TCPConn
+- id: create-socket
+  desc: CreateSocket function
+  crit: inert
+  conf: 0.5
+  if:
+    type: string
+    substr: CreateSocket
+- id: go-net-error-endpoint
+  desc: Go net error - endpoint issues
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    regex: transport endpoint is (not|already) connected
+- id: go-net-error-connection
+  desc: Go net error - connection issues
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    regex: connection (refused|timed out|reset by peer)|software caused connection
+      abort|network dropped connection
+composite_rules:
+- id: connect
+  desc: TCP connection operations
+  crit: inert
+  conf: 0.66
+  any:
+  - id: sock-stream
+  - id: net-dial
+  - id: tcp-conn
+  - id: create-socket
+  - id: go-net-error-connection
+  - id: go-net-error-endpoint

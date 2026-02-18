@@ -1,0 +1,31 @@
+# SSH Service/Daemon
+# Generic SSH daemon and service references
+
+defaults:
+  for: [all]
+
+traits:
+  - id: sshd-ref
+    desc: sshd daemon reference
+    crit: inert
+    conf: 0.4
+    for: [all]
+    if:
+      type: string
+      word: "sshd"
+
+  - id: sshd-path
+    desc: sshd daemon path
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      substr: "/usr/sbin/sshd"
+
+  - id: ssh-service
+    desc: SSH service reference
+    crit: inert
+    conf: 0.4
+    if:
+      type: string
+      substr: "ssh.service"

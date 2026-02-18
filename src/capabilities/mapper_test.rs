@@ -75,7 +75,7 @@ fn test_from_yaml_minimal_symbol_map() {
     let yaml = r#"
 symbols:
   - symbol: "malloc"
-    capability: "cap/mem/allocate::malloc"
+    capability: "micro-behaviors/mem/allocate::malloc"
     desc: "Allocate memory"
     conf: 0.9
 "#;
@@ -151,7 +151,7 @@ fn test_lookup_with_symbol() {
     let yaml = r#"
 symbols:
   - symbol: "malloc"
-    capability: "cap/mem/allocate::malloc"
+    capability: "micro-behaviors/mem/allocate::malloc"
     desc: "Allocate memory"
     conf: 0.9
 "#;
@@ -159,7 +159,7 @@ symbols:
     let mapper = CapabilityMapper::from_yaml(&path).unwrap();
 
     let finding = mapper.lookup("malloc", "libc").unwrap();
-    assert_eq!(finding.id, "cap/mem/allocate::malloc");
+    assert_eq!(finding.id, "micro-behaviors/mem/allocate::malloc");
     assert_eq!(finding.desc, "Allocate memory");
     assert_eq!(finding.crit, Criticality::Inert);
 }
@@ -176,7 +176,7 @@ fn test_lookup_with_prefix_stripping() {
     let yaml = r#"
 symbols:
   - symbol: "malloc"
-    capability: "cap/mem/allocate::malloc"
+    capability: "micro-behaviors/mem/allocate::malloc"
     desc: "Allocate memory"
     conf: 0.9
 "#;
@@ -186,7 +186,7 @@ symbols:
     // Should strip common prefixes like '_', '__', etc.
     let finding = mapper.lookup("_malloc", "libc");
     assert!(finding.is_some());
-    assert_eq!(finding.unwrap().id, "cap/mem/allocate::malloc");
+    assert_eq!(finding.unwrap().id, "micro-behaviors/mem/allocate::malloc");
 }
 
 #[test]
@@ -368,7 +368,7 @@ defaults:
 
 symbols:
   - symbol: "malloc"
-    capability: "cap/mem/allocate::malloc"
+    capability: "micro-behaviors/mem/allocate::malloc"
     desc: "Allocate memory"
     conf: 0.9
 
@@ -416,7 +416,7 @@ traits:
     assert!(report.findings.len() >= 2);
 
     // Verify we have the malloc capability
-    assert!(report.findings.iter().any(|f| f.id == "cap/mem/allocate::malloc"));
+    assert!(report.findings.iter().any(|f| f.id == "micro-behaviors/mem/allocate::malloc"));
 
     // Verify we have the string check trait
     assert!(report.findings.iter().any(|f| f.id == "test/string::check"));
@@ -491,15 +491,15 @@ fn test_mapping_count() {
     let yaml = r#"
 symbols:
   - symbol: "malloc"
-    capability: "cap/mem::malloc"
+    capability: "micro-behaviors/mem::malloc"
     desc: "malloc"
     conf: 0.9
   - symbol: "free"
-    capability: "cap/mem::free"
+    capability: "micro-behaviors/mem::free"
     desc: "free"
     conf: 0.9
   - symbol: "calloc"
-    capability: "cap/mem::calloc"
+    capability: "micro-behaviors/mem::calloc"
     desc: "calloc"
     conf: 0.9
 "#;

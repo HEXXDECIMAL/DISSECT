@@ -116,6 +116,7 @@ fn test_metrics_accessible_to_rules() {
         &mut report,
         &std::fs::read(&test_file).unwrap(),
         None,
+        None,
     );
 
     // The key test: metrics-based rules should be able to evaluate

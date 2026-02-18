@@ -1,0 +1,11 @@
+defaults:
+  crit: notable
+  conf: 1.0
+  for:
+  - all
+traits:
+- id: obfuscated-elf-daemon-dropper__unless_1
+  desc: Derived string condition
+  if:
+    type: string
+    regex: findutils|libtsan|sanitizer

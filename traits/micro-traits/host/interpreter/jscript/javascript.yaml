@@ -1,0 +1,9 @@
+traits:
+  - id: is-jscript
+    desc: JScript file type (WScript host)
+    crit: notable
+    for: [javascript]
+    if:
+      type: raw
+      # ActiveXObject: use objectives/execution/interpreter/scripting/host/windows.yaml::activex-object-string (canonical)
+      substr: "WScript"

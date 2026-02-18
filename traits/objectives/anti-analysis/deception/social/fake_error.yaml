@@ -1,0 +1,15 @@
+defaults:
+  crit: suspicious
+  conf: 0.8
+  for:
+  - javascript
+  - python
+  - shell
+traits:
+- id: fake-error-document-corrupted
+  desc: Fake 'document corrupted' error message
+  mbc: B0011.001
+  if:
+    type: encoded
+    regex: (?i)The document is corrupted and cannot be opened|document[^'"]{1,50}corrupted|\{[^:]+:['"]c['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]o['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]r['"]\}\.[a-zA-Z0-9_$]+
+composite_rules: []

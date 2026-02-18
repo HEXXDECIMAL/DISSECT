@@ -1,0 +1,40 @@
+composite_rules:
+  - id: extconf-missing-create-makefile
+    desc: extconf.rb script missing create_makefile call (suspicious/dropper)
+    crit: suspicious
+    conf: 0.95
+    all:
+      - id: objectives/lateral-movement/supply-chain/rubygems::extconf-file
+    none:
+      - id: objectives/execution/interpreter/script/extconf::calls-create-makefile
+
+  - id: extconf-file-manipulation
+    desc: extconf.rb performs file manipulation (suspicious in build scripts)
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: objectives/lateral-movement/supply-chain/rubygems::extconf-file
+    any:
+      - id: objectives/execution/dropper/script::ruby-ast-file-rename
+      - id: micro-traits/fs/write/file::ruby-file-delete
+      - id: micro-traits/fs/file/rename::ruby-rename
+
+defaults:
+  for: [all]
+
+traits:
+  - id: suspicious-extension-path
+    desc: Media file in native extension directory
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: raw
+      regex: "ext/.{0,100}\\.(png|jpg|jpeg|gif|bmp|ico|svg|webp|tiff|tif)"
+
+  - id: deeply-nested-extension-path
+    desc: Deeply nested directory in native extension
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: "ext/[^/]{1,120}/[^/]{1,120}/[^/]{1,120}/"

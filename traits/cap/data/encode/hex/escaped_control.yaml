@@ -1,8 +1,0 @@
-traits:
-  - id: hex-escaped-control-char
-    desc: String containing escaped hex control character (06-07)
-    crit: inert
-    conf: 0.8
-    if:
-      type: raw
-      regex: '\\x0[67]'

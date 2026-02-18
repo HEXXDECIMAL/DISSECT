@@ -47,7 +47,7 @@ fn test_coinminer_pam_detection() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Check if CGO signals were picked up by the Go rule (Benign traits might be hidden in summary)
-    // assert!(stdout.contains("meta/language/go"), "Go rule ID missing");
+    // assert!(stdout.contains("metadata/language/go"), "Go rule ID missing");
 
     Ok(())
 }

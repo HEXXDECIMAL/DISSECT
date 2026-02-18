@@ -33,7 +33,7 @@ pub(crate) mod java_class;
 pub(crate) mod macho;
 pub(crate) mod macho_codesign;
 pub(crate) mod package_json;
-pub(crate) mod pe;
+pub mod pe;
 pub(crate) mod rtf;
 pub(crate) mod vsix_manifest;
 
@@ -44,7 +44,7 @@ pub(crate) mod unified;
 pub(crate) mod generic;
 
 // Embedded code detector (analyzes code found in strings)
-pub(crate) mod embedded_code_detector;
+pub mod embedded_code_detector;
 
 // Overlay data analyzer (self-extracting archives)
 pub(crate) mod overlay;
@@ -65,7 +65,7 @@ use std::sync::Arc;
 /// - AppleScript (compiled binary format)
 ///
 /// Returns None only for Archive (which requires special ArchiveAnalyzer config).
-pub(crate) fn analyzer_for_file_type(
+pub fn analyzer_for_file_type(
     file_type: &FileType,
     mapper: Option<CapabilityMapper>,
 ) -> Option<Box<dyn Analyzer>> {
@@ -754,7 +754,7 @@ fn looks_like_shell(data: &[u8]) -> bool {
 /// Check if file content matches its extension's expected magic bytes
 /// Returns (expected_type, actual_type_hint) if mismatch detected
 #[must_use]
-pub(crate) fn check_extension_content_mismatch(
+pub fn check_extension_content_mismatch(
     file_path: &Path,
     file_data: &[u8],
 ) -> Option<(String, String)> {

@@ -1,0 +1,143 @@
+traits:
+- id: srw-lock-acquire
+  desc: SRW lock acquisition
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    exact: AcquireSRWLockExclusive
+  attack: T1129
+- id: srw-lock-release
+  desc: SRW lock release
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    exact: ReleaseSRWLockExclusive
+  attack: T1129
+- id: srw-lock-shared
+  desc: SRW shared lock read
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    regex: (^AcquireSRWLockShared$|^ReleaseSRWLockShared$)
+  attack: T1129
+- id: condition-variable-wait
+  desc: Condition variable wait
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    regex: (^SleepConditionVariableSRW$|^SleepConditionVariableCS$)
+  attack: T1129
+- id: condition-variable-signal
+  desc: Condition variable signal
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    regex: (^WakeConditionVariable$|^WakeAllConditionVariable$)
+  attack: T1129
+# Removed duplicate - use micro-traits/mem/sync/mutex::initialize-slist-head
+- id: slist-operations
+  desc: Interlocked SList ops
+  crit: notable
+  conf: 0.65
+  platforms:
+  - windows
+  for:
+  - pe
+  if:
+    type: symbol
+    regex: (InterlockedPushEntrySList|InterlockedPopEntrySList|InterlockedFlushSList)
+  attack: T1129
+composite_rules:
+- id: srw-lock-ops
+  desc: SRW lock operations
+  crit: suspicious
+  conf: 0.7
+  platforms:
+  - windows
+  for:
+  - pe
+  attack: T1129
+  needs: 2
+  any:
+  - id: srw-lock-acquire
+  - id: srw-lock-release
+  - id: srw-lock-shared
+  downgrade:
+    any:
+    - id: metadata/quality/versioned
+- id: condition-variable-ops
+  desc: Condition variable ops
+  crit: suspicious
+  conf: 0.7
+  platforms:
+  - windows
+  for:
+  - pe
+  attack: T1129
+  any:
+  - id: condition-variable-wait
+  - id: condition-variable-signal
+- id: slist-sync-ops
+  desc: Interlocked SList sync
+  crit: suspicious
+  conf: 0.7
+  platforms:
+  - windows
+  for:
+  - pe
+  attack: T1129
+  all:
+  - id: micro-traits/mem/sync/mutex::initialize-slist-head
+  - id: slist-operations
+- id: advanced-sync-primitives
+  desc: Advanced sync primitives
+  crit: suspicious
+  conf: 0.75
+  platforms:
+  - windows
+  for:
+  - pe
+  attack: T1129
+  needs: 2
+  any:
+  - id: srw-lock-ops
+  - id: condition-variable-ops
+  - id: slist-sync-ops
+- id: advanced-sync-server
+  desc: Advanced server infrastructure
+  crit: suspicious
+  conf: 0.8
+  platforms:
+  - windows
+  for:
+  - pe
+  attack: T1129
+  mbc: E1030
+  all:
+  - id: micro-traits/process/create
+  - id: advanced-sync-primitives

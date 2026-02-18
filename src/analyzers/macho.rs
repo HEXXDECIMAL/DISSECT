@@ -764,8 +764,8 @@ impl MachOAnalyzer {
         codesig: &macho_codesign::CodeSignature,
         report: &mut AnalysisReport,
     ) {
-        // Combined signature trait: meta/signed/{type}::{signer}
-        // This allows matching by type (meta/signed/developer) or specific signer
+        // Combined signature trait: metadata/signed/{type}::{signer}
+        // This allows matching by type (metadata/signed/developer) or specific signer
         let team_id = codesig.team_id.as_deref().unwrap_or("unknown");
         let (sig_category, signer, desc) = match codesig.signature_type {
             macho_codesign::SignatureType::DeveloperID => {
@@ -794,7 +794,7 @@ impl MachOAnalyzer {
         report.findings.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: format!("meta/signed/{}::{}", sig_category, signer),
+            id: format!("metadata/signed/{}::{}", sig_category, signer),
             desc,
             conf: 1.0,
             crit: Criticality::Inert,
@@ -815,7 +815,7 @@ impl MachOAnalyzer {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: format!("meta/signed/id::{}", identifier),
+                id: format!("metadata/signed/id::{}", identifier),
                 desc: "Identifier".to_string(),
                 conf: 1.0,
                 crit: Criticality::Inert,
@@ -834,7 +834,7 @@ impl MachOAnalyzer {
 
         // Entitlements traits
         for (entitlement_key, entitlement_value) in &codesig.entitlements {
-            let ent_trait_id = format!("meta/entitlement::{}", entitlement_key);
+            let ent_trait_id = format!("metadata/entitlement::{}", entitlement_key);
             let desc = describe_entitlement(entitlement_key);
             let value_str = match entitlement_value {
                 macho_codesign::EntitlementValue::Boolean(b) => b.to_string(),
@@ -866,7 +866,7 @@ impl MachOAnalyzer {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "meta/notarized".to_string(),
+                id: "metadata/notarized".to_string(),
                 desc: "Binary is notarized by Apple".to_string(),
                 conf: 1.0,
                 crit: Criticality::Inert,
@@ -882,7 +882,7 @@ impl MachOAnalyzer {
             report.findings.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "meta/hardened-runtime".to_string(),
+                id: "metadata/hardened-runtime".to_string(),
                 desc: "Hardened runtime enabled".to_string(),
                 conf: 1.0,
                 crit: Criticality::Inert,
@@ -1319,7 +1319,7 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for hardened-runtime finding
-        let hardened = report.findings.iter().find(|f| f.id == "meta/hardened-runtime");
+        let hardened = report.findings.iter().find(|f| f.id == "metadata/hardened-runtime");
 
         if let Some(finding) = hardened {
             assert_eq!(finding.evidence[0].method, "code_directory_flags");

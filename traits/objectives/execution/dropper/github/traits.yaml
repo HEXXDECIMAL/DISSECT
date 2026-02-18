@@ -1,0 +1,43 @@
+# GitHub blob API dropper (unusual download pattern)
+# ATT&CK: T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain)
+
+defaults:
+  for: [all]
+
+traits:
+  - id: blob-api
+    desc: "GitHub blob API download"
+    crit: suspicious
+    conf: 0.85
+    if:
+      type: string
+      regex: "api\\.github\\.com.{0,50}/git/blobs"
+
+  # === Python execution/chmod atomic indicators ===
+  - id: python-os-chmod
+    desc: "Python os.chmod call"
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "os.chmod("
+
+composite_rules:
+  # Python execution/chmod composite
+  - id: python-exec-chmod
+    desc: "Python subprocess execution or chmod"
+    crit: notable
+    conf: 0.8
+    any:
+      - id: python-os-chmod
+      - id: micro-traits/process/create/subprocess/
+
+  - id: execute
+    desc: "Download from GitHub blob API"
+    conf: 0.95
+    crit: suspicious
+    mbc: "B0024"
+    attack: "T1195.002"
+    all:
+      - id: blob-api
+      - id: python-exec-chmod

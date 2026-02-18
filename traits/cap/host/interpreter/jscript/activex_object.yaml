@@ -1,7 +1,0 @@
-traits:
-  - id: activex-object
-    desc: ActiveXObject string presence
-    crit: inert
-    if:
-      type: raw
-      substr: "ActiveXObject"

@@ -140,7 +140,7 @@ fn test_eval_structure_no_match() {
 #[test]
 fn test_eval_trait_exact_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("exec/process/spawn"));
+    report.findings.push(create_test_finding("execution/process/spawn"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -151,14 +151,14 @@ fn test_eval_trait_exact_match() {
         None,
     );
 
-    let result = eval_trait("exec/process/spawn", &ctx);
+    let result = eval_trait("execution/process/spawn", &ctx);
     assert!(result.matched);
 }
 
 #[test]
 fn test_eval_trait_suffix_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("exec/process/terminate"));
+    report.findings.push(create_test_finding("execution/process/terminate"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -219,7 +219,7 @@ fn test_eval_trait_additional_findings() {
 #[test]
 fn test_eval_trait_no_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("exec/shell/bash"));
+    report.findings.push(create_test_finding("execution/shell/bash"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -237,7 +237,7 @@ fn test_eval_trait_no_match() {
 #[test]
 fn test_eval_trait_evidence_propagation() {
     let mut report = create_test_report("/test/binary");
-    let mut finding = create_test_finding("exec/process/spawn");
+    let mut finding = create_test_finding("execution/process/spawn");
     finding.evidence = vec![
         Evidence {
             method: "symbol".to_string(),
@@ -263,7 +263,7 @@ fn test_eval_trait_evidence_propagation() {
         None,
     );
 
-    let result = eval_trait("exec/process/spawn", &ctx);
+    let result = eval_trait("execution/process/spawn", &ctx);
     assert!(result.matched);
     assert_eq!(result.evidence.len(), 2);
 }

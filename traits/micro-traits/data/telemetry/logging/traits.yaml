@@ -1,0 +1,57 @@
+# Telemetry and User Activity Tracking
+
+defaults:
+  for: [all]
+
+traits:
+  # === Avast Specific Indicators ===
+  - id: avast-burger-lib
+    desc: Avast "Burger" telemetry library
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: "BurgerClientFactory|BurgerClient"
+
+  - id: avast-analytics-endpoint
+    desc: Avast analytics exfiltration endpoint
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: "analytics\\.ff\\.avast\\.com"
+
+  # === Generic Telemetry Patterns ===
+  - id: telemetry-send
+    desc: Generic telemetry/analytics send message
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "analytics\\.send|telemetry\\.send|track\\.event"
+
+  - id: hardware-id-context
+    desc: Hardware/Unique ID in telemetry context
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: "hwid|guid|localAppHWID"
+
+composite_rules:
+  - id: avast-telemetry
+    desc: Avast analytics exfiltration capability
+    crit: suspicious
+    conf: 0.95
+    any:
+      - id: avast-burger-lib
+      - id: avast-analytics-endpoint
+
+  - id: general-telemetry
+    desc: General telemetry or tracking capability
+    crit: notable
+    conf: 0.8
+    all:
+      - id: telemetry-send
+      - id: hardware-id-context

@@ -1,0 +1,11 @@
+composite_rules:
+  - id: python-botnet-polling
+    desc: Python script polling HTTP (Botnet behavior)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1071.001"
+    mbc: "B0030"
+    all:
+      - id: micro-traits/data/control-flow/analysis::iteration-loop-pattern
+      - id: micro-traits/comm/http/request::request-python
+      - id: micro-traits/data/text/keywords/malware::c2-polling-params

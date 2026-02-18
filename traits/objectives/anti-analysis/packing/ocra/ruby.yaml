@@ -1,0 +1,10 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: ocra-packed-executable
+    desc: Detects artifacts of OCRA (One-Click Ruby Application)
+    crit: notable
+    if:
+      type: string
+      regex: "OCRA_EXECUTABLE|ocrastub"

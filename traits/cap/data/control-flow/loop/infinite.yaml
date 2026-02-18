@@ -1,7 +1,0 @@
-traits:
-  - id: infinite-loop-header
-    desc: Infinite loop structure (e.g. for(;;) or while(1))
-    crit: inert
-    if:
-      type: raw
-      regex: 'for\s*\(\s*;\s*;\s*\)|while\s*\(\s*(1|true)\s*\)'

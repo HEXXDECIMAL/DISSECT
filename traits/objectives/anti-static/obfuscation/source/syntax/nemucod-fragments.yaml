@@ -1,0 +1,20 @@
+traits:
+- id: nemucod-wsh-fragments
+  desc: Variable assignment of known Nemucod WSH fragments
+  crit: suspicious
+  for:
+  - javascript
+  if:
+    type: string
+    case_insensitive: false
+    regex: var\s+[a-zA-Z0-9_]+\s*=\s*"Fil";|var\s+[a-zA-Z0-9_]+\s*=\s*"eTo";|var\s+[a-zA-Z0-9_]+\s*=\s*"Sav";|var\s+[a-zA-Z0-9_]+\s*=\s*"ADOD";|var\s+[a-zA-Z0-9_]+\s*=\s*"DODB";|var\s+[a-zA-Z0-9_]+\s*=\s*"onseB";|var\s+[a-zA-Z0-9_]+\s*=\s*"nseB";|var\s+[a-zA-Z0-9_]+\s*=\s*"espo";|var\s+[a-zA-Z0-9_]+\s*=\s*"ect";|var\s+[a-zA-Z0-9_]+\s*=\s*"rea";|var\s+[a-zA-Z0-9_]+\s*=\s*"Obj";|var\s+[a-zA-Z0-9_]+\s*=\s*"eObj";|var\s+[a-zA-Z0-9_]+\s*=\s*"WScr";|var\s+[a-zA-Z0-9_]+\s*=\s*"ipt";|var\s+[a-zA-Z0-9_]+\s*=\s*"Sle";|var\s+[a-zA-Z0-9_]+\s*=\s*"ep";|var\s+[a-zA-Z0-9_]+\s*=\s*"eam";|var\s+[a-zA-Z0-9_]+\s*=\s*"re";|var\s+[a-zA-Z0-9_]+\s*=\s*"nd";|var\s+[a-zA-Z0-9_]+\s*=\s*"tr";|var\s+[a-zA-Z0-9_]+\s*=\s*"B\.S";|var\s+[a-zA-Z0-9_]+\s*=\s*"Expan";|var\s+[a-zA-Z0-9_]+\s*=\s*"dEnvi";|var\s+[a-zA-Z0-9_]+\s*=\s*"onmen";|var\s+[a-zA-Z0-9_]+\s*=\s*"rings";|var\s+[a-zA-Z0-9_]+\s*=\s*"St";|var\s+[a-zA-Z0-9_]+\s*=\s*"ML2\.X";|var\s+[a-zA-Z0-9_]+\s*=\s*"HTTP";|var\s+[a-zA-Z0-9_]+\s*=\s*"Shell";|var\s+[a-zA-Z0-9_]+\s*=\s*"Run";|var\s+[a-zA-Z0-9_]+\s*=\s*"getMi";|var\s+[a-zA-Z0-9_]+\s*=\s*"lise";|var\s+[a-zA-Z0-9_]+\s*=\s*"conds";|var\s+[a-zA-Z0-9_]+\s*=\s*"liseconds";|var\s+[a-zA-Z0-9_]+\s*=\s*"getM";|var\s+[a-zA-Z0-9_]+\s*=\s*"Da";|var\s+[a-zA-Z0-9_]+\s*=\s*"te";|var\s+[a-zA-Z0-9_]+\s*=\s*"Dat";|var\s+[a-zA-Z0-9_]+\s*=\s*"TEMP%";
+- id: nemucod-network-fragments
+  desc: Variable assignment of known Nemucod network fragments
+  crit: suspicious
+  for:
+  - javascript
+  if:
+    type: string
+    case_insensitive: false
+    regex: var\s+[a-zA-Z0-9_]+\s*=\s*"op";|var\s+[a-zA-Z0-9_]+\s*=\s*"en";|var\s+[a-zA-Z0-9_]+\s*=\s*"se";|var\s+[a-zA-Z0-9_]+\s*=\s*"nd";|var\s+[a-zA-Z0-9_]+\s*=\s*"GET";|var\s+[a-zA-Z0-9_]+\s*=\s*"POST";|var\s+[a-zA-Z0-9_]+\s*=\s*"http";|var\s+[a-zA-Z0-9_]+\s*=\s*"https";|var\s+[a-zA-Z0-9_]+\s*=\s*"hard";|var\s+[a-zA-Z0-9_]+\s*=\s*"acc";|var\s+[a-zA-Z0-9_]+\s*=\s*"ou";|var\s+[a-zA-Z0-9_]+\s*=\s*"ntan";|var\s+[a-zA-Z0-9_]+\s*=\s*"ts\.co";|var\s+[a-zA-Z0-9_]+\s*=\s*"\.uk";|var\s+[a-zA-Z0-9_]+\s*=\s*"qw4";|var\s+[a-zA-Z0-9_]+\s*=\s*"opd";|var\s+[a-zA-Z0-9_]+\s*=\s*"hara";|var\s+[a-zA-Z0-9_]+\s*=\s*"ccoun";|var\s+[a-zA-Z0-9_]+\s*=\s*"ants";|var\s+[a-zA-Z0-9_]+\s*=\s*"co\.uk";|var\s+[a-zA-Z0-9_]+\s*=\s*"qw4o";|var\s+[a-zA-Z0-9_]+\s*=\s*"pd";
+composite_rules: []

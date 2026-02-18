@@ -201,7 +201,7 @@ pub struct StringInfo {
 // Re-export stng's StringKind as StringType for compatibility
 // DISSECT-specific source code types (Literal, Comment, Docstring) map to stng::StringKind::Const
 // StackString is detected via StringMethod, not as a separate kind
-pub(crate) use stng::StringKind as StringType;
+pub use stng::StringKind as StringType;
 
 /// A binary section (ELF, Mach-O, or PE segment)
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -206,7 +206,7 @@ impl YaraEngine {
                 serde_yaml::Value::Mapping(m) => m
                     .get("traits")
                     .and_then(|v| v.as_sequence())
-                    .map(|s| s.as_slice()),
+                    .map(Vec::as_slice),
                 serde_yaml::Value::Sequence(s) => Some(s.as_slice()),
                 _ => None,
             };
@@ -345,8 +345,8 @@ impl YaraEngine {
             }
 
             // Regular match: build YaraMatch
-            let yara_match = self.build_yara_match(raw.name, raw.namespace, raw.tags,
-                raw.metadata, raw.patterns, data, file_type_filter);
+            let yara_match = self.build_yara_match(raw.name, raw.namespace, &raw.tags,
+                &raw.metadata, &raw.patterns, data, file_type_filter);
             if let Some(m) = yara_match {
                 yara_matches.push(m);
             }
@@ -603,9 +603,9 @@ impl YaraEngine {
         &self,
         rule_name: String,
         namespace: String,
-        tags: Vec<String>,
-        metadata: Vec<(String, String)>,
-        patterns: Vec<(String, Vec<(usize, usize)>)>,
+        tags: &[String],
+        metadata: &[(String, String)],
+        patterns: &[(String, Vec<(usize, usize)>)],
         data: &[u8],
         file_type_filter: Option<&[&str]>,
     ) -> Option<YaraMatch> {
@@ -617,7 +617,7 @@ impl YaraEngine {
         let mut rule_filetypes: Vec<String> = Vec::new();
         let mut os_meta: Option<String> = None;
 
-        for tag_name in &tags {
+        for tag_name in tags {
             if matches!(tag_name.as_str(), "none" | "low" | "medium" | "high") {
                 severity = tag_name.clone();
                 break;
@@ -629,7 +629,7 @@ impl YaraEngine {
             severity = "medium".to_string();
         }
 
-        for (key, value_str) in &metadata {
+        for (key, value_str) in metadata {
             let value_str = if value_str.starts_with("String(\"") && value_str.ends_with("\")") {
                 value_str[8..value_str.len() - 2].to_string()
             } else {
@@ -683,7 +683,7 @@ impl YaraEngine {
         }
 
         let mut matched_strings = Vec::new();
-        for (pattern_id, ranges) in &patterns {
+        for (pattern_id, ranges) in patterns {
             for (start, end) in ranges {
                 let match_len = end - start;
                 let value = if match_len <= 100 {
@@ -772,12 +772,12 @@ impl YaraEngine {
     #[must_use] 
     pub(crate) fn namespace_to_capability(&self, namespace: &str) -> Option<String> {
         // YARA namespace format: exec.cmd, anti-static.obfuscation, etc.
-        // Convert to capability ID: exec/command, anti-analysis/obfuscation
+        // Convert to capability ID: execution/command, anti-analysis/obfuscation
         let parts: Vec<&str> = namespace.split('.').collect();
 
         match parts.as_slice() {
-            ["exec", "cmd"] | ["exec", "shell"] => Some("exec/command/shell".to_string()),
-            ["exec", "program"] => Some("exec/command/direct".to_string()),
+            ["exec", "cmd"] | ["exec", "shell"] => Some("execution/command/shell".to_string()),
+            ["exec", "program"] => Some("execution/command/direct".to_string()),
             ["net", sub] => Some(format!("net/{}", sub)),
             ["crypto", sub] => Some(format!("crypto/{}", sub)),
             ["fs", sub] => Some(format!("fs/{}", sub)),
@@ -1003,7 +1003,7 @@ rule test_rule {
     #[test]
     fn test_extract_namespace_with_prefix() {
         let engine = YaraEngine::new();
-        let path = Path::new("/path/to/traits/exec/shell/test.yar");
+        let path = Path::new("/path/to/traits/execution/shell/test.yar");
         let namespace = engine.extract_namespace_with_prefix(path, "traits");
         assert_eq!(namespace, "traits.exec.shell");
     }

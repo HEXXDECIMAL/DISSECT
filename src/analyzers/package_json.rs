@@ -56,7 +56,7 @@ enum Repository {
 }
 
 impl PackageJsonAnalyzer {
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
@@ -64,14 +64,14 @@ impl PackageJsonAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
@@ -187,7 +187,7 @@ impl PackageJsonAnalyzer {
             {
                 report.add_finding(
                     Finding::capability(
-                        "exec/command/shell".to_string(),
+                        "execution/command/shell".to_string(),
                         format!("Script '{}' executes shell commands", name),
                         0.8,
                     )
@@ -253,7 +253,7 @@ impl PackageJsonAnalyzer {
             {
                 report.add_finding(
                     Finding::indicator(
-                        "exfil/http-post".to_string(),
+                        "exfiltration/http-post".to_string(),
                         format!("Script '{}' sends data via HTTP POST", name),
                         0.9,
                     )
@@ -272,7 +272,7 @@ impl PackageJsonAnalyzer {
             if script.contains("curl") && script.contains("@/") {
                 report.add_finding(
                     Finding::indicator(
-                        "exfil/file-upload".to_string(),
+                        "exfiltration/file-upload".to_string(),
                         format!("Script '{}' uploads local file via curl", name),
                         0.95,
                     )
@@ -289,11 +289,11 @@ impl PackageJsonAnalyzer {
 
             // Check for script interpreter execution (perl, python, ruby, etc.)
             let interpreters = [
-                ("perl ", "exec/script/perl"),
-                ("python ", "exec/script/python"),
-                ("python3 ", "exec/script/python"),
-                ("ruby ", "exec/script/ruby"),
-                ("node ", "exec/script/node"),
+                ("perl ", "execution/script/perl"),
+                ("python ", "execution/script/python"),
+                ("python3 ", "execution/script/python"),
+                ("ruby ", "execution/script/ruby"),
+                ("node ", "execution/script/node"),
             ];
             for (interp, finding_id) in interpreters {
                 if script.contains(interp) {
@@ -327,7 +327,7 @@ impl PackageJsonAnalyzer {
             {
                 report.add_finding(
                     Finding::indicator(
-                        "c2/dropper/download-execute".to_string(),
+                        "command-and-control/dropper/download-execute".to_string(),
                         format!(
                             "Script '{}' downloads and executes code (dropper pattern)",
                             name
@@ -354,7 +354,7 @@ impl PackageJsonAnalyzer {
             {
                 report.add_finding(
                     Finding::indicator(
-                        "c2/dropper/pipe-execute".to_string(),
+                        "command-and-control/dropper/pipe-execute".to_string(),
                         format!("Script '{}' pipes content to interpreter", name),
                         0.95,
                     )
@@ -401,7 +401,7 @@ impl PackageJsonAnalyzer {
             if script.contains(".php") {
                 report.add_finding(
                     Finding::indicator(
-                        "c2/endpoint/php".to_string(),
+                        "command-and-control/endpoint/php".to_string(),
                         format!(
                             "Script '{}' contacts PHP endpoint (common C2 pattern)",
                             name
@@ -424,7 +424,7 @@ impl PackageJsonAnalyzer {
                 if self.is_suspicious_domain(&url) {
                     report.add_finding(
                         Finding::indicator(
-                            "c2/suspicious-domain".to_string(),
+                            "command-and-control/suspicious-domain".to_string(),
                             format!("Script '{}' contacts suspicious domain: {}", name, url),
                             0.8,
                         )

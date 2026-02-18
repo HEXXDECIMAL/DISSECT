@@ -1,8 +1,0 @@
-traits:
-  - id: excessive-vscrollbar
-    desc: Excessive VScrollBar controls for UI deception.
-    crit: suspicious
-    if:
-      type: string
-      regex: "VScrollBar\\d+"
-      count_min: 10

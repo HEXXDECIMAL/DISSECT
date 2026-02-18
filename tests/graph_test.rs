@@ -65,10 +65,10 @@ fn test_graph_namespace_filter() {
 
     let stdout = String::from_utf8(output.get_output().stdout.clone()).unwrap();
 
-    // Should contain obj/ and known/ nodes
-    assert!(stdout.contains("obj/") || stdout.contains("known/"));
+    // Should contain objectives/ and known/ nodes
+    assert!(stdout.contains("objectives/") || stdout.contains("known/"));
 
-    // Should NOT contain cap/ or meta/ nodes (they are filtered out)
+    // Should NOT contain micro-behaviors/ or metadata/ nodes (they are filtered out)
     // Note: There might be no nodes if there are no cross-references between obj and known
     // at the specified depth and min-refs, so we just verify the graph structure exists
     assert!(stdout.contains("digraph trait_dependencies"));
@@ -165,10 +165,10 @@ fn test_graph_color_encoding() {
     );
 
     // Should contain outline colors for namespaces
-    let has_cap_outline = stdout.contains("#228B22"); // cap/ - green
-    let has_obj_outline = stdout.contains("#DC143C"); // obj/ - red
+    let has_cap_outline = stdout.contains("#228B22"); // micro-behaviors/ - green
+    let has_obj_outline = stdout.contains("#DC143C"); // objectives/ - red
     let has_known_outline = stdout.contains("#8B008B"); // known/ - purple
-    let has_meta_outline = stdout.contains("#696969"); // meta/ - gray
+    let has_meta_outline = stdout.contains("#696969"); // metadata/ - gray
 
     // Should have at least one namespace outline color
     assert!(

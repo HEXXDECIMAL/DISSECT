@@ -1,0 +1,46 @@
+defaults:
+  for:
+  - all
+traits:
+- id: package-mgmt
+  desc: Package management utilities
+  crit: notable
+  conf: 0.9
+  if:
+    type: yara
+    source: "rule package_management {\n  strings:\n    // Debian/Ubuntu - require\
+      \ command context, not file extensions\n    $apt1 = \"apt-get\" ascii\n    $apt2\
+      \ = /apt (install|remove|update|upgrade|purge|search|list|show)/ ascii\n   \
+      \ $apt3 = /dpkg (-|--|\\s+-)/ ascii\n    // Red Hat/CentOS\n    $yum1 = /yum\
+      \ (install|remove|update|search|list)/ ascii\n    $yum2 = /dnf (install|remove|update|search|list)/\
+      \ ascii\n    $rpm1 = /rpm (-|--|\\s+-)/ ascii\n    // Generic\n    $pkg1 = /pkg\
+      \ (install|delete|add|remove)/ ascii\n    $pkg2 = /pacman (-S|-R|-Q|-U)/ ascii\n\
+      \    $pkg3 = \"zypper\" ascii\n  condition:\n    any of them\n}\n"
+- id: config
+  desc: System configuration utilities
+  crit: notable
+  conf: 0.9
+  if:
+    type: yara
+    source: "rule sysadmin_config {\n  strings:\n    // Service management\n    $svc1\
+      \ = \"systemctl\" ascii\n    $svc2 = /service\\s+[a-zA-Z0-9_\\-]+\\s+(start|stop|restart|status|reload)/\
+      \ ascii\n    $svc3 = \"chkconfig\" ascii\n    // User management\n    $usr1\
+      \ = \"useradd\" ascii\n    $usr2 = \"usermod\" ascii\n    $usr3 = \"passwd\"\
+      \ ascii\n    // Network config\n    $net1 = \"nmcli\" ascii\n    $net2 = \"\
+      netplan\" ascii\n    $net3 = \"ip addr\" ascii\n  condition:\n    any of them\n\
+      }\n"
+- id: monitoring
+  desc: System monitoring utilities
+  crit: inert
+  conf: 0.9
+  if:
+    type: string
+    regex: /usr/bin/(?:htop|atop|iotop|iftop|vmstat|iostat|mpstat|sar|lscpu|lsmem|lsblk)|\b(?:htop|atop|iotop|iftop|vmstat|iostat|mpstat|lscpu|lsmem|lsblk)\s+-
+- id: logs
+  desc: Log analysis utilities
+  crit: inert
+  conf: 0.9
+  if:
+    type: string
+    regex: /usr/bin/(?:journalctl|dmesg|multitail)|\bjournalctl\s+-|\btail\s+-f\s+/var/log|/var/log/(?:syslog|messages|auth\.log)
+composite_rules: []

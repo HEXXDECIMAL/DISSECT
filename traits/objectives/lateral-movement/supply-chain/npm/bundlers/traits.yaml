@@ -1,0 +1,92 @@
+traits:
+- id: webpack-bundled
+  desc: Code bundled with webpack (legitimate
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  if:
+    type: string
+    regex: __webpack_require__|webpackChunk|__webpack_modules__
+- id: rollup-bundled
+  desc: Code bundled with rollup (legitimate
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  if:
+    type: string
+    regex: _interopDefaultLegacy|_interopNamespace|rollupPluginBabel
+- id: esbuild-bundled
+  desc: Code bundled with esbuild (legitimate
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  if:
+    type: string
+    regex: __toESM|__toCommonJS|__export|__copyProps
+- id: parcel-bundled
+  desc: Code bundled with Parcel (legitimate
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  if:
+    type: string
+    regex: parcelRequire|__parcel__
+- id: vite-bundled
+  desc: Code bundled with Vite (legitimate
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  if:
+    type: string
+    regex: __vite__|import\\.meta\\.hot
+- id: typescript-compiled
+  desc: Code compiled from TypeScript
+  crit: notable
+  conf: 0.9
+  for:
+  - javascript
+  if:
+    type: string
+    regex: Object\\.defineProperty.exports|tslib
+- id: babel-transpiled
+  desc: Code transpiled with Babel
+  crit: notable
+  conf: 0.9
+  for:
+  - javascript
+  if:
+    type: string
+    regex: _classCallCheck|_defineProperty|_objectSpread|@babel/runtime
+- id: has-sourcemap
+  desc: Code has source map reference
+  crit: notable
+  conf: 0.9
+  for:
+  - javascript
+  if:
+    type: string
+    regex: //# sourceMappingURL=|//@ sourceMappingURL=
+- id: cjs2-export
+  desc: CommonJS2 module export pattern
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  if:
+    type: string
+    regex: module\\.exports\\.default|exports\\.default\\s*=
+- id: umd-pattern
+  desc: Universal Module Definition pattern
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  if:
+    type: string
+    regex: typeof exports.{0,30}===.{0,30}object.{0,30}&&.{0,30}typeof module.{0,30}!==.{0,30}undefined|function.{0,10}root,.{0,10}factory
+composite_rules: []

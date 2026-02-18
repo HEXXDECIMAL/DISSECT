@@ -1,8 +1,0 @@
-traits:
-  - id: enabledelayedexpansion
-    crit: notable
-    desc: 'Batch uses "setlocal enabledelayedexpansion".'
-    if:
-      type: string
-      exact: 'setlocal enabledelayedexpansion'
-

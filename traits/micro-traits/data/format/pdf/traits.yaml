@@ -1,0 +1,11 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: read
+    desc: Reads/Processes PDF files
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "fitz|PyPDF2|pdfminer"

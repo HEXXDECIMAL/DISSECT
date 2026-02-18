@@ -1,0 +1,206 @@
+defaults:
+  crit: notable
+  conf: 1.0
+  for:
+  - all
+traits:
+- id: inline__telnet-combo__any_1
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:root\b
+- id: inline__telnet-combo__any_2
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:admin\b
+- id: inline__telnet-combo__any_3
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:1234\b
+- id: inline__telnet-combo__any_4
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:pass\b
+- id: inline__telnet-combo__any_5
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:default\b
+- id: inline__telnet-combo__any_6
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:qwerty\b
+- id: inline__telnet-combo__any_7
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:letmein\b
+- id: inline__telnet-combo__any_8
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \broot:[a-zA-Z0-9]{4,8}\b
+- id: inline__telnet-combo__any_9
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:root\b
+- id: inline__telnet-combo__any_10
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:admin\b
+- id: inline__telnet-combo__any_11
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:1234\b
+- id: inline__telnet-combo__any_12
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:pass\b
+- id: inline__telnet-combo__any_13
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:default\b
+- id: inline__telnet-combo__any_14
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:qwerty\b
+- id: inline__telnet-combo__any_15
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:letmein\b
+- id: inline__telnet-combo__any_16
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \badmin:[a-zA-Z0-9]{4,8}\b
+- id: inline__telnet-combo__any_17
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:root\b
+- id: inline__telnet-combo__any_18
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:admin\b
+- id: inline__telnet-combo__any_19
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:1234\b
+- id: inline__telnet-combo__any_20
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:pass\b
+- id: inline__telnet-combo__any_21
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:default\b
+- id: inline__telnet-combo__any_22
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:qwerty\b
+- id: inline__telnet-combo__any_23
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:letmein\b
+- id: inline__telnet-combo__any_24
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \buser:[a-zA-Z0-9]{4,8}\b
+- id: inline__telnet-combo__any_25
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:root\b
+- id: inline__telnet-combo__any_26
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:admin\b
+- id: inline__telnet-combo__any_27
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:1234\b
+- id: inline__telnet-combo__any_28
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:pass\b
+- id: inline__telnet-combo__any_29
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:default\b
+- id: inline__telnet-combo__any_30
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:qwerty\b
+- id: inline__telnet-combo__any_31
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:letmein\b
+- id: inline__telnet-combo__any_32
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bguest:[a-zA-Z0-9]{4,8}\b
+- id: inline__telnet-combo__any_33
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:root\b
+- id: inline__telnet-combo__any_34
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:admin\b
+- id: inline__telnet-combo__any_35
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:1234\b
+- id: inline__telnet-combo__any_36
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:pass\b
+- id: inline__telnet-combo__any_37
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:default\b
+- id: inline__telnet-combo__any_38
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:qwerty\b
+- id: inline__telnet-combo__any_39
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:letmein\b
+- id: inline__telnet-combo__any_40
+  desc: Derived string condition
+  if:
+    type: string
+    regex: \bsupport:[a-zA-Z0-9]{4,8}\b

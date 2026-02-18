@@ -1,0 +1,17 @@
+traits:
+- id: format-string-injection
+  desc: Format string with user input
+  crit: suspicious
+  conf: 0.8
+  mbc: E1059
+  attack: T1059
+  platforms:
+  - unix
+  - linux
+  - macos
+  for:
+  - c
+  if:
+    type: raw
+    regex: (?:snprintf|sprintf)[\s\S]{0,50}%s[\s\S]{0,50}(?:system\s*\(|popen\s*\(|execl\s*\(|execv\s*\(|/bin/sh|sh\s+-c|cmd\.exe)
+composite_rules: []

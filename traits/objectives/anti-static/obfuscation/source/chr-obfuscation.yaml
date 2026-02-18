@@ -1,0 +1,14 @@
+defaults:
+  for:
+  - all
+traits:
+- id: python-chr-bitwise-construction
+  desc: Python 'chr' construction using oct/hex/copyright strings
+  mbc: E1014
+  attack: T1027
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    regex: getattr\(__builtins__,\s*oct\.__str__\(\)\[-3\s*<<\s*0\]\s*\+\s*hex\.__str__\(\)\[-1\s*<<\s*2\]\s*\+\s*copyright\.__str__\(\)\[4\s*<<\s*0\]\)
+composite_rules: []

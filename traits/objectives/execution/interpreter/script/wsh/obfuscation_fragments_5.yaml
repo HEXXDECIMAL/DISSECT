@@ -1,0 +1,65 @@
+# Exact Tiny Obfuscated WSH Fragments (Variant 5)
+# Detects exact tiny string constants used in fragmented obfuscation.
+# High precision due to exact match requirement.
+
+defaults:
+  crit: suspicious
+  conf: 0.9
+  for: [javascript]
+
+traits:
+  - id: adodb-fragment-tiny-exact
+    desc: Exact tiny ADODB fragments (AD, OD, DB,
+    crit: notable
+    if:
+      type: string
+      regex: '^(AD|OD|DB\.St)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: xmlhttp-fragment-tiny-exact
+    desc: Exact tiny XMLHTTP fragments (XMLH, XML2., MS)
+    crit: notable
+    if:
+      type: string
+      regex: '^(XMLH|XML2\.|MS|TTP)$'
+    unless:
+      - id: metadata/library/jquery::domain
+      - id: metadata/quality/help::usage-title
+
+  - id: readystate-fragment-tiny-exact
+    desc: Exact tiny readyState fragments (rea, dy, tate)
+    crit: notable
+    if:
+      type: string
+      regex: '^(rea|dy|tate)$'
+    unless:
+      - id: metadata/library/jquery::domain
+      - id: metadata/quality/help::usage-title
+
+  - id: wscript-shell-fragment-tiny-exact
+    desc: Exact tiny WScript fragments (WScr, ipt., She,
+    crit: notable
+    if:
+      type: string
+      regex: '^(WScr|ipt\.|She|ll)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: timing-fragment-tiny-exact
+    desc: Exact tiny timing/delay fragments (Sl, eep, Date,
+    crit: notable
+    if:
+      type: string
+      regex: '^(Sl|eep|Date|Mill|illi|onds)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: payload-handling-fragment-tiny-exact
+    desc: Exact tiny payload handling fragments (ResponseBody, SaveToFile,
+    crit: notable
+    if:
+      type: string
+      regex: '^(Respo|nseBo|dy|saveT|oFile|eToF|Expa|ndEn|viron|mentS|tring|onse|Bod|dEnvi|ronme|tStrin|teObje|eObjec|oFil|onseB)$'
+    unless:
+      - id: metadata/quality/help::usage-title

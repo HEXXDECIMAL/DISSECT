@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "cap/comm/http/post::enctype-attr",
+      "id": "micro-behaviors/comm/http/post::enctype-attr",
       "kind": "capability",
       "desc": "enctype attribute",
       "conf": 0.6,
@@ -28,10 +28,10 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
     },
     {
-      "id": "cap/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/comm/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -44,10 +44,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
     },
     {
-      "id": "cap/data/text/keywords::buffer",
+      "id": "micro-behaviors/data/text/keywords::buffer",
       "kind": "capability",
       "desc": "buffer keyword",
       "conf": 0.2,
@@ -72,10 +72,10 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/pypi/pyproject::pyproject-empty-dependencies",
+      "id": "objectives/lateral-movement/supply-chain/pypi/pyproject::pyproject-empty-dependencies",
       "kind": "capability",
       "desc": "pyproject.toml with empty dependencies",
       "conf": 0.7,
@@ -90,10 +90,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/pypi/pyproject/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/pypi/pyproject/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::for-loop-content",
+      "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
       "kind": "capability",
       "desc": "for loop (content)",
       "conf": 0.3,
@@ -106,10 +106,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/os/admin/sysadmin::config",
+      "id": "micro-behaviors/os/admin/sysadmin::config",
       "kind": "capability",
       "desc": "System configuration utilities",
       "conf": 0.9,
@@ -212,7 +212,7 @@
           "location": "offset:2133363"
         }
       ],
-      "source_file": "cap/os/admin/sysadmin/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/sysadmin/traits.yaml"
     },
     {
       "id": "meta/quality/logging::logger-lower",
@@ -267,7 +267,7 @@
       "source_file": "meta/quality/logging/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::offset",
+      "id": "micro-behaviors/data/text/keywords::offset",
       "kind": "capability",
       "desc": "offset keyword",
       "conf": 0.2,
@@ -280,7 +280,7 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
       "id": "meta/quality/help::options-title",
@@ -321,7 +321,7 @@
       "source_file": "meta/format/json/traits.yaml"
     },
     {
-      "id": "cap/comm/http/upload::form-data-new",
+      "id": "micro-behaviors/comm/http/upload::form-data-new",
       "kind": "capability",
       "desc": "Creates FormData object",
       "conf": 0.6,
@@ -334,10 +334,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::ip-address-camel",
+      "id": "objectives/discovery/host/geo::ip-address-camel",
       "kind": "capability",
       "desc": "ipAddress field (camelCase)",
       "conf": 0.4,
@@ -357,10 +357,10 @@
           "location": "0x1654"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "cap/data/text/keywords::runtime",
+      "id": "micro-behaviors/data/text/keywords::runtime",
       "kind": "capability",
       "desc": "runtime keyword",
       "conf": 0.2,
@@ -403,10 +403,10 @@
           "location": "0xb49e"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/fs/path/sensitive/crypto::crypto-wallets",
+      "id": "micro-behaviors/fs/path/sensitive/crypto::crypto-wallets",
       "kind": "capability",
       "desc": "Reference to cryptocurrency wallet data",
       "conf": 0.8,
@@ -497,7 +497,7 @@
           "location": "0xb288"
         }
       ],
-      "source_file": "cap/fs/path/sensitive/crypto/macos.yaml"
+      "source_file": "micro-behaviors/fs/path/sensitive/crypto/macos.yaml"
     },
     {
       "id": "known/malware/trojan::powersuite-credits-text-3",
@@ -516,7 +516,7 @@
       "source_file": "known/malware/trojan/powersuite.yaml"
     },
     {
-      "id": "cap/data/text/keywords::token",
+      "id": "micro-behaviors/data/text/keywords::token",
       "kind": "capability",
       "desc": "token keyword",
       "conf": 0.2,
@@ -595,10 +595,10 @@
           "location": "0xaf08"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/comm/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -611,7 +611,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
     },
     {
       "id": "meta/quality/metrics::metrics-word-lower",
@@ -648,7 +648,7 @@
       "source_file": "meta/quality/metrics/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::connect",
+      "id": "micro-behaviors/data/text/keywords::connect",
       "kind": "capability",
       "desc": "connect keyword",
       "conf": 0.2,
@@ -667,7 +667,7 @@
           "location": "0xd4d5"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
       "id": "meta/builder/npm::node-modules",
@@ -8012,7 +8012,7 @@
       "source_file": "meta/builder/npm/traits.yaml"
     },
     {
-      "id": "cap/fs/path/device::dev-path-pattern",
+      "id": "micro-behaviors/fs/path/device::dev-path-pattern",
       "kind": "capability",
       "desc": "/dev/ device path pattern",
       "conf": 0.7,
@@ -8033,10 +8033,10 @@
           "location": "0x4844"
         }
       ],
-      "source_file": "cap/fs/path/device/linux.yaml"
+      "source_file": "micro-behaviors/fs/path/device/linux.yaml"
     },
     {
-      "id": "obj/impact/services/stop::word-bitcoin",
+      "id": "objectives/impact/services/stop::word-bitcoin",
       "kind": "capability",
       "desc": "Bitcoin keyword",
       "conf": 0.4,
@@ -8092,10 +8092,10 @@
           "location": "0xb15f"
         }
       ],
-      "source_file": "obj/impact/services/stop/traits.yaml"
+      "source_file": "objectives/impact/services/stop/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::history-file",
+      "id": "objectives/discovery/host/browser::history-file",
       "kind": "capability",
       "desc": "History file reference",
       "conf": 0.5,
@@ -8115,10 +8115,10 @@
           "location": "0x1b99"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/fs/volume/mount::mount-keyword",
+      "id": "micro-behaviors/fs/volume/mount::mount-keyword",
       "kind": "capability",
       "desc": "mount command keyword",
       "conf": 0.6,
@@ -8133,10 +8133,10 @@
           "location": "0xe2d6"
         }
       ],
-      "source_file": "cap/fs/volume/mount/shell.yaml"
+      "source_file": "micro-behaviors/fs/volume/mount/shell.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::hardcoded-domain-com",
+      "id": "objectives/command-and-control/infrastructure/domain::hardcoded-domain-com",
       "kind": "capability",
       "desc": "Hardcoded .com/.org/.net domain (excluding known vendors)",
       "conf": 0.7,
@@ -8151,7 +8151,7 @@
           "location": "0xb7b9"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
       "id": "meta/quality/versioning::version-word-lower",
@@ -8194,7 +8194,7 @@
       "source_file": "meta/quality/versioning/traits.yaml"
     },
     {
-      "id": "cap/data/text/keywords::overflow",
+      "id": "micro-behaviors/data/text/keywords::overflow",
       "kind": "capability",
       "desc": "overflow keyword",
       "conf": 0.2,
@@ -8213,10 +8213,10 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "cap/data/text/keywords/generic.yaml"
+      "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "cap/os/admin/observability::opentelemetry",
+      "id": "micro-behaviors/os/admin/observability::opentelemetry",
       "kind": "capability",
       "desc": "OpenTelemetry instrumentation",
       "conf": 0.9,
@@ -8241,7 +8241,7 @@
           "location": "offset:1266033"
         }
       ],
-      "source_file": "cap/os/admin/observability/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/observability/traits.yaml"
     },
     {
       "id": "meta/lang/compiler::clang-string",
@@ -8260,7 +8260,7 @@
       "source_file": "meta/lang/compiler/traits.yaml"
     },
     {
-      "id": "cap/os/admin/observability::prometheus",
+      "id": "micro-behaviors/os/admin/observability::prometheus",
       "kind": "capability",
       "desc": "Prometheus monitoring stack",
       "conf": 0.9,
@@ -8423,10 +8423,10 @@
           "location": "offset:3507364"
         }
       ],
-      "source_file": "cap/os/admin/observability/traits.yaml"
+      "source_file": "micro-behaviors/os/admin/observability/traits.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json-stringify-js",
+      "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
       "kind": "capability",
       "desc": "JavaScript JSON.stringify",
       "conf": 0.85,
@@ -8445,7 +8445,7 @@
           "location": "0xc7a2"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
       "id": "known/malware/rat/cobalt-strike::system-binary-exclusion",
@@ -8464,7 +8464,7 @@
       "source_file": "known/malware/rat/cobalt-strike/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::call-cmd",
+      "id": "micro-behaviors/execution/dropper/script::call-cmd",
       "kind": "capability",
       "desc": "call command",
       "conf": 0.4,
@@ -8477,7 +8477,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
       "id": "known/malware/backdoor/upstyle::panos-lower",
@@ -8496,7 +8496,7 @@
       "source_file": "known/malware/backdoor/upstyle/traits.yaml"
     },
     {
-      "id": "obj/lateral/scan/port::script-probes-port",
+      "id": "objectives/lateral-movement/scan/port::script-probes-port",
       "kind": "capability",
       "desc": "Shell script probes specific port",
       "conf": 0.75,
@@ -8511,10 +8511,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/lateral/scan/port/shell.yaml"
+      "source_file": "objectives/lateral-movement/scan/port/shell.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
       "kind": "capability",
       "desc": "Very low comment-to-code ratio (<1%)",
       "conf": 0.65,
@@ -8528,10 +8528,10 @@
           "value": "comments.to_code_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
+      "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::low-identifier-reuse",
       "kind": "capability",
       "desc": "Low identifier reuse (each variable",
       "conf": 0.7,
@@ -8545,10 +8545,10 @@
           "value": "identifiers.reuse_ratio = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/identifiers/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::start-cmd",
+      "id": "micro-behaviors/execution/dropper/script::start-cmd",
       "kind": "capability",
       "desc": "start command",
       "conf": 0.5,
@@ -8561,10 +8561,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "obj/c2/infrastructure/domain::http-url-script",
+      "id": "objectives/command-and-control/infrastructure/domain::http-url-script",
       "kind": "capability",
       "desc": "Network URL with domain name (script)",
       "conf": 0.7,
@@ -8579,10 +8579,10 @@
           "location": "0xb7b9"
         }
       ],
-      "source_file": "obj/c2/infrastructure/domain/traits.yaml"
+      "source_file": "objectives/command-and-control/infrastructure/domain/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::no-comments",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::no-comments",
       "kind": "capability",
       "desc": "No comments in code (stripped",
       "conf": 0.6,
@@ -8596,10 +8596,10 @@
           "value": "comments.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics/structure::very-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-long-lines",
       "kind": "capability",
       "desc": "Very long lines (>1000 chars)",
       "conf": 0.85,
@@ -8613,10 +8613,10 @@
           "value": "text.max_line_length = 4848775.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/structure/traits.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::done-marker",
+      "id": "micro-behaviors/execution/dropper/script::done-marker",
       "kind": "capability",
       "desc": "Execution marker file (run-once pattern)",
       "conf": 0.75,
@@ -8629,7 +8629,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
       "id": "meta/lang::ps-valid",
@@ -8670,7 +8670,7 @@
       "source_file": "known/malware/miner/kinsing-enhanced/malware-elimination.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::sh-no-functions",
+      "id": "objectives/anti-static/obfuscation/code-metrics::sh-no-functions",
       "kind": "capability",
       "desc": "No shell functions (inline obfuscation)",
       "conf": 0.6,
@@ -8684,10 +8684,10 @@
           "value": "functions.total = 0.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/shell.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/shell.yaml"
     },
     {
-      "id": "obj/anti-static/obfuscation/code-metrics::sh-long-lines",
+      "id": "objectives/anti-static/obfuscation/code-metrics::sh-long-lines",
       "kind": "capability",
       "desc": "Very long shell lines (compressed/obfuscated)",
       "conf": 0.8,
@@ -8701,10 +8701,10 @@
           "value": "text.max_line_length = 4848775.00"
         }
       ],
-      "source_file": "obj/anti-static/obfuscation/code-metrics/shell.yaml"
+      "source_file": "objectives/anti-static/obfuscation/code-metrics/shell.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::exe-extension",
+      "id": "micro-behaviors/execution/dropper/script::exe-extension",
       "kind": "capability",
       "desc": ".exe file reference",
       "conf": 0.5,
@@ -8717,10 +8717,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "obj/impact/cryptojacking/miner::wallet-word",
+      "id": "objectives/impact/cryptojacking/miner::wallet-word",
       "kind": "capability",
       "desc": "wallet keyword",
       "conf": 0.4,
@@ -8811,10 +8811,10 @@
           "location": "0xb288"
         }
       ],
-      "source_file": "obj/impact/cryptojacking/miner/generic.yaml"
+      "source_file": "objectives/impact/cryptojacking/miner/generic.yaml"
     },
     {
-      "id": "obj/impact/cryptojacking/miner::wallet-ref",
+      "id": "objectives/impact/cryptojacking/miner::wallet-ref",
       "kind": "capability",
       "desc": "Wallet reference (mining context)",
       "conf": 0.3,
@@ -8906,10 +8906,10 @@
           "location": "0xb288"
         }
       ],
-      "source_file": "obj/impact/cryptojacking/miner/traits.yaml"
+      "source_file": "objectives/impact/cryptojacking/miner/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::execute-dot-slash",
+      "id": "micro-behaviors/execution/dropper/script::execute-dot-slash",
       "kind": "capability",
       "desc": "./ execution pattern",
       "conf": 0.5,
@@ -8923,10 +8923,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/shell.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/shell.yaml"
     },
     {
-      "id": "cap/exec/command/shell::make-invocation",
+      "id": "micro-behaviors/execution/command/shell::make-invocation",
       "kind": "capability",
       "desc": "Make build tool invocation",
       "conf": 0.8,
@@ -8940,10 +8940,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/command/shell/compiler.yaml"
+      "source_file": "micro-behaviors/execution/command/shell/compiler.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::curl-cmd",
+      "id": "micro-behaviors/execution/dropper/script::curl-cmd",
       "kind": "capability",
       "desc": "curl command",
       "conf": 0.5,
@@ -8956,10 +8956,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "cap/comm/download/curl::fetch-call",
+      "id": "micro-behaviors/comm/download/curl::fetch-call",
       "kind": "capability",
       "desc": "fetch function call",
       "conf": 0.5,
@@ -8979,10 +8979,10 @@
           "location": "0xbc25"
         }
       ],
-      "source_file": "cap/comm/download/curl/shell.yaml"
+      "source_file": "micro-behaviors/comm/download/curl/shell.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::output-flag",
+      "id": "micro-behaviors/execution/dropper/script::output-flag",
       "kind": "capability",
       "desc": "Output flag -o",
       "conf": 0.4,
@@ -8995,10 +8995,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::ip-address-field",
+      "id": "objectives/discovery/host/geo::ip-address-field",
       "kind": "capability",
       "desc": "IP address JSON field (geo",
       "conf": 0.5,
@@ -9018,7 +9018,7 @@
           "location": "0x1654"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
       "id": "meta/builder/npm::npm",
@@ -16385,7 +16385,7 @@
       "source_file": "known/malware/miner/kinsing-enhanced/malware-elimination.yaml"
     },
     {
-      "id": "cap/comm/http/post::post-form",
+      "id": "micro-behaviors/comm/http/post::post-form",
       "kind": "capability",
       "desc": "HTTP form data upload",
       "conf": 0.75,
@@ -16400,10 +16400,10 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "cap/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::download-tool",
+      "id": "micro-behaviors/execution/dropper/script::download-tool",
       "kind": "capability",
       "desc": "Download tool usage",
       "conf": 0.7,
@@ -16416,10 +16416,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "cap/comm/download/curl::fetch",
+      "id": "micro-behaviors/comm/download/curl::fetch",
       "kind": "capability",
       "desc": "Download via fetch",
       "conf": 0.66,
@@ -16439,7 +16439,7 @@
           "location": "0xbc25"
         }
       ],
-      "source_file": "cap/comm/download/curl/shell.yaml"
+      "source_file": "micro-behaviors/comm/download/curl/shell.yaml"
     },
     {
       "id": "known/malware/backdoor/upstyle::panos-context",
@@ -16498,7 +16498,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "obj/exec/condition/platform::has-execution-capability",
+      "id": "objectives/execution/condition/platform::has-execution-capability",
       "kind": "capability",
       "desc": "Has code execution capability",
       "conf": 0.6,
@@ -16511,10 +16511,10 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/exec/condition/platform/os.yaml"
+      "source_file": "objectives/execution/condition/platform/os.yaml"
     },
     {
-      "id": "obj/c2/ddos/attack::http-methods",
+      "id": "objectives/command-and-control/ddos/attack::http-methods",
       "kind": "capability",
       "desc": "HTTP request methods detected",
       "conf": 1.0,
@@ -16535,7 +16535,7 @@
           "location": "file"
         }
       ],
-      "source_file": "obj/c2/ddos/attack/generic.yaml"
+      "source_file": "objectives/command-and-control/ddos/attack/generic.yaml"
     },
     {
       "id": "meta/lang/compiler::clang",
@@ -16554,7 +16554,7 @@
       "source_file": "meta/lang/compiler/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::exec-cmd",
+      "id": "micro-behaviors/execution/dropper/script::exec-cmd",
       "kind": "capability",
       "desc": "Execution command",
       "conf": 0.6,
@@ -16579,10 +16579,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "cap/exec/command/shell::shell-symbols",
+      "id": "micro-behaviors/execution/command/shell::shell-symbols",
       "kind": "capability",
       "desc": "Shell execution symbols",
       "conf": 0.9,
@@ -16595,7 +16595,7 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/command/shell/traits.yaml"
+      "source_file": "micro-behaviors/execution/command/shell/traits.yaml"
     },
     {
       "id": "meta/quality::has-metrics",
@@ -16632,7 +16632,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "cap/data/control-flow/analysis::iteration-loop-pattern",
+      "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
       "kind": "capability",
       "desc": "Iteration or loop pattern",
       "conf": 0.5,
@@ -16645,10 +16645,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/data/control-flow/analysis/generic.yaml"
+      "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "cap/data/encoding/charset::json",
+      "id": "micro-behaviors/data/encoding/charset::json",
       "kind": "capability",
       "desc": "JSON serialization libraries",
       "conf": 0.85,
@@ -16667,10 +16667,10 @@
           "location": "0xc7a2"
         }
       ],
-      "source_file": "cap/data/encoding/charset/traits.yaml"
+      "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::browser-data-files",
+      "id": "objectives/discovery/host/browser::browser-data-files",
       "kind": "capability",
       "desc": "Browser data file references",
       "conf": 0.7,
@@ -16690,10 +16690,10 @@
           "location": "0x1b99"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/exec/dropper/script::batch-download-execute",
+      "id": "micro-behaviors/execution/dropper/script::batch-download-execute",
       "kind": "capability",
       "desc": "Download and execute pattern (batch)",
       "conf": 0.95,
@@ -16732,10 +16732,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/dropper/script/batch.yaml"
+      "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "cap/exec/command/shell::shell-execution-indicators",
+      "id": "micro-behaviors/execution/command/shell::shell-execution-indicators",
       "kind": "capability",
       "desc": "Shell command execution indicators",
       "conf": 0.9,
@@ -16748,10 +16748,10 @@
           "location": "file"
         }
       ],
-      "source_file": "cap/exec/command/shell/traits.yaml"
+      "source_file": "micro-behaviors/execution/command/shell/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/geo::geo-response-field",
+      "id": "objectives/discovery/host/geo::geo-response-field",
       "kind": "capability",
       "desc": "Geolocation response field",
       "conf": 0.5,
@@ -16771,10 +16771,10 @@
           "location": "0x1654"
         }
       ],
-      "source_file": "obj/discovery/host/geo/api.yaml"
+      "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "cap/fs/path/device::device-dev",
+      "id": "micro-behaviors/fs/path/device::device-dev",
       "kind": "capability",
       "desc": "Reference to /dev devices (excludes common legitimate)",
       "conf": 0.66,
@@ -16800,7 +16800,7 @@
           "value": "negative_conditions_not_found"
         }
       ],
-      "source_file": "cap/fs/path/device/linux.yaml"
+      "source_file": "micro-behaviors/fs/path/device/linux.yaml"
     },
     {
       "id": "meta/internal/imported::document/head",

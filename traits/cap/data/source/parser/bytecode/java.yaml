@@ -1,7 +1,0 @@
-traits:
-  - id: java-bytecode-magic
-    desc: Checks for "CAFEBABE" magic bytes manually
-    crit: suspicious
-    if:
-      type: string
-      exact: "CAFEBABE"

@@ -1,0 +1,14 @@
+composite_rules:
+  - id: applet-killer
+    desc: Hostile applet designed to kill other threads (DoS)
+    crit: hostile
+    conf: 1.0
+    for: [java]
+    all:
+      - id: micro-traits/process/thread/enumerate::get-group
+      - id: micro-traits/process/thread/enumerate::enumerate
+      - id: micro-traits/process/thread/terminate::stop
+    any:
+      - id: micro-traits/process/thread/priority::set-max
+      - id: micro-traits/process/thread/lifecycle::respawn
+      - id: well-known/malware/dos::strings

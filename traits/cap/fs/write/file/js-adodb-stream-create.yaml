@@ -1,9 +1,0 @@
-traits:
-  - id: js-adodb-stream-create
-    desc: ADODB.Stream Object Creation (JS)
-    crit: suspicious
-    conf: 0.9
-    for: [javascript]
-    if:
-      type: string
-      regex: '(?:WScript|this)\[(?:[a-zA-Z_$][0-9a-zA-Z_$]*\s*\+\s*){0,8}[a-zA-Z_$][0-9a-zA-Z_$]*\(?\)\]\((?:[a-zA-Z_$][0-9a-zA-Z_$]*\s*\+\s*){0,8}[a-zA-Z_$][0-9a-zA-Z_$]*\(?\)\)'

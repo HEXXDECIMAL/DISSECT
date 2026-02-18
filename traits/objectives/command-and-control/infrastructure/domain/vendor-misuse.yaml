@@ -1,0 +1,32 @@
+defaults:
+  for:
+  - all
+traits:
+- id: tencent-infrastructure-misuse
+  desc: Tencent domain used on port 8080
+  crit: suspicious
+  conf: 0.9
+  mbc: C0002
+  attack: T1071.001
+  if:
+    type: string
+    regex: (?i)(crash\.browser\.qq\.com|qbwupacc\.imtt\.qq\.com):8080
+- id: malicious-5334-domain
+  desc: Known malicious 5334.com domain
+  crit: suspicious
+  conf: 1.0
+  mbc: C0002
+  attack: T1071.001
+  if:
+    type: string
+    substr: 5334.com
+- id: generic-vendor-port-misuse
+  desc: Vendor subdomain on non-standard port
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1071.001
+  if:
+    type: string
+    regex: (?i)\bupdate\.[\w-]+\.qq\.com:8080\b|(?i)\bupdate\.[\w-]+\.qq\.com:8443\b|(?i)\bupdate\.[\w-]+\.baidu\.com:8080\b|(?i)\bupdate\.[\w-]+\.baidu\.com:8443\b|(?i)\bupdate\.[\w-]+\.aliyun\.com:8080\b|(?i)\bupdate\.[\w-]+\.aliyun\.com:8443\b|(?i)\bupdate\.[\w-]+\.microsoft\.com:8080\b|(?i)\bupdate\.[\w-]+\.microsoft\.com:8443\b|(?i)\bcrash\.[\w-]+\.qq\.com:8080\b|(?i)\bcrash\.[\w-]+\.qq\.com:8443\b|(?i)\bcrash\.[\w-]+\.baidu\.com:8080\b|(?i)\bcrash\.[\w-]+\.baidu\.com:8443\b|(?i)\bcrash\.[\w-]+\.aliyun\.com:8080\b|(?i)\bcrash\.[\w-]+\.aliyun\.com:8443\b|(?i)\bcrash\.[\w-]+\.microsoft\.com:8080\b|(?i)\bcrash\.[\w-]+\.microsoft\.com:8443\b|(?i)\bdl\.[\w-]+\.qq\.com:8080\b|(?i)\bdl\.[\w-]+\.qq\.com:8443\b|(?i)\bdl\.[\w-]+\.baidu\.com:8080\b|(?i)\bdl\.[\w-]+\.baidu\.com:8443\b|(?i)\bdl\.[\w-]+\.aliyun\.com:8080\b|(?i)\bdl\.[\w-]+\.aliyun\.com:8443\b|(?i)\bdl\.[\w-]+\.microsoft\.com:8080\b|(?i)\bdl\.[\w-]+\.microsoft\.com:8443\b|(?i)\bapi\.[\w-]+\.qq\.com:8080\b|(?i)\bapi\.[\w-]+\.qq\.com:8443\b|(?i)\bapi\.[\w-]+\.baidu\.com:8080\b|(?i)\bapi\.[\w-]+\.baidu\.com:8443\b|(?i)\bapi\.[\w-]+\.aliyun\.com:8080\b|(?i)\bapi\.[\w-]+\.aliyun\.com:8443\b|(?i)\bapi\.[\w-]+\.microsoft\.com:8080\b|(?i)\bapi\.[\w-]+\.microsoft\.com:8443\b|(?i)\bwup\.[\w-]+\.qq\.com:8080\b|(?i)\bwup\.[\w-]+\.qq\.com:8443\b|(?i)\bwup\.[\w-]+\.baidu\.com:8080\b|(?i)\bwup\.[\w-]+\.baidu\.com:8443\b|(?i)\bwup\.[\w-]+\.aliyun\.com:8080\b|(?i)\bwup\.[\w-]+\.aliyun\.com:8443\b|(?i)\bwup\.[\w-]+\.microsoft\.com:8080\b|(?i)\bwup\.[\w-]+\.microsoft\.com:8443\b
+composite_rules: []

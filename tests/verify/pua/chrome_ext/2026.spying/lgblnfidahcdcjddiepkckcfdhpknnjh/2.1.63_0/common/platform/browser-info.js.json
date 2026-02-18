@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "obj/discovery/host/browser::edge-name",
+      "id": "objectives/discovery/host/browser::edge-name",
       "kind": "capability",
       "desc": "Edge browser name",
       "conf": 0.4,
@@ -32,10 +32,10 @@
           "location": "0x106"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/c2/network/beacon::user-agent-rotation-keywords",
+      "id": "objectives/command-and-control/network/beacon::user-agent-rotation-keywords",
       "kind": "capability",
       "desc": "User-Agent randomization or rotation terms",
       "conf": 0.75,
@@ -47,10 +47,10 @@
           "value": "userAgentData.brand"
         }
       ],
-      "source_file": "obj/c2/network/beacon/traits.yaml"
+      "source_file": "objectives/command-and-control/network/beacon/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::firefox-name",
+      "id": "objectives/discovery/host/browser::firefox-name",
       "kind": "capability",
       "desc": "Firefox browser name",
       "conf": 0.4,
@@ -82,10 +82,10 @@
           "location": "0x2b7"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/creds/browser/chromium::edge-path",
+      "id": "objectives/credential-access/browser/chromium::edge-path",
       "kind": "capability",
       "desc": "Microsoft Edge browser profile path",
       "conf": 0.7,
@@ -105,10 +105,10 @@
           "location": "0x106"
         }
       ],
-      "source_file": "obj/creds/browser/chromium/traits.yaml"
+      "source_file": "objectives/credential-access/browser/chromium/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::brave-name",
+      "id": "objectives/discovery/host/browser::brave-name",
       "kind": "capability",
       "desc": "Brave browser name",
       "conf": 0.4,
@@ -140,10 +140,10 @@
           "location": "0x1c4"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::chrome-name",
+      "id": "objectives/discovery/host/browser::chrome-name",
       "kind": "capability",
       "desc": "Chrome browser name",
       "conf": 0.4,
@@ -187,10 +187,10 @@
           "location": "0x22c"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::safari-name",
+      "id": "objectives/discovery/host/browser::safari-name",
       "kind": "capability",
       "desc": "Safari browser name",
       "conf": 0.4,
@@ -222,10 +222,10 @@
           "location": "0x271"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "cap/exec/vm/sandbox::base64-long-string",
+      "id": "micro-behaviors/execution/vm/sandbox::base64-long-string",
       "kind": "capability",
       "desc": "Long base64-like string pattern",
       "conf": 0.4,
@@ -244,10 +244,10 @@
           "location": "0x6ee"
         }
       ],
-      "source_file": "cap/exec/vm/sandbox/node.yaml"
+      "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/npm/behavior::small-file-5k",
+      "id": "objectives/lateral-movement/supply-chain/npm/behavior::small-file-5k",
       "kind": "capability",
       "desc": "Small file under 5KB",
       "conf": 0.7,
@@ -259,10 +259,10 @@
           "value": "browser-info.js"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/npm/behavior/traits.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/npm/behavior/traits.yaml"
     },
     {
-      "id": "obj/collect/stealer/behavior::js-browser-target",
+      "id": "objectives/collection/stealer/behavior::js-browser-target",
       "kind": "capability",
       "desc": "Targets browser data paths",
       "conf": 0.8,
@@ -281,10 +281,10 @@
           "location": "0x106"
         }
       ],
-      "source_file": "obj/collect/stealer/behavior/javascript.yaml"
+      "source_file": "objectives/collection/stealer/behavior/javascript.yaml"
     },
     {
-      "id": "obj/discovery/host/browser::browser-names",
+      "id": "objectives/discovery/host/browser::browser-names",
       "kind": "capability",
       "desc": "Browser name references",
       "conf": 0.5,
@@ -412,7 +412,7 @@
           "location": "0x1c4"
         }
       ],
-      "source_file": "obj/discovery/host/browser/traits.yaml"
+      "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
       "id": "meta/internal/imported::brands",

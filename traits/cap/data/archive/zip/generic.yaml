@@ -1,9 +1,0 @@
-# ZIP Creation
-traits:
-  - id: generic
-    desc: "Function to handle ZIP creation"
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: "handleZipCreation"

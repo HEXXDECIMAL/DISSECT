@@ -1,7 +1,0 @@
-traits:
-  - id: int-vector-calc-asm
-    desc: DOS Interrupt Vector Calculation (Assembly)
-    crit: notable
-    if:
-      type: raw
-      regex: 'mov\s+si,4\*(13|21)'

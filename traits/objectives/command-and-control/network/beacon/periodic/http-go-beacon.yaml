@@ -1,0 +1,137 @@
+defaults:
+  crit: suspicious
+  attack: T1071.001
+  mbc: B0030
+  for:
+  - elf
+  - macho
+  - pe
+  platforms:
+  - all
+traits:
+- id: http-versions
+  desc: HTTP protocol versions in strings
+  crit: notable
+  conf: 0.75
+  if:
+    type: string
+    regex: HTTP/(1\.0|1\.1|2\.0)
+- id: http-methods
+  desc: HTTP methods (GET, POST, HEAD)
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    regex: '^(GET|POST|HEAD|PUT|DELETE|PATCH) '
+- id: http-headers-general
+  desc: HTTP header keywords
+  crit: notable
+  conf: 0.65
+  if:
+    type: string
+    regex: (User-Agent|Content-Type|Content-Length|Authorization|Cookie|Accept)
+- id: go-dial-string
+  desc: Network dial pattern in strings
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: \*net\.dialer|net\.DialTCP|net\.Dial
+- id: go-listen-string
+  desc: Network listen pattern in strings
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: net\.Listen|net\.ListenTCP
+- id: go-http-client
+  desc: Go HTTP client pattern
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: http\.Client|http\.Do|http\.Get|http\.Post
+- id: domain-keyword
+  desc: Domain configuration keyword
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    substr: ; Domain
+- id: http-config-keyword
+  desc: HTTP configuration keyword
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    substr: ; HttpOnL
+- id: callback-pattern
+  desc: Callback function pattern
+  crit: notable
+  conf: 0.75
+  if:
+    type: string
+    regex: (callback|Callback|CallBack).{0,50}Handler
+- id: polling-pattern
+  desc: Polling/beacon loop pattern
+  crit: notable
+  conf: 0.7
+  if:
+    type: string
+    regex: (poll|beacon|heartbeat|tick).{0,50}loop|loop.{0,50}(poll|beacon|heartbeat)
+    case_insensitive: true
+- id: websocket-support
+  desc: WebSocket communication support
+  crit: notable
+  conf: 0.75
+  if:
+    type: string
+    substr: websocket
+- id: c2-marker
+  desc: C2 identifier in strings
+  crit: suspicious
+  conf: 0.75
+  if:
+    type: string
+    regex: (?i)\b(c2Handler|c2Server|c2Beacon|c2Url|c2Host)\b|(?i)\bc2\s*=\s*(https?://|[a-z0-9.-]+\.[a-z0-9]+)
+composite_rules:
+- id: http-beacon-network
+  desc: HTTP beacon network comms
+  crit: suspicious
+  conf: 0.9
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  needs: 2
+  all:
+  - id: http-versions
+  - id: go-dial-string
+- id: http-beacon-configured
+  desc: HTTP beacon C2 config
+  crit: suspicious
+  conf: 0.92
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  needs: 2
+  all:
+  - id: http-versions
+  - id: domain-keyword
+- id: http-c2-beacon-detected
+  desc: HTTP-based C2 beacon
+  crit: hostile
+  conf: 0.95
+  attack: T1071.001
+  mbc: B0030
+  for:
+  - elf
+  - macho
+  - pe
+  needs: 2
+  all:
+  - id: http-beacon-network
+  - id: go-http-client

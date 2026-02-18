@@ -53,9 +53,9 @@ pub(crate) fn eval_structure<'a>(
 ///
 /// Reference formats:
 /// - Specific trait (contains `::`): exact match only
-///   e.g., "cap/comm/http::curl-download" matches exactly that trait
+///   e.g., "micro-behaviors/comm/http::curl-download" matches exactly that trait
 /// - Short names (no `/` or `::`): suffix match within same directory
-///   e.g., "terminate" matches "exec/process::terminate"
+///   e.g., "terminate" matches "execution/process::terminate"
 /// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory
 ///   e.g., "anti-static/obfuscation" matches "anti-static/obfuscation::python-hex"
 #[must_use] 
@@ -96,7 +96,7 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
     let slash_count = id.matches('/').count();
     if slash_count == 0 {
         // Short name: suffix match for same-directory relative reference
-        // e.g., "terminate" matches "exec/process::terminate" or legacy "exec/process/terminate"
+        // e.g., "terminate" matches "execution/process::terminate" or legacy "execution/process/terminate"
         let suffix_new = format!("::{}", id);
         let suffix_legacy = format!("/{}", id);
         let matching: Vec<_> = ctx

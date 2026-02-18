@@ -1,0 +1,83 @@
+defaults:
+  for:
+  - javascript
+  crit: inert
+traits:
+- id: slide-number-controller
+  desc: Detects SlideNumberController (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: SlideNumberController|SlideNumberDisplay
+- id: keynote-slide-manager
+  desc: Detects SlideManager and KPF (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: SlideManager|getKPFJsonStringForSlideIndex|kSlideDidDownloadEvent
+- id: keynote-touch-controller
+  desc: Detects TouchController (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: TouchController:SwipeEvent|TouchController:TapeEvent|kTouchStartEventName
+- id: keynote-orientation-controller
+  desc: Detects OrientationController (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: OrientationController:OrientationChangedEvent|kOrientationChangedEvent
+- id: keynote-narration-manager
+  desc: Detects NarrationManager (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: NarrationManager|gShowController|handleAudioDidStart
+- id: keynote-animation-manager
+  desc: Detects AnimationManager (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: AnimationManager|kKeyframeRule|kKeyframesPropertyName
+- id: keynote-texture-manager
+  desc: Detects TextureManager (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: TextureManager|sceneDidLoadCallbackHandler|processTextureDidLoadCallback
+- id: keynote-static-assets
+  desc: Detects KNStaticAssets (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: KNStaticAssets|KNTransitionSwoosh|KNTransitionSlide
+- id: sproutcore-localization-manager
+  desc: Detects SproutCore/Keynote localization manager
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: normalizedLanguage|useAutodetectedLanguage|addStringsFor|CoreDocs\.loc
+- id: keynote-display-manager
+  desc: Detects DisplayManager (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: string
+    regex: DisplayManager:StageSizeDidChangeEvent|kPadPortraitModeHorizontalMargin|kMobilePortraitModeTopMargin|kNavigationArrowSize
+- id: keynote-navigator-controller
+  desc: Detects NavigatorController (Keynote export)
+  crit: inert
+  conf: 1.0
+  if:
+    type: raw
+    regex: NavigatorController|NavigatorThumbnailSidebar|NavigatorThumbnailScroller|NavigatorThumbnailSelection|NavigatorThumbnailContainer|kSlideIndexDidChangeEvent
+composite_rules: []

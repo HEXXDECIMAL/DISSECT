@@ -36,7 +36,7 @@ pub fn analyze_function(func: &Function) -> Vec<Finding> {
             capabilities.push(Finding {
                 kind: FindingKind::Capability,
                 trait_refs: vec![],
-                id: "exec/terminate".to_string(),
+                id: "execution/terminate".to_string(),
                 desc: "Function terminates execution".to_string(),
                 conf: 0.7,
                 crit: Criticality::Inert,
@@ -359,7 +359,7 @@ fn analyze_constants(
                     capabilities.push(Finding {
                         kind: FindingKind::Capability,
                         trait_refs: vec![],
-                        id: "net/c2/address".to_string(),
+                        id: "net/command-and-control/address".to_string(),
                         desc: format!("Embedded C2 address: {}", decoded.decoded_value),
                         conf: decoded.conf,
                         crit: Criticality::Inert,
@@ -860,7 +860,7 @@ mod tests {
 
         // Should detect C2 address
         assert_eq!(caps.len(), 1);
-        assert_eq!(caps[0].id, "net/c2/address");
+        assert_eq!(caps[0].id, "net/command-and-control/address");
         assert!(caps[0].desc.contains("192.168.1.1"));
         assert_eq!(caps[0].conf, 0.7);
     }
@@ -1023,7 +1023,7 @@ mod tests {
         let caps = analyze_function(&func);
 
         // Should detect noreturn
-        assert!(caps.iter().any(|c| c.id == "exec/terminate"));
+        assert!(caps.iter().any(|c| c.id == "execution/terminate"));
     }
 
     #[test]
@@ -1082,6 +1082,6 @@ mod tests {
         assert!(caps.iter().any(|c| c.id == "complexity/high"));
         assert!(caps.iter().any(|c| c.id == "anti-analysis/anti-debug/timing"));
         assert!(caps.iter().any(|c| c.id == "crypto/xor"));
-        assert!(caps.iter().any(|c| c.id == "net/c2/address"));
+        assert!(caps.iter().any(|c| c.id == "net/command-and-control/address"));
     }
 }

@@ -1,0 +1,15 @@
+defaults:
+  for:
+  - ruby
+  platforms:
+  - all
+traits:
+- id: platform-fingerprint
+  desc: Platform fingerprinting check
+  crit: notable
+  conf: 0.75
+  attack: T1082
+  if:
+    type: string
+    regex: RUBY_PLATFORM.{0,50}include|RUBY_PLATFORM.{0,50}match|RbConfig::CONFIG|darwin|linux|mswin
+composite_rules: []

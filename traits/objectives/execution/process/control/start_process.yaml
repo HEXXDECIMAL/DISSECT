@@ -1,0 +1,14 @@
+defaults:
+  for:
+  - all
+  crit: notable
+  conf: 0.8
+  platforms:
+  - windows
+traits:
+- id: start-process
+  desc: Start-Process call
+  if:
+    type: string
+    regex: (?i)(?:S.{0,3}t.{0,3}a.{0,3}r.{0,3}t).*?(?:P.{0,3}r.{0,3}o.{0,3}c.{0,3}e.{0,3}s.{0,3}s)
+composite_rules: []

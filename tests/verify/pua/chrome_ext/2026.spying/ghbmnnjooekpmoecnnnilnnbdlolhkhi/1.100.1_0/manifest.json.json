@@ -74,7 +74,7 @@
       "source_file": "meta/format/json/traits.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::externally-connectable",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::externally-connectable",
       "kind": "capability",
       "desc": "Extension allows external connections",
       "conf": 0.9,
@@ -87,10 +87,10 @@
           "location": "externally_connectable"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::manifest-v3",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::manifest-v3",
       "kind": "capability",
       "desc": "Chrome extension using Manifest V3",
       "conf": 0.95,
@@ -103,10 +103,10 @@
           "location": "manifest_version"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::background-service-worker",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::background-service-worker",
       "kind": "capability",
       "desc": "Extension uses service worker (MV3)",
       "conf": 0.9,
@@ -119,10 +119,10 @@
           "location": "background.service_worker"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-google",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::update-url-google",
       "kind": "capability",
       "desc": "Uses Google update URL",
       "conf": 0.95,
@@ -135,10 +135,10 @@
           "location": "update_url"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::is-chrome-manifest",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::is-chrome-manifest",
       "kind": "capability",
       "desc": "Chrome extension manifest file",
       "conf": 0.95,
@@ -151,10 +151,10 @@
           "location": "manifest_version"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::update-url-present",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::update-url-present",
       "kind": "capability",
       "desc": "Has update_url field",
       "conf": 0.9,
@@ -167,10 +167,10 @@
           "location": "update_url"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
-      "id": "obj/lateral/supply-chain/chrome-ext/permissions::web-accessible-resources",
+      "id": "objectives/lateral-movement/supply-chain/chrome-ext/permissions::web-accessible-resources",
       "kind": "capability",
       "desc": "Exposes resources to web",
       "conf": 0.85,
@@ -183,7 +183,7 @@
           "location": "web_accessible_resources"
         }
       ],
-      "source_file": "obj/lateral/supply-chain/chrome-ext/permissions/manifest.yaml"
+      "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/manifest.yaml"
     },
     {
       "id": "meta/encoded-payload/base64",

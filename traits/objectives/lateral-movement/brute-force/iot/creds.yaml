@@ -1,0 +1,91 @@
+defaults:
+  crit: suspicious
+  attack: T1110.001
+  mbc: B0028
+  for:
+  - elf
+  - macho
+  - shell
+  - python
+  - go
+traits:
+- id: router-default-admin
+  desc: Default router admin credentials
+  crit: notable
+  conf: 0.85
+  size_max: 10000
+  if:
+    type: string
+    regex: ^(admin123|admin1234|root123|1234567890|123456)$
+  not:
+  - id: metadata/signed/platform::apple
+  unless:
+  - type: raw
+    regex: pandas|pytest|def test_
+- id: mirai-style-credential-access
+  desc: Mirai-style credential patterns
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: string
+    regex: ^(ubnt|root621|root123|admin1234|888888|666666|7ujMko0)$
+- id: busybox-command-injection
+  desc: Busybox command injection pattern
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: string
+    regex: /bin/busybox\s+(FASTCAT|ECCHI|MIRAI|wget|tftp)
+- id: shell-injection-pattern
+  desc: Shell injection via service prompt
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: ^(ping; sh|; sh|/bin/sh;|enable\nshell|system\nshell|linuxshell)$
+- id: iot-vendor-credential-access
+  desc: IoT vendor default credentials
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: ^hikvision$|^cisco123$|^Zte521$|^vstarcam2015$|^xmhdipc$|^icatch99$|^hslwificam$|^dreambox$|^telnetadmin$|^telecomadmin$|^e8telnet$|^e8ehome$|^juantech$|^ipcam_rt5350$|^GM8182$|^hi3518$|^hg2x0$|^xc3511$|^xc12345$|^oelinux123$|^grouter$|^solokey$|^instar$|^OxhlwSG8$|^S2fGqNFs$|^tlJwpbo6$|^7ujMko0admin$|^7ujMko0vizxv$|^antslq$|^fiberinst$
+composite_rules:
+- id: iot-botnet-scanner-vendor
+  desc: IoT botnet scanner (vendor credential-access)
+  crit: hostile
+  conf: 0.95
+  attack: T1110.001
+  all:
+  - id: iot-vendor-credential-access
+  - id: micro-traits/fs/proc/info::proc-net-tcp
+  - id: busybox-command-injection
+  - id: micro-traits/process/create/shell::bin-sh
+- id: iot-botnet-scanner-mirai
+  desc: IoT botnet scanner (mirai credential-access)
+  crit: hostile
+  conf: 0.95
+  attack: T1110.001
+  all:
+  - id: mirai-style-credential-access
+  - id: micro-traits/fs/proc/info::proc-net-tcp
+  - id: busybox-command-injection
+  - id: micro-traits/process/create/shell::bin-sh
+- id: iot-botnet-scanner-shell-inject
+  desc: IoT botnet scanner (shell inject)
+  crit: hostile
+  conf: 0.95
+  attack: T1110.001
+  all:
+  - id: iot-vendor-credential-access
+  - id: micro-traits/fs/proc/info::proc-net-tcp
+  - id: shell-injection-pattern
+  - id: micro-traits/process/create/shell::bin-sh
+- id: iot-credential-spray
+  desc: IoT default credential collection
+  crit: suspicious
+  conf: 0.9
+  attack: T1110.001
+  all:
+  - id: iot-vendor-credential-access
+  - id: micro-traits/fs/proc/info::proc-net-tcp

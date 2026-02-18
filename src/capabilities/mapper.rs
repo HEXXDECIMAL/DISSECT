@@ -76,7 +76,7 @@ impl CapabilityMapper {
     const DEFAULT_MIN_SUSPICIOUS_PRECISION: f32 = 2.0;
 
     /// Create an empty capability mapper for testing
-    #[must_use] 
+    #[must_use]
     pub(crate) fn empty() -> Self {
         Self {
             symbol_map: HashMap::new(),
@@ -104,7 +104,7 @@ impl CapabilityMapper {
 
     /// Create a new mapper loading traits from the default capabilities directory or YAML file
     #[must_use]
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self::new_with_precision_thresholds(
             Self::DEFAULT_MIN_HOSTILE_PRECISION,
             Self::DEFAULT_MIN_SUSPICIOUS_PRECISION,
@@ -836,8 +836,8 @@ impl CapabilityMapper {
             .iter()
             .filter_map(|t| {
                 // Extract the directory prefix from trait IDs
-                // New format: everything before '::' (e.g., "cap/comm/http::curl" -> "cap/comm/http")
-                // Legacy format: everything before last '/' (e.g., "cap/comm/http/curl" -> "cap/comm/http")
+                // New format: everything before '::' (e.g., "micro-behaviors/comm/http::curl" -> "micro-behaviors/comm/http")
+                // Legacy format: everything before last '/' (e.g., "micro-behaviors/comm/http/curl" -> "micro-behaviors/comm/http")
                 if let Some(idx) = t.id.find("::") {
                     Some(t.id[..idx].to_string())
                 } else {
@@ -859,7 +859,7 @@ impl CapabilityMapper {
         // This avoids O(n) iteration for every trait reference check
         let mut prefix_hierarchy = known_prefixes.clone();
         for prefix in &known_prefixes {
-            // Add all parent paths: "cap/fs/write" -> ["cap", "cap/fs", "cap/fs/write"]
+            // Add all parent paths: "micro-behaviors/fs/write" -> ["cap", "micro-behaviors/fs", "micro-behaviors/fs/write"]
             let parts: Vec<&str> = prefix.split('/').collect();
             for i in 1..parts.len() {
                 prefix_hierarchy.insert(parts[..i].join("/"));
@@ -888,8 +888,8 @@ impl CapabilityMapper {
                     dir_path, platform_name
                 );
             }
-            eprintln!("\n   Example: Instead of 'cap/exec/python/runtime.yaml',");
-            eprintln!("   use 'cap/exec/runtime/python.yaml'\n");
+            eprintln!("\n   Example: Instead of 'micro-behaviors/execution/python/runtime.yaml',");
+            eprintln!("   use 'micro-behaviors/execution/runtime/python.yaml'\n");
             warnings.push(format!(
                 "{} directories named after platforms (should be YAML filenames)",
                 platform_dir_violations.len()
@@ -897,7 +897,7 @@ impl CapabilityMapper {
         }
 
         // Check for duplicate second-level directories across namespaces
-        // According to TAXONOMY.md, directories should not be repeated across meta/, cap/, obj/, known/
+        // According to TAXONOMY.md, directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/
         tracing::debug!("Step 3b/15: Checking for duplicate second-level directories");
         let duplicate_dirs = find_duplicate_second_level_directories(&dir_list);
         if !duplicate_dirs.is_empty() {
@@ -905,8 +905,8 @@ impl CapabilityMapper {
                 "\n❌ ERROR: {} second-level directories are duplicated across namespaces (TAXONOMY.md violation)",
                 duplicate_dirs.len()
             );
-            eprintln!("   Second-level directories should not be repeated across meta/, cap/, obj/, known/:");
-            eprintln!("   This indicates traits are misplaced - objectives should only be in obj/, capabilities in cap/.\n");
+            eprintln!("   Second-level directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/:");
+            eprintln!("   This indicates traits are misplaced - objectives should only be in objectives/, capabilities in micro-behaviors/.\n");
             for (dir_name, namespaces) in &duplicate_dirs {
                 eprintln!(
                     "   '{}' appears in: {}/{}/ ",
@@ -916,10 +916,10 @@ impl CapabilityMapper {
                 );
             }
             eprintln!("\n   Examples:");
-            eprintln!("   - cap/c2/ and obj/c2/ → C2 is an objective, should only be in obj/");
-            eprintln!("   - cap/discovery/ and obj/discovery/ → Discovery is an objective, should only be in obj/");
+            eprintln!("   - micro-behaviors/command-and-control/ and objectives/command-and-control/ → C2 is an objective, should only be in objectives/");
+            eprintln!("   - micro-behaviors/discovery/ and objectives/discovery/ → Discovery is an objective, should only be in objectives/");
             eprintln!(
-                "   - cap/malware/ and known/malware/ → Malware detection should not be in cap/\n"
+                "   - micro-behaviors/malware/ and known/malware/ → Malware detection should not be in micro-behaviors/\n"
             );
             has_fatal_errors = true;
         }
@@ -965,7 +965,7 @@ impl CapabilityMapper {
             ));
         }
 
-        // Check for depth violations: cap/ and obj/ files must be 3-4 subdirectories deep
+        // Check for depth violations: micro-behaviors/ and objectives/ files must be 3-4 subdirectories deep
         tracing::debug!("Step 6/15: Checking for depth violations");
         let relative_paths: Vec<String> = yaml_files
             .iter()
@@ -984,7 +984,7 @@ impl CapabilityMapper {
 
             if !shallow.is_empty() {
                 eprintln!(
-                    "\n❌ ERROR: {} files are too shallow (need 3-4 subdirectories in cap/obj)",
+                    "\n❌ ERROR: {} files are too shallow (need 3-4 subdirectories in micro-behaviors/obj)",
                     shallow.len()
                 );
                 for (path, depth, _) in &shallow {
@@ -993,7 +993,7 @@ impl CapabilityMapper {
             }
             if !deep.is_empty() {
                 eprintln!(
-                    "\n❌ ERROR: {} files are too deep (max 4 subdirectories in cap/obj)",
+                    "\n❌ ERROR: {} files are too deep (max 4 subdirectories in micro-behaviors/obj)",
                     deep.len()
                 );
                 for (path, depth, _) in &deep {
@@ -1001,7 +1001,7 @@ impl CapabilityMapper {
                 }
             }
             warnings.push(format!(
-                "{} files at wrong depth (need 3-4 subdirectories in cap/obj)",
+                "{} files at wrong depth (need 3-4 subdirectories in micro-behaviors/obj)",
                 depth_violations.len()
             ));
         }
@@ -1049,11 +1049,11 @@ impl CapabilityMapper {
                 // Only validate cross-directory references (those with slashes or ::)
                 let is_cross_dir = ref_id.contains("::") || ref_id.contains('/');
                 if is_cross_dir {
-                    // Skip validation for meta/ paths - these are dynamically generated
-                    if ref_id.starts_with("meta/import/")
-                        || ref_id.starts_with("meta/dylib/")
-                        || ref_id.starts_with("meta/signed/")
-                        || ref_id.starts_with("meta/internal/")
+                    // Skip validation for metadata/ paths - these are dynamically generated
+                    if ref_id.starts_with("metadata/import/")
+                        || ref_id.starts_with("metadata/dylib/")
+                        || ref_id.starts_with("metadata/signed/")
+                        || ref_id.starts_with("metadata/internal/")
                     {
                         continue;
                     }
@@ -1152,14 +1152,14 @@ impl CapabilityMapper {
             }
         }
 
-        // Validate that composite rules don't reference meta/internal/ paths
+        // Validate that composite rules don't reference metadata/internal/ paths
         // Internal paths are for ML usage only and must not be used in composite rules
         tracing::debug!("Step 11/15: Checking for internal path references");
         let mut internal_refs = Vec::new();
         for rule in &composite_rules {
             let trait_refs = collect_trait_refs_from_rule(rule);
             for (ref_id, rule_id) in trait_refs {
-                if ref_id.starts_with("meta/internal/") {
+                if ref_id.starts_with("metadata/internal/") {
                     let source_file =
                         rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
                     internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
@@ -1172,7 +1172,7 @@ impl CapabilityMapper {
                 "\n❌ ERROR: {} composite rules reference internal paths",
                 internal_refs.len()
             );
-            eprintln!("   Internal paths (meta/internal/) are for ML usage only and cannot be used in composite rules:\n");
+            eprintln!("   Internal paths (metadata/internal/) are for ML usage only and cannot be used in composite rules:\n");
             for (rule_id, ref_id, source_file) in &internal_refs {
                 let line_hint = find_line_number(source_file, ref_id);
                 if let Some(line) = line_hint {
@@ -1187,23 +1187,23 @@ impl CapabilityMapper {
                     );
                 }
             }
-            eprintln!("\n   Use meta/import/ or meta/dylib/ for import-based detection instead.");
+            eprintln!("\n   Use metadata/import/ or metadata/dylib/ for import-based detection instead.");
             warnings.push(format!(
-                "{} composite rules reference internal paths (meta/internal/)",
+                "{} composite rules reference internal paths (metadata/internal/)",
                 internal_refs.len()
             ));
         }
 
-        // Validate that cap/ rules do not reference obj/ rules
+        // Validate that micro-behaviors/ rules do not reference objectives/ rules
         // Cap contains micro-behaviors, obj contains larger behaviors
         // Cap rules should be independent of obj rules
-        tracing::debug!("Step 12/15: Checking for cap/obj violations");
+        tracing::debug!("Step 12/15: Checking for micro-behaviors/obj violations");
         let cap_obj_violations =
             find_cap_obj_violations(&trait_definitions, &composite_rules, &rule_source_files);
 
         if !cap_obj_violations.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} cap/ rules reference obj/ rules",
+                "\n❌ ERROR: {} micro-behaviors/ rules reference objectives/ rules",
                 cap_obj_violations.len()
             );
             eprintln!("   Cap rules (micro-behaviors) should not depend on obj rules (larger behaviors):\n");
@@ -1223,25 +1223,25 @@ impl CapabilityMapper {
             }
             eprintln!("\n   Cap rules should only reference other cap rules or meta rules.");
             warnings.push(format!(
-                "{} cap/ rules reference obj/ rules (cap should not depend on obj)",
+                "{} micro-behaviors/ rules reference objectives/ rules (cap should not depend on obj)",
                 cap_obj_violations.len()
             ));
         }
 
-        // Validate that cap/ rules are never hostile
-        // Hostile criticality requires objective-level evidence and belongs in obj/
+        // Validate that micro-behaviors/ rules are never hostile
+        // Hostile criticality requires objective-level evidence and belongs in objectives/
         tracing::debug!("Step 13/15: Checking for hostile cap rules");
         let hostile_cap_rules =
             find_hostile_cap_rules(&trait_definitions, &composite_rules, &rule_source_files);
 
         if !hostile_cap_rules.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} cap/ rules have hostile criticality",
+                "\n❌ ERROR: {} micro-behaviors/ rules have hostile criticality",
                 hostile_cap_rules.len()
             );
             eprintln!("   Cap contains micro-behaviors (atomic capabilities) which are generally neutral.");
             eprintln!(
-                "   Hostile rules require intent inference and should be in obj/ where they can be"
+                "   Hostile rules require intent inference and should be in objectives/ where they can be"
             );
             eprintln!("   categorized properly by attacker objective (C2, exfil, impact, etc.):\n");
             for (rule_id, source_file) in &hostile_cap_rules {
@@ -1253,16 +1253,16 @@ impl CapabilityMapper {
                 }
             }
             eprintln!("\n   Cap rules max criticality: suspicious (rarely legitimate but still a capability)");
-            eprintln!("   Move hostile rules to obj/c2/, obj/exfil/, obj/impact/, etc. based on objective.");
+            eprintln!("   Move hostile rules to objectives/command-and-control/, objectives/exfiltration/, objectives/impact/, etc. based on objective.");
             warnings.push(format!(
-                "{} cap/ rules have hostile criticality (should be in obj/)",
+                "{} micro-behaviors/ rules have hostile criticality (should be in objectives/)",
                 hostile_cap_rules.len()
             ));
         }
 
-        // Validate that obj/ rules are never inert
+        // Validate that objectives/ rules are never inert
         // Obj rules represent attacker objectives and must carry analytical signal.
-        // Inert rules either belong in cap/ or meta/ (if truly neutral), or should
+        // Inert rules either belong in micro-behaviors/ or metadata/ (if truly neutral), or should
         // be upgraded to notable if they indicate something of interest or suspicion.
         tracing::debug!("Step 13b/15: Checking for inert obj rules");
         let inert_obj_rules =
@@ -1270,11 +1270,11 @@ impl CapabilityMapper {
 
         if !inert_obj_rules.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} obj/ rules have inert criticality",
+                "\n❌ ERROR: {} objectives/ rules have inert criticality",
                 inert_obj_rules.len()
             );
             eprintln!("   Obj rules represent attacker objectives and must carry analytical signal.");
-            eprintln!("   Inert findings have no place in obj/ - every objective implies intent:\n");
+            eprintln!("   Inert findings have no place in objectives/ - every objective implies intent:\n");
             for (rule_id, source_file) in &inert_obj_rules {
                 let line_hint = find_line_number(source_file, "crit: inert");
                 if let Some(line) = line_hint {
@@ -1284,16 +1284,16 @@ impl CapabilityMapper {
                 }
             }
             eprintln!("\n   To fix:");
-            eprintln!("   - If truly neutral (no intent), migrate to cap/ or meta/");
+            eprintln!("   - If truly neutral (no intent), migrate to micro-behaviors/ or metadata/");
             eprintln!("   - If it leans toward any level of interest or suspicion, upgrade to notable");
             eprintln!("   - See TAXONOMY.md for guidance on trait classification");
             warnings.push(format!(
-                "{} obj/ rules have inert criticality (migrate to cap/meta/ or upgrade to notable)",
+                "{} objectives/ rules have inert criticality (migrate to micro-behaviors/metadata/ or upgrade to notable)",
                 inert_obj_rules.len()
             ));
         }
 
-        // Validate that malware/ is not used as a subcategory of obj/ or cap/
+        // Validate that malware/ is not used as a subcategory of objectives/ or micro-behaviors/
         // Malware-specific signatures belong in known/malware/ per TAXONOMY.md
         tracing::debug!("Step 13b/15: Checking for misplaced malware/ subcategories");
         let malware_violations = find_malware_subcategory_violations(
@@ -1304,17 +1304,17 @@ impl CapabilityMapper {
 
         if !malware_violations.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} rules use malware/ as a subcategory of obj/ or cap/",
+                "\n❌ ERROR: {} rules use malware/ as a subcategory of objectives/ or micro-behaviors/",
                 malware_violations.len()
             );
-            eprintln!("   Malware-specific signatures belong in known/malware/, not obj/ or cap/.");
+            eprintln!("   Malware-specific signatures belong in known/malware/, not objectives/ or micro-behaviors/.");
             eprintln!("   See TAXONOMY.md for the correct taxonomy structure:\n");
             for (rule_id, source_file) in &malware_violations {
                 eprintln!("   {}: Rule '{}'", source_file, rule_id);
             }
             eprintln!("\n   Move these rules to known/malware/<family>/ instead.");
             warnings.push(format!(
-                "{} rules misuse malware/ as a subcategory of obj/ or cap/ (see TAXONOMY.md)",
+                "{} rules misuse malware/ as a subcategory of objectives/ or micro-behaviors/ (see TAXONOMY.md)",
                 malware_violations.len()
             ));
             has_fatal_errors = true;
@@ -1415,10 +1415,8 @@ impl CapabilityMapper {
         }
         if !overlapping.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} composite rules have overlapping {}/{} conditions",
-                overlapping.len(),
-                "all:",
-                "any:"
+                "\n❌ ERROR: {} composite rules have overlapping all:/any: conditions",
+                overlapping.len()
             );
             eprintln!("   A directory reference already includes all traits within it;\n   remove the specific trait reference:\n");
             for (rule_id, clause, dir_ref, specific_ref, source_file) in &overlapping {
@@ -1735,23 +1733,23 @@ impl CapabilityMapper {
             for (ref_id, rule_id) in trait_refs {
                 // Skip validation for directory-level references (intentional loose coupling)
                 // e.g., "discovery/system" matches any trait in that directory
-                // Also allow parent directory refs like "cap/fs/write/" when traits exist in subdirs
+                // Also allow parent directory refs like "micro-behaviors/fs/write/" when traits exist in subdirs
                 let ref_without_slash = ref_id.trim_end_matches('/');
                 // O(1) prefix hierarchy lookup instead of O(n) iteration
                 let is_directory_ref = prefix_hierarchy.contains(&ref_id)
                     || prefix_hierarchy.contains(ref_without_slash);
 
-                // Skip validation for dynamically generated meta/* references
-                // - meta/import/ and meta/dylib/ are generated from binary imports
-                // - meta/signed/ is generated from code signature parsing
-                // - meta/internal/ is validated separately (forbidden in composite rules)
-                let is_dynamic_or_internal = ref_id.starts_with("meta/import/")
-                    || ref_id.starts_with("meta/dylib/")
-                    || ref_id.starts_with("meta/signed/")
-                    || ref_id.starts_with("meta/internal/");
+                // Skip validation for dynamically generated metadata/* references
+                // - metadata/import/ and metadata/dylib/ are generated from binary imports
+                // - metadata/signed/ is generated from code signature parsing
+                // - metadata/internal/ is validated separately (forbidden in composite rules)
+                let is_dynamic_or_internal = ref_id.starts_with("metadata/import/")
+                    || ref_id.starts_with("metadata/dylib/")
+                    || ref_id.starts_with("metadata/signed/")
+                    || ref_id.starts_with("metadata/internal/");
 
                 // Check if the exact trait ID exists (unless it's an intentional directory ref)
-                // Note: We require exact matches. References like "cap/foo/bar/filename" where
+                // Note: We require exact matches. References like "micro-behaviors/foo/bar/filename" where
                 // "filename" is a YAML file (not a directory) are invalid - filenames are never
                 // part of trait IDs, only the directory path is used for prefixing.
                 if !is_directory_ref
@@ -2081,23 +2079,16 @@ impl CapabilityMapper {
             has_fatal_errors = true;
         }
 
-        // Warnings are NOT fatal during analysis, just print them if in debug mode
         if !warnings.is_empty() {
-            if debug {
-                eprintln!(
-                    "\n❌ ERROR: {} trait configuration warning(s) found:\n",
-                    warnings.len()
-                );
-                for warning in &warnings {
-                    eprintln!("   ⚠️  {}", warning);
-                }
-                eprintln!("\n   Consider fixing these issues in the YAML files.\n");
-            } else {
-                tracing::warn!(
-                    "{} trait configuration warnings found (set DISSECT_DEBUG=1 to see details)",
-                    warnings.len()
-                );
+            eprintln!(
+                "\n❌ ERROR: {} trait configuration warning(s) found:\n",
+                warnings.len()
+            );
+            for warning in &warnings {
+                eprintln!("   ⚠️  {}", warning);
             }
+            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            has_fatal_errors = true;
         }
 
         // Exit if any fatal errors occurred
@@ -2265,7 +2256,7 @@ impl CapabilityMapper {
     }
 
     /// Look up a symbol and return its capability finding if known
-    #[must_use] 
+    #[must_use]
     pub(crate) fn lookup(&self, symbol: &str, source: &str) -> Option<Finding> {
         // Strip common prefixes for matching
         let clean_symbol = symbol
@@ -2707,7 +2698,7 @@ impl CapabilityMapper {
 
         if has_excessive_line {
             all_findings.push(Finding {
-                id: "obj/anti-static/excessive-line-length".to_string(),
+                id: "objectives/anti-static/excessive-line-length".to_string(),
                 kind: FindingKind::Structural,
                 desc:
                     "File contains excessively long lines (>1MB) that may cause regex backtracking"
@@ -2819,7 +2810,7 @@ impl CapabilityMapper {
     /// let (yara_matches, inline_yara) = engine.scan_bytes_with_inline(data, filter)?;
     /// self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None, Some(&inline_yara));
     /// ```
-    pub(crate) fn evaluate_and_merge_findings(
+    pub fn evaluate_and_merge_findings(
         &self,
         report: &mut AnalysisReport,
         binary_data: &[u8],
@@ -2843,16 +2834,16 @@ impl CapabilityMapper {
             }
         }
 
-        // Step 2.5: Generate synthetic meta/import findings from discovered imports
+        // Step 2.5: Generate synthetic metadata/import findings from discovered imports
         // This MUST happen before Step 3 so composite rules can reference them
         Self::generate_import_findings(report);
 
-        // Step 3: Evaluate composite rules (which can now access atomic traits AND meta/import findings)
+        // Step 3: Evaluate composite rules (which can now access atomic traits AND metadata/import findings)
         let composite_findings =
             self.evaluate_composite_rules(report, binary_data, cached_ast, inline_yara);
 
         // Step 4: Merge composite findings into report.
-        // Rebuild seen to include meta/import findings added in step 2.5.
+        // Rebuild seen to include metadata/import findings added in step 2.5.
         let mut seen: FxHashSet<String> =
             report.findings.iter().map(|f| f.id.clone()).collect();
         for finding in composite_findings {
@@ -2863,13 +2854,13 @@ impl CapabilityMapper {
         }
     }
 
-    /// Generate meta/import/ findings from discovered imports.
+    /// Generate metadata/import/ findings from discovered imports.
     ///
     /// Creates inert structural findings for each import, allowing composite rules
     /// to reference imports as traits. For example:
-    /// - `meta/import/python/socket` for Python's socket module
-    /// - `meta/import/npm/axios` for npm's axios package
-    /// - `meta/import/elf/libcrypto.so` for ELF shared library imports
+    /// - `metadata/import/python/socket` for Python's socket module
+    /// - `metadata/import/npm/axios` for npm's axios package
+    /// - `metadata/import/elf/libcrypto.so` for ELF shared library imports
     pub(crate) fn generate_import_findings(report: &mut AnalysisReport) {
         // Collect existing finding IDs to avoid duplicates
         let mut seen_ids: FxHashSet<String> =
@@ -2883,8 +2874,8 @@ impl CapabilityMapper {
 
         if is_binary {
             // For binaries: generate library-level and symbol-level findings
-            // Library: meta/dylib/{library} - linked libraries (for composite trait matching)
-            // Symbol: meta/internal/imported/{symbol} - imported symbols (for ML only, not composite traits)
+            // Library: metadata/dylib/{library} - linked libraries (for composite trait matching)
+            // Symbol: metadata/internal/imported/{symbol} - imported symbols (for ML only, not composite traits)
 
             // Group symbols by library for dylib findings
             let mut libs_with_symbols: std::collections::HashMap<String, Vec<String>> =
@@ -2903,7 +2894,7 @@ impl CapabilityMapper {
                 // Generate symbol-level finding for ML (not for composite trait matching)
                 let normalized_symbol = Self::normalize_import_name(&import.symbol);
                 if !normalized_symbol.is_empty() {
-                    let symbol_id = format!("meta/internal/imported::{}", normalized_symbol);
+                    let symbol_id = format!("metadata/internal/imported::{}", normalized_symbol);
                     if !seen_ids.contains(&symbol_id) {
                         seen_ids.insert(symbol_id.clone());
                         new_findings.push(Finding {
@@ -2936,7 +2927,7 @@ impl CapabilityMapper {
                 }
 
                 // No format prefix - we don't encode file types in trait IDs
-                let id = format!("meta/dylib::{}", normalized_lib);
+                let id = format!("metadata/dylib::{}", normalized_lib);
 
                 if seen_ids.contains(&id) {
                     continue;
@@ -2977,8 +2968,8 @@ impl CapabilityMapper {
             }
         } else {
             // For scripts: generate two types of findings:
-            // 1. meta/import/{lang}/{module} for actual imports (usable in composite traits)
-            // 2. meta/internal/imported/{symbol} for function calls (ML only, not for composites)
+            // 1. metadata/import/{lang}/{module} for actual imports (usable in composite traits)
+            // 2. metadata/internal/imported/{symbol} for function calls (ML only, not for composites)
             for import in &report.imports {
                 let normalized = Self::normalize_import_name(&import.symbol);
                 if normalized.is_empty() {
@@ -2986,8 +2977,8 @@ impl CapabilityMapper {
                 }
 
                 if import.source == "ast" {
-                    // Function calls go to meta/internal/imported/ for ML usage only
-                    let symbol_id = format!("meta/internal/imported::{}", normalized);
+                    // Function calls go to metadata/internal/imported/ for ML usage only
+                    let symbol_id = format!("metadata/internal/imported::{}", normalized);
                     if !seen_ids.contains(&symbol_id) {
                         seen_ids.insert(symbol_id.clone());
                         new_findings.push(Finding {
@@ -3010,11 +3001,11 @@ impl CapabilityMapper {
                         });
                     }
                 } else {
-                    // Actual imports go to meta/import/{lang}/{module} for composite traits
+                    // Actual imports go to metadata/import/{lang}/{module} for composite traits
                     let source_ecosystem =
                         Self::detect_import_ecosystem(&file_type, &import.source);
 
-                    let id = format!("meta/import/{}::{}", source_ecosystem, normalized);
+                    let id = format!("metadata/import/{}::{}", source_ecosystem, normalized);
 
                     if seen_ids.contains(&id) {
                         continue;
@@ -3268,9 +3259,9 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
         }
     }
 
-    // Check for directories named "obfuscation" or "obfuscate" under cap/.
+    // Check for directories named "obfuscation" or "obfuscate" under micro-behaviors/.
     // Obfuscation detection describes attacker intent (anti-analysis evasion), not observable
-    // capability — it belongs in obj/, not cap/.
+    // capability — it belongs in objectives/, not micro-behaviors/.
     {
         let components: Vec<_> = path.components().collect();
         // Find the index of a component named "cap"
@@ -3278,7 +3269,7 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
             c.as_os_str().to_string_lossy().eq_ignore_ascii_case("cap")
         });
         if let Some(cap_pos) = cap_idx {
-            // Check directory components after "cap/" but before the filename
+            // Check directory components after "micro-behaviors/" but before the filename
             let dir_components = &components[cap_pos + 1..components.len().saturating_sub(1)];
             for component in dir_components {
                 let name = component.as_os_str().to_string_lossy();
@@ -3286,11 +3277,11 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
                     || name.eq_ignore_ascii_case("obfuscate")
                 {
                     warnings.push(format!(
-                        "{}: directory '{}' must not be under 'cap/' — obfuscation detection \
+                        "{}: directory '{}' must not be under 'micro-behaviors/' — obfuscation detection \
                          describes attacker intent (anti-analysis evasion), not an observable \
-                         capability. Move this file to 'obj/anti-static/obfuscation/' or \
-                         'obj/anti-analysis/obfuscation/'. See TAXONOMY.md: cap/ captures \
-                         what code can do; obj/ captures attacker goals.",
+                         capability. Move this file to 'objectives/anti-static/obfuscation/' or \
+                         'objectives/anti-analysis/obfuscation/'. See TAXONOMY.md: micro-behaviors/ captures \
+                         what code can do; objectives/ captures attacker goals.",
                         path.display(),
                         name
                     ));

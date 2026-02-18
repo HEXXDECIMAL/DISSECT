@@ -25,7 +25,7 @@ fn test_keylogger_detection() {
             if let Some(findings) = json.get("findings").and_then(|f| f.as_array()) {
                 for finding in findings {
                     if let Some(id) = finding.get("id").and_then(|i| i.as_str()) {
-                        if id == "obj/creds/keylog/capture::js-keylogger-exfil" {
+                        if id == "objectives/credential-access/keylog/capture::js-keylogger-exfil" {
                             found = true;
                             // Check criticality
                             let crit = finding.get("crit").and_then(|c| c.as_str()).unwrap_or("");

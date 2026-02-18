@@ -1,0 +1,53 @@
+defaults:
+  for:
+  - python
+  mbc: C0002
+  attack: T1071.001
+  crit: suspicious
+traits:
+- id: python-fstring-url
+  desc: URL constructed with f-string variable
+  conf: 0.85
+  if:
+    type: string
+    regex: f["']https?://\{(?:ip|ipv4|ip_addr|ipaddress|server_ip|c2_ip|host_ip)\}
+- id: python-fstring-url-with-port
+  desc: f-string URL construction with host
+  conf: 0.85
+  if:
+    type: string
+    regex: f["']https?://\{\w+\}:\d+
+- id: python-string-concat-url
+  desc: URL constructed via string concatenation
+  conf: 0.85
+  if:
+    type: string
+    regex: '["'']https?://["'']\s*\+\s*\w+'
+- id: python-assigned-ipv4
+  desc: Hardcoded IPv4 address assigned to
+  conf: 0.9
+  if:
+    type: string
+    regex: \w+\s*=\s*["'](?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])["']
+    external_ip: true
+- id: python-requests-ip-url
+  desc: HTTP request to IP-based URL
+  conf: 0.9
+  if:
+    type: string
+    regex: requests\.(get|post)\([^)]{0,120}https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}
+    external_ip: true
+- id: python-urllib-ip-url
+  desc: urllib request to IP-based URL
+  conf: 0.9
+  if:
+    type: string
+    regex: urlopen\([^)]{0,120}https?://(?:(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}
+    external_ip: true
+composite_rules:
+- id: python-url-construction
+  desc: C2 URL constructed from host
+  conf: 0.85
+  any:
+  - id: python-fstring-url-with-port
+  - id: python-string-concat-url

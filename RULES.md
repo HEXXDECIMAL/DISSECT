@@ -7,32 +7,32 @@
 **Criticality** = independent from confidence
 
 **Tier hierarchy:**
-- `cap/*` - Observable capabilities (what code can do)
-- `obj/*` - Attacker objectives (intent signals)
-- `known/*` - Specific malware/tool signatures (family-unique only)
-- `meta/*` - Informational file properties
+- `micro-behaviors/*` - Observable capabilities (what code can do)
+- `objectives/*` - Attacker objectives (intent signals)
+- `well-known/*` - Specific malware/tool signatures (family-unique only)
+- `metadata/*` - Informational file properties
 
 See [TAXONOMY.md](./TAXONOMY.md) for complete tier structure.
 
 **Tier dependencies:**
-- `cap/` → can reference `cap/` and `meta/` only
-- `obj/` → can reference `cap/`, `obj/`, and `meta/`
-- `known/` → can reference `cap/`, `obj/`, `known/`, and `meta/`
-- `meta/` → typically references `meta/` only
+- `micro-behaviors/` → can reference `micro-behaviors/` and `metadata/` only
+- `objectives/` → can reference `micro-behaviors/`, `objectives/`, and `metadata/`
+- `well-known/` → can reference `micro-behaviors/`, `objectives/`, `well-known/`, and `metadata/`
+- `metadata/` → typically references `metadata/` konly
 
 **Critical rules:**
-- `cap/` must NOT reference `obj/` (capabilities are atomic, objectives infer intent)
-- `cap/` must NOT use `crit: hostile` (hostile requires intent inference, belongs in `obj/`)
+- `micro-behaviors/` must NOT reference `objectives/` (capabilities are atomic, objectives infer intent)
+- `micro-behaviors/` must NOT use `crit: hostile` (hostile requires intent inference, belongs in `objectives/`)
 
 ## Trait Placement & IDs
 
-- IDs auto-prefixed by directory path (e.g., `traits/cap/process/create/shell/` → prefix `cap/process/create/shell`)
+- IDs auto-prefixed by directory path (e.g., `traits/micro-behaviors/process/create/shell/` → prefix `micro-behaviors/process/create/shell`)
 - **Filenames are NEVER part of trait IDs** - only the directory path is used for prefixing
-  - A trait `foo` in `traits/cap/process/create/shell/python.yaml` has ID `cap/process/create/shell::foo`
-  - NOT `cap/process/create/shell/python::foo` or `cap/process/create/shell/python/foo`
-- Cross-tier references use full paths: `cap/process/create/shell::subprocess`
-- Directory match: `cap/process/create/shell/` matches all traits in that directory
-- Generic capabilities NEVER go in `known/`
+  - A trait `foo` in `traits/micro-behaviors/process/create/shell/python.yaml` has ID `micro-behaviors/process/create/shell::foo`
+  - NOT `micro-behaviors/process/create/shell/python::foo` or `micro-behaviors/process/create/shell/python/foo`
+- Cross-tier references use full paths: `micro-behaviors/process/create/shell::subprocess`
+- Directory match: `micro-behaviors/process/create/shell/` matches all traits in that directory
+- Generic capabilities NEVER go in `well-known/`
 
 ## Criticality Levels
 
@@ -49,7 +49,7 @@ See [TAXONOMY.md](./TAXONOMY.md) for complete tier structure.
 
 ```yaml
 traits:
-  - id: exec/process/terminate          # ID relative to directory
+  - id: execution/terminate          # ID relative to directory
     desc: Process termination API call   # 4-6 words, what was detected
     crit: suspicious                     # inert|notable|suspicious|hostile
     conf: 0.95                           # 0.0-1.0
@@ -299,9 +299,9 @@ composite_rules:
     conf: 0.95
     for: [elf, macho]
     all:                              # AND (all must match)
-      - id: cap/comm/socket/create
-      - id: cap/process/fd/dup2
-      - id: cap/process/create/shell
+      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/process/fd/dup2
+      - id: micro-behaviors/process/create/shell
     any:                              # OR (at least one)
       - id: pattern-a
       - id: pattern-b
@@ -343,8 +343,8 @@ traits:
       exact: "ptrace"
     downgrade:                           # → notable if signed
       any:
-        - id: meta/signed/platform::apple
-        - id: meta/quality::versioned
+        - id: metadata/signed/platform::apple
+        - id: metadata/quality::versioned
 
 composite_rules:
   - id: process-hollowing
@@ -352,11 +352,11 @@ composite_rules:
     crit: hostile                        # Hostile by default
     conf: 0.95
     all:
-      - id: cap/process/create
-      - id: cap/mem/allocate/rwx
+      - id: micro-behaviors/process/create
+      - id: micro-behaviors/mem/allocate/rwx
     downgrade:                           # → suspicious if debugger
       any:
-        - id: cap/process/create/load/library::debugger-tool-marker
+        - id: micro-behaviors/process/create/load/library::debugger-tool-marker
 ```
 
 **Note:** Downgrade to `inert` removes the finding from output entirely. Use `unless:` if you want to skip matching instead.

@@ -1,0 +1,12 @@
+type: rule
+id: objectives/persistence/infection/pe-infector-vdata
+conf: 3.0
+crit: hostile
+description: Detects PE infection attempt creating ".vdata" section
+conditions:
+  - type: or
+    rule_id: micro-behaviors/fs/pe/section::vdata
+    filters:
+      - type: or
+        rule_id: micro-behaviors/data/source/markers/malware::etymo-crypt-strings
+        rule_id: micro-behaviors/data/source/pattern/encryption::asm-xor-loop

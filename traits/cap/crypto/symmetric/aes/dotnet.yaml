@@ -1,8 +1,0 @@
-traits:
-  - id: dotnet-rijndael
-    desc: "Uses RijndaelManaged/AES in .NET"
-    crit: notable
-    conf: 0.9
-    if:
-      type: string
-      regex: "RijndaelManaged|AesManaged|AesCryptoServiceProvider|System\\.Security\\.Cryptography\\.(Aes|Rijndael)|CreateDecryptor|ICryptoTransform"

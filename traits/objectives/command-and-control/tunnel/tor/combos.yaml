@@ -1,0 +1,53 @@
+# Tor Hidden Service Dropper Composite Rules
+# Combines Tor hidden service setup with dropper and execution behavior
+# MBC: B0030 (C2), E1059 (Script Execution)
+# ATT&CK: T1090.003 (Multi-hop Proxy), T1059 (Command Execution)
+
+composite_rules:
+  # .NET PE that sets up Tor hidden service with PowerShell
+  # Complexity: all(4) = 4 -> hostile maintained
+  - id: dotnet-tor-backdoor
+    desc: .NET Tor hidden service backdoor
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1090.003"
+    for: [pe, dll]
+    all:
+      - id: objectives/execution/reflective-load/memory::dotnet-powershell-host
+      - id: objectives/command-and-control/tunnel/tor::hidden-service-setup
+      - id: objectives/command-and-control/tunnel/tor::torproject-url
+      - id: objectives/command-and-control/tunnel/tor::onion-domain
+
+  # Tor hidden service with embedded payloads
+  # Complexity: all(3) + any(1) = 4 -> hostile maintained
+  - id: tor-payload-dropper
+    desc: Tor dropper with embedded payloads
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1140"
+    for: [pe, dll]
+    all:
+      - id: objectives/command-and-control/tunnel/tor::hidden-service-setup
+      - id: objectives/command-and-control/dropper/embedded-payload::frombase64string
+      - id: objectives/command-and-control/tunnel/tor::onion-domain
+    any:
+      - id: objectives/command-and-control/dropper/embedded-payload::writeallbytes
+      - id: objectives/execution/interpreter/vbscript/interpreter::wscript-shell-exec
+
+  # Tor hidden service exposing sensitive ports (RDP/SMB/SSH)
+  # Complexity: all(2) + any(1) = 3 -> suspicious (not enough for hostile)
+  - id: tor-sensitive-port-exposure
+    desc: Tor exposing sensitive services
+    crit: suspicious
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1021"
+    all:
+      - id: objectives/command-and-control/tunnel/tor::hidden-service-setup
+      - id: objectives/command-and-control/tunnel/tor::torproject-url
+    any:
+      - id: objectives/command-and-control/tunnel/tor::rdp-over-tor
+      - id: objectives/command-and-control/tunnel/tor::smb-over-tor
+      - id: objectives/command-and-control/tunnel/tor::ssh-over-tor

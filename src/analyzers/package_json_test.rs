@@ -184,7 +184,7 @@ fn test_detect_eval_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/command/shell"));
+    assert!(has_finding(&report, "execution/command/shell"));
 }
 
 #[test]
@@ -197,7 +197,7 @@ fn test_detect_command_substitution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/command/shell"));
+    assert!(has_finding(&report, "execution/command/shell"));
 }
 
 #[test]
@@ -210,7 +210,7 @@ fn test_detect_backtick_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/command/shell"));
+    assert!(has_finding(&report, "execution/command/shell"));
 }
 
 #[test]
@@ -223,7 +223,7 @@ fn test_detect_sh_c_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/command/shell"));
+    assert!(has_finding(&report, "execution/command/shell"));
 }
 
 // ==================== Script Analysis - File Operations ====================
@@ -333,9 +333,9 @@ fn test_detect_curl_post() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exfil/http-post"));
+    assert!(has_finding(&report, "exfiltration/http-post"));
     assert!(report.findings.iter().any(|f| {
-        f.id.contains("exfil/http-post") && f.crit == Criticality::Suspicious
+        f.id.contains("exfiltration/http-post") && f.crit == Criticality::Suspicious
     }));
 }
 
@@ -349,7 +349,7 @@ fn test_detect_curl_data_flag() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exfil/http-post"));
+    assert!(has_finding(&report, "exfiltration/http-post"));
 }
 
 #[test]
@@ -362,9 +362,9 @@ fn test_detect_file_upload() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exfil/file-upload"));
+    assert!(has_finding(&report, "exfiltration/file-upload"));
     assert!(report.findings.iter().any(|f| {
-        f.id.contains("exfil/file-upload") && f.crit == Criticality::Hostile
+        f.id.contains("exfiltration/file-upload") && f.crit == Criticality::Hostile
     }));
 }
 
@@ -380,7 +380,7 @@ fn test_detect_perl_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/script/perl"));
+    assert!(has_finding(&report, "execution/script/perl"));
     assert!(has_attack(&report, "T1059"));
 }
 
@@ -394,7 +394,7 @@ fn test_detect_python_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/script/python"));
+    assert!(has_finding(&report, "execution/script/python"));
 }
 
 #[test]
@@ -407,7 +407,7 @@ fn test_detect_ruby_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/script/ruby"));
+    assert!(has_finding(&report, "execution/script/ruby"));
 }
 
 #[test]
@@ -420,7 +420,7 @@ fn test_detect_node_execution() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "exec/script/node"));
+    assert!(has_finding(&report, "execution/script/node"));
 }
 
 // ==================== Script Analysis - Advanced Attacks ====================
@@ -435,11 +435,11 @@ fn test_detect_download_and_execute() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/dropper/download-execute"));
+    assert!(has_finding(&report, "command-and-control/dropper/download-execute"));
     assert!(has_attack(&report, "T1105"));
     assert!(has_mbc(&report, "B0024"));
     assert!(report.findings.iter().any(|f| {
-        f.id.contains("c2/dropper/download-execute") && f.crit == Criticality::Hostile
+        f.id.contains("command-and-control/dropper/download-execute") && f.crit == Criticality::Hostile
     }));
 }
 
@@ -453,7 +453,7 @@ fn test_detect_wget_python_chain() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/dropper/download-execute"));
+    assert!(has_finding(&report, "command-and-control/dropper/download-execute"));
 }
 
 #[test]
@@ -466,9 +466,9 @@ fn test_detect_pipe_to_sh() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/dropper/pipe-execute"));
+    assert!(has_finding(&report, "command-and-control/dropper/pipe-execute"));
     assert!(report.findings.iter().any(|f| {
-        f.id.contains("c2/dropper/pipe-execute") && f.crit == Criticality::Hostile
+        f.id.contains("command-and-control/dropper/pipe-execute") && f.crit == Criticality::Hostile
     }));
 }
 
@@ -482,7 +482,7 @@ fn test_detect_pipe_to_bash() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/dropper/pipe-execute"));
+    assert!(has_finding(&report, "command-and-control/dropper/pipe-execute"));
 }
 
 #[test]
@@ -495,7 +495,7 @@ fn test_detect_pipe_to_perl() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/dropper/pipe-execute"));
+    assert!(has_finding(&report, "command-and-control/dropper/pipe-execute"));
 }
 
 // ==================== Script Analysis - Evasion ====================
@@ -537,7 +537,7 @@ fn test_detect_php_endpoint() {
         }
     }"#;
     let report = analyze_content(content);
-    assert!(has_finding(&report, "c2/endpoint/php"));
+    assert!(has_finding(&report, "command-and-control/endpoint/php"));
     assert!(has_attack(&report, "T1071.001"));
 }
 
@@ -867,10 +867,10 @@ fn test_real_world_malicious_package() {
     // Should detect multiple suspicious patterns
     assert!(has_finding(&report, "supply-chain/suspicious-name"));
     assert!(has_finding(&report, "supply-chain/install-hook"));
-    assert!(has_finding(&report, "c2/dropper/pipe-execute"));
-    assert!(has_finding(&report, "exfil/file-upload"));
-    assert!(has_finding(&report, "c2/endpoint/php"));
-    assert!(has_finding(&report, "c2/suspicious-domain"));
+    assert!(has_finding(&report, "command-and-control/dropper/pipe-execute"));
+    assert!(has_finding(&report, "exfiltration/file-upload"));
+    assert!(has_finding(&report, "command-and-control/endpoint/php"));
+    assert!(has_finding(&report, "command-and-control/suspicious-domain"));
 
     // Multiple findings should be marked Hostile
     let hostile_count = report.findings.iter()

@@ -1,0 +1,246 @@
+# Command Execution Detection
+# MBC: OB0009 (Execution) → E1059 (Command and Scripting Interpreter)
+# ATT&CK: T1059 (Command and Scripting Interpreter)
+
+defaults:
+  for: [all]
+
+traits:
+  # C/C++ - Unix
+  - id: c-system
+    desc: Executes shell commands via C
+    crit: notable
+    mbc: "E1059.004"
+    attack: "T1059.004"
+    conf: 0.9
+    if:
+      type: symbol
+      # Match only the actual system() function, not std::filesystem or other symbols
+      exact: "system"
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: c-popen
+    desc: Executes command and captures output
+    crit: notable
+    mbc: "E1059.004"
+    attack: "T1059.004"
+    conf: 0.9
+    if:
+      type: symbol
+      # Match popen() and related symbols
+      regex: "popen"
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: c-execve
+    desc: Executes program directly via C
+    crit: notable
+    mbc: "E1059"
+    attack: "T1059"
+    conf: 0.95
+    if:
+      type: symbol
+      regex: execve
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: c-exec-variants
+    desc: C-style exec family functions
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "^(execl|execle|execlp|execv|execvp|execvpe)$"
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  # Windows
+  # win-createprocess: CreateProcessA -> micro-traits/process/create/spawn::create-process-a (canonical)
+  # win-createprocess: CreateProcessW -> micro-traits/process/create/spawn::create-process-w (canonical)
+  # win-shellexecute: ShellExecuteA -> micro-traits/process/create/methods::shell-execute-a (canonical)
+  # win-shellexecute: ShellExecuteW -> micro-traits/process/create/methods::shell-execute (canonical)
+  # win-shellexecute: ShellExecuteExW -> micro-traits/process/create/methods::shell-execute-ex (canonical)
+  - id: shell-execute-ex-a
+    desc: ShellExecuteExA ANSI extended API
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "ShellExecuteExA"
+    platforms: [windows]
+    for: [pe, dll]
+
+  # Go
+  - id: go-os-exec
+    desc: Executes commands via Go os/exec
+    crit: notable
+    mbc: "E1059"
+    attack: "T1059"
+    conf: 0.9
+    if:
+      type: symbol
+      regex: 'os/exec\..{0,50}'
+
+  # Python
+  - id: python-os-system
+    desc: Executes shell commands via Python
+    crit: notable
+    mbc: "E1059.006"
+    attack: "T1059.006"
+    conf: 0.95
+    for: [python]
+    if:
+      type: symbol
+      exact: "os.system"
+
+  # JavaScript
+  - id: js-child-process
+    desc: Executes commands via Node.js child_process
+    crit: notable
+    mbc: "E1059"
+    attack: "T1059"
+    conf: 0.9
+    if:
+      type: symbol
+      regex: 'child_process\.(exec|spawn|fork).{0,50}'
+
+  # Ruby
+  - id: ruby-system
+    desc: Executes commands via Ruby system()
+    crit: notable
+    mbc: "E1059"
+    attack: "T1059"
+    conf: 0.9
+    for: [ruby]
+    if:
+      type: string
+      regex: '\bsystem\([''\"]'
+
+  # Rust
+  - id: rust-command
+    desc: Executes process via Rust std::process::Command
+    crit: notable
+    mbc: "E1059"
+    attack: "T1059"
+    conf: 0.9
+    if:
+      type: symbol
+      regex: 'std::process::Command::.{0,50}'
+
+  # Shell references
+  - id: bin-sh
+    desc: References /bin/sh (Bourne shell)
+    crit: notable
+    mbc: "E1059.004"
+    attack: "T1059.004"
+    conf: 0.6
+    if:
+      type: string
+      substr: "/bin/sh"
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: bin-bash
+    desc: References /bin/bash (Bash shell)
+    crit: notable
+    mbc: "E1059.004"
+    attack: "T1059.004"
+    conf: 0.6
+    if:
+      type: string
+      substr: "/bin/bash"
+    platforms: [unix, linux, macos]
+    for: [binaries]
+
+  - id: cmd-exe
+    desc: References cmd.exe (Windows Command Prompt)
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.6
+    if:
+      type: string
+      regex: 'cmd\.exe|cmd /c'
+      case_insensitive: true
+    platforms: [windows]
+
+  # Behavioral Patterns
+  - id: shell-platform-check
+    desc: Checks OS type
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: raw
+      regex: '$OSTYPE|linux-gnu|darwin|msys|cygwin'
+
+  - id: curl-pipe-exec
+    desc: One-liner download and execute
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: raw
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
+
+  - id: sudo-piped-exec
+    desc: Piped execution with sudo
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: raw
+      regex: '\|\s*sudo\s+'
+
+  # Shell sleep with format specifier followed by command - randomized execution cadence
+  - id: sleep-format-exec
+    desc: Shell sleep with format command template
+    crit: notable
+    conf: 0.85
+    attack: "T1029"
+    if:
+      type: string
+      regex: 'sleep %[ds].{0,10}%[ds]'
+
+  # macOS open command to launch applications
+  - id: open-a-app
+    desc: macOS open -a application launch
+    crit: notable
+    conf: 0.8
+    attack: "T1204.001"
+    platforms: [macos]
+    if:
+      type: string
+      regex: 'open -a \w+'
+
+composite_rules:
+  # win-createprocess: composite referencing canonical process creation traits
+  - id: win-createprocess
+    desc: Creates new process via Windows API
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.9
+    platforms: [windows]
+    for: [pe, dll]
+    any:
+      - id: micro-traits/process/create/spawn::create-process-a
+      - id: micro-traits/process/create/spawn::create-process-w
+
+  # win-shellexecute: composite referencing canonical shell execute traits
+  - id: win-shellexecute
+    desc: Executes file or program via Windows ShellExecute API
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.9
+    platforms: [windows]
+    for: [pe, dll]
+    any:
+      - id: micro-traits/process/create/methods::shell-execute-a
+      - id: micro-traits/process/create/methods::shell-execute
+      - id: micro-traits/process/create/methods::shell-execute-ex
+      - id: shell-execute-ex-a

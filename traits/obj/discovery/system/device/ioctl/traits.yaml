@@ -1,4 +1,0 @@
-# Device I/O Control - Deleted
-# This was a taxonomy violation - atomic symbol detection belongs in cap/
-# The capability already exists at: cap/fs/device/ioctl::ioctl
-# For proper discovery objectives, combine ioctl with other evidence of system enumeration

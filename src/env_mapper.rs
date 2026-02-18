@@ -527,7 +527,7 @@ pub(crate) fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Find
         traits.push(Finding {
             kind: FindingKind::Capability,
             trait_refs: vec![],
-            id: "cap/os/env/display".to_string(),
+            id: "micro-behaviors/os/env/display".to_string(),
             desc: "Accesses display environment variable (X11/Wayland)".to_string(),
             conf: 0.9,
             crit: Criticality::Inert, // Normal for GUI apps and X11 libs

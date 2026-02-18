@@ -1,0 +1,10 @@
+defaults:
+  for: [all]
+
+traits:
+  - id: msxml2-xmlhttp
+    desc: "MSXML2.XMLHTTP object"
+    crit: notable
+    if:
+      type: string
+      regex: 'MSXML2\.XMLHTTP'

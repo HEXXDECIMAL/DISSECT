@@ -158,7 +158,7 @@ impl GenericAnalyzer {
                         node_types,
                         &mut report,
                     );
-                    // Also extract actual module imports for meta/import/ findings
+                    // Also extract actual module imports for metadata/import/ findings
                     symbol_extraction::extract_imports_from_tree(
                         &tree,
                         content,

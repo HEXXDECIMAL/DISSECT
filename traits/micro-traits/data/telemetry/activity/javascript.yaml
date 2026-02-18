@@ -1,0 +1,16 @@
+# Generic Telemetry Patterns - JavaScript
+# Removed telemetry-send duplicate - use micro-traits/data/telemetry/logging::telemetry-send
+
+defaults:
+  for: [all]
+
+traits:
+  - id: activity-tracker
+    desc: User activity tracking library reference
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: 'ClientFactory|AnalyticsLibrary'
+
+  # Removed tracking-identifiers duplicate - use micro-traits/data/telemetry/logging::hardware-id-context

@@ -1,9 +1,0 @@
-traits:
-    - id: d3-detection
-      desc: D3.js data visualization library
-      crit: notable
-      conf: 1.0
-      if:
-        type: string
-        regex: 'd3\.interpolate[a-zA-Z]+|d3\.scale\.linear|d3\.layout\.force|Bo=\{version:"[0-9.]+"\}|d3\s*=\s*\{version:"[0-9.]+"\}|Rickshaw\.Graph|Rickshaw\.Fixtures\.Time'
-  

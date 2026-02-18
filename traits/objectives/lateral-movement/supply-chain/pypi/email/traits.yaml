@@ -1,0 +1,59 @@
+defaults:
+  crit: notable
+  attack: T1036.005
+  mbc: F0004
+traits:
+- id: generic-email
+  desc: Generic email address
+  crit: notable
+  conf: 0.6
+  for:
+  - python
+  if:
+    type: string
+    regex: author_email.{0,50}@(gmail|outlook|yahoo|hotmail)\.com
+- id: unknown-author-email
+  desc: PKG-INFO has UNKNOWN author email
+  crit: notable
+  conf: 0.75
+  for:
+  - all
+  if:
+    type: kv
+    path: author-email
+    exact: UNKNOWN
+- id: pkginfo-no-author-email
+  desc: PKG-INFO missing Author-email field
+  crit: notable
+  conf: 0.7
+  for:
+  - all
+  if:
+    type: kv
+    path: metadata-version
+  unless:
+  - type: kv
+    path: author-email
+- id: pkginfo-privacy-email
+  desc: PKG-INFO author uses privacy email provider
+  crit: notable
+  conf: 0.75
+  for:
+  - all
+  if:
+    type: kv
+    path: author-email
+    regex: '@(proton\.me|protonmail\.com|tutanota\.com|tutamail\.com|guerrillamail\.|mailinator\.com|yopmail\.com|sharklasers\.com|tempmail\.|dispostable\.com|trashmail\.|throwaway\.email)'
+    case_insensitive: true
+- id: pyproject-privacy-email
+  desc: pyproject.toml author uses privacy email
+  crit: notable
+  conf: 0.75
+  for:
+  - all
+  if:
+    type: kv
+    path: project.authors
+    regex: '@(proton\.me|protonmail\.com|tutanota\.com|tutamail\.com|guerrillamail\.|mailinator\.com|yopmail\.com|sharklasers\.com)'
+    case_insensitive: true
+composite_rules: []

@@ -6,10 +6,10 @@ A three-tier taxonomy following [MBC (Malware Behavior Catalog)](https://github.
 
 | Tier | Purpose | Criticality Range | MBC Equivalent |
 |------|---------|-------------------|----------------|
-| **Capabilities** (`cap/`) | Observable mechanics (what code *can do*) | inert → notable → suspicious | [Micro-objectives](https://github.com/MBCProject/mbc-markdown/tree/master/micro-behaviors) |
-| **Objectives** (`obj/`) | Attacker goals (why code *likely wants* to do something) | notable → suspicious → hostile | [Objectives](https://github.com/MBCProject/mbc-markdown#malware-objective-descriptions) |
+| **Capabilities** (`micro-behaviors/`) | Observable mechanics (what code *can do*) | inert → notable → suspicious | [Micro-objectives](https://github.com/MBCProject/mbc-markdown/tree/master/micro-behaviors) |
+| **Objectives** (`objectives/`) | Attacker goals (why code *likely wants* to do something) | notable → suspicious → hostile | [Objectives](https://github.com/MBCProject/mbc-markdown#malware-objective-descriptions) |
 | **Known Entities** (`known/`) | Specific signatures | suspicious → hostile | (MBC corpus) |
-| **Meta** (`meta/`) | File-level properties (informational only) | inert | — |
+| **Meta** (`metadata/`) | File-level properties (informational only) | inert | — |
 
 ## Tier Dependencies
 
@@ -17,28 +17,28 @@ Rules must follow a strict dependency hierarchy to maintain taxonomy clarity:
 
 | Tier | Can Reference | Rationale |
 |------|--------------|-----------|
-| **`cap/`** | `cap/`, `meta/` | Capabilities are atomic micro-behaviors and must not depend on objectives |
-| **`obj/`** | `cap/`, `obj/`, `meta/` | Objectives build on capabilities and other objectives |
-| **`known/`** | `cap/`, `obj/`, `known/`, `meta/` | Specific signatures can reference any trait type |
-| **`meta/`** | `meta/` | Informational properties typically reference only other meta traits |
+| **`micro-behaviors/`** | `micro-behaviors/`, `metadata/` | Capabilities are atomic micro-behaviors and must not depend on objectives |
+| **`objectives/`** | `micro-behaviors/`, `objectives/`, `metadata/` | Objectives build on capabilities and other objectives |
+| **`known/`** | `micro-behaviors/`, `objectives/`, `known/`, `metadata/` | Specific signatures can reference any trait type |
+| **`metadata/`** | `metadata/` | Informational properties typically reference only other meta traits |
 
-**Key Principle:** `cap/` traits must NOT reference `obj/` traits. Capabilities represent atomic, observable mechanics (micro-behaviors), while objectives represent inferred attacker intent. Mixing these layers violates the taxonomy's separation of concerns.
+**Key Principle:** `micro-behaviors/` traits must NOT reference `objectives/` traits. Capabilities represent atomic, observable mechanics (micro-behaviors), while objectives represent inferred attacker intent. Mixing these layers violates the taxonomy's separation of concerns.
 
-**Hostile Criticality:** `cap/` traits must NEVER use `crit: hostile`. Hostile criticality requires intent inference and must be in `obj/` where rules are properly categorized by attacker objective (C2, exfil, impact, etc.). Cap's maximum criticality is `suspicious` for rarely legitimate but still observable capabilities.
+**Hostile Criticality:** `micro-behaviors/` traits must NEVER use `crit: hostile`. Hostile criticality requires intent inference and must be in `objectives/` where rules are properly categorized by attacker objective (C2, exfil, impact, etc.). Cap's maximum criticality is `suspicious` for rarely legitimate but still observable capabilities.
 
 **Examples:**
-- ✅ `obj/c2/reverse-shell` references `cap/comm/socket/create` (objective uses capability)
-- ✅ `cap/process/create/shell` references `cap/fs/file/read` (capability uses capability)
-- ✅ `cap/process/hollow` with `crit: suspicious` (rarely legitimate capability)
-- ❌ `cap/process/create/dropper` references `obj/anti-static/obfuscation` (capability cannot depend on objective)
-- ❌ `cap/anything` with `crit: hostile` (hostile requires intent, belongs in obj/)
+- ✅ `objectives/command-and-control/reverse-shell` references `micro-behaviors/comm/socket/create` (objective uses capability)
+- ✅ `micro-behaviors/process/create/shell` references `micro-behaviors/fs/file/read` (capability uses capability)
+- ✅ `micro-behaviors/process/hollow` with `crit: suspicious` (rarely legitimate capability)
+- ❌ `micro-behaviors/process/create/dropper` references `objectives/anti-static/obfuscation` (capability cannot depend on objective)
+- ❌ `micro-behaviors/anything` with `crit: hostile` (hostile requires intent, belongs in objectives/)
 
-If a `cap/` rule needs functionality from an `obj/` trait, either:
-1. Move the `obj/` trait to `cap/` if it's actually a capability
-2. Refactor the `cap/` rule to not depend on the objective-level detection
-3. Move the entire `cap/` rule to `obj/` if it's actually inferring intent
+If a `micro-behaviors/` rule needs functionality from an `objectives/` trait, either:
+1. Move the `objectives/` trait to `micro-behaviors/` if it's actually a capability
+2. Refactor the `micro-behaviors/` rule to not depend on the objective-level detection
+3. Move the entire `micro-behaviors/` rule to `objectives/` if it's actually inferring intent
 
-## Tier 1: Capabilities (`cap/`)
+## Tier 1: Capabilities (`micro-behaviors/`)
 
 Value-neutral observations about what code can do. High confidence from static analysis. Maps to MBC's [Micro-objectives](https://github.com/MBCProject/mbc-markdown/tree/master/micro-behaviors).
 
@@ -46,18 +46,18 @@ Value-neutral observations about what code can do. High confidence from static a
 - **inert** - Universal baseline (`open`, `read`, `malloc`)
 - **notable** - Defines program purpose (`socket`, `exec`, `eval`)
 - **suspicious** - Rarely legitimate (`shellcode-inject`, `process-hollow`)
-- **Never hostile** - Hostile requires objective-level evidence (belongs in `obj/`)
+- **Never hostile** - Hostile requires objective-level evidence (belongs in `objectives/`)
 
 **Validation:** Cap rules with hostile criticality will fail validation. Hostile implies intent inference, which requires combining multiple capabilities into an objective.
 
 ### Directory Structure
 
-Within obj/ - rules should be organized in the following directory structure: obj/OBJECTIVE/BEHAVIOR/METHOD/ - with invididual YAML files per platform or ecosystem within that directory. In some cases, you may need to add a sub-method subdirectory for methods with many options, for instance string obfuscation.
+Within objectives/ - rules should be organized in the following directory structure: objectives/OBJECTIVE/BEHAVIOR/METHOD/ - with invididual YAML files per platform or ecosystem within that directory. In some cases, you may need to add a sub-method subdirectory for methods with many options, for instance string obfuscation.
 
-Within cap/ - rules should be organized by cap/CATEGORY/BEHAVIOR/METHOD/ - and if necessary, an additional level for  sub-methods. So for example, use cap/crypto/symmetric/aes/ruby.yaml rather than cap/crypto/symmetric/aes.yaml. Another example: cap/data/encode/base64/ - if you can't think of a specific method, consider what could bring multiple traits together, like a common syscall, protocol, or other logical grouping. This directory name may be referenced in composite traits in order to match similar rules, so think about that when grouping them.
+Within micro-behaviors/ - rules should be organized by micro-behaviors/CATEGORY/BEHAVIOR/METHOD/ - and if necessary, an additional level for  sub-methods. So for example, use micro-behaviors/crypto/symmetric/aes/ruby.yaml rather than micro-behaviors/crypto/symmetric/aes.yaml. Another example: micro-behaviors/data/encode/base64/ - if you can't think of a specific method, consider what could bring multiple traits together, like a common syscall, protocol, or other logical grouping. This directory name may be referenced in composite traits in order to match similar rules, so think about that when grouping them.
 
 ```
-cap/
+micro-behaviors/
 ├── comm/               # Network communication
 │   ├── socket/         # Raw socket operations          → MBC: Communication
 │   │   ├── netcat/     # nc/netcat tools
@@ -94,14 +94,7 @@ cap/
 │   │   ├── hex/
 │   │   └── custom/
 │   ├── compress/       # Zip, gzip, etc.
-│   └── serialize/      # JSON, protobuf, pickle, etc.
-│
-├── exec/               # Code execution                 → MBC: Execution (micro)
-│   ├── shell/          # Shell command execution
-│   ├── eval/           # Dynamic code evaluation
-│   └── load/           # Library/module loading
-│
-├── fs/                 # Filesystem access              → MBC: File System
+│   └── serialize/      # JSON, protobuf, pickle, etc.├── fs/                 # Filesystem access              → MBC: File System
 │   ├── read/           # File reading
 │   ├── write/          # File writing
 │   ├── delete/         # File deletion
@@ -111,7 +104,7 @@ cap/
 │       ├── config/     # Configuration file paths
 │       │   ├── accounts/  # User accounts (/etc/passwd, /etc/shadow)
 │       │   ├── groups/    # Group membership (/etc/group, /etc/gshadow)
-│       │   └── privesc/   # Privilege config (/etc/sudoers)
+│       │   └── privilege-escalation/   # Privilege config (/etc/sudoers)
 │       └── device/     # Device paths (/dev/*)
 │           ├── storage/  # Block storage (/dev/sda, /dev/nvme) - wiper relevant
 │           └── terminal/ # TTY/PTY devices (/dev/tty, /dev/pts)
@@ -164,7 +157,7 @@ cap/
     └── timer/          # Timers
 ```
 
-## Tier 2: Objectives (`obj/`)
+## Tier 2: Objectives (`objectives/`)
 
 Attacker goals inferred from capability combinations. Implies *likely* intent - we can't be 100% certain from static analysis alone. Maps to MBC's [Objectives](https://github.com/MBCProject/mbc-markdown#malware-objective-descriptions).
 
@@ -176,7 +169,7 @@ Attacker goals inferred from capability combinations. Implies *likely* intent - 
 ### Directory Structure
 
 ```
-obj/
+objectives/
 ├── anti-analysis/      # Evade dynamic analysis         → MBC: Anti-Behavioral Analysis
 │   ├── vm-detect/      # Virtual machine detection        B0009
 │   ├── sandbox-detect/ # Sandbox detection                B0007
@@ -199,7 +192,7 @@ obj/
 │   │   └── virtualize/   # Code virtualization            B0008
 │   └── pack/           # Packing/compression
 │
-├── c2/                 # Command & control              → MBC: Command and Control
+├── command-and-control/                 # Command & control              → MBC: Command and Control
 │   ├── beacon/         # Check-in patterns                B0030
 │   ├── channel/        # Communication channels
 │   │   └── covert/     # Covert channels (ICMP, DNS, etc.)
@@ -223,13 +216,13 @@ obj/
 │   └── infrastructure/ # C2 infrastructure
 │       └── spoofing/   # Infrastructure spoofing
 │
-├── collect/            # Information gathering          → MBC: Collection
+├── collection/            # Information gathering          → MBC: Collection
 │   ├── keylog/         # Keystroke logging                T1056.001
 │   ├── clipboard/      # Clipboard capture                T1115
 │   ├── screenshot/     # Screen capture                   T1113
 │   └── audio/          # Audio capture                    T1123
 │
-├── creds/              # Credential theft               → MBC: Credential Access
+├── credential-access/              # Credential theft               → MBC: Credential Access
 │   ├── browser/        # Browser credentials              T1555.003
 │   ├── system/         # OS credentials                   T1003
 │   ├── network/        # Network credentials
@@ -241,7 +234,7 @@ obj/
 │   ├── user/           # User information                 T1033
 │   └── software/       # Installed software               T1518
 │
-├── exfil/              # Data exfiltration              → MBC: Exfiltration
+├── exfiltration/              # Data exfiltration              → MBC: Exfiltration
 │   ├── http/           # HTTP-based exfil                 T1041
 │   ├── dns/            # DNS-based exfil                  T1048
 │   ├── email/          # SMTP-based exfil                 T1048
@@ -256,8 +249,8 @@ obj/
 │   └── degrade/        # Degrade system capabilities
 │       └── firewall/   # Firewall manipulation/abuse
 │
-├── lateral/            # Lateral movement               → MBC: Lateral Movement
-│   ├── remote-exec/    # Remote execution                 T1021
+├── lateral-movement/            # Lateral movement               → MBC: Lateral Movement
+│   ├── remote-execution/    # Remote execution                 T1021
 │   ├── exploit/        # Exploitation
 │   ├── pass-the-hash/  # Credential reuse                 T1550.002
 │   ├── code-injection/ # Code injection attacks
@@ -273,7 +266,7 @@ obj/
 │   │   └── hidden-staging/ # Hidden staging directories
 │   └── bootkit/        # Boot-level persistence           T1542
 │
-└── privesc/            # Privilege escalation           → MBC: Privilege Escalation
+└── privilege-escalation/            # Privilege escalation           → MBC: Privilege Escalation
     ├── exploit/        # Local exploitation               T1068
     ├── uac-bypass/     # Windows UAC bypass               T1548.002
     └── abuse/          # Privilege abuse
@@ -308,12 +301,12 @@ known/tools/            # Legitimate tools often abused
 └── dual-use/           # Dual-use utilities
 ```
 
-## Meta Properties (`meta/`)
+## Meta Properties (`metadata/`)
 
 File-level traits that are purely informational (no behavioral implication).
 
 ```
-meta/
+metadata/
 ├── format/             # File format (elf, pe, macho, script)
 ├── lang/               # Language/compiler detection
 ├── library/            # Library/framework detection (vue, jquery, react)
@@ -341,11 +334,11 @@ meta/
 └── hardening/          # Security hardening (sandbox, seccomp, pledge)
 ```
 
-**Note:** `meta/import/` traits are auto-generated from discovered imports - no YAML definition needed. They enable composite rules to reference specific dependencies.
+**Note:** `metadata/import/` traits are auto-generated from discovered imports - no YAML definition needed. They enable composite rules to reference specific dependencies.
 
-**Note:** `meta/signed/` traits are auto-generated from code signature analysis. Use `meta/signed/platform` to match any platform-signed binary, or `meta/signed/developer::TEAMID` for a specific developer.
+**Note:** `metadata/signed/` traits are auto-generated from code signature analysis. Use `metadata/signed/platform` to match any platform-signed binary, or `metadata/signed/developer::TEAMID` for a specific developer.
 
-**Note:** `meta/hardening/` traits can be used in `downgrade:` rules to reduce criticality for security-conscious code.
+**Note:** `metadata/hardening/` traits can be used in `downgrade:` rules to reduce criticality for security-conscious code.
 
 ## Trait ID Format
 
@@ -359,8 +352,8 @@ directory/path::trait-name
 
 **Reference patterns:**
 - `trait-name` - Matches trait in same directory (local reference)
-- `cap/comm/http` - Matches any trait in that directory (directory reference)
-- `cap/comm/http::curl-download` - Matches specific trait (exact match)
+- `micro-behaviors/comm/http` - Matches any trait in that directory (directory reference)
+- `micro-behaviors/comm/http::curl-download` - Matches specific trait (exact match)
 
 ## Decision Framework
 
@@ -369,10 +362,10 @@ Is it a specific malware/tool signature?
   └─→ known/malware/ or known/tools/
 
 Can you infer attacker intent from capability combinations?
-  └─→ obj/ (use composite rules)
+  └─→ objectives/ (use composite rules)
 
 Is it a single observable capability?
-  └─→ cap/
+  └─→ micro-behaviors/
       ├── Rarely legitimate? → suspicious
       ├── Defines purpose? → notable
       └── Universal baseline? → inert
@@ -383,27 +376,27 @@ Is it a single observable capability?
 Capabilities combine into objectives via composite rules:
 
 ```yaml
-# obj/c2/reverse-shell/combos.yaml
+# objectives/command-and-control/reverse-shell/combos.yaml
 composite_rules:
   - id: reverse-shell
     desc: "Reverse shell pattern"
     crit: hostile
     all:
-      - id: cap/comm/socket/create
-      - id: cap/process/fd/dup
-      - id: cap/process/create/shell
+      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/process/fd/dup
+      - id: micro-behaviors/process/create/shell
 ```
 
 ## Example Classifications
 
 | Code Pattern | Tier | Path | Criticality |
 |--------------|------|------|-------------|
-| `socket()` call | Capability | `cap/comm/socket/create` | notable |
-| `eval()` call | Capability | `cap/process/create/eval/dynamic` | notable |
-| Process hollowing | Capability | `cap/process/hollow` | suspicious |
-| Screenshot API | Capability | `cap/hw/display/screenshot` | notable |
-| Screenshot + timer + upload | Objective | `obj/collect/screenshot` | suspicious |
-| Reverse shell pattern | Objective | `obj/c2/reverse-shell` | hostile |
+| `socket()` call | Capability | `micro-behaviors/comm/socket/create` | notable |
+| `eval()` call | Capability | `micro-behaviors/process/create/eval/dynamic` | notable |
+| Process hollowing | Capability | `micro-behaviors/process/hollow` | suspicious |
+| Screenshot API | Capability | `micro-behaviors/hw/display/screenshot` | notable |
+| Screenshot + timer + upload | Objective | `objectives/collection/screenshot` | suspicious |
+| Reverse shell pattern | Objective | `objectives/command-and-control/reverse-shell` | hostile |
 | Cobalt Strike beacon | Known | `known/malware/rat/cobalt-strike` | hostile |
 
 ## MBC Identifier Reference
