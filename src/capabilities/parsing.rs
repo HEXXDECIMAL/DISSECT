@@ -49,6 +49,19 @@ pub(crate) fn apply_trait_defaults(
     warnings: &mut Vec<String>,
     path: &std::path::Path,
 ) -> TraitDefinition {
+    // Validation: require explicit for: either on trait or in file defaults.
+    // Silently defaulting to [All] is not allowed — authors must be explicit about target file types.
+    if raw.file_types.is_none() && defaults.r#for.is_none() {
+        warnings.push(format!(
+            "Trait '{}': missing 'for:' declaration. Every trait must specify which file types it \
+             targets. Add 'for: [all]' to this trait to match every file type, or list specific \
+             types like 'for: [python, javascript]'. To avoid repeating this on every trait in \
+             the file, add a file-wide default in the top-level 'defaults:' section, e.g.: \
+             'defaults:\\n  for: [python]'.",
+            raw.id
+        ));
+    }
+
     // Parse file_types: use trait-specific if present (unless "none"), else defaults, else [All]
     let file_types = apply_vec_default(raw.file_types, &defaults.r#for)
         .map(|types| parse_file_types(&types, warnings))
@@ -84,7 +97,10 @@ pub(crate) fn apply_trait_defaults(
     // Stricter validation for HOSTILE traits: atomic traits cannot be HOSTILE
     if criticality == Criticality::Hostile {
         warnings.push(format!(
-            "Trait '{}' is atomic but marked HOSTILE. Atomic traits cannot be HOSTILE.",
+            "Trait '{}' is an atomic trait marked 'crit: hostile'. Atomic (cap/) traits cannot \
+             be hostile — hostile criticality requires intent inference and belongs in obj/. \
+             Move this to obj/ and categorize by attacker objective (e.g., obj/c2/, obj/exfil/, \
+             obj/impact/). See TAXONOMY.md: cap/ max criticality is 'suspicious'.",
             raw.id
         ));
         criticality = Criticality::Suspicious;
@@ -128,6 +144,9 @@ pub(crate) fn apply_trait_defaults(
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
     fix_literal_regex_patterns(&mut condition_with_filters.condition);
+
+    // Validation: regex patterns must not exceed 80 bytes.
+    check_regex_length(&raw.id, &condition_with_filters.condition, warnings);
 
     // Support backwards compatibility: if size_min/size_max are at trait level,
     // copy them to the condition wrapper (unless already set in the if: block)
@@ -510,6 +529,39 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
     }
 }
 
+/// Check that the regex pattern in a condition does not exceed 80 bytes.
+fn check_regex_length(
+    trait_id: &str,
+    condition: &crate::composite_rules::Condition,
+    warnings: &mut Vec<String>,
+) {
+    use crate::composite_rules::Condition;
+
+    let regex = match condition {
+        Condition::Symbol { regex, .. } => regex.as_deref(),
+        Condition::String { regex, .. } => regex.as_deref(),
+        Condition::Raw { regex, .. } => regex.as_deref(),
+        Condition::Ast { regex, .. } => regex.as_deref(),
+        Condition::StringCount { regex, .. } => regex.as_deref(),
+        Condition::Section { regex, .. } => regex.as_deref(),
+        Condition::Encoded { regex, .. } => regex.as_deref(),
+        Condition::Basename { regex, .. } => regex.as_deref(),
+        Condition::Kv { regex, .. } => regex.as_deref(),
+        _ => None,
+    };
+
+    if let Some(pattern) = regex {
+        if pattern.len() > 80 {
+            warnings.push(format!(
+                "Trait '{}': regex pattern exceeds 80 bytes ({} bytes): {:?}",
+                trait_id,
+                pattern.len(),
+                pattern
+            ));
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -835,6 +887,122 @@ mod tests {
         assert_eq!(warnings.len(), 2);
         assert!(warnings.contains(&"Unknown file type: 'pyton'".to_string()));
         assert!(warnings.contains(&"Unknown file type: 'javascrpt'".to_string()));
+    }
+
+    // ==================== for: validation Tests ====================
+
+    fn make_raw_trait(id: &str, file_types: Option<Vec<String>>) -> super::super::models::RawTraitDefinition {
+        super::super::models::RawTraitDefinition {
+            id: id.to_string(),
+            desc: "A valid trait description here".to_string(),
+            conf: None,
+            crit: None,
+            mbc: None,
+            attack: None,
+            platforms: None,
+            file_types,
+            size_min: None,
+            size_max: None,
+            condition: None,
+            not: None,
+            unless: None,
+            downgrade: None,
+        }
+    }
+
+    #[test]
+    fn test_for_missing_on_trait_and_defaults_warns() {
+        let defaults = super::super::models::TraitDefaults::default();
+        let raw = make_raw_trait("test-trait", None);
+        let mut warnings = Vec::new();
+        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        assert!(
+            warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            "expected for: warning, got: {:?}",
+            warnings
+        );
+    }
+
+    #[test]
+    fn test_for_on_trait_suppresses_warning() {
+        let defaults = super::super::models::TraitDefaults::default();
+        let raw = make_raw_trait("test-trait", Some(vec!["python".to_string()]));
+        let mut warnings = Vec::new();
+        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        assert!(
+            !warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            "unexpected for: warning"
+        );
+    }
+
+    #[test]
+    fn test_for_in_defaults_suppresses_warning() {
+        let defaults = super::super::models::TraitDefaults {
+            r#for: Some(vec!["all".to_string()]),
+            ..Default::default()
+        };
+        let raw = make_raw_trait("test-trait", None);
+        let mut warnings = Vec::new();
+        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        assert!(
+            !warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            "unexpected for: warning"
+        );
+    }
+
+    // ==================== Regex length Tests ====================
+
+    #[test]
+    fn test_regex_length_ok() {
+        let pattern = "a".repeat(80);
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(pattern),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_regex_length_over_limit_warns() {
+        let pattern = "a".repeat(81);
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(pattern),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("regex pattern exceeds 80 bytes"));
+        assert!(warnings[0].contains("81 bytes"));
+    }
+
+    #[test]
+    fn test_regex_length_no_regex_no_warning() {
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: Some("some substring".to_string()),
+            regex: None,
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_regex_length_non_regex_condition_no_warning() {
+        let condition = crate::composite_rules::Condition::Trait {
+            id: "some-trait-id".to_string(),
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(warnings.is_empty());
     }
 }
 

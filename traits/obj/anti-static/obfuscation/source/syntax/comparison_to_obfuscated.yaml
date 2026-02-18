@@ -1,0 +1,16 @@
+# Comparison to Obfuscated Value
+# Detects '==' or '===' comparison against obfuscated property access strings
+
+defaults:
+  crit: suspicious
+  conf: 0.9
+  for: [javascript]
+
+traits:
+  - id: comparison-to-obfuscated-property
+    desc: "Comparison against obfuscated string (likely payload check)"
+    mbc: "B0032.001"
+    attack: "T1027"
+    if:
+      type: raw
+      regex: '(?:==|===|!=|!==)\s*(?:\{\s*[a-zA-Z0-9_$]{1,80}\s*:\s*[''"][^''"]{1,120}[''"]\s*\}\.\s*[a-zA-Z0-9_$]{1,80}\s*\+\s*){1,8}'

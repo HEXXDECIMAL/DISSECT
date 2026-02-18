@@ -28,9 +28,9 @@ Rules must follow a strict dependency hierarchy to maintain taxonomy clarity:
 
 **Examples:**
 - ✅ `obj/c2/reverse-shell` references `cap/comm/socket/create` (objective uses capability)
-- ✅ `cap/exec/shell` references `cap/fs/file/read` (capability uses capability)
+- ✅ `cap/process/create/shell` references `cap/fs/file/read` (capability uses capability)
 - ✅ `cap/process/hollow` with `crit: suspicious` (rarely legitimate capability)
-- ❌ `cap/exec/dropper` references `obj/anti-static/obfuscation` (capability cannot depend on objective)
+- ❌ `cap/process/create/dropper` references `obj/anti-static/obfuscation` (capability cannot depend on objective)
 - ❌ `cap/anything` with `crit: hostile` (hostile requires intent, belongs in obj/)
 
 If a `cap/` rule needs functionality from an `obj/` trait, either:
@@ -391,7 +391,7 @@ composite_rules:
     all:
       - id: cap/comm/socket/create
       - id: cap/process/fd/dup
-      - id: cap/exec/shell
+      - id: cap/process/create/shell
 ```
 
 ## Example Classifications
@@ -399,7 +399,7 @@ composite_rules:
 | Code Pattern | Tier | Path | Criticality |
 |--------------|------|------|-------------|
 | `socket()` call | Capability | `cap/comm/socket/create` | notable |
-| `eval()` call | Capability | `cap/exec/eval/dynamic` | notable |
+| `eval()` call | Capability | `cap/process/create/eval/dynamic` | notable |
 | Process hollowing | Capability | `cap/process/hollow` | suspicious |
 | Screenshot API | Capability | `cap/hw/display/screenshot` | notable |
 | Screenshot + timer + upload | Objective | `obj/collect/screenshot` | suspicious |

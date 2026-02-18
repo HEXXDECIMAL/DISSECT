@@ -1,0 +1,36 @@
+traits:
+  - id: js-string-dict-map
+    desc: Object mapping short strings to single characters
+    crit: suspicious
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: raw
+      # Object literal containing repeated short-key -> escaped-byte entries.
+      regex: "var\\s+\\w+\\s*=\\s*\\{[^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"][^}]{0,120}['\\\"]?[A-Za-z0-9_]{1,5}['\\\"]?\\s*:\\s*['\\\"]\\\\x[0-9a-fA-F]{2}['\\\"]"
+
+  - id: js-string-key-array
+    desc: Array with multiple short string keys
+    crit: notable
+    conf: 0.7
+    for: [javascript, typescript]
+    if:
+      type: raw
+      # Matches 'var <name> = new Array('Uv','Ma',...)'' allowing unquoted string elements
+      # Requires at least 5 elements, where elements are short strings (length 2-5)
+      regex: |
+        var\s+\w+\s*=\s*new\s+Array\(((?:\s*['"][^"']{2,5}['"]|\s*\w{2,5})\s*,?){5,}\);
+
+  - id: js-nested-array-table-mapping
+    desc: Nested array structure used for table mapping
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (array
+          (array)
+          (array)
+        )

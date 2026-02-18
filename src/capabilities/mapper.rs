@@ -3268,6 +3268,38 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
         }
     }
 
+    // Check for directories named "obfuscation" or "obfuscate" under cap/.
+    // Obfuscation detection describes attacker intent (anti-analysis evasion), not observable
+    // capability — it belongs in obj/, not cap/.
+    {
+        let components: Vec<_> = path.components().collect();
+        // Find the index of a component named "cap"
+        let cap_idx = components.iter().position(|c| {
+            c.as_os_str().to_string_lossy().eq_ignore_ascii_case("cap")
+        });
+        if let Some(cap_pos) = cap_idx {
+            // Check directory components after "cap/" but before the filename
+            let dir_components = &components[cap_pos + 1..components.len().saturating_sub(1)];
+            for component in dir_components {
+                let name = component.as_os_str().to_string_lossy();
+                if name.eq_ignore_ascii_case("obfuscation")
+                    || name.eq_ignore_ascii_case("obfuscate")
+                {
+                    warnings.push(format!(
+                        "{}: directory '{}' must not be under 'cap/' — obfuscation detection \
+                         describes attacker intent (anti-analysis evasion), not an observable \
+                         capability. Move this file to 'obj/anti-static/obfuscation/' or \
+                         'obj/anti-analysis/obfuscation/'. See TAXONOMY.md: cap/ captures \
+                         what code can do; obj/ captures attacker goals.",
+                        path.display(),
+                        name
+                    ));
+                    break; // one warning per file is enough
+                }
+            }
+        }
+    }
+
     warnings
 }
 

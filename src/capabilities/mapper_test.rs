@@ -89,6 +89,9 @@ symbols:
 #[test]
 fn test_from_yaml_with_trait() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/simple::basic"
     desc: "Basic test trait"
@@ -189,6 +192,9 @@ symbols:
 #[test]
 fn test_evaluate_traits_empty_report() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/simple::basic"
     desc: "Basic test trait"
@@ -209,6 +215,9 @@ traits:
 #[test]
 fn test_evaluate_traits_string_match() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/simple::string_check"
     desc: "String pattern match"
@@ -248,6 +257,9 @@ traits:
 #[test]
 fn test_evaluate_traits_regex_match() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/regex::pattern"
     desc: "Regex pattern match"
@@ -351,6 +363,9 @@ fn test_evaluate_composite_rules_empty() {
 #[test]
 fn test_evaluate_and_merge_findings() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 symbols:
   - symbol: "malloc"
     capability: "cap/mem/allocate::malloc"
@@ -411,6 +426,9 @@ traits:
 #[test]
 fn test_find_trait() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/finder::target"
     desc: "Target trait"
@@ -433,6 +451,9 @@ traits:
 #[test]
 fn test_trait_definitions() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/one::first"
     desc: "First trait"
@@ -514,6 +535,9 @@ composite_rules:
 #[test]
 fn test_evaluate_traits_with_count_constraint() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/count::multiple"
     desc: "Multiple occurrences"
@@ -587,6 +611,9 @@ traits:
 #[test]
 fn test_evaluate_traits_case_insensitive() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/case::insensitive"
     desc: "Case insensitive match"
@@ -631,6 +658,7 @@ fn test_precision_thresholds() {
 fn test_from_yaml_with_defaults() {
     let yaml = r#"
 defaults:
+  for: [all]
   crit: suspicious
   attack: "T1059.001"
 
@@ -652,6 +680,9 @@ traits:
 #[test]
 fn test_evaluate_traits_with_section_filter() {
     let yaml = r#"
+defaults:
+  for: [all]
+
 traits:
   - id: "test/section::text"
     desc: "Pattern in .text section"

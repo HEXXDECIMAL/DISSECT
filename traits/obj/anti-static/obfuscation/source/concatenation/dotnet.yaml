@@ -1,0 +1,48 @@
+# .NET Reflection API String Concatenation
+# Detects splitting of .NET reflection keywords to evade signatures
+# This is almost exclusively malicious - legitimate code doesn't split these specific APIs
+
+defaults:
+  crit: suspicious
+  conf: 0.95
+  attack: "T1027"
+  for: [powershell, csharp]
+
+traits:
+  - id: dotnet-reflection-api-splitting
+    desc: ".NET reflection API keywords split via concatenation"
+    if:
+      type: encoded
+      # Match patterns like: 'Asse' + 'mbly', 'Refle' + 'ction', 'inv' + 'oke'
+      # Flexible pattern handles various separators (+ & / and corrupted chars)
+      regex: '(Asse|Refle|ction|mbly|inv|oke|Load).{0,10}(mbly|ction|oke|Load|Asse|Refle)'
+      count_min: 2
+
+  - id: dotnet-gettype-splitting
+    desc: "GetType API split via concatenation"
+    conf: 0.9
+    if:
+      type: encoded
+      regex: '(Get|Type).{0,10}(Type|Get)'
+      count_min: 1
+
+  - id: dotnet-getmethod-splitting
+    desc: "GetMethod API split via concatenation"
+    conf: 0.9
+    if:
+      type: encoded
+      regex: '(Get|Meth|od).{0,10}(Meth|od|Get)'
+      count_min: 1
+
+composite_rules:
+  # High-confidence .NET evasion pattern
+  - id: dotnet-reflection-evasion
+    desc: "Multiple .NET reflection APIs obfuscated via splitting"
+    crit: suspicious
+    conf: 0.98
+    attack: "T1027.010"
+    needs: 2
+    any:
+      - id: dotnet-reflection-api-splitting
+      - id: dotnet-gettype-splitting
+      - id: dotnet-getmethod-splitting

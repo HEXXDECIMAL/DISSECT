@@ -8,7 +8,7 @@
 use crate::composite_rules::{Condition, FileType as RuleFileType, TraitDefinition};
 use crate::types::{Evidence, StringInfo};
 use aho_corasick::AhoCorasick;
-use regex::RegexSet;
+use regex::{RegexSet, RegexSetBuilder};
 use rustc_hash::{FxHashMap, FxHashSet};
 
 /// Index of trait indices by file type for fast lookup.
@@ -488,7 +488,10 @@ impl RawContentRegexIndex {
             .collect();
 
         // Try to build the regex set.
-        match RegexSet::new(&pattern_strs) {
+        match RegexSetBuilder::new(&pattern_strs)
+            .size_limit(100 * 1024 * 1024)
+            .build()
+        {
             Ok(regex_set) => Ok(Some(FileTypeRegexSet {
                 regex_set,
                 pattern_to_traits: pattern_to_traits.clone(),

@@ -26,12 +26,12 @@ See [TAXONOMY.md](./TAXONOMY.md) for complete tier structure.
 
 ## Trait Placement & IDs
 
-- IDs auto-prefixed by directory path (e.g., `traits/cap/exec/shell/` → prefix `cap/exec/shell`)
+- IDs auto-prefixed by directory path (e.g., `traits/cap/process/create/shell/` → prefix `cap/process/create/shell`)
 - **Filenames are NEVER part of trait IDs** - only the directory path is used for prefixing
-  - A trait `foo` in `traits/cap/exec/shell/python.yaml` has ID `cap/exec/shell::foo`
-  - NOT `cap/exec/shell/python::foo` or `cap/exec/shell/python/foo`
-- Cross-tier references use full paths: `cap/exec/shell::subprocess`
-- Directory match: `cap/exec/shell/` matches all traits in that directory
+  - A trait `foo` in `traits/cap/process/create/shell/python.yaml` has ID `cap/process/create/shell::foo`
+  - NOT `cap/process/create/shell/python::foo` or `cap/process/create/shell/python/foo`
+- Cross-tier references use full paths: `cap/process/create/shell::subprocess`
+- Directory match: `cap/process/create/shell/` matches all traits in that directory
 - Generic capabilities NEVER go in `known/`
 
 ## Criticality Levels
@@ -301,7 +301,7 @@ composite_rules:
     all:                              # AND (all must match)
       - id: cap/comm/socket/create
       - id: cap/process/fd/dup2
-      - id: cap/exec/shell
+      - id: cap/process/create/shell
     any:                              # OR (at least one)
       - id: pattern-a
       - id: pattern-b
@@ -356,7 +356,7 @@ composite_rules:
       - id: cap/mem/allocate/rwx
     downgrade:                           # → suspicious if debugger
       any:
-        - id: cap/exec/load/library::debugger-tool-marker
+        - id: cap/process/create/load/library::debugger-tool-marker
 ```
 
 **Note:** Downgrade to `inert` removes the finding from output entirely. Use `unless:` if you want to skip matching instead.
