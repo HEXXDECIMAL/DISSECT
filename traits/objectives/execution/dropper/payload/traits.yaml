@@ -59,7 +59,7 @@ traits:
     conf: 0.80
     if:
       type: string
-      # preexec_fn= (generic): use micro-traits/process/create/setsid/traits.yaml::preexec-fn (canonical)
+      # preexec_fn= (generic): use micro-behaviors/process/create/setsid/traits.yaml::preexec-fn (canonical)
       substr: "preexec_fn=os.setpgrp"
 
   # === Hidden Execution Paths ===

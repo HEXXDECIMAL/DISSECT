@@ -25,7 +25,7 @@ composite_rules:
     unless:
       - id: metadata/dev/testing::node-common-require
       - id: metadata/library::ioredis-auto-pipeline
-      - id: micro-traits/data/db/conn/redis::ioredis
+      - id: micro-behaviors/data/db/conn/redis::ioredis
       - id: metadata/library::ioredis-utils
       - id: metadata/library::cmd-proto-command
       - id: metadata/library::cmd-proto-option

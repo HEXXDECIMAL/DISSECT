@@ -13,7 +13,7 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: micro-traits/process/create/shell::gcc-invocation
+      - id: micro-behaviors/process/create/shell::gcc-invocation
       - id: objectives/anti-forensics/self-delete/file::rm-install-artifacts
 
   - id: installer-multipart-compile
@@ -24,6 +24,6 @@ composite_rules:
     mbc: "B0024"
     for: [shell]
     all:
-      - id: micro-traits/process/create/shell::gcc-invocation
-      - id: micro-traits/fs/file/read::read
+      - id: micro-behaviors/process/create/shell::gcc-invocation
+      - id: micro-behaviors/fs/file/read::read
       - id: objectives/impact/system/directory::recursive-delete-cmd

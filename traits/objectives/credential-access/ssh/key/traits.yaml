@@ -473,7 +473,7 @@ composite_rules:
   any:
   - id: slash-dot-ssh
   - id: dot-dot-ssh
-  - id: micro-traits/fs/path/sensitive/ssh::keys
+  - id: micro-behaviors/fs/path/sensitive/ssh::keys
 - id: sshd-net-proc
   desc: SSHD network process reference
   crit: suspicious
@@ -496,8 +496,8 @@ composite_rules:
   - id: id-ed25519
   downgrade:
     any:
-    - id: micro-traits/comm/ssh/client::library
-    - id: micro-traits/comm/ssh/client::full-implementation
+    - id: micro-behaviors/comm/ssh/client::library
+    - id: micro-behaviors/comm/ssh/client::full-implementation
 - id: sshd-password-trace
   desc: SSHD memory tracing for passwords
   crit: suspicious
@@ -508,7 +508,7 @@ composite_rules:
   all:
   - id: ptrace-tracer
   - id: password-pattern
-  - id: micro-traits/os/service/remote::sshd-ref
+  - id: micro-behaviors/os/service/remote::sshd-ref
 - id: credential-theft
   desc: SSH key credential theft
   crit: suspicious
@@ -530,4 +530,4 @@ composite_rules:
   - id: ssh-sniffing-indicators
   - id: ssh-password-files
   all:
-  - id: micro-traits/os/service/remote::sshd-ref
+  - id: micro-behaviors/os/service/remote::sshd-ref

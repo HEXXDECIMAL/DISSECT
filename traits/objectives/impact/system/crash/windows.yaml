@@ -44,7 +44,7 @@ traits:
       type: string
       regex: "0x[Cc]000007[Bb]|3221226363"
 
-  # ntdll: use micro-traits/os/syscall/invoke/traits.yaml::ntdll-import (canonical)
+  # ntdll: use micro-behaviors/os/syscall/invoke/traits.yaml::ntdll-import (canonical)
   # windll.ntdll: Python-specific ctypes variant, kept as atomic
   - id: windll-ntdll
     desc: Python ctypes windll.ntdll reference
@@ -122,7 +122,7 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: micro-traits/os/syscall/invoke::ntdll-import
+      - id: micro-behaviors/os/syscall/invoke::ntdll-import
       - id: windll-ntdll
 
   # Full BSOD trigger pattern

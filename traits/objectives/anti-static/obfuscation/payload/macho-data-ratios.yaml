@@ -48,6 +48,6 @@ composite_rules:
     # Combines ratio anomaly with high entropy and execution capability
     all:
       - id: macho-extreme-data-to-code-ratio
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
     none:
       - id: metadata/signed/platform::apple

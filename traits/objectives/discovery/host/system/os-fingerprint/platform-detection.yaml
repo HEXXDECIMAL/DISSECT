@@ -86,7 +86,7 @@ traits:
       type: string
       substr: "ipconfig"
 
-  # Removed unix-ifconfig duplicate - use micro-traits/os/network/interface::ifconfig
+  # Removed unix-ifconfig duplicate - use micro-behaviors/os/network/interface::ifconfig
 
 composite_rules:
   # === Platform Detection Composites ===

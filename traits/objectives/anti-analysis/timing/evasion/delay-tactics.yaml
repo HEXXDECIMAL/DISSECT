@@ -8,8 +8,8 @@ defaults:
   crit: notable
 
 traits:
-  # sleep/usleep/nanosleep: use micro-traits/os/time/query::sleep-func etc. (canonical)
-  # clock_gettime/gettimeofday: use micro-traits/os/time/query (canonical)
+  # sleep/usleep/nanosleep: use micro-behaviors/os/time/query::sleep-func etc. (canonical)
+  # clock_gettime/gettimeofday: use micro-behaviors/os/time/query (canonical)
 
 composite_rules:
   - id: delay-capability
@@ -17,9 +17,9 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/os/time/query::sleep-func
-      - id: micro-traits/os/time/query::usleep-func
-      - id: micro-traits/os/time/query::nanosleep-func
+      - id: micro-behaviors/os/time/query::sleep-func
+      - id: micro-behaviors/os/time/query::usleep-func
+      - id: micro-behaviors/os/time/query::nanosleep-func
 
   # Timing measurement
   # NOTE: clock_gettime and gettimeofday are extremely common in legitimate software
@@ -32,14 +32,14 @@ composite_rules:
     conf: 0.4
     attack: "T1497.003"
     any:
-      - id: micro-traits/os/time/query::clock_gettime
-      - id: micro-traits/os/time/query::gettimeofday
+      - id: micro-behaviors/os/time/query::clock_gettime
+      - id: micro-behaviors/os/time/query::gettimeofday
     downgrade:
       any:
-        - id: micro-traits/dylib/load/video-lib-marker
-        - id: micro-traits/dylib/library::graphics-lib-marker
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/load/async-io-lib-marker
+        - id: micro-behaviors/dylib/load/video-lib-marker
+        - id: micro-behaviors/dylib/library::graphics-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/load/async-io-lib-marker
 
   # Delay with network = evasion or C2 beaconing
   # NOTE: nanosleep + socket is extremely common in any network program.
@@ -52,8 +52,8 @@ composite_rules:
     all:
       - id: delay-capability
     any:
-      - id: micro-traits/comm/socket/create
-      - id: micro-traits/comm/download/curl::libcurl-http
+      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/comm/download/curl::libcurl-http
 
   # Timing measurement + delay = sandbox evasion
   # NOTE: clock_gettime + nanosleep is extremely common in legitimate software.

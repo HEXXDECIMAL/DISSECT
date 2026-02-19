@@ -10,9 +10,9 @@ composite_rules:
     desc: "Reconnaissance targeting specific browsers/office apps combined with exfiltration"
     conf: 1.0
     all:
-      - id: micro-traits/process/enumerate/apps::browser-apps
-      - id: micro-traits/process/enumerate/apps::office-apps
+      - id: micro-behaviors/process/enumerate/apps::browser-apps
+      - id: micro-behaviors/process/enumerate/apps::office-apps
     any:
-      - id: micro-traits/comm/socket/connect::connect
+      - id: micro-behaviors/comm/socket/connect::connect
       - id: objectives/command-and-control/infrastructure/ip::hardcoded-ipv4-script
       - id: objectives/command-and-control/network/beacon::direct-http-c2

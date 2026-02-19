@@ -375,8 +375,8 @@ composite_rules:
   crit: notable
   conf: 0.85
   any:
-  - id: micro-traits/process/create/shell::python-os-system
-  - id: micro-traits/process/create/subprocess::methods
+  - id: micro-behaviors/process/create/shell::python-os-system
+  - id: micro-behaviors/process/create/subprocess::methods
 - id: pypi-install-autoinstall-dropper
   desc: PyPI setup.py executes pip install command
   crit: hostile
@@ -402,7 +402,7 @@ composite_rules:
   crit: suspicious
   conf: 0.9
   all:
-  - id: micro-traits/comm/http/request::request-python
+  - id: micro-behaviors/comm/http/request::request-python
   - id: executable-download-url
 - id: binary-file-drop
   desc: Binary file write to disk
@@ -413,7 +413,7 @@ composite_rules:
   - id: exe-file-extension
   any:
   - id: python-command-exec
-  - id: micro-traits/comm/http/request::request-python
+  - id: micro-behaviors/comm/http/request::request-python
   unless:
   - id: metadata/builder/pip::setuptools-package-index
   downgrade:
@@ -437,7 +437,7 @@ composite_rules:
   attack: T1204.002
   all:
   - id: robust-setup-py
-  - id: micro-traits/comm/http/request::request-python
+  - id: micro-behaviors/comm/http/request::request-python
   - id: binary-file-write
   - id: python-command-exec
 - id: pypi-install-downloader
@@ -448,7 +448,7 @@ composite_rules:
   attack: T1204.002
   all:
   - id: robust-setup-py
-  - id: micro-traits/comm/http/request::request-python
+  - id: micro-behaviors/comm/http/request::request-python
   - id: setup-py-file-write
   - id: python-command-exec
 - id: download-execute-chain
@@ -471,7 +471,7 @@ composite_rules:
   - id: robust-setup-py
   - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
   - id: binary-file-write
-  - id: micro-traits/process/create/subprocess::methods
+  - id: micro-behaviors/process/create/subprocess::methods
 - id: windows-rename-execute-delete
   desc: Windows file rename-execute-delete dropper chain
   crit: hostile
@@ -479,7 +479,7 @@ composite_rules:
   mbc: E1204
   attack: T1059.003
   all:
-  - id: micro-traits/process/create/shell::cmd-exe
+  - id: micro-behaviors/process/create/shell::cmd-exe
   - id: cmd-move-rename
   - id: cmd-del-cleanup
 - id: pypi-browser-extension-dropper
@@ -503,7 +503,7 @@ composite_rules:
   - id: robust-setup-py
   - id: objectives/execution/autoinstall/pip::main-call-content
   - id: objectives/persist/startup/registry::windows-shortcut-walk-modify
-  - id: micro-traits/fs/directory/mkdir::mkdir-python
+  - id: micro-behaviors/fs/directory/mkdir::mkdir-python
 - id: pypi-com-extension-dropper
   desc: PyPI setup.py uses COM automation to drop extension
   crit: hostile
@@ -534,8 +534,8 @@ composite_rules:
   attack: T1195.002
   all:
   - id: robust-setup-py
-  - id: micro-traits/os/info/system::sys-platform-check
-  - id: micro-traits/os/info/system::sys-argv-access
+  - id: micro-behaviors/os/info/system::sys-platform-check
+  - id: micro-behaviors/os/info/system::sys-argv-access
   - id: objectives/execution/autoinstall/pip::main-call-content
   downgrade:
     any:
@@ -550,7 +550,7 @@ composite_rules:
   - id: robust-setup-py
   - id: objectives/anti-static/obfuscation/source::advanced-python-obfuscation
   - id: setup-py-file-write
-  - id: micro-traits/fs/directory/mkdir::mkdir-python
+  - id: micro-behaviors/fs/directory/mkdir::mkdir-python
 - id: pypi-powershell-dropper
   desc: PyPI setup.py PowerShell download-execute chain
   crit: hostile
@@ -592,8 +592,8 @@ composite_rules:
   attack: T1195.002
   all:
   - id: setup-py-getenv
-  - id: micro-traits/os/admin/check::ctypes-is-admin
-  - id: micro-traits/fs/directory/mkdir::mkdir-python
+  - id: micro-behaviors/os/admin/check::ctypes-is-admin
+  - id: micro-behaviors/fs/directory/mkdir::mkdir-python
   - id: setup-py-file-write
 - id: python-impersonation-dropper
   desc: Fake Python release dropper

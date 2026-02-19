@@ -49,7 +49,7 @@ traits:
       type: string
       regex: "busybox ftpget"
 
-  # === Pipe to shell micro-traits ===
+  # === Pipe to shell micro-behaviors ===
   - id: curl-cmd
     desc: "curl command"
     crit: notable
@@ -242,7 +242,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: micro-traits/fs/proc/info::process-self-exe
+      - id: micro-behaviors/fs/proc/info::process-self-exe
       - id: send-or-download
 
   - id: mirai-variant
@@ -283,6 +283,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: micro-traits/fs/proc/info::process-self-exe
-      - id: micro-traits/mem/protect/modify::rwx-prot-bytes
+      - id: micro-behaviors/fs/proc/info::process-self-exe
+      - id: micro-behaviors/mem/protect/modify::rwx-prot-bytes
       - id: well-known/tools/offensive/stagers::x64-jmp-register

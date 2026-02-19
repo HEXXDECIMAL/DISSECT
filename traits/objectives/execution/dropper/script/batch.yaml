@@ -397,7 +397,7 @@ composite_rules:
     attack: "T1059.003"
     for: [batch]
     all:
-      - id: micro-traits/fs/file/delete::batch-self-delete
+      - id: micro-behaviors/fs/file/delete::batch-self-delete
     any:
       - id: powershell-download
       - id: powershell-download-cradle

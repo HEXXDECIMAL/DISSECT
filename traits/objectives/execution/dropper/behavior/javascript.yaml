@@ -8,11 +8,11 @@ composite_rules:
     conf: 0.85
     attack: "T1105"
     all:
-      - id: micro-traits/fs/write/file::js-file-write
+      - id: micro-behaviors/fs/write/file::js-file-write
     any:
-      - id: micro-traits/process/create/shell/lang::js-exec
-      - id: micro-traits/process/create/shell/lang::js-execsync
-      - id: micro-traits/process/create/shell/lang::js-spawn
+      - id: micro-behaviors/process/create/shell/lang::js-exec
+      - id: micro-behaviors/process/create/shell/lang::js-execsync
+      - id: micro-behaviors/process/create/shell/lang::js-spawn
     unless:
       - id: metadata/dev/testing::node-common-require
     downgrade:
@@ -37,4 +37,4 @@ composite_rules:
     attack: "T1105"
     all:
       - id: objectives/command-and-control/infrastructure/domain::malware-hosting
-      - id: micro-traits/process/create/script::powershell-script-execution
+      - id: micro-behaviors/process/create/script::powershell-script-execution

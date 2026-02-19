@@ -29,10 +29,10 @@ composite_rules:
     attack: "T1041"
     for: [ruby]
     all:
-      - id: micro-traits/os/sysinfo/hostname::socket-hostname
-      - id: micro-traits/os/network/interface::socket-ip-address
-      - id: micro-traits/comm/http/lib/netlib::net-http
-      - id: micro-traits/comm/http/lib/netlib::hardcoded-ip-url
+      - id: micro-behaviors/os/sysinfo/hostname::socket-hostname
+      - id: micro-behaviors/os/network/interface::socket-ip-address
+      - id: micro-behaviors/comm/http/lib/netlib::net-http
+      - id: micro-behaviors/comm/http/lib/netlib::hardcoded-ip-url
 
   # === System Info Exfiltration - SUSPICIOUS ===
   # Less certainty than info-stealer, but still concerning
@@ -43,7 +43,7 @@ composite_rules:
     attack: "T1041"
     needs: 2
     any:
-      - id: micro-traits/os/sysinfo
-      - id: micro-traits/comm/http/lib/netlib::hardcoded-ip-url
+      - id: micro-behaviors/os/sysinfo
+      - id: micro-behaviors/comm/http/lib/netlib::hardcoded-ip-url
       - id: base64-json-encode
-      - id: micro-traits/process/env/access::getenv-user
+      - id: micro-behaviors/process/env/access::getenv-user

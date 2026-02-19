@@ -7,14 +7,14 @@ composite_rules:
     attack: T1083
     platforms: [macos]
     all:
-      - id: micro-traits/process/create/shell::shell-execution
-      - id: micro-traits/data/control-flow/analysis::iteration-loop-pattern
+      - id: micro-behaviors/process/create/shell::shell-execution
+      - id: micro-behaviors/data/control-flow/analysis::iteration-loop-pattern
     any:
-      - id: micro-traits/fs/path/sensitive/browser::login-data
-      - id: micro-traits/fs/path/sensitive/browser::cookies
-      - id: micro-traits/fs/path/sensitive/cloud::aws-credentials
-      - id: micro-traits/fs/path/sensitive/crypto::crypto-wallets
-      - id: micro-traits/fs/path/sensitive/ssh::keys
-      - id: micro-traits/crypto/xor/simd::simd-xor
+      - id: micro-behaviors/fs/path/sensitive/browser::login-data
+      - id: micro-behaviors/fs/path/sensitive/browser::cookies
+      - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
+      - id: micro-behaviors/fs/path/sensitive/crypto::crypto-wallets
+      - id: micro-behaviors/fs/path/sensitive/ssh::keys
+      - id: micro-behaviors/crypto/xor/simd::simd-xor
       - id: objectives/credential-access/stealer/native/symbols::copy-directory-with-exclusions
     needs: 2

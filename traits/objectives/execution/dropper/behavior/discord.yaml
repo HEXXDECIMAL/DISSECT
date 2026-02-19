@@ -8,8 +8,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/fs/write/file::python-open-write-binary
-      - id: micro-traits/fs/write/file::python-write-response-content
+      - id: micro-behaviors/fs/write/file::python-open-write-binary
+      - id: micro-behaviors/fs/write/file::python-write-response-content
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::binary-file-drop
 
   # Intermediate rule for execution operations
@@ -18,8 +18,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/process/create/shell::shell-execution
-      - id: micro-traits/process/create/shell::shell-execution-indicators
+      - id: micro-behaviors/process/create/shell::shell-execution
+      - id: micro-behaviors/process/create/shell::shell-execution-indicators
       - id: objectives/execution/dropper/http::python-exec-any
       - id: objectives/execution/condition/platform::has-execution-capability
 
@@ -48,6 +48,6 @@ composite_rules:
     attack: "T1105"
     all:
       - id: objectives/command-and-control/channel/discord::discord-string
-      - id: micro-traits/comm/http/lib/requests::requests-python
+      - id: micro-behaviors/comm/http/lib/requests::requests-python
       - id: python-write-capability
       - id: python-exec-capability

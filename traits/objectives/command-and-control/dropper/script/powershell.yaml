@@ -3,7 +3,7 @@ composite_rules:
     desc: Helper for downloader indicators
     crit: notable
     any:
-      - id: micro-traits/os/env/vars::env-temp
+      - id: micro-behaviors/os/env/vars::env-temp
       - id: objectives/execution/dropper/script::outfile-param
 
   - id: ps-downloader-execute
@@ -12,6 +12,6 @@ composite_rules:
     conf: 0.95
     for: [powershell]
     all:
-      - id: micro-traits/comm/http/lib/invoke-webrequest::download
+      - id: micro-behaviors/comm/http/lib/invoke-webrequest::download
       - id: objectives/execution/process/control::start-process
       - id: objectives/command-and-control/dropper/script::ps-downloader-indicators

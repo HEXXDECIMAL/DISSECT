@@ -59,8 +59,8 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: micro-traits/comm/http/request::request
-      - id: micro-traits/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/request::request
+      - id: micro-behaviors/comm/http/request::request-python
 
   # Temp directory composite
   - id: python-tmp-dir
@@ -68,8 +68,8 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/fs/temp/directory::temp-directory
-      - id: micro-traits/fs/temp/directory::directory-python
+      - id: micro-behaviors/fs/temp/directory::temp-directory
+      - id: micro-behaviors/fs/temp/directory::directory-python
 
   # Code or process execution composite
   - id: python-exec-any
@@ -77,8 +77,8 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/process/create/subprocess
-      - id: micro-traits/process/create/shell::python-os-system
+      - id: micro-behaviors/process/create/subprocess
+      - id: micro-behaviors/process/create/shell::python-os-system
       - id: objectives/execution/interpreter/eval/invoke::exec-call-python
 
   # C2 endpoint path composite
@@ -87,8 +87,8 @@ composite_rules:
     crit: notable
     conf: 0.65
     any:
-      - id: micro-traits/comm/http/url::payload-path
-      - id: micro-traits/comm/http/url::php-collector
+      - id: micro-behaviors/comm/http/url::payload-path
+      - id: micro-behaviors/comm/http/url::php-collector
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper
@@ -97,8 +97,8 @@ composite_rules:
     all:
       - id: python-http-lib
       - id: python-tmp-dir
-      - id: micro-traits/fs/chmod/commands::python-os-chmod
-      - id: micro-traits/process/create/subprocess
+      - id: micro-behaviors/fs/chmod/commands::python-os-chmod
+      - id: micro-behaviors/process/create/subprocess
 
   # Home directory dropper - downloads to hidden dir in home
   - id: home-dropper
@@ -107,8 +107,8 @@ composite_rules:
     crit: suspicious
     all:
       - id: python-http-lib
-      - id: micro-traits/os/user/lookup::go-home-dir
-      - id: micro-traits/fs/write/file::python-open-write-binary
+      - id: micro-behaviors/os/user/lookup::go-home-dir
+      - id: micro-behaviors/fs/write/file::python-open-write-binary
       - id: python-exec-any
 
   # Generic download + write + execute (any location)
@@ -117,8 +117,8 @@ composite_rules:
     conf: 0.9
     all:
       - id: python-http-lib
-      - id: micro-traits/fs/write/file::python-open-write-binary
-      - id: micro-traits/process/create/subprocess
+      - id: micro-behaviors/fs/write/file::python-open-write-binary
+      - id: micro-behaviors/process/create/subprocess
 
   # Multiple download functions composite
   - id: multi-download-funcs
@@ -137,6 +137,6 @@ composite_rules:
     all:
       - id: multi-download-funcs
       - id: requests-method
-      - id: micro-traits/fs/file/write::py-write
+      - id: micro-behaviors/fs/file/write::py-write
       - id: popen-call
       - id: payload-keyword

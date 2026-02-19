@@ -46,14 +46,14 @@ composite_rules:
     for: [python, javascript, shell, rust, go]
     all:
       - id: github-actions-targeting
-      - id: micro-traits/fs/proc/info::process-pid-mem
-      - id: micro-traits/fs/proc/info::process-pid-maps
+      - id: micro-behaviors/fs/proc/info::process-pid-mem
+      - id: micro-behaviors/fs/proc/info::process-pid-maps
 
   - id: github-actions-secret-marker-helper
     desc: Helper for secret or memory access
     any:
       - id: metadata/intent::secret
-      - id: micro-traits/fs/proc/info::process-pid-mem
+      - id: micro-behaviors/fs/proc/info::process-pid-mem
       - id: github-actions-targeting-shell
     crit: notable
 
@@ -65,9 +65,9 @@ composite_rules:
     all:
       - id: github-actions-targeting
       - id: github-actions-secret-marker-helper
-      - id: micro-traits/process/create/shell::shell-platform-check
+      - id: micro-behaviors/process/create/shell::shell-platform-check
     any:
-      - id: micro-traits/process/create/shell::curl-pipe-exec
-      - id: micro-traits/process/create/shell::sudo-piped-exec
+      - id: micro-behaviors/process/create/shell::curl-pipe-exec
+      - id: micro-behaviors/process/create/shell::sudo-piped-exec
       - id: double-base64-encode
       - id: python-sudo-execution

@@ -16,8 +16,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: micro-traits/data/encode/base64
-      - id: micro-traits/comm/http/request::http-client-usage
+      - id: micro-behaviors/data/encode/base64
+      - id: micro-behaviors/comm/http/request::http-client-usage
     unless:
-      - id: micro-traits/os/admin/legitimate/http-tools/package-manager
-      - id: micro-traits/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: micro-behaviors/os/admin/legitimate/http-tools/package-manager
+      - id: micro-behaviors/os/admin/legitimate/http-tools/ci-cd-pipeline

@@ -30,7 +30,7 @@ composite_rules:
     attack: "T1105"
     for: [javascript]
     all:
-      - id: micro-traits/process/create/shell/lang::js-bun-exec
+      - id: micro-behaviors/process/create/shell/lang::js-bun-exec
     any:
       - id: bun-install-url
       - id: objectives/execution/dropper/script::curl-download

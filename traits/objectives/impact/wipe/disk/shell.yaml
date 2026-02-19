@@ -49,7 +49,7 @@ traits:
       type: raw
       regex: '"\$\{UID\}"\s*==\s*0'
 
-  # Removed proc-mounts-content duplicate - use micro-traits/fs/proc/mounts/linux::mounts (string type works for file paths)
+  # Removed proc-mounts-content duplicate - use micro-behaviors/fs/proc/mounts/linux::mounts (string type works for file paths)
 
   - id: dd-devzero-content
     desc: dd with /dev/zero
@@ -186,7 +186,7 @@ composite_rules:
     any:
       - id: dev-grep-pattern
       - id: proc-mounts-read
-      - id: micro-traits/fs/proc/mounts::mounts
+      - id: micro-behaviors/fs/proc/mounts::mounts
 
   # Destructive dd composite
   - id: dd-destructive

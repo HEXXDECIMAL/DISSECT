@@ -9,8 +9,8 @@ composite_rules:
     conf: 0.98
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
       - id: objectives/impact/ransom/encrypt::ransom-note-text
     any:
       - id: objectives/impact/ransom/encrypt::ransom-extension
@@ -23,8 +23,8 @@ composite_rules:
     conf: 0.9
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
 
   # ESXi ransomware with locker patterns - complexity 5 (all:3 + any:2)
   - id: esxi-ransomware-locker
@@ -33,14 +33,14 @@ composite_rules:
     conf: 0.97
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
-      - id: micro-traits/vm/detect/vmware::vmfs-path
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::vmfs-path
     any:
       - id: objectives/impact/ransom/encrypt::locker-namespace
       - id: objectives/impact/ransom/encrypt::config-note-fields
-      - id: micro-traits/vm/detect/vmware::vimcmd-snapshot-remove
-      - id: micro-traits/vm/detect/vmware::killing-vms-msg
+      - id: micro-behaviors/vm/detect/vmware::vimcmd-snapshot-remove
+      - id: micro-behaviors/vm/detect/vmware::killing-vms-msg
 
   # ESXi ransomware with VM operations - complexity 5 (all:4 + any:1)
   - id: esxi-vm-ransomware
@@ -49,13 +49,13 @@ composite_rules:
     conf: 0.96
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
-      - id: micro-traits/vm/detect/vmware::killing-vms-msg
-      - id: micro-traits/vm/detect/vmware::vmfs-path
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::killing-vms-msg
+      - id: micro-behaviors/vm/detect/vmware::vmfs-path
     any:
-      - id: micro-traits/vm/detect/vmware::vimcmd-snapshot-remove
-      - id: micro-traits/vm/detect/vmware::esxi-preparation
+      - id: micro-behaviors/vm/detect/vmware::vimcmd-snapshot-remove
+      - id: micro-behaviors/vm/detect/vmware::esxi-preparation
       - id: objectives/impact/ransom/encrypt::config-cipher-fields
 
   # ESXi ransomware shell launcher script - complexity 5 (for:1 + all:4)
@@ -66,9 +66,9 @@ composite_rules:
     conf: 0.98
     for: [shell]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
-      - id: micro-traits/vm/detect/vmware::vmfs-path
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::vmfs-path
       - id: objectives/anti-forensics/log-clear/commands::find-exec-rm-log
 
   # ESXi ransomware shell with anti-forensics - complexity 6 (for:1 + all:5)
@@ -78,9 +78,9 @@ composite_rules:
     conf: 0.99
     for: [shell]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
-      - id: micro-traits/vm/detect/vmware::vmware-extensions
-      - id: micro-traits/vm/detect/vmware::vmfs-path
+      - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
+      - id: micro-behaviors/vm/detect/vmware::vmware-extensions
+      - id: micro-behaviors/vm/detect/vmware::vmfs-path
       - id: objectives/anti-forensics/self-delete/cleanup::rm-self-dollar-zero
       - id: objectives/anti-forensics/timestomp/modify::touch-reference-multiple
 
@@ -92,9 +92,9 @@ composite_rules:
     conf: 0.98
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-tool
-      - id: micro-traits/vm/detect/vmware::esxi-world-id-param
-      - id: micro-traits/vm/detect/vmware::cpp-vm-killer-symbols
+      - id: micro-behaviors/vm/detect/vmware::esxcli-tool
+      - id: micro-behaviors/vm/detect/vmware::esxi-world-id-param
+      - id: micro-behaviors/vm/detect/vmware::cpp-vm-killer-symbols
       - id: objectives/impact/ransom/encrypt::ransom-note-text
 
   # ESXi ransomware via CLI flags - complexity 5 (for:1 + all:4)
@@ -105,7 +105,7 @@ composite_rules:
     conf: 0.97
     for: [elf]
     all:
-      - id: micro-traits/vm/detect/vmware::esxcli-tool
-      - id: micro-traits/vm/detect/vmware::vm-killer-flags
-      - id: micro-traits/vm/detect/vmware::killing-vm-simple
+      - id: micro-behaviors/vm/detect/vmware::esxcli-tool
+      - id: micro-behaviors/vm/detect/vmware::vm-killer-flags
+      - id: micro-behaviors/vm/detect/vmware::killing-vm-simple
       - id: objectives/impact/ransom/encrypt::ransom-note-text

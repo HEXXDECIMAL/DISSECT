@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Go modules micro-traits ===
+  # === Go modules micro-behaviors ===
   - id: go-mod
     desc: go.mod file
     crit: notable

@@ -350,7 +350,7 @@ traits:
       substr: ".Save()"
 
   # NOTE: Generic executable indicators moved to objectives/execution/interpreter/script/indicators/windows.yaml
-  # and micro-traits/data/text/keywords/ to avoid misleading categorization as registry persistence
+  # and micro-behaviors/data/text/keywords/ to avoid misleading categorization as registry persistence
 
 composite_rules:
   # Startup folder composite
@@ -543,7 +543,7 @@ composite_rules:
     attack: "T1547.009"
     platforms: [windows]
     all:
-      - id: micro-traits/fs/directory/traverse::traverse-walk
+      - id: micro-behaviors/fs/directory/traverse::traverse-walk
       - id: create-shortcut
     any:
       - id: lnk-endswith-filter
@@ -561,7 +561,7 @@ composite_rules:
     mbc: "F0012"
     platforms: [windows]
     all:
-      - id: micro-traits/fs/directory/traverse::traverse-walk
+      - id: micro-behaviors/fs/directory/traverse::traverse-walk
       - id: create-shortcut
       - id: shortcut-arguments
       - id: shortcut-save
@@ -576,4 +576,4 @@ composite_rules:
     platforms: [windows]
     all:
       - id: windows-schtasks-create
-      - id: micro-traits/process/create/shell::cmd-exe
+      - id: micro-behaviors/process/create/shell::cmd-exe

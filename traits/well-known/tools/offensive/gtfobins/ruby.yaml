@@ -36,8 +36,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: micro-traits/dylib/load::ruby-ffi-dlopen
-      - id: micro-traits/dylib/load::fiddle-dlopen
+      - id: micro-behaviors/dylib/load::ruby-ffi-dlopen
+      - id: micro-behaviors/dylib/load::fiddle-dlopen
   - id: gtfobins-ruby-privilege-escalation
     desc: GTFOBins privilege escalation via Ruby
     crit: suspicious
@@ -56,8 +56,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: micro-traits/fs/file/read::ruby-file-read-content
-      - id: micro-traits/fs/write/file::ruby-file-write-content
+      - id: micro-behaviors/fs/file/read::ruby-file-read-content
+      - id: micro-behaviors/fs/write/file::ruby-file-write-content
   - id: gtfobins-ruby-reverse-shell
     desc: GTFOBins reverse shell via Ruby
     crit: suspicious
@@ -75,7 +75,7 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: micro-traits/process/create/shell/lang::ruby-shell-exec
+      - id: micro-behaviors/process/create/shell/lang::ruby-shell-exec
   - id: gtfobins-ruby-downloader
     desc: GTFOBins file download and write via Ruby
     crit: suspicious
@@ -84,5 +84,5 @@ composite_rules:
     needs: 3
     all:
       - id: gtfobins-ruby-marker
-      - id: micro-traits/comm/http/lib/netlib::open-uri
-      - id: micro-traits/fs/write/file::io-copy-stream
+      - id: micro-behaviors/comm/http/lib/netlib::open-uri
+      - id: micro-behaviors/fs/write/file::io-copy-stream

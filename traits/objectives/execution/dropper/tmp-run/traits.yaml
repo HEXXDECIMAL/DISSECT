@@ -42,6 +42,6 @@ composite_rules:
     needs: 3
     any:
       - id: tmp-path-short
-      - id: micro-traits/fs/chmod/commands::python-os-chmod
-      - id: micro-traits/process/create/subprocess/
+      - id: micro-behaviors/fs/chmod/commands::python-os-chmod
+      - id: micro-behaviors/process/create/subprocess/
       - id: os-remove

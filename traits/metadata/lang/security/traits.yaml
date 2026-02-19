@@ -5,7 +5,7 @@ defaults:
   for: [all]
 
 traits:
-  # === PIE micro-traits ===
+  # === PIE micro-behaviors ===
   - id: pie-macro
     desc: __pie__ macro
     crit: notable
@@ -30,7 +30,7 @@ traits:
       type: string
       substr: ".got.plt"
 
-  # === Stack protector micro-traits ===
+  # === Stack protector micro-behaviors ===
   - id: stack-chk-fail
     desc: __stack_chk_fail function
     crit: inert
@@ -55,7 +55,7 @@ traits:
       type: string
       substr: "-fstack-protector"
 
-  # === FORTIFY_SOURCE micro-traits ===
+  # === FORTIFY_SOURCE micro-behaviors ===
   - id: fortify-fail
     desc: __fortify_fail function
     crit: notable
@@ -96,7 +96,7 @@ traits:
       type: symbol
       regex: "__strcpy_chk"
 
-  # === RELRO micro-traits ===
+  # === RELRO micro-behaviors ===
   - id: gnu-relro
     desc: GNU_RELRO string
     crit: notable

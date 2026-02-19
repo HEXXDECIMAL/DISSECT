@@ -51,5 +51,5 @@ composite_rules:
     any:
       - id: chrome-keychain-query
       - id: openssl-aes-decryption-cmd
-      - id: micro-traits/fs/path/sensitive/browser::login-data
+      - id: micro-behaviors/fs/path/sensitive/browser::login-data
       - id: objectives/credential-access/browser/chromium::web-data

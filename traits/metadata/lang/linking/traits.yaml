@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Static linking micro-traits ===
+  # === Static linking micro-behaviors ===
   - id: statically-linked
     desc: statically linked string
     crit: notable

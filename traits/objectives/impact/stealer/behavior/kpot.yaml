@@ -10,4 +10,4 @@ composite_rules:
       - type: trait
         id: well-known/malware/kpot/fingerprint::gui-guid
       - type: trait
-        id: micro-traits/ui/winforms/component::excessive-vscrollbar
+        id: micro-behaviors/ui/winforms/component::excessive-vscrollbar

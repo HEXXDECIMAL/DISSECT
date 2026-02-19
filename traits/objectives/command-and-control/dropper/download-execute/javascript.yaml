@@ -16,6 +16,6 @@ composite_rules:
       - id: objectives/execution/interpreter/scripting/host::xmlhttp-obfuscated
       - id: objectives/execution/interpreter/scripting/host::adodb-stream-obfuscated
     any:
-      - id: micro-traits/data/format/executable::mz-header-check
+      - id: micro-behaviors/data/format/executable::mz-header-check
       - id: objectives/anti-static/obfuscation/source/syntax::js-property-concatenation-obfuscation
-      - id: micro-traits/comm/http/url::dropper-common-params
+      - id: micro-behaviors/comm/http/url::dropper-common-params

@@ -22,5 +22,5 @@ composite_rules:
     for: [elf]
     all:
       - id: read-vncs
-      - id: micro-traits/os/firewall/rules::iptables-tool
+      - id: micro-behaviors/os/firewall/rules::iptables-tool
       - id: well-known/tools/offensive::masscan-ref

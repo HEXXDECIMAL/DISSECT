@@ -33,7 +33,7 @@ composite_rules:
     attack: "T1027"
     for: [shell, batch, powershell]
     all:
-      - id: micro-traits/data/text/malware::suspicious-repo-name
+      - id: micro-behaviors/data/text/malware::suspicious-repo-name
       - id: pyinstaller-bundling
 
   - id: pyinstaller-screenshotter-rat

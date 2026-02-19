@@ -123,7 +123,7 @@ composite_rules:
   - php
   all:
   - id: stream-socket-connect
-  - id: micro-traits/process/create/shell
+  - id: micro-behaviors/process/create/shell
   - id: sh-interactive
 - id: rat-masquerading
   desc: PHP RAT with process masquerading
@@ -134,8 +134,8 @@ composite_rules:
   for:
   - php
   all:
-  - id: micro-traits/process/control/signal::cli-set-process-title
-  - id: micro-traits/process/control/signal::posix-setsid
+  - id: micro-behaviors/process/control/signal::cli-set-process-title
+  - id: micro-behaviors/process/control/signal::posix-setsid
   - id: stream-socket-connect
 - id: rat-remote-eval
   desc: PHP RAT with remote code execution
@@ -149,7 +149,7 @@ composite_rules:
   - id: objectives/anti-static/obfuscation/encoding
   - id: stream-socket-connect
   any:
-  - id: micro-traits/process/create/shell
+  - id: micro-behaviors/process/create/shell
   - id: function-exists-exec
   none:
   - id: localhost-socket-uri
@@ -163,9 +163,9 @@ composite_rules:
   - php
   all:
   - id: stream-socket-connect
-  - id: micro-traits/fs/read/file
+  - id: micro-behaviors/fs/read/file
   any:
-  - id: micro-traits/fs/write/file
+  - id: micro-behaviors/fs/write/file
   - id: objectives/anti-static/obfuscation/encoding
   none:
   - id: localhost-socket-uri
@@ -181,11 +181,11 @@ composite_rules:
   all:
   - id: stream-socket-connect
   - id: objectives/anti-static/obfuscation/encoding
-  - id: micro-traits/process/create/shell
+  - id: micro-behaviors/process/create/shell
   any:
   - id: kworker-masquerade
-  - id: micro-traits/process/control/signal::cli-set-process-title
-  - id: micro-traits/process/control/signal::posix-setsid
+  - id: micro-behaviors/process/control/signal::cli-set-process-title
+  - id: micro-behaviors/process/control/signal::posix-setsid
 - id: multi-method-exec
   desc: Multi-method command execution fallback
   crit: suspicious
@@ -195,7 +195,7 @@ composite_rules:
   - php
   needs: 3
   any:
-  - id: micro-traits/process/create/shell
+  - id: micro-behaviors/process/create/shell
   - id: function-exists-exec
   - id: socket-to-proc-descriptor
   - id: sh-interactive

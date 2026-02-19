@@ -9,7 +9,7 @@ defaults:
 traits:
   # prctl-symbol: use objectives/anti-analysis/masquerade/identity::prctl-symbol (canonical)
 
-  # === prctl PR_SET_NAME micro-traits ===
+  # === prctl PR_SET_NAME micro-behaviors ===
   - id: pr-set-name-const
     desc: PR_SET_NAME constant reference
     crit: notable
@@ -26,7 +26,7 @@ traits:
       type: hex
       pattern: "B8 9D 00 00 00"
 
-  # === System daemon name micro-traits ===
+  # === System daemon name micro-behaviors ===
   - id: fake-abrtd-path
     desc: Contains abrtd daemon path
     crit: notable
@@ -129,7 +129,7 @@ traits:
       type: string
       substr: "/usr/sbin/atd"
 
-  # === argv[0] manipulation micro-traits ===
+  # === argv[0] manipulation micro-behaviors ===
   - id: strncpy-argv0
     desc: strncpy on argv[0] (process name
     crit: suspicious

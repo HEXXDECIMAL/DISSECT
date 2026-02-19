@@ -14,8 +14,8 @@ composite_rules:
     attack: "T1027.002"
     all:
       - id: objectives/execution/reflection/class::python-zipimporter-load
-      - id: micro-traits/data/encode/base64::b64decode-string
+      - id: micro-behaviors/data/encode/base64::b64decode-string
     any:
-      - id: micro-traits/crypto/symmetric/aes::pyaes-usage
-      - id: micro-traits/crypto/symmetric/aes::pycrypto-usage
-      - id: micro-traits/crypto/symmetric/fernet::decrypt
+      - id: micro-behaviors/crypto/symmetric/aes::pyaes-usage
+      - id: micro-behaviors/crypto/symmetric/aes::pycrypto-usage
+      - id: micro-behaviors/crypto/symmetric/fernet::decrypt

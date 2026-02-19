@@ -6,7 +6,7 @@ defaults:
 
 traits:
   # === PAM library (strings - library names) ===
-  # Removed libpam-so duplicate - use micro-traits/os/pam/auth::libpam-so-string
+  # Removed libpam-so duplicate - use micro-behaviors/os/pam/auth::libpam-so-string
 
   - id: libpam-so-versioned
     desc: libpam.so.0 versioned library
@@ -18,7 +18,7 @@ traits:
       regex: "libpam\\.so\\.\\d+"
 
   # === Token access functions (symbols) ===
-  # pam_get_item symbol - use micro-traits/os/pam/auth::pam-get-item-symbol
+  # pam_get_item symbol - use micro-behaviors/os/pam/auth::pam-get-item-symbol
 
   - id: pam-get-item-string
     desc: pam_get_item function reference (string)
@@ -75,7 +75,7 @@ traits:
       type: symbol
       exact: "pam_open_session"
 
-  # pam_acct_mgmt symbol - use micro-traits/os/pam/auth::pam-acct-mgmt-symbol
+  # pam_acct_mgmt symbol - use micro-behaviors/os/pam/auth::pam-acct-mgmt-symbol
 
   - id: pam-acct-mgmt-string
     desc: pam_acct_mgmt function reference (string)
@@ -101,7 +101,7 @@ composite_rules:
     desc: PAM library references
     for: [c, cpp, elf, so]
     any:
-      - { id: micro-traits/os/pam/auth::libpam-so-string }
+      - { id: micro-behaviors/os/pam/auth::libpam-so-string }
       - { id: libpam-so-versioned }
     crit: notable
 
@@ -109,7 +109,7 @@ composite_rules:
     desc: PAM token access functions
     for: [c, cpp, elf, so]
     any:
-      - { id: micro-traits/os/pam/auth::pam-get-item-symbol }
+      - { id: micro-behaviors/os/pam/auth::pam-get-item-symbol }
       - { id: pam-get-item-string }
       - { id: pam-set-item }
       - { id: pam-get-authtok }
@@ -120,10 +120,10 @@ composite_rules:
     desc: PAM authentication functions
     for: [c, cpp, elf, so]
     any:
-      - { id: micro-traits/os/pam/auth::pam-authenticate-symbol }
+      - { id: micro-behaviors/os/pam/auth::pam-authenticate-symbol }
       - { id: pam-authenticate-string }
       - { id: pam-open-session }
-      - { id: micro-traits/os/pam/auth::pam-acct-mgmt-symbol }
+      - { id: micro-behaviors/os/pam/auth::pam-acct-mgmt-symbol }
       - { id: pam-acct-mgmt-string }
       - { id: pam-setcred }
     crit: notable

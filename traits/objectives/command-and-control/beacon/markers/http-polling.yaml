@@ -79,7 +79,7 @@ composite_rules:
   - id: http-customization
     desc: HTTP request customization
     any:
-      - { id: micro-traits/comm/http/request::user-agent-header }
+      - { id: micro-behaviors/comm/http/request::user-agent-header }
       - { id: encoding-imports }
     crit: notable
 

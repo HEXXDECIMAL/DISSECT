@@ -1,0 +1,93 @@
+# Base64 Encoding - Python
+# Detects usage of Python's base64 module
+# MBC: C0025 (Encode Data)
+# ATT&CK: T1132 (Data Encoding)
+
+defaults:
+  crit: inert
+  for: [python]
+  mbc: "C0025"
+  attack: "T1132"
+
+traits:
+  # Import base64 module
+  - id: import-base64
+    desc: Imports base64 module
+    conf: 0.9
+    if:
+      type: ast
+      kind: import
+      exact: "base64"
+
+  # base64.b64encode
+  - id: b64encode-call
+    desc: Calls base64.b64encode
+    crit: inert
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "base64.b64encode"
+
+  # base64.b64decode
+  - id: b64decode-call
+    desc: Calls base64.b64decode
+    crit: inert
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "base64.b64decode"
+
+  # base64.encodestring (legacy)
+  - id: encodestring-call
+    desc: Calls base64.encodestring (legacy)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "base64.encodestring"
+
+  # base64.decodestring (legacy)
+  - id: decodestring-call
+    desc: Calls base64.decodestring (legacy)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "base64.decodestring"
+
+  # binascii.b2a_base64
+  - id: binascii-b2a-base64
+    desc: Calls binascii.b2a_base64
+    crit: inert
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "binascii.b2a_base64"
+
+  # String-based detection (broader than symbol matching)
+  - id: b64decode-string
+    desc: Base64 decode string reference
+    crit: notable
+    conf: 0.66
+    if:
+      type: string
+      substr: b64decode
+
+composite_rules:
+  - id: base64-encoding
+    desc: Base64 encoding capability
+    crit: inert
+    conf: 0.95
+    any:
+      - id: b64encode-call
+      - id: encodestring-call
+      - id: binascii-b2a-base64
+
+  - id: base64-decoding
+    desc: Base64 decoding capability
+    crit: inert
+    conf: 0.95
+    any:
+      - id: b64decode-call
+      - id: decodestring-call
+      - id: micro-behaviors/data/encode/base85::b85decode-call

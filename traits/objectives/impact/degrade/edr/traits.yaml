@@ -14,10 +14,10 @@ traits:
       type: string
       substr: "stopservice"
 
-  # Removed terminate-process-api duplicate - use micro-traits/process/terminate/kill::terminate-process (symbol is more precise)
+  # Removed terminate-process-api duplicate - use micro-behaviors/process/terminate/kill::terminate-process (symbol is more precise)
 
   # === EDR/AV process termination verbs (atomic) ===
-  # Removed duplicate - use micro-traits/process/terminate/signal::kill
+  # Removed duplicate - use micro-behaviors/process/terminate/signal::kill
 
   # NOTE: "terminate" alone is too broad - matches C++ std::terminate,
   # terminate_handler, and many other legitimate uses. Match only in
@@ -184,7 +184,7 @@ composite_rules:
     conf: 0.5
     for: [elf, pe]
     any:
-      - id: micro-traits/process/terminate/signal::kill
+      - id: micro-behaviors/process/terminate/signal::kill
       - id: terminate-keyword
 
   # EDR process termination (verb + product name)
@@ -205,6 +205,6 @@ composite_rules:
     for: [pe, elf]
     any:
       - id: stopper
-      - id: micro-traits/process/terminate/kill::terminate-process
+      - id: micro-behaviors/process/terminate/kill::terminate-process
     all:
       - id: edr-product-name

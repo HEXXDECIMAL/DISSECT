@@ -5,5 +5,5 @@ composite_rules:
     conf: 0.95
     for: [powershell]
     all:
-      - id: micro-traits/os/registry/persistence::run-key-write-ps
+      - id: micro-behaviors/os/registry/persistence::run-key-write-ps
       - id: objectives/anti-static/obfuscation/strings/concatenation::ps-hidden-window

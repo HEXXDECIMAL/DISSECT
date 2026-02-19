@@ -10,6 +10,6 @@ composite_rules:
     any:
       - id: objectives/anti-analysis/debugger/detect::win-comprehensive
       - id: objectives/anti-analysis/vm/detect::instruction-based-evasion
-      - id: micro-traits/process/terminate/kill::terminate-process
+      - id: micro-behaviors/process/terminate/kill::terminate-process
       - id: objectives/anti-analysis/vm/detect::multiple-rdtsc-instr
     needs: 1

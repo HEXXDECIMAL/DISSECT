@@ -13,5 +13,5 @@ composite_rules:
     desc: "Detects Nemucod C2 URL patterns."
     crit: hostile
     all:
-      - id: micro-traits/data/encode/permutation::js-permutation-loop
+      - id: micro-behaviors/data/encode/permutation::js-permutation-loop
       - id: objectives/command-and-control/domain/extraction::reversed-nemucod-c2-url

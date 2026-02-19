@@ -256,8 +256,8 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: framework-binary-marker
-      - id: micro-traits/data/embedded/payload::lzma-magic
-      - id: micro-traits/fs/file/delete::delete
+      - id: micro-behaviors/data/embedded/payload::lzma-magic
+      - id: micro-behaviors/fs/file/delete::delete
 
   # Even more suspicious: trojanized framework with socket binding (network capability)
   - id: trojanized-framework-networked
@@ -269,7 +269,7 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: suspicious-trojanized-framework
-      - id: micro-traits/comm/socket/bind::bind
+      - id: micro-behaviors/comm/socket/bind::bind
 
   # Most suspicious: trojanized framework with C2 communication
   - id: trojanized-framework-with-c2

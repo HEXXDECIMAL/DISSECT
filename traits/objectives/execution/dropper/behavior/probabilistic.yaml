@@ -17,5 +17,5 @@ composite_rules:
     any:
       - id: objectives/execution/vm/random-code::random-code-generation
       - id: objectives/execution/vm/random-code::math-random-index
-      - id: micro-traits/data/encode/hex_xor::fragmented-hex-xor-decoder
-      - id: micro-traits/data/encode/hex_xor::js-obfuscated-fragment-xor-decode
+      - id: micro-behaviors/data/encode/hex_xor::fragmented-hex-xor-decoder
+      - id: micro-behaviors/data/encode/hex_xor::js-obfuscated-fragment-xor-decode

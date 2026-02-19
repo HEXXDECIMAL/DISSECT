@@ -1,8 +1,8 @@
 # Permissions Discovery
 # ATT&CK: T1069 (Permission Groups Discovery)
-# NOTE: Config file paths moved to micro-traits/fs/path/config/{accounts,groups,privilege-escalation}/
-# NOTE: Neutral ID query functions (getgid, getegid, geteuid, getuid) moved to micro-traits/process/privilege/
-# NOTE: Neutral capability query functions (cap_get_file, cap_set_file) moved to micro-traits/os/capabilities/
+# NOTE: Config file paths moved to micro-behaviors/fs/path/config/{accounts,groups,privilege-escalation}/
+# NOTE: Neutral ID query functions (getgid, getegid, geteuid, getuid) moved to micro-behaviors/process/privilege/
+# NOTE: Neutral capability query functions (cap_get_file, cap_set_file) moved to micro-behaviors/os/capabilities/
 
 traits:
   - id: capsh
@@ -26,7 +26,7 @@ traits:
       substr: "getgroups"
 
   # === Linux capability API ===
-  # NOTE: cap_get_file and cap_set_file moved to micro-traits/os/capabilities/ (neutral file capability queries)
+  # NOTE: cap_get_file and cap_set_file moved to micro-behaviors/os/capabilities/ (neutral file capability queries)
   # Kept here: cap_get_proc and cap_set_proc have more suspicion (runtime manipulation)
 
   - id: cap-get-proc
@@ -70,8 +70,8 @@ composite_rules:
     any:
       - id: cap-get-proc
       - id: cap-set-proc
-      - id: micro-traits/os/security/capabilities::cap-get-file
-      - id: micro-traits/os/security/capabilities::cap-set-file
+      - id: micro-behaviors/os/security/capabilities::cap-get-file
+      - id: micro-behaviors/os/security/capabilities::cap-set-file
 
   # Linux capabilities via capsh + /proc/self/status
   - id: linux-caps-via-capsh
@@ -82,7 +82,7 @@ composite_rules:
     for: [elf, shell]
     all:
       - id: capsh
-      - id: micro-traits/fs/proc/info::process-self-status
+      - id: micro-behaviors/fs/proc/info::process-self-status
 
   # Linux capabilities via cap_get/set_proc
   - id: linux-caps-via-api
@@ -96,7 +96,7 @@ composite_rules:
       - id: cap-set-proc
     downgrade:
       any:
-        - id: micro-traits/comm/icmp/ping::ping
+        - id: micro-behaviors/comm/icmp/ping::ping
 
   - id: linux-caps-enum
     desc: Linux capabilities enumeration
@@ -110,7 +110,7 @@ composite_rules:
       - id: linux-caps-via-api
     downgrade:
       any:
-        - id: micro-traits/comm/icmp/ping::ping
+        - id: micro-behaviors/comm/icmp/ping::ping
 
   # User/group ID gathering - only notable when combined with multiple checks
   - id: uid-gid-gathering
@@ -121,13 +121,13 @@ composite_rules:
     for: [elf, macho]
     needs: 3
     any:
-      - id: micro-traits/process/privilege/query::getgid
-      - id: micro-traits/process/privilege/query::getegid
-      - id: micro-traits/process/privilege/query::geteuid
+      - id: micro-behaviors/process/privilege/query::getgid
+      - id: micro-behaviors/process/privilege/query::getegid
+      - id: micro-behaviors/process/privilege/query::geteuid
       - id: getgroups
     downgrade:
       any:
-        - id: micro-traits/dylib/load/video-lib-marker
-        - id: micro-traits/dylib/library::graphics-lib-marker
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/library::x11-ipc-lib-marker
+        - id: micro-behaviors/dylib/load/video-lib-marker
+        - id: micro-behaviors/dylib/library::graphics-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::x11-ipc-lib-marker

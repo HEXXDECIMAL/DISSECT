@@ -21,7 +21,7 @@ traits:
     downgrade:
       any:
         - id: metadata/signed/platform::apple
-        - id: micro-traits/comm/download/curl::curl-easy-init
+        - id: micro-behaviors/comm/download/curl::curl-easy-init
 
   - id: nsurl-http-body
     desc: NSURLRequest HTTP body
@@ -86,8 +86,8 @@ composite_rules:
     mbc: "B0030"
     for: [macho]
     all:
-      - id: micro-traits/time/schedule/interval::nstimer-scheduled
-      - id: micro-traits/comm/http/lib/nsurlsession::nsurlsession-http-request
+      - id: micro-behaviors/time/schedule/interval::nstimer-scheduled
+      - id: micro-behaviors/comm/http/lib/nsurlsession::nsurlsession-http-request
       - id: objectives/command-and-control/network/beacon/periodic::nsurl-post-json
       - id: objectives/command-and-control/network/beacon/periodic::json-sdf-payload
 

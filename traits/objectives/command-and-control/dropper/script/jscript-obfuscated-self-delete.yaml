@@ -7,8 +7,8 @@ composite_rules:
     attack: "T1105"
     mbc: "B0021"
     all:
-      - id: micro-traits/host/interpreter/jscript::is-jscript
-      - id: micro-traits/host/interpreter/jscript::activex-object
-      - id: micro-traits/data/encode/string::decimal-string-blob
-      - id: micro-traits/data/control-flow/analysis::js-dynamic-method-call
-      - id: micro-traits/fs/delete/file::js-self-delete-obfuscated
+      - id: micro-behaviors/host/interpreter/jscript::is-jscript
+      - id: micro-behaviors/host/interpreter/jscript::activex-object
+      - id: micro-behaviors/data/encode/string::decimal-string-blob
+      - id: micro-behaviors/data/control-flow/analysis::js-dynamic-method-call
+      - id: micro-behaviors/fs/delete/file::js-self-delete-obfuscated

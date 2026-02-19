@@ -3,9 +3,9 @@ composite_rules:
     desc: Win32 Virus Source Code (Jacky/Cabanas style)
     crit: hostile
     all:
-      - id: micro-traits/fs/file/section::asm-pe-header-manipulation
-      - id: micro-traits/process/create/load/manual-import::asm-manual-import-parsing
+      - id: micro-behaviors/fs/file/section::asm-pe-header-manipulation
+      - id: micro-behaviors/process/create/load/manual-import::asm-manual-import-parsing
     any:
-      - id: micro-traits/crypto/symmetric/xor::asm-rol-not-loop
-      - id: micro-traits/fs/memory/mmap::win32-file-mapping
+      - id: micro-behaviors/crypto/symmetric/xor::asm-rol-not-loop
+      - id: micro-behaviors/fs/memory/mmap::win32-file-mapping
       - id: well-known/malware/virus/jacky::jacky-strings

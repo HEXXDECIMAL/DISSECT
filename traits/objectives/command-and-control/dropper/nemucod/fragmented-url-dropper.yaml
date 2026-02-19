@@ -5,8 +5,8 @@ composite_rules:
     conf: 0.9
     for: [javascript]
     any:
-      - id: micro-traits/data/string/nemucod-url-fragment::co-uk-tld
-      - id: micro-traits/data/string/nemucod-url-fragment::co-uk-tld-nodot
+      - id: micro-behaviors/data/string/nemucod-url-fragment::co-uk-tld
+      - id: micro-behaviors/data/string/nemucod-url-fragment::co-uk-tld-nodot
 
   - id: nemucod-adodb-write-path
     desc: Nemucod ADODB stream write/save chain (literal or obfuscated)
@@ -14,8 +14,8 @@ composite_rules:
     conf: 0.92
     for: [javascript]
     any:
-      - id: micro-traits/fs/write/file::adodb-savetofile
-      - id: micro-traits/fs/write/file::adodb-savetofile-obfuscated-fragments
+      - id: micro-behaviors/fs/write/file::adodb-savetofile
+      - id: micro-behaviors/fs/write/file::adodb-savetofile-obfuscated-fragments
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment-tiny-exact
 
   - id: nemucod-run-method
@@ -24,7 +24,7 @@ composite_rules:
     conf: 0.9
     for: [javascript]
     any:
-      - id: micro-traits/process/create/shell/wsh::wscript-shell-run
+      - id: micro-behaviors/process/create/shell/wsh::wscript-shell-run
       - id: objectives/anti-static/obfuscation/source/syntax::js-wscript-dynamic-property-raw
       - id: objectives/anti-static/obfuscation/source/syntax::js-wscript-dynamic-property-ast
 
@@ -34,7 +34,7 @@ composite_rules:
     conf: 0.9
     for: [javascript]
     all:
-      - id: micro-traits/data/string/nemucod-url-fragment::qw4o-fragment
+      - id: micro-behaviors/data/string/nemucod-url-fragment::qw4o-fragment
       - id: objectives/command-and-control/dropper/nemucod::nemucod-co-uk-fragment
 
   - id: fragmented-url-dropper
@@ -45,11 +45,11 @@ composite_rules:
     mbc: B0017, B0018, B0032
     for: [javascript]
     all:
-      - id: micro-traits/host/interpreter/jscript::is-jscript
+      - id: micro-behaviors/host/interpreter/jscript::is-jscript
       - id: objectives/command-and-control/dropper/nemucod::nemucod-adodb-write-path
       - id: objectives/command-and-control/dropper/nemucod::nemucod-run-method
       - id: objectives/anti-static/obfuscation/source/syntax::nemucod-wsh-fragments
     any:
-      - id: micro-traits/data/string/nemucod-url-fragment::js-fragmented-url-construction
-      - id: micro-traits/data/string/nemucod-url-fragment::js-fragmented-url-regex
+      - id: micro-behaviors/data/string/nemucod-url-fragment::js-fragmented-url-construction
+      - id: micro-behaviors/data/string/nemucod-url-fragment::js-fragmented-url-regex
       - id: objectives/command-and-control/dropper/nemucod::nemucod-fragment-combination

@@ -7,12 +7,12 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: micro-traits/ui/framework/tkinter::tkinter-init
-      - id: micro-traits/ui/window/manage::tkinter-fullscreen
-      - id: micro-traits/ui/window/manage::tkinter-protocol-intercept
+      - id: micro-behaviors/ui/framework/tkinter::tkinter-init
+      - id: micro-behaviors/ui/window/manage::tkinter-fullscreen
+      - id: micro-behaviors/ui/window/manage::tkinter-protocol-intercept
     any:
-      - id: micro-traits/ui/window/manage::tkinter-resize-disable
-      - id: micro-traits/data/text/malware::computer-locked-phrase
-      - id: micro-traits/data/text/malware::system-locked-phrase
-      - id: micro-traits/data/text/malware::no-escape-phrase
-      - id: micro-traits/os/process/terminate::bsod-symbol
+      - id: micro-behaviors/ui/window/manage::tkinter-resize-disable
+      - id: micro-behaviors/data/text/malware::computer-locked-phrase
+      - id: micro-behaviors/data/text/malware::system-locked-phrase
+      - id: micro-behaviors/data/text/malware::no-escape-phrase
+      - id: micro-behaviors/os/process/terminate::bsod-symbol

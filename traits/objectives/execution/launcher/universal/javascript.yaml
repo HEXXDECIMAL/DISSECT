@@ -11,6 +11,6 @@ composite_rules:
     for: [javascript]
     needs: 2
     any:
-      - id: micro-traits/process/create/shell/lang::js-cmd-start
-      - id: micro-traits/process/create/shell/lang::js-terminal-launch
-      - id: micro-traits/process/create/script::ref-terminal
+      - id: micro-behaviors/process/create/shell/lang::js-cmd-start
+      - id: micro-behaviors/process/create/shell/lang::js-terminal-launch
+      - id: micro-behaviors/process/create/script::ref-terminal

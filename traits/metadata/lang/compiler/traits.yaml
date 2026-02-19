@@ -5,7 +5,7 @@ defaults:
   for: [all]
 
 traits:
-  # === GCC micro-traits ===
+  # === GCC micro-behaviors ===
   - id: gcc-comment
     desc: "GCC: comment string"
     crit: notable
@@ -46,7 +46,7 @@ traits:
       type: string
       substr: "libgcc"
 
-  # === Clang micro-traits ===
+  # === Clang micro-behaviors ===
   - id: clang-string
     desc: clang string
     crit: notable
@@ -79,7 +79,7 @@ traits:
       type: string
       substr: "libLLVM"
 
-  # === MSVC micro-traits ===
+  # === MSVC micro-behaviors ===
   - id: msvc-string
     desc: MSVC string
     crit: notable
@@ -112,7 +112,7 @@ traits:
       type: string
       substr: "Microsoft Visual"
 
-  # === Intel micro-traits ===
+  # === Intel micro-behaviors ===
   - id: intel-r
     desc: Intel(R) string
     crit: notable
@@ -145,7 +145,7 @@ traits:
       type: string
       substr: "libiomp"
 
-  # === musl micro-traits ===
+  # === musl micro-behaviors ===
   - id: musl-libc
     desc: musl libc string
     crit: notable
@@ -170,7 +170,7 @@ traits:
       type: string
       substr: "__musl__"
 
-  # === Cross-compilation micro-traits ===
+  # === Cross-compilation micro-behaviors ===
   - id: arm-linux-gnu
     desc: arm-linux-gnu cross compiler
     crit: notable

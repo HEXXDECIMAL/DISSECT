@@ -50,7 +50,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-traits/os/pam/auth::module
+      - id: micro-behaviors/os/pam/auth::module
     any:
       - id: metadata/import/curl_easy_perform
       - id: metadata/import/curl_easy_init
@@ -62,7 +62,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-traits/os/pam/auth::module
+      - id: micro-behaviors/os/pam/auth::module
     any:
       - id: metadata/import/socket
       - id: metadata/import/connect

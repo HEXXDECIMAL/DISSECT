@@ -62,5 +62,5 @@ composite_rules:
       - id: bat-extension
       - id: ps1-extension
       - id: vbs-extension
-      - id: micro-traits/data/text/keywords::powershell
+      - id: micro-behaviors/data/text/keywords::powershell
       - id: cmd-exe

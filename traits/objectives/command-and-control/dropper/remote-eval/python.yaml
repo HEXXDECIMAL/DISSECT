@@ -104,7 +104,7 @@ composite_rules:
       - id: exec-urlopen-read
     all:
       - id: objectives/anti-static/obfuscation/payload::exec-function-call
-      - id: micro-traits/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/request::request-python
 
   # Obfuscated remote exec - exec on .get().text with chr/join obfuscation
   # Complexity: file_types(+1) + any(+1) + all(+2) = 4
@@ -150,7 +150,7 @@ composite_rules:
     mbc: "B0024"
     for: [python]
     all:
-      - id: micro-traits/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/request::request-python
     any:
-      - id: micro-traits/data/serialize/yaml::yaml-loader-unsafe
-      - id: micro-traits/data/serialize/yaml::yaml-unsafe-load
+      - id: micro-behaviors/data/serialize/yaml::yaml-loader-unsafe
+      - id: micro-behaviors/data/serialize/yaml::yaml-unsafe-load

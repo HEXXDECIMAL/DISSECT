@@ -39,4 +39,4 @@ composite_rules:
       any:
         - id: metadata/library::botocore-lib
         - id: metadata/import/python::boto3
-        - id: micro-traits/comm/ssh/connect::paramiko
+        - id: micro-behaviors/comm/ssh/connect::paramiko

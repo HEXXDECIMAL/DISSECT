@@ -197,12 +197,12 @@ composite_rules:
     desc: SSH authentication methods
     any:
       - id: password-auth
-      - id: micro-traits/comm/ssh/client::keyboard-interactive
+      - id: micro-behaviors/comm/ssh/client::keyboard-interactive
     crit: notable
   - id: ssh-auth-errors
     desc: SSH authentication error messages
     any:
-      - id: micro-traits/comm/ssh/client::auth-failed
+      - id: micro-behaviors/comm/ssh/client::auth-failed
       - id: too-many-auth-failures
     crit: notable
   - id: ssh-port-refs
@@ -226,12 +226,12 @@ composite_rules:
       - id: scanner-keyword
       - id: scanning-keyword
       - id: ssh-port-refs
-      - id: micro-traits/comm/socket/connect::connect
+      - id: micro-behaviors/comm/socket/connect::connect
     crit: notable
   - id: ssh-with-auth
     desc: SSH protocol with authentication methods
     all:
-      - id: micro-traits/comm/ssh/client::protocol
+      - id: micro-behaviors/comm/ssh/client::protocol
       - id: ssh-auth-methods
     crit: notable
   - id: auth-spray
@@ -242,17 +242,17 @@ composite_rules:
     attack: T1110.001
     needs: 2
     any:
-      - id: micro-traits/comm/ssh/client::protocol
+      - id: micro-behaviors/comm/ssh/client::protocol
       - id: ssh-auth-methods
       - id: ssh-auth-errors
     downgrade:
       any:
-        - id: micro-traits/os/pam/auth::module
-        - id: micro-traits/os/pam/auth::libpam-string
+        - id: micro-behaviors/os/pam/auth::module
+        - id: micro-behaviors/os/pam/auth::libpam-string
         - id: metadata/sign/apple::platform
         - id: metadata/apple/system-component
-        - id: micro-traits/comm/ssh/client::library
-        - id: micro-traits/comm/ssh/client::full-implementation
+        - id: micro-behaviors/comm/ssh/client::library
+        - id: micro-behaviors/comm/ssh/client::full-implementation
   - id: iot-credential-access
     desc: Default IoT device credentials for brute-force
     crit: suspicious
@@ -286,8 +286,8 @@ composite_rules:
     desc: SSH port with threading
     all:
       - id: ssh-port-refs
-      - id: micro-traits/process/threading/operations::concurrent
-      - id: micro-traits/comm/socket/connect::connect
+      - id: micro-behaviors/process/threading/operations::concurrent
+      - id: micro-behaviors/comm/socket/connect::connect
     crit: notable
   - id: scanner
     desc: SSH network scanner for brute-force

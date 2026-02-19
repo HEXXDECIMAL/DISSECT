@@ -16,14 +16,14 @@ composite_rules:
     attack: "T1105"
     mbc: "B0022"
     all:
-      - id: micro-traits/data/manipulation/buffer::offset-write
+      - id: micro-behaviors/data/manipulation/buffer::offset-write
     needs: 2
     any:
-      - id: micro-traits/net/protocol/http::hex-command-regex
-      - id: micro-traits/net/protocol/http::header-stringify-scan
+      - id: micro-behaviors/net/protocol/http::hex-command-regex
+      - id: micro-behaviors/net/protocol/http::header-stringify-scan
       - id: objectives/execution/vm/sandbox::vm-runInThisContext
       - id: objectives/anti-static/obfuscation/encoding/indicators::encoded-node-require
       - id: objectives/anti-static/obfuscation/encoding/indicators::encoded-node-vm
       - id: objectives/anti-static/obfuscation/encoding/indicators::encoded-node-vm-run
-      - id: micro-traits/data/manipulation/buffer::buffer-alloc-large
-      - id: micro-traits/data/manipulation/buffer::module-exports-buffer-storage
+      - id: micro-behaviors/data/manipulation/buffer::buffer-alloc-large
+      - id: micro-behaviors/data/manipulation/buffer::module-exports-buffer-storage

@@ -292,9 +292,9 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: micro-traits/comm/http/request::request
-      - id: micro-traits/comm/http/request::request-python
-      - id: micro-traits/comm/http/request::socket-dot
+      - id: micro-behaviors/comm/http/request::request
+      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/request::socket-dot
 
   # Key event handlers composite
   - id: python-key-event-handlers

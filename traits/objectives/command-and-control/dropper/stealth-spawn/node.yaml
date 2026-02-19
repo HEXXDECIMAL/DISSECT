@@ -16,8 +16,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     any:
-      - id: micro-traits/process/create/spawn::stdio-ignore-array
-      - id: micro-traits/process/create/spawn::stdio-ignore-string
+      - id: micro-behaviors/process/create/spawn::stdio-ignore-array
+      - id: micro-behaviors/process/create/spawn::stdio-ignore-string
 
   # === Stealth dropper composite ===
 
@@ -31,9 +31,9 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: micro-traits/process/create/spawn::detached-true
+      - id: micro-behaviors/process/create/spawn::detached-true
       - id: stdio-suppressed
-      - id: micro-traits/process/create/spawn::child-unref-call
+      - id: micro-behaviors/process/create/spawn::child-unref-call
     unless:
       - id: metadata/dev/testing::node-core-test
       - id: objectives/lateral-movement/supply-chain/npm/testing::test-filename-pattern
@@ -48,10 +48,10 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: micro-traits/process/create/spawn::process-execpath-spawn
-      - id: micro-traits/process/create/spawn::detached-true
+      - id: micro-behaviors/process/create/spawn::process-execpath-spawn
+      - id: micro-behaviors/process/create/spawn::detached-true
       - id: stdio-suppressed
-      - id: micro-traits/process/create/spawn::child-unref-call
+      - id: micro-behaviors/process/create/spawn::child-unref-call
     unless:
       - id: metadata/dev/testing::node-core-test
       - id: objectives/lateral-movement/supply-chain/npm/testing::test-filename-pattern
@@ -66,5 +66,5 @@ composite_rules:
     mbc: "B0024"
     for: [javascript]
     all:
-      - id: micro-traits/process/create/shell/lang::child-process-require
+      - id: micro-behaviors/process/create/shell/lang::child-process-require
       - id: stealth-spawn

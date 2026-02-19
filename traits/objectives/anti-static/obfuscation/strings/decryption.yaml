@@ -26,5 +26,5 @@ composite_rules:
     crit: hostile
     conf: 0.9
     all:
-      - id: micro-traits/process/create/tool::exec-r2
-      - id: micro-traits/data/encode/xor::xor-decoding-loop
+      - id: micro-behaviors/process/create/tool::exec-r2
+      - id: micro-behaviors/data/encode/xor::xor-decoding-loop

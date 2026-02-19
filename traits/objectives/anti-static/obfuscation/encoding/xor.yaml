@@ -127,5 +127,5 @@ composite_rules:
   for:
   - python
   all:
-  - id: micro-traits/data/encode/xor::xor-decoding-loop
-  - id: micro-traits/data/encode/hex::hex-decode-int-16
+  - id: micro-behaviors/data/encode/xor::xor-decoding-loop
+  - id: micro-behaviors/data/encode/hex::hex-decode-int-16

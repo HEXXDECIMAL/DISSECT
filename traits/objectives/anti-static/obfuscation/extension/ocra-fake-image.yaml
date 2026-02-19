@@ -13,4 +13,4 @@ composite_rules:
     desc: OCRA packed executable disguised with an image extension
     all:
       - id: objectives/anti-analysis/packing/ocra::ocra-packed-executable
-      - id: micro-traits/fs/file/extension::image-extension
+      - id: micro-behaviors/fs/file/extension::image-extension

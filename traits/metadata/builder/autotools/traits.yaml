@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Autotools micro-traits ===
+  # === Autotools micro-behaviors ===
   - id: configure-ac
     desc: configure.ac file
     crit: notable

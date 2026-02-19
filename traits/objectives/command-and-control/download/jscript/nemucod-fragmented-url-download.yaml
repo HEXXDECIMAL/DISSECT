@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: "micro-traits/comm/network/url::js-fragmented-url-protocol"
-      - id: "micro-traits/comm/network/url::js-fragmented-url-domain-part"
-      - id: "micro-traits/comm/network/url::js-fragmented-url-path-part"
-      - id: "micro-traits/comm/network/http::js-xmlhttp-open-dynamic-url"
+      - id: "micro-behaviors/comm/network/url::js-fragmented-url-protocol"
+      - id: "micro-behaviors/comm/network/url::js-fragmented-url-domain-part"
+      - id: "micro-behaviors/comm/network/url::js-fragmented-url-path-part"
+      - id: "micro-behaviors/comm/network/http::js-xmlhttp-open-dynamic-url"

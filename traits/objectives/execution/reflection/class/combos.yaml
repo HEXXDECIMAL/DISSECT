@@ -8,8 +8,8 @@ composite_rules:
     conf: 0.90
     for: ["pe", "dll"]
     all:
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/dylib/lookup::get-proc-address
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/lookup::get-proc-address
 
   - id: dynamic-load-extended
     desc: Extended dynamic loading with alternate APIs
@@ -17,5 +17,5 @@ composite_rules:
     conf: 0.85
     for: ["pe", "dll"]
     any:
-      - id: micro-traits/dylib/load::load-library-ex
-      - id: micro-traits/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/load::load-library-ex
+      - id: micro-behaviors/dylib/load::load-library-a

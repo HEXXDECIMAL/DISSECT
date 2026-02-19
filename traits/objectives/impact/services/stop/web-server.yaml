@@ -49,8 +49,8 @@ composite_rules:
     any:
       - id: metadata/format::tiny-elf
       - id: metadata/hardening::stripped-binary
-      - id: micro-traits/process/create/shell::system-fn
-      - id: micro-traits/process/terminate/tool::killall
+      - id: micro-behaviors/process/create/shell::system-fn
+      - id: micro-behaviors/process/terminate/tool::killall
 
   - id: web-server-killer
     desc: Tool explicitly designed to kill web servers

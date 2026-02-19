@@ -80,7 +80,7 @@ composite_rules:
     any:
       - id: rack-sendfile-hook
       - id: http-cookie-access
-      - id: micro-traits/data/encode/base64::base64-urlsafe-decode
+      - id: micro-behaviors/data/encode/base64::base64-urlsafe-decode
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-ruby
       - id: alias-method-call
 
@@ -94,5 +94,5 @@ composite_rules:
     any:
       - id: http-cookie-access
       - id: cookie-pattern-extract
-      - id: micro-traits/data/encode/base64::base64-urlsafe-decode
+      - id: micro-behaviors/data/encode/base64::base64-urlsafe-decode
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-ruby

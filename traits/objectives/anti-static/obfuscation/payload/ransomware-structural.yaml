@@ -15,17 +15,17 @@ composite_rules:
       # Packing indicator (Rust-generated)
       - id: objectives/anti-analysis/packing/entropy::high-entropy-section
       # Crypto capability
-      - id: micro-traits/crypto
+      - id: micro-behaviors/crypto
     needs: 2
     any:
       # Dynamic loading (import obfuscation)
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/dylib/lookup::get-proc-address
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/lookup::get-proc-address
       # Execution
-      - id: micro-traits/process/create/methods::shell-execute-a
-      - id: micro-traits/process/create/methods::shell-execute
+      - id: micro-behaviors/process/create/methods::shell-execute-a
+      - id: micro-behaviors/process/create/methods::shell-execute
       # Specific crypto APIs
-      - id: micro-traits/crypto/certificate/store::cert-open-store
+      - id: micro-behaviors/crypto/certificate/store::cert-open-store
 
   - id: dropper-structural-concealment
     desc: Dropper with structural obfuscation pattern
@@ -40,13 +40,13 @@ composite_rules:
       # Dominant section (single section is 85%+ of binary)
       - id: objectives/anti-static/obfuscation/binary-metrics::dominant-section
       # Dynamic loading capability
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/dylib/lookup::get-proc-address
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/lookup::get-proc-address
     any:
       # Additional suspicious capabilities
-      - id: micro-traits/process/create/methods::shell-execute-a
-      - id: micro-traits/crypto/certificate/store::cert-open-store
-      - id: micro-traits/mem/protect/modify::virtual-protect
+      - id: micro-behaviors/process/create/methods::shell-execute-a
+      - id: micro-behaviors/crypto/certificate/store::cert-open-store
+      - id: micro-behaviors/mem/protect/modify::virtual-protect
 
   - id: encrypted-payload-binary
     desc: Binary with encrypted payload section
@@ -63,9 +63,9 @@ composite_rules:
     needs: 2
     any:
       # Execution capabilities
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/crypto
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/crypto
 
   - id: minimal-import-high-entropy
     desc: Minimal imports with high entropy section

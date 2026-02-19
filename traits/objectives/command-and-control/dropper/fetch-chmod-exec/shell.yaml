@@ -30,7 +30,7 @@ composite_rules:
     all:
       - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
       - id: objectives/execution/dropper/script::curl-download
-      - id: micro-traits/fs/attributes/xattr::xattr-clear
+      - id: micro-behaviors/fs/attributes/xattr::xattr-clear
       - id: objectives/execution/dropper/script::execute-dot-slash
 
   # Temp directory staging dropper

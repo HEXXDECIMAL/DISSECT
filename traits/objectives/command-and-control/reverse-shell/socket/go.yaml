@@ -6,7 +6,7 @@ defaults:
   for: [go, elf, macho, pe]
 
 traits:
-  # === Go exec micro-traits ===
+  # === Go exec micro-behaviors ===
   - id: os-exec-command
     desc: os/exec.Command reference
     crit: notable
@@ -31,7 +31,7 @@ traits:
       type: string
       substr: "exec.(*Cmd).Run"
 
-  # === Go pipe micro-traits ===
+  # === Go pipe micro-behaviors ===
   - id: stdin-pipe
     desc: StdinPipe reference
     crit: notable
@@ -80,7 +80,7 @@ traits:
       type: string
       substr: "Stderr ="
 
-  # === Shell path micro-traits ===
+  # === Shell path micro-behaviors ===
   # NOTE: cmd-exe moved to objectives/execution/interpreter/script/indicators/windows.yaml to avoid duplication
 
   - id: cmd-plain
@@ -98,7 +98,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - id: micro-traits/comm/socket/
+      - id: micro-behaviors/comm/socket/
 
   # Go exec composite
   - id: go-exec
@@ -109,7 +109,7 @@ composite_rules:
       - id: os-exec-command
       - id: exec-cmd-start
       - id: exec-cmd-run
-      - id: micro-traits/process/create/direct::exec-command
+      - id: micro-behaviors/process/create/direct::exec-command
 
   # Go pipe composite
   - id: go-pipe
@@ -130,9 +130,9 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/process/create/shell::bin-sh
-      - id: micro-traits/process/create/shell::bin-bash
-      - id: micro-traits/process/create/shell::cmd-exe
+      - id: micro-behaviors/process/create/shell::bin-sh
+      - id: micro-behaviors/process/create/shell::bin-bash
+      - id: micro-behaviors/process/create/shell::cmd-exe
       - id: cmd-plain
 
   # Go reverse shell (migrated from YARA)

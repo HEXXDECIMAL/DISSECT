@@ -12,8 +12,8 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     all:
-      - id: micro-traits/data/embedded/payload::png-lsb-script-extractor
-      - id: micro-traits/data/embedded/payload::ps1-written-from-decoded-bytes
+      - id: micro-behaviors/data/embedded/payload::png-lsb-script-extractor
+      - id: micro-behaviors/data/embedded/payload::ps1-written-from-decoded-bytes
     any:
-      - id: micro-traits/process/create/script::powershell-script-execution
-      - id: micro-traits/data/embedded/payload::chr-stream-from-int-array
+      - id: micro-behaviors/process/create/script::powershell-script-execution
+      - id: micro-behaviors/data/embedded/payload::chr-stream-from-int-array

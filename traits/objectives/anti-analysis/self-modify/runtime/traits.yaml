@@ -7,10 +7,10 @@ defaults:
 
 traits:
   # === Memory protection (atomic) ===
-  # Removed mprotect-unix duplicate - use micro-traits/mem/protect/modify::mprotect (system calls should use symbol type)
+  # Removed mprotect-unix duplicate - use micro-behaviors/mem/protect/modify::mprotect (system calls should use symbol type)
 
-  # Removed virtualprotect-win duplicate - use micro-traits/mem/protect/modify::virtual-protect (symbol is more precise)
-  # Removed virtualprotectex-win duplicate - use micro-traits/mem/protect/modify::virtual-protect-ex (symbol is more precise)
+  # Removed virtualprotect-win duplicate - use micro-behaviors/mem/protect/modify::virtual-protect (symbol is more precise)
+  # Removed virtualprotectex-win duplicate - use micro-behaviors/mem/protect/modify::virtual-protect-ex (symbol is more precise)
 
   - id: prot-write
     desc: PROT_WRITE memory protection constant
@@ -20,7 +20,7 @@ traits:
       type: string
       word: "PROT_WRITE"
 
-  # Removed prot-exec duplicate - use micro-traits/mem/allocate/executable::prot-exec-const
+  # Removed prot-exec duplicate - use micro-behaviors/mem/allocate/executable::prot-exec-const
 
   - id: page-rwx
     desc: PAGE_EXECUTE_READWRITE constant
@@ -39,7 +39,7 @@ traits:
       type: string
       substr: /proc/self/mem
 
-  # Removed proc-self-maps duplicate - use micro-traits/fs/proc/info/linux::process-self-maps
+  # Removed proc-self-maps duplicate - use micro-behaviors/fs/proc/info/linux::process-self-maps
   # Note: proc-self-maps is commonly used by legitimate software (Go/Rust runtimes,
   # crash reporters, profilers) so it's no longer used in self-modify detection.
 
@@ -120,7 +120,7 @@ traits:
       substr: trampoline
       case_insensitive: true
 
-  # Removed ld-preload duplicate - use micro-traits/os/linker/env::ld-preload
+  # Removed ld-preload duplicate - use micro-behaviors/os/linker/env::ld-preload
 
   - id: dyld-insert
     desc: macOS DYLD_INSERT_LIBRARIES injection
@@ -223,19 +223,19 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: micro-traits/mem/protect/modify::mprotect-symbol
-      - id: micro-traits/mem/protect/modify::virtual-protect
-      - id: micro-traits/mem/protect/modify::virtual-protect-ex
+      - id: micro-behaviors/mem/protect/modify::mprotect-symbol
+      - id: micro-behaviors/mem/protect/modify::virtual-protect
+      - id: micro-behaviors/mem/protect/modify::virtual-protect-ex
       - id: prot-write
-      - id: micro-traits/mem/allocate/executable::prot-exec-const
+      - id: micro-behaviors/mem/allocate/executable::prot-exec-const
       - id: page-rwx
     # mprotect is common in graphics libraries for memory-mapped video access
     # and in system libraries for dynamic memory management
     downgrade:
       any:
-        - id: micro-traits/dylib/load/x11-dga-marker
-        - id: micro-traits/dylib/library::graphics-lib-marker
-        - id: micro-traits/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/load/x11-dga-marker
+        - id: micro-behaviors/dylib/library::graphics-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
 
   # Self-overwriting code
   # Note: Removed proc-self-maps since it's commonly used by legitimate software

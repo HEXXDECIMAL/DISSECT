@@ -4,7 +4,7 @@
 # Detects interactive shell spawning via PTY
 
 traits:
-  # === Python PTY micro-traits ===
+  # === Python PTY micro-behaviors ===
   - id: python-socket
     desc: socket module reference
     crit: notable
@@ -14,7 +14,7 @@ traits:
       type: string
       substr: "socket"
 
-  # === Python subprocess micro-traits ===
+  # === Python subprocess micro-behaviors ===
   - id: socket-connect
     desc: .connect( socket method
     crit: notable
@@ -51,7 +51,7 @@ traits:
       type: raw
       regex: "stderr\\s*="
 
-  # === Node.js PTY micro-traits ===
+  # === Node.js PTY micro-behaviors ===
   - id: pty-node-module-ref
     desc: node-pty module reference
     crit: notable
@@ -100,7 +100,7 @@ traits:
       type: string
       substr: "socket.connect"
 
-  # === STDIO piping micro-traits ===
+  # === STDIO piping micro-behaviors ===
   - id: stdin-string
     desc: stdin string reference
     crit: notable
@@ -210,8 +210,8 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/process/create/shell::bin-sh
-      - id: micro-traits/process/create/shell::bin-bash
+      - id: micro-behaviors/process/create/shell::bin-sh
+      - id: micro-behaviors/process/create/shell::bin-bash
 
   # Python PTY shell (migrated from YARA)
   - id: python-pty
@@ -245,7 +245,7 @@ composite_rules:
     attack: "T1059.006"
     for: [python]
     all:
-      - id: micro-traits/comm/socket/connect::socket-socket-call
+      - id: micro-behaviors/comm/socket/connect::socket-socket-call
       - id: socket-connect
       - id: objectives/execution/fileless/memory::subprocess-mod
       - id: python-pipe
@@ -270,7 +270,7 @@ composite_rules:
     any:
       - id: net-socket-node
       - id: socket-connect-node
-      - id: micro-traits/comm/http/websocket::websocket-class
+      - id: micro-behaviors/comm/http/websocket::websocket-class
 
   # Node.js PTY shell (migrated from YARA)
   - id: node-pty
@@ -338,8 +338,8 @@ composite_rules:
     for: [python, javascript, shell]
     needs: 2
     any:
-      - id: micro-traits/process/terminal/tty/
-      - id: micro-traits/fs/path/device/terminal::dev-tty
+      - id: micro-behaviors/process/terminal/tty/
+      - id: micro-behaviors/fs/path/device/terminal::dev-tty
 
   # Socat composite
   - id: socat

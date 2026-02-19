@@ -1,5 +1,5 @@
 # Linux Kernel Rootkit Detection - Advanced Rootkit Techniques
-# MBC: Defense Evasion, Privilege Escalation  
+# MBC: Defense Evasion, Privilege Escalation
 # ATT&CK: T1014 (Rootkit), T1068 (Exploitation for Privilege Escalation)
 
 traits:
@@ -225,10 +225,10 @@ traits:
       regex: "-E[A-Z]+"
 
   # ============================================================
-  # KERNEL MODULE LOADING (FILELESS) - micro-traits
+  # KERNEL MODULE LOADING (FILELESS) - micro-behaviors
   # ============================================================
 
-  # memfd-create-call: use micro-traits/mem/anonymous/create::memfd-create (canonical)
+  # memfd-create-call: use micro-behaviors/mem/anonymous/create::memfd-create (canonical)
 
   - id: sys-memfd-create-ref
     desc: SYS_memfd_create syscall reference
@@ -258,7 +258,7 @@ traits:
       substr: "SYS_finit_module"
 
   # ============================================================
-  # MEMORY PROTECTION BYPASS (PTE) - micro-traits
+  # MEMORY PROTECTION BYPASS (PTE) - micro-behaviors
   # ============================================================
 
   - id: lookup-address-call
@@ -290,7 +290,7 @@ traits:
       substr: "_PAGE_NX"
 
   # ============================================================
-  # ELF BINARY PATCHING - micro-traits
+  # ELF BINARY PATCHING - micro-behaviors
   # ============================================================
 
   - id: elf64-ehdr-decl

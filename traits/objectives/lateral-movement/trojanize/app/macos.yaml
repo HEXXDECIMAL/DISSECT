@@ -218,7 +218,7 @@ composite_rules:
     all:
       - id: self-replication-symbols
       - id: objectives/discovery/host/software::spotlight-app-enum
-      - id: micro-traits/process/create/shell::shell-symbols
+      - id: micro-behaviors/process/create/shell::shell-symbols
 
   - id: pkill-ledger
     desc: "Kill Ledger Live process"
@@ -322,9 +322,9 @@ composite_rules:
     attack: "T1547.001"
     for: [macho]
     all:
-      - id: micro-traits/process/info/query::get-process-for-pid
+      - id: micro-behaviors/process/info/query::get-process-for-pid
       - id: nsworkspace-app-launch
-      - id: micro-traits/os/time/query::sleep
+      - id: micro-behaviors/os/time/query::sleep
 
   # Generic app replacement
   - id: app-trojanize

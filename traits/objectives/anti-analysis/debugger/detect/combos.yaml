@@ -43,6 +43,6 @@ composite_rules:
     for: [elf]
     needs: 2
     any:
-      - id: micro-traits/os/linker/env::ld-debug
+      - id: micro-behaviors/os/linker/env::ld-debug
       - id: tracerpid-string
       - id: ptrace-traceme-or-deny

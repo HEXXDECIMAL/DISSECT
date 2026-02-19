@@ -42,8 +42,8 @@ composite_rules:
     conf: 0.6
     attack: "T1083"
     any:
-      - id: micro-traits/fs/file/read::ruby-file-read-content
-      - id: micro-traits/fs/file/read::ruby-file-read-open
+      - id: micro-behaviors/fs/file/read::ruby-file-read-content
+      - id: micro-behaviors/fs/file/read::ruby-file-read-open
 
   - id: ruby-file-write
     desc: Ruby file write operation
@@ -51,7 +51,7 @@ composite_rules:
     conf: 0.6
     attack: "T1083"
     all:
-      - id: micro-traits/fs/write/file::ruby-file-write-content
+      - id: micro-behaviors/fs/write/file::ruby-file-write-content
       - id: gtfobins-ruby-indicator
 
   - id: ruby-shell-exec
@@ -60,7 +60,7 @@ composite_rules:
     conf: 0.7
     attack: "T1059"
     all:
-      - id: micro-traits/process/create/shell/lang::ruby-shell-exec
+      - id: micro-behaviors/process/create/shell/lang::ruby-shell-exec
       - id: gtfobins-ruby-indicator
 
   - id: cli-ruby-exec
@@ -79,8 +79,8 @@ composite_rules:
     attack: "T1059"
     needs: 2
     any:
-      - id: micro-traits/dylib/load::fiddle-dlopen
-      - id: micro-traits/dylib/load::shared-lib-exec
+      - id: micro-behaviors/dylib/load::fiddle-dlopen
+      - id: micro-behaviors/dylib/load::shared-lib-exec
 
   # === GTFOBins Privilege Escalation ===
   - id: gtfobins-privilege-escalation

@@ -26,13 +26,13 @@ composite_rules:
     # Exclude legitimate tools that do network operations
     downgrade:
       any:
-        - id: micro-traits/dylib/library::debugger-tool-marker
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/library::network-lib-marker
-        - id: micro-traits/comm/ssh/connect/connect
+        - id: micro-behaviors/dylib/library::debugger-tool-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::network-lib-marker
+        - id: micro-behaviors/comm/ssh/connect/connect
         - id: metadata/quality/has-help
         - id: metadata/signed/platform::apple
-        - id: micro-traits/comm/dns/tools::dig
+        - id: micro-behaviors/comm/dns/tools::dig
 
   - id: root-scanner
     desc: Root exploitation scanner

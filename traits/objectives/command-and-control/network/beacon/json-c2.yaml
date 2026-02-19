@@ -90,7 +90,7 @@ composite_rules:
   attack: T1071.001
   needs: 3
   any:
-  - id: micro-traits/comm/http/request::application-json
+  - id: micro-behaviors/comm/http/request::application-json
   - id: json-charset-utf8
   - id: requests-json-headers
 - id: json-exfiltration
@@ -109,7 +109,7 @@ composite_rules:
   - id: base64-json-payload
   - id: http-post-json
   all:
-  - id: micro-traits/comm/http/request::application-json
+  - id: micro-behaviors/comm/http/request::application-json
   unless:
   - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_requests
   - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_test

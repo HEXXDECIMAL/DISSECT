@@ -37,8 +37,8 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     all:
-      - id: micro-traits/crypto/symmetric/aes::createDecipheriv
-      - id: micro-traits/crypto/symmetric/aes::hardcoded-key
+      - id: micro-behaviors/crypto/symmetric/aes::createDecipheriv
+      - id: micro-behaviors/crypto/symmetric/aes::hardcoded-key
     any:
-      - id: micro-traits/crypto/symmetric/aes::buffer-hex-key-material
+      - id: micro-behaviors/crypto/symmetric/aes::buffer-hex-key-material
       - id: exported-decryptor

@@ -197,7 +197,7 @@ composite_rules:
   - id: tiny-cstring
   any:
   - id: objectives/persist/daemon/init::macos-double-fork-daemon
-  - id: micro-traits/process/create/shell::shell-execution
+  - id: micro-behaviors/process/create/shell::shell-execution
 - id: obfuscated-elf-daemon-dropper
   desc: Obfuscated ELF daemon dropper (embedded payload
   crit: hostile
@@ -210,11 +210,11 @@ composite_rules:
   - linux
   size_max: 2097152
   all:
-  - id: micro-traits/data/embedded/payload::lzma-magic
+  - id: micro-behaviors/data/embedded/payload::lzma-magic
   - id: objectives/persist/daemon/init::daemon-fork
   any:
-  - id: micro-traits/process/create/shell::shell-execution
-  - id: micro-traits/process/create/shell::shell-execution-indicators
+  - id: micro-behaviors/process/create/shell::shell-execution
+  - id: micro-behaviors/process/create/shell::shell-execution-indicators
   unless:
   - id: objectives/anti-static/obfuscation/payload/encrypted::obfuscated-elf-daemon-dropper__unless_1
   - id: metadata/format::many-imports

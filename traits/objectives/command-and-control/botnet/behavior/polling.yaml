@@ -6,6 +6,6 @@ composite_rules:
     attack: "T1071.001"
     mbc: "B0030"
     all:
-      - id: micro-traits/data/control-flow/analysis::iteration-loop-pattern
-      - id: micro-traits/comm/http/request::request-python
-      - id: micro-traits/data/text/keywords/malware::c2-polling-params
+      - id: micro-behaviors/data/control-flow/analysis::iteration-loop-pattern
+      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/data/text/keywords/malware::c2-polling-params

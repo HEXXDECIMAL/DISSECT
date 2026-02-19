@@ -9,5 +9,5 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: micro-traits/fs/directory/mkdir::mkdir
+      - id: micro-behaviors/fs/directory/mkdir::mkdir
       - id: objectives/impact/infect/binary::overwriter-virus-logic

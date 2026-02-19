@@ -16,25 +16,25 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-traits/comm/http/client::curl-post
+      - id: micro-behaviors/comm/http/client::curl-post
     unless:
-      - id: micro-traits/os/admin/legitimate/http-tools/package-manager
-      - id: micro-traits/os/admin/legitimate/http-tools/ci-cd-pipeline
-      - id: micro-traits/os/admin/legitimate/http-tools/health-check
-      - id: micro-traits/os/admin/legitimate/http-tools/installer-script
+      - id: micro-behaviors/os/admin/legitimate/http-tools/package-manager
+      - id: micro-behaviors/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: micro-behaviors/os/admin/legitimate/http-tools/health-check
+      - id: micro-behaviors/os/admin/legitimate/http-tools/installer-script
 
   - id: curl-upload-file
     desc: Curl file upload
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-traits/comm/http/client::curl-upload
+      - id: micro-behaviors/comm/http/client::curl-upload
     unless:
-      - id: micro-traits/os/admin/legitimate/http-tools/package-manager
-      - id: micro-traits/os/admin/legitimate/http-tools/ci-cd-pipeline
-      - id: micro-traits/os/admin/legitimate/http-tools/backup-script
+      - id: micro-behaviors/os/admin/legitimate/http-tools/package-manager
+      - id: micro-behaviors/os/admin/legitimate/http-tools/ci-cd-pipeline
+      - id: micro-behaviors/os/admin/legitimate/http-tools/backup-script
       - id: metadata/signed/id::com.apple.curl
-      - id: micro-traits/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/comm/download/curl::curl-easy-init
 
   - id: shell-tool-exfil
     desc: Shell tool exfiltration
@@ -42,8 +42,8 @@ composite_rules:
     conf: 0.85
     attack: "T1048"
     all:
-      - id: micro-traits/comm/http/client::client
+      - id: micro-behaviors/comm/http/client::client
     unless:
-      - id: micro-traits/os/admin/legitimate::backup-script
-      - id: micro-traits/os/admin/legitimate::health-check
+      - id: micro-behaviors/os/admin/legitimate::backup-script
+      - id: micro-behaviors/os/admin/legitimate::health-check
       - id: metadata/format/json::valid

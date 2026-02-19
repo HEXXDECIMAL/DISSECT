@@ -4,6 +4,6 @@ composite_rules:
     crit: hostile
     attack: T1554
     all:
-      - id: micro-traits/fs/directory/traverse::php-dir-traverse
-      - id: micro-traits/fs/file/write::php-file-write
-      - id: micro-traits/fs/file/infect::php-payload-include
+      - id: micro-behaviors/fs/directory/traverse::php-dir-traverse
+      - id: micro-behaviors/fs/file/write::php-file-write
+      - id: micro-behaviors/fs/file/infect::php-payload-include

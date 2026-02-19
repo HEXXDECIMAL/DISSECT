@@ -21,6 +21,6 @@ composite_rules:
     desc: Service Worker intercepts requests and claims clients immediately
     crit: notable
     all:
-      - id: micro-traits/comm/http/service-worker::event-fetch
-      - id: micro-traits/comm/http/service-worker::control-claim
-      - id: micro-traits/comm/http/service-worker::api-respond-with
+      - id: micro-behaviors/comm/http/service-worker::event-fetch
+      - id: micro-behaviors/comm/http/service-worker::control-claim
+      - id: micro-behaviors/comm/http/service-worker::api-respond-with

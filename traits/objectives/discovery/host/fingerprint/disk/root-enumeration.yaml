@@ -3,9 +3,9 @@ composite_rules:
     desc: Iterates over root directories (C:, D:, /, /home) to list files
     crit: hostile
     all:
-      - id: micro-traits/fs/enumerate/directory::root-paths-array
+      - id: micro-behaviors/fs/enumerate/directory::root-paths-array
     any:
-      - id: micro-traits/fs/enumerate/directory::fs-readdir
+      - id: micro-behaviors/fs/enumerate/directory::fs-readdir
       - id: objectives/impact/ransomware/behavior::readdir-sync
     unless:
       - id: metadata/library/syntaxhighlighter::syntaxhighlighter-brush

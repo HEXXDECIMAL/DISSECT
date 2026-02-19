@@ -1,7 +1,7 @@
 # Resource Limit Modification
 # MBC: F0004 (Defense Evasion)
 # ATT&CK: T1562.001 (Impair Defenses: Disable or Modify Tools)
-# NOTE: getrlimit moved to micro-traits/process/resources/limits/ (pure query, no suspicion)
+# NOTE: getrlimit moved to micro-behaviors/process/resources/limits/ (pure query, no suspicion)
 
 defaults:
   for: [elf, macho, so, dylib, c]

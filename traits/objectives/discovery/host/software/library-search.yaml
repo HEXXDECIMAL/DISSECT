@@ -8,9 +8,9 @@
 # - Library hooking/interception frameworks
 # - Dynamic linker implementations
 #
-# NOTE: Neutral library paths moved to micro-traits/fs/path/library/
-# NOTE: Neutral library names moved to micro-traits/dylib/load/library/names
-# NOTE: Neutral architecture strings moved to micro-traits/os/platform/architecture/
+# NOTE: Neutral library paths moved to micro-behaviors/fs/path/library/
+# NOTE: Neutral library names moved to micro-behaviors/dylib/load/library/names
+# NOTE: Neutral architecture strings moved to micro-behaviors/os/platform/architecture/
 
 defaults:
   for: [c, elf]
@@ -181,9 +181,9 @@ composite_rules:
     attack: "T1518"
     needs: 3
     any:
-      - id: micro-traits/fs/path/library::lib-path
-      - id: micro-traits/fs/path/library::usr-lib-path
-      - id: micro-traits/fs/path/library::usr-local-lib-path
+      - id: micro-behaviors/fs/path/library::lib-path
+      - id: micro-behaviors/fs/path/library::usr-lib-path
+      - id: micro-behaviors/fs/path/library::usr-local-lib-path
 
   # Architecture detection for targeting
   - id: arch-detection
@@ -191,7 +191,7 @@ composite_rules:
     crit: notable
     conf: 0.5
     any:
-      - id: micro-traits/os/platform/architecture
+      - id: micro-behaviors/os/platform/architecture
 
   # SSL/TLS library search targets
   - id: ssl-lib-targets
@@ -199,7 +199,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/dylib/library/ssl
+      - id: micro-behaviors/dylib/library/ssl
 
   # Library resolver functionality
   - id: lib-resolver-fn
@@ -223,7 +223,7 @@ composite_rules:
     any:
       - id: arch-detection
       - id: lib-resolver-fn
-      - id: micro-traits/fs/directory/readdir::readdir
+      - id: micro-behaviors/fs/directory/readdir::readdir
 
   # SSL library discovery for interception
   # Library search + SSL targets = SSL interception prep

@@ -14,7 +14,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/source::python-printable-char-check
     any:
       - id: objectives/anti-static/obfuscation/source::python-sliding-key-loop
-      - id: micro-traits/data/encode/xor::xor-key-null-pattern
+      - id: micro-behaviors/data/encode/xor::xor-key-null-pattern
 
   - id: python-bruteforce-string-dumper
     desc: "Python script that brute-forces XOR keys to dump strings"
@@ -24,7 +24,7 @@ composite_rules:
     for: [python]
     all:
       - id: objectives/anti-static/obfuscation/source::python-rolling-xor-loop
-      - id: micro-traits/io/console/logging::hacker-tool-log-marker
+      - id: micro-behaviors/io/console/logging::hacker-tool-log-marker
     any:
-      - id: micro-traits/data/analysis/string-quality::alphanumeric-ratio-check
+      - id: micro-behaviors/data/analysis/string-quality::alphanumeric-ratio-check
       - id: objectives/anti-static/obfuscation/source::python-printable-char-check

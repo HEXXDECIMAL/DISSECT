@@ -146,12 +146,12 @@ composite_rules:
   crit: notable
   conf: 0.7
   any:
-  - id: micro-traits/data/encode/base64::b64decode-string
+  - id: micro-behaviors/data/encode/base64::b64decode-string
   - id: fromhex-call
   - id: bytes-fromhex-call
   - id: bz2-decompress-call
-  - id: micro-traits/data/compression/library::zlib-decompress-symbol
-  - id: micro-traits/data/serialization/unsafe::marshal-loads-symbol
+  - id: micro-behaviors/data/compression/library::zlib-decompress-symbol
+  - id: micro-behaviors/data/serialization/unsafe::marshal-loads-symbol
 - id: execute-decoded-content
   desc: Direct execution of decoded content
   crit: hostile

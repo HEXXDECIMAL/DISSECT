@@ -15,4 +15,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: amazon-link-discovery
-      - id: micro-traits/comm/http/url::parameter-manipulation
+      - id: micro-behaviors/comm/http/url::parameter-manipulation

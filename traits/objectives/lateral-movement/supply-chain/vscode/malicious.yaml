@@ -55,7 +55,7 @@ traits:
       regex: "exec(Sync|Async)?\\("
 
   # === Atomic indicators for credential-theft ===
-  # Removed ssh-dir duplicate - use micro-traits/fs/path/sensitive/ssh::keys
+  # Removed ssh-dir duplicate - use micro-behaviors/fs/path/sensitive/ssh::keys
 
   # aws-dir: use objectives/credential-access/cloud/token::aws-config (canonical)
 
@@ -127,7 +127,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: micro-traits/fs/path/sensitive/ssh::keys
+      - id: micro-behaviors/fs/path/sensitive/ssh::keys
       - id: objectives/credential-access/cloud/token::aws-config
       - id: objectives/credential-access/environment/secret-access::dot-npmrc
       - id: metadata/quality/config::dotenv-file
@@ -139,9 +139,9 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: micro-traits/comm/http/post/
-      - id: micro-traits/comm/http/request/
-      - id: micro-traits/comm/http/request::axios
+      - id: micro-behaviors/comm/http/post/
+      - id: micro-behaviors/comm/http/request/
+      - id: micro-behaviors/comm/http/request::axios
 
   # Post-Install Code Execution
   - id: post-install-exec

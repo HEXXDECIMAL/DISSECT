@@ -6,7 +6,6 @@ defaults:
   crit: suspicious
 
 composite_rules:
-
   - id: jfrog-credential-theft
 
     desc: JFrog CLI credential extraction
@@ -16,7 +15,6 @@ composite_rules:
     for: [javascript, typescript, shell, python]
 
     all:
+      - id: micro-behaviors/process/create/shell::jfrog-cli-export
 
-      - id: micro-traits/process/create/shell::jfrog-cli-export
-
-      - id: micro-traits/data/encode/base64
+      - id: micro-behaviors/data/encode/base64

@@ -46,7 +46,7 @@ traits:
       type: string
       regex: "api\\.polygonscan\\.com|polygonscan\\.com/api"
 
-  # === Contract read micro-traits (migrated from YARA) ===
+  # === Contract read micro-behaviors (migrated from YARA) ===
   - id: eth-call
     desc: eth_call RPC method
     crit: notable

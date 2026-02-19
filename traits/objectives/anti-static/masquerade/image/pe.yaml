@@ -7,4 +7,4 @@ composite_rules:
     desc: PE executable masquerading as an image file
     all:
       - id: metadata/format/magic::pe-dos-stub
-      - id: micro-traits/fs/file/extension::image-extension
+      - id: micro-behaviors/fs/file/extension::image-extension

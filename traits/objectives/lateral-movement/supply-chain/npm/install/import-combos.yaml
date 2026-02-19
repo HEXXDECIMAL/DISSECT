@@ -299,4 +299,4 @@ composite_rules:
   - id: http-client-imports
   any:
   - id: login-data-file
-  - id: micro-traits/fs/path/sensitive/browser::leveldb-ref
+  - id: micro-behaviors/fs/path/sensitive/browser::leveldb-ref

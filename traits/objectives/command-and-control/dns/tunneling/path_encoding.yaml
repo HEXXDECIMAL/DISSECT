@@ -20,14 +20,14 @@ traits:
         (#eq? @slash "/"))
     unless:
       - id: metadata/library::ioredis-auto-pipeline
-      - id: micro-traits/data/db/conn/redis::ioredis
+      - id: micro-behaviors/data/db/conn/redis::ioredis
       - id: metadata/library::commander
       - id: metadata/library/nodeunit::nodeunit
       - id: metadata/library/nodeunit::nodeunit-require
       - id: metadata/dev/testing::node-common-require
     downgrade:
       any:
-        - id: micro-traits/data/db/conn/redis::ioredis
+        - id: micro-behaviors/data/db/conn/redis::ioredis
         - id: metadata/library::commander
 
   - id: hex-path-p-wrapping

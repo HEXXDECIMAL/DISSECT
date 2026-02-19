@@ -183,8 +183,8 @@ composite_rules:
   - shell
   - package.json
   all:
-  - id: micro-traits/fs/pipe/fifo::mkfifo-cmd
-  - id: micro-traits/process/create/shell::sh-interactive
+  - id: micro-behaviors/fs/pipe/fifo::mkfifo-cmd
+  - id: micro-behaviors/process/create/shell::sh-interactive
   - id: nc-pipe
 - id: reverse-shell-netcat
   desc: Netcat reverse shell pattern

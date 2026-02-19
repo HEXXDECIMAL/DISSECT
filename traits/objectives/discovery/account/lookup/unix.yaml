@@ -9,7 +9,7 @@ defaults:
   attack: T1083
 
 traits:
-  # getpwuid: use micro-traits/process/user/query/unix.yaml::getpwuid (canonical)
+  # getpwuid: use micro-behaviors/process/user/query/unix.yaml::getpwuid (canonical)
   # getpwnam: use objectives/discovery/host/user/traits.yaml::getpwnam (canonical)
   - id: user-from-uid
     desc: Convert user ID to username (user_from_uid)
@@ -59,7 +59,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/process/user/query::getpwuid
+      - id: micro-behaviors/process/user/query::getpwuid
       - id: objectives/discovery/host/user::getpwnam
       - id: user-from-uid
 

@@ -4,9 +4,9 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/os/registry/keys::registry-access
-      - id: micro-traits/data/text/parsing::parse-pattern
-      - id: micro-traits/data/text/parsing::split-logic
+      - id: micro-behaviors/os/registry/keys::registry-access
+      - id: micro-behaviors/data/text/parsing::parse-pattern
+      - id: micro-behaviors/data/text/parsing::split-logic
 
   - id: exfil-indicators
     desc: Indicators of exfiltration

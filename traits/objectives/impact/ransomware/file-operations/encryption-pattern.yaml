@@ -11,9 +11,9 @@ composite_rules:
     for: [pe, dll]
     platforms: [windows]
     any:
-      - id: micro-traits/crypto/context/capi::crypt-acquire-context
-      - id: micro-traits/crypto/random/generator::crypt-gen-random
-      - id: micro-traits/crypto/certificate/store::cert-open-store
+      - id: micro-behaviors/crypto/context/capi::crypt-acquire-context
+      - id: micro-behaviors/crypto/random/generator::crypt-gen-random
+      - id: micro-behaviors/crypto/certificate/store::cert-open-store
 
   - id: has-volume-enumeration
     desc: Has volume enumeration capability
@@ -22,8 +22,8 @@ composite_rules:
     for: [pe, dll]
     platforms: [windows]
     any:
-      - id: micro-traits/fs/enumerate/volume::find-first-volume
-      - id: micro-traits/fs/enumerate/volume::get-volume-info
+      - id: micro-behaviors/fs/enumerate/volume::find-first-volume
+      - id: micro-behaviors/fs/enumerate/volume::get-volume-info
 
   # NOTE: This is an internal helper rule used by ransomware composites.
   # Set crit: notable so it doesn't show up in user output - it's not suspicious on its own.
@@ -34,9 +34,9 @@ composite_rules:
     for: [pe, dll]
     platforms: [windows]
     any:
-      - id: micro-traits/fs/file/move::move-file-ex
-      - id: micro-traits/fs/file/delete
-      - id: micro-traits/fs/enumerate/directory::find-first-file
+      - id: micro-behaviors/fs/file/move::move-file-ex
+      - id: micro-behaviors/fs/file/delete
+      - id: micro-behaviors/fs/enumerate/directory::find-first-file
     needs: 2
 
   # === Drive encryption targeting ===
@@ -50,7 +50,7 @@ composite_rules:
     attack: "T1486"
     mbc: "C0027"
     all:
-      - id: micro-traits/fs/enumerate/drives::get-logical-drives
+      - id: micro-behaviors/fs/enumerate/drives::get-logical-drives
       - id: has-crypto-capability
       - id: has-file-operations
 
@@ -76,8 +76,8 @@ composite_rules:
     platforms: [windows]
     attack: "T1486"
     all:
-      - id: micro-traits/fs/file/move::move-file-ex
-      - id: micro-traits/fs/enumerate/directory::find-first-file
+      - id: micro-behaviors/fs/file/move::move-file-ex
+      - id: micro-behaviors/fs/enumerate/directory::find-first-file
     any:
-      - id: micro-traits/crypto/context/capi::crypt-acquire-context
-      - id: micro-traits/crypto
+      - id: micro-behaviors/crypto/context/capi::crypt-acquire-context
+      - id: micro-behaviors/crypto

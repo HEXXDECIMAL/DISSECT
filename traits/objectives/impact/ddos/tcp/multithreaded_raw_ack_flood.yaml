@@ -3,7 +3,7 @@ composite_rules:
     crit: hostile
     description: "Detects a multithreaded raw socket ACK flood attack combining raw socket creation, infinite send loop, ACK flag setting, and pthreads."
     all:
-      - id: micro-traits/comm/socket/raw::raw-socket-creation-regex
-      # - id: micro-traits/comm/socket/send::send-loop-infinite
-      - id: micro-traits/process/threading/operations::pthread
-      # - id: micro-traits/net/packet/tcp::tcp-ack-flag-set
+      - id: micro-behaviors/comm/socket/raw::raw-socket-creation-regex
+      # - id: micro-behaviors/comm/socket/send::send-loop-infinite
+      - id: micro-behaviors/process/threading/operations::pthread
+      # - id: micro-behaviors/net/packet/tcp::tcp-ack-flag-set

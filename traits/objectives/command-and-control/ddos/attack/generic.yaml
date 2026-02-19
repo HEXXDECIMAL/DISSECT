@@ -234,7 +234,7 @@ composite_rules:
   - id: ddos-mechanics
     desc: "DDoS-specific operational mechanics detected"
     any:
-      - id: micro-traits/process/create/workers/
+      - id: micro-behaviors/process/create/workers/
       - id: attack-telemetry
     crit: notable
 
@@ -242,9 +242,9 @@ composite_rules:
   - id: http-methods
     desc: "HTTP request methods detected"
     any:
-      - id: micro-traits/comm/http/post
-      - id: micro-traits/comm/http/request::request
-      - id: micro-traits/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/post
+      - id: micro-behaviors/comm/http/request::request
+      - id: micro-behaviors/comm/http/request::request-python
     crit: notable
 
   # High-confidence DDoS capability
@@ -255,7 +255,7 @@ composite_rules:
     all:
       - id: ddos-terminology
       - id: ddos-mechanics
-      - id: micro-traits/comm/socket/create
+      - id: micro-behaviors/comm/socket/create
 
   # Layer 7 DDoS (Application Layer)
   - id: layer7-ddos

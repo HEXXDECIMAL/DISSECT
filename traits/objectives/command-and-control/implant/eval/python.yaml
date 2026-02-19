@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1059.006"
     all:
       - id: objectives/execution/interpreter/eval/invoke::python-eval
-      - id: micro-traits/comm/http/client
+      - id: micro-behaviors/comm/http/client
     any:
       - id: objectives/anti-static/obfuscation/payload::eval-function-call
       - id: objectives/execution/interpreter/eval/remote::eval-config-access
@@ -27,7 +27,7 @@ composite_rules:
     attack: "T1059.006"
     all:
       - id: objectives/execution/interpreter/eval/invoke::python-eval
-      - id: micro-traits/comm/http/lib/urllib::urllib-word
+      - id: micro-behaviors/comm/http/lib/urllib::urllib-word
     any:
       - id: objectives/anti-static/obfuscation/payload::eval-function-call
       - id: objectives/execution/interpreter/eval/remote::eval-config-access

@@ -7,6 +7,6 @@ composite_rules:
     any:
       - id: objectives/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
       - id: objectives/command-and-control/dns/tunneling::js-dns-tunneling-construction
-      - id: micro-traits/fs/enumerate/directory::fs-readdir
-      - id: micro-traits/fs/path/os::hardcoded-windows-root
-      - id: micro-traits/data/encode/hex::buffer-to-hex
+      - id: micro-behaviors/fs/enumerate/directory::fs-readdir
+      - id: micro-behaviors/fs/path/os::hardcoded-windows-root
+      - id: micro-behaviors/data/encode/hex::buffer-to-hex

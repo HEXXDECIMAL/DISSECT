@@ -16,8 +16,8 @@ composite_rules:
     - id: objectives/lateral-movement/supply-chain/rubygems::extconf-file
   any:
     - id: objectives/execution/dropper/script::ruby-ast-file-rename
-    - id: micro-traits/fs/write/file::ruby-file-delete
-    - id: micro-traits/fs/file/rename::ruby-rename
+    - id: micro-behaviors/fs/write/file::ruby-file-delete
+    - id: micro-behaviors/fs/file/rename::ruby-rename
 
 - id: suspicious-extension-path-1
   desc: Media file in native extension directory (img/bmp)

@@ -8,7 +8,7 @@ defaults:
   attack: "T1548.004"
 
 composite_rules:
-  # Removed: micro-traits/process/identity just checks getuid/getpid which is NOT privilege escalation
+  # Removed: micro-behaviors/process/identity just checks getuid/getpid which is NOT privilege escalation
   # Real privilege-escalation would need AuthorizationCreate, AuthorizationExecuteWithPrivileges, etc.
   #- id: auth-privilege-escalation-api-combo
   #  desc: "Authorization APIs for privilege escalation"
@@ -17,7 +17,7 @@ composite_rules:
   #  for: [macho, dylib, c]
   #  platforms: [macos]
   #  any:
-  #    - id: micro-traits/process/identity
+  #    - id: micro-behaviors/process/identity
 
   # Stealthy privileged script executor - DISABLED
   # auth-privilege-escalation-api-combo was removed because it just checked getuid/getpid

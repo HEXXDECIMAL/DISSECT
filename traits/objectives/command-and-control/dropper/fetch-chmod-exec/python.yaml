@@ -13,6 +13,6 @@ composite_rules:
     attack: "T1059.006"
     for: [python]
     all:
-      - id: micro-traits/fs/chmod/executable::python-executable
+      - id: micro-behaviors/fs/chmod/executable::python-executable
       - id: objectives/execution/dropper/stealth::python
       - id: objectives/execution/dropper/tmp-run::os-remove

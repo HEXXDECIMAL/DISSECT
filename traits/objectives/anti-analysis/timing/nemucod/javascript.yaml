@@ -4,8 +4,8 @@ composite_rules:
     crit: hostile
     for: [javascript]
     all:
-      - id: micro-traits/host/interpreter/jscript::is-jscript
-      - id: micro-traits/time/measure/delta::js-subtraction-func-regex
+      - id: micro-behaviors/host/interpreter/jscript::is-jscript
+      - id: micro-behaviors/time/measure/delta::js-subtraction-func-regex
     any:
       - id: objectives/anti-static/obfuscation/source/syntax::nemucod-wsh-fragments
         count_min: 3

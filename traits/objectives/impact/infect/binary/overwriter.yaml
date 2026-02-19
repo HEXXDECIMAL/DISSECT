@@ -7,8 +7,8 @@ composite_rules:
     conf: 1.0
     crit: notable
     any:
-      - id: micro-traits/fs/directory/traverse::findfirst
-      - id: micro-traits/fs/directory/traverse::findnext
+      - id: micro-behaviors/fs/directory/traverse::findfirst
+      - id: micro-behaviors/fs/directory/traverse::findnext
 
   - id: overwriter-virus-logic
     desc: Detects logic typical of overwriting viruses (file enumeration + self-read + write)
@@ -16,7 +16,7 @@ composite_rules:
     crit: hostile
     all:
       - id: objectives/impact/infect/binary::overwriter-virus-traversal
-      - id: micro-traits/os/process/info::check-argv-0
-      - id: micro-traits/fs/file/open::open
-      - id: micro-traits/fs/file/read::read
-      - id: micro-traits/fs/file/write::write
+      - id: micro-behaviors/os/process/info::check-argv-0
+      - id: micro-behaviors/fs/file/open::open
+      - id: micro-behaviors/fs/file/read::read
+      - id: micro-behaviors/fs/file/write::write

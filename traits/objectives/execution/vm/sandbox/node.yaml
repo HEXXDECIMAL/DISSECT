@@ -89,8 +89,8 @@ traits:
       type: raw
       regex: "\\bprocess\\.binding\\s*\\("
     unless:
-      - id: micro-traits/vm/runtime/binding::process-binding-evals
-      - id: micro-traits/vm/runtime/binding::process-binding-natives
+      - id: micro-behaviors/vm/runtime/binding::process-binding-evals
+      - id: micro-behaviors/vm/runtime/binding::process-binding-natives
       - id: metadata/dev/testing/benchmark::benchmark
 
   # Function constructor patterns
@@ -212,7 +212,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     all:
-      - id: micro-traits/comm/http/request
+      - id: micro-behaviors/comm/http/request
 
   # Remote Code Execution via VM
   - id: vm-with-http
@@ -245,7 +245,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: micro-traits/comm/http/request
+      - id: micro-behaviors/comm/http/request
       - id: request-method-call
 
   # Remote Code Loading via Function Constructor

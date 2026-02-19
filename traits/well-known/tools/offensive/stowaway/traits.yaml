@@ -20,13 +20,13 @@ traits:
     desc: Stowaway Go module path (cmd)
     if:
       type: string
-      regex: 'Stowaway/cmd/(agent|admin|share|protocol)'
+      regex: "Stowaway/cmd/(agent|admin|share|protocol)"
 
   - id: stowaway-module-path-pkg
     desc: Stowaway Go module path (pkg)
     if:
       type: string
-      regex: 'Stowaway/pkg/(agent|admin|share|protocol)'
+      regex: "Stowaway/pkg/(agent|admin|share|protocol)"
 
   # Stowaway agent startup strings
   - id: stowaway-agent-startup
@@ -115,13 +115,13 @@ traits:
     desc: Stowaway manager components (Backward/Forward/SSHTunnel)
     if:
       type: string
-      regex: '(Backward|Forward|SSHTunnel)Manager'
+      regex: "(Backward|Forward|SSHTunnel)Manager"
 
   - id: stowaway-managers-2
     desc: Stowaway manager components (Socks/ForceClose)
     if:
       type: string
-      regex: '(Socks|ForceClose)Manager'
+      regex: "(Socks|ForceClose)Manager"
 
   # Stowaway crypto functions
   - id: stowaway-crypto
@@ -140,7 +140,7 @@ traits:
     attack: "T1562.004"
     if:
       type: string
-      regex: 'iptables -t nat -[ADNXF] (PREROUTING|%s)'
+      regex: "iptables -t nat -[ADNXF] (PREROUTING|%s)"
 
   # Stowaway reconnect pattern
   - id: stowaway-reconnect
@@ -205,7 +205,7 @@ composite_rules:
     for: [elf, macho, pe]
     all:
       - id: stowaway-module-path
-      - id: micro-traits/process/create/shell::go-shell-strings
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
   # Stowaway with SSH tunneling
   - id: stowaway-ssh-tunnel
@@ -218,7 +218,7 @@ composite_rules:
     all:
       - id: stowaway-handlers
       - id: stowaway-managers
-      - id: micro-traits/process/create/shell::go-shell-strings
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
   # Stowaway with SOCKS proxy and agent startup
   - id: stowaway-agent
@@ -231,7 +231,7 @@ composite_rules:
     all:
       - id: stowaway-agent-startup
       - id: stowaway-proto-messages
-      - id: micro-traits/process/create/shell::go-shell-strings
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
   # Stowaway with iptables manipulation (advanced evasion)
   - id: stowaway-iptables-evasion
@@ -244,4 +244,4 @@ composite_rules:
     all:
       - id: stowaway-iptables
       - id: stowaway-port-reuse
-      - id: micro-traits/process/create/shell::go-shell-strings
+      - id: micro-behaviors/process/create/shell::go-shell-strings

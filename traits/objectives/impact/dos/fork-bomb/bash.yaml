@@ -4,5 +4,5 @@ composite_rules:
     crit: hostile
     conf: 1.0
     any:
-      - id: micro-traits/process/fork/bomb::bomb
-      - id: micro-traits/process/fork/bomb::bomb-regex
+      - id: micro-behaviors/process/fork/bomb::bomb
+      - id: micro-behaviors/process/fork/bomb::bomb-regex

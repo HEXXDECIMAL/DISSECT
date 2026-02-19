@@ -216,7 +216,7 @@ composite_rules:
   needs: 2
   any:
   - id: objectives/impact/cryptojacking/miner::wallet-ref
-  - id: micro-traits/data/text/keywords::crypto-word
+  - id: micro-behaviors/data/text/keywords::crypto-word
   - id: metamask-word
   - id: phantom-word
   - id: browser-word
@@ -231,7 +231,7 @@ composite_rules:
   - javascript
   all:
   - id: mnemonic-terms
-  - id: micro-traits/comm/http/request::http-client
+  - id: micro-behaviors/comm/http/request::http-client
   - id: wallet-context
 - id: comprehensive-stealer
   desc: Comprehensive wallet credential theft

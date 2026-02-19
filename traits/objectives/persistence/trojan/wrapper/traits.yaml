@@ -3,21 +3,21 @@ composite_rules:
     desc: Trojan fork logic (standard or daemon)
     criticality: notable
     any:
-      - id: micro-traits/process/fork/clone::fork
-      - id: micro-traits/process/daemonize/background::process-fork
+      - id: micro-behaviors/process/fork/clone::fork
+      - id: micro-behaviors/process/daemonize/background::process-fork
 
   - id: trojan-indicator
     desc: specific Trojan indicator (fake error or suspicious dev path)
     criticality: suspicious
     any:
-      - id: micro-traits/data/text/spoof::fake-bash-error
-      - id: micro-traits/fs/path/device::dev-ptyh
+      - id: micro-behaviors/data/text/spoof::fake-bash-error
+      - id: micro-behaviors/fs/path/device::dev-ptyh
 
   - id: trojan-wrapper-behavior
     desc: Trojan wrapper pattern (forks payload + executes legitimate binary)
     criticality: hostile
     all:
       - id: objectives/execution/fileless/memory::execve-fn
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
       - id: objectives/persistence/trojan/wrapper::trojan-fork-logic
       - id: objectives/persistence/trojan/wrapper::trojan-indicator

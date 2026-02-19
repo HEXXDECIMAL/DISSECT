@@ -105,8 +105,8 @@ composite_rules:
     all:
       - id: generic-bundle-id-pattern
     any:
-      - id: micro-traits/process/create/shell::c-popen
-      - id: micro-traits/process/create/shell::c-system
+      - id: micro-behaviors/process/create/shell::c-popen
+      - id: micro-behaviors/process/create/shell::c-system
       - id: objectives/persist/daemon/init::daemon-fork
     none:
       - id: metadata/signed/platform::apple
@@ -120,4 +120,4 @@ composite_rules:
     all:
       - id: metadata/signed/adhoc::unsigned
       - id: generic-executable-name
-      - id: micro-traits/process/create/shell::shell-execution
+      - id: micro-behaviors/process/create/shell::shell-execution

@@ -3,15 +3,15 @@ composite_rules:
     desc: Helper for env var fingerprinting
     crit: notable
     any:
-      - id: micro-traits/os/env/vars::env-computername
-      - id: micro-traits/os/env/vars::env-username
+      - id: micro-behaviors/os/env/vars::env-computername
+      - id: micro-behaviors/os/env/vars::env-username
 
   - id: ps-os-fingerprint
     desc: Helper for OS fingerprinting
     crit: notable
     any:
-      - id: micro-traits/os/wmi/query::query-os-info
-      - id: micro-traits/os/info/system::os-version
+      - id: micro-behaviors/os/wmi/query::query-os-info
+      - id: micro-behaviors/os/info/system::os-version
 
   - id: system-fingerprint-bundle
     desc: "Collects extensive system information (fingerprinting)"
@@ -20,4 +20,4 @@ composite_rules:
     all:
       - id: objectives/discovery/system/fingerprint::ps-env-fingerprint
       - id: objectives/discovery/system/fingerprint::ps-os-fingerprint
-      - id: micro-traits/os/wmi/query::query-antivirus
+      - id: micro-behaviors/os/wmi/query::query-antivirus

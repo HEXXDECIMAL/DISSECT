@@ -67,8 +67,8 @@ DO NOT EDIT ANY RUST CODE - ONLY .yaml files
 
 ### Validate
 ```bash
-{{.DissectBin}} --format jsonl {{.Path}}   # Verify traits fire, no YAML warnings
-{{.DissectBin}} --format jsonl /usr/bin/curl  # Test for false positives
+{{.DissectBin}} --format jsonl {{.Path}}                        # Verify traits fire, no YAML warnings or misleading results
+{{.DissectBin}} --format jsonl /bin/ls /bin/bash /usr/bin/curl  # Test for false positives and misleading results
 ```
 Note: YAML changes take effect immediately, no rebuild needed.
 

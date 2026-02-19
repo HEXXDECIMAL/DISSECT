@@ -17,7 +17,7 @@ composite_rules:
     for: [go]
     all:
       - id: objectives/persist/startup/registry::windows-startup-folder
-      - id: micro-traits/fs/file/operations::os-create
+      - id: micro-behaviors/fs/file/operations::os-create
 
   # Startup persistence + system shutdown (complete destructive chain)
   - id: startup-shutdown-chain
@@ -29,5 +29,5 @@ composite_rules:
     for: [go]
     all:
       - id: objectives/persist/startup/registry::windows-startup-folder
-      - id: micro-traits/fs/file/operations::os-create
+      - id: micro-behaviors/fs/file/operations::os-create
       - id: objectives/impact/system/shutdown::shutdown-immediate-reboot

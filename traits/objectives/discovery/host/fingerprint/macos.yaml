@@ -8,7 +8,7 @@ defaults:
   mbc: "B0001.009"
 
 traits:
-  # === IOKit Registry micro-traits ===
+  # === IOKit Registry micro-behaviors ===
   - id: ioplatformuuid
     desc: "References macOS hardware UUID (used"
     crit: notable

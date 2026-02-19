@@ -327,7 +327,7 @@ composite_rules:
   - id: go-obfuscated-encrypt-method
   - id: go-obfuscated-keygen
   any:
-  - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
+  - id: micro-behaviors/crypto/symmetric/stream::chacha-salsa-constant
   - id: go-obfuscated-xor-stream
   - id: objectives/command-and-control/implant/binary/capabilities::go-xor-encoding
 - id: go-simple-ransomware
@@ -385,7 +385,7 @@ composite_rules:
   - id: go-main-payment-check
   - id: go-main-self-remove
   - id: go-main-show-message
-  - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
+  - id: micro-behaviors/crypto/symmetric/stream::chacha-salsa-constant
 - id: go-ransomware-antiforensics
   desc: Go ransomware with cleanup
   crit: hostile

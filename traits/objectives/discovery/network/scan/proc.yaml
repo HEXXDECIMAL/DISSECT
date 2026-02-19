@@ -2,7 +2,7 @@
 # Patterns for network reconnaissance and enumeration
 # ATT&CK: T1016 (System Network Configuration Discovery)
 
-# NOTE: Atomic traits for /proc/net/* are in micro-traits/fs/proc/info/
+# NOTE: Atomic traits for /proc/net/* are in micro-behaviors/fs/proc/info/
 # This file contains objective-level detection (network scanning intent)
 
 composite_rules:
@@ -16,6 +16,6 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     any:
-      - id: micro-traits/fs/proc/info::proc-net-tcp
-      - id: micro-traits/fs/proc/info::proc-net-udp
-      - id: micro-traits/fs/proc/info::proc-net-raw
+      - id: micro-behaviors/fs/proc/info::proc-net-tcp
+      - id: micro-behaviors/fs/proc/info::proc-net-udp
+      - id: micro-behaviors/fs/proc/info::proc-net-raw

@@ -45,10 +45,10 @@ composite_rules:
       - id: max-30-imports
     any:
       # Has dynamic loading (hiding real imports)
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/dylib/lookup::get-proc-address
-      - id: micro-traits/dylib/load::dlopen
-      - id: micro-traits/dylib/lookup::dlsym-symbol
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/lookup::get-proc-address
+      - id: micro-behaviors/dylib/load::dlopen
+      - id: micro-behaviors/dylib/lookup::dlsym-symbol
 
   - id: huge-file-tiny-imports
     desc: Huge binary with minimal imports
@@ -62,10 +62,10 @@ composite_rules:
       - id: max-25-imports
     needs: 2
     any:
-      - id: micro-traits/dylib/load::load-library-a
-      - id: micro-traits/dylib/lookup::get-proc-address
-      - id: micro-traits/crypto
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/lookup::get-proc-address
+      - id: micro-behaviors/crypto
+      - id: micro-behaviors/process/create/shell
 
   - id: embedded-payload-binary
     desc: Binary with suspected embedded payload
@@ -80,8 +80,8 @@ composite_rules:
     any:
       - id: objectives/anti-analysis/packing/entropy::high-entropy-section
       - id: objectives/anti-static/obfuscation/binary-metrics::dominant-section
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/crypto
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/crypto
     downgrade:
       any:
         - id: objectives/execution/reflection/invoke::namespace-import

@@ -86,5 +86,5 @@ composite_rules:
       - id: mbr-ref
       - id: boot-sector
       - id: master-boot-record
-      - id: micro-traits/fs/path/device/storage
+      - id: micro-behaviors/fs/path/device/storage
       - id: physicaldrive

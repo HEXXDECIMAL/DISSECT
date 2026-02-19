@@ -487,7 +487,7 @@ composite_rules:
     all:
       - id: launch-agents
       - id: launchctl-command
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
       - id: objectives/execution/fileless/memory::exec-function
 
   # Embedded bind-shell plist dropper: binary/source contains full plist template
@@ -503,7 +503,7 @@ composite_rules:
     all:
       - id: embedded-plist-bind-shell
       - id: launch-agents
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
 
   - id: launchd-app-trojan
     desc: Launchd persistence with app bundle hijacking
@@ -515,7 +515,7 @@ composite_rules:
     all:
       - id: launchd
       - id: objectives/lateral-movement/trojanize/app::app-bundle-hijack
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
 
   # Masquerading Composites
   - id: output-suspicious-location

@@ -21,7 +21,7 @@ traits:
       - "telnet TELNET"
     unless:
       # Exclude curl/libcurl which supports telnet as a client protocol
-      - id: micro-traits/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/comm/download/curl::curl-easy-init
     attack: "T1021.004"
 
   - id: telnetd-daemon
@@ -35,7 +35,7 @@ traits:
     attack: "T1021.004"
 
   # === SSH Backdoor ===
-  # Removed sshd-service duplicate - use micro-traits/os/service/remote::sshd-ref (same pattern, canonical location)
+  # Removed sshd-service duplicate - use micro-behaviors/os/service/remote::sshd-ref (same pattern, canonical location)
 
   - id: dropbear-lightweight-ssh
     desc: "Dropbear SSH server"
@@ -69,7 +69,7 @@ composite_rules:
     attack: "T1021.004"
     mbc: "E1037"
     any:
-      - id: micro-traits/os/service/remote::sshd-ref
+      - id: micro-behaviors/os/service/remote::sshd-ref
       - id: dropbear-lightweight-ssh
 
   - id: remote-shell-backdoor

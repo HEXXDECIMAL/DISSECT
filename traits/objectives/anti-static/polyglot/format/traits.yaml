@@ -30,7 +30,7 @@ traits:
       regex: "#!/(usr/bin/|bin/)(python|python3)"
       offset_range: [-4096, ~]
 
-  # Removed appended-base64-blob duplicate - use micro-traits/data/encode/payload::large-base64-payload
+  # Removed appended-base64-blob duplicate - use micro-behaviors/data/encode/payload::large-base64-payload
   # Note: Offset constraint for polyglot detection can be applied in composite rules if needed
 
   - id: appended-hex-blob

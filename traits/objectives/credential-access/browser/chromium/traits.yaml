@@ -214,7 +214,7 @@ composite_rules:
   any:
   - id: objectives/execution/dropper/payload::cp-execute
   - id: objectives/execution/dropper/script::curl-cmd
-  - id: micro-traits/fs/attributes/xattr::xattr-remove
+  - id: micro-behaviors/fs/attributes/xattr::xattr-remove
 - id: master-decrypt
   desc: Chromium master password decryption
   crit: suspicious

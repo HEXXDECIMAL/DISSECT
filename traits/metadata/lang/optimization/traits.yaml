@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === LTO micro-traits ===
+  # === LTO micro-behaviors ===
   - id: llvmbc-section
     desc: .llvmbc section
     crit: notable

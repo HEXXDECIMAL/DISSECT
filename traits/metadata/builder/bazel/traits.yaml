@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Bazel micro-traits ===
+  # === Bazel micro-behaviors ===
   - id: bazel-out
     desc: bazel-out directory
     crit: notable

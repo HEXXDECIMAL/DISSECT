@@ -7,7 +7,7 @@ composite_rules:
     attack: "T1498" # Network Denial of Service
     size_max: 50000
     all:
-      - id: micro-traits/data/control-flow/loop::infinite-loop-header
-      - id: micro-traits/comm/socket/send::send-call-raw
+      - id: micro-behaviors/data/control-flow/loop::infinite-loop-header
+      - id: micro-behaviors/comm/socket/send::send-call-raw
     unless:
-      - id: micro-traits/comm/socket/family::af-alg-socket
+      - id: micro-behaviors/comm/socket/family::af-alg-socket

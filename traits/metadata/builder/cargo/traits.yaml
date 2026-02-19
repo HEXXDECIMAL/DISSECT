@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Cargo micro-traits ===
+  # === Cargo micro-behaviors ===
   - id: cargo-toml
     desc: Cargo.toml file
     crit: notable

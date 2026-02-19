@@ -144,8 +144,8 @@ composite_rules:
     conf: 0.8
     for: [macho]
     any:
-      - id: micro-traits/dylib/lookup::dlsym-symbol
-      - id: micro-traits/os/syscall/invoke::macos-arm64-direct-syscall
+      - id: micro-behaviors/dylib/lookup::dlsym-symbol
+      - id: micro-behaviors/os/syscall/invoke::macos-arm64-direct-syscall
 
   # === Mach-O Dropper/Ransomware Patterns ===
 
@@ -160,7 +160,7 @@ composite_rules:
       - id: macho-stealth-resolution
     any:
       - id: objectives/anti-static/obfuscation/payload::math-cipher-imports
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
 
   # === PE Ransomware/Dropper Patterns ===
 

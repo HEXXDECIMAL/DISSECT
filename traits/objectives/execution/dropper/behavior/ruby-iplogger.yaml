@@ -12,7 +12,7 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/script::filename-extconf
       - id: objectives/execution/dropper/script::ruby-ast-rename-to-exe
-      - id: micro-traits/process/create/shell::shell-execution-indicators
+      - id: micro-behaviors/process/create/shell::shell-execution-indicators
     any:
       - id: objectives/command-and-control/domain/tracking::iplogger-http
       - id: objectives/discovery/network/scan::iplogger-keyword

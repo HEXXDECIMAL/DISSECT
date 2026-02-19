@@ -426,7 +426,7 @@ composite_rules:
     any:
     - id: metadata/dev/testing::node-common-require
     - id: objectives/lateral-movement/supply-chain/npm/testing::assert-word
-    - id: micro-traits/interface/usage/help::usage-help
+    - id: micro-behaviors/interface/usage/help::usage-help
     - id: objectives/lateral-movement/supply-chain/npm/testing::test-call
     - id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-file
     - id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-blocks
@@ -525,8 +525,8 @@ composite_rules:
   for:
   - python
   all:
-  - id: micro-traits/comm/http/lib/requests::requests-get
-  - id: micro-traits/fs/file/write/
+  - id: micro-behaviors/comm/http/lib/requests::requests-get
+  - id: micro-behaviors/fs/file/write/
   - id: python-exec-call
 - id: full-stager
   desc: Complete interpreter-based stager (download interpreter
@@ -629,9 +629,9 @@ composite_rules:
   all:
   - id: activex-object
   any:
-  - id: micro-traits/comm/http/client::client
-  - id: micro-traits/comm/socket/connect
-  - id: micro-traits/comm/dns/lookup
+  - id: micro-behaviors/comm/http/client::client
+  - id: micro-behaviors/comm/socket/connect
+  - id: micro-behaviors/comm/dns/lookup
 - id: activex-exec
   desc: ActiveXObject with command execution (shell
   crit: suspicious
@@ -643,8 +643,8 @@ composite_rules:
   all:
   - id: activex-object
   any:
-  - id: micro-traits/process/create/shell
-  - id: micro-traits/process/create/direct
+  - id: micro-behaviors/process/create/shell
+  - id: micro-behaviors/process/create/direct
   - id: objectives/execution/interpreter/scripting/host::wscript-shell-string
 - id: wsh-creation-mechanism
   desc: WScript/ActiveX creation
@@ -703,7 +703,7 @@ composite_rules:
   - javascript
   all:
   - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-on
-  - id: micro-traits/process/create/script::batch-script-execution
+  - id: micro-behaviors/process/create/script::batch-script-execution
   any:
   - id: js-obfuscation-indicators
   - id: objectives/anti-static/obfuscation/strings/encoding::js-reverse-string-obfuscation
@@ -717,8 +717,8 @@ composite_rules:
   for:
   - all
   all:
-  - id: micro-traits/data/sql/query::sqlcommand
+  - id: micro-behaviors/data/sql/query::sqlcommand
   any:
-  - id: micro-traits/process/terminate/
+  - id: micro-behaviors/process/terminate/
   - id: objectives/execution/interpreter/eval/invoke/
   - id: objectives/execution/reflection/invoke::assembly-load

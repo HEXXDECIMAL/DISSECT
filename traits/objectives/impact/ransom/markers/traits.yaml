@@ -26,4 +26,4 @@ composite_rules:
   conf: 0.8
   any:
   - id: ransomware-banner-core
-  - id: micro-traits/data/text/malware::pay-bitcoin-phrase
+  - id: micro-behaviors/data/text/malware::pay-bitcoin-phrase

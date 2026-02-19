@@ -9,7 +9,7 @@ composite_rules:
     conf: 0.95
     attack: "T1014"
     all:
-      - id: micro-traits/fs/device/ioctl::ioctl
+      - id: micro-behaviors/fs/device/ioctl::ioctl
       - id: rootkit-hiding-ops
       - id: privilege-ops
 
@@ -18,22 +18,22 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/os/process/hide/message::hide-pid-msg
-      - id: micro-traits/os/network/hide/message::hide-port-msg
-      - id: micro-traits/fs/hide/message::hide-file-msg
+      - id: micro-behaviors/os/process/hide/message::hide-pid-msg
+      - id: micro-behaviors/os/network/hide/message::hide-port-msg
+      - id: micro-behaviors/fs/hide/message::hide-file-msg
 
   - id: privilege-ops
     desc: Rootkit privilege operations
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/os/privilege/escalation::root-shell-msg
-      - id: micro-traits/os/privilege/escalation::root-privileges-msg
+      - id: micro-behaviors/os/privilege/escalation::root-shell-msg
+      - id: micro-behaviors/os/privilege/escalation::root-privileges-msg
 
   - id: generic-hider
     desc: Generic hiding tool (potential rootkit)
     crit: suspicious
     conf: 0.8
     all:
-      - id: micro-traits/fs/device/ioctl::ioctl
+      - id: micro-behaviors/fs/device/ioctl::ioctl
       - id: rootkit-hiding-ops

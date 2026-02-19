@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: "micro-traits/fs/write/file::js-adodb-stream-create"
-      - id: "micro-traits/fs/write/file::js-adodb-stream-set-type"
-      - id: "micro-traits/fs/write/file::js-adodb-stream-write-responsebody"
-      - id: "micro-traits/fs/write/file::js-adodb-stream-savetofile-dynamic-path"
+      - id: "micro-behaviors/fs/write/file::js-adodb-stream-create"
+      - id: "micro-behaviors/fs/write/file::js-adodb-stream-set-type"
+      - id: "micro-behaviors/fs/write/file::js-adodb-stream-write-responsebody"
+      - id: "micro-behaviors/fs/write/file::js-adodb-stream-savetofile-dynamic-path"

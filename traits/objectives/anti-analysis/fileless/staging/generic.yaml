@@ -2,10 +2,10 @@
 # Patterns for avoiding disk-based detection
 # ATT&CK: T1055, T1620
 # NOTE: memfd_create is defined in mem/anonymous/create/linux.yaml
-# NOTE: dev-shm is defined in micro-traits/fs/path/device/linux.yaml
+# NOTE: dev-shm is defined in micro-behaviors/fs/path/device/linux.yaml
 
 traits:
-  # Removed dev-shm duplicate - use micro-traits/fs/path/device/linux::dev-shm
+  # Removed dev-shm duplicate - use micro-behaviors/fs/path/device/linux::dev-shm
 
   - id: proc-self-fd
     desc: "Access /proc/self/fd for file descriptor"

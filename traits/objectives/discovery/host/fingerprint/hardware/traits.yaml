@@ -1,13 +1,13 @@
 # Hardware Information Collection (DMI/SMBIOS, CPU)
 # ATT&CK: T1082 (System Information Discovery)
-# NOTE: Neutral hardware paths/fields (dmi paths, bios_version, cpu fields, lscpu) moved to micro-traits/os/sysinfo/hardware/
+# NOTE: Neutral hardware paths/fields (dmi paths, bios_version, cpu fields, lscpu) moved to micro-behaviors/os/sysinfo/hardware/
 
 defaults:
   for: [all]
   attack: "T1082"
 
 traits:
-  # === DMI/SMBIOS micro-traits ===
+  # === DMI/SMBIOS micro-behaviors ===
   # NOTE: product_serial and board_serial kept here - have suspicion (used for device tracking)
   - id: product-serial
     desc: product_serial DMI field
@@ -25,7 +25,7 @@ traits:
       type: string
       substr: "board_serial"
 
-  # Removed fp-dmidecode-cmd duplicate - use micro-traits/os/sysinfo/dmi::dmidecode
+  # Removed fp-dmidecode-cmd duplicate - use micro-behaviors/os/sysinfo/dmi::dmidecode
 
 composite_rules:
   # DMI fields helper
@@ -35,12 +35,12 @@ composite_rules:
     conf: 0.5
     needs: 2
     any:
-      - id: micro-traits/os/sysinfo/hardware::dmi-class-path
-      - id: micro-traits/os/sysinfo/hardware::dmi-devices-path
-      - id: micro-traits/os/sysinfo/dmi::dmi-vendor-product
+      - id: micro-behaviors/os/sysinfo/hardware::dmi-class-path
+      - id: micro-behaviors/os/sysinfo/hardware::dmi-devices-path
+      - id: micro-behaviors/os/sysinfo/dmi::dmi-vendor-product
       - id: product-serial
       - id: board-serial
-      - id: micro-traits/os/sysinfo/hardware::bios-version
+      - id: micro-behaviors/os/sysinfo/hardware::bios-version
 
   # DMI/SMBIOS composite
   - id: dmi-smbios
@@ -49,7 +49,7 @@ composite_rules:
     conf: 0.75
     any:
       - id: dmi-fields
-      - id: micro-traits/os/sysinfo/dmi::dmidecode
+      - id: micro-behaviors/os/sysinfo/dmi::dmidecode
 
   # CPU info helper
   - id: cpu-fields
@@ -57,9 +57,9 @@ composite_rules:
     crit: notable
     conf: 0.4
     any:
-      - id: micro-traits/os/sysinfo/hardware::cpu-model-name
-      - id: micro-traits/os/sysinfo/hardware::cpu-family
-      - id: micro-traits/os/sysinfo/hardware::cpu-cores
+      - id: micro-behaviors/os/sysinfo/hardware::cpu-model-name
+      - id: micro-behaviors/os/sysinfo/hardware::cpu-family
+      - id: micro-behaviors/os/sysinfo/hardware::cpu-cores
 
   # CPU info composite
   - id: cpu-info
@@ -68,7 +68,7 @@ composite_rules:
     conf: 0.4
     any:
       - id: cpu-proc-cpuinfo
-      - id: micro-traits/os/sysinfo/hardware::lscpu-cmd
+      - id: micro-behaviors/os/sysinfo/hardware::lscpu-cmd
 
   # Helper: /proc/cpuinfo + fields
   - id: cpu-proc-cpuinfo
@@ -76,5 +76,5 @@ composite_rules:
     crit: notable
     conf: 0.4
     all:
-      - id: micro-traits/fs/proc/system::system-cpuinfo
+      - id: micro-behaviors/fs/proc/system::system-cpuinfo
       - id: cpu-fields

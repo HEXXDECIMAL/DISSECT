@@ -1,7 +1,7 @@
 # File format magic byte detection at file start (offset 0)
 #
 # These traits detect file format signatures at the expected location.
-# Using offset: 0 or 
+# Using offset: 0 or
 # file formats, not embedded content or coincidental byte patterns.
 
 traits:
@@ -198,7 +198,6 @@ traits:
     if:
       type: raw
       substr: "%PDF-"
-      
 
   - id: sqlite3
     desc: SQLite3 database magic
@@ -295,7 +294,7 @@ traits:
       offset: 0
 
   # Suspicious: executable magic NOT at file start (embedded payload)
-  # These complement micro-traits/data/embedded but use the new offset constraint syntax
+  # These complement micro-behaviors/data/embedded but use the new offset constraint syntax
   - id: embedded-elf
     desc: ELF magic found past file header
     crit: inert
@@ -304,7 +303,6 @@ traits:
     if:
       type: hex
       pattern: "7F 45 4C 46"
-      
 
   - id: embedded-pe
     desc: MZ/PE magic found past file header
@@ -314,7 +312,6 @@ traits:
     if:
       type: hex
       pattern: "4D 5A [2-4096] 50 45 00 00"
-      
 
   - id: embedded-pe-in-pe
     desc: Embedded PE resource in executable
@@ -325,7 +322,6 @@ traits:
       type: hex
       # MZ ... [up to 4096 bytes] ... PE\0\0
       pattern: "4D 5A [2-4096] 50 45 00 00"
-      
 
   - id: embedded-zip
     desc: ZIP magic found past file header
@@ -335,4 +331,3 @@ traits:
     if:
       type: hex
       pattern: "50 4B 03 04"
-    

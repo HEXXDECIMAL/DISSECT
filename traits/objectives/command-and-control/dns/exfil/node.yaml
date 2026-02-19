@@ -4,8 +4,8 @@
 # ATT&CK: T1071.004 (DNS), T1048 (Exfiltration Over Alternative Protocol)
 #
 # Note: Atomic traits moved to appropriate micro-trait directories:
-# - DNS traits: micro-traits/comm/dns/lookup/txt/ (by record type)
-# - Crypto traits: micro-traits/crypto/symmetric/aes/node/
+# - DNS traits: micro-behaviors/comm/dns/lookup/txt/ (by record type)
+# - Crypto traits: micro-behaviors/crypto/symmetric/aes/node/
 # This file contains only behavioral composites that indicate command-and-control/exfiltration usage
 
 defaults:
@@ -19,8 +19,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/comm/dns/lookup
-      - id: micro-traits/comm/dns/lookup/txt
+      - id: micro-behaviors/comm/dns/lookup
+      - id: micro-behaviors/comm/dns/lookup/txt
 
   - id: dns-resolve-txt
     desc: DNS TXT record resolution (common C2 channel)
@@ -29,7 +29,7 @@ composite_rules:
     mbc: "C0002"
     attack: "T1071.004"
     all:
-      - id: micro-traits/comm/dns/lookup/txt
+      - id: micro-behaviors/comm/dns/lookup/txt
 
   # DNS with crypto (migrated from YARA)
   - id: dns-with-crypto
@@ -40,7 +40,7 @@ composite_rules:
     attack: "T1573"
     all:
       - id: dns-resolve-txt
-      - id: micro-traits/crypto/symmetric/aes
+      - id: micro-behaviors/crypto/symmetric/aes
 
   # DNS polling loop (migrated from YARA)
   - id: dns-polling-loop
@@ -52,4 +52,4 @@ composite_rules:
     all:
       - id: dns-resolve-txt
     any:
-      - id: micro-traits/time/schedule/interval
+      - id: micro-behaviors/time/schedule/interval

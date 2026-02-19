@@ -1,6 +1,6 @@
 # Disk Serial Number Fingerprinting
 # ATT&CK: T1082 (System Information Discovery)
-# NOTE: Neutral disk paths/commands (sys-block, lsblk-cmd, blkid-cmd) moved to micro-traits/fs/disk/paths/
+# NOTE: Neutral disk paths/commands (sys-block, lsblk-cmd, blkid-cmd) moved to micro-behaviors/fs/disk/paths/
 # NOTE: Kept here: device serial access traits (used for device tracking)
 
 defaults:
@@ -8,7 +8,7 @@ defaults:
   attack: "T1082"
 
 traits:
-  # === Disk serial micro-traits ===
+  # === Disk serial micro-behaviors ===
   - id: device-serial
     desc: /device/serial path
     crit: notable
@@ -57,11 +57,11 @@ composite_rules:
     conf: 0.75
     needs: 2
     any:
-      - id: micro-traits/fs/disk/paths::sys-block
+      - id: micro-behaviors/fs/disk/paths::sys-block
       - id: device-serial
       - id: hdio-get-identity
       - id: hdparm-cmd
-      - id: micro-traits/fs/disk/paths::lsblk-cmd
-      - id: micro-traits/fs/device/blkid::blkid
+      - id: micro-behaviors/fs/disk/paths::lsblk-cmd
+      - id: micro-behaviors/fs/device/blkid::blkid
       - id: serial-short
       - id: id-serial

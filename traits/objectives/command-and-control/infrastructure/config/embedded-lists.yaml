@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1043"
     mbc: "C0002"
     any:
-      - id: micro-traits/comm/ip
+      - id: micro-behaviors/comm/ip
     none:
       - id: metadata/signed/platform::apple
 
@@ -26,7 +26,7 @@ composite_rules:
     mbc: "C0002"
     all:
       - id: embedded-c2-list
-      - id: micro-traits/comm/tcp/connect
+      - id: micro-behaviors/comm/tcp/connect
 
   - id: botnet-commander-pattern
     desc: Botnet commander with hardcoded infrastructure
@@ -38,5 +38,5 @@ composite_rules:
     mbc: "C0002"
     all:
       - id: embedded-c2-list
-      - id: micro-traits/comm/socket/
+      - id: micro-behaviors/comm/socket/
 

@@ -64,7 +64,7 @@ composite_rules:
     for: [ruby]
     all:
       - id: http-cookie-extract
-      - id: micro-traits/data/encode/base64::base64-decode
+      - id: micro-behaviors/data/encode/base64::base64-decode
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-ruby
 
   # === Ruby Middleware Backdoor ===
@@ -79,7 +79,7 @@ composite_rules:
     all:
       - id: rack-middleware-hook
       - id: objectives/execution/interpreter/eval/dynamic::prepend-module
-      - id: micro-traits/data/encode/base64::base64-decode
+      - id: micro-behaviors/data/encode/base64::base64-decode
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-ruby
 
   # === Base64 Eval RCE ===
@@ -91,5 +91,5 @@ composite_rules:
     attack: "T1059.005"
     for: [ruby]
     all:
-      - id: micro-traits/data/encode/base64::base64-decode
+      - id: micro-behaviors/data/encode/base64::base64-decode
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-ruby

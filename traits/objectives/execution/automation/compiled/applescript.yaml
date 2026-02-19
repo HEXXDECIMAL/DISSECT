@@ -22,8 +22,8 @@ traits:
   # ============================================
   # System Applications (notable)
   # ============================================
-  # system-settings: use micro-traits/process/create/script::ref-system-settings (canonical)
-  # system-preferences: use micro-traits/process/create/script::ref-system-prefs (canonical)
+  # system-settings: use micro-behaviors/process/create/script::ref-system-settings (canonical)
+  # system-preferences: use micro-behaviors/process/create/script::ref-system-prefs (canonical)
 
   - id: system-events
     desc: "Targets System Events"
@@ -82,8 +82,8 @@ composite_rules:
     conf: 0.85
     for: [applescript]
     any:
-      - { id: micro-traits/process/create/script::ref-system-settings }
-      - { id: micro-traits/process/create/script::ref-system-prefs }
+      - { id: micro-behaviors/process/create/script::ref-system-settings }
+      - { id: micro-behaviors/process/create/script::ref-system-prefs }
 
   # Terminal automation commands group
   - id: terminal-commands
@@ -92,8 +92,8 @@ composite_rules:
     conf: 0.8
     for: [applescript]
     any:
-      - id: micro-traits/process/create/script::do-script
-      - id: micro-traits/process/create/script::activate
+      - id: micro-behaviors/process/create/script::do-script
+      - id: micro-behaviors/process/create/script::activate
 
   # ============================================
   # Terminal Automation
@@ -119,4 +119,4 @@ composite_rules:
     for: [applescript]
     all:
       - { id: automates-settings }
-      - { id: micro-traits/process/create/shell::shell-execution }
+      - { id: micro-behaviors/process/create/shell::shell-execution }

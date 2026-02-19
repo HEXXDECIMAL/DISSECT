@@ -16,9 +16,9 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: micro-traits/process/enumerate/apps::browser-apps
-      - id: micro-traits/process/enumerate/apps::office-apps
-      - id: micro-traits/process/enumerate/apps::dev-apps
+      - id: micro-behaviors/process/enumerate/apps::browser-apps
+      - id: micro-behaviors/process/enumerate/apps::office-apps
+      - id: micro-behaviors/process/enumerate/apps::dev-apps
 
   - id: process-app-enumeration
     desc: Enumerates specific target applications (browsers, office) in process list

@@ -402,8 +402,8 @@ composite_rules:
       - id: fromcharcode
       - id: js-unicode-escape
       - id: js-hex-escape
-      - id: micro-traits/data/encode/base64::buffer-from-base64
-      - id: micro-traits/data/encode/hex::buffer-from-hex
+      - id: micro-behaviors/data/encode/base64::buffer-from-base64
+      - id: micro-behaviors/data/encode/hex::buffer-from-hex
       - id: js-dict-string-reconstruction
     unless:
       - type: string
@@ -422,7 +422,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: js-hex-encoded-require
-      - id: micro-traits/data/encode/hex::buffer-from-hex
+      - id: micro-behaviors/data/encode/hex::buffer-from-hex
 
   # Strong obfuscation indicators (high density or specific techniques)
   - id: js-strong-obfuscation
@@ -447,5 +447,5 @@ composite_rules:
     conf: 0.6
     for: [javascript]
     all:
-      - id: micro-traits/data/encode/base64::buffer-from-base64
-      - id: micro-traits/data/encode/hex::buffer-from-hex
+      - id: micro-behaviors/data/encode/base64::buffer-from-base64
+      - id: micro-behaviors/data/encode/hex::buffer-from-hex

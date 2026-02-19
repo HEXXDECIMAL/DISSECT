@@ -51,7 +51,7 @@ composite_rules:
     attack: "T1055.012"
     for: ["pe", "dll"]
     all:
-      - id: micro-traits/process/create/spawn::create-process-a
+      - id: micro-behaviors/process/create/spawn::create-process-a
       - id: objectives/defense-evasion/process/injection/runtime::suspend-thread
       - id: objectives/defense-evasion/process/injection/runtime::write-process-memory
       - id: objectives/defense-evasion/process/injection/runtime::set-thread-context
@@ -68,7 +68,7 @@ composite_rules:
     for: ["pe", "dll"]
     all:
       - id: objectives/defense-evasion/process/injection/runtime::create-remote-thread
-      - id: micro-traits/dylib/load::load-library-a
+      - id: micro-behaviors/dylib/load::load-library-a
     downgrade:
       any:
         - id: metadata/vendor/valve/valve-corp-binary
@@ -99,5 +99,5 @@ composite_rules:
     for: [pe, dll]
     all:
       - id: objectives/execution/native/runtime::callback-execution
-      - id: micro-traits/mem/protect/modify::virtual-protect
+      - id: micro-behaviors/mem/protect/modify::virtual-protect
       - id: objectives/execution/native/runtime::heap-alloc

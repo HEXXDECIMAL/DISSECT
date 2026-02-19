@@ -275,7 +275,7 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: micro-traits/crypto/symmetric/aes::crypto-require-call }
+      - { id: micro-behaviors/crypto/symmetric/aes::crypto-require-call }
       - { id: oob-domains }
 
   - id: multiple-encoded-indicators
@@ -300,5 +300,5 @@ composite_rules:
     mbc: "B0030"
     for: [python, javascript]
     all:
-      - { id: micro-traits/comm/http/request }
+      - { id: micro-behaviors/comm/http/request }
       - { id: encoded-oob-indicators }

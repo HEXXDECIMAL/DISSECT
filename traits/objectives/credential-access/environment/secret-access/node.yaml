@@ -15,7 +15,7 @@ traits:
       type: string
       substr: ".ssh/id_rsa"
 
-  # Removed aws-credentials-file duplicate - use micro-traits/fs/path/sensitive/cloud::aws-credentials
+  # Removed aws-credentials-file duplicate - use micro-behaviors/fs/path/sensitive/cloud::aws-credentials
 
   - id: kube-config-file
     desc: Kubernetes config path
@@ -355,7 +355,7 @@ composite_rules:
     conf: 0.7
     any:
       - id: ssh-id-rsa
-      - id: micro-traits/fs/path/sensitive/cloud::aws-credentials
+      - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
       - id: kube-config-file
 
   # AWS credentials composite

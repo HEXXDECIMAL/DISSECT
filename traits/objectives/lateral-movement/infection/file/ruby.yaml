@@ -126,7 +126,7 @@ composite_rules:
     needs: 2
     any:
       - id: file-extension-rename
-      - id: micro-traits/data/text/keywords::split-string
+      - id: micro-behaviors/data/text/keywords::split-string
 
   # === Self-Replicator ===
   - id: self-replicator
@@ -136,7 +136,7 @@ composite_rules:
     attack: "T1059"
     needs: 3
     any:
-      - id: micro-traits/fs/read/self::self-file-reference
+      - id: micro-behaviors/fs/read/self::self-file-reference
       - id: read-self-content
       - id: write-to-other-files
       - id: skip-self-check

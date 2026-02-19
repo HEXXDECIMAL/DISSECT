@@ -105,7 +105,7 @@ composite_rules:
       - elf
     size_max: 200000
     unless:
-      - id: micro-traits/interface/usage/usage-help
+      - id: micro-behaviors/interface/usage/usage-help
     any:
       - id: credential-wordlist-1
       - id: credential-wordlist-2
@@ -147,7 +147,7 @@ composite_rules:
       - elf
     size_max: 100000
     unless:
-      - id: micro-traits/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/comm/download/curl::curl-easy-init
     any:
       - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_1
       - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_2

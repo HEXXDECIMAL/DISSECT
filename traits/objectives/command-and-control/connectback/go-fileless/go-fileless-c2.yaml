@@ -8,5 +8,5 @@ composite_rules:
     mbc: C0002
     all:
       - id: metadata/compiler::go-binary
-      - id: micro-traits/comm/c2/ip-port::hardcoded-ipv4-port-list
-      - id: micro-traits/os/process/fileless-execution::memfd-fileless-runtime-flow
+      - id: micro-behaviors/comm/c2/ip-port::hardcoded-ipv4-port-list
+      - id: micro-behaviors/os/process/fileless-execution::memfd-fileless-runtime-flow

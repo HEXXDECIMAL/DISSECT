@@ -145,7 +145,7 @@ composite_rules:
     all: # +3
       - id: socket-command-handler
       - id: objectives/command-and-control/network/http-listener::socket-io
-      - id: micro-traits/process/create/shell::js-child-process
+      - id: micro-behaviors/process/create/shell::js-child-process
     # Total complexity: 4 (1 + 3 = 4)
 
   # Advanced RAT with runtime evasion

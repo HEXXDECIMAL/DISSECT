@@ -402,7 +402,7 @@ composite_rules:
   - javascript
   - typescript
   all:
-  - id: micro-traits/os/env/access::javascript
+  - id: micro-behaviors/os/env/access::javascript
   - id: process-env-serialization
 - id: process-list
   desc: Running process enumeration

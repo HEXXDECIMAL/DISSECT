@@ -82,8 +82,8 @@ composite_rules:
   - pe
   all:
   - id: aws-s3-disguised-payload
-  - id: micro-traits/fs/proc/info::process-pid-exe
-  - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
+  - id: micro-behaviors/fs/proc/info::process-pid-exe
+  - id: micro-behaviors/crypto/symmetric/stream::chacha-salsa-constant
   any:
   - id: rust-ureq-http-client
   - id: rust-rustls-tls
@@ -100,7 +100,7 @@ composite_rules:
   all:
   - id: rust-ureq-http-client
   - id: rust-rustls-tls
-  - id: micro-traits/fs/proc/info::process-pid-exe
+  - id: micro-behaviors/fs/proc/info::process-pid-exe
   - id: aws-s3-disguised-payload
 - id: cloud-crypto-implant
   desc: Cloud-hosted crypto implant
@@ -112,8 +112,8 @@ composite_rules:
   - macho
   - pe
   all:
-  - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
-  - id: micro-traits/fs/proc/info::process-pid-exe
+  - id: micro-behaviors/crypto/symmetric/stream::chacha-salsa-constant
+  - id: micro-behaviors/fs/proc/info::process-pid-exe
   any:
   - id: aws-s3-disguised-payload
   - id: azure-blob-url

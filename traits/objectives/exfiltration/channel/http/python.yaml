@@ -57,4 +57,4 @@ composite_rules:
       - id: file-read-http-send
     all:
       - id: objectives/discovery/system/
-      - id: micro-traits/comm/http/request
+      - id: micro-behaviors/comm/http/request

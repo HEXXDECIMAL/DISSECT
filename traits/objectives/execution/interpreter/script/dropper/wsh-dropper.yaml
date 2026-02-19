@@ -44,7 +44,7 @@ composite_rules:
     for: [javascript, powershell]
     platforms: [windows]
     all:
-      - id: micro-traits/fs/operate/write::public-folder-short-random
+      - id: micro-behaviors/fs/operate/write::public-folder-short-random
     any:
       - id: objectives/execution/activex/com::activex-filesystem
       - id: objectives/execution/interpreter/script/embedded::powershell-cmdlet-patterns

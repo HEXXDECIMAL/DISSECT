@@ -30,8 +30,8 @@ traits:
       type: symbol
       exact: "IsProcessorFeaturePresent"
 
-  # LoadLibrary* moved to micro-traits/dylib/load (Windows equivalents of dlopen)
-  # GetProcAddress moved to micro-traits/dylib/lookup (symbol resolution, not loading)
+  # LoadLibrary* moved to micro-behaviors/dylib/load (Windows equivalents of dlopen)
+  # GetProcAddress moved to micro-behaviors/dylib/lookup (symbol resolution, not loading)
 
   - id: get-module-handle
     desc: Module handle resolution

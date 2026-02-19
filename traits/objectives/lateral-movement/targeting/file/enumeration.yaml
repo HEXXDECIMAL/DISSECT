@@ -15,7 +15,7 @@ traits:
     attack: "T1083"
     mbc: "C0000"
 
-  # Removed duplicates - use micro-traits/fs/enumerate/directory::find-next-file and ::find-close
+  # Removed duplicates - use micro-behaviors/fs/enumerate/directory::find-next-file and ::find-close
 
 composite_rules:
   - id: file-enumeration-targeting
@@ -28,7 +28,7 @@ composite_rules:
     mbc: "C0000"
     all:
       - id: file-find-api
-      - id: micro-traits/fs/enumerate/directory::find-next-file
+      - id: micro-behaviors/fs/enumerate/directory::find-next-file
     downgrade:
       any:
         - id: metadata/quality/versioned
@@ -43,4 +43,4 @@ composite_rules:
     mbc: "C0000"
     all:
       - id: file-enumeration-targeting
-      - id: micro-traits/fs/file/open
+      - id: micro-behaviors/fs/file/open

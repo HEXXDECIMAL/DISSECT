@@ -1,6 +1,6 @@
 # Operating System Information Collection
 # ATT&CK: T1082 (System Information Discovery)
-# NOTE: All neutral OS path/command references moved to micro-traits/fs/path/os/
+# NOTE: All neutral OS path/command references moved to micro-behaviors/fs/path/os/
 
 defaults:
   attack: "T1082"
@@ -14,4 +14,4 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: micro-traits/fs/path/os
+      - id: micro-behaviors/fs/path/os

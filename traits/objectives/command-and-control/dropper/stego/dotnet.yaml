@@ -6,8 +6,8 @@ composite_rules:
     mbc: "B0027"
     attack: "T1027.003"
     all:
-      - id: micro-traits/data/image/pixel::pixel-access
-      - id: micro-traits/crypto/symmetric/aes::dotnet-rijndael
+      - id: micro-behaviors/data/image/pixel::pixel-access
+      - id: micro-behaviors/crypto/symmetric/aes::dotnet-rijndael
       - id: objectives/command-and-control/dropper/embedded-payload::frombase64string
     any:
-      - id: micro-traits/net/http/client
+      - id: micro-behaviors/net/http/client

@@ -71,7 +71,7 @@ traits:
       type: string
       exact: "HOME"
 
-  # NOTE: getenv removed - use micro-traits/os/env/vars/getenv instead
+  # NOTE: getenv removed - use micro-behaviors/os/env/vars/getenv instead
   # getenv is a capability, not a collection objective
 
 composite_rules:
@@ -99,4 +99,4 @@ composite_rules:
       - id: ds-store
     any:
       - id: user-directory-enum
-      - id: micro-traits/fs/directory/traverse
+      - id: micro-behaviors/fs/directory/traverse

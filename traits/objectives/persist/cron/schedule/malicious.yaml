@@ -58,7 +58,7 @@ traits:
       substr: "base64 --decode"
 
   # Hidden file paths
-  # Removed tmp-hidden duplicate - use micro-traits/fs/path/temp::tmp-hidden-file
+  # Removed tmp-hidden duplicate - use micro-behaviors/fs/path/temp::tmp-hidden-file
 
   - id: var-tmp-hidden
     desc: Hidden file in /var/tmp
@@ -108,7 +108,7 @@ composite_rules:
   - id: hidden-paths
     desc: Hidden file paths in temp
     any:
-      - id: micro-traits/fs/path/temp::tmp-hidden-file
+      - id: micro-behaviors/fs/path/temp::tmp-hidden-file
       - id: var-tmp-hidden
       - id: dev-shm-hidden
     crit: notable
@@ -127,7 +127,7 @@ composite_rules:
     desc: Download cradle piped to shell
     all:
       - id: download-cradles
-      - id: micro-traits/os/console/io::shell-pipes
+      - id: micro-behaviors/os/console/io::shell-pipes
     crit: notable
 
   # Helper: Download cradle with suppression
@@ -135,7 +135,7 @@ composite_rules:
     desc: Download cradle with output suppression
     all:
       - id: download-cradles
-      - id: micro-traits/os/console/io::output-suppression
+      - id: micro-behaviors/os/console/io::output-suppression
     crit: notable
 
   # Helper: Cron with base64

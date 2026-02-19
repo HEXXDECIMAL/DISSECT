@@ -41,7 +41,7 @@ composite_rules:
       any:
         - id: metadata/signed/platform::apple
     all:
-      - id: micro-traits/os/sysinfo/sysctl::sysctlbyname
+      - id: micro-behaviors/os/sysinfo/sysctl::sysctlbyname
     any:
       - id: sysctl-hw-model
       - id: sysctl-cpu-brand

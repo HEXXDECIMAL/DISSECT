@@ -4,6 +4,6 @@ composite_rules:
     crit: hostile
     conf: 1.0
     any:
-      - id: micro-traits/fs/disk/wipe::format-c
-      - id: micro-traits/fs/disk/wipe::format-c-no-colon
-      - id: micro-traits/fs/delete/directory::recursive-root
+      - id: micro-behaviors/fs/disk/wipe::format-c
+      - id: micro-behaviors/fs/disk/wipe::format-c-no-colon
+      - id: micro-behaviors/fs/delete/directory::recursive-root

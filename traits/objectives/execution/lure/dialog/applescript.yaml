@@ -213,4 +213,4 @@ composite_rules:
     for: [applescript]
     all:
       - id: compat-lure
-      - id: micro-traits/process/create/shell::shell-execution
+      - id: micro-behaviors/process/create/shell::shell-execution

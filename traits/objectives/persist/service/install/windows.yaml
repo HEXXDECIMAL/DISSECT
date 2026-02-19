@@ -14,8 +14,8 @@ composite_rules:
     conf: 0.9
     for: [pe]
     all:
-      - id: micro-traits/os/service/export::win-service-export
-      - id: micro-traits/os/service/host::advapi32-link
+      - id: micro-behaviors/os/service/export::win-service-export
+      - id: micro-behaviors/os/service/host::advapi32-link
 
   - id: suspicious-packed-service
     desc: Highly suspicious packed Windows Service
@@ -23,5 +23,5 @@ composite_rules:
     conf: 0.95
     for: [pe]
     all:
-      - id: micro-traits/os/service/export::win-service-export
+      - id: micro-behaviors/os/service/export::win-service-export
       - id: objectives/anti-analysis/obfuscation/instruction/junk::high-entropy-generic

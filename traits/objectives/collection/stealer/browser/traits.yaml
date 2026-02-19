@@ -72,7 +72,7 @@ composite_rules:
     any:
       - { id: chrome-string }
       - { id: firefox-string }
-      - { id: micro-traits/fs/path/sensitive/browser::login-data }
+      - { id: micro-behaviors/fs/path/sensitive/browser::login-data }
       - { id: objectives/credential-access/browser/firefox::cookies }
     crit: notable
 

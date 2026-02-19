@@ -46,7 +46,7 @@ traits:
       type: string
       substr: "syscall.Exec"
 
-  # memfd_create - use micro-traits/mem/anonymous/create::memfd-create (canonical ELF symbol detection)
+  # memfd_create - use micro-behaviors/mem/anonymous/create::memfd-create (canonical ELF symbol detection)
 
   # Custom AES decryption function pattern (main.aesDec etc)
   - id: aes-decrypt-func

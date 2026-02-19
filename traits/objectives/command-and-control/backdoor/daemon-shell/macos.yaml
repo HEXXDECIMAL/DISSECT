@@ -25,11 +25,11 @@ composite_rules:
       - id: objectives/persist/daemon/init::daemon-fork
       - id: objectives/persist/daemon/init::daemon-setsid
       # Shell command execution
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     # Obfuscation or frequency indicators
     any:
       - id: objectives/anti-static/obfuscation/payload::tiny-cstring
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
       - id: objectives/anti-static/obfuscation/payload::high-entropy-data-section
     # Must be unsigned (legitimate apps are signed)
     none:
@@ -44,7 +44,7 @@ composite_rules:
     all:
       - id: objectives/persist/daemon/init::daemon-fork
       - id: objectives/persist/daemon/init::daemon-setsid
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     none:
       - id: metadata/signed/platform::apple
 
@@ -57,8 +57,8 @@ composite_rules:
     all:
       - id: daemon-shell-backdoor
     any:
-      - id: micro-traits/process/create/shell::extreme-popen
-      - id: micro-traits/process/create/shell::obfuscated-shell-malware
+      - id: micro-behaviors/process/create/shell::extreme-popen
+      - id: micro-behaviors/process/create/shell::obfuscated-shell-malware
       - id: objectives/anti-static/obfuscation/payload::encrypted-payload-section
 
   # Generic name + daemon backdoor = masquerading

@@ -25,8 +25,8 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/http::download-and-execute-func
       - id: objectives/execution/dropper/http::http-ip-port-url
-      - id: micro-traits/fs/path/temp
+      - id: micro-behaviors/fs/path/temp
     any:
       - id: objectives/execution/dropper/http::is-process-running-func
       - id: objectives/execution/dropper/http::arch-64bit-check
-      - id: micro-traits/process/create/subprocess::run-ast
+      - id: micro-behaviors/process/create/subprocess::run-ast

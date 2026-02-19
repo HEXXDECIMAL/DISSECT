@@ -43,7 +43,7 @@ composite_rules:
     platforms: [windows]
     for: [pe]
     all:
-      - id: micro-traits/data/encode/payload::embedded-obfuscated-payload
+      - id: micro-behaviors/data/encode/payload::embedded-obfuscated-payload
       - id: dynamic-library-loading
       - id: remote-code-injection
     downgrade:

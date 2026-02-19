@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Reproducible build micro-traits ===
+  # === Reproducible build micro-behaviors ===
   - id: source-date-epoch
     desc: SOURCE_DATE_EPOCH variable
     crit: notable

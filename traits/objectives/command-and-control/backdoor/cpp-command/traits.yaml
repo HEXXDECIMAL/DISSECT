@@ -12,8 +12,8 @@ composite_rules:
     mbc: "B0022"
     for: [elf, macho, pe]
     all:
-      - id: micro-traits/process/create/direct::cpp-stdlib
-      - id: micro-traits/process/create/direct::cpp-string
-      - id: micro-traits/process/create/direct::cpp-exception
-      - id: micro-traits/process/create/direct::cpp-command-capture
+      - id: micro-behaviors/process/create/direct::cpp-stdlib
+      - id: micro-behaviors/process/create/direct::cpp-string
+      - id: micro-behaviors/process/create/direct::cpp-exception
+      - id: micro-behaviors/process/create/direct::cpp-command-capture
       - id: objectives/anti-static/obfuscation/strings/encoding::string-concealment

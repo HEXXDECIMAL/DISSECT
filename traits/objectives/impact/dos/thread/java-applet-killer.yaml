@@ -20,7 +20,7 @@ composite_rules:
     crit: hostile
     conf: 1.0
     all:
-      - id: micro-traits/process/thread/terminate::stop
-      - id: micro-traits/process/thread/enumerate::get-group
-      - id: micro-traits/process/thread/enumerate::enumerate
+      - id: micro-behaviors/process/thread/terminate::stop
+      - id: micro-behaviors/process/thread/enumerate::get-group
+      - id: micro-behaviors/process/thread/enumerate::enumerate
       - id: applet-killer-strings

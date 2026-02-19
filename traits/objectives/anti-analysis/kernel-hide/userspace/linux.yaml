@@ -107,7 +107,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: micro-traits/fs/directory/readdir::readdir-readdir
+      - id: micro-behaviors/fs/directory/readdir::readdir-readdir
       - id: has-exports
 
   - id: getdents-hook
@@ -118,7 +118,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: micro-traits/fs/directory/readdir::readdir-getdents
+      - id: micro-behaviors/fs/directory/readdir::readdir-getdents
       - id: has-exports
 
   # Direct hooked library rootkit (exported function hooking)
@@ -130,7 +130,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: micro-traits/dylib/lookup::dlsym-symbol
+      - id: micro-behaviors/dylib/lookup::dlsym-symbol
     any:
       - id: readdir-hook
       - id: getdents-hook

@@ -42,7 +42,7 @@ composite_rules:
     mbc: "B0014"
     for: [javascript]
     all:
-      - id: micro-traits/comm/http/request::http-client-usage
+      - id: micro-behaviors/comm/http/request::http-client-usage
     any:
       - id: js-pbpaste
       - id: js-powershell-clipboard

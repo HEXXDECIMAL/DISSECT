@@ -299,8 +299,8 @@ composite_rules:
   size_max: 1500000
   all:
   - id: direct-http-c2
-  - id: micro-traits/process/create/
-  - id: micro-traits/comm/socket/
+  - id: micro-behaviors/process/create/
+  - id: micro-behaviors/comm/socket/
 - id: hardcoded-ip
   desc: Hardcoded IP endpoint
   crit: suspicious

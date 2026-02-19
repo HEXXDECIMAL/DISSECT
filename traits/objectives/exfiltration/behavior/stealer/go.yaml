@@ -12,5 +12,5 @@ composite_rules:
     all:
       - id: objectives/collection/archive/data::sensitive-archiving
     any:
-      - id: micro-traits/comm/http/post::http-post
+      - id: micro-behaviors/comm/http/post::http-post
       - id: objectives/command-and-control/infrastructure/domain::c2-domain

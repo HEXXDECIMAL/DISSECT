@@ -13,8 +13,8 @@ composite_rules:
     attack: "T1048.003"
     needs: 1
     any:
-      - id: micro-traits/data/encode/hex::hex-encode-xxd
-      - id: micro-traits/data/encode/hex::hex-dump-od
+      - id: micro-behaviors/data/encode/hex::hex-encode-xxd
+      - id: micro-behaviors/data/encode/hex::hex-dump-od
     all:
       - id: objectives/execution/dropper/script::curl-download
       - id: objectives/discovery/host/user::whoami

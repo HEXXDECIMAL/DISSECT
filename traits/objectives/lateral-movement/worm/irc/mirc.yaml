@@ -4,6 +4,6 @@ composite_rules:
     crit: hostile
     attack: T1571
     all:
-      - id: micro-traits/fs/path/application::mirc-config-file
-      - id: micro-traits/comm/protocol/irc::mirc-script-cmd
-      - id: micro-traits/comm/protocol/irc::mirc-script-event
+      - id: micro-behaviors/fs/path/application::mirc-config-file
+      - id: micro-behaviors/comm/protocol/irc::mirc-script-cmd
+      - id: micro-behaviors/comm/protocol/irc::mirc-script-event

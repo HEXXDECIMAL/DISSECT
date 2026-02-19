@@ -1,6 +1,6 @@
 # Secret/Credential Environment Variable Access - Python
 # Detects access to sensitive environment variables via os.environ or os.getenv
-# NOTE: Neutral env access functions moved to micro-traits/os/env/access/python
+# NOTE: Neutral env access functions moved to micro-behaviors/os/env/access/python
 
 traits:
   # === Common Keywords ===
@@ -89,7 +89,7 @@ composite_rules:
     conf: 0.9
     for: [python]
     all:
-      - { id: micro-traits/os/env/vars::getenv }
+      - { id: micro-behaviors/os/env/vars::getenv }
       - { id: sensitive-env-keywords }
 
   - id: python-os-environ
@@ -98,7 +98,7 @@ composite_rules:
     conf: 0.9
     for: [python]
     all:
-      - { id: micro-traits/os/env/access::os-environ-symbol }
+      - { id: micro-behaviors/os/env/access::os-environ-symbol }
       - { id: sensitive-env-keywords }
 
   # Original composite

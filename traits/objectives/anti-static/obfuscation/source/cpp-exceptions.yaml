@@ -51,6 +51,6 @@ composite_rules:
     size_max: 500000
     all:
       - id: cpp-exception-control-flow
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
     none:
       - id: metadata/signed/platform::apple

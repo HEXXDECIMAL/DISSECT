@@ -241,8 +241,8 @@ composite_rules:
   - pe
   - python
   any:
-  - id: micro-traits/process/user/query::whoami-cmd
-  - id: micro-traits/fs/path/config/accounts::etc-passwd
+  - id: micro-behaviors/process/user/query::whoami-cmd
+  - id: micro-behaviors/fs/path/config/accounts::etc-passwd
   - id: dscl
   - id: finger
   - id: last-cmd
@@ -257,8 +257,8 @@ composite_rules:
   - macho
   any:
   - id: getpwnam
-  - id: micro-traits/process/identity/query::get-uid
-  - id: micro-traits/process/user/query::getpwuid
+  - id: micro-behaviors/process/identity/query::get-uid
+  - id: micro-behaviors/process/user/query::getpwuid
 - id: enumeration-detected
   desc: User enumeration activity
   crit: suspicious

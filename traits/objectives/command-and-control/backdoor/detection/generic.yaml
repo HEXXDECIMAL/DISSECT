@@ -181,10 +181,10 @@ composite_rules:
     platforms: [all]
     for: [perl]
     all:
-      - id: micro-traits/comm/socket/create::socket-call
-      - id: micro-traits/comm/socket/create::open-call
-      - id: micro-traits/comm/socket/create::fd-redirect
-      - id: micro-traits/process/create/shell::sh-interactive
+      - id: micro-behaviors/comm/socket/create::socket-call
+      - id: micro-behaviors/comm/socket/create::open-call
+      - id: micro-behaviors/comm/socket/create::fd-redirect
+      - id: micro-behaviors/process/create/shell::sh-interactive
 
   - id: mkfifo-netcat-shell
     desc: Reverse shell via mkfifo and
@@ -194,8 +194,8 @@ composite_rules:
     mbc: "B0022"
     platforms: [linux, macos, unix]
     all:
-      - id: micro-traits/fs/pipe/fifo::mkfifo-cmd
-      - id: micro-traits/process/create/shell::sh-interactive
+      - id: micro-behaviors/fs/pipe/fifo::mkfifo-cmd
+      - id: micro-behaviors/process/create/shell::sh-interactive
       - id: nc-pipe
 
   - id: go-reverse-shell
@@ -207,12 +207,12 @@ composite_rules:
     platforms: [all]
     for: [elf, macho]
     any:
-      - id: micro-traits/process/create/shell::bin-bash
-      - id: micro-traits/process/create/shell::bin-sh
+      - id: micro-behaviors/process/create/shell::bin-bash
+      - id: micro-behaviors/process/create/shell::bin-sh
     all:
       - id: objectives/command-and-control/reverse-shell/socket::exec-cmd-run
       - id: go-child-stdin
-      - id: micro-traits/comm/socket/connect::dial-tcp
+      - id: micro-behaviors/comm/socket/connect::dial-tcp
 
   - id: reverse-keyword
     desc: Reverse keyword reference
@@ -236,7 +236,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: reverse-keyword
-      - id: micro-traits/comm/socket/listen::socket-sym
+      - id: micro-behaviors/comm/socket/listen::socket-sym
     any:
-      - id: micro-traits/process/create/shell::bin-bash
-      - id: micro-traits/process/create/shell::bin-sh
+      - id: micro-behaviors/process/create/shell::bin-bash
+      - id: micro-behaviors/process/create/shell::bin-sh

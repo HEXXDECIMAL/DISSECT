@@ -20,7 +20,7 @@ traits:
       type: string
       substr: "osascript"
 
-  # Removed do-shell-script duplicate - use micro-traits/process/create/script::shell-cmd
+  # Removed do-shell-script duplicate - use micro-behaviors/process/create/script::shell-cmd
 
   # === Password dialog ===
   # Removed password-dialog duplicate - use objectives/anti-analysis/window-hide/ui::dialog-password
@@ -33,4 +33,4 @@ composite_rules:
     conf: 0.9
     all:
       - id: objectives/anti-analysis/window-hide/ui::hide-window
-      - id: micro-traits/process/create/script::shell-cmd
+      - id: micro-behaviors/process/create/script::shell-cmd

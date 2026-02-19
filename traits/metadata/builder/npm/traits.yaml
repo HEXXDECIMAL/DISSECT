@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === npm/yarn micro-traits ===
+  # === npm/yarn micro-behaviors ===
   - id: package-json
     desc: package.json file
     crit: notable

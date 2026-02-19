@@ -5,10 +5,10 @@ composite_rules:
     conf: 1.0
     for: [java]
     all:
-      - id: micro-traits/process/thread/enumerate::get-group
-      - id: micro-traits/process/thread/enumerate::enumerate
-      - id: micro-traits/process/thread/terminate::stop
+      - id: micro-behaviors/process/thread/enumerate::get-group
+      - id: micro-behaviors/process/thread/enumerate::enumerate
+      - id: micro-behaviors/process/thread/terminate::stop
     any:
-      - id: micro-traits/process/thread/priority::set-max
-      - id: micro-traits/process/thread/lifecycle::respawn
+      - id: micro-behaviors/process/thread/priority::set-max
+      - id: micro-behaviors/process/thread/lifecycle::respawn
       - id: well-known/malware/dos::strings

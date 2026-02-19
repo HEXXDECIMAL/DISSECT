@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === CMake micro-traits ===
+  # === CMake micro-behaviors ===
   - id: cmakefiles
     desc: CMakeFiles directory
     crit: notable

@@ -18,7 +18,7 @@ composite_rules:
     desc: WScript dropper fragments detected (ADODB/XMLHTTP)
     any:
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment
-      - id: micro-traits/net/http/client::http-client-msxml-fragment
+      - id: micro-behaviors/net/http/client::http-client-msxml-fragment
       - id: objectives/execution/interpreter/script/wsh::xmlhttp-fragment-tiny-2
       - id: objectives/execution/interpreter/script/wsh::response-body-fragment
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment-tiny-exact
@@ -29,4 +29,4 @@ composite_rules:
     desc: WScript dropper (ADODB + XMLHTTP)
     all:
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment
-      - id: micro-traits/net/http/client::http-client-msxml-fragment
+      - id: micro-behaviors/net/http/client::http-client-msxml-fragment

@@ -185,5 +185,5 @@ composite_rules:
     any:
       - id: helper-subprocess-exec
       - id: helper-os-system
-      - id: micro-traits/process/create/subprocess::run-ast
-      - id: micro-traits/process/create/shell::python-os-system
+      - id: micro-behaviors/process/create/subprocess::run-ast
+      - id: micro-behaviors/process/create/shell::python-os-system

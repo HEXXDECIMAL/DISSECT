@@ -41,12 +41,12 @@ composite_rules:
     desc: "WSH Dropper with Environment Checks"
     crit: hostile
     all:
-      - id: micro-traits/env/check/wsh::env-check-no-document
+      - id: micro-behaviors/env/check/wsh::env-check-no-document
     any:
       - id: objectives/execution/interpreter/scripting/host::activex-object-obfuscated
       - id: objectives/execution/interpreter/scripting/host::wscript-shell-obfuscated
       - id: objectives/anti-static/obfuscation/interpreter/cmd::cmd-caret-obfuscation
-      - id: micro-traits/fs/path/location::path-suspicious-appdata-exe
+      - id: micro-behaviors/fs/path/location::path-suspicious-appdata-exe
 
   - id: obfuscated-jscript-powershell-dropper
     desc: "Obfuscated JScript PowerShell dropper"
@@ -82,8 +82,8 @@ composite_rules:
     desc: "Obfuscated JScript Dropper using Nested Array Map"
     crit: hostile
     all:
-      - id: micro-traits/data/encode/map::js-nested-array-table-mapping
-      - id: micro-traits/data/manipulation/string::js-split-string-array
+      - id: micro-behaviors/data/encode/map::js-nested-array-table-mapping
+      - id: micro-behaviors/data/manipulation/string::js-split-string-array
     any:
       - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-on
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-js
@@ -105,7 +105,7 @@ composite_rules:
     any:
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
-      - id: micro-traits/net/http/client::http-client-msxml-fragment
+      - id: micro-behaviors/net/http/client::http-client-msxml-fragment
 
   - id: jscript-array-url-dropper
     desc: "JScript Dropper using Array URL Construction"
@@ -121,18 +121,18 @@ composite_rules:
     all:
       - id: objectives/execution/interpreter/scripting/jscript::jscript-cc-on
     any:
-      - id: micro-traits/data/encode/map::js-nested-array-table-mapping
+      - id: micro-behaviors/data/encode/map::js-nested-array-table-mapping
       - id: objectives/execution/lolbin/os::nemucod-export-fragments
-      - id: micro-traits/env/check/wsh::env-check-comspec-cmd
+      - id: micro-behaviors/env/check/wsh::env-check-comspec-cmd
       - id: objectives/command-and-control/infrastructure/domain/family::nemucod-domain
 
   - id: jscript-error-key-gen-dropper
     desc: "JScript Dropper using Error Object for Key Generation"
     crit: hostile
     all:
-      - id: micro-traits/data/control-flow/analysis::js-try-catch-error-method-call
+      - id: micro-behaviors/data/control-flow/analysis::js-try-catch-error-method-call
     any:
-      - id: micro-traits/host/interpreter/jscript::is-jscript
+      - id: micro-behaviors/host/interpreter/jscript::is-jscript
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
 
@@ -140,6 +140,6 @@ composite_rules:
     desc: "JScript Dropper using Custom XOR Decoder Loop"
     crit: hostile
     all:
-      - id: micro-traits/data/encode/xor::js-xor-decoder-loop
+      - id: micro-behaviors/data/encode/xor::js-xor-decoder-loop
     any:
       - id: objectives/execution/interpreter/script/wsh

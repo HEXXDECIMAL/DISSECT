@@ -11,7 +11,7 @@ composite_rules:
     for: [python]
     all:
       - id: metadata/import/python/requests
-      - id: micro-traits/comm/http/request::py-post-generic
+      - id: micro-behaviors/comm/http/request::py-post-generic
     any:
-      - id: micro-traits/fs/file/delete::py-rmtree
-      - id: micro-traits/fs/file/delete::py-remove
+      - id: micro-behaviors/fs/file/delete::py-rmtree
+      - id: micro-behaviors/fs/file/delete::py-remove

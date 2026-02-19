@@ -28,7 +28,7 @@ composite_rules:
       - id: objectives/execution/dropper/script::download-tool
       - id: objectives/execution/dropper/script::exec-cmd
     any:
-      - id: micro-traits/fs/file/write/staging::users-public-path
+      - id: micro-behaviors/fs/file/write/staging::users-public-path
       - id: objectives/execution/dropper/script::run-from-temp
 
   - id: batch-arch-aware-dropper
@@ -40,7 +40,7 @@ composite_rules:
       - id: objectives/execution/dropper/script::wmic-arch-check
     any:
       - id: objectives/execution/dropper/script::exec-cmd
-      - id: micro-traits/fs/file/write/staging::users-public-path
+      - id: micro-behaviors/fs/file/write/staging::users-public-path
 
   - id: batch-certutil-tcp-stager
     desc: Batch certutil stager with TCP stage query and architecture split
@@ -50,7 +50,7 @@ composite_rules:
       - id: objectives/command-and-control/infrastructure/ip::staged-tcp-query
       - id: objectives/execution/dropper/script::certutil-urlcache-split-force
       - id: objectives/execution/dropper/script::wmic-arch-check
-      - id: micro-traits/fs/file/write/staging::users-public-path
+      - id: micro-behaviors/fs/file/write/staging::users-public-path
     any:
       - id: objectives/execution/dropper/script::exec-cmd
-      - id: micro-traits/fs/file/delete::del-command
+      - id: micro-behaviors/fs/file/delete::del-command

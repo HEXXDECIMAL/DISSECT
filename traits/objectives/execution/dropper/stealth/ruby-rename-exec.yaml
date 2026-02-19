@@ -10,9 +10,9 @@ composite_rules:
     desc: Ruby script renames file to executable and executes it
     all:
       - id: objectives/execution/dropper/script::ruby-ast-rename-img-to-exe
-      - id: micro-traits/process/create/shell/lang::ruby-exec
+      - id: micro-behaviors/process/create/shell/lang::ruby-exec
     any:
       - id: objectives/execution/dropper/script::ruby-ast-check-windows-regex
       - id: objectives/execution/dropper/script::ruby-ast-host-os-access
-      - id: micro-traits/os/sysinfo/platform::windows-os-check
+      - id: micro-behaviors/os/sysinfo/platform::windows-os-check
     needs: 1

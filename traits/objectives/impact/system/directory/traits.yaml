@@ -160,15 +160,15 @@ composite_rules:
   conf: 0.95
   attack: T1561.002
   any:
-  - id: micro-traits/fs/path/device/storage::dev-sda
-  - id: micro-traits/fs/path/device/storage::dev-hda
+  - id: micro-behaviors/fs/path/device/storage::dev-sda
+  - id: micro-behaviors/fs/path/device/storage::dev-hda
   - id: physical-drive0
   - id: physical-drive-unc
   downgrade:
     any:
     - id: metadata/library::botocore-lib
     - id: metadata/import/python::boto3
-    - id: micro-traits/comm/ssh/connect::paramiko
+    - id: micro-behaviors/comm/ssh/connect::paramiko
 - id: recursive-delete-cmd
   desc: Recursive deletion command pattern
   crit: notable
@@ -192,5 +192,5 @@ composite_rules:
   conf: 0.95
   all:
   - id: recursive-delete-cmd
-  - id: micro-traits/data/control-flow/analysis::iteration-loop-pattern
+  - id: micro-behaviors/data/control-flow/analysis::iteration-loop-pattern
   - id: system-dir-reference

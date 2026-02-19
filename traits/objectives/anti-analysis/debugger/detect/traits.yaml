@@ -30,7 +30,7 @@ traits:
       substr: "PT_DENY_ATTACH"
     platforms: [macos]
 
-  # === Process inspection micro-traits ===
+  # === Process inspection micro-behaviors ===
   - id: tracerpid-string
     desc: TracerPid string (debugger detection)
     crit: suspicious
@@ -41,7 +41,7 @@ traits:
       substr: "TracerPid"
     platforms: [linux]
 
-  # Removed ld-debug duplicate - use micro-traits/os/linker/env::ld-debug
+  # Removed ld-debug duplicate - use micro-behaviors/os/linker/env::ld-debug
 
   # Windows - individual API presence is notable (standard MSVC CRT imports);
   # combinations in composite rules elevate to suspicious
@@ -91,7 +91,7 @@ traits:
       substr: "QueryPerformanceCounter"
     platforms: [windows]
 
-  # Removed: duplicate of micro-traits/os/sysinfo/sysctl::sysctlbyname
+  # Removed: duplicate of micro-behaviors/os/sysinfo/sysctl::sysctlbyname
   # Just checking for sysctlbyname symbol doesn't prove debugger detection
   # Real debugger detection would need P_TRACED string or kern.proc checks
 
@@ -105,9 +105,9 @@ composite_rules:
     attack: "T1622"
     platforms: [linux]
     any:
-      - id: micro-traits/os/syscall/invoke::ptrace
-      - id: micro-traits/fs/proc/info::process-self-status
-      - id: micro-traits/fs/proc/info::process-self-maps
+      - id: micro-behaviors/os/syscall/invoke::ptrace
+      - id: micro-behaviors/fs/proc/info::process-self-status
+      - id: micro-behaviors/fs/proc/info::process-self-maps
       - id: tracerpid-string
 
   # ptrace constant composite
@@ -151,4 +151,4 @@ composite_rules:
       - id: ptrace-traceme-or-deny
       - id: process-inspection
       - id: win-debugger-detect
-      - id: micro-traits/os/linker/env::ld-debug
+      - id: micro-behaviors/os/linker/env::ld-debug

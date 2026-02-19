@@ -4,6 +4,6 @@ composite_rules:
     desc: "Detects the Blackhawk virus, which infects shell scripts."
     all:
       - id: well-known/malware/virus/blackhawk::family-signature
-      - id: micro-traits/fs/acl/chmod::suspicious-value
+      - id: micro-behaviors/fs/acl/chmod::suspicious-value
       - id: well-known/malware/virus/ghotdog::ghostdog-infection-marker
-      - id: micro-traits/process/create/shell::embedded-shebang-sh
+      - id: micro-behaviors/process/create/shell::embedded-shebang-sh

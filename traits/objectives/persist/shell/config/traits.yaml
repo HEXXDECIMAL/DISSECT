@@ -16,7 +16,7 @@ traits:
       substr: ".bash_profile"
     downgrade:
       any:
-        - id: micro-traits/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
 
   - id: bashrc
     desc: .bashrc shell configuration file
@@ -28,7 +28,7 @@ traits:
       substr: ".bashrc"
     downgrade:
       any:
-        - id: micro-traits/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
 
   - id: bash-login
     desc: .bash_login shell configuration file
@@ -60,8 +60,8 @@ traits:
       regex: '(?:^|[/~])\.profile$|\.profile(?:\s|$)'
     downgrade:
       any:
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/load/video-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/load/video-lib-marker
 
   - id: etc-profile
     desc: /etc/profile system-wide shell configuration
@@ -92,7 +92,7 @@ traits:
       substr: ".zshrc"
     downgrade:
       any:
-        - id: micro-traits/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
 
   - id: zprofile
     desc: .zprofile shell configuration file
@@ -104,7 +104,7 @@ traits:
       substr: ".zprofile"
     downgrade:
       any:
-        - id: micro-traits/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
 
   - id: zlogin
     desc: .zlogin shell configuration file

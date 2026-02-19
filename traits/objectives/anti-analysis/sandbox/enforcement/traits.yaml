@@ -13,6 +13,6 @@ composite_rules:
     crit: hostile
     attack: "T1497.001"
     all:
-      - id: micro-traits/os/env/vars::comspec-env-var
+      - id: micro-behaviors/os/env/vars::comspec-env-var
       - id: objectives/anti-analysis/sandbox/detect::js-check-cmd-path
       - id: objectives/execution/interpreter/script/wsh::wscript-quit-obfuscated

@@ -55,7 +55,7 @@ traits:
       type: raw
       substr: 'xpandE'
     unless:
-      - id: micro-traits/data/text/keywords::environment-keyword
+      - id: micro-behaviors/data/text/keywords::environment-keyword
 
   - id: expand-env-fragment-2
     desc: ExpandEnvironmentStrings fragment (nviron)
@@ -63,7 +63,7 @@ traits:
       type: raw
       substr: 'nviron'
     unless:
-      - id: micro-traits/data/text/keywords::environment-keyword
+      - id: micro-behaviors/data/text/keywords::environment-keyword
 
   - id: response-body-fragment-1
     desc: ResponseBody fragment (ResponseB/Response)

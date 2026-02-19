@@ -11,8 +11,8 @@ composite_rules:
     attack: "T1057"
     mbc: "B0036"
     all:
-      - id: micro-traits/process/enumerate/snapshot::create-toolhelp32-snapshot
-      - id: micro-traits/process/enumerate/snapshot::process32-first
+      - id: micro-behaviors/process/enumerate/snapshot::create-toolhelp32-snapshot
+      - id: micro-behaviors/process/enumerate/snapshot::process32-first
     any:
-      - id: micro-traits/process/terminate/kill::terminate-process
-      - id: micro-traits/process/create/spawn::open-process
+      - id: micro-behaviors/process/terminate/kill::terminate-process
+      - id: micro-behaviors/process/create/spawn::open-process

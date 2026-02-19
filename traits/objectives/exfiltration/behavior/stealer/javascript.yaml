@@ -4,5 +4,5 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: micro-traits/fs/directory/traverse::multi-os-root-scan
-      - id: micro-traits/comm/http/upload::form-data-stream-upload
+      - id: micro-behaviors/fs/directory/traverse::multi-os-root-scan
+      - id: micro-behaviors/comm/http/upload::form-data-stream-upload

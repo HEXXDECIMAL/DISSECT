@@ -157,7 +157,7 @@ composite_rules:
   all:
   - id: stealer-import
   - id: cloud-sandbox-check
-  - id: micro-traits/process/exit/terminate::process-exit
+  - id: micro-behaviors/process/exit/terminate::process-exit
 - id: stealer-declaration
   desc: Stealer module declaration with token storage
   crit: hostile

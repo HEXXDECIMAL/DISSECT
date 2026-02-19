@@ -326,7 +326,7 @@ traits:
       type: string
       substr: "run-applescript"
 
-  # Removed exec-sync duplicate - use micro-traits/process/create/shell/lang::js-execsync
+  # Removed exec-sync duplicate - use micro-behaviors/process/create/shell/lang::js-execsync
 
 composite_rules:
   # === Helper composites (case variants) ===
@@ -459,7 +459,7 @@ composite_rules:
     desc: osascript execution via exec
     all:
       - id: osascript-keyword
-      - id: micro-traits/process/create/shell/lang::js-execsync
+      - id: micro-behaviors/process/create/shell/lang::js-execsync
 
   - id: node-applescript
     desc: Node.js AppleScript execution

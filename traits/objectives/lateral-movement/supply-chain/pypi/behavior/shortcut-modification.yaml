@@ -20,4 +20,4 @@ composite_rules:
       - id: objectives/persist/startup/registry::shortcut-arguments
       - id: objectives/persist/startup/registry::shortcut-target-path
       - id: objectives/persist/startup/registry::shortcut-save
-      - id: micro-traits/comm/ipc/win32com::wscript-shell-python
+      - id: micro-behaviors/comm/ipc/win32com::wscript-shell-python

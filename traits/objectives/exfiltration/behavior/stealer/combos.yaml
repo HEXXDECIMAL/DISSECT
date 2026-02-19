@@ -10,6 +10,6 @@ composite_rules:
     mbc: "E1041"
     for: [go]
     all:
-      - id: micro-traits/crypto/symmetric/aes::go-cfb-encrypter
-      - id: micro-traits/comm/http/lib/netlib::go-http-client-do
-      - id: micro-traits/comm/http/request::application-json
+      - id: micro-behaviors/crypto/symmetric/aes::go-cfb-encrypter
+      - id: micro-behaviors/comm/http/lib/netlib::go-http-client-do
+      - id: micro-behaviors/comm/http/request::application-json

@@ -1,6 +1,6 @@
 # Machine ID Collection
 # ATT&CK: T1082 (System Information Discovery)
-# NOTE: Neutral machine-id strings moved to micro-traits/os/machine-id/
+# NOTE: Neutral machine-id strings moved to micro-behaviors/os/machine-id/
 # NOTE: Kept here: specific file paths (fp-dbus-machine-id, fp-etc-machine-id, product-uuid-path) have notable suspicion for device tracking
 # NOTE: MachineGuid kept here - Windows registry key for device tracking
 
@@ -9,7 +9,7 @@ defaults:
   attack: "T1082"
 
 traits:
-  # === Machine ID micro-traits ===
+  # === Machine ID micro-behaviors ===
   # NOTE: Specific paths kept here - used for device tracking
   - id: fp-dbus-machine-id
     desc: dbus machine-id path
@@ -43,7 +43,7 @@ traits:
       type: string
       substr: "/sys/class/dmi/id/product_uuid"
 
-  # === Hardware UUID micro-traits ===
+  # === Hardware UUID micro-behaviors ===
   - id: generate-hwid
     desc: GenerateHardwareId function
     crit: suspicious
@@ -76,7 +76,7 @@ traits:
       type: string
       regex: "(?i)\\bhwid\\b"
 
-  # Removed fingerprint-string duplicate - use micro-traits/os/system/machine-id::fingerprint-string
+  # Removed fingerprint-string duplicate - use micro-behaviors/os/system/machine-id::fingerprint-string
 
 
 composite_rules:
@@ -89,11 +89,11 @@ composite_rules:
     any:
       - id: fp-dbus-machine-id
       - id: fp-etc-machine-id
-      - id: micro-traits/os/system/machine-id::machine-id-string
+      - id: micro-behaviors/os/system/machine-id::machine-id-string
       - id: machineguid
-      - id: micro-traits/os/system/machine-id::machineid-camel
+      - id: micro-behaviors/os/system/machine-id::machineid-camel
       - id: product-uuid-path
-      - id: micro-traits/os/system/machine-id::product-uuid-string
+      - id: micro-behaviors/os/system/machine-id::product-uuid-string
 
   # Hardware UUID composite
   - id: hardware-uuid
@@ -105,7 +105,7 @@ composite_rules:
       - id: get-hwid
       - id: hardware-id-string
       - id: hwid-string
-      - id: micro-traits/os/system/machine-id::fingerprint-string
+      - id: micro-behaviors/os/system/machine-id::fingerprint-string
 
   # Hostname composite
   - id: hostname
@@ -114,7 +114,7 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: micro-traits/os/sysinfo/system-info::gethostname
-      - id: micro-traits/os/system/machine-id::etc-hostname
-      - id: micro-traits/os/system/machine-id::hostname-env
-      - id: micro-traits/os/sysinfo/system-info::getfqdn
+      - id: micro-behaviors/os/sysinfo/system-info::gethostname
+      - id: micro-behaviors/os/system/machine-id::etc-hostname
+      - id: micro-behaviors/os/system/machine-id::hostname-env
+      - id: micro-behaviors/os/sysinfo/system-info::getfqdn

@@ -238,9 +238,9 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: micro-traits/comm/http/protocol/
-      - id: micro-traits/fs/write/file
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/comm/http/protocol/
+      - id: micro-behaviors/fs/write/file
+      - id: micro-behaviors/process/create/shell
 
   - id: ruby-obfuscated-c2
     desc: Obfuscated C2 with Base64 and
@@ -248,10 +248,10 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: micro-traits/data/encode/base64::base64-decode
-      - id: micro-traits/comm/dns/lookup::dns-resolve
-      - id: micro-traits/comm/http/lib/netlib::net-http
-      - id: micro-traits/comm/http/get/
+      - id: micro-behaviors/data/encode/base64::base64-decode
+      - id: micro-behaviors/comm/dns/lookup::dns-resolve
+      - id: micro-behaviors/comm/http/lib/netlib::net-http
+      - id: micro-behaviors/comm/http/get/
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and execute
@@ -259,9 +259,9 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: micro-traits/fs/write/file
-      - id: micro-traits/fs/chmod
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/fs/write/file
+      - id: micro-behaviors/fs/chmod
+      - id: micro-behaviors/process/create/shell
     downgrade:
       any:
         - id: metadata/library::wal-shipper-header
@@ -273,9 +273,9 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: micro-traits/comm/socket/listen::ruby-tcp-socket
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/process/tty/pty::ruby-pty
+      - id: micro-behaviors/comm/socket/listen::ruby-tcp-socket
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/process/tty/pty::ruby-pty
     downgrade:
       any:
         - id: metadata/quality/testing::ruby-test-file
@@ -286,13 +286,13 @@ composite_rules:
     crit: suspicious
     needs: 4
     any:
-      - id: micro-traits/os/sysinfo/platform::windows-os-check
+      - id: micro-behaviors/os/sysinfo/platform::windows-os-check
       - id: base64-separator-obfuscation
       - id: vbs-script-write
       - id: wscript-execution
-      - id: micro-traits/process/create/shell::ruby-system
-      - id: micro-traits/data/encode/base64::base64-decode
-      - id: micro-traits/data/encode/base64::decode64-symbol
+      - id: micro-behaviors/process/create/shell::ruby-system
+      - id: micro-behaviors/data/encode/base64::base64-decode
+      - id: micro-behaviors/data/encode/base64::decode64-symbol
 
   - id: ruby-binary-dropper
     desc: Downloads and writes binary payload
@@ -300,5 +300,5 @@ composite_rules:
     crit: notable
     needs: 2
     any:
-      - id: micro-traits/comm/http/lib/netlib::request-ruby
-      - id: micro-traits/fs/write/file::ruby-file-open-write-binary
+      - id: micro-behaviors/comm/http/lib/netlib::request-ruby
+      - id: micro-behaviors/fs/write/file::ruby-file-open-write-binary

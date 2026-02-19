@@ -17,12 +17,12 @@ defaults:
 #     crit: suspicious
 #     conf: 0.85
 #     all:
-#       - id: micro-traits/comm/socket/udp/unix::sock-dgram
-#       - id: micro-traits/comm/socket/bind::bind
-#       - id: micro-traits/process/fd/dup::dup2
+#       - id: micro-behaviors/comm/socket/udp/unix::sock-dgram
+#       - id: micro-behaviors/comm/socket/bind::bind
+#       - id: micro-behaviors/process/fd/dup::dup2
 #       - any:
-#           - id: micro-traits/process/create/shell::system-fn
-#           - id: micro-traits/process/create/shell::shell-symbols
+#           - id: micro-behaviors/process/create/shell::system-fn
+#           - id: micro-behaviors/process/create/shell::shell-symbols
 #     # Suppress on known-good admin tools if needed, but for now strict matching is okay.
 #     # Netcat might trigger this, but netcat is dual-use.
 
@@ -33,4 +33,4 @@ defaults:
 #     conf: 0.95
 #     all:
 #       - id: simple-udp-bind-shell
-#       - id: micro-traits/data/text/malware/backdoor::generic-terms
+#       - id: micro-behaviors/data/text/malware/backdoor::generic-terms

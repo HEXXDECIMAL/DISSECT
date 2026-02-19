@@ -10,5 +10,5 @@ composite_rules:
     desc: Solana wallet data collection behavior
     conf: 0.95
     all:
-      - id: micro-traits/comm/http/url::solana-rpc-method
-      - id: micro-traits/comm/http/url::solana-rpc-url
+      - id: micro-behaviors/comm/http/url::solana-rpc-method
+      - id: micro-behaviors/comm/http/url::solana-rpc-url

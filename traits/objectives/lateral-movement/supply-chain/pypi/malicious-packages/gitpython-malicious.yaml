@@ -124,7 +124,7 @@ composite_rules:
     any:
       - id: git-clone-url
       - id: git-clone-in-setup
-      - id: micro-traits/data/text/malware::suspicious-repo-name
+      - id: micro-behaviors/data/text/malware::suspicious-repo-name
     all:
       - id: gitpython-import
 

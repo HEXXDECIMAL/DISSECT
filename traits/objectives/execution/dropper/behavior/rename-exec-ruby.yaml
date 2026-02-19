@@ -11,8 +11,8 @@ composite_rules:
     crit: suspicious
     conf: 1.0
     any:
-      - id: micro-traits/fs/file/rename::ruby-rename-to-exe
-      - id: micro-traits/fs/file/rename::ruby-fileutils-mv-to-exe
+      - id: micro-behaviors/fs/file/rename::ruby-rename-to-exe
+      - id: micro-behaviors/fs/file/rename::ruby-fileutils-mv-to-exe
 
   - id: rename-exec-ruby
     desc: Renames a file to an executable extension and executes it
@@ -20,4 +20,4 @@ composite_rules:
     conf: 1.0
     all:
       - id: ruby-rename-to-exe-any
-      - id: micro-traits/process/create/shell/lang
+      - id: micro-behaviors/process/create/shell/lang

@@ -427,7 +427,7 @@ composite_rules:
   - id: locker-namespace
   - id: config-note-fields
   - id: vm-kill-config
-  - id: micro-traits/vm/detect/vmware::esxcli-vm-kill
+  - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
   any:
   - id: config-cipher-fields
   - id: encrypt-lib-path
@@ -454,9 +454,9 @@ composite_rules:
   for:
   - elf
   all:
-  - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
-  - id: micro-traits/process/threading/operations::pthread
-  - id: micro-traits/fs/file/read
+  - id: micro-behaviors/crypto/symmetric/stream::chacha-salsa-constant
+  - id: micro-behaviors/process/threading/operations::pthread
+  - id: micro-behaviors/fs/file/read
 - id: c-file-encryptor
   desc: C/C++ file encryption ransomware with payment verification
   crit: hostile

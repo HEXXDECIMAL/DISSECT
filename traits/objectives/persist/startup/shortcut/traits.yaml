@@ -3,9 +3,9 @@ composite_rules:
     desc: Helper for startup shortcut indicators
     crit: notable
     any:
-      - id: micro-traits/os/env/vars::env-appdata
-      - id: micro-traits/os/env/vars::env-temp
-      - id: micro-traits/os/info/system::special-folder
+      - id: micro-behaviors/os/env/vars::env-appdata
+      - id: micro-behaviors/os/env/vars::env-temp
+      - id: micro-behaviors/os/info/system::special-folder
 
   - id: startup-shortcut-persistence
     desc: "Persists payload via Startup folder shortcut"
@@ -13,6 +13,6 @@ composite_rules:
     conf: 0.95
     for: [powershell, javascript]
     all:
-      - id: micro-traits/os/wsh/file::create-shortcut
-      - id: micro-traits/os/wsh/file::wscript-shell-object
+      - id: micro-behaviors/os/wsh/file::create-shortcut
+      - id: micro-behaviors/os/wsh/file::wscript-shell-object
       - id: objectives/persist/startup/shortcut::ps-startup-indicators

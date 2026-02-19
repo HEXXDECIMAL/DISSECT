@@ -5,9 +5,9 @@ composite_rules:
     conf: 1.0
     all:
       - id: metadata/builder/pip::setup-py
-      - id: micro-traits/data/text/keywords::urllib3-content
+      - id: micro-behaviors/data/text/keywords::urllib3-content
     not:
-      - id: micro-traits/data/text/keywords::urllib3-name
+      - id: micro-behaviors/data/text/keywords::urllib3-name
       - id: metadata/library::botocore-lib
 
   - id: metadata-mismatch-tui-http
@@ -16,5 +16,5 @@ composite_rules:
     conf: 0.8
     for: [all]
     all:
-      - id: micro-traits/data/text/keywords::tui-summary
-      - id: micro-traits/data/text/keywords::urllib3-content
+      - id: micro-behaviors/data/text/keywords::tui-summary
+      - id: micro-behaviors/data/text/keywords::urllib3-content

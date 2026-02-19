@@ -19,7 +19,7 @@ traits:
       type: string
       exact: ".aws"
 
-  # Removed aws-credentials duplicate - use micro-traits/fs/path/sensitive/cloud::aws-credentials
+  # Removed aws-credentials duplicate - use micro-behaviors/fs/path/sensitive/cloud::aws-credentials
 
   - id: aws-access-key
     desc: AWS access key ID pattern
@@ -182,7 +182,7 @@ composite_rules:
     desc: AWS credential theft
     conf: 0.85
     any:
-      - id: micro-traits/fs/path/sensitive/cloud::aws-credentials
+      - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
       - id: aws-access-key
     all:
       - id: aws-config

@@ -5,8 +5,8 @@ composite_rules:
     conf: 0.9
     for: [powershell]
     any:
-      - id: micro-traits/os/com/object::clsid-xmlhttp-b64-unicode
-      - id: micro-traits/os/com/object::clsid-xmlhttp-raw
+      - id: micro-behaviors/os/com/object::clsid-xmlhttp-b64-unicode
+      - id: micro-behaviors/os/com/object::clsid-xmlhttp-raw
 
   - id: ps-xmlhttp-downloader
     desc: PowerShell XMLHTTP downloader using COM objects
@@ -17,6 +17,6 @@ composite_rules:
     for: [powershell]
     all:
       - id: xmlhttp-clsid-any
-      - id: micro-traits/os/com/instantiation::create-instance
-      - id: micro-traits/comm/http/client::response-text
+      - id: micro-behaviors/os/com/instantiation::create-instance
+      - id: micro-behaviors/comm/http/client::response-text
       - id: objectives/execution/interpreter/eval/invoke::iex

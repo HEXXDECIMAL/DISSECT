@@ -11,7 +11,7 @@ defaults:
 
 traits:
   # === OS Release File Access ===
-  # Removed etc-os-release-read duplicate - use micro-traits/fs/path/os::os-release-path
+  # Removed etc-os-release-read duplicate - use micro-behaviors/fs/path/os::os-release-path
 
   - id: os-release-open
     desc: Open os-release file
@@ -72,7 +72,7 @@ traits:
       type: string
       exact: "apt"
 
-  # Removed duplicates - use micro-traits/os/package-manager/install::multi-distro-yum-ref and ::multi-distro-dnf-ref
+  # Removed duplicates - use micro-behaviors/os/package-manager/install::multi-distro-yum-ref and ::multi-distro-dnf-ref
 
 composite_rules:
   # === Distribution Detection ===
@@ -82,7 +82,7 @@ composite_rules:
     conf: 0.80
     attack: "T1082"
     any:
-      - id: micro-traits/fs/path/os::os-release-path
+      - id: micro-behaviors/fs/path/os::os-release-path
       - id: os-release-open
 
   - id: distro-specific-targeting

@@ -234,7 +234,7 @@ composite_rules:
     attack: "T1129"
     all:
       - id: fiber-local-storage-ops
-      - id: micro-traits/process/thread/create
+      - id: micro-behaviors/process/thread/create
     downgrade:
       any:
         - id: metadata/quality/versioned
@@ -248,7 +248,7 @@ composite_rules:
     attack: "T1129"
     all:
       - id: thread-pool-based-malware
-      - id: micro-traits/process/create/
+      - id: micro-behaviors/process/create/
     downgrade:
       any:
         - id: metadata/quality/versioned

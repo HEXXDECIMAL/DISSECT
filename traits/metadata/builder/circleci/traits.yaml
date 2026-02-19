@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === CircleCI micro-traits ===
+  # === CircleCI micro-behaviors ===
   - id: circleci-env
     desc: CIRCLECI variable
     crit: notable

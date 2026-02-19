@@ -10,6 +10,6 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-traits/ui/framework/tkinter::tkinter-init
-      - id: micro-traits/data/text/parse::hash-algo-strings
-      - id: micro-traits/hw/clipboard/access::tkinter-clipboard-append
+      - id: micro-behaviors/ui/framework/tkinter::tkinter-init
+      - id: micro-behaviors/data/text/parse::hash-algo-strings
+      - id: micro-behaviors/hw/clipboard/access::tkinter-clipboard-append

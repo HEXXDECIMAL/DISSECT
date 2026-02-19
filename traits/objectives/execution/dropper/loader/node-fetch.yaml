@@ -126,8 +126,8 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: micro-traits/fs/write/file::write-file-sync
-      - id: micro-traits/fs/write/file::write-file-async
+      - id: micro-behaviors/fs/write/file::write-file-sync
+      - id: micro-behaviors/fs/write/file::write-file-async
 
   # File delete composite
   - id: file-delete

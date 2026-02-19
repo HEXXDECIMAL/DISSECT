@@ -4,7 +4,7 @@ composite_rules:
     crit: hostile
     conf: 0.95
     any:
-      - id: micro-traits/data/source/syntax/actionscript::obfuscated-identifier-section
+      - id: micro-behaviors/data/source/syntax/actionscript::obfuscated-identifier-section
     unless:
       - id: metadata/lang::is-c-file
 
@@ -13,6 +13,6 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: micro-traits/data/encoding/actionscript::actionscript-writebyte
-      - id: micro-traits/data/encoding/actionscript::actionscript-bytearray
-      - id: micro-traits/data/source/syntax/keyword::js-keyword-xor
+      - id: micro-behaviors/data/encoding/actionscript::actionscript-writebyte
+      - id: micro-behaviors/data/encoding/actionscript::actionscript-bytearray
+      - id: micro-behaviors/data/source/syntax/keyword::js-keyword-xor

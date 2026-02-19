@@ -50,4 +50,4 @@ composite_rules:
       - id: objectives/execution/interpreter/eval/invoke::iex
     any:
       - id: objectives/execution/dropper/script::powershell-download-cradle
-      - id: micro-traits/comm/http/lib/invoke-webrequest::download
+      - id: micro-behaviors/comm/http/lib/invoke-webrequest::download

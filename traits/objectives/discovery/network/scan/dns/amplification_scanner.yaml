@@ -3,17 +3,17 @@ composite_rules:
     desc: Detects DNS recursion flags
     crit: notable
     any:
-      - id: "micro-traits/comm/dns/client::recursion-desired-set"
-      - id: "micro-traits/comm/dns/client::recursion-available-check"
+      - id: "micro-behaviors/comm/dns/client::recursion-desired-set"
+      - id: "micro-behaviors/comm/dns/client::recursion-available-check"
 
   - id: dns-amplification-scanner
     desc: Detects DNS amplification scanning tools (manual header + raw sockets)
     crit: hostile
     all:
-      - id: "micro-traits/comm/dns/struct::dns-header-struct-def"
-      - id: "micro-traits/comm/dns/struct::dns-header-rd-field"
+      - id: "micro-behaviors/comm/dns/struct::dns-header-struct-def"
+      - id: "micro-behaviors/comm/dns/struct::dns-header-rd-field"
       - id: "objectives/discovery/network/scan/dns::dns-recursion-check"
-      - id: "micro-traits/comm/socket/raw::raw-socket-creation-regex"
+      - id: "micro-behaviors/comm/socket/raw::raw-socket-creation-regex"
 
   - id: dns-amplification-scanner-weak
     desc: Detects potential DNS scanning behavior (recursion flags + scanning loop)
@@ -21,5 +21,5 @@ composite_rules:
     all:
       - id: "objectives/discovery/network/scan/dns::dns-recursion-check"
     any:
-      - id: "micro-traits/comm/socket/send::sendto-struct-usage"
-      - id: "micro-traits/comm/socket/raw::raw-socket-creation-regex"
+      - id: "micro-behaviors/comm/socket/send::sendto-struct-usage"
+      - id: "micro-behaviors/comm/socket/raw::raw-socket-creation-regex"

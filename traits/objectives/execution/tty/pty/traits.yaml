@@ -183,7 +183,7 @@ traits:
       substr: "pty.spawn"
 
   # NOTE: Generic symbols (dup2, fork, execve, setsid, socket, connect, recv, send)
-  # are defined in their canonical locations under micro-traits/process/ and micro-traits/comm/.
+  # are defined in their canonical locations under micro-behaviors/process/ and micro-behaviors/comm/.
   # Composite rules below reference them using full paths.
 
 composite_rules:
@@ -267,13 +267,13 @@ composite_rules:
       - id: grantpt
       - id: unlockpt
       - id: ptsname
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     downgrade:
       any:
         - id: metadata/apple/system-component
-        - id: micro-traits/dylib/library::debugger-tool-marker
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/library::shell-interpreter
+        - id: micro-behaviors/dylib/library::debugger-tool-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::shell-interpreter
 
   # PTY-based network backdoor - combines PTY with network operations
   # NOTE: This matches legitimate shells (/bin/bash) which have all these symbols
@@ -289,28 +289,28 @@ composite_rules:
     for: [elf, macho]
     platforms: [macos, linux, unix]
     all:
-      - id: micro-traits/comm/socket/create::create
-      - id: micro-traits/comm/socket/connect::connect
-      - id: micro-traits/process/fork/clone::fork
+      - id: micro-behaviors/comm/socket/create::create
+      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/process/fork/clone::fork
     any:
       - id: posix-openpt
       - id: openpty
       - id: grantpt
       - id: unlockpt
-      - id: micro-traits/comm/socket/receive::receive
-      - id: micro-traits/comm/socket/send::send
-      - id: micro-traits/process/create/shell::c-execve
-      - id: micro-traits/process/create/shell::bin-sh
+      - id: micro-behaviors/comm/socket/receive::receive
+      - id: micro-behaviors/comm/socket/send::send
+      - id: micro-behaviors/process/create/shell::c-execve
+      - id: micro-behaviors/process/create/shell::bin-sh
     # Downgrade for Apple system components (e.g., /bin/bash), debuggers, graphics libs, and system libraries
     downgrade:
       any:
         - id: metadata/apple/system-component
-        - id: micro-traits/dylib/library::debugger-tool-marker
-        - id: micro-traits/dylib/library::system-lib-marker
-        - id: micro-traits/dylib/library::shell-interpreter
-        - id: micro-traits/dylib/library::graphics-lib-marker
-        - id: micro-traits/dylib/library::x11-ipc-lib-marker
-        - id: micro-traits/dylib/library::network-lib-marker
+        - id: micro-behaviors/dylib/library::debugger-tool-marker
+        - id: micro-behaviors/dylib/library::system-lib-marker
+        - id: micro-behaviors/dylib/library::shell-interpreter
+        - id: micro-behaviors/dylib/library::graphics-lib-marker
+        - id: micro-behaviors/dylib/library::x11-ipc-lib-marker
+        - id: micro-behaviors/dylib/library::network-lib-marker
         - id: metadata/format::many-imports
         - type: string
           exact: "busybox"

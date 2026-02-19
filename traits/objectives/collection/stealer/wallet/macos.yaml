@@ -15,10 +15,10 @@ composite_rules:
     # High-confidence: Minimal strings (obfuscated) + system() + wallet references
     all:
       - id: metadata/binary/structure::minimal-string-count
-      - id: micro-traits/process/create/shell::system-fn
+      - id: micro-behaviors/process/create/shell::system-fn
     any:
       - id: objectives/credential-access/wallet/desktop::stealer
       - id: objectives/credential-access/wallet/extension::browser-wallet-extensions
-      - id: micro-traits/fs/file/open::wallet-dat-path
+      - id: micro-behaviors/fs/file/open::wallet-dat-path
       - id: objectives/credential-access/wallet/mnemonic::mnemonic-terms
       - id: objectives/credential-access/wallet/address::multi-crypto-regex

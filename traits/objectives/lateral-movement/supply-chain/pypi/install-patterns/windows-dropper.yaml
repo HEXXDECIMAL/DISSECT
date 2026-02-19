@@ -11,8 +11,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/process/create/launch::python-start-process
-      - id: micro-traits/process/create/launch::os-startfile-call
+      - id: micro-behaviors/process/create/launch::python-start-process
+      - id: micro-behaviors/process/create/launch::os-startfile-call
 
   # Helper: Any network activity
   - id: python-network-combo
@@ -20,9 +20,9 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/comm/http/request::request-python
-      - id: micro-traits/comm/http/lib/requests::requests-python
-      - id: micro-traits/comm/socket/connect::socket-data-transfer
+      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/comm/http/lib/requests::requests-python
+      - id: micro-behaviors/comm/socket/connect::socket-data-transfer
 
   # Helper: Install context
   - id: pypi-install-context-combo
@@ -38,7 +38,7 @@ composite_rules:
     desc: PyPI setup/init script targeting Windows with payload delivery
     conf: 0.95
     all:
-      - id: micro-traits/os/sysinfo/platform::python-win32-check
+      - id: micro-behaviors/os/sysinfo/platform::python-win32-check
       - id: win32-start-process-combo
       - id: python-network-combo
       - id: pypi-install-context-combo

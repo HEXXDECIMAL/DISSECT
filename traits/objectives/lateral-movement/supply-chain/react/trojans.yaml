@@ -44,7 +44,7 @@ composite_rules:
       - { id: metadata/library/react::library }
       - { id: metadata/library/react::version-banner }
     any:
-      - { id: micro-traits/fs/path/sensitive/browser::login-data }
+      - { id: micro-behaviors/fs/path/sensitive/browser::login-data }
       - { id: objectives/credential-access/browser/firefox::cookies }
   # React + Command Execution = HOSTILE
   - id: trojanized-exec
@@ -55,8 +55,8 @@ composite_rules:
       - { id: metadata/library/react::library }
       - { id: metadata/library/react::version-banner }
     any:
-      - { id: micro-traits/process/create/shell }
-      - { id: micro-traits/process/create/shell/lang::child-process-exec }
+      - { id: micro-behaviors/process/create/shell }
+      - { id: micro-behaviors/process/create/shell/lang::child-process-exec }
   # React + Network Backdoor = HOSTILE
   - id: trojanized-backdoor
     desc: "React library with network backdoor"

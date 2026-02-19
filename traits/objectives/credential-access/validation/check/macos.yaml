@@ -89,13 +89,13 @@ traits:
       type: string
       substr: "ShadowHashData"
 
-  # NOTE: /etc/shadow now defined in micro-traits/fs/path/config/accounts/
+  # NOTE: /etc/shadow now defined in micro-behaviors/fs/path/config/accounts/
 
   # Credential keyword atomic indicators moved to data/text/generic.yaml
 
-  # csidentity-auth-password: use micro-traits/os/auth/verify::csidentity-auth (canonical)
+  # csidentity-auth-password: use micro-behaviors/os/auth/verify::csidentity-auth (canonical)
 
-  # === CoreServices Identity API micro-traits ===
+  # === CoreServices Identity API micro-behaviors ===
 
   - id: csidentity-query-create
     desc: "Searches macOS user directory"
@@ -184,7 +184,7 @@ composite_rules:
     any:
       - id: dslocal-db
       - id: shadow-hash-data
-      - id: micro-traits/fs/path/config/accounts::etc-shadow
+      - id: micro-behaviors/fs/path/config/accounts::etc-shadow
 
   # CoreServices Identity query composite
   - id: csidentity-query
@@ -210,7 +210,7 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: micro-traits/os/auth/verify::csidentity-auth
+      - id: micro-behaviors/os/auth/verify::csidentity-auth
     any:
       - id: csidentity-query-create
       - id: csidentity-authority

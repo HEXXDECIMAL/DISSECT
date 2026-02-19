@@ -11,7 +11,7 @@ composite_rules:
     attack: "T1059"
     for: [c, elf, macho]
     all:
-      - id: micro-traits/process/create/shell::format-string-injection
-      - id: micro-traits/process/create/shell::system-fn
-      - id: micro-traits/comm/socket/create::create
-      - id: micro-traits/comm/socket/connect::connect
+      - id: micro-behaviors/process/create/shell::format-string-injection
+      - id: micro-behaviors/process/create/shell::system-fn
+      - id: micro-behaviors/comm/socket/create::create
+      - id: micro-behaviors/comm/socket/connect::connect

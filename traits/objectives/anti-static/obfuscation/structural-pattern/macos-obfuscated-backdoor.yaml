@@ -22,13 +22,13 @@ composite_rules:
       # Structural obfuscation
       - id: objectives/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       # Command execution capability
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
       # Persistence mechanism
       - id: objectives/persist/daemon/init::daemon-fork
       - id: objectives/persist/daemon/init::daemon-setsid
     # Additional obfuscation or execution indicators
     any:
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
       - id: objectives/anti-static/obfuscation/payload::high-entropy-data-macos
       - id: metadata/binary/structure::many-high-entropy-strings
     # Must be unsigned (legitimate apps are signed)
@@ -49,9 +49,9 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/payload::extreme-string-sparsity-macos
     # Execution capability
     any:
-      - id: micro-traits/process/create/shell::excessive-popen
-      - id: micro-traits/process/create/shell::extreme-popen
-      - id: micro-traits/process/create/shell::capture-command-output
+      - id: micro-behaviors/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::extreme-popen
+      - id: micro-behaviors/process/create/shell::capture-command-output
     needs: 2  # At least 2 execution indicators
     # Must be unsigned
     none:
@@ -66,7 +66,7 @@ composite_rules:
     attack: "T1027,T1059"
     all:
       - id: objectives/anti-static/obfuscation/payload::string-obfuscated-malware
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
 
   # SUSPICIOUS: High-density execution in small binary
   - id: dense-execution-small-binary
@@ -76,7 +76,7 @@ composite_rules:
     attack: "T1059"
     size_max: 300000  # Less than 300KB
     all:
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
     any:
       - id: objectives/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       - id: metadata/binary/structure::extreme-minimal-strings
@@ -89,7 +89,7 @@ composite_rules:
     attack: "T1027,T1059"
     all:
       - id: metadata/binary/structure::structural-anomaly-pattern
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     any:
       - id: objectives/persist/daemon/init::unix-daemon-persistence
       - id: objectives/lateral-movement/social-engineering/masquerading::suspicious-generic-naming
@@ -109,7 +109,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/payload::extreme-string-sparsity-macos
       - id: objectives/anti-static/obfuscation/payload::high-entropy-data-macos
       # Execution
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
       # Persistence
       - id: objectives/persist/daemon/init::unix-daemon-persistence
       # Masquerading

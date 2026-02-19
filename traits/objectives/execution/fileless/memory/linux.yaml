@@ -246,7 +246,7 @@ traits:
       type: string
       substr: "shm_open"
 
-  # Removed mmap-fn duplicate - use micro-traits/mem/allocate/executable::mmap-symbol (system calls should use symbol)
+  # Removed mmap-fn duplicate - use micro-behaviors/mem/allocate/executable::mmap-symbol (system calls should use symbol)
 
   - id: dev-shm
     desc: /dev/shm path
@@ -372,7 +372,7 @@ composite_rules:
     needs: 2
     any:
       - id: shm-open
-      - id: micro-traits/mem/allocate/executable::mmap-symbol
+      - id: micro-behaviors/mem/allocate/executable::mmap-symbol
       - id: dev-shm
       - id: execv-fn
 

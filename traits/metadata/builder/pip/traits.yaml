@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === pip/setuptools micro-traits ===
+  # === pip/setuptools micro-behaviors ===
   - id: setup-py
     desc: setup.py file
     crit: notable

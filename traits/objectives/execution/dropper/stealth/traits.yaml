@@ -43,6 +43,6 @@ composite_rules:
     any:
       - id: subprocess-popen
       - id: devnull
-      - id: micro-traits/process/create/setsid::python
+      - id: micro-behaviors/process/create/setsid::python
       - id: close-fds
-      - id: micro-traits/process/create/setsid::preexec-fn
+      - id: micro-behaviors/process/create/setsid::preexec-fn

@@ -365,7 +365,7 @@ composite_rules:
   all:
   - id: rshell-function
   - id: heartbeat-function
-  - id: micro-traits/process/create/shell::shell-symbols
+  - id: micro-behaviors/process/create/shell::shell-symbols
 - id: cpp-rat-full-implant
   desc: Full C++ RAT implant
   crit: hostile
@@ -380,7 +380,7 @@ composite_rules:
   - id: heartbeat-function
   - id: register-to-server
   - id: basic-info-gather-class
-  - id: micro-traits/process/create/shell::shell-symbols
+  - id: micro-behaviors/process/create/shell::shell-symbols
 - id: cpp-rat-c2-registration
   desc: C++ RAT with C2 registration
   crit: hostile
@@ -394,7 +394,7 @@ composite_rules:
   all:
   - id: heartbeat-function
   - id: register-to-server
-  - id: micro-traits/comm/socket/create
+  - id: micro-behaviors/comm/socket/create
 - id: cpp-rat-file-mgmt
   desc: C++ RAT with file management
   crit: hostile
@@ -409,7 +409,7 @@ composite_rules:
   - id: heartbeat-function
   - id: file-op-functions
   - id: dir-op-functions
-  - id: micro-traits/comm/socket/create
+  - id: micro-behaviors/comm/socket/create
 - id: cpp-rat-with-profiling
   desc: C++ RAT with victim profiling
   crit: hostile
@@ -441,4 +441,4 @@ composite_rules:
   - id: heartbeat-function
   - id: session-id-mgmt
   - id: task-dispatch
-  - id: micro-traits/comm/socket/create
+  - id: micro-behaviors/comm/socket/create

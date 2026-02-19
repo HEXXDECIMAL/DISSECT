@@ -9,4 +9,4 @@ composite_rules:
       # Entropy: The massive section is encrypted
       - id: metadata/binary/section::high-entropy-rdata
       # Capability: The intent to execute that data
-      - id: micro-traits/mem/protect/modify::virtual-protect
+      - id: micro-behaviors/mem/protect/modify::virtual-protect

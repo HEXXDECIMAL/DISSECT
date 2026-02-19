@@ -11,8 +11,8 @@ composite_rules:
     mbc: "B0030"
     attack: "T1071.001"
     all:
-      - id: micro-traits/data/encode/spoofing::xor-user-agent-spoofing
-      - id: micro-traits/comm/http/client
+      - id: micro-behaviors/data/encode/spoofing::xor-user-agent-spoofing
+      - id: micro-behaviors/comm/http/client
 
   - id: http-fingerprinting-campaign
     desc: HTTP fingerprinting evasion campaign
@@ -21,4 +21,4 @@ composite_rules:
     for: [all]
     attack: "T1071.001"
     any:
-      - id: micro-traits/data/encode/spoofing
+      - id: micro-behaviors/data/encode/spoofing

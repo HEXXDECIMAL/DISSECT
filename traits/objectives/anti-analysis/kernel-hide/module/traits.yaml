@@ -91,7 +91,7 @@ traits:
       regex: "udp6_seq_show"
 
   # NOTE: /proc/net/tcp is a neutral observation (network scanning, monitoring, rootkits all use it)
-  # This atomic trait has been moved to micro-traits/fs/proc/info/ for proper taxonomy placement
+  # This atomic trait has been moved to micro-behaviors/fs/proc/info/ for proper taxonomy placement
   # Rootkit detection requires tcp_seq_show hooking functions, not just /proc/net/tcp access
 
   # === Proc Filesystem Hiding ===
@@ -674,7 +674,7 @@ composite_rules:
     for: [elf, c]
     all:
       - id: tcp-seq-funcs
-      - id: micro-traits/fs/proc/info::proc-net-tcp
+      - id: micro-behaviors/fs/proc/info::proc-net-tcp
     none:
       - id: objectives/discovery/network/scan::scanner
 
@@ -692,7 +692,6 @@ composite_rules:
       - id: filldir
       - id: filldir64
       - id: pid-getattr
-
 
   # Syscall hook target helper
   - id: syscall-targets
@@ -752,7 +751,6 @@ composite_rules:
       - id: vermagic
       - id: modinfo-section
       - id: gnu-linkonce
-
 
   # Netfilter hook registration helper
   - id: nf-registration
@@ -945,7 +943,7 @@ composite_rules:
     for: [c]
     any:
       - id: macos-kext-getdirentries-hook
-      - id: micro-traits/data/text/keywords::hide
+      - id: micro-behaviors/data/text/keywords::hide
 
   # macOS kext rootkit binary
   - id: macos-kext-rootkit-binary

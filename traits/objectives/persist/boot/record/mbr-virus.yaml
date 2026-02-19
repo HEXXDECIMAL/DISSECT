@@ -4,15 +4,15 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: micro-traits/fs/disk/partition::mbr-mod-asm
+      - id: micro-behaviors/fs/disk/partition::mbr-mod-asm
     any:
-      - id: micro-traits/hw/memory/region::bios-mem-steal-asm
-      - id: micro-traits/os/dos/interrupt::int-vector-calc-asm
+      - id: micro-behaviors/hw/memory/region::bios-mem-steal-asm
+      - id: micro-behaviors/os/dos/interrupt::int-vector-calc-asm
 
   - id: andropinis-virus
     desc: Andropinis Virus Detected (Source)
     crit: hostile
     conf: 1.0
     all:
-      - id: micro-traits/fs/disk/partition::mbr-mod-asm
+      - id: micro-behaviors/fs/disk/partition::mbr-mod-asm
       - id: well-known/malware/virus::andropinis-strings

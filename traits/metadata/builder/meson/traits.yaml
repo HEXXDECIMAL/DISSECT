@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Meson micro-traits ===
+  # === Meson micro-behaviors ===
   - id: meson-build
     desc: meson.build file
     crit: notable

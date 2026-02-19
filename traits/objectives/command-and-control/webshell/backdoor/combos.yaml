@@ -14,11 +14,11 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/persist/session
-      - id: micro-traits/data/user-input/
+      - id: micro-behaviors/data/user-input/
     any:
       - id: objectives/anti-static/obfuscation/
-      - id: micro-traits/fs/write/
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/fs/write/
+      - id: micro-behaviors/process/create/shell
 
   # Dropper webshell (writes decoded payloads)
   - id: php-dropper
@@ -30,10 +30,10 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/anti-static/obfuscation/
-      - id: micro-traits/fs/write/
+      - id: micro-behaviors/fs/write/
     any:
-      - id: micro-traits/data/user-input/
-      - id: micro-traits/data/user-input/
+      - id: micro-behaviors/data/user-input/
+      - id: micro-behaviors/data/user-input/
 
   # Self-destructing webshell
   - id: php-self-destruct
@@ -45,7 +45,7 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/anti-forensics/self-destruct/script::script-self-delete
-      - id: micro-traits/data/user-input/
+      - id: micro-behaviors/data/user-input/
 
   # SSRF/Proxy webshell
   - id: php-proxy
@@ -56,12 +56,12 @@ composite_rules:
     attack: "T1090"
     for: [php]
     all:
-      - id: micro-traits/comm/http/curl::init
+      - id: micro-behaviors/comm/http/curl::init
     any:
-      - id: micro-traits/data/user-input/
-      - id: micro-traits/data/user-input/
-      - id: micro-traits/comm/http/curl::ssl-verify-disable
-      - id: micro-traits/comm/http/curl::ssl-host-disable
+      - id: micro-behaviors/data/user-input/
+      - id: micro-behaviors/data/user-input/
+      - id: micro-behaviors/comm/http/curl::ssl-verify-disable
+      - id: micro-behaviors/comm/http/curl::ssl-host-disable
 
     needs: 1
 
@@ -75,7 +75,7 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/anti-forensics/timestomp/modify::timestomp
-      - id: micro-traits/fs/write/
+      - id: micro-behaviors/fs/write/
 
   # Hardcoded authentication backdoor
   - id: php-hardcoded-auth
@@ -98,10 +98,10 @@ composite_rules:
     attack: "T1105"
     for: [php]
     any:
-      - id: micro-traits/data/user-input/
-      - id: micro-traits/comm/http/curl::file-upload
-      - id: micro-traits/fs/write/
-      - id: micro-traits/fs/write/
+      - id: micro-behaviors/data/user-input/
+      - id: micro-behaviors/comm/http/curl::file-upload
+      - id: micro-behaviors/fs/write/
+      - id: micro-behaviors/fs/write/
   # Command execution webshell
   - id: php-rce
     desc: "PHP webshell with remote command"
@@ -111,9 +111,9 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     any:
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
       - id: objectives/anti-static/obfuscation/
-      - id: micro-traits/data/user-input/
+      - id: micro-behaviors/data/user-input/
 
   # HOSTILE: eval(base64_decode(...)) pattern - classic PHP backdoor
   # This pattern has no legitimate use and is a hallmark of PHP webshells
@@ -139,7 +139,7 @@ composite_rules:
       - id: objectives/command-and-control/webshell/backdoor::password-form
     any:
       - id: objectives/persist/session
-      - id: micro-traits/data/user-input/
+      - id: micro-behaviors/data/user-input/
 
   # Google scraping webshell (SEO spam tool)
   - id: php-seo-tool
@@ -151,7 +151,7 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/command-and-control/webshell/backdoor::google-search-scrape
-      - id: micro-traits/comm/http/curl::init
+      - id: micro-behaviors/comm/http/curl::init
 
   # Obfuscated payload webshell
   - id: php-obfuscated
@@ -185,7 +185,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell/
+      - id: micro-behaviors/process/create/shell/
     any:
       - id: objectives/anti-static/obfuscation/code-metrics::php-obfuscated-vars
       - id: objectives/anti-static/obfuscation/code-metrics::php-encoded-strings
@@ -200,7 +200,7 @@ composite_rules:
     attack: "T1027"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell/
+      - id: micro-behaviors/process/create/shell/
       - id: objectives/anti-static/obfuscation/code-metrics::php-high-non-ascii-ratio
 
   - id: php-non-ascii-identifiers-backdoor
@@ -223,12 +223,12 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/data/user-input/request
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/data/user-input/request
     any:
       - id: objectives/anti-static/obfuscation/
-      - id: micro-traits/fs/read/file
-      - id: micro-traits/fs/write/file
+      - id: micro-behaviors/fs/read/file
+      - id: micro-behaviors/fs/write/file
     none:
       - id: metadata/purpose/test-tool::php-test-runner
       - id: objectives/command-and-control/rat/script::localhost-socket-uri
@@ -242,11 +242,11 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/data/user-input/request
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/data/user-input/request
     any:
-      - id: micro-traits/fs/read/file
-      - id: micro-traits/fs/write/file
+      - id: micro-behaviors/fs/read/file
+      - id: micro-behaviors/fs/write/file
       - id: objectives/anti-static/obfuscation/encoding
 
   # === HOSTILE: Full-featured webshell with direct RCE ===
@@ -263,11 +263,11 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/command-and-control/webshell/backdoor::dynamic-user-input-call # $_POST['x']() pattern
-      - id: micro-traits/process/create/shell # has shell execution capability
+      - id: micro-behaviors/process/create/shell # has shell execution capability
     any:
-      - id: micro-traits/data/user-input/request
-      - id: micro-traits/fs/write/
-      - id: micro-traits/fs/read
+      - id: micro-behaviors/data/user-input/request
+      - id: micro-behaviors/fs/write/
+      - id: micro-behaviors/fs/read
 
   # Hostile: Webshell with backtick RCE from user input
   - id: php-backtick-rce
@@ -278,11 +278,11 @@ composite_rules:
     attack: "T1059.004"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell/lang::backtick
-      - id: micro-traits/data/user-input/request
+      - id: micro-behaviors/process/create/shell/lang::backtick
+      - id: micro-behaviors/data/user-input/request
     any:
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/fs/write/
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/fs/write/
       - id: objectives/persist/session
 
   # Hostile: WSO webshell family with command execution
@@ -295,10 +295,10 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/command-and-control/webshell/script::wso-version
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     any:
-      - id: micro-traits/data/user-input/request
-      - id: micro-traits/fs/write/
+      - id: micro-behaviors/data/user-input/request
+      - id: micro-behaviors/fs/write/
       - id: objectives/persist/session
 
   # Hostile: Full-featured webshell (multiple indicators)
@@ -311,12 +311,12 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: micro-traits/process/create/shell # shell execution
-      - id: micro-traits/data/user-input/request # user input handling
-      - id: micro-traits/fs/write/ # file write capability
+      - id: micro-behaviors/process/create/shell # shell execution
+      - id: micro-behaviors/data/user-input/request # user input handling
+      - id: micro-behaviors/fs/write/ # file write capability
       - id: objectives/command-and-control/webshell # webshell family indicators
       - id: objectives/command-and-control/webshell/backdoor::dynamic-user-input-call # variable function backdoor
-      - id: micro-traits/process/create/shell/lang::backtick # backtick RCE
+      - id: micro-behaviors/process/create/shell/lang::backtick # backtick RCE
 
   # WordPress CMS backdoor - creates admin user with obfuscated code
   - id: php-wordpress-backdoor

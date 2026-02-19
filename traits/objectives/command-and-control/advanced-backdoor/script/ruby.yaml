@@ -121,7 +121,7 @@ composite_rules:
     any:
       - id: rsa-public-key
       - id: cookie-session-extract
-      - id: micro-traits/crypto/verification/signature::signature-verify
+      - id: micro-behaviors/crypto/verification/signature::signature-verify
       - id: json-parse
       - id: timestamp-validation
       - id: objectives/command-and-control/web-framework/script::rack-sendfile-hook

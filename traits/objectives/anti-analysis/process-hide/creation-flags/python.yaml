@@ -68,7 +68,7 @@ composite_rules:
     conf: 0.7
     crit: notable
     any:
-      - id: micro-traits/process/create/subprocess/
+      - id: micro-behaviors/process/create/subprocess/
 
   # hidden window flag composite
   - id: hidden-window-flag

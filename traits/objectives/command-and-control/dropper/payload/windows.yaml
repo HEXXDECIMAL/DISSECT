@@ -11,8 +11,8 @@ composite_rules:
     mbc: "B0024"
     attack: "T1027.002"
     all:
-      - id: micro-traits/process/create/launch::windows-startfile-exec
+      - id: micro-behaviors/process/create/launch::windows-startfile-exec
       - id: objectives/anti-static/obfuscation/source::b64decode-exec
     any:
       - id: objectives/anti-static/obfuscation/payload::exec-decode-pattern
-      - id: micro-traits/fs/path/temp
+      - id: micro-behaviors/fs/path/temp

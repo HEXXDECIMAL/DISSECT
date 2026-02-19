@@ -18,6 +18,6 @@ composite_rules:
     any:
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-js
       - id: objectives/anti-static/obfuscation/strings/encoding::js-dynamic-exec
-      - id: micro-traits/data/encode/arrays::js-large-int-array
-      - id: micro-traits/data/encode/arrays::js-hex-number-array
+      - id: micro-behaviors/data/encode/arrays::js-large-int-array
+      - id: micro-behaviors/data/encode/arrays::js-hex-number-array
     needs: 1

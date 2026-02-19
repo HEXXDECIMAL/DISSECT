@@ -43,8 +43,8 @@ composite_rules:
     conf: 0.85
     all:
       - id: api-key-parameter
-      - id: micro-traits/comm/http/lib/requests::requests-post
+      - id: micro-behaviors/comm/http/lib/requests::requests-post
     any:
       - id: bearer-fstring
       - id: api-key-in-auth-header
-      - id: micro-traits/comm/http/headers::headers-auth
+      - id: micro-behaviors/comm/http/headers::headers-auth

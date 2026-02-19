@@ -11,7 +11,7 @@ defaults:
   attack: "T1555.003"
 
 traits:
-  # Removed login-data duplicate - use micro-traits/fs/path/sensitive/browser::login-data
+  # Removed login-data duplicate - use micro-behaviors/fs/path/sensitive/browser::login-data
 
   - id: cookies
     desc: Chromium Cookies database path

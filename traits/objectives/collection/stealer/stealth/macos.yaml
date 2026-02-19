@@ -24,7 +24,7 @@ composite_rules:
     # High-confidence: Ad-hoc signed binaries accessing browser secrets and networking
     all:
       - id: metadata/sign/apple::adhoc
-      - id: micro-traits/comm/download/curl::libcurl-http
+      - id: micro-behaviors/comm/download/curl::libcurl-http
     needs: 1
     any:
       - id: objectives/credential-access/browser/chromium::cookies

@@ -11,8 +11,8 @@ composite_rules:
     for: [python]
     all:
       - id: metadata/import/python/zipfile
-      - id: micro-traits/fs/directory/traverse::traverse-walk
-      - id: micro-traits/fs/file/write::py-write
+      - id: micro-behaviors/fs/directory/traverse::traverse-walk
+      - id: micro-behaviors/fs/file/write::py-write
     any:
-      - id: micro-traits/comm/http/request::py-post-generic
-      - id: micro-traits/comm/http/lib/requests::requests-post
+      - id: micro-behaviors/comm/http/request::py-post-generic
+      - id: micro-behaviors/comm/http/lib/requests::requests-post

@@ -11,4 +11,4 @@ composite_rules:
     attack: "T1562.004"
     mbc: "E1562"
     any:
-      - id: micro-traits/os/firewall/rules
+      - id: micro-behaviors/os/firewall/rules

@@ -24,11 +24,11 @@ composite_rules:
       - id: objectives/persist/daemon/init::daemon-fork
       - id: objectives/persist/daemon/init::daemon-setsid
       # Shell command execution
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
     # Obfuscation or frequency indicators
     any:
       - id: objectives/anti-static/obfuscation/payload::tiny-cstring
-      - id: micro-traits/process/create/shell::excessive-popen
+      - id: micro-behaviors/process/create/shell::excessive-popen
       - id: objectives/anti-static/obfuscation/payload::high-entropy-data-section
 
   # Includes XOR-encoded commands
@@ -40,7 +40,7 @@ composite_rules:
     all:
       - id: objectives/persist/daemon/init::daemon-fork
       - id: objectives/persist/daemon/init::daemon-setsid
-      - id: micro-traits/process/create/shell
+      - id: micro-behaviors/process/create/shell
 
   # Extreme case: high-volume command execution
   - id: linux-command-orchestration-backdoor
@@ -50,7 +50,7 @@ composite_rules:
     attack: "T1059,T1543"
     all:
       - id: linux-daemon-shell-backdoor
-      - id: micro-traits/process/create/shell::extreme-popen
+      - id: micro-behaviors/process/create/shell::extreme-popen
 
   # Data-heavy backdoor with encoded payload
   - id: linux-payload-dropper-daemon

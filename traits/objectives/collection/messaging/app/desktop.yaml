@@ -225,5 +225,5 @@ composite_rules:
     all:
       - id: telegram-tdata
       - id: objectives/discovery/host/system/hardware-fingerprint::python-username
-      - id: micro-traits/fs/temp/directory::temp-directory
-      - id: micro-traits/fs/directory/mkdir::mkdir-python
+      - id: micro-behaviors/fs/temp/directory::temp-directory
+      - id: micro-behaviors/fs/directory/mkdir::mkdir-python

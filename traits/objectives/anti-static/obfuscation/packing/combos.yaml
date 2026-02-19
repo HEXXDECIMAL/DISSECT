@@ -12,8 +12,8 @@ composite_rules:
     # Bootloaders and firmware commonly embed compressed payloads
     # Downgraded to notable - not suspicious without additional packing indicators
     any:
-      - id: micro-traits/data/encode/compression::lzma-signature
-      - id: micro-traits/data/encode/compression::lzma-magic
+      - id: micro-behaviors/data/encode/compression::lzma-signature
+      - id: micro-behaviors/data/encode/compression::lzma-magic
 
   - id: payload-unpacking
     desc: Embedded payload with unpacking capability

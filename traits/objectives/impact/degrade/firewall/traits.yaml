@@ -114,7 +114,7 @@ composite_rules:
   - shell
   all:
   - id: disabled
-  - id: micro-traits/fs/attributes/chattr::chattr-command
+  - id: micro-behaviors/fs/attributes/chattr::chattr-command
   any:
   - id: objectives/anti-analysis/kernel-hide/userspace::ld-so-preload-clear
   - id: objectives/anti-analysis/kernel-hide/userspace::ld-so-preload-chattr

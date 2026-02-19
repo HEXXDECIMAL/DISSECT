@@ -23,5 +23,5 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/script::filename-extconf
       - id: objectives/execution/dropper/script::ruby-ast-check-windows-regex
-      - id: micro-traits/process/create/shell/lang::ruby-exec
+      - id: micro-behaviors/process/create/shell/lang::ruby-exec
     needs: 3

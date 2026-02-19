@@ -84,8 +84,8 @@ traits:
         - id: metadata/library/jquery::copyright
         - id: metadata/library/jquery::fn-extend
     unless:
-      - id: micro-traits/host/interpreter/jscript::activex-object
-      - id: micro-traits/data/db/conn/redis::ioredis
+      - id: micro-behaviors/host/interpreter/jscript::activex-object
+      - id: micro-behaviors/data/db/conn/redis::ioredis
       - id: metadata/library/jquery::domain
       - id: metadata/library/jquery::version-string
       - id: metadata/library/jquery::copyright
@@ -104,8 +104,8 @@ traits:
         - id: metadata/library/jquery::copyright
         - id: metadata/library/jquery::fn-extend
     unless:
-      - id: micro-traits/host/interpreter/jscript::activex-object
-      - id: micro-traits/data/db/conn/redis::ioredis
+      - id: micro-behaviors/host/interpreter/jscript::activex-object
+      - id: micro-behaviors/data/db/conn/redis::ioredis
       - id: metadata/library/jquery::domain
       - id: metadata/library/jquery::version-string
       - id: metadata/library/jquery::copyright

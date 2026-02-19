@@ -51,8 +51,8 @@ composite_rules:
     any:
       - id: web-shell-cmd-param
       - id: php-shell-function
-      - id: micro-traits/data/control-flow/analysis::ruby-while-true
-      - id: micro-traits/process/create/shell::ruby-system
+      - id: micro-behaviors/data/control-flow/analysis::ruby-while-true
+      - id: micro-behaviors/process/create/shell::ruby-system
 
   # === Interactive Shell Client ===
   - id: interactive-shell-client
@@ -62,9 +62,9 @@ composite_rules:
     attack: "T1059"
     needs: 4
     any:
-      - id: micro-traits/os/console/io::stdin-gets
+      - id: micro-behaviors/os/console/io::stdin-gets
       - id: shell-prompt-string
-      - id: micro-traits/os/console/io::exit-command-check
-      - id: micro-traits/data/control-flow/analysis::ruby-while-true
-      - id: micro-traits/comm/http/lib/netlib::open-uri
-      - id: micro-traits/process/create/shell::ruby-system
+      - id: micro-behaviors/os/console/io::exit-command-check
+      - id: micro-behaviors/data/control-flow/analysis::ruby-while-true
+      - id: micro-behaviors/comm/http/lib/netlib::open-uri
+      - id: micro-behaviors/process/create/shell::ruby-system

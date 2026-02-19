@@ -161,7 +161,7 @@ traits:
       type: string
       substr: ".Exec("
 
-  # Removed savetofile-method duplicate - use micro-traits/fs/file/write::file-write
+  # Removed savetofile-method duplicate - use micro-behaviors/fs/file/write::file-write
 
 # === Composite Rules ===
 composite_rules:
@@ -253,7 +253,7 @@ composite_rules:
     any:
       - id: run-method
       - id: exec-method
-      - id: micro-traits/fs/file/write::file-write
+      - id: micro-behaviors/fs/file/write::file-write
 
   # Shell or FSO objects
   - id: wsh-or-fso

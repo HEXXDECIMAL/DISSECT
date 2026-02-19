@@ -381,7 +381,7 @@ composite_rules:
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
-      - id: micro-traits/os/bpf/program/loader::sec-xdp
+      - id: micro-behaviors/os/bpf/program/loader::sec-xdp
       - id: sec-uprobe
       - id: xdp-md-struct
       - id: cilium-ebpf
@@ -407,7 +407,7 @@ composite_rules:
       - c
       - elf
     any:
-      - id: micro-traits/os/bpf/program/loader::sec-xdp
+      - id: micro-behaviors/os/bpf/program/loader::sec-xdp
       - id: xdp-md-struct
   - id: go-loader
     desc: Go-based eBPF program loader using
@@ -431,7 +431,7 @@ composite_rules:
     any:
       - id: sec-syscall-enter
       - id: sec-syscall-exit
-      - id: micro-traits/os/bpf/program/loader::sec-xdp
+      - id: micro-behaviors/os/bpf/program/loader::sec-xdp
       - id: sec-uprobe
   - id: go-offensive-intent
     desc: Go eBPF offensive intent markers
@@ -441,8 +441,8 @@ composite_rules:
       - go
     any:
       - id: rootkit-string
-      - id: micro-traits/data/text/keywords::hide
-      - id: micro-traits/data/text/keywords::bypass
+      - id: micro-behaviors/data/text/keywords::hide
+      - id: micro-behaviors/data/text/keywords::bypass
   - id: go-offensive-program
     desc: Go loader referencing offensive eBPF
     crit: suspicious
@@ -458,8 +458,8 @@ composite_rules:
     crit: notable
     conf: 0.7
     any:
-      - id: micro-traits/fs/path/config/accounts
-      - id: micro-traits/fs/path/config/privesc
+      - id: micro-behaviors/fs/path/config/accounts
+      - id: micro-behaviors/fs/path/config/privesc
   - id: sudoers-manipulation
     desc: eBPF-based runtime manipulation of sudoers
     crit: suspicious
@@ -481,7 +481,7 @@ composite_rules:
       - elf
     all:
       - id: getdents64-tracepoint
-      - id: micro-traits/os/syscall/invoke::d-reclen-field
+      - id: micro-behaviors/os/syscall/invoke::d-reclen-field
       - id: bpf-probe-write-user
   - id: uprobe-hooking
     desc: eBPF program hooking user-space functions
@@ -524,7 +524,7 @@ composite_rules:
       - c
       - elf
     all:
-      - id: micro-traits/os/bpf/program/loader::sec-xdp
+      - id: micro-behaviors/os/bpf/program/loader::sec-xdp
       - id: http-string
       - id: http-manipulation-action
   - id: advanced-rootkit

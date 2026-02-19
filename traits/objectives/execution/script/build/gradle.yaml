@@ -4,13 +4,13 @@ composite_rules:
     crit: hostile
     conf: 1.0
     all:
-      - id: micro-traits/process/create/script/gradle::exec-task
-      - id: micro-traits/process/create/script/gradle::gradle-exec-calc
+      - id: micro-behaviors/process/create/script/gradle::exec-task
+      - id: micro-behaviors/process/create/script/gradle::gradle-exec-calc
 
   - id: gradle-exec-powershell-payload
     desc: Gradle build script executes suspicious PowerShell
     crit: hostile
     conf: 0.9
     all:
-      - id: micro-traits/process/create/script/gradle::exec-task
-      - id: micro-traits/process/create/script/gradle::gradle-exec-powershell-encoded
+      - id: micro-behaviors/process/create/script/gradle::exec-task
+      - id: micro-behaviors/process/create/script/gradle::gradle-exec-powershell-encoded

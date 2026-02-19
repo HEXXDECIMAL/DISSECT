@@ -7,5 +7,5 @@ composite_rules:
     attack: T1555.001
     platforms: [macos]
     all:
-      - id: micro-traits/process/create/shell::shell-execution
-      - id: micro-traits/os/security/mac/keychain
+      - id: micro-behaviors/process/create/shell::shell-execution
+      - id: micro-behaviors/os/security/mac/keychain

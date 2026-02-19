@@ -260,7 +260,7 @@ composite_rules:
   any:
   - id: history-file
   - id: cookies-file
-  - id: micro-traits/fs/path/sensitive/browser::login-data
+  - id: micro-behaviors/fs/path/sensitive/browser::login-data
   - id: places-sqlite
 - id: chrome-history
   desc: Chrome browser history
@@ -274,7 +274,7 @@ composite_rules:
   any:
   - id: history-file
   - id: cookies-file
-  - id: micro-traits/fs/path/sensitive/browser::login-data
+  - id: micro-behaviors/fs/path/sensitive/browser::login-data
   downgrade:
     any:
     - type: basename
@@ -362,8 +362,8 @@ composite_rules:
   for:
   - all
   any:
-  - id: micro-traits/fs/path/sensitive/browser::local-storage-ref
-  - id: micro-traits/fs/path/sensitive/browser::leveldb-ref
+  - id: micro-behaviors/fs/path/sensitive/browser::local-storage-ref
+  - id: micro-behaviors/fs/path/sensitive/browser::leveldb-ref
 - id: extensions
   desc: Browser extensions access
   crit: suspicious
@@ -407,8 +407,8 @@ composite_rules:
   - id: search-engine-id
   any:
   - id: safari-plist
-  - id: micro-traits/fs/file/write::write
-  - id: micro-traits/fs/watch/fswatch::fseventstream
+  - id: micro-behaviors/fs/file/write::write
+  - id: micro-behaviors/fs/watch/fswatch::fseventstream
   downgrade:
     any:
     - type: basename

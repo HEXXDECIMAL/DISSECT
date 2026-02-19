@@ -24,8 +24,8 @@ composite_rules:
     mbc: "F0007"
     attack: "T1070.004"
     all:
-      - id: micro-traits/fs/proc/info::process-self-exe  # Reads /proc/self/exe
+      - id: micro-behaviors/fs/proc/info::process-self-exe  # Reads /proc/self/exe
     any:
       - id: self-delete-unlink  # Explicit unlink
-      - id: micro-traits/fs/path/temp::tmp-hidden-file  # Hidden temp file (lock/state)
-      - id: micro-traits/fs/path/device::dev-null  # Daemonization
+      - id: micro-behaviors/fs/path/temp::tmp-hidden-file  # Hidden temp file (lock/state)
+      - id: micro-behaviors/fs/path/device::dev-null  # Daemonization

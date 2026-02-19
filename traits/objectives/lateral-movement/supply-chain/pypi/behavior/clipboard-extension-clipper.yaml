@@ -16,4 +16,4 @@ composite_rules:
     all:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::robust-setup-py
       - id: objectives/anti-static/obfuscation/source::python-getattr-oct-hex-obfuscation
-      - id: micro-traits/comm/ipc/win32com::import-win32com
+      - id: micro-behaviors/comm/ipc/win32com::import-win32com

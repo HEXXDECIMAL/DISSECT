@@ -12,7 +12,7 @@ composite_rules:
   - id: ruby-tracking-pixel-beacon
     desc: Ruby HTTP request to tracking/logging service (beaconing)
     all:
-      - id: micro-traits/comm/http/lib/netlib::request-ruby
+      - id: micro-behaviors/comm/http/lib/netlib::request-ruby
     any:
       - id: objectives/command-and-control/infrastructure/domain::iplogger-domain
       - id: objectives/discovery/network/scan::iplogger-keyword
@@ -23,7 +23,7 @@ composite_rules:
   - id: python-tracking-pixel-beacon
     desc: Python HTTP request to tracking/logging service (beaconing)
     all:
-      - id: micro-traits/comm/http/lib/requests::requests-python
+      - id: micro-behaviors/comm/http/lib/requests::requests-python
     any:
       - id: objectives/command-and-control/infrastructure/domain::iplogger-domain
       - id: objectives/discovery/network/scan::iplogger-keyword
@@ -32,7 +32,7 @@ composite_rules:
   - id: generic-tracking-pixel-beacon
     desc: HTTP request to tracking/logging service (beaconing)
     all:
-      - id: micro-traits/comm/http/request::request
+      - id: micro-behaviors/comm/http/request::request
     any:
       - id: objectives/command-and-control/infrastructure/domain::iplogger-domain
       - id: objectives/discovery/network/scan::iplogger-keyword

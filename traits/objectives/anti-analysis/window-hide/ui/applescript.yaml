@@ -162,7 +162,7 @@ composite_rules:
   - applescript
   all:
   - id: hide-window
-  - id: micro-traits/process/create/script::shell-cmd
+  - id: micro-behaviors/process/create/script::shell-cmd
   - id: tell-application
 - id: hidden-terminal-exec
   desc: Hidden Terminal with shell execution
@@ -172,7 +172,7 @@ composite_rules:
   - applescript
   all:
   - id: terminal-hide
-  - id: micro-traits/process/create/shell::shell-execution
+  - id: micro-behaviors/process/create/shell::shell-execution
 - id: hidden-cred-access
   desc: Hidden AppleScript credential access
   crit: suspicious

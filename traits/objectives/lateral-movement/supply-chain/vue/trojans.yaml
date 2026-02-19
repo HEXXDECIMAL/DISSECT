@@ -47,7 +47,7 @@ composite_rules:
       - { id: metadata/library/vue::library }
       - { id: metadata/library/vue::version-string }
     any:
-      - { id: micro-traits/fs/path/sensitive/browser::login-data }
+      - { id: micro-behaviors/fs/path/sensitive/browser::login-data }
       - { id: objectives/credential-access/browser/firefox::cookies }
 
   # Vue + Command Execution = HOSTILE
@@ -59,8 +59,8 @@ composite_rules:
       - { id: metadata/library/vue::library }
       - { id: metadata/library/vue::version-string }
     any:
-      - { id: micro-traits/process/create/shell }
-      - { id: micro-traits/process/create/shell/lang::child-process-exec }
+      - { id: micro-behaviors/process/create/shell }
+      - { id: micro-behaviors/process/create/shell/lang::child-process-exec }
 
   # Vue + Network Backdoor = HOSTILE
   - id: trojanized-backdoor

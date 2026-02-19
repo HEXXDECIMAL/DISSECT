@@ -54,7 +54,7 @@ traits:
       type: string
       regex: 'powershell.{0,50}iwr.{0,50}\|.{0,20}iex'
 
-  # Removed js-stdio-ignore duplicate - use micro-traits/process/spawn::stdio-ignore-string
+  # Removed js-stdio-ignore duplicate - use micro-behaviors/process/spawn::stdio-ignore-string
 
 composite_rules:
   # Shell installer composite

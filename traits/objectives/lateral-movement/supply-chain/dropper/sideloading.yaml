@@ -34,7 +34,7 @@ composite_rules:
   all:
   - id: metadata/format::few-functions
   - id: objectives/anti-analysis/packing/entropy::high-entropy-section
-  - id: micro-traits/dylib/lookup::get-proc-address
+  - id: micro-behaviors/dylib/lookup::get-proc-address
   unless:
   - id: metadata/sign/certificate::verified
   - id: file/archive/self-extracting

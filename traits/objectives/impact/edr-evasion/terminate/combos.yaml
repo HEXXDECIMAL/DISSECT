@@ -10,7 +10,7 @@ composite_rules:
     mbc: "B0033"
     for: ["pe", "dll"]
     all:
-      - id: micro-traits/process/terminate/kill::terminate-process
+      - id: micro-behaviors/process/terminate/kill::terminate-process
       - id: objectives/execution/module/load::get-current-process
     downgrade:
       any:
@@ -25,8 +25,8 @@ composite_rules:
     size_max: 200000
     all:
       - id: objectives/execution/native/runtime::debugger-detect-api
-      - id: micro-traits/process/terminate/kill::terminate-process
-      - id: micro-traits/dylib/load::load-library-a
+      - id: micro-behaviors/process/terminate/kill::terminate-process
+      - id: micro-behaviors/dylib/load::load-library-a
     downgrade:
       any:
         - id: metadata/quality/versioned

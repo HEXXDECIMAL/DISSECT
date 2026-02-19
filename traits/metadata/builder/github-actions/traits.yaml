@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === GitHub Actions micro-traits ===
+  # === GitHub Actions micro-behaviors ===
   - id: github-actions-env
     desc: GITHUB_ACTIONS environment variable
     crit: notable
@@ -84,5 +84,5 @@ composite_rules:
       - id: github-runner-worker
     any:
       - id: github-actions
-      - id: micro-traits/fs/proc/info::process-pid-cmdline
-      - id: micro-traits/fs/proc/info::process-pid-maps
+      - id: micro-behaviors/fs/proc/info::process-pid-cmdline
+      - id: micro-behaviors/fs/proc/info::process-pid-maps

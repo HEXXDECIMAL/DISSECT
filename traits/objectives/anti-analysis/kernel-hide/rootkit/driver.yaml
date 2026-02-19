@@ -4,12 +4,12 @@ composite_rules:
     crit: hostile
     conf: 0.95
     all:
-      - id: micro-traits/os/kernel/routines::dynamic-resolution
+      - id: micro-behaviors/os/kernel/routines::dynamic-resolution
     any:
-      - id: micro-traits/os/kernel/hiding/exec::thread-manipulation-enc
-      - id: micro-traits/os/kernel/hiding/mem::mem-protect-enc
-      - id: micro-traits/os/kernel/hiding/mem::pe-header-enc
-      - id: micro-traits/os/kernel/hiding/mem::pe-data-enc
+      - id: micro-behaviors/os/kernel/hiding/exec::thread-manipulation-enc
+      - id: micro-behaviors/os/kernel/hiding/mem::mem-protect-enc
+      - id: micro-behaviors/os/kernel/hiding/mem::pe-header-enc
+      - id: micro-behaviors/os/kernel/hiding/mem::pe-data-enc
     needs: 2
 
   - id: driver-suspicious-path
@@ -17,5 +17,5 @@ composite_rules:
     crit: suspicious
     conf: 0.8
     all:
-      - id: micro-traits/fs/path/system::system32-bin
-      - id: micro-traits/os/kernel/routines::dynamic-resolution
+      - id: micro-behaviors/fs/path/system::system32-bin
+      - id: micro-behaviors/os/kernel/routines::dynamic-resolution

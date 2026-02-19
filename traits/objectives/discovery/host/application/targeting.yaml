@@ -10,5 +10,5 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-traits/process/enumerate/apps::browser-apps
-      - id: micro-traits/process/enumerate/apps::office-apps
+      - id: micro-behaviors/process/enumerate/apps::browser-apps
+      - id: micro-behaviors/process/enumerate/apps::office-apps

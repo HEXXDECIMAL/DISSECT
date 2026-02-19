@@ -57,11 +57,11 @@ composite_rules:
     conf: 0.75
     for: [shell, python, javascript]
     all:
-      - id: micro-traits/comm/http/headers::multipart-upload
+      - id: micro-behaviors/comm/http/headers::multipart-upload
     any:
       - id: gate-url
-      - id: micro-traits/comm/http/headers::bot-headers
-      - id: micro-traits/comm/http/client
+      - id: micro-behaviors/comm/http/headers::bot-headers
+      - id: micro-behaviors/comm/http/client
     none:
       - id: objectives/lateral-movement/supply-chain/npm/testing::wpt-test-file
       - id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-file
@@ -79,8 +79,8 @@ composite_rules:
     for: [shell]
     needs: 3
     any:
-      - id: micro-traits/comm/http/client::curl-post
-      - id: micro-traits/comm/http/client::curl-upload
-      - id: micro-traits/comm/http/headers::bot-headers
+      - id: micro-behaviors/comm/http/client::curl-post
+      - id: micro-behaviors/comm/http/client::curl-upload
+      - id: micro-behaviors/comm/http/headers::bot-headers
       - id: gate-url
-      - id: micro-traits/comm/http/upload::zip-upload
+      - id: micro-behaviors/comm/http/upload::zip-upload

@@ -62,7 +62,7 @@ traits:
       type: string
       substr: "-----BEGIN PUBLIC KEY"
 
-  # Removed crypto-module duplicate - use micro-traits/data/text/keywords::crypto-substr
+  # Removed crypto-module duplicate - use micro-behaviors/data/text/keywords::crypto-substr
 
   # === File iteration (atomic) ===
   - id: readdir-sync
@@ -92,7 +92,7 @@ traits:
       type: string
       exact: "glob"
 
-  # Removed os-walk duplicate - use micro-traits/fs/directory/traverse::traverse-walk
+  # Removed os-walk duplicate - use micro-behaviors/fs/directory/traverse::traverse-walk
 
   # === File write (atomic) ===
   - id: writefile-sync
@@ -340,7 +340,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript, python]
     all:
-      - id: micro-traits/data/text/keywords::crypto-substr
+      - id: micro-behaviors/data/text/keywords::crypto-substr
       - id: rsa-key-operations
 
   # File iteration
@@ -353,7 +353,7 @@ composite_rules:
       - id: readdir-sync
       - id: walk-sync
       - id: glob-module
-      - id: micro-traits/fs/directory/traverse::traverse-walk
+      - id: micro-behaviors/fs/directory/traverse::traverse-walk
 
   # File write functions
   - id: file-write-functions
@@ -375,7 +375,7 @@ composite_rules:
     for: [javascript, typescript, python]
     all:
       - id: file-iteration
-      - id: micro-traits/crypto/operations/encryption::encryption-functions
+      - id: micro-behaviors/crypto/operations/encryption::encryption-functions
       - id: file-write-functions
 
   # Ransom note
@@ -460,8 +460,8 @@ composite_rules:
     conf: 0.95
     for: [python]
     all:
-      - id: micro-traits/fs/directory/traverse::traverse-walk
-      - id: micro-traits/fs/file/open::binary-rw
+      - id: micro-behaviors/fs/directory/traverse::traverse-walk
+      - id: micro-behaviors/fs/file/open::binary-rw
     any:
-      - id: micro-traits/crypto/symmetric/fernet::encrypt
-      - id: micro-traits/crypto/symmetric/fernet::class-usage
+      - id: micro-behaviors/crypto/symmetric/fernet::encrypt
+      - id: micro-behaviors/crypto/symmetric/fernet::class-usage

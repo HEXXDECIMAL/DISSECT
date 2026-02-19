@@ -31,7 +31,7 @@ traits:
     attack: "T1090.001"
     if:
       type: string
-      regex: 'socket5Quick|socks5Quick|proxy/socks|socksProxy'
+      regex: "socket5Quick|socks5Quick|proxy/socks|socksProxy"
 
   # Go port forwarding module (inForward variants)
   - id: go-port-forward-inforward
@@ -135,7 +135,7 @@ traits:
     attack: "T1082"
     if:
       type: string
-      regex: '(getSystemInfo|UpdateSysteminfo|makeSystemInfo|ProcessTask)'
+      regex: "(getSystemInfo|UpdateSysteminfo|makeSystemInfo|ProcessTask)"
 
   # Go directory listing (recon)
   - id: go-dir-enum-get-dir-list
@@ -197,133 +197,133 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: 'socket_quick_(start|stop)|StartProxy|StopProxy'
+      regex: "socket_quick_(start|stop)|StartProxy|StopProxy"
 
 composite_rules:
-- id: go-port-forward-module
-  desc: Go port forwarding module
-  crit: notable
-  conf: 0.9
-  attack: "T1090"
-  any:
-    - id: go-port-forward-inforward
-    - id: go-port-forward-direct
+  - id: go-port-forward-module
+    desc: Go port forwarding module
+    crit: notable
+    conf: 0.9
+    attack: "T1090"
+    any:
+      - id: go-port-forward-inforward
+      - id: go-port-forward-direct
 
-- id: go-port-forward-direct
-  desc: Go portForward/tunnelForward module
-  crit: notable
-  conf: 0.9
-  attack: "T1090"
-  any:
-    - id: go-port-forward-portforward
-    - id: go-port-forward-tunnelforward
+  - id: go-port-forward-direct
+    desc: Go portForward/tunnelForward module
+    crit: notable
+    conf: 0.9
+    attack: "T1090"
+    any:
+      - id: go-port-forward-portforward
+      - id: go-port-forward-tunnelforward
 
-# Go RAT with shell + proxy (common combination)
-# Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-- id: go-rat-shell-proxy
-  desc: Go RAT with shell and SOCKS proxy
-  crit: hostile
-  conf: 0.98
-  mbc: "B0024"
-  attack: "T1059.004"
-  for: [elf, macho, pe]
-  all:
-    - id: go-shell-module
-    - id: go-socks-proxy-module
-    - id: micro-traits/process/create/shell::go-shell-strings
+  # Go RAT with shell + proxy (common combination)
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: go-rat-shell-proxy
+    desc: Go RAT with shell and SOCKS proxy
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf, macho, pe]
+    all:
+      - id: go-shell-module
+      - id: go-socks-proxy-module
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
-# Go RAT with full capability set
-# Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
-- id: go-rat-full
-  desc: Go RAT with full C2 capabilities
-  crit: hostile
-  conf: 0.98
-  mbc: "B0024"
-  attack: "T1059.004"
-  for: [elf, macho, pe]
-  all:
-    - id: go-shell-module
-    - id: go-file-utils
-    - id: go-system-recon
-    - id: micro-traits/process/create/shell::go-shell-strings
+  # Go RAT with full capability set
+  # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
+  - id: go-rat-full
+    desc: Go RAT with full C2 capabilities
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1059.004"
+    for: [elf, macho, pe]
+    all:
+      - id: go-shell-module
+      - id: go-file-utils
+      - id: go-system-recon
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
-# Go RAT with anti-forensics
-# Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-- id: go-rat-antiforensics
-  desc: Go RAT with anti-forensics capabilities
-  crit: hostile
-  conf: 0.98
-  mbc: "B0024"
-  attack: "T1070"
-  for: [elf, macho, pe]
-  all:
-    - id: go-shell-module
-    - id: go-clean-history
-    - id: micro-traits/process/create/shell::go-shell-strings
+  # Go RAT with anti-forensics
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: go-rat-antiforensics
+    desc: Go RAT with anti-forensics capabilities
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1070"
+    for: [elf, macho, pe]
+    all:
+      - id: go-shell-module
+      - id: go-clean-history
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
-# Go RAT with timestomping
-# Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-- id: go-rat-timestomp
-  desc: Go RAT with timestomping
-  crit: hostile
-  conf: 0.98
-  mbc: "B0024"
-  attack: "T1070.006"
-  for: [elf, macho, pe]
-  all:
-    - id: go-shell-module
-    - id: go-timestomp
-    - id: micro-traits/process/create/shell::go-shell-strings
+  # Go RAT with timestomping
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: go-rat-timestomp
+    desc: Go RAT with timestomping
+    crit: hostile
+    conf: 0.98
+    mbc: "B0024"
+    attack: "T1070.006"
+    for: [elf, macho, pe]
+    all:
+      - id: go-shell-module
+      - id: go-timestomp
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
-# Go implant with proxy + file transfer
-# Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-- id: go-implant-proxy-transfer
-  desc: Go implant with proxy and file transfer
-  crit: hostile
-  conf: 0.95
-  mbc: "B0030"
-  attack: "T1090.001"
-  for: [elf, macho, pe]
-  all:
-    - id: go-socks-proxy-module
-    - id: go-file-utils
-    - id: micro-traits/process/create/shell::go-shell-strings
+  # Go implant with proxy + file transfer
+  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+  - id: go-implant-proxy-transfer
+    desc: Go implant with proxy and file transfer
+    crit: hostile
+    conf: 0.95
+    mbc: "B0030"
+    attack: "T1090.001"
+    for: [elf, macho, pe]
+    all:
+      - id: go-socks-proxy-module
+      - id: go-file-utils
+      - id: micro-behaviors/process/create/shell::go-shell-strings
 
-- id: go-clean-history
-  desc: Go history cleaning function
-  crit: suspicious
-  conf: 0.95
-  attack: "T1070.003"
-  any:
-    - id: go-clean-history-cleanhistory
-    - id: go-clean-history-clearhistory
-    - id: go-clean-history-historyclear
+  - id: go-clean-history
+    desc: Go history cleaning function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.003"
+    any:
+      - id: go-clean-history-cleanhistory
+      - id: go-clean-history-clearhistory
+      - id: go-clean-history-historyclear
 
-- id: go-timestomp
-  desc: Go timestomping function
-  crit: suspicious
-  conf: 0.95
-  attack: "T1070.006"
-  any:
-    - id: go-timestomp-change-self-time
-    - id: go-timestomp-modify-timestamp
-    - id: go-timestomp-touch-time
+  - id: go-timestomp
+    desc: Go timestomping function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.006"
+    any:
+      - id: go-timestomp-change-self-time
+      - id: go-timestomp-modify-timestamp
+      - id: go-timestomp-touch-time
 
-- id: go-dir-enum
-  desc: Go directory enumeration
-  crit: notable
-  conf: 0.8
-  attack: "T1083"
-  any:
-    - id: go-dir-enum-get-dir-list
-    - id: go-dir-enum-list-directory
-    - id: go-dir-enum-read-dir
+  - id: go-dir-enum
+    desc: Go directory enumeration
+    crit: notable
+    conf: 0.8
+    attack: "T1083"
+    any:
+      - id: go-dir-enum-get-dir-list
+      - id: go-dir-enum-list-directory
+      - id: go-dir-enum-read-dir
 
-- id: interactive-shell-string
-  desc: Interactive shell mode strings
-  crit: notable
-  conf: 0.85
-  any:
-    - id: interactive-shell-string-interactive
-    - id: interactive-shell-string-exec-shell
-    - id: interactive-shell-string-execshell
+  - id: interactive-shell-string
+    desc: Interactive shell mode strings
+    crit: notable
+    conf: 0.85
+    any:
+      - id: interactive-shell-string-interactive
+      - id: interactive-shell-string-exec-shell
+      - id: interactive-shell-string-execshell

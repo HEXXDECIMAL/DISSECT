@@ -4,7 +4,7 @@ defaults:
   for: [all]
 
 traits:
-  # === Docker micro-traits ===
+  # === Docker micro-behaviors ===
   - id: dockerfile
     desc: Dockerfile
     crit: notable
@@ -21,7 +21,7 @@ traits:
       type: string
       regex: "DOCKER_"
 
-  # Removed dockerenv duplicate - use micro-traits/os/container/runtime::dockerenv
+  # Removed dockerenv duplicate - use micro-behaviors/os/container/runtime::dockerenv
 
   - id: docker-entrypoint
     desc: /docker-entrypoint path
@@ -40,5 +40,5 @@ composite_rules:
     any:
       - id: dockerfile
       - id: docker-env-prefix
-      - id: micro-traits/os/container/runtime::dockerenv
+      - id: micro-behaviors/os/container/runtime::dockerenv
       - id: docker-entrypoint

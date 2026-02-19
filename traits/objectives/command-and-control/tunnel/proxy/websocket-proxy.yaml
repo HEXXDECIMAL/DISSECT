@@ -11,7 +11,7 @@ defaults:
 
 traits:
   # === WebSocket connection indicators ===
-  # Removed websocket-connection duplicate - use micro-traits/comm/http/websocket::websocket-class
+  # Removed websocket-connection duplicate - use micro-behaviors/comm/http/websocket::websocket-class
 
   # === Request/Response forwarding indicators ===
   - id: web3-request-dto
@@ -79,7 +79,7 @@ traits:
       substr: "HostRequest"
 
   # === HTTP request forwarding indicators ===
-  # dataTaskWithRequest: use micro-traits/comm/http/lib/nsurlsession/traits.yaml::nsurlresponse-handle (canonical)
+  # dataTaskWithRequest: use micro-behaviors/comm/http/lib/nsurlsession/traits.yaml::nsurlresponse-handle (canonical)
   - id: http-response-string
     desc: HTTPResponse string reference
     crit: notable
@@ -105,7 +105,7 @@ composite_rules:
     conf: 0.6
     for: [macho, dylib]
     any:
-      - id: micro-traits/comm/http/lib/nsurlsession::nsurlresponse-handle
+      - id: micro-behaviors/comm/http/lib/nsurlsession::nsurlresponse-handle
       - id: http-response-string
 
   # WebSocket-based protocol proxy (Web3 relay/tunnel)
@@ -118,7 +118,7 @@ composite_rules:
     mbc: "B0030"
     for: [macho, dylib]
     all:
-      - id: micro-traits/comm/http/websocket::websocket-class
+      - id: micro-behaviors/comm/http/websocket::websocket-class
       - id: web3-request-dto
       - id: web3-response-dto
       - id: session-management
@@ -133,10 +133,10 @@ composite_rules:
     mbc: "B0030"
     for: [macho, dylib]
     all:
-      - id: micro-traits/comm/http/websocket::websocket-class
+      - id: micro-behaviors/comm/http/websocket::websocket-class
       - id: host-request
       - id: http-response-handler
     any:
       - id: web3-request-dto
       - id: web3-response-dto
-      - id: micro-traits/comm/http/post/
+      - id: micro-behaviors/comm/http/post/

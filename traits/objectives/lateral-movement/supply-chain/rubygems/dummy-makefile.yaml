@@ -11,4 +11,4 @@ composite_rules:
     desc: Detects a dummy Makefile with empty targets (install/all/clean), often used to mask dropper failures
     all:
       - id: metadata/format/text/makefile::makefile-basename
-      - id: micro-traits/build/tool/make::dummy-makefile-targets
+      - id: micro-behaviors/build/tool/make::dummy-makefile-targets

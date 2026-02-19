@@ -11,9 +11,9 @@ composite_rules:
     attack: "T1095"
     for: [c, elf]
     all:
-      - id: micro-traits/os/bpf/program/loader::sec-xdp
-      - id: micro-traits/os/bpf/program/icmp::icmp-parsing
-      - id: micro-traits/os/bpf/program/network::xdp-tx
+      - id: micro-behaviors/os/bpf/program/loader::sec-xdp
+      - id: micro-behaviors/os/bpf/program/icmp::icmp-parsing
+      - id: micro-behaviors/os/bpf/program/network::xdp-tx
 
   # XDP loader with ICMP covert channel markers
   # Userspace loader that attaches XDP program for ICMP manipulation
@@ -24,8 +24,8 @@ composite_rules:
     attack: "T1095"
     for: [c, elf]
     all:
-      - id: micro-traits/os/bpf/program/network::xdp-attach
-      - id: micro-traits/os/bpf/program/icmp::icmp-indicators
+      - id: micro-behaviors/os/bpf/program/network::xdp-attach
+      - id: micro-behaviors/os/bpf/program/icmp::icmp-indicators
     any:
-      - id: micro-traits/os/bpf/program/network::bpf-skeleton-include
-      - id: micro-traits/comm/ip/services::services-icmp
+      - id: micro-behaviors/os/bpf/program/network::bpf-skeleton-include
+      - id: micro-behaviors/comm/ip/services::services-icmp

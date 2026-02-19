@@ -47,6 +47,6 @@ composite_rules:
     all:
       - id: tiny-cstring-section
     any:
-      - id: micro-traits/process/create/shell
-      - id: micro-traits/comm/socket/create
-      - id: micro-traits/fs/file/operations::binary-file-ops
+      - id: micro-behaviors/process/create/shell
+      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/fs/file/operations::binary-file-ops

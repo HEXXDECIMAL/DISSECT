@@ -32,8 +32,8 @@ composite_rules:
     conf: 0.9
     attack: "T1003.008"
     any:
-      - id: micro-traits/fs/path/config/accounts::etc-shadow
-      - id: micro-traits/fs/path/config/groups::etc-gshadow
+      - id: micro-behaviors/fs/path/config/accounts::etc-shadow
+      - id: micro-behaviors/fs/path/config/groups::etc-gshadow
 
   - id: shadow-extraction
     desc: Shadow file credential extraction

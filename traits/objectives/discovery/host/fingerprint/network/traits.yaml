@@ -1,6 +1,6 @@
 # Network Interface Fingerprinting (MAC addresses)
 # ATT&CK: T1082 (System Information Discovery)
-# NOTE: Neutral /sys/class/net path moved to micro-traits/os/network/interface/
+# NOTE: Neutral /sys/class/net path moved to micro-behaviors/os/network/interface/
 
 defaults:
   for: [all]
@@ -48,10 +48,10 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: micro-traits/os/network/interface::sys-class-net
+      - id: micro-behaviors/os/network/interface::sys-class-net
       - id: hwaddr
       - id: ether-prefix
       - id: getifaddrs-func
       - id: siocgifhwaddr
-      - id: micro-traits/os/network/interface::ip-link
-      - id: micro-traits/os/network/interface::ifconfig
+      - id: micro-behaviors/os/network/interface::ip-link
+      - id: micro-behaviors/os/network/interface::ifconfig

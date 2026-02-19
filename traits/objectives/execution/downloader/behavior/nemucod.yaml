@@ -14,7 +14,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/source/syntax::js-split-join-empty
     any:
       - id: objectives/anti-static/obfuscation/source/syntax::js-dynamic-global-access-array
-      - id: micro-traits/data/encode/base64::alphabet-script
+      - id: micro-behaviors/data/encode/base64::alphabet-script
       - id: objectives/exfiltration/channel/oob::http-b64
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
@@ -26,7 +26,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/source/syntax::js-replace-map
     any:
       - id: objectives/anti-static/obfuscation/source/syntax::js-dynamic-global-access-array
-      - id: micro-traits/data/encode/base64::alphabet-script
+      - id: micro-behaviors/data/encode/base64::alphabet-script
       - id: objectives/exfiltration/channel/oob::http-b64
       - id: objectives/execution/interpreter/script/wsh::adodb-fragment-short
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment-short
@@ -34,7 +34,7 @@ composite_rules:
   - id: js-nemucod-downloader-jitter
     desc: Nemucod JScript Downloader (Jitter Evasion)
     all:
-      - id: micro-traits/time/measure/delta::js-date-diff-jitter-check
+      - id: micro-behaviors/time/measure/delta::js-date-diff-jitter-check
     any:
       - id: objectives/execution/interpreter/script/wsh::wsh-tiny-fragment-assignment
       - id: objectives/execution/interpreter/script/wsh::wscript-shell-fragment

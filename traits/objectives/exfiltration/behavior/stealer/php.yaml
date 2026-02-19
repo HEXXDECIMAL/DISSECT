@@ -7,10 +7,10 @@ composite_rules:
     conf: 1.0
     attack: "T1567"
     all:
-      - id: micro-traits/comm/http/client::file-get-contents-url
+      - id: micro-behaviors/comm/http/client::file-get-contents-url
       - id: objectives/credential-access/environment/secret-access::aws-access-key
       - id: objectives/credential-access/environment/secret-access::aws-secret
-      - id: micro-traits/os/env/vars::getenv
+      - id: micro-behaviors/os/env/vars::getenv
 
   - id: env-exfil-via-http-interpolation
     desc: Potential exfiltration of environment variables via HTTP URL interpolation
@@ -18,5 +18,5 @@ composite_rules:
     conf: 0.8
     attack: "T1567"
     all:
-      - id: micro-traits/comm/http/client::file-get-contents-url-interpolation
-      - id: micro-traits/os/env/vars::getenv
+      - id: micro-behaviors/comm/http/client::file-get-contents-url-interpolation
+      - id: micro-behaviors/os/env/vars::getenv

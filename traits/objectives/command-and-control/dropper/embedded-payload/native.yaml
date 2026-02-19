@@ -60,10 +60,10 @@ composite_rules:
     for: [elf]
     size_max: 500000
     all:
-      - id: micro-traits/comm/download/curl::libcurl-http
-      - id: micro-traits/process/create/shell::shell-execution
-      - id: micro-traits/fs/file/operations::binary-file-ops
-      - id: micro-traits/fs/proc/info::process-pid-exe
+      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/process/create/shell::shell-execution
+      - id: micro-behaviors/fs/file/operations::binary-file-ops
+      - id: micro-behaviors/fs/proc/info::process-pid-exe
 
   # Minimal libcurl dropper: stripped binary with curl + system + few imports
   # This variant doesn't need /proc/self/exe but has minimal imports indicating malicious intent
@@ -76,8 +76,8 @@ composite_rules:
     attack: "T1105"
     for: [elf]
     all:
-      - id: micro-traits/comm/download/curl::libcurl-http
-      - id: micro-traits/process/create/shell::shell-execution
+      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/process/create/shell::shell-execution
       - id: objectives/anti-static/obfuscation/payload::minimal-imports
 
   # Hex-encoded dropper: large hex blob + system() + minimal imports
@@ -93,7 +93,7 @@ composite_rules:
     all:
       - id: large-hex-payload
       - id: objectives/anti-static/obfuscation/payload::minimal-imports
-      - id: micro-traits/process/create/shell::shell-execution
+      - id: micro-behaviors/process/create/shell::shell-execution
 
   # Obfuscated payload dropper: custom encoding + large payload + exec
   # This pattern is common in macOS malware like FakeZoom/AMOS stealer
@@ -109,4 +109,4 @@ composite_rules:
     all:
       - id: large-hex-payload
       - id: custom-encoding-alphabet
-      - id: micro-traits/process/create/shell::shell-execution
+      - id: micro-behaviors/process/create/shell::shell-execution
