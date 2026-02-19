@@ -236,15 +236,25 @@ traits:
       kind: call
       regex: "\\$\\{.{0,50}\\}"
 
-  - id: dynamic-superglobal-call
-    desc: Superglobal used as function (obfuscated
+  - id: dynamic-superglobal-call-a
+    desc: GET/POST/REQUEST used as function
     crit: suspicious
     conf: 0.98
     mbc: "B0032"
     if:
       type: ast
       kind: call
-      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\("
+      regex: "\\$_(GET|POST|REQUEST)\\s*\\("
+
+  - id: dynamic-superglobal-call-b
+    desc: COOKIE/SERVER used as function
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    if:
+      type: ast
+      kind: call
+      regex: "\\$_(COOKIE|SERVER)\\s*\\("
 
   - id: subscript-function-call
     desc: Subscript used as function (obfuscated
@@ -267,12 +277,41 @@ traits:
       kind: call
       regex: "\\$\\w+\\s*\\("
 
-  - id: dynamic-superglobal-simple
-    desc: Superglobal used as function (obfuscated
+  - id: dynamic-superglobal-simple-a
+    desc: GET/POST/REQUEST index as function
     crit: suspicious
     conf: 0.98
     mbc: "B0032"
     if:
       type: ast
       kind: call
-      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^\\]]{1,120}\\]\\s*\\("
+      regex: "\\$_(GET|POST|REQUEST)\\s*\\[[^\\]]{1,120}\\]\\s*\\("
+
+  - id: dynamic-superglobal-simple-b
+    desc: COOKIE/SERVER index as function
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    if:
+      type: ast
+      kind: call
+      regex: "\\$_(COOKIE|SERVER)\\s*\\[[^\\]]{1,120}\\]\\s*\\("
+
+composite_rules:
+  - id: dynamic-superglobal-call
+    desc: Superglobal used as function (obfuscated
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    any:
+      - id: dynamic-superglobal-call-a
+      - id: dynamic-superglobal-call-b
+
+  - id: dynamic-superglobal-simple
+    desc: Superglobal used as function (obfuscated
+    crit: suspicious
+    conf: 0.98
+    mbc: "B0032"
+    any:
+      - id: dynamic-superglobal-simple-a
+      - id: dynamic-superglobal-simple-b

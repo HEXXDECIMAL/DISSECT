@@ -163,7 +163,7 @@ traits:
   if:
     type: string
     regex: parse_str\s*\(\s*\$_SERVER
-- id: script-filename
+- id: script-filename-superglobal
   desc: Access to script filename (self-reference)
   crit: notable
   conf: 0.85
@@ -171,8 +171,17 @@ traits:
   - php
   if:
     type: string
-    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]SCRIPT_FILENAME['"]\]|getenv\(['"]SCRIPT_FILENAME['"]\)
-- id: http-user-agent
+    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]SCRIPT_FILENAME['"]\]
+- id: script-filename-getenv
+  desc: Access to script filename via getenv
+  crit: notable
+  conf: 0.85
+  for:
+  - php
+  if:
+    type: string
+    regex: getenv\(['"]SCRIPT_FILENAME['"]\)
+- id: http-user-agent-superglobal
   desc: Access to HTTP User-Agent header
   crit: notable
   conf: 0.7
@@ -180,8 +189,17 @@ traits:
   - php
   if:
     type: string
-    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]HTTP_USER_AGENT['"]\]|getenv\(['"]HTTP_USER_AGENT['"]\)
-- id: http-referer
+    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]HTTP_USER_AGENT['"]\]
+- id: http-user-agent-getenv
+  desc: Access to HTTP User-Agent via getenv
+  crit: notable
+  conf: 0.7
+  for:
+  - php
+  if:
+    type: string
+    regex: getenv\(['"]HTTP_USER_AGENT['"]\)
+- id: http-referer-superglobal
   desc: Access to HTTP Referer header
   crit: notable
   conf: 0.7
@@ -189,7 +207,16 @@ traits:
   - php
   if:
     type: string
-    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]HTTP_REFERER['"]\]|getenv\(['"]HTTP_REFERER['"]\)
+    regex: (\$_SERVER|\$HTTP_SERVER_VARS)\[['"]HTTP_REFERER['"]\]
+- id: http-referer-getenv
+  desc: Access to HTTP Referer via getenv
+  crit: notable
+  conf: 0.7
+  for:
+  - php
+  if:
+    type: string
+    regex: getenv\(['"]HTTP_REFERER['"]\)
 composite_rules:
 - id: extract-input
   desc: Extracts variables from user input
@@ -215,3 +242,30 @@ composite_rules:
   - id: parse-str-request
   - id: parse-str-cookie
   - id: parse-str-server
+- id: script-filename
+  desc: Access to script filename (self-reference)
+  crit: notable
+  conf: 0.85
+  for:
+  - php
+  any:
+  - id: script-filename-superglobal
+  - id: script-filename-getenv
+- id: http-user-agent
+  desc: Access to HTTP User-Agent header
+  crit: notable
+  conf: 0.7
+  for:
+  - php
+  any:
+  - id: http-user-agent-superglobal
+  - id: http-user-agent-getenv
+- id: http-referer
+  desc: Access to HTTP Referer header
+  crit: notable
+  conf: 0.7
+  for:
+  - php
+  any:
+  - id: http-referer-superglobal
+  - id: http-referer-getenv

@@ -16,13 +16,21 @@ defaults:
 traits:
   # === OpenSSL source header markers ===
   # evp.h contains distinctive OpenSSL EVP API markers
-  - id: openssl-evp-header
-    desc: OpenSSL EVP header with cryptographic API definitions
+  - id: openssl-evp-header-typedef
+    desc: OpenSSL EVP typedef header marker
     crit: notable
     conf: 0.95
     if:
       type: raw
-      regex: "typedef.{0,50}EVP_(CIPHER|MD|PKEY)(_CTX)?|#define EVP_(CIPHER|MD|PKEY)(_CTX)?"
+      regex: "typedef.{0,50}EVP_(CIPHER|MD|PKEY)(_CTX)?"
+
+  - id: openssl-evp-header-define
+    desc: OpenSSL EVP define header marker
+    crit: notable
+    conf: 0.95
+    if:
+      type: raw
+      regex: "#define EVP_(CIPHER|MD|PKEY)(_CTX)?"
 
   - id: openssl-copyright-block
     desc: OpenSSL copyright and license header
@@ -41,13 +49,29 @@ traits:
       substr: "The OpenSSL Project Authors"
 
   # === Generic OpenSSL header signatures ===
-  - id: openssl-crypto-header
-    desc: OpenSSL crypto header markers
+  - id: openssl-crypto-header-envelope
+    desc: OpenSSL envelope header marker
     crit: notable
     conf: 0.85
     if:
       type: string
-      regex: "HEADER_ENVELOPE_H|OPENSSL_ALGORITHM_DEFINES|EVP_MAX_MD_SIZE"
+      exact: "HEADER_ENVELOPE_H"
+
+  - id: openssl-crypto-header-algorithm
+    desc: OpenSSL algorithm defines marker
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "OPENSSL_ALGORITHM_DEFINES"
+
+  - id: openssl-crypto-header-md-size
+    desc: OpenSSL max digest size marker
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "EVP_MAX_MD_SIZE"
 
   # === Cryptography library headers ===
   - id: libcrypto-marker
@@ -59,6 +83,23 @@ traits:
       regex: "EVP_CIPHER_CTX|EVP_MD_CTX|struct evp_pkey_st"
 
 composite_rules:
+  - id: openssl-evp-header
+    desc: OpenSSL EVP header with cryptographic API definitions
+    crit: notable
+    conf: 0.95
+    any:
+      - id: openssl-evp-header-typedef
+      - id: openssl-evp-header-define
+
+  - id: openssl-crypto-header
+    desc: OpenSSL crypto header markers
+    crit: notable
+    conf: 0.85
+    any:
+      - id: openssl-crypto-header-envelope
+      - id: openssl-crypto-header-algorithm
+      - id: openssl-crypto-header-md-size
+
   # Supply-chain injection pattern: OpenSSL headers bundled unexpectedly
   - id: openssl-source-injection
     desc: OpenSSL header source injected into framework

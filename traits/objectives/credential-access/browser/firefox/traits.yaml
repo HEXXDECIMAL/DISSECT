@@ -125,7 +125,8 @@ traits:
   attack: T1555.003
   if:
     type: string
-    regex: (?i)Mozilla[/\\]Firefox[/\\]Profiles|(?i)/\.mozilla/firefox/|(?i)Firefox[/\\]Profiles[/\\]
+    regex: Mozilla[/\\]Firefox[/\\]Profiles|/\.mozilla/firefox/
+    case_insensitive: true
 composite_rules:
 - id: profiles-path
   desc: Firefox/Gecko Profiles directory

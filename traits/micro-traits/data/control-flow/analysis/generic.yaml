@@ -26,12 +26,20 @@ traits:
       regex: '(?m)(?:^|[;{}\s])for(?:\s+\w+\s+in\s+|\s*\(|(?:\s+\w+\s*:[^=]))'
 
   - id: for-loop-symbol
-    desc: for loop (symbol)
+    desc: for_loop symbol
     crit: inert
     conf: 0.3
     if:
       type: symbol
-      regex: "for_loop|iter"
+      exact: "for_loop"
+
+  - id: iter-symbol
+    desc: iter symbol
+    crit: inert
+    conf: 0.3
+    if:
+      type: symbol
+      exact: "iter"
 
   - id: while-loop
     desc: while loop pattern
@@ -58,6 +66,7 @@ composite_rules:
       - id: for-loop-ast
       - id: for-loop-content
       - id: for-loop-symbol
+      - id: iter-symbol
       - id: while-loop
       - id: micro-traits/fs/directory/traverse::traverse-walk
       - id: glob-pattern

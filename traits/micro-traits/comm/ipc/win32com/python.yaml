@@ -18,5 +18,5 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: \b(?:win32com\.client\.(?:Dispatch|DispatchEx)|win32com\.gencache\.EnsureDispatch|pythoncom\.CoCreateInstance)\b
+    regex: \b(?:DispatchEx?|EnsureDispatch|CoCreateInstance)\b
 composite_rules: []

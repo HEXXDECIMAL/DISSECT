@@ -28,7 +28,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "[\\u0900-\\u097F]|[\\u0400-\\u04FF]|[\\u0600-\\u06FF]|[\\u0590-\\u05FF]|[\\u4E00-\\u9FFF]"
+      regex: "[\\p{Devanagari}\\p{Cyrillic}\\p{Arabic}\\p{Hebrew}\\p{Han}]"
       count_min: 5
 
   # Mixed Unicode blocks in single string (sophisticated obfuscation)

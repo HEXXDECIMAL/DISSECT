@@ -46,5 +46,5 @@ traits:
     type: kv
     path: keywords
     case_insensitive: true
-    regex: dll(?:tracer|inject|load|hijack)|keylog|rat\b|trojan|backdoor|rootkit|exploit|payload|shellcode|reverse.?shell|stealer|infect|malware|c2\b|beacon
+    regex: (?:trojan|backdoor|rootkit|exploit|payload|stealer|malware|keylog)
 composite_rules: []

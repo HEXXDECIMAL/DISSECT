@@ -325,7 +325,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: '"name":\\s*"@[^/]{1,80}/(react|vue|angular|express|lodash|axios|webpack|babel|typescript|eslint|prettier|jest|mocha)'
+      regex: '"name":\\s*"@[^/]{1,80}/(?:react|vue|angular|express|lodash|axios)'
   - id: js-placeholder-announcement
     desc: Code announces placeholder or fake package
     crit: suspicious
@@ -336,7 +336,7 @@ traits:
       - javascript
     if:
       type: string
-      regex: (?:\b(?:placeholder|fake|demo|reserved)\b.{0,40}\b(?:package|module|library|dependency|npm)\b|\b(?:package|module|library|dependency|npm)\b.{0,40}\b(?:placeholder|fake|demo|reserved)\b|\bdo\s+not\s+use\b.{0,40}\b(?:package|module|library|dependency|npm)\b|\bprevent(?:s|ing)?\s+(?:dependency\s+)?confusion\b)
+      regex: (?:placeholder|fake|demo).{0,30}(?:package|module|npm)|do\s+not\s+use
       case_insensitive: true
   - id: bug-bounty-marker
     desc: Bug bounty or security research
@@ -348,7 +348,7 @@ traits:
     if:
       type: string
       case_insensitive: true
-      regex: bug\s*bounty|hackerone|bugcrowd|security\s*research|proof\s*of\s*concept|PoC|benign\s*test
+      regex: bug\s*bounty|hackerone|bugcrowd|proof\s*of\s*concept|\bPoC\b
 composite_rules:
   - id: has-exports
     desc: Module has exports

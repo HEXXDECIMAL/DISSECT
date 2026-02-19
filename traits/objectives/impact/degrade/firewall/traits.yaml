@@ -82,7 +82,8 @@ traits:
   - pe
   if:
     type: string
-    regex: (?i)netsh\s+(firewall\s+set\s+opmode\s+disable|advfirewall\s+set\s+\w+profile\s+state\s+off)
+    regex: netsh\s+(?:firewall.{0,80}disable|advfirewall.{0,80}state\s+off)
+    case_insensitive: true
 composite_rules:
 - id: disabled
   desc: Firewall disabled

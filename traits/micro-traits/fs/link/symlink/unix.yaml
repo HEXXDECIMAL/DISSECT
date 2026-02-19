@@ -6,21 +6,37 @@ defaults:
   for: [all]
 
 traits:
-  - id: symlink-create
+  - id: symlink
     desc: Create symbolic links
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: symlink|symlinkat
+      exact: "symlink"
 
-  - id: symlink-read
+  - id: symlinkat
+    desc: Create symbolic links
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "symlinkat"
+
+  - id: readlink
     desc: Read symbolic link target path
     crit: notable
     conf: 0.8
     if:
       type: symbol
-      regex: readlink|readlinkat
+      exact: "readlink"
+
+  - id: readlinkat
+    desc: Read symbolic link target path
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "readlinkat"
 
   - id: symlink-resolve
     desc: Resolve symbolic links to canonical
@@ -29,3 +45,20 @@ traits:
     if:
       type: symbol
       regex: realpath
+
+composite_rules:
+  - id: symlink-create
+    desc: Create symbolic links
+    crit: inert
+    conf: 0.66
+    any:
+      - id: symlink
+      - id: symlinkat
+
+  - id: symlink-read
+    desc: Read symbolic link target path
+    crit: notable
+    conf: 0.8
+    any:
+      - id: readlink
+      - id: readlinkat

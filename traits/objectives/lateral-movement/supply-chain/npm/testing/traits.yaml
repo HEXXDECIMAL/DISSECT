@@ -51,24 +51,87 @@ traits:
       substr: ".should."
 
   # Has assertion library usage
-  - id: has-assertions
+  - id: has-assertions-assert
+    desc: Code uses assert assertion
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "assert\\s*[.\\(]"
+
+  - id: has-assertions-expect
+    desc: Code uses expect assertion
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "expect\\s*[.\\(]"
+
+  - id: has-assertions-should
+    desc: Code uses should assertion
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "should\\s*[.\\(]"
+
+  - id: has-assertions-test
+    desc: Code uses test assertion style
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "test\\s*[.\\(]"
+
+  - id: has-assertions-b
     desc: Code uses assertion patterns
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:assert|expect|should|test)\\s*[.\\(]|toBe\\(|toEqual\\(|toMatch\\("
+      regex: "toMatch\\("
 
   # Uses popular web framework
-  - id: has-test-directory
+  - id: has-test-directory-test
     desc: Package references test directory
     crit: notable
     conf: 0.85
     for: [package.json]
     if:
       type: string
-      regex: '"test"|"tests"|"__tests__"|"spec"|"__mocks__"'
+      exact: '"test"'
+
+  - id: has-test-directory-tests
+    desc: Package references tests directory
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    if:
+      type: string
+      exact: '"tests"'
+
+  - id: has-test-directory-spec
+    desc: Package references spec directory
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    if:
+      type: string
+      exact: '"spec"'
+
+  - id: has-test-directory-b
+    desc: Package references test directory
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    if:
+      type: string
+      exact: '"__mocks__"'
 
   # Has examples directory
   - id: has-jest-config
@@ -78,7 +141,7 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: 'jest\\.config|"jest"'
+      regex: 'jest\\.config'
 
   # Has Babel config
   - id: pkg-test-script-field
@@ -90,24 +153,69 @@ traits:
       type: string
       substr: '"test":'
 
-  - id: has-test-script
+  - id: has-test-script-a
     desc: Package has test script (legitimate
     crit: notable
     conf: 0.9
     for: [package.json]
     if:
       type: string
-      regex: '"test":\\s*"[^"]{0,120}(?:jest|mocha|ava|tap|vitest|node --test|npm test)'
+      regex: '"test":\\s*"[^"]{0,120}(?:jest|mocha|ava|tap)'
+
+  - id: has-test-script-b
+    desc: Package has test script (legitimate
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    if:
+      type: string
+      regex: '"test":\\s*"[^"]{0,120}(?:vitest|node --test|npm test)'
 
   # Has TypeScript configuration
-  - id: uses-test-framework
+  - id: uses-test-framework-jest
+    desc: Package uses jest framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    if:
+      type: string
+      exact: '"jest"'
+
+  - id: uses-test-framework-mocha
+    desc: Package uses mocha framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    if:
+      type: string
+      exact: '"mocha"'
+
+  - id: uses-test-framework-ava
+    desc: Package uses ava framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    if:
+      type: string
+      exact: '"ava"'
+
+  - id: uses-test-framework-vitest
+    desc: Package uses vitest framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    if:
+      type: string
+      exact: '"vitest"'
+
+  - id: uses-test-framework-b
     desc: Package uses established testing framework
     crit: notable
     conf: 0.9
     for: [package.json]
     if:
       type: string
-      regex: '"jest"|"mocha"|"ava"|"vitest"|"@testing-library|"chai"|"sinon"|"tap"'
+      regex: '"@testing-library|"chai"|"sinon"|"tap"'
 
   # Has files field (explicit inclusion)
   - id: test-call
@@ -297,6 +405,76 @@ traits:
 
 # === COMPOSITE RULES ===
 composite_rules:
+  - id: has-assertions-a
+    desc: Code uses assertion patterns
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - id: has-assertions-assert
+      - id: has-assertions-expect
+      - id: has-assertions-should
+      - id: has-assertions-test
+      - id: has-assertions-b
+
+  - id: has-test-directory-a
+    desc: Package references test directory
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: has-test-directory-test
+      - id: has-test-directory-tests
+      - id: has-test-directory-spec
+      - id: has-test-directory-b
+
+  - id: uses-test-framework-a
+    desc: Package uses established testing framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    any:
+      - id: uses-test-framework-jest
+      - id: uses-test-framework-mocha
+      - id: uses-test-framework-ava
+      - id: uses-test-framework-vitest
+
+  - id: has-test-directory
+    desc: Package references test directory
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: has-test-directory-a
+      - id: has-test-directory-b
+
+  - id: has-test-script
+    desc: Package has test script (legitimate
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    any:
+      - id: has-test-script-a
+      - id: has-test-script-b
+
+  - id: uses-test-framework
+    desc: Package uses established testing framework
+    crit: notable
+    conf: 0.9
+    for: [package.json]
+    any:
+      - id: uses-test-framework-a
+      - id: uses-test-framework-b
+
+  - id: has-assertions
+    desc: Code uses assertion patterns
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - id: has-assertions-a
+      - id: has-assertions-b
+
   # Terser/UglifyJS minified output
   - id: test-block-functions
     desc: Test block functions (describe/it/test)

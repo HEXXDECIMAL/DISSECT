@@ -8,7 +8,5 @@ traits:
   - typescript
   if:
     type: raw
-    regex: 'for\s*\(\s*[A-Za-z0-9_]+\s*=\s*0\s*;\s*[A-Za-z0-9_]+\s*<\s*\w+\s*\[\s*["'']l["'']\s*\+\s*["'']ength["'']\s*\]\s*;\s*[A-Za-z0-9_]+\+\+\s*\)\s*\{[\s\S]{0,250}[A-Za-z0-9_]+\s*=\s*\w+\s*\[\s*[A-Za-z0-9_]+\s*\]\s*;[\s\S]{0,250}[A-Za-z0-9_]+\s*=\s*[\s\S]{0,80}\+\s*[\s\S]{0,80}\w+\s*\[\s*[A-Za-z0-9_]+\s*\]\s*;
-
-      '
+    regex: for\s*\([^)]{0,120}\)\s*\{.{0,250}\w+\s*=\s*\w+\s*\[\s*\w+\s*\]\s*;
 composite_rules: []

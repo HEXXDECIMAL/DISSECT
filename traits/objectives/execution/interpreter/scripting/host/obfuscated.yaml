@@ -29,9 +29,19 @@ traits:
   if:
     type: encoded
     regex: (?i)ADODB\.Stream|\{[^:]+:['"]A['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]D['"]\}
-- id: xmlhttp-obfuscated
-  desc: Obfuscated XMLHTTP reference
+- id: xmlhttp-obfuscated-literal
+  desc: Obfuscated XMLHTTP literal reference
   if:
     type: encoded
-    regex: (?i)MSXML2\.ServerXMLHTTP|(?i)\{[^:]+:['"]M['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]S['"]\}
-composite_rules: []
+    regex: (?i)MSXML2\.ServerXMLHTTP
+- id: xmlhttp-obfuscated-fragment
+  desc: Obfuscated XMLHTTP fragment concat
+  if:
+    type: encoded
+    regex: (?i)\{[^:]+:['"]M['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]S['"]\}
+composite_rules:
+- id: xmlhttp-obfuscated
+  desc: Obfuscated XMLHTTP reference
+  any:
+  - id: xmlhttp-obfuscated-literal
+  - id: xmlhttp-obfuscated-fragment

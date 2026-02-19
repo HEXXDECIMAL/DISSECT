@@ -32,5 +32,5 @@ traits:
   desc: Derived string condition
   if:
     type: string
-    regex: (password|account|credential|token|user|authentication).{0,80}cannot.{0,30}recover
+    regex: (password|account|credential|token|user).{0,80}cannot.{0,30}recover
     case_insensitive: true

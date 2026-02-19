@@ -19,13 +19,21 @@ traits:
       type: raw
       substr: "Obfuscated with BlankOBF"
 
-  - id: pyarmor-signature
+  - id: pyarmor-signature-core
     desc: PyArmor obfuscator signature
     crit: suspicious
     conf: 0.90
     if:
       type: raw
-      regex: "pyarmor|__pyarmor"
+      regex: "pyarmor"
+
+  - id: pyarmor-signature-underscore
+    desc: PyArmor obfuscator signature (double underscore)
+    crit: suspicious
+    conf: 0.90
+    if:
+      type: raw
+      regex: "__pyarmor"
 
   - id: pyobfuscate-signature
     desc: PyObfuscate signature
@@ -118,6 +126,13 @@ traits:
 
 composite_rules:
   # === Obfuscator Detection ===
+  - id: pyarmor-signature
+    desc: PyArmor obfuscator signature
+    crit: suspicious
+    conf: 0.90
+    any:
+      - id: pyarmor-signature-core
+      - id: pyarmor-signature-underscore
   - id: known-obfuscator-detected
     desc: Known obfuscator detected
     crit: suspicious

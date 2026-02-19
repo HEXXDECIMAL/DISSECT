@@ -202,23 +202,59 @@ traits:
     type: kv
     path: content_scripts[*].matches
     regex: /(user|account|settings|profile|my)/(openapi|api|keys|tokens|security|auth)
-- id: description-crypto-finance
-  desc: Extension description mentions crypto/finance
+- id: description-crypto-finance-a
+  desc: Extension description crypto/finance family A
   crit: notable
   conf: 0.85
   if:
     type: kv
     path: description
-    regex: crypto|wallet|blockchain|defi|token|trading|swap|nft|ethereum|solana|bitcoin
+    regex: crypto|wallet|blockchain|defi
     case_insensitive: true
-- id: name-crypto-finance
-  desc: Extension name mentions crypto/finance
+- id: description-crypto-finance-b
+  desc: Extension description crypto/finance family B
+  crit: notable
+  conf: 0.85
+  if:
+    type: kv
+    path: description
+    regex: token|trading|swap|nft
+    case_insensitive: true
+- id: description-crypto-finance-c
+  desc: Extension description crypto/finance family C
+  crit: notable
+  conf: 0.85
+  if:
+    type: kv
+    path: description
+    regex: ethereum|solana|bitcoin
+    case_insensitive: true
+- id: name-crypto-finance-a
+  desc: Extension name crypto/finance family A
   crit: notable
   conf: 0.85
   if:
     type: kv
     path: name
-    regex: crypto|wallet|blockchain|defi|token|swap|nft|ethereum|solana|bitcoin
+    regex: crypto|wallet|blockchain|defi
+    case_insensitive: true
+- id: name-crypto-finance-b
+  desc: Extension name crypto/finance family B
+  crit: notable
+  conf: 0.85
+  if:
+    type: kv
+    path: name
+    regex: token|swap|nft|ethereum
+    case_insensitive: true
+- id: name-crypto-finance-c
+  desc: Extension name crypto/finance family C
+  crit: notable
+  conf: 0.85
+  if:
+    type: kv
+    path: name
+    regex: solana|bitcoin
     case_insensitive: true
 - id: name-adblocker
   desc: Extension name mentions ad blocking
@@ -297,23 +333,69 @@ traits:
   if:
     type: kv
     path: manifest_version
+- id: content-script-social-media-a
+  desc: Targets social media domains (set A)
+  crit: notable
+  conf: 0.9
+  if:
+    type: kv
+    path: content_scripts[*].matches
+    regex: twitter\.com|x\.com|facebook\.com|instagram\.com
+- id: content-script-social-media-b
+  desc: Targets social media domains (set B)
+  crit: notable
+  conf: 0.9
+  if:
+    type: kv
+    path: content_scripts[*].matches
+    regex: linkedin\.com|reddit\.com|tiktok\.com
+- id: content-script-crypto-exchange-a
+  desc: Content script targets crypto exchanges (set A)
+  crit: notable
+  conf: 0.9
+  if:
+    type: kv
+    path: content_scripts[*].matches
+    regex: binance\.com|coinbase\.com|kraken\.com|bybit\.com|okx\.com
+- id: content-script-crypto-exchange-b
+  desc: Content script targets crypto exchanges (set B)
+  crit: notable
+  conf: 0.9
+  if:
+    type: kv
+    path: content_scripts[*].matches
+    regex: kucoin\.com|mexc\.com|gate\.io|crypto\.com|bitfinex\.com
+composite_rules:
 - id: content-script-social-media
   desc: Content script targets social media sites
   crit: notable
   conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: twitter\.com|x\.com|facebook\.com|instagram\.com|linkedin\.com|reddit\.com|tiktok\.com
+  any:
+  - id: content-script-social-media-a
+  - id: content-script-social-media-b
 - id: content-script-crypto-exchange
   desc: Content script targets crypto exchange sites
   crit: notable
   conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: binance\.com|coinbase\.com|kraken\.com|bybit\.com|okx\.com|kucoin\.com|mexc\.com|gate\.io|crypto\.com|bitfinex\.com
-composite_rules:
+  any:
+  - id: content-script-crypto-exchange-a
+  - id: content-script-crypto-exchange-b
+- id: description-crypto-finance
+  desc: Extension description mentions crypto/finance
+  crit: notable
+  conf: 0.85
+  any:
+  - id: description-crypto-finance-a
+  - id: description-crypto-finance-b
+  - id: description-crypto-finance-c
+- id: name-crypto-finance
+  desc: Extension name mentions crypto/finance
+  crit: notable
+  conf: 0.85
+  any:
+  - id: name-crypto-finance-a
+  - id: name-crypto-finance-b
+  - id: name-crypto-finance-c
 - id: overprivileged
   desc: Extension requests excessive permissions
   crit: suspicious

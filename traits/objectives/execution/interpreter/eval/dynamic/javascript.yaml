@@ -161,7 +161,7 @@ traits:
   - javascript
   if:
     type: raw
-    regex: \(\s*typeof[^\)]{0,80}\)\s*\)\s*\.charAt\(0\)\.toUpperCase\(\)\s*\+\s*\(\s*typeof[^\)]{0,80}\)\s*\)\s*\.slice\(1\)
+    regex: typeof.{0,80}charAt\(0\)\.toUpperCase\(\).{0,60}typeof.{0,80}\.slice\(1\)
 composite_rules:
 - id: eval-function-reference
   desc: eval passed as function reference

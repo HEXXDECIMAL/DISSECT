@@ -6,18 +6,11 @@ defaults:
   crit: hostile
   conf: 1.0
 
-traits:
-  - id: basename-is-image
-    desc: Filename has image extension
-    crit: notable
-    if:
-      type: basename
-      regex: \.(png|jpg|jpeg|gif|bmp|ico|svg|tif|tiff)$
-      case_insensitive: true
+traits: []
 
 composite_rules:
   - id: ocra-masked-as-image
     desc: OCRA packed executable disguised with an image extension
     all:
       - id: objectives/anti-analysis/packing/ocra::ocra-packed-executable
-      - id: basename-is-image
+      - id: micro-traits/fs/file/extension::image-extension

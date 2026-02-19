@@ -22,7 +22,7 @@ traits:
   if:
     type: kv
     path: name
-    regex: (?i)(?:discord|telegram|whatsapp|slack|signal|skype|teams)[-_.]?(?:safe|secur|protect|guard|shield|verif|checker|scan|auth|token|backup|recover)
+    regex: (?i)(?:discord|telegram|whatsapp|signal)[-_.]?(?:safe|secur|auth|token)
 - id: pkginfo-name-module-fragments
   desc: Package name with concatenated module name fragments
   crit: notable
@@ -31,7 +31,7 @@ traits:
   if:
     type: kv
     path: name
-    regex: (?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).{0,80}(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)
+    regex: (?:http|api|web|crypto|token).{0,80}(?:http|api|web|crypto|token)
 - id: pyproject-name-module-fragments
   desc: pyproject.toml name with concatenated module fragments
   crit: notable
@@ -40,9 +40,9 @@ traits:
   if:
     type: kv
     path: project.name
-    regex: (?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode).{0,80}(?:http|url|rand|pip|tool|info|api|web|net|req|crypto|token|socket|base64|encode|decode)
+    regex: (?:http|api|web|crypto|token).{0,80}(?:http|api|web|crypto|token)
 - id: pkginfo-name-malware-term
-  desc: PKG-INFO package name contains malware/offensive term
+  desc: PKG-INFO name malware term set A
   crit: suspicious
   conf: 0.85
   attack: T1036.005
@@ -50,5 +50,34 @@ traits:
     type: kv
     path: name
     case_insensitive: true
-    regex: hack|exploit|trojan|malware|inject|keylog|stealer|ransomware|rootkit|botnet|phish|spyware|backdoor|rat(?:tool|kit|net)
-composite_rules: []
+    regex: \b(?:hack|exploit|trojan|malware)\b
+- id: pkginfo-name-malware-term-b
+  desc: PKG-INFO name malware term set B
+  crit: suspicious
+  conf: 0.85
+  attack: T1036.005
+  if:
+    type: kv
+    path: name
+    case_insensitive: true
+    regex: \b(?:inject|keylog|stealer|ransomware)\b
+- id: pkginfo-name-malware-term-c
+  desc: PKG-INFO name malware term set C
+  crit: suspicious
+  conf: 0.85
+  attack: T1036.005
+  if:
+    type: kv
+    path: name
+    case_insensitive: true
+    exact: backdoor
+composite_rules:
+- id: pkginfo-name-malware-term-any
+  desc: PKG-INFO package name contains malware/offensive term
+  crit: suspicious
+  conf: 0.85
+  attack: T1036.005
+  any:
+  - id: pkginfo-name-malware-term
+  - id: pkginfo-name-malware-term-b
+  - id: pkginfo-name-malware-term-c

@@ -10,10 +10,27 @@ traits:
       type: string
       regex: "chmod\\s+(0?777|0?666|0?775|0?888)"
 
+  - id: chmod-exec-symbolic
+    crit: notable
+    attack: T1222
+    desc: "Detects chmod +x variants"
+    if:
+      type: string
+      regex: "chmod\\s+(\\+x|u\\+x|a\\+x)"
+
+  - id: chmod-exec-numeric
+    crit: notable
+    attack: T1222
+    desc: "Detects chmod 755 variants"
+    if:
+      type: string
+      regex: "chmod\\s+(755|0755)"
+
+composite_rules:
   - id: chmod-exec
     crit: notable
     attack: T1222
     desc: "Detects chmod making file executable"
-    if:
-      type: string
-      regex: "chmod\\s+(\\+x|u\\+x|a\\+x|755|0755)"
+    any:
+      - id: chmod-exec-symbolic
+      - id: chmod-exec-numeric

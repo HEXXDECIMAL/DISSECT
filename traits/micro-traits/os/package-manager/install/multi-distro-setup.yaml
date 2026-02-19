@@ -74,8 +74,8 @@ traits:
   unless:
   - type: raw
     regex: postgresql|libc|libgcc|libstdc\+\+
-- id: conditional-install-which
-  desc: which-based conditional installation
+- id: conditional-install-which-apt
+  desc: which-based apt conditional installation
   crit: suspicious
   conf: 0.85
   for:
@@ -83,9 +83,9 @@ traits:
   - shell
   if:
     type: string
-    regex: which\s+(apt-get|yum|dnf)\s+.{0,50}>/dev/null.{0,80}&&\s*(apt-get|yum|dnf)
-- id: conditional-install-type
-  desc: type-based conditional installation
+    regex: which\s+apt-get\s+.{0,50}>/dev/null.{0,80}&&\s*apt-get
+- id: conditional-install-which-yum
+  desc: which-based yum conditional installation
   crit: suspicious
   conf: 0.85
   for:
@@ -93,9 +93,9 @@ traits:
   - shell
   if:
     type: string
-    regex: type\s+(apt-get|yum|dnf)\s+.{0,50}>/dev/null.{0,80}&&\s*(apt-get|yum|dnf)
-- id: conditional-install-command
-  desc: command -v conditional installation
+    regex: which\s+yum\s+.{0,50}>/dev/null.{0,80}&&\s*yum
+- id: conditional-install-which-dnf
+  desc: which-based dnf conditional installation
   crit: suspicious
   conf: 0.85
   for:
@@ -103,7 +103,67 @@ traits:
   - shell
   if:
     type: string
-    regex: command\s+-v\s+(apt-get|yum|dnf)\s+.{0,50}>/dev/null.{0,80}&&\s*(apt-get|yum|dnf)
+    regex: which\s+dnf\s+.{0,50}>/dev/null.{0,80}&&\s*dnf
+- id: conditional-install-type-apt
+  desc: type-based apt conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: type\s+apt-get\s+.{0,50}>/dev/null.{0,80}&&\s*apt-get
+- id: conditional-install-type-yum
+  desc: type-based yum conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: type\s+yum\s+.{0,50}>/dev/null.{0,80}&&\s*yum
+- id: conditional-install-type-dnf
+  desc: type-based dnf conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: type\s+dnf\s+.{0,50}>/dev/null.{0,80}&&\s*dnf
+- id: conditional-install-command-apt
+  desc: command -v apt conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: command\s+-v\s+apt-get.{0,80}&&\s*apt-get
+- id: conditional-install-command-yum
+  desc: command -v yum conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: command\s+-v\s+yum.{0,80}&&\s*yum
+- id: conditional-install-command-dnf
+  desc: command -v dnf conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: command\s+-v\s+dnf.{0,80}&&\s*dnf
 composite_rules:
 - id: multi-distro-detection
   desc: Checks for multiple package managers
@@ -128,6 +188,39 @@ composite_rules:
   - id: conditional-install-which
   - id: conditional-install-command
   - id: conditional-install-type
+- id: conditional-install-which
+  desc: which-based conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  any:
+  - id: conditional-install-which-apt
+  - id: conditional-install-which-yum
+  - id: conditional-install-which-dnf
+- id: conditional-install-type
+  desc: type-based conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  any:
+  - id: conditional-install-type-apt
+  - id: conditional-install-type-yum
+  - id: conditional-install-type-dnf
+- id: conditional-install-command
+  desc: command -v conditional installation
+  crit: suspicious
+  conf: 0.85
+  for:
+  - elf
+  - shell
+  any:
+  - id: conditional-install-command-apt
+  - id: conditional-install-command-yum
+  - id: conditional-install-command-dnf
 - id: apt-distro-targeting
   desc: apt-based distribution targeting
   any:

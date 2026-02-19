@@ -26,7 +26,7 @@ traits:
     attack: "T1056"
     if:
       type: string
-      regex: "password.{0,50}rescue|email.{0,50}password"
+      regex: "password.{0,50}rescue"
 
   # === Global Variable for Storage ===
   - id: global-var-storage

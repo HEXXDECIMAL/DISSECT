@@ -142,7 +142,7 @@ traits:
   if:
     type: kv
     path: scripts.preinstall
-    regex: (?:^|[^a-zA-Z0-9_.-])(curl|wget|sh|bash|powershell)(?:\.exe)?(?:$|[^a-zA-Z0-9_./\-])
+    regex: \b(curl|wget|sh|bash|powershell)(?:\.exe)?\b
 - id: scripts-postinstall-shell
   desc: postinstall runs shell command
   crit: suspicious
@@ -152,7 +152,7 @@ traits:
   if:
     type: kv
     path: scripts.postinstall
-    regex: (?:^|[^a-zA-Z0-9_.-])(curl|wget|sh|bash|powershell)(?:\.exe)?(?:$|[^a-zA-Z0-9_./\-])
+    regex: \b(curl|wget|sh|bash|powershell)(?:\.exe)?\b
 composite_rules:
 - id: http-client-imports
   desc: HTTP client imports

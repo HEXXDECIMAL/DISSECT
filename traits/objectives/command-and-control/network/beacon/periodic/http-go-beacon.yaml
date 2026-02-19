@@ -16,20 +16,34 @@ traits:
   if:
     type: string
     regex: HTTP/(1\.0|1\.1|2\.0)
-- id: http-methods
-  desc: HTTP methods (GET, POST, HEAD)
+- id: http-methods-main
+  desc: HTTP methods (GET, POST, PUT)
   crit: notable
   conf: 0.6
   if:
     type: string
-    regex: '^(GET|POST|HEAD|PUT|DELETE|PATCH) '
-- id: http-headers-general
+    regex: '^(GET|POST|PUT) '
+- id: http-methods-other
+  desc: HTTP methods (HEAD, DELETE, PATCH)
+  crit: notable
+  conf: 0.6
+  if:
+    type: string
+    regex: '^(HEAD|DELETE|PATCH) '
+- id: http-headers-general-a
   desc: HTTP header keywords
   crit: notable
   conf: 0.65
   if:
     type: string
-    regex: (User-Agent|Content-Type|Content-Length|Authorization|Cookie|Accept)
+    regex: (User-Agent|Content-Type|Content-Length)
+- id: http-headers-general-b
+  desc: HTTP header keywords
+  crit: notable
+  conf: 0.65
+  if:
+    type: string
+    regex: (Authorization|Cookie|Accept)
 - id: go-dial-string
   desc: Network dial pattern in strings
   crit: notable
@@ -72,13 +86,21 @@ traits:
   if:
     type: string
     regex: (callback|Callback|CallBack).{0,50}Handler
-- id: polling-pattern
+- id: polling-pattern-a
   desc: Polling/beacon loop pattern
   crit: notable
   conf: 0.7
   if:
     type: string
-    regex: (poll|beacon|heartbeat|tick).{0,50}loop|loop.{0,50}(poll|beacon|heartbeat)
+    regex: (poll|beacon|heartbeat|tick).{0,50}loop
+    case_insensitive: true
+- id: polling-pattern-b
+  desc: Polling/beacon loop pattern
+  crit: notable
+  conf: 0.7
+  if:
+    type: string
+    regex: loop.{0,50}(poll|beacon|heartbeat)
     case_insensitive: true
 - id: websocket-support
   desc: WebSocket communication support
@@ -93,8 +115,29 @@ traits:
   conf: 0.75
   if:
     type: string
-    regex: (?i)\b(c2Handler|c2Server|c2Beacon|c2Url|c2Host)\b|(?i)\bc2\s*=\s*(https?://|[a-z0-9.-]+\.[a-z0-9]+)
+    regex: (?i)\b(c2Handler|c2Server|c2Beacon)\b|c2\s*=\s*https?://
 composite_rules:
+- id: http-methods
+  desc: HTTP methods (GET, POST, HEAD)
+  crit: notable
+  conf: 0.6
+  any:
+  - id: http-methods-main
+  - id: http-methods-other
+- id: http-headers-general
+  desc: HTTP header keywords
+  crit: notable
+  conf: 0.65
+  any:
+  - id: http-headers-general-a
+  - id: http-headers-general-b
+- id: polling-pattern
+  desc: Polling/beacon loop pattern
+  crit: notable
+  conf: 0.7
+  any:
+  - id: polling-pattern-a
+  - id: polling-pattern-b
 - id: http-beacon-network
   desc: HTTP beacon network comms
   crit: suspicious

@@ -65,19 +65,63 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: 'require\s*\(\s*Buffer\.from\s*\(\s*["\x27][0-9a-fA-F]+["\x27]\s*,\s*["\x27]hex["\x27]\s*\)\.toString\s*\(\s*\)'
+      regex: 'require\s*\(\s*Buffer\.from\([^)]{0,120}hex[^)]{0,120}\)\.toString\(\)'
 
   # Global object manipulation via assignment to high-risk decode/exec APIs
-  - id: js-global-property-write
-    desc: Global object property assignment
+  - id: js-global-property-write-assignment
+    desc: Global object assignment
     crit: suspicious
-    conf: 0.8
+    conf: 0.6
     attack: "T1027.002"
     mbc: "B0032"
     for: [javascript]
     if:
       type: raw
-      regex: '(globalThis|window|self)\s*(?:\.\s*[A-Za-z_$][\w$]*|\[\s*["''][^"'']{1,120}["'']\s*\])\s*=\s*(?:eval|Function|atob|btoa|unescape|decodeURIComponent|String\.fromCharCode)'
+      regex: '(globalThis|window|self).{0,80}='
+
+  - id: js-global-property-write-eval
+    desc: Global property using eval
+    crit: suspicious
+    conf: 0.7
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\\beval\\b'
+
+  - id: js-global-property-write-function
+    desc: Global property using Function constructor
+    crit: suspicious
+    conf: 0.7
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\\bFunction\\b'
+
+  - id: js-global-property-write-atob
+    desc: Global property using atob
+    crit: suspicious
+    conf: 0.7
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: raw
+      word: "atob"
+
+  - id: js-global-property-write-decode
+    desc: Global property using decodeURIComponent
+    crit: suspicious
+    conf: 0.7
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    if:
+      type: raw
+      regex: 'decodeURIComponent'
 
   - id: js-require-alias
     desc: Require function aliasing
@@ -121,7 +165,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '\b(?:var|let|const)\s+\w+\s*=\s*\w+\s*\[[^\]]{1,80}\]\s*;\s*\w+\s*\[[^\]]{1,80}\]\s*=\s*\w+\s*\[[^\]]{1,80}\]\s*;\s*\w+\s*\[[^\]]{1,80}\]\s*=\s*\w+'
+      regex: '\b(?:var|let|const)\s+\w+\s*=.{0,80}\[.{1,80}\].{0,120}\[.{1,80}\]\s*='
 
   # String split to array
   - id: js-string-split
@@ -241,10 +285,26 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "(?:\\b(?:this|self|window|globalThis|global|document|top|parent|frames|module|exports|process|[A-Za-z_$][\\w$]*)(?:\\s*\\.\\s*[A-Za-z_$][\\w$]*){0,6})\\s*\\[\\s*['\"](eval|Function|constructor|fromCharCode|charCodeAt|atob|btoa|decodeURIComponent|unescape|setTimeout|setInterval)['\"]\\s*\\]\\s*\\("
+      regex: "\\[\\s*['\"](?:eval|Function|constructor|atob)['\"]\\s*\\]\\s*\\("
       count_min: 1
 
 composite_rules:
+  - id: js-global-property-write
+    desc: Global object property assignment
+    crit: suspicious
+    conf: 0.8
+    attack: "T1027.002"
+    mbc: "B0032"
+    for: [javascript]
+    all:
+      - id: js-global-property-write-assignment
+    any:
+      - id: js-global-property-write-eval
+      - id: js-global-property-write-function
+      - id: js-global-property-write-atob
+      - id: js-global-property-write-decode
+
+  # String deobfuscation pattern (charAt/split + swap + join)
   # String deobfuscation pattern (charAt/split + swap + join)
   - id: js-string-deobfuscation
     desc: String deobfuscation routine

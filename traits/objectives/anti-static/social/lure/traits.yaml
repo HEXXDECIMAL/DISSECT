@@ -15,6 +15,5 @@ traits:
   conf: 0.9
   if:
     type: raw
-    regex: (?i)(don't|do not) have to look(s)? further|(?i)ignore this (file|module)|(?i)no
-      pretty code
+    regex: (?i)(don't|do not) have to look(s)? further|(?i)ignore this (file|module)
 composite_rules: []

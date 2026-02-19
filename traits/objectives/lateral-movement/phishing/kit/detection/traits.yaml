@@ -27,7 +27,7 @@
 #
 # Once atomic traits are created, uncomment the composite rules below
 # and update the trait IDs to use full namespace paths like:
-# { id: objectives/lateral/phishing/kit/anti-copy::oncopy-false }
+# { id: objectives/lateral-movement/phishing/kit/anti-copy::oncopy-false }
 #
 # ========================================================================
 

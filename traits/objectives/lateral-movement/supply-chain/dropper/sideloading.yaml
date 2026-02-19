@@ -15,7 +15,7 @@ traits:
   conf: 0.6
   if:
     type: basename
-    regex: (?i)^BugReport\.exe$|(?i)^CrashReport\.exe$|(?i)^Update\.exe$|(?i)^Setup\.exe$|(?i)^Install\.exe$|(?i)^OneDriveStandaloneUpdater\.exe$
+    regex: (?i)^(?:BugReport|CrashReport|Update|Setup|OneDriveStandaloneUpdater)\.exe$
 composite_rules:
 - id: minimalist-hostile-dll
   desc: Hostile DLL with minimal imports and high entropy

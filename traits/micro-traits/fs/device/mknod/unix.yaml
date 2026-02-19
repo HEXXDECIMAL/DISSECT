@@ -6,10 +6,27 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mknod
+  - id: mknod-base
     desc: Create device files
     crit: notable
     conf: 0.66
     if:
       type: symbol
-      regex: mknod|mknodat
+      exact: "mknod"
+
+  - id: mknodat
+    desc: Create device files
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mknodat"
+
+composite_rules:
+  - id: mknod
+    desc: Create device files
+    crit: notable
+    conf: 0.66
+    any:
+      - id: mknod-base
+      - id: mknodat

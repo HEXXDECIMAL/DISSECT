@@ -82,20 +82,20 @@ traits:
   crit: suspicious
   if:
     type: string
-    regex: split\([^)]{0,120}\)\s*\.\s*length\s*[=!<>]+\s*(12|15|18|21|24)|len\([^)]{0,120}split[^)]{0,120}\)\s*[=!<>]+\s*(12|15|18|21|24)|words?_?count\s*[=!<>]+\s*(12|15|18|21|24)
+    regex: (?:split|len|words?_?count).{0,80}\b(?:12|15|18|21|24)\b
 - id: bip39-wordlist
   desc: BIP-39 wordlist reference
   conf: 0.85
   if:
     type: string
-    regex: bip39|bip-39|wordlist|word_list|english\.txt.{0,30}mnemonic|mnemonic.{0,30}english\.txt
+    regex: bip-?39|word_?list|english\.txt.{0,30}mnemonic
 - id: validation-pattern
   desc: Mnemonic phrase validation logic
   conf: 0.85
   crit: suspicious
   if:
     type: string
-    regex: validate.{0,20}mnemonic|mnemonic.{0,20}valid|check.{0,20}seed.{0,20}phrase|verify.{0,20}recovery
+    regex: validate.{0,20}mnemonic|mnemonic.{0,20}valid|verify.{0,20}recovery
 - id: private-key-hex
   desc: Wallet private key extraction
   conf: 0.85
@@ -103,26 +103,26 @@ traits:
   size_max: 1000000
   if:
     type: string
-    regex: \b(wallet|eth|btc|crypto|metamask|phantom)\b.{0,50}\bprivate_?key\b|\bexport\b.{0,30}\b(wallet|crypto|eth|btc)\b.{0,30}\bkey\b
+    regex: \b(?:wallet|eth|btc|crypto)\b.{0,50}\bprivate_?key\b
 - id: bitcoin-wif
   desc: Bitcoin WIF private key format
   conf: 0.85
   crit: suspicious
   if:
     type: string
-    regex: wallet_import_format|WIF.{0,20}key|WIF.{0,20}private|bitcoin.{0,20}wif|wif.{0,20}bitcoin|decode.{0,20}wif|encode.{0,20}wif|to_?wif|from_?wif
+    regex: wallet_import_format|(?:wif|bitcoin).{0,20}(?:wif|key|private)
 - id: keystore-file
   desc: Ethereum keystore file reference
   conf: 0.8
   if:
     type: string
-    regex: UTC--.{0,50}--[a-fA-F0-9]{40}|ethereum.{0,30}keystore|keystore.{0,30}ethereum|web3.{0,30}keystore|\.json.{0,30}wallet
+    regex: UTC--.{0,50}--[a-fA-F0-9]{40}|ethereum.{0,30}keystore|\.json.{0,30}wallet
 - id: variable-names
   desc: Mnemonic-related variable or function names
   conf: 0.8
   if:
     type: string
-    regex: \bmnemonic\s*[=:]|\bseed_phrase\s*[=:]|\bseedphrase\s*[=:]|\brecovery_phrase\s*[=:]|\brecoveryPhrase\s*[=:]|\bsecret_words\s*[=:]|\bsecretWords\s*[=:]|\bwallet_words\s*[=:]|\bwalletWords\s*[=:]
+    regex: \b(?:mnemonic|seed_?phrase|recovery_?phrase|secret_?words|wallet_?words)\s*[=:]
 composite_rules:
 - id: mnemonic-terms
   desc: Mnemonic or seed phrase terminology

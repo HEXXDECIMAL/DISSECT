@@ -61,15 +61,31 @@ traits:
   if:
     type: raw
     regex: find\s+[^\n]{0,30}-name\s+[^\n]{0,30}\.log[^\n]{0,30}-exec\s+rm
-- id: bash-history-wipe
-  desc: Wipes bash_history file
+- id: bash-history-wipe-echo
+  desc: Wipes bash_history via redirection
   crit: suspicious
   conf: 0.85
   attack: T1070.003
   if:
     type: raw
-    regex: echo\s*>\s*(?:/root/|~/|\$HOME/)\.bash_history|rm\s+-[rf]+\s+[^\n]{0,20}\.bash_history
+    regex: echo\s*>\s*(?:/root/|~/|\$HOME/)\.bash_history
+- id: bash-history-wipe-rm
+  desc: Wipes bash_history via rm
+  crit: suspicious
+  conf: 0.85
+  attack: T1070.003
+  if:
+    type: raw
+    regex: rm\s+-[rf]+\s+[^\n]{0,20}\.bash_history
 composite_rules:
+- id: bash-history-wipe
+  desc: Wipes bash_history file
+  crit: suspicious
+  conf: 0.85
+  attack: T1070.003
+  any:
+  - id: bash-history-wipe-echo
+  - id: bash-history-wipe-rm
 - id: anti-forensics-cleanup
   desc: Anti-forensics log and history cleanup
   crit: hostile

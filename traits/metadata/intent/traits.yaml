@@ -13,28 +13,62 @@ traits:
     desc: Backdoor naming pattern
     if:
       type: string
-      regex: "\\b(back_?door|bkdr|bd_handler|rootkit_)\\w*\\b"
+      regex: "\\b(back_?door|bkdr|bd_handler|rootkit)\\w*\\b"
       case_insensitive: true
 
   # === Magic value markers ===
-  - id: magic
-    desc: Magic value naming pattern
+  - id: magic-a
+    desc: Magic value naming pattern family A
     if:
       type: string
-      regex: "\\b(magic_?(key|value|number|bytes|header)|MAGIC_)\\w*\\b"
+      regex: "\\bmagic_?(key|value|number|bytes)\\w*\\b"
+  - id: magic-b
+    desc: Magic value naming pattern family B
+    if:
+      type: string
+      regex: "\\b(magic_?header|MAGIC_)\\w*\\b"
 
   # === Trigger markers ===
-  - id: trigger
-    desc: Trigger naming pattern
+  - id: trigger-a
+    desc: Trigger naming pattern family A
     if:
       type: string
-      regex: "\\b(trigger_?(func|handler|condition|event)|on_trigger)\\b"
+      regex: "\\btrigger_?(func|handler|condition|event)\\b"
+      case_insensitive: true
+  - id: trigger-b
+    desc: Trigger naming pattern family B
+    if:
+      type: string
+      word: on_trigger
       case_insensitive: true
 
   # === Secret markers ===
-  - id: secret
-    desc: Secret naming pattern
+  - id: secret-a
+    desc: Secret naming pattern family A
     if:
       type: string
-      regex: "\\b(secret_?(key|data|payload|cmd)|hidden_cmd|covert_)\\w*\\b"
+      regex: "\\bsecret_?(key|data|payload|cmd)\\w*\\b"
       case_insensitive: true
+  - id: secret-b
+    desc: Secret naming pattern family B
+    if:
+      type: string
+      regex: "\\b(hidden_cmd|covert_)\\w*\\b"
+      case_insensitive: true
+
+composite_rules:
+  - id: magic
+    desc: Magic value naming pattern
+    any:
+      - id: magic-a
+      - id: magic-b
+  - id: trigger
+    desc: Trigger naming pattern
+    any:
+      - id: trigger-a
+      - id: trigger-b
+  - id: secret
+    desc: Secret naming pattern
+    any:
+      - id: secret-a
+      - id: secret-b

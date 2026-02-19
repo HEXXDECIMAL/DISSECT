@@ -142,27 +142,36 @@ traits:
     if:
       type: string
       substr: Port 22
-  - id: ssh-port-colon
-    desc: SSH port :22
+  - id: ssh-port-host-22
+    desc: SSH host with :22
     crit: notable
     conf: 0.6
     if:
       type: string
-      regex: (?:localhost|127\.0\.0\.1|0\.0\.0\.0|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):22\b|\bport\s*[:=]?\s*22\b
+      regex: (?:localhost|127\.0\.0\.1|0\.0\.0\.0|\d{1,3}(?:\.\d{1,3}){3}):22\b
+  - id: ssh-port-setting-22
+    desc: SSH port setting 22
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      regex: \bport\s*[:=]?\s*22\b
   - id: scanner-keyword
     desc: scanner keyword
     crit: notable
     conf: 0.5
     if:
       type: string
-      regex: (?i)port[_-]?scanner|(?i)network[_-]?scanner|(?i)ssh[_-]?scanner|(?i)scanner[_-]?(?:thread|target|port)
+      regex: \b(?:port|network|ssh)[_-]?scanner|scanner[_-]?(?:thread|target|port)\b
+      case_insensitive: true
   - id: scanning-keyword
     desc: scanning keyword
     crit: notable
     conf: 0.5
     if:
       type: string
-      regex: (?i)port[_-]?scanning|(?i)network[_-]?scanning|(?i)scanning[_-]?(?:port|target|thread)
+      regex: \b(?:port|network)[_-]?scanning|scanning[_-]?(?:port|target|thread)\b
+      case_insensitive: true
 composite_rules:
   - id: ssh-auth-methods
     desc: SSH authentication methods
@@ -183,7 +192,13 @@ composite_rules:
       - id: ssh-port-string-lower
       - id: ssh-port-string-upper
       - id: ssh-port-string-title
+  - id: ssh-port-colon
+    desc: SSH port :22
     crit: notable
+    conf: 0.6
+    any:
+      - id: ssh-port-host-22
+      - id: ssh-port-setting-22
   - id: scanner-keywords
     desc: Network scanner keywords
     needs: 2

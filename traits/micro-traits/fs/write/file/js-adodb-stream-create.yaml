@@ -7,5 +7,5 @@ traits:
   - javascript
   if:
     type: string
-    regex: (?:WScript|this)\[(?:[a-zA-Z_$][0-9a-zA-Z_$]*\s*\+\s*){0,8}[a-zA-Z_$][0-9a-zA-Z_$]*\(?\)\]\((?:[a-zA-Z_$][0-9a-zA-Z_$]*\s*\+\s*){0,8}[a-zA-Z_$][0-9a-zA-Z_$]*\(?\)\)
+    regex: (?:WScript|this)\[.{0,80}\]\(.{0,80}\)
 composite_rules: []

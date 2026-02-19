@@ -23,13 +23,29 @@ traits:
       type: string
       substr: "/etc/mtab"
 
-  - id: fstab-mntent
+  - id: setmntent
+    desc: Open mount table for parsing
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "setmntent"
+
+  - id: getmntent
+    desc: Read mount table entry
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "getmntent"
+
+  - id: endmntent
     desc: Parse mount table entries via
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: setmntent|getmntent|endmntent
+      exact: "endmntent"
 
   - id: fstab-mntinfo
     desc: Get information on mounted volumes
@@ -48,3 +64,12 @@ composite_rules:
     any:
       - id: etc-fstab
       - id: etc-mtab
+
+  - id: fstab-mntent
+    desc: Parse mount table entries via mntent API
+    crit: inert
+    conf: 0.66
+    any:
+      - id: setmntent
+      - id: getmntent
+      - id: endmntent

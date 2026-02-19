@@ -38,7 +38,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \bhop\.clickbank\.net\b|\bjvz[0-9]*\.com\b|\bwarriorplus\.com\b|\bdigistore24\.com\b|\bclickbooth\.com\b|\bshareasale\.com\b|\bcj\.com\b|\bimpact\.com\b
+    regex: \b(?:hop\.clickbank\.net|(?:jvz\d*|warriorplus|digistore24|impact)\.com)\b
 composite_rules:
 - id: pypi-affiliate-spam
   desc: PyPI package with affiliate spam URL

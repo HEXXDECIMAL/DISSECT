@@ -74,11 +74,35 @@ traits:
     type: string
     regex: \\u[0-9]{4,}|\\[0-9A-Fa-f]{2}
   conf: 0.7
-- id: rtf-font-embedding-reference
-  desc: Font embedding references
+- id: rtf-font-embedding-reference-fnil
+  desc: RTF fnil font marker
   if:
     type: string
-    regex: \\fnil|\\ftech|fcharset|fonttbl.{0,50}(?:Calibri|Arial|Times|Courier)
+    regex: \\fnil
+  conf: 0.65
+- id: rtf-font-embedding-reference-ftech
+  desc: RTF ftech font marker
+  if:
+    type: string
+    regex: \\ftech
+  conf: 0.65
+- id: rtf-font-embedding-reference-fcharset
+  desc: RTF fcharset marker
+  if:
+    type: string
+    regex: fcharset
+  conf: 0.65
+- id: rtf-font-embedding-reference-fonttbl-a
+  desc: Font table with Calibri or Arial
+  if:
+    type: string
+    regex: fonttbl.{0,50}(Calibri|Arial)
+  conf: 0.65
+- id: rtf-font-embedding-reference-fonttbl-b
+  desc: Font table with Times or Courier
+  if:
+    type: string
+    regex: fonttbl.{0,50}(Times|Courier)
   conf: 0.65
 - id: rtf-document-structure-marker
   desc: Office document structure markers
@@ -86,18 +110,46 @@ traits:
     type: string
     regex: \\xmlnstbl|\\stylesheet|\\colortbl|\\fonttbl
   conf: 0.7
-- id: rtf-template-reference
-  desc: Template or config file reference
+- id: rtf-template-reference-a
+  desc: Template file reference marker
   if:
     type: string
-    regex: template|tables\.lNk|\\init|\.dot|\.dotm
+    regex: template|tables\.lNk|\\init
   conf: 0.8
   crit: suspicious
-- id: rtf-link-resolution-trigger
-  desc: Link resolution and rendering trigger
+- id: rtf-template-reference-b
+  desc: Dot or dotm template reference
   if:
     type: string
-    regex: \\fldrslt|\\fldinst|HYPERLINK|EMBED|FORMULA
+    regex: \.dotm?
+  conf: 0.8
+  crit: suspicious
+- id: rtf-link-resolution-trigger-a
+  desc: Field instruction link trigger
+  if:
+    type: string
+    regex: \\fldrslt|\\fldinst
+  conf: 0.85
+  crit: suspicious
+- id: rtf-link-resolution-trigger-b
+  desc: Embedded hyperlink formula trigger
+  if:
+    type: string
+    regex: HYPERLINK
+  conf: 0.85
+  crit: suspicious
+- id: rtf-link-resolution-trigger-c
+  desc: Formula rendering trigger
+  if:
+    type: string
+    regex: FORMULA
+  conf: 0.85
+  crit: suspicious
+- id: rtf-link-resolution-trigger-d
+  desc: Embedded object trigger
+  if:
+    type: string
+    regex: EMBED
   conf: 0.85
   crit: suspicious
 - id: rtf-obfuscated-control-word-count
@@ -111,5 +163,30 @@ traits:
   conf: 0.92
   if:
     type: string
-    regex: D[\s]?0[\s]?C[\s]?F[\s]?1[\s]?1[\s]?E[\s]?0[\s]?A[\s]?1[\s]?B[\s]?1[\s]?1[\s]?A[\s]?E[\s]?1|D0CF11E0A1B11AE1
-composite_rules: []
+    regex: D(?:\s*[0-9A-F]){15}
+composite_rules:
+- id: rtf-font-embedding-reference
+  desc: Font embedding references
+  conf: 0.65
+  any:
+  - id: rtf-font-embedding-reference-fnil
+  - id: rtf-font-embedding-reference-ftech
+  - id: rtf-font-embedding-reference-fcharset
+  - id: rtf-font-embedding-reference-fonttbl-a
+  - id: rtf-font-embedding-reference-fonttbl-b
+- id: rtf-template-reference
+  desc: Template or config file reference
+  conf: 0.8
+  crit: suspicious
+  any:
+  - id: rtf-template-reference-a
+  - id: rtf-template-reference-b
+- id: rtf-link-resolution-trigger
+  desc: Link resolution and rendering trigger
+  conf: 0.85
+  crit: suspicious
+  any:
+  - id: rtf-link-resolution-trigger-a
+  - id: rtf-link-resolution-trigger-b
+  - id: rtf-link-resolution-trigger-c
+  - id: rtf-link-resolution-trigger-d

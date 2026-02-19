@@ -38,5 +38,12 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: wmic\s+path\s+Win32_VideoController|xrandr\s+--current|system_profiler\s+SPDisplaysDataType|CurrentVerticalResolution
-composite_rules: []
+    regex: xrandr\s+--current|CurrentVerticalResolution
+composite_rules:
+- id: display-resolution-discovery-any
+  desc: Discover screen or display resolution
+  crit: notable
+  conf: 0.8
+  any:
+  - id: wmic-video-controller
+  - id: display-resolution-discovery

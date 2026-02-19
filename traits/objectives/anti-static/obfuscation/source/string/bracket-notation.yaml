@@ -19,5 +19,5 @@ traits:
   desc: Specific detection of ["\x63\x68\x61\x72\x41\x74"] (charAt)
   if:
     type: raw
-    regex: \[\s*["']\\x63\\x68\\x61\\x72\\x41\\x74["']\s*\]|\[\s*["']\\x63\\x68\\x61\\x72\\x61\\x74["']\s*\]
+    regex: \[\s*["']\\x63\\x68\\x61\\x72\\x(?:41|61)\\x74["']\s*\]
 composite_rules: []

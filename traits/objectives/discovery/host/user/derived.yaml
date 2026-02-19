@@ -8,4 +8,4 @@ traits:
   desc: Derived raw condition
   if:
     type: raw
-    regex: requests|test
+    regex: \b(?:requests|test)\b

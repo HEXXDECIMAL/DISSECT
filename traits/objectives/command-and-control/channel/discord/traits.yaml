@@ -43,5 +43,5 @@ traits:
   conf: 1.0
   if:
     type: raw
-    regex: https?://(?:cdn\.discordapp\.com|media\.discordapp\.net)/attachments/\d+/\d+/.{1,100}\.(?:exe|scr|bat|cmd|ps1|vbs|dll|elf|bin|sh)(?:$|[\?'"])
+    regex: https?://cdn\.discordapp\.com/attachments/\d+/\d+/.{1,80}\.(?:exe|dll|sh)
 composite_rules: []

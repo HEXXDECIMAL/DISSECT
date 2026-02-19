@@ -60,7 +60,7 @@ traits:
     type: raw
     regex: while\(!!\[\]\).*?try.*?parseInt.*?\.push.*?\.shift
 - id: array-swap-elements
-  desc: Array element swap pattern
+  desc: Array element assignment swap step
   crit: notable
   conf: 0.75
   attack: T1027
@@ -68,7 +68,8 @@ traits:
   - javascript
   if:
     type: raw
-    regex: \w+\[\w+\]\s*=\s*\w+\[\w+\];\s*\w+\[\w+\]\s*=\s*\w+\[\w+\];\s*\w+\[\w+\]\s*=\s*\w+
+    regex: \w+\[\w+\]\s*=\s*\w+\[\w+\]
+    count_min: 3
 composite_rules:
 - id: infinite-loop
   desc: Obfuscated infinite loop (while(!![]) pattern)

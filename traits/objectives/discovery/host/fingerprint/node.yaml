@@ -251,8 +251,8 @@ traits:
     substr: Get-Process
   unless:
   - id: metadata/library/syntaxhighlighter::syntaxhighlighter-brush
-- id: process-env-serialization
-  desc: process.env serialization call
+- id: process-env-keys-entries
+  desc: process.env keys/entries enumeration
   crit: notable
   conf: 0.75
   for:
@@ -260,8 +260,28 @@ traits:
   - typescript
   if:
     type: string
-    regex: Object\.(keys|entries)\s*\(\s*process\.env\s*\)|JSON\.stringify\s*\(\s*process\.env\s*\)
+    regex: Object\.(keys|entries)\s*\(\s*process\.env\s*\)
+- id: process-env-json-stringify
+  desc: process.env serialized as JSON
+  crit: notable
+  conf: 0.75
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: JSON\.stringify\s*\(\s*process\.env\s*\)
 composite_rules:
+- id: process-env-serialization
+  desc: process.env serialization call
+  crit: notable
+  conf: 0.75
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: process-env-keys-entries
+  - id: process-env-json-stringify
 - id: mac-keyword-variants
   desc: MAC keyword variants
   for:

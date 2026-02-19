@@ -19,13 +19,21 @@ traits:
       type: string
       regex: "AppleAccount\\.app|NccyrNppbhag"
 
-  - id: apple-account-assistant
+  - id: apple-account-assistant-clear
     desc: AppleAccountAssistant impersonation
     crit: suspicious
     conf: 0.95
     if:
       type: string
-      regex: "AppleAccountAssistant|NccyrNppbhagNffvfgnag"
+      exact: "AppleAccountAssistant"
+
+  - id: apple-account-assistant-rot13
+    desc: AppleAccountAssistant impersonation (obfuscated)
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      exact: "NccyrNppbhagNffvfgnag"
 
   - id: xprotect-impersonation
     desc: XProtect impersonation
@@ -44,13 +52,21 @@ traits:
       type: string
       regex: "Users/Shared|Hfref/Funerq"
 
-  - id: temp-user-path
+  - id: temp-user-path-clear
     desc: TempUser path access
     crit: suspicious
     conf: 0.75
     if:
       type: string
-      regex: "TempUser|GrzcHfre"
+      exact: "TempUser"
+
+  - id: temp-user-path-rot13
+    desc: TempUser path access (obfuscated)
+    crit: suspicious
+    conf: 0.75
+    if:
+      type: string
+      exact: "GrzcHfre"
 
   # === Legitimate Service Names ===
   - id: system-service-name
@@ -148,3 +164,19 @@ composite_rules:
     all:
       - id: apple-service-impersonation
       - id: system-app-masquerade
+
+  - id: apple-account-assistant
+    desc: AppleAccountAssistant impersonation
+    crit: suspicious
+    conf: 0.95
+    any:
+      - id: apple-account-assistant-clear
+      - id: apple-account-assistant-rot13
+
+  - id: temp-user-path
+    desc: TempUser path access
+    crit: suspicious
+    conf: 0.75
+    any:
+      - id: temp-user-path-clear
+      - id: temp-user-path-rot13

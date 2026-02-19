@@ -27,4 +27,22 @@ traits:
     desc: Writes to Startup folder
     if:
       type: string
-      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.(exe|vbs|js|bat|cmd)"
+      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.(exe|vbs|js)"
+
+  - id: path-suspicious-startup-scripts
+    desc: Writes script to Startup folder
+    if:
+      type: string
+      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.(bat|cmd)"
+
+composite_rules:
+  - id: path-suspicious-startup-any
+    desc: Writes to Startup folder
+    crit: notable
+    conf: 0.8
+    platforms: [windows]
+    attack: "T1204.002"
+    mbc: "F0013"
+    any:
+      - id: path-suspicious-startup
+      - id: path-suspicious-startup-scripts

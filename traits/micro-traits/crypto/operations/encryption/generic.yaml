@@ -53,14 +53,23 @@ traits:
       type: raw
       regex: '(IV|iv).{0,32}0001020304050607'
 
-  - id: fixed-iv-common
-    desc: Hardcoded IV (common test pattern)
+  - id: fixed-iv-common-a
+    desc: Hardcoded IV (0001020304050607 pattern)
     crit: suspicious
     conf: 0.7
     for: [python, javascript, ruby]
     if:
       type: string
-      regex: '0001020304050607|0123456789abcdef'
+      exact: '0001020304050607'
+
+  - id: fixed-iv-common-hex
+    desc: Hardcoded IV (0123456789abcdef pattern)
+    crit: suspicious
+    conf: 0.7
+    for: [python, javascript, ruby]
+    if:
+      type: string
+      exact: '0123456789abcdef'
 
 composite_rules:
   - id: encryption-functions
@@ -74,3 +83,11 @@ composite_rules:
       - id: create-cipheriv
       - id: aes-keyword
       - id: blowfish-keyword
+  - id: fixed-iv-common
+    desc: Hardcoded IV (common test pattern)
+    crit: suspicious
+    conf: 0.7
+    for: [python, javascript, ruby]
+    any:
+      - id: fixed-iv-common-a
+      - id: fixed-iv-common-hex

@@ -169,7 +169,7 @@ traits:
       kind: comment
       exact: rootkit
       case_insensitive: true
-  - id: malware-mention-comment
+  - id: malware-mention-comment-malware
     desc: Code explicitly mentions malware/backdoor
     crit: suspicious
     conf: 1.0
@@ -178,7 +178,19 @@ traits:
     if:
       type: ast
       kind: comment
-      regex: malware|backdoor
+      exact: malware
+      case_insensitive: true
+
+  - id: malware-mention-comment-backdoor
+    desc: Code explicitly mentions malware/backdoor
+    crit: suspicious
+    conf: 1.0
+    for:
+      - c
+    if:
+      type: ast
+      kind: comment
+      exact: backdoor
       case_insensitive: true
   - id: privilege-escalation-mention-comment
     desc: Code explicitly mentions privilege escalation
@@ -191,7 +203,7 @@ traits:
       kind: comment
       regex: privilege.?escalation|privilege-escalation
       case_insensitive: true
-  - id: evasion-mention-comment
+  - id: evasion-mention-comment-evasion
     desc: Code mentions evasion techniques
     crit: suspicious
     conf: 0.9
@@ -200,7 +212,19 @@ traits:
     if:
       type: ast
       kind: comment
-      regex: evasion|evade
+      exact: evasion
+      case_insensitive: true
+
+  - id: evasion-mention-comment-evade
+    desc: Code mentions evasion techniques
+    crit: suspicious
+    conf: 0.9
+    for:
+      - c
+    if:
+      type: ast
+      kind: comment
+      exact: evade
       case_insensitive: true
   - id: syscall-hook-mention-comment
     desc: Code mentions syscall hooking
@@ -213,7 +237,7 @@ traits:
       kind: comment
       regex: syscall.{0,20}(hook|intercept)
       case_insensitive: true
-  - id: hide-function-name
+  - id: hide-function-name-hide
     desc: Function name suggests hiding capability
     crit: suspicious
     conf: 0.85
@@ -222,7 +246,31 @@ traits:
     if:
       type: ast
       kind: identifier
-      regex: hide|invisible|stealth
+      exact: hide
+      case_insensitive: true
+
+  - id: hide-function-name-invisible
+    desc: Function name suggests hiding capability
+    crit: suspicious
+    conf: 0.85
+    for:
+      - c
+    if:
+      type: ast
+      kind: identifier
+      exact: invisible
+      case_insensitive: true
+
+  - id: hide-function-name-stealth
+    desc: Function name suggests hiding capability
+    crit: suspicious
+    conf: 0.85
+    for:
+      - c
+    if:
+      type: ast
+      kind: identifier
+      exact: stealth
       case_insensitive: true
   - id: hook-syscall-function-name
     desc: Function name suggests syscall hooking
@@ -260,6 +308,37 @@ traits:
     not:
       - regex: ^__declspec\b
 composite_rules:
+  - id: malware-mention-comment
+    desc: Code explicitly mentions malware/backdoor
+    crit: suspicious
+    conf: 1.0
+    for:
+      - c
+    any:
+      - id: malware-mention-comment-malware
+      - id: malware-mention-comment-backdoor
+
+  - id: evasion-mention-comment
+    desc: Code mentions evasion techniques
+    crit: suspicious
+    conf: 0.9
+    for:
+      - c
+    any:
+      - id: evasion-mention-comment-evasion
+      - id: evasion-mention-comment-evade
+
+  - id: hide-function-name
+    desc: Function name suggests hiding capability
+    crit: suspicious
+    conf: 0.85
+    for:
+      - c
+    any:
+      - id: hide-function-name-hide
+      - id: hide-function-name-invisible
+      - id: hide-function-name-stealth
+
   - id: hiding-mention-comment
     desc: Code mentions hiding/hidden
     crit: suspicious

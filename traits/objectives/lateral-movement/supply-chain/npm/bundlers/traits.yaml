@@ -88,5 +88,5 @@ traits:
   - javascript
   if:
     type: string
-    regex: typeof exports.{0,30}===.{0,30}object.{0,30}&&.{0,30}typeof module.{0,30}!==.{0,30}undefined|function.{0,10}root,.{0,10}factory
+    regex: typeof exports.{0,20}object.{0,20}typeof module.{0,20}undefined
 composite_rules: []

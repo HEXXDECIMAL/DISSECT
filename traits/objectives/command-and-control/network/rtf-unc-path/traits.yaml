@@ -37,11 +37,18 @@ traits:
     conf: 0.75
 
   # @SSL in UTF-16LE: 40 00 53 53 4C
-  - id: unc-path-utf16-ssl
-    desc: "UTF-16LE @SSL pattern"
+  - id: unc-path-utf16-ssl-400053534C
+    desc: "UTF-16LE @SSL pattern variant 1"
     if:
       type: string
-      regex: '400053534C|400053005300004C'
+      regex: '400053534C'
+    conf: 0.85
+
+  - id: unc-path-utf16-ssl-400053005300004C
+    desc: "UTF-16LE @SSL pattern variant 2"
+    if:
+      type: string
+      regex: '400053005300004C'
     conf: 0.85
 
   # davwwwroot in UTF-16LE: 64 61 76 77 77 77 72 6F 6F 74
@@ -52,11 +59,29 @@ traits:
       regex: '6400610076007700770072006F006F0074'
     conf: 0.9
 
-  - id: c2-domain-indicator
-    desc: "C2 domain reference (freefoodaid, etc.)"
+  - id: c2-domain-freefoodaid
+    desc: "C2 domain reference for freefoodaid.com"
     if:
       type: string
-      regex: 'freefoodaid|freefood|foodaid'
+      word: freefoodaid
+    conf: 0.95
+    crit: suspicious
+    attack: T1071
+
+  - id: c2-domain-freefood
+    desc: "C2 domain reference for freefood.com"
+    if:
+      type: string
+      word: freefood
+    conf: 0.95
+    crit: suspicious
+    attack: T1071
+
+  - id: c2-domain-foodaid
+    desc: "C2 domain reference for foodaid.com"
+    if:
+      type: string
+      word: foodaid
     conf: 0.95
     crit: suspicious
     attack: T1071
@@ -87,10 +112,76 @@ traits:
     crit: suspicious
     attack: T1204
 
-  - id: file-handler-protocol
-    desc: "File handler protocol"
+  - id: file-handler-protocol-file
+    desc: "File handler protocol detector: file://"
     if:
       type: string
-      regex: 'file://|mhtml:|mk:|about:|data:'
+      regex: 'file://'
     conf: 0.85
     attack: T1204
+
+  - id: file-handler-protocol-mhtml
+    desc: "File handler protocol detector: mhtml:"
+    if:
+      type: string
+      regex: 'mhtml:'
+    conf: 0.85
+    attack: T1204
+
+  - id: file-handler-protocol-mk
+    desc: "File handler protocol detector: mk:"
+    if:
+      type: string
+      regex: 'mk:'
+    conf: 0.85
+    attack: T1204
+
+  - id: file-handler-protocol-about
+    desc: "File handler protocol detector: about:"
+    if:
+      type: string
+      regex: 'about:'
+    conf: 0.85
+    attack: T1204
+
+  - id: file-handler-protocol-data
+    desc: "File handler protocol detector: data:"
+    if:
+      type: string
+      regex: 'data:'
+    conf: 0.85
+    attack: T1204
+
+composite_rules:
+  - id: c2-domain-indicator
+    desc: "C2 domain reference (freefoodaid family)"
+    crit: suspicious
+    conf: 0.95
+    attack: T1071
+    for: [rtf]
+    any:
+      - id: c2-domain-freefoodaid
+      - id: c2-domain-freefood
+      - id: c2-domain-foodaid
+
+  - id: unc-path-utf16-ssl
+    desc: "UTF-16LE @SSL pattern"
+    crit: suspicious
+    conf: 0.85
+    attack: T1071
+    for: [rtf]
+    any:
+      - id: unc-path-utf16-ssl-400053534C
+      - id: unc-path-utf16-ssl-400053005300004C
+  - id: file-handler-protocol
+    desc: "File handler protocol"
+    crit: suspicious
+    conf: 0.85
+    attack: T1204
+    for: [rtf]
+    any:
+      - id: file-handler-protocol-file
+      - id: file-handler-protocol-mhtml
+      - id: file-handler-protocol-mk
+      - id: file-handler-protocol-about
+      - id: file-handler-protocol-data

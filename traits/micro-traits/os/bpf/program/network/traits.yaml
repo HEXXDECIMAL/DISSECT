@@ -133,7 +133,7 @@ traits:
   if:
     type: raw
     regex: swap.{0,30}(?:saddr|daddr)|(?:saddr|daddr).{0,30}swap
-- id: knock-string
+- id: knock-string-port-knock
   desc: knock string reference
   crit: notable
   conf: 0.6
@@ -142,8 +142,28 @@ traits:
   - c
   if:
     type: string
-    regex: (?i)port[_-]?knock(?:ing|er|s)?|(?i)knock[_-]?(?:sequence|packet|daemon|port)|(?i)(?:tcp|udp)[_-]?knock
+    regex: (?i)port[_-]?knock
+- id: knock-string-knock-terms
+  desc: knock string reference
+  crit: notable
+  conf: 0.6
+  for:
+  - elf
+  - c
+  if:
+    type: string
+    regex: (?i)knock[_-]?(?:sequence|packet|daemon|port)
 composite_rules:
+- id: knock-string
+  desc: knock string reference
+  crit: notable
+  conf: 0.6
+  for:
+  - elf
+  - c
+  any:
+  - id: knock-string-port-knock
+  - id: knock-string-knock-terms
 - id: xdp-packet-reflection
   desc: XDP packet reflection pattern
   crit: suspicious

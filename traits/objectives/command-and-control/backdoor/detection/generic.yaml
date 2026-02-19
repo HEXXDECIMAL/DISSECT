@@ -70,15 +70,69 @@ traits:
   # === Atomic: Socket + Shell (Generic) ===
   # Generic "socket" moved to data/text/generic.yaml
 
-  - id: reverse-keyword
-    desc: Reverse keyword reference
+  - id: reverse-connect
+    desc: Reverse connect keyword
     crit: notable
     conf: 0.3
     platforms: [all]
     if:
       type: string
-      # Require reverse connection/backdoor context, not generic "reverse" word
-      regex: "(?i)reverse[_-]?(?:connect|conn|tcp|shell|backdoor|proxy|tunnel)"
+      regex: "(?i)reverse[-_]?(?:connect)"
+
+  - id: reverse-conn
+    desc: Reverse conn abbreviation
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:conn)"
+
+  - id: reverse-tcp
+    desc: Reverse TCP indicator
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:tcp)"
+
+  - id: reverse-shell
+    desc: Reverse shell keyword
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:shell)"
+
+  - id: reverse-backdoor
+    desc: Reverse backdoor reference
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:backdoor)"
+
+  - id: reverse-proxy
+    desc: Reverse proxy keyword
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:proxy)"
+
+  - id: reverse-tunnel
+    desc: Reverse tunnel keyword
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    if:
+      type: string
+      regex: "(?i)reverse[-_]?(?:tunnel)"
+
 
   # === Atomic: Ruby Reverse Shell ===
 
@@ -159,6 +213,20 @@ composite_rules:
       - id: objectives/command-and-control/reverse-shell/socket::exec-cmd-run
       - id: go-child-stdin
       - id: micro-traits/comm/socket/connect::dial-tcp
+
+  - id: reverse-keyword
+    desc: Reverse keyword reference
+    crit: notable
+    conf: 0.3
+    platforms: [all]
+    any:
+      - id: reverse-connect
+      - id: reverse-conn
+      - id: reverse-tcp
+      - id: reverse-shell
+      - id: reverse-backdoor
+      - id: reverse-proxy
+      - id: reverse-tunnel
 
   - id: generic-reverse-shell
     desc: Generic reverse shell pattern (socket

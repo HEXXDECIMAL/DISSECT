@@ -21,6 +21,6 @@ traits:
   - javascript
   if:
     type: raw
-    regex: (?:\([\w\s]*\)|[\w]+)\s*\+\s*(?:\([\w\s]*\)|[\w]+)\s*\+\s*(?:\([\w\s]*\)|[\w]+)\s*\+\s*(?:\([\w\s]*\)|[\w]+)
+    regex: (?:\([\w\s]*\)|\w+)(?:\s*\+\s*(?:\([\w\s]*\)|\w+)){3}
     count_min: 2
 composite_rules: []

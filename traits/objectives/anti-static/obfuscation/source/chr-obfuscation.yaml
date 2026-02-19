@@ -2,13 +2,51 @@ defaults:
   for:
   - all
 traits:
-- id: python-chr-bitwise-construction
-  desc: Python 'chr' construction using oct/hex/copyright strings
+- id: python-chr-builtins-getattr
+  desc: Python getattr on __builtins__ for chr construction
   mbc: E1014
   attack: T1027
   crit: suspicious
   conf: 0.95
   if:
     type: raw
-    regex: getattr\(__builtins__,\s*oct\.__str__\(\)\[-3\s*<<\s*0\]\s*\+\s*hex\.__str__\(\)\[-1\s*<<\s*2\]\s*\+\s*copyright\.__str__\(\)\[4\s*<<\s*0\]\)
-composite_rules: []
+    substr: getattr(__builtins__,
+- id: python-chr-oct-str
+  desc: oct.__str__ used in chr obfuscation
+  mbc: E1014
+  attack: T1027
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    substr: oct.__str__()
+- id: python-chr-hex-str
+  desc: hex.__str__ used in chr obfuscation
+  mbc: E1014
+  attack: T1027
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    substr: hex.__str__()
+- id: python-chr-copyright-str
+  desc: copyright.__str__ used in chr obfuscation
+  mbc: E1014
+  attack: T1027
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    substr: copyright.__str__()
+composite_rules:
+- id: python-chr-bitwise-construction
+  desc: Python chr construction using oct/hex/copyright strings
+  crit: suspicious
+  conf: 0.95
+  mbc: E1014
+  attack: T1027
+  all:
+  - id: python-chr-builtins-getattr
+  - id: python-chr-oct-str
+  - id: python-chr-hex-str
+  - id: python-chr-copyright-str

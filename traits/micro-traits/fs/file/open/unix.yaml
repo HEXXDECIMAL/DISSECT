@@ -6,10 +6,45 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: open
+  - id: fopen
     desc: Open files
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: fopen|fopen64|open|openat
+      exact: "fopen"
+
+  - id: fopen64
+    desc: Open files (64-bit)
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "fopen64"
+
+  - id: open-base
+    desc: Open files
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "open"
+
+  - id: openat
+    desc: Open files
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "openat"
+
+composite_rules:
+  - id: open
+    desc: Open files
+    crit: inert
+    conf: 0.66
+    any:
+      - id: fopen
+      - id: fopen64
+      - id: open-base
+      - id: openat

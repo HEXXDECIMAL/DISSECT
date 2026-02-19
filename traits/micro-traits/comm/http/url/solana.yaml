@@ -15,9 +15,20 @@ traits:
     type: string
     regex: api\.mainnet-beta\.solana\.com
 - id: solana-rpc-method
-  desc: Solana JSON-RPC method
+  desc: Solana JSON-RPC method (signature/account)
   conf: 0.8
   if:
     type: string
-    regex: \bgetSignaturesForAddress\b|\bgetSignFAddress\b|\bgetAccountInfo\b|\bgetBalance\b|\bgetTransaction\b|\bgetLatestBlockhash\b
-composite_rules: []
+    regex: \bget(?:SignaturesForAddress|SignFAddress|AccountInfo)\b
+- id: solana-rpc-method-2
+  desc: Solana JSON-RPC method (balance/tx/blockhash)
+  conf: 0.8
+  if:
+    type: string
+    regex: \bget(?:Balance|Transaction|LatestBlockhash)\b
+composite_rules:
+- id: solana-rpc-method-any
+  desc: Solana JSON-RPC method
+  any:
+  - id: solana-rpc-method
+  - id: solana-rpc-method-2

@@ -10,4 +10,4 @@ traits:
     conf: 0.95
     if:
       type: raw
-      regex: 'getattr\(__builtins__,\s*(?:oct|hex|copyright|int|str)\.__str__'
+      regex: 'getattr\(__builtins__,\s*[a-z]{3,12}\.__str__'

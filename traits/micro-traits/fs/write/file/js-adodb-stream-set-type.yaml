@@ -7,5 +7,5 @@ traits:
   - javascript
   if:
     type: raw
-    regex: \w+\[(?:[a-zA-Z_$][0-9a-zA-Z_$]*\s*\+\s*){0,8}[a-zA-Z_$][0-9a-zA-Z_$]*\(?\)]\s*=\s*1
+    regex: \w+\[[^\]]{1,120}\]\s*=\s*1
 composite_rules: []

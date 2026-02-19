@@ -8,10 +8,10 @@ traits:
   desc: Obfuscated DeleteFile reference
   if:
     type: encoded
-    regex: \{[^:]+:['"]D['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]e['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]l['"]\}
+    regex: \{[^:]+:['"]D['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]e['"]\}
 - id: js-scriptfullname-obfuscated
   desc: Obfuscated ScriptFullName reference
   if:
     type: encoded
-    regex: \{[^:]+:['"]S['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]c['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]r['"]\}
+    regex: \{[^:]+:['"]S['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]c['"]\}
 composite_rules: []

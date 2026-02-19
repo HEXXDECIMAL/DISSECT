@@ -89,15 +89,6 @@ traits:
       type: string
       substr: "HTTP CONNECT"
 
-  # ECDH key exchange - crypto for C2
-  - id: ecdh-key-exchange
-    desc: ECDH key exchange functions
-    crit: notable
-    conf: 0.9
-    if:
-      type: string
-      regex: 'ECDH_compute_key|EC_KEY_generate_key'
-
   # OpenSSL ChaCha20-Poly1305 (C2 encryption)
   - id: openssl-chacha-poly
     desc: OpenSSL ChaCha20-Poly1305
@@ -107,7 +98,31 @@ traits:
       type: string
       substr: "ChaCha20-Poly1305"
 
+  - id: ecdh-compute-key
+    desc: ECDH_compute_key reference
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      exact: "ECDH_compute_key"
+
+  - id: ec-key-generate-key
+    desc: EC_KEY_generate_key reference
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      exact: "EC_KEY_generate_key"
+
 composite_rules:
+  - id: ecdh-key-exchange
+    desc: ECDH key exchange functions
+    crit: notable
+    conf: 0.9
+    any:
+      - id: ecdh-compute-key
+      - id: ec-key-generate-key
+
   # Static C2 implant with Tor support
   # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
   - id: native-tor-implant

@@ -8,14 +8,23 @@ traits:
       type: string
       regex: '(?i)(scpbrad(serv|guard)\.exe|scpncmpsg\.dll)'
 
-  - id: gbplugin-string
+  - id: gbplugin-string-a
     desc: Reference to GbPlugin (G-Buster Browser Defense) -
     crit: notable
     conf: 0.8
     for: [pe]
     if:
       type: string
-      regex: '(?i)(gbpsv|gbieh|gbpdist|gbpsv\.exe|gbieh\.dll)'
+      regex: '(?i)(gbpsv|gbieh|gbpdist)'
+
+  - id: gbplugin-string-b
+    desc: Reference to GbPlugin (G-Buster Browser Defense) -
+    crit: notable
+    conf: 0.8
+    for: [pe]
+    if:
+      type: string
+      regex: '(?i)(gbpsv\.exe|gbieh\.dll)'
 
   - id: warsaw-string
     desc: Reference to Warsaw (Diebold Nixdorf) - Brazilian
@@ -25,3 +34,13 @@ traits:
     if:
       type: string
       regex: '(?i)(warsaw\.exe|core\.exe|ws\.exe)'
+
+composite_rules:
+  - id: gbplugin-string
+    desc: Reference to GbPlugin (G-Buster Browser Defense) -
+    crit: notable
+    conf: 0.8
+    for: [pe]
+    any:
+      - id: gbplugin-string-a
+      - id: gbplugin-string-b

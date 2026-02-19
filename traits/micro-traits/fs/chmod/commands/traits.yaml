@@ -8,14 +8,41 @@ defaults:
 
 traits:
   # Unix syscall-level chmod
-  - id: syscall
-    desc: chmod syscall (fchmod, fchmodat, lchmod)
+  - id: syscall-chmod
+    desc: chmod syscall
     crit: notable
     conf: 0.66
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: chmod|fchmod|fchmodat|lchmod
+      exact: "chmod"
+
+  - id: syscall-fchmod
+    desc: fchmod syscall
+    crit: notable
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: "fchmod"
+
+  - id: syscall-fchmodat
+    desc: fchmodat syscall
+    crit: notable
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: "fchmodat"
+
+  - id: syscall-lchmod
+    desc: lchmod syscall
+    crit: notable
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: "lchmod"
 
   # Python os.chmod
   - id: python-os-chmod
@@ -78,6 +105,16 @@ traits:
       substr: "os.Chmod("
 
 composite_rules:
+  - id: syscall
+    desc: chmod syscall family
+    crit: notable
+    conf: 0.66
+    any:
+      - id: syscall-chmod
+      - id: syscall-fchmod
+      - id: syscall-fchmodat
+      - id: syscall-lchmod
+
   # Ruby chmod (any variant)
   - id: ruby
     desc: Ruby file permission modification

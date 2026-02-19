@@ -44,29 +44,6 @@ traits:
       type: string
       regex: "keyboard\\.on_press\\s*\\("
 
-  # === Screen capture atomic indicators ===
-  - id: pil-imagegrab
-    desc: PIL ImageGrab screen capture
-    crit: notable
-    conf: 0.95
-    mbc: "B0002"
-    attack: "T1113"
-    for: [python]
-    if:
-      type: string
-      regex: 'ImageGrab\.grab'
-
-  - id: pyautogui-screenshot
-    desc: pyautogui screenshot capture
-    crit: notable
-    conf: 0.95
-    mbc: "B0002"
-    attack: "T1113"
-    for: [python]
-    if:
-      type: string
-      regex: 'pyautogui\.screenshot'
-
 composite_rules:
   # Clipboard access composite
   - id: clipboard-access
@@ -103,5 +80,5 @@ composite_rules:
     for: [python]
     any:
       - id: micro-traits/hw/display/screen::mss-screenshot
-      - id: pil-imagegrab
-      - id: pyautogui-screenshot
+      - id: micro-traits/hw/display/screen::pil-imagegrab
+      - id: micro-traits/hw/display/screen::pyautogui-screenshot

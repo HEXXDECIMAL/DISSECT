@@ -8,5 +8,5 @@ traits:
   conf: 0.95
   if:
     type: symbol
-    regex: ^setlocale_null$|^setlocale_mtsafe$|^setlocale_single$|^setlocale_unixlike$|^gl_locale_name_default$|^gl_locale_name_environ$
+    regex: setlocale_(?:null|mtsafe|single|unixlike)|gl_locale_name_(?:default|environ)
 composite_rules: []

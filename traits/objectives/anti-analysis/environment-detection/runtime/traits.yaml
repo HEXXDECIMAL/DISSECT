@@ -26,7 +26,7 @@ traits:
   - macho
   if:
     type: symbol
-    regex: ^GetEnvironmentStringsW$|^GetEnvironmentStringsA$|^FreeEnvironmentStringsW$|^GetEnvironmentVariable$
+    regex: ^GetEnvironment(?:Strings(?:W|A)?|Variable)$|^FreeEnvironmentStringsW$
 composite_rules:
 - id: console-environment-detection
   desc: Console environment detection checks

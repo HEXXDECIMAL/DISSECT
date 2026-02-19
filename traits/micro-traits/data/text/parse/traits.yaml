@@ -36,13 +36,29 @@ traits:
       type: string
       substr: "SHA-512"
 
-  - id: hash-parsing-logic
+  - id: hash-parsing-splitlines
     desc: Logic to parse/split hash data
     crit: inert
     conf: 0.6
     if:
       type: string
-      regex: 'splitlines|startswith|strip'
+      exact: "splitlines"
+
+  - id: hash-parsing-startswith
+    desc: Logic to parse/split hash data
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "startswith"
+
+  - id: hash-parsing-strip
+    desc: Logic to parse/split hash data
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      exact: "strip"
 
 composite_rules:
   - id: hash-algo-strings
@@ -54,3 +70,12 @@ composite_rules:
       - id: hash-algo-sha1
       - id: hash-algo-sha256
       - id: hash-algo-sha512
+
+  - id: hash-parsing-logic
+    desc: Logic to parse/split hash data
+    crit: inert
+    conf: 0.6
+    any:
+      - id: hash-parsing-splitlines
+      - id: hash-parsing-startswith
+      - id: hash-parsing-strip

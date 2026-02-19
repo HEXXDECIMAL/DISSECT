@@ -21,13 +21,20 @@ traits:
       type: string
       exact: "BPF_"
 
-  - id: pcap-prefix
+  - id: pcap-prefix-a
     desc: pcap library function reference
     conf: 0.5
     if:
       type: symbol
       # Match actual pcap API functions, not just the prefix
-      regex: "\\bpcap_(?:open_live|compile|setfilter|loop|next|close|findalldevs|lookupdev)\\b"
+      regex: "\\bpcap_(?:open_live|compile|setfilter|loop)\\b"
+
+  - id: pcap-prefix-b
+    desc: pcap library function reference
+    conf: 0.5
+    if:
+      type: symbol
+      regex: "\\bpcap_(?:next|close|findalldevs|lookupdev)\\b"
 
   # Removed recvfrom-fn - recvfrom is a general socket function, not BPF-specific
   # It's already covered by micro-traits/comm/socket/receive::receive for binaries
@@ -35,6 +42,13 @@ traits:
 
 
 composite_rules:
+  - id: pcap-prefix
+    desc: pcap library function reference
+    conf: 0.5
+    any:
+      - { id: pcap-prefix-a }
+      - { id: pcap-prefix-b }
+
   - id: has-bpf-infra
     desc: Has BPF infrastructure components
     crit: notable

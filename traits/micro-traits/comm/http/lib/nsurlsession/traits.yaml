@@ -72,14 +72,23 @@ traits:
       type: string
       substr: "URLSession:downloadTask:didFinishDownloadingToURL:"
 
-  - id: nsurlsession-config
-    desc: NSURLSession configuration setup
+  - id: nsurlsession-default-config
+    desc: NSURLSession default configuration
     crit: inert
     conf: 0.6
     for: [macho, dylib]
     if:
       type: symbol
-      regex: "defaultSessionConfiguration|sessionWithConfiguration"
+      exact: "defaultSessionConfiguration"
+
+  - id: nsurlsession-with-config
+    desc: NSURLSession with configuration
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    if:
+      type: symbol
+      exact: "sessionWithConfiguration"
 
   - id: http-head-method
     desc: HTTP HEAD method for server probing
@@ -137,6 +146,15 @@ composite_rules:
       - id: nsurlsession-download-task
       - id: nsurlsession-download-delegate
       - id: nsurlsession-config
+
+  - id: nsurlsession-config
+    desc: NSURLSession configuration setup
+    crit: inert
+    conf: 0.6
+    for: [macho, dylib]
+    any:
+      - id: nsurlsession-default-config
+      - id: nsurlsession-with-config
 
   # HTTP range request pattern (sliced downloads)
   - id: http-range-download

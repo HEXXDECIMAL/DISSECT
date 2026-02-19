@@ -6,11 +6,46 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mktemp
+  - id: mktemp-fn
+    desc: Create temporary files
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mktemp"
+
+  - id: mkstemp-fn
+    desc: Create temporary file securely
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mkstemp"
+
+  - id: mkstemps-fn
+    desc: Create temporary file with suffix
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mkstemps"
+
+  - id: tmpfile-fn
     desc: Create temporary files
     crit: inert
     conf: 0.66
     if:
       type: symbol
       # mkdtemp: use micro-traits/fs/temp/directory/unix.yaml::directory-create (canonical)
-      regex: mktemp|mkstemp|mkstemps|tmpfile
+      exact: "tmpfile"
+
+composite_rules:
+  - id: mktemp
+    desc: Create temporary files
+    crit: inert
+    conf: 0.66
+    any:
+      - id: mktemp-fn
+      - id: mkstemp-fn
+      - id: mkstemps-fn
+      - id: tmpfile-fn

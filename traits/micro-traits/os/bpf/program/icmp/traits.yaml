@@ -57,7 +57,7 @@ traits:
   - elf
   if:
     type: raw
-    regex: (?i)icmp[_-]?ping[_-]?back|(?i)ping[_-]?back[_-]?(?:server|client|daemon)|(?i)icmp[_-]?(?:shell|backdoor|c2|covert)
+    regex: (?i)icmp[_-]?ping[_-]?back|ping[_-]?back
 composite_rules:
 - id: icmp-parsing
   desc: ICMP packet parsing

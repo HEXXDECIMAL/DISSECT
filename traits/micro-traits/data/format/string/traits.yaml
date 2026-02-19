@@ -3,7 +3,7 @@
 # These are neutral building blocks - sprintf/snprintf are ubiquitous in C code.
 
 traits:
-  - id: unsafe-string-format
+  - id: sprintf-format
     desc: String formatting with format specifiers
     crit: inert
     conf: 0.75
@@ -11,4 +11,24 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: string
-      regex: 'snprintf|sprintf'
+      exact: 'sprintf'
+  - id: snprintf-format
+    desc: snprintf formatting function
+    crit: inert
+    conf: 0.75
+    platforms: [unix, linux, macos]
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: string
+      exact: 'snprintf'
+
+composite_rules:
+  - id: unsafe-string-format
+    desc: String formatting with format specifiers
+    crit: inert
+    conf: 0.75
+    platforms: [unix, linux, macos]
+    for: [elf, macho, so, dylib, c]
+    any:
+      - id: sprintf-format
+      - id: snprintf-format

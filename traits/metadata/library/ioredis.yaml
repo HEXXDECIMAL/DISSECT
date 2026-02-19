@@ -19,5 +19,35 @@ traits:
   crit: inert
   if:
     type: raw
-    regex: exports\.(bufferEqual|convertBufferToString|wrapMultiResult|packObject|convertObjectToArray|convertMapToArray|optimizeErrorStack|parseURL|zipMap)
+    regex: exports\.convert\w+
+- id: ioredis-utils-buffer-equal
+  desc: ioredis bufferEqual utility
+  crit: inert
+  if:
+    type: raw
+    exact: exports.bufferEqual
+- id: ioredis-utils-wrap-multi-result
+  desc: ioredis wrapMultiResult utility
+  crit: inert
+  if:
+    type: raw
+    exact: exports.wrapMultiResult
+- id: ioredis-utils-pack-object
+  desc: ioredis packObject utility
+  crit: inert
+  if:
+    type: raw
+    exact: exports.packObject
+- id: ioredis-utils-parse-url
+  desc: ioredis parseURL utility
+  crit: inert
+  if:
+    type: raw
+    exact: exports.parseURL
+- id: ioredis-utils-zip-map
+  desc: ioredis zipMap utility
+  crit: inert
+  if:
+    type: raw
+    exact: exports.zipMap
 composite_rules: []

@@ -242,15 +242,24 @@ traits:
   if:
     type: string
     substr: '"publishConfig":'
-- id: ci-badge-reference
-  desc: References CI service (professional project)
+- id: ci-badge-reference-a
+  desc: References CI service domains
   crit: notable
   conf: 0.8
   for:
   - package.json
   if:
     type: string
-    regex: travis-ci\.org|circleci\.com|github\.com/.{0,50}actions|codecov\.io|coveralls\.io
+    regex: travis-ci\.org|circleci\.com|codecov\.io|coveralls\.io
+- id: ci-badge-reference-b
+  desc: References GitHub Actions
+  crit: notable
+  conf: 0.8
+  for:
+  - package.json
+  if:
+    type: string
+    regex: github\.com/.{0,50}actions
 - id: scoped-known-org
   desc: Package from known organization scope
   crit: notable
@@ -259,5 +268,14 @@ traits:
   - package.json
   if:
     type: string
-    regex: '"name":\s*"@types/|"name":\s*"@babel/|"name":\s*"@rollup/|"name":\s*"@webpack/|"name":\s*"@eslint/|"name":\s*"@typescript-eslint/|"name":\s*"@testing-library/|"name":\s*"@storybook/|"name":\s*"@angular/|"name":\s*"@vue/|"name":\s*"@emotion/|"name":\s*"@chakra-ui/'
-composite_rules: []
+    regex: '"name":\s*"@(?:types|babel|rollup|webpack|eslint|angular|vue)/'
+composite_rules:
+- id: ci-badge-reference
+  desc: References CI service (professional project)
+  crit: notable
+  conf: 0.8
+  for:
+  - package.json
+  any:
+  - id: ci-badge-reference-a
+  - id: ci-badge-reference-b

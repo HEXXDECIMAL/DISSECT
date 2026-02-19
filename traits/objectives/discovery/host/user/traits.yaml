@@ -148,7 +148,7 @@ traits:
   - macho
   if:
     type: string
-    regex: (?:/usr/bin/finger|/usr/local/bin/finger|\bfinger\s+@[a-z]|\bfinger\s+-[lms]\s)
+    regex: \bfinger(?:\s+@[a-z]|\s+-[lms])?\b
 - id: last-cmd
   desc: Last command for login history
   crit: suspicious
@@ -160,7 +160,7 @@ traits:
   - macho
   if:
     type: string
-    substr: /usr/bin/last
+    regex: (?:^|[\s;&|])last(?:\s|$)
 - id: w-cmd
   desc: W command for user sessions
   crit: suspicious

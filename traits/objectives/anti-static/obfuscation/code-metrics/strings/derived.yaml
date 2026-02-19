@@ -8,4 +8,4 @@ traits:
   desc: Derived raw condition
   if:
     type: raw
-    regex: weave|swig
+    regex: s?w(?:eave|ig)

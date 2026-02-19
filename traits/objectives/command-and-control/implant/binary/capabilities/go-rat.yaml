@@ -33,35 +33,80 @@ traits:
       type: string
       regex: 'socket5Quick|socks5Quick|proxy/socks|socksProxy'
 
-  # Go port forwarding module
-  - id: go-port-forward-module
-    desc: Go port forwarding module
+  # Go port forwarding module (inForward variants)
+  - id: go-port-forward-inforward
+    desc: Go inForward port forwarding module
     crit: notable
     conf: 0.9
     attack: "T1090"
     if:
       type: string
-      regex: 'inForward\.(Start|Stop|addTask)|portForward|tunnelForward'
+      regex: 'inForward\.(Start|Stop|addTask)'
+
+  - id: go-port-forward-direct
+    desc: Go portForward/tunnelForward module
+    crit: notable
+    conf: 0.9
+    attack: "T1090"
+    if:
+      type: string
+      regex: 'portForward|tunnelForward'
 
   # Go history cleaning function (anti-forensics)
-  - id: go-clean-history
+  - id: go-clean-history-cleanhistory
     desc: Go history cleaning function
     crit: suspicious
     conf: 0.95
     attack: "T1070.003"
     if:
       type: string
-      regex: 'CleanHistory|clearHistory|HistoryClear'
+      exact: "CleanHistory"
+
+  - id: go-clean-history-clearhistory
+    desc: Go history cleaning function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "clearHistory"
+
+  - id: go-clean-history-historyclear
+    desc: Go history cleaning function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.003"
+    if:
+      type: string
+      exact: "HistoryClear"
 
   # Go timestomping function
-  - id: go-timestomp
+  - id: go-timestomp-change-self-time
     desc: Go timestomping function
     crit: suspicious
     conf: 0.95
     attack: "T1070.006"
     if:
       type: string
-      regex: 'ChangeSelfTime|modifyTimestamp|TouchTime'
+      exact: "ChangeSelfTime"
+
+  - id: go-timestomp-modify-timestamp
+    desc: Go timestomping function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.006"
+    if:
+      type: string
+      exact: "modifyTimestamp"
+
+  - id: go-timestomp-touch-time
+    desc: Go timestomping function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.006"
+    if:
+      type: string
+      exact: "TouchTime"
 
   # Go file transfer utilities (C2 feature)
   - id: go-file-utils
@@ -84,23 +129,57 @@ traits:
       regex: '(getSystemInfo|UpdateSysteminfo|makeSystemInfo|ProcessTask)'
 
   # Go directory listing (recon)
-  - id: go-dir-enum
+  - id: go-dir-enum-get-dir-list
     desc: Go directory enumeration
     crit: notable
     conf: 0.8
     attack: "T1083"
     if:
       type: string
-      regex: 'GetDirList|ListDirectory|ReadDir'
+      exact: "GetDirList"
+
+  - id: go-dir-enum-list-directory
+    desc: Go directory enumeration
+    crit: notable
+    conf: 0.8
+    attack: "T1083"
+    if:
+      type: string
+      exact: "ListDirectory"
+
+  - id: go-dir-enum-read-dir
+    desc: Go directory enumeration
+    crit: notable
+    conf: 0.8
+    attack: "T1083"
+    if:
+      type: string
+      exact: "ReadDir"
 
   # Interactive shell string indicators
-  - id: interactive-shell-string
+  - id: interactive-shell-string-interactive
     desc: Interactive shell mode strings
     crit: notable
     conf: 0.85
     if:
       type: string
-      regex: 'interactive_shell|Exec_shell|execShell'
+      exact: "interactive_shell"
+
+  - id: interactive-shell-string-exec-shell
+    desc: Interactive shell mode strings
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "Exec_shell"
+
+  - id: interactive-shell-string-execshell
+    desc: Interactive shell mode strings
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      exact: "execShell"
 
   # Socket quick start/stop (backdoor control)
   - id: socket-quick-control
@@ -112,6 +191,15 @@ traits:
       regex: 'socket_quick_(start|stop)|StartProxy|StopProxy'
 
 composite_rules:
+- id: go-port-forward-module
+  desc: Go port forwarding module
+  crit: notable
+  conf: 0.9
+  attack: "T1090"
+  any:
+    - id: go-port-forward-inforward
+    - id: go-port-forward-direct
+
   # Go RAT with shell + proxy (common combination)
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
   - id: go-rat-shell-proxy
@@ -182,3 +270,42 @@ composite_rules:
       - id: go-socks-proxy-module
       - id: go-file-utils
       - id: micro-traits/process/create/shell::go-shell-strings
+
+  - id: go-clean-history
+    desc: Go history cleaning function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.003"
+    any:
+      - id: go-clean-history-cleanhistory
+      - id: go-clean-history-clearhistory
+      - id: go-clean-history-historyclear
+
+  - id: go-timestomp
+    desc: Go timestomping function
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.006"
+    any:
+      - id: go-timestomp-change-self-time
+      - id: go-timestomp-modify-timestamp
+      - id: go-timestomp-touch-time
+
+  - id: go-dir-enum
+    desc: Go directory enumeration
+    crit: notable
+    conf: 0.8
+    attack: "T1083"
+    any:
+      - id: go-dir-enum-get-dir-list
+      - id: go-dir-enum-list-directory
+      - id: go-dir-enum-read-dir
+
+  - id: interactive-shell-string
+    desc: Interactive shell mode strings
+    crit: notable
+    conf: 0.85
+    any:
+      - id: interactive-shell-string-interactive
+      - id: interactive-shell-string-exec-shell
+      - id: interactive-shell-string-execshell

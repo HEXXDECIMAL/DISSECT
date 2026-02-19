@@ -51,14 +51,31 @@ traits:
   # NOTE: Removed standalone "1080" pattern - too many false positives.
   # "1080" appears in 1080p resolution, font metrics, timestamps, etc.
   # SOCKS port is only meaningful in network/proxy context.
-  - id: socks-port
-    desc: SOCKS port 1080 reference
+  - id: socks-port-context
+    desc: SOCKS/proxy context with port 1080
     crit: inert
     conf: 0.5
     if:
       type: string
-      # Require SOCKS/proxy context around port number
-      regex: "(?:socks|proxy)[:/].{0,30}1080|:1080(?:\\b|$)|port[=:\\s]+1080"
+      regex: "(?:socks|proxy)[:/].{0,30}1080"
+      case_insensitive: true
+
+  - id: socks-port-literal
+    desc: Literal :1080 port token
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: ":1080(?:\\b|$)"
+      case_insensitive: true
+
+  - id: socks-port-keyvalue
+    desc: Key/value port assignment to 1080
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: "port[=:\\s]+1080"
       case_insensitive: true
 
 composite_rules:
@@ -73,3 +90,12 @@ composite_rules:
       - id: socks4-string
       - id: socks-url
       - id: socks-port
+
+  - id: socks-port
+    desc: SOCKS port 1080 reference
+    crit: inert
+    conf: 0.5
+    any:
+      - id: socks-port-context
+      - id: socks-port-literal
+      - id: socks-port-keyvalue

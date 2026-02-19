@@ -7,5 +7,5 @@ traits:
   - javascript
   if:
     type: raw
-    regex: ([a-zA-Z0-9_$]+\s*\(\s*\[\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\]\s*\)\s*\+){5,}
+    regex: ([a-zA-Z0-9_$]+\s*\(\s*\[\s*\d{1,3}(?:\s*,\s*\d{1,3}){3}\s*\]\s*\)\s*\+){5,}
 composite_rules: []

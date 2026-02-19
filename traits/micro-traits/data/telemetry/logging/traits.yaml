@@ -5,13 +5,21 @@ defaults:
 
 traits:
   # === Avast Specific Indicators ===
-  - id: avast-burger-lib
+  - id: avast-burger-client-factory
     desc: Avast "Burger" telemetry library
     crit: notable
     conf: 0.9
     if:
       type: string
-      regex: "BurgerClientFactory|BurgerClient"
+      exact: "BurgerClientFactory"
+
+  - id: avast-burger-client
+    desc: Avast "Burger" telemetry library
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      exact: "BurgerClient"
 
   - id: avast-analytics-endpoint
     desc: Avast analytics exfiltration endpoint
@@ -31,13 +39,29 @@ traits:
       type: string
       regex: "analytics\\.send|telemetry\\.send|track\\.event"
 
-  - id: hardware-id-context
+  - id: hardware-id-hwid
     desc: Hardware/Unique ID in telemetry context
     crit: notable
     conf: 0.6
     if:
       type: string
-      regex: "hwid|guid|localAppHWID"
+      exact: "hwid"
+
+  - id: hardware-id-guid
+    desc: Hardware/Unique ID in telemetry context
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "guid"
+
+  - id: hardware-id-local-app
+    desc: Hardware/Unique ID in telemetry context
+    crit: notable
+    conf: 0.6
+    if:
+      type: string
+      exact: "localAppHWID"
 
 composite_rules:
   - id: avast-telemetry
@@ -55,3 +79,20 @@ composite_rules:
     all:
       - id: telemetry-send
       - id: hardware-id-context
+
+  - id: avast-burger-lib
+    desc: Avast "Burger" telemetry library
+    crit: notable
+    conf: 0.9
+    any:
+      - id: avast-burger-client-factory
+      - id: avast-burger-client
+
+  - id: hardware-id-context
+    desc: Hardware/Unique ID in telemetry context
+    crit: notable
+    conf: 0.6
+    any:
+      - id: hardware-id-hwid
+      - id: hardware-id-guid
+      - id: hardware-id-local-app

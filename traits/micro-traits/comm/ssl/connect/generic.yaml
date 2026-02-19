@@ -4,14 +4,41 @@
 
 traits:
   # === SSL/TLS Connection ===
-  - id: connect
-    desc: SSL/TLS connection
+  - id: ssl-connect-symbol
+    desc: SSL connect API
     crit: inert
     conf: 0.66
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: SSL_connect|SSL_new|SSL_CTX_new|TLS_client_method
+      exact: SSL_connect
+
+  - id: ssl-new-symbol
+    desc: SSL object creation API
+    crit: inert
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: SSL_new
+
+  - id: ssl-ctx-new-symbol
+    desc: SSL context creation API
+    crit: inert
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: SSL_CTX_new
+
+  - id: tls-client-method-symbol
+    desc: TLS client method API
+    crit: inert
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    if:
+      type: symbol
+      exact: TLS_client_method
 
   # === Certificate Verification Skip ===
   - id: insecure-skip-verify
@@ -54,6 +81,17 @@ traits:
       substr: "rejectUnauthorized: false"
 
 composite_rules:
+  - id: connect
+    desc: SSL/TLS connection
+    crit: inert
+    conf: 0.66
+    for: [elf, macho, so, dylib, c]
+    any:
+      - id: ssl-connect-symbol
+      - id: ssl-new-symbol
+      - id: ssl-ctx-new-symbol
+      - id: tls-client-method-symbol
+
   # Skip SSL certificate verification (migrated from YARA)
   - id: verify-skip
     desc: Skip SSL certificate verification

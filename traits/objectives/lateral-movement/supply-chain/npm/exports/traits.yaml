@@ -36,7 +36,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "export\\s+default|module\\.exports\\s*="
+      regex: "export\\s+default"
 
   - id: module-exports-object
     desc: "module.exports = {} object pattern"

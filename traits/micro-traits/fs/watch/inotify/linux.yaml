@@ -3,11 +3,49 @@
 # ATT&CK: T1083
 
 traits:
-  - id: inotify
+  - id: inotify-init
     desc: Monitor filesystem events via inotify
     crit: inert
     conf: 0.66
     for: [elf, so, c]
     if:
       type: symbol
-      regex: inotify_init|inotify_init1|inotify_add_watch|inotify_rm_watch
+      exact: "inotify_init"
+
+  - id: inotify-init1
+    desc: Monitor filesystem events via inotify
+    crit: inert
+    conf: 0.66
+    for: [elf, so, c]
+    if:
+      type: symbol
+      exact: "inotify_init1"
+
+  - id: inotify-add-watch
+    desc: Monitor filesystem events via inotify
+    crit: inert
+    conf: 0.66
+    for: [elf, so, c]
+    if:
+      type: symbol
+      exact: "inotify_add_watch"
+
+  - id: inotify-rm-watch
+    desc: Monitor filesystem events via inotify
+    crit: inert
+    conf: 0.66
+    for: [elf, so, c]
+    if:
+      type: symbol
+      exact: "inotify_rm_watch"
+
+composite_rules:
+  - id: inotify
+    desc: Monitor filesystem events via inotify
+    crit: inert
+    conf: 0.66
+    any:
+      - id: inotify-init
+      - id: inotify-init1
+      - id: inotify-add-watch
+      - id: inotify-rm-watch

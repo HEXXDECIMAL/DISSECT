@@ -359,7 +359,7 @@ traits:
   conf: 0.3
   if:
     type: string
-    regex: passw(?:or)?d[_-]?(?:hash|buf|ptr|auth|cred|sniff|steal|capture|grab|dump)|(?:steal|grab|sniff|capture|dump)[_-]?passw(?:or)?d
+    regex: passw(?:or)?d[_-]?(?:hash|auth|cred|steal|dump)|(?:steal|dump)[_-]?passw(?:or)?d
 composite_rules:
 - id: sniff-ssh-variants
   desc: sniff_ssh case variants

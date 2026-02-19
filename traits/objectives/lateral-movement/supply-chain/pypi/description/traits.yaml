@@ -94,7 +94,7 @@ traits:
   - all
   if:
     type: raw
-    regex: description\s*=\s*["'].{0,30}\b(?:test(?:\s+package)?|example(?:\s+package)?|placeholder|my\s+package|TODO|FIXME|nothing|empty|temp|dummy)\b
+    regex: description\s*=\s*["'].{0,30}\b(?:test|example|placeholder|todo|fixme|dummy)\b
     case_insensitive: true
 - id: pyproject-boilerplate-description
   desc: pyproject.toml with boilerplate library description
@@ -105,7 +105,6 @@ traits:
   if:
     type: kv
     path: project.description
-    regex: ^A (?:library|package|module) for (?:creating|building|making) (?:a |an
-      )?(?:terminal|beautiful|simple|modern|command.?line)
+    regex: ^A (?:library|package|module) for (?:creating|building) (?:terminal|simple)
     case_insensitive: true
 composite_rules: []

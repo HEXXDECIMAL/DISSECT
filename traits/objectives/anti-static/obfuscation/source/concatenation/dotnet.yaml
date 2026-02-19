@@ -9,14 +9,33 @@ defaults:
   for: [powershell, csharp]
 
 traits:
-  - id: dotnet-reflection-api-splitting
-    desc: ".NET reflection API keywords split via concatenation"
+  - id: dotnet-reflection-api-splitting-assembly
+    desc: ".NET Assembly split via concatenation"
     if:
       type: encoded
-      # Match patterns like: 'Asse' + 'mbly', 'Refle' + 'ction', 'inv' + 'oke'
-      # Flexible pattern handles various separators (+ & / and corrupted chars)
-      regex: '(Asse|Refle|ction|mbly|inv|oke|Load).{0,10}(mbly|ction|oke|Load|Asse|Refle)'
+      regex: 'Asse.{0,10}mbly|mbly.{0,10}Asse'
       count_min: 2
+
+  - id: dotnet-reflection-api-splitting-reflection
+    desc: ".NET Reflection split via concatenation"
+    if:
+      type: encoded
+      regex: 'Refle.{0,10}ction|ction.{0,10}Refle'
+      count_min: 2
+
+  - id: dotnet-reflection-api-splitting-invoke
+    desc: ".NET invoke split via concatenation"
+    if:
+      type: encoded
+      regex: 'inv.{0,10}oke|oke.{0,10}inv'
+      count_min: 2
+
+  - id: dotnet-reflection-api-splitting-load
+    desc: ".NET Load split via concatenation"
+    if:
+      type: encoded
+      regex: 'Load.{0,10}Load'
+      count_min: 1
 
   - id: dotnet-gettype-splitting
     desc: "GetType API split via concatenation"
@@ -26,15 +45,38 @@ traits:
       regex: '(Get|Type).{0,10}(Type|Get)'
       count_min: 1
 
-  - id: dotnet-getmethod-splitting
-    desc: "GetMethod API split via concatenation"
+  - id: dotnet-getmethod-splitting-a
+    desc: "GetMethod split token pair A"
     conf: 0.9
     if:
       type: encoded
-      regex: '(Get|Meth|od).{0,10}(Meth|od|Get)'
+      regex: 'Get.{0,10}Meth|Meth.{0,10}Get'
+      count_min: 1
+
+  - id: dotnet-getmethod-splitting-b
+    desc: "GetMethod split token pair B"
+    conf: 0.9
+    if:
+      type: encoded
+      regex: 'Meth.{0,10}od|od.{0,10}Meth'
       count_min: 1
 
 composite_rules:
+  - id: dotnet-reflection-api-splitting
+    desc: ".NET reflection API keywords split via concatenation"
+    any:
+      - id: dotnet-reflection-api-splitting-assembly
+      - id: dotnet-reflection-api-splitting-reflection
+      - id: dotnet-reflection-api-splitting-invoke
+      - id: dotnet-reflection-api-splitting-load
+
+  - id: dotnet-getmethod-splitting
+    desc: "GetMethod API split via concatenation"
+    conf: 0.9
+    any:
+      - id: dotnet-getmethod-splitting-a
+      - id: dotnet-getmethod-splitting-b
+
   # High-confidence .NET evasion pattern
   - id: dotnet-reflection-evasion
     desc: "Multiple .NET reflection APIs obfuscated via splitting"

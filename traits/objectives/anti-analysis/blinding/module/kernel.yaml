@@ -124,7 +124,7 @@ traits:
   - elf
   if:
     type: string
-    regex: p_check_integrity|lkrg.{0,30}check_integrity|check_integrity.{0,30}(kernel|kmod|module|lkm|rootkit|hook)|(kernel|kmod|module|lkm|rootkit|hook).{0,30}check_integrity
+    regex: (?:p_)?check_integrity|lkrg.{0,30}check_integrity
 composite_rules:
 - id: lkrg
   desc: Targets Linux Kernel Runtime Guard

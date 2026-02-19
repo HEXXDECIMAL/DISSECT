@@ -59,7 +59,7 @@ traits:
   attack: T1649
   if:
     type: string
-    regex: \bbc1[a-zA-Z0-9]{25,59}\b|\b1[a-km-zA-HJ-NP-Z1-9]{25,34}\b|\b3[a-km-zA-HJ-NP-Z1-9]{25,34}\b
+    regex: \bbc1[a-zA-Z0-9]{25,59}\b|\b1[a-km-zA-HJ-NP-Z1-9]{25,34}\b
 composite_rules:
 - id: crypto-clipboard-hijacker
   desc: Cryptocurrency clipboard hijacker

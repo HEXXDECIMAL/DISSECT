@@ -1,20 +1,34 @@
+defaults:
+  for: [javascript]
 traits:
-  - id: random-code-generation
-    desc: Detects random code generation via Math.random
+  - id: math-random-call
+    desc: Math.random invocation
+    crit: suspicious
+    conf: 1.0
+    attack: T1027
+    mbc: B0032
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (call_expression
+          function: (member_expression
+            object: (identifier) @math
+            property: (property_identifier) @random
+            (#eq? @math "Math")
+            (#eq? @random "random")
+          )
+        )
+
+  - id: dynamic-code-exec
+    desc: Dynamic code execution call
     crit: suspicious
     conf: 1.0
     attack: T1027
     mbc: B0032
     if:
       type: raw
-      regex: "(?s)(Math\\.random\\(\\).{0,500}\\bnew Function\\b|\\bnew Function\\b.{0,500}Math\\.random\\(\\)|Math\\.random\\(\\).{0,500}\\beval\\s*\\(|\\beval\\s*\\(.{0,500}Math\\.random\\(\\))"
-    downgrade:
-      any:
-        - id: metadata/library/jquery::domain
-        - id: metadata/library/jquery::version-string
-        - id: metadata/library/jquery::copyright
-        - id: metadata/library/jquery::fn-extend
-        - id: metadata/library/d3::d3-detection
+      regex: "\\bnew Function\\b|\\beval\\s*\\("
 
   - id: math-random-index
     desc: Math.random used for indexing (probabilistic character selection)
@@ -48,3 +62,21 @@ traits:
             )
           )
         )
+
+composite_rules:
+  - id: random-code-generation
+    desc: Detects random code generation via Math.random
+    crit: suspicious
+    conf: 1.0
+    attack: T1027
+    mbc: B0032
+    all:
+      - id: math-random-call
+      - id: dynamic-code-exec
+    downgrade:
+      any:
+        - id: metadata/library/jquery::domain
+        - id: metadata/library/jquery::version-string
+        - id: metadata/library/jquery::copyright
+        - id: metadata/library/jquery::fn-extend
+        - id: metadata/library/d3::d3-detection

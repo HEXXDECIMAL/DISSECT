@@ -60,14 +60,28 @@ traits:
   if:
     type: string
     regex: stratum\+tcp://
-- id: pool-url
-  desc: Mining pool URL pattern
+- id: pool-url-inline
+  desc: URL containing pool marker
   crit: notable
   conf: 0.7
   if:
     type: string
-    regex: (?:stratum\+(?:tcp|ssl)://|https?://)[^\s]{1,120}pool[^\s]{0,120}|pool\.[a-z0-9-]+\.(?:com|net|org|io)
+    regex: (?:stratum\+(?:tcp|ssl)://|https?://)[^\s]{1,120}pool[^\s]{0,120}
+- id: pool-url-domain
+  desc: Domain with pool subdomain
+  crit: notable
+  conf: 0.7
+  if:
+    type: string
+    regex: pool\.[a-z0-9-]+\.(?:com|net|org|io)
 composite_rules:
+- id: pool-url
+  desc: Mining pool URL pattern
+  crit: notable
+  conf: 0.7
+  any:
+  - id: pool-url-inline
+  - id: pool-url-domain
 - id: miner
   desc: Cryptocurrency mining patterns
   crit: suspicious

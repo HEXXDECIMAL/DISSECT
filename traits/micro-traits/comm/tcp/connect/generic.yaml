@@ -37,14 +37,34 @@ traits:
   if:
     type: string
     regex: transport endpoint is (not|already) connected
-- id: go-net-error-connection
-  desc: Go net error - connection issues
+- id: go-net-error-connection-refused
+  desc: Go net error - connection refused
   crit: inert
   conf: 0.6
   if:
     type: string
-    regex: connection (refused|timed out|reset by peer)|software caused connection
-      abort|network dropped connection
+    substr: "connection refused"
+- id: go-net-error-connection-timeout
+  desc: Go net error - connection timed out
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    substr: "connection timed out"
+- id: go-net-error-connection-reset
+  desc: Go net error - reset by peer
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    substr: "connection reset by peer"
+- id: go-net-error-connection-abort
+  desc: Go net error - connection abort
+  crit: inert
+  conf: 0.6
+  if:
+    type: string
+    regex: "connection (?:abort|dropped)"
 composite_rules:
 - id: connect
   desc: TCP connection operations
@@ -57,3 +77,12 @@ composite_rules:
   - id: create-socket
   - id: go-net-error-connection
   - id: go-net-error-endpoint
+- id: go-net-error-connection
+  desc: Go net error - connection issues
+  crit: inert
+  conf: 0.6
+  any:
+  - id: go-net-error-connection-refused
+  - id: go-net-error-connection-timeout
+  - id: go-net-error-connection-reset
+  - id: go-net-error-connection-abort

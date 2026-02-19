@@ -209,15 +209,14 @@ traits:
   conf: 0.6
   if:
     type: string
-    regex: (?i)Google[/\\]Chrome[/\\]User Data|(?i)Chrome[/\\](?:Default|Profile)[/\\]|(?i)/\.config/google-chrome/
+    regex: (?i)(?:Chrome[/\\](?:Default|Profile|User Data)|/\.config/google-chrome/)
 - id: opera-browser
   desc: Opera browser profile path
   crit: notable
   conf: 0.6
   if:
     type: string
-    regex: (?i)Opera[/\\](?:Stable|Profile|Software|GX Stable)|(?i)(?:AppData|Application
-      Support)[/\\](?:Local[/\\]|Roaming[/\\])?Opera[/\\]
+    regex: (?i)Opera[/\\](?:Stable|Profile|Software|GX Stable)
 composite_rules:
 - id: stealer-detected
   desc: Discord token stealer detected

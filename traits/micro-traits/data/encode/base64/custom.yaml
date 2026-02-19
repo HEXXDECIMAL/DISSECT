@@ -52,7 +52,21 @@ traits:
   - dll
   if:
     type: string
-    regex: '[|\$}][a-zA-Z0-9+/]{10,20}[rstuvwxyz].{0,10}[\{\$].{0,10}[@ABCDEFGHIJKLMNOPQRSTUVW].{0,10}[XYZ\[\\\]\^_`abcdefghijklmnopq]'
+    regex: '[|\$}][a-zA-Z0-9+/]{10,20}[rstuvwxyz].{0,10}[\{\$]'
+- id: decode-table-tail
+  desc: Custom base64 decode lookup table tail pattern
+  crit: inert
+  conf: 0.5
+  for:
+  - elf
+  - macho
+  - pe
+  - so
+  - dylib
+  - dll
+  if:
+    type: string
+    regex: '[@ABCDEFGHIJKLMNOPQRSTUVW].{0,10}[XYZ\[\\\]\^_`abcdefghijklmnopq]'
 composite_rules:
 - id: custom-implementation
   desc: Custom base64 implementation
@@ -62,6 +76,7 @@ composite_rules:
   mbc: B0032.001
   all:
   - id: decode-table
+  - id: decode-table-tail
   downgrade:
     any:
     - type: basename

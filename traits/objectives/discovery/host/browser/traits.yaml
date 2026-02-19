@@ -186,7 +186,7 @@ traits:
   - all
   if:
     type: string
-    regex: '[/\\]Cookies$|Cookies\.sqlite|Cookies\.binarycookies|browser.{0,30}cookies|cookies\.db'
+    regex: 'Cookies(\.sqlite|\.binarycookies|\.db)?$|browser.{0,30}cookies'
 composite_rules:
 - id: browser-names
   desc: Browser name references

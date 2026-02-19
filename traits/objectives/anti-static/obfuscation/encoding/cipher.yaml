@@ -25,7 +25,7 @@ traits:
     mbc: "C0027"
     if:
       type: symbol
-      regex: "key_schedule|rc4_ksa|init_key|setup_key|expand_key"
+      regex: "(?:rc4_ksa|key_schedule|[a-z]+_key)"
 
   # NOTE: "arc4" matches arc4random which is a legitimate OS function
   # Removed arc4 from pattern to avoid false positives
@@ -36,7 +36,7 @@ traits:
     mbc: "C0027"
     if:
       type: symbol
-      regex: "stream_decrypt|prga|rc4_crypt|cipher_stream"
+      regex: "(?:stream_decrypt|prga|rc4_crypt|cipher_stream)"
 
   # NOTE: Hex charset is extremely common in any binary - downgraded to inert
   - id: hardcoded-hex-charset

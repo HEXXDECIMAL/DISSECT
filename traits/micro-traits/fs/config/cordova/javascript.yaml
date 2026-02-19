@@ -22,7 +22,7 @@ traits:
   conf: 0.7
   if:
     type: string
-    regex: (after|before)_(build|compile|clean|docs|emulate|platform_add|platform_rm|platform_ls|plugin_add|plugin_rm|plugin_ls|plugin_search|plugin_install|plugin_uninstall|prepare|run|serve)|pre_package
+    regex: (after|before)_[a-z_]+|pre_package
     count_min: 6
 composite_rules:
 - id: cordova-hook-insertion

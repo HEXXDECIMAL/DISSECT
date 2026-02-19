@@ -43,4 +43,4 @@ traits:
     desc: WScript.ScriptFullName fragment
     if:
       type: raw
-      regex: 'riptFull|tFullN|ptFull|ptFul|lName'
+      regex: 'riptFull|tFullN|ptFul{1,2}|lName'

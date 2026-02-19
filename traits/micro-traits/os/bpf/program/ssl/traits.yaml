@@ -2,14 +2,23 @@
 # Capabilities for BPF/eBPF program detection
 
 traits:
-  - id: ssl-ctx-map
+  - id: ssl-ctx-map-link
     desc: SSL context tracking map
     crit: suspicious
     conf: 0.9
     for: [c, elf]
     if:
       type: raw
-      regex: "(?i)(?:fd_to_ssl|ssl_(?:ctx|context)_(?:map|hash)|ssl_to_fd)"
+      regex: "(?i)(?:fd_to_ssl|ssl_to_fd)"
+
+  - id: ssl-ctx-map-store
+    desc: SSL context tracking map
+    crit: suspicious
+    conf: 0.9
+    for: [c, elf]
+    if:
+      type: raw
+      regex: "(?i)ssl_(?:ctx|context)_(?:map|hash)"
 
   # SSL CTX reference in comments or identifiers
   - id: ssl-ctx-ref
@@ -163,16 +172,43 @@ traits:
       case_insensitive: true
 
   # === SSL/TLS Function Hooking Targets ===
-  - id: ssl-openssl-fn
+  - id: ssl-openssl-fn-a
     desc: OpenSSL function names
     crit: notable
     conf: 0.7
     for: [c, elf]
     if:
       type: string
-      regex: "\\bSSL_(?:read|write|set_fd|connect|accept)\\b"
+      regex: "\\bSSL_(?:read|write|set_fd|connect)\\b"
+
+  - id: ssl-openssl-fn-b
+    desc: OpenSSL function names
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    if:
+      type: string
+      word: "SSL_accept"
 
 composite_rules:
+  - id: ssl-ctx-map
+    desc: SSL context tracking map
+    crit: suspicious
+    conf: 0.9
+    for: [c, elf]
+    any:
+      - id: ssl-ctx-map-link
+      - id: ssl-ctx-map-store
+
+  - id: ssl-openssl-fn
+    desc: OpenSSL function names
+    crit: notable
+    conf: 0.7
+    for: [c, elf]
+    any:
+      - id: ssl-openssl-fn-a
+      - id: ssl-openssl-fn-b
+
   - id: bpf-attachment
     desc: BPF filter attachment
     crit: notable

@@ -22,7 +22,7 @@ traits:
   conf: 0.8
   if:
     type: raw
-    regex: exports\.[a-zA-Z0-9_]+\s*=\s*asyncErrorHandler\(async\s*\(req,\s*res,\s*next\)\s*=>\s*\{[\s\S]*?\}\)\s*\(\)
+    regex: exports\.[a-zA-Z0-9_]+\s*=\s*asyncErrorHandler\(.{0,200}\)\s*\(\)
 composite_rules:
 - id: suspicious-env-atob-axios
   desc: Decoding environment variables with atob for network use

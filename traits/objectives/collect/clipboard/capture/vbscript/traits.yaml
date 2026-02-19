@@ -20,7 +20,7 @@ traits:
     type: string
     regex: Clipboard.{0,30}sleep
 - id: inline__vbs-clipboard-loop__unless_1
-  desc: Derived raw condition
+  desc: Derived raw condition (nodejs)
   if:
-    type: raw
-    regex: nodejs|usr/bin
+    type: string
+    word: nodejs

@@ -45,23 +45,6 @@ traits:
   # Note: Rootkit libraries EXPORT malicious readdir/getdents to intercept calls.
   # Normal binaries only IMPORT these from libc. We detect this by requiring
   # the binary has exports (most normal binaries like fd have 0 exports).
-  - id: readdir-symbol
-    desc: readdir function symbol
-    crit: notable
-    conf: 0.5
-    for: [so]
-    if:
-      type: symbol
-      regex: "^readdir"
-
-  - id: getdents-symbol
-    desc: getdents function symbol
-    crit: notable
-    conf: 0.5
-    for: [so]
-    if:
-      type: symbol
-      regex: "^getdents"
 
   - id: has-exports
     desc: Binary exports symbols
@@ -73,15 +56,25 @@ traits:
       min: 1
 
   # === Process Filtering Functions ===
-  - id: filter-process-name
-    desc: Process filtering function reference
+  - id: filter-process-name-core
+    desc: Process filter or hide function
     crit: suspicious
     conf: 0.85
     mbc: "B0003"
     attack: "T1014"
     if:
       type: string
-      regex: "(process_to_filter|filter_process|hide_process|should_hide|filtered_process)"
+      regex: "(process_to_filter|filter_process|hide_process)"
+
+  - id: filter-process-name-alt
+    desc: Additional process filter function
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1014"
+    if:
+      type: string
+      regex: "(should_hide|filtered_process)"
 
   - id: original-readdir-backup
     desc: Backed-up original readdir function
@@ -94,6 +87,16 @@ traits:
       regex: "^original_readdir"
 
 composite_rules:
+  - id: filter-process-name
+    desc: Process filtering function reference
+    crit: suspicious
+    conf: 0.85
+    mbc: "B0003"
+    attack: "T1014"
+    any:
+      - id: filter-process-name-core
+      - id: filter-process-name-alt
+
   # Composite for readdir hook detection - requires the binary to have exports
   # (shared libraries export functions, normal executables typically don't)
   - id: readdir-hook
@@ -104,7 +107,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: readdir-symbol
+      - id: micro-traits/fs/directory/readdir::readdir-readdir
       - id: has-exports
 
   - id: getdents-hook
@@ -115,7 +118,7 @@ composite_rules:
     attack: "T1014"
     for: [so]
     all:
-      - id: getdents-symbol
+      - id: micro-traits/fs/directory/readdir::readdir-getdents
       - id: has-exports
 
   # Direct hooked library rootkit (exported function hooking)

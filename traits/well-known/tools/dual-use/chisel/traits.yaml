@@ -33,7 +33,7 @@ traits:
   conf: 0.6
   if:
     type: string
-    regex: (?i)reverse[_-]?(?:tunnel|proxy|forward)|(?i)socks5[_-]?(?:proxy|server|port)|(?i)proxy[_-]?(?:tunnel|mode|server)
+    regex: (?i)(?:reverse|socks5|proxy)[_-]?(?:tunnel|proxy|forward|server|port|mode)
 composite_rules:
 - id: keyword-with-mode
   desc: Chisel keyword with tunneling mode

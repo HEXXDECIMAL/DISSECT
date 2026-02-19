@@ -111,8 +111,7 @@ traits:
   attack: T1070.003
   if:
     type: string
-    regex: rm -f ~/\.bash_history|rm ~/\.bash_history|cat /dev/null > ~/\.bash_history|>
-      ~/\.bash_history|history -c
+    regex: rm -f ~/\.bash_history|cat /dev/null > ~/\.bash_history|history -c
 composite_rules:
 - id: history-cleanup
   desc: Shell history cleanup

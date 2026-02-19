@@ -22,5 +22,5 @@ traits:
   crit: suspicious
   if:
     type: raw
-    regex: extensions\s*=\s*\[.{0,200}['"]ext/[^/]{1,120}/[^/]{1,120}/[^/]{1,120}/extconf\.rb['"]
+    regex: extensions\s*=\s*\[.{0,220}['"]ext/.{1,240}/extconf\.rb['"]
 composite_rules: []

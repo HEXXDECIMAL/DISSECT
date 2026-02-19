@@ -271,7 +271,7 @@ traits:
   - all
   if:
     type: raw
-    regex: phishlet:\s*(google|outlook|yahoo|facebook|linkedin|instagram|twitter|microsoft|office365|o365)
+    regex: phishlet:\s*(google|outlook|facebook|linkedin|microsoft|office365|o365)
 - id: phishlet-credentials
   desc: Phishlet credentials section
   crit: suspicious
@@ -280,7 +280,7 @@ traits:
   - all
   if:
     type: raw
-    regex: 'credentials:\s*[\s\S]{0,50}username:\s*[\s\S]{0,80}key:|credentials:\s*[\s\S]{0,50}username:\s*[\s\S]{0,80}search:|credentials:\s*[\s\S]{0,50}username:\s*[\s\S]{0,80}type:|credentials:\s*[\s\S]{0,50}password:\s*[\s\S]{0,80}key:|credentials:\s*[\s\S]{0,50}password:\s*[\s\S]{0,80}search:|credentials:\s*[\s\S]{0,50}password:\s*[\s\S]{0,80}type:|credentials:\s*[\s\S]{0,50}custom:\s*[\s\S]{0,80}key:|credentials:\s*[\s\S]{0,50}custom:\s*[\s\S]{0,80}search:|credentials:\s*[\s\S]{0,50}custom:\s*[\s\S]{0,80}type:'
+    regex: 'credentials:\s*[\s\S]{0,30}(?:username|password):[\s\S]{0,30}(?:key|search):'
 composite_rules:
 - id: phishlet-config
   desc: Evilginx phishlet configuration file

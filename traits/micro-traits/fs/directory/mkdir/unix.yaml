@@ -6,10 +6,27 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mkdir
+  - id: mkdir-base
     desc: Create directories
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: mkdir|mkdirat
+      exact: "mkdir"
+
+  - id: mkdirat
+    desc: Create directories
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mkdirat"
+
+composite_rules:
+  - id: mkdir
+    desc: Create directories
+    crit: inert
+    conf: 0.66
+    any:
+      - id: mkdir-base
+      - id: mkdirat

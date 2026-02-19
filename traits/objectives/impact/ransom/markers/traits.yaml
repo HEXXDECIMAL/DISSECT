@@ -10,12 +10,20 @@ traits:
     type: string
     regex: "\u5350|hackend| ransomware|encrypted your files"
     case_insensitive: true
-- id: ransomware-banner
+- id: ransomware-banner-core
   desc: Ransomware tool marker
   crit: suspicious
   conf: 0.75
   if:
     type: string
     case_insensitive: true
-    regex: decrypt.{0,50}payment|pay.{0,50}bitcoin|ransom.{0,50}note|your files.{0,50}encrypted
-composite_rules: []
+    regex: decrypt.{0,50}payment|your files.{0,50}encrypted
+
+composite_rules:
+- id: ransomware-banner
+  desc: Ransomware tool marker
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: ransomware-banner-core
+  - id: micro-traits/data/text/malware::pay-bitcoin-phrase

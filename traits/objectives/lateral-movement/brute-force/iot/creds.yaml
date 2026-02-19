@@ -49,7 +49,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: ^hikvision$|^cisco123$|^Zte521$|^vstarcam2015$|^xmhdipc$|^icatch99$|^hslwificam$|^dreambox$|^telnetadmin$|^telecomadmin$|^e8telnet$|^e8ehome$|^juantech$|^ipcam_rt5350$|^GM8182$|^hi3518$|^hg2x0$|^xc3511$|^xc12345$|^oelinux123$|^grouter$|^solokey$|^instar$|^OxhlwSG8$|^S2fGqNFs$|^tlJwpbo6$|^7ujMko0admin$|^7ujMko0vizxv$|^antslq$|^fiberinst$
+    regex: ^(?:hikvision|cisco123|vstarcam2015|icatch99|hslwificam|ipcam_rt5350)$
 composite_rules:
 - id: iot-botnet-scanner-vendor
   desc: IoT botnet scanner (vendor credential-access)

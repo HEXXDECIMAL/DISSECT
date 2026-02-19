@@ -73,7 +73,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (passwd|/usr/bin/passwd)
+    word: passwd
 - id: visudo-check
   desc: visudo configuration check
   crit: notable

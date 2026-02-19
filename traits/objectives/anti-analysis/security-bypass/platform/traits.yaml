@@ -280,8 +280,8 @@ traits:
   if:
     type: symbol
     exact: sel_write_enforce
-- id: policy-file-pattern
-  desc: SELinux policy binary file
+- id: policy-file-pattern-core
+  desc: SELinux policy path marker
   crit: notable
   conf: 0.65
   for:
@@ -290,7 +290,29 @@ traits:
   - elf
   if:
     type: string
-    regex: /etc/selinux/.{0,50}/policy/|/selinux/policy|selinux.{0,30}policy\.(3[0-9]|pp|te|fc|if)$
+    regex: /selinux/policy
+- id: policy-file-pattern-ext-a
+  desc: SELinux policy extension set A
+  crit: notable
+  conf: 0.65
+  for:
+  - shell
+  - c
+  - elf
+  if:
+    type: string
+    regex: policy\.(3[0-9]|pp|te)$
+- id: policy-file-pattern-ext-b
+  desc: SELinux policy extension set B
+  crit: notable
+  conf: 0.65
+  for:
+  - shell
+  - c
+  - elf
+  if:
+    type: string
+    regex: policy\.(fc|if)$
 composite_rules:
 - id: unconfined-labels
   desc: Unconfined SELinux context labels
@@ -336,6 +358,18 @@ composite_rules:
   - id: selinux-config-dir
   - id: policy-file-pattern
   crit: notable
+- id: policy-file-pattern
+  desc: SELinux policy binary file
+  crit: notable
+  conf: 0.65
+  for:
+  - shell
+  - c
+  - elf
+  any:
+  - id: policy-file-pattern-core
+  - id: policy-file-pattern-ext-a
+  - id: policy-file-pattern-ext-b
 - id: kernel-parameters
   desc: SELinux kernel boot parameters
   for:

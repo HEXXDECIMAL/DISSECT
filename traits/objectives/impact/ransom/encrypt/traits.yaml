@@ -174,17 +174,14 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: your files.{0,30}(have been|were).{0,20}encrypted|files (have been|were).{0,20}encrypted|decrypt.{0,20}(your|all
-      your|the) files|pay.{0,30}(ransom|bitcoin)|ransom.{0,30}(note|payment)|tor browser|\.onion/|irreversibly
-      encrypted
+    regex: your files.{0,30}encrypted|pay.{0,20}(ransom|bitcoin)|\.onion/
 - id: encryption-pipeline
   desc: File encryption pipeline patterns
   crit: suspicious
   conf: 0.9
   if:
     type: string
-    regex: File already has encrypted extension|Starting File Processing Pipeline|Files
-      processed.{0,50}Files scanned
+    regex: encrypted extension|File Processing Pipeline|Files processed.{0,50}Files scanned
 - id: ransom-note-filename
   desc: Ransom note filename patterns
   crit: suspicious
@@ -192,14 +189,14 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: README.{0,20}RESTORE|DECRYPT.{0,20}INSTRUCTIONS|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt
+    regex: (?:README.{0,20}RESTORE|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)
 - id: locker-config-fields
   desc: Ransomware locker configuration schema fields
   crit: suspicious
   conf: 0.95
   if:
     type: string
-    regex: vecFullEncryptionExtensions|vecSkipFileExtensions|nEncryptionLimitBytes|nEncryptionBlockBytes|nEncryptionSkipBytes|sMasterPublicKey|sEncryptedFileExtension|vecPreRunCommands|vecPostRunCommands
+    regex: vecFullEncryptionExtensions|vecSkipFileExtensions|sMasterPublicKey
 composite_rules:
 - id: locker-behavioral-indicators
   desc: Ransomware behavioral indicators (logging and schema)

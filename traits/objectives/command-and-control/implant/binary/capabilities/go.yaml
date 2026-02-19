@@ -13,22 +13,54 @@ defaults:
 
 traits:
   # Go C2 heartbeat function patterns
-  - id: go-heartbeat-function
-    desc: Go C2 heartbeat function
+  - id: go-heartbeat-sendheart
+    desc: Go SendHeart heartbeat function
     crit: suspicious
     conf: 0.95
     if:
       type: string
-      regex: '(SendHeart|setHeart|heartbeat(Task|Loop|Worker)|HeartBeat(Task|Loop|Worker))\b'
+      regex: 'SendHeart\b'
+
+  - id: go-heartbeat-setheart
+    desc: Go setHeart heartbeat function
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: 'setHeart\b'
+
+  - id: go-heartbeat-uppercase
+    desc: Go HeartBeat(X) heartbeat function
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: 'HeartBeat(Task|Loop|Worker)\b'
+
+  - id: go-heartbeat-lowercase
+    desc: Go heartbeat(X) function
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: string
+      regex: 'heartbeat(Task|Loop|Worker)\b'
 
   # Go C2 command execution patterns
-  - id: go-cmd-exec-module
-    desc: Go C2 command execution module
+  - id: go-cmd-exec-module-cmd
+    desc: Go /cmd. command execution module
     crit: suspicious
     conf: 0.9
     if:
       type: string
-      regex: '(/cmd\.(ExecShell|execCmd|Run|analysisTask)|v2/cmd\.)'
+      regex: '/cmd\.(ExecShell|execCmd|Run|analysisTask)'
+
+  - id: go-cmd-exec-module-v2
+    desc: Go v2/cmd command execution module
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: string
+      regex: 'v2/cmd\.'
 
   # Go file transfer functions (C2 feature)
   - id: go-file-transfer
@@ -94,6 +126,24 @@ traits:
       regex: 'request\.base64Decode|base64\.StdEncoding\.DecodeString'
 
 composite_rules:
+- id: go-heartbeat-function
+  desc: Go C2 heartbeat function
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: go-heartbeat-sendheart
+    - id: go-heartbeat-setheart
+    - id: go-heartbeat-uppercase
+    - id: go-heartbeat-lowercase
+
+- id: go-cmd-exec-module
+  desc: Go C2 command execution module
+  crit: suspicious
+  conf: 0.9
+  any:
+    - id: go-cmd-exec-module-cmd
+    - id: go-cmd-exec-module-v2
+
   # Go C2 implant with heartbeat and exec
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
   - id: go-c2-implant-heartbeat

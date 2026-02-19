@@ -6,10 +6,45 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: resolve
-    desc: Resolve IP addresses
+  - id: resolve-gethostbyname
+    desc: Resolve hostname with gethostbyname
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: gethostbyname|gethostbyaddr|getaddrinfo|getnameinfo
+      exact: gethostbyname
+
+  - id: resolve-gethostbyaddr
+    desc: Resolve address with gethostbyaddr
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: gethostbyaddr
+
+  - id: resolve-getaddrinfo
+    desc: Resolve endpoint with getaddrinfo
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: getaddrinfo
+
+  - id: resolve-getnameinfo
+    desc: Resolve endpoint with getnameinfo
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: getnameinfo
+
+composite_rules:
+  - id: resolve
+    desc: Resolve IP addresses
+    crit: inert
+    conf: 0.66
+    any:
+      - id: resolve-gethostbyname
+      - id: resolve-gethostbyaddr
+      - id: resolve-getaddrinfo
+      - id: resolve-getnameinfo

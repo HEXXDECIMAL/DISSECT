@@ -2,21 +2,29 @@ defaults:
   for: [all]
 
 traits:
-  - id: dispatcher-signature-8b2e
-    desc: DOS internal dispatcher signature check (8B2E)
+  - id: dispatcher-signature-op
+    desc: DOS dispatcher check op
     crit: suspicious
     conf: 0.9
     if:
       type: raw
-      regex: '(?i)(cmp|mov)\s+(bx|ax|cx|dx),\s*8b2eh'
+      regex: '(?i)(cmp|mov)\s+'
 
-  - id: dispatcher-signature-9f
-    desc: DOS internal dispatcher signature check (9F)
+  - id: dispatcher-signature-8b2e-reg
+    desc: DOS dispatcher check register/signature (8B2E)
     crit: suspicious
     conf: 0.9
     if:
       type: raw
-      regex: '(?i)(cmp|mov)\s+(al|bl|cl|dl),\s*9fh'
+      regex: '(?i)(bx|ax|cx|dx),\s*8b2eh'
+
+  - id: dispatcher-signature-9f-reg
+    desc: DOS dispatcher check register/signature (9F)
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: raw
+      regex: '(?i)(al|bl|cl|dl),\s*9fh'
 
   - id: check-command-com
     desc: Check for COMMAND.COM execution (COMM)
@@ -43,3 +51,20 @@ traits:
     if:
       type: string
       substr: "Darth Vader"
+
+composite_rules:
+  - id: dispatcher-signature-8b2e
+    desc: DOS internal dispatcher signature check (8B2E)
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: dispatcher-signature-op
+      - id: dispatcher-signature-8b2e-reg
+
+  - id: dispatcher-signature-9f
+    desc: DOS internal dispatcher signature check (9F)
+    crit: suspicious
+    conf: 0.9
+    all:
+      - id: dispatcher-signature-op
+      - id: dispatcher-signature-9f-reg

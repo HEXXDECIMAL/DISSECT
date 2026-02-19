@@ -117,7 +117,7 @@ traits:
   - javascript
   if:
     type: raw
-    regex: require\s*\(\s*['"`]\./parse['"`]\s*\)|require\s*\(\s*['"`]\./parser['"`]\s*\)|require\s*\(\s*['"`]\./decode['"`]\s*\)|require\s*\(\s*['"`]\./decrypt['"`]\s*\)|require\s*\(\s*['"`]\./transform['"`]\s*\)|require\s*\(\s*['"`]\./convert['"`]\s*\)
+    regex: require\(['"`]\./(?:parse|parser|decode|decrypt|transform|convert)['"`]\)
 composite_rules:
 - id: non-code-file-reference
   desc: Reference to non-code file

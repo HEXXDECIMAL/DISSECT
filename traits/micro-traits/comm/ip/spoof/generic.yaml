@@ -80,13 +80,21 @@ traits:
       type: string
       regex: "(SYN|syn).?cookie"
 
-  - id: bitwise-ip-construction
-    desc: IP address construction using bitwise operations (often
+  - id: bitwise-ip-rand-source
+    desc: Random source used in bitwise IP construction
     crit: suspicious
     conf: 0.8
     if:
       type: raw
-      regex: "(?:rand|rand_cmwc|rand_r)\\s*\\(\\s*\\)\\s*>>\\s*(?:24|16|8)\\s*&\\s*0xFF"
+      regex: "(?:rand|rand_cmwc|rand_r)\\s*\\(\\s*\\)"
+
+  - id: bitwise-ip-shift-mask
+    desc: Bit shift and 0xFF mask pattern
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: raw
+      regex: ">>\\s*[0-9]{1,2}\\s*&\\s*0xFF"
 
 composite_rules:
   # Migrated from YARA
@@ -101,6 +109,14 @@ composite_rules:
       - { id: ip-hdrincl-constant }
       - { id: ipproto-raw-constant }
       - { id: bitwise-ip-construction }
+
+  - id: bitwise-ip-construction
+    desc: IP address construction using bitwise operations (often
+    crit: suspicious
+    conf: 0.8
+    all:
+      - id: bitwise-ip-rand-source
+      - id: bitwise-ip-shift-mask
 
   - id: syncookie
     desc: SYN cookie manipulation

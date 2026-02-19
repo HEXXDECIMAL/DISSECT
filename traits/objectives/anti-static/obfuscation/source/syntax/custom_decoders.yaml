@@ -34,5 +34,5 @@ traits:
   - javascript
   if:
     type: raw
-    regex: String\.fromCharCode\(\s*\(\s*[\w\[\]]+\s*<<\s*2\s*\)\s*\|\s*\(\s*\(\s*[\w\[\]]+\s*&\s*0x30\s*\)\s*>>\s*4\s*\)\s*\)
+    regex: String\.fromCharCode\(.{0,80}<<\s*2.{0,80}0x30.{0,80}>>\s*4
 composite_rules: []

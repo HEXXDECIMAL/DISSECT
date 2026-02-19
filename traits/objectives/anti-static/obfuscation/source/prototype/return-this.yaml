@@ -2,10 +2,22 @@ defaults:
   for:
   - all
 traits:
-- id: return-this
-  desc: Detects prototype function that returns 'this' (used
+- id: return-this-prototype
+  desc: Detects prototype function pattern
   crit: suspicious
   if:
     type: raw
-    regex: function\s+[a-zA-Z0-9_$]+.prototype.[a-zA-Z0-9_$]+\s*\(\s*\)\s*\{\s*return\s+this
-composite_rules: []
+    regex: \.prototype\.[a-zA-Z0-9_$]+
+- id: return-this-body
+  desc: Detects function returning this
+  crit: suspicious
+  if:
+    type: raw
+    regex: function\s*\(\s*\)\s*\{[^}]{0,80}return\s+this
+composite_rules:
+- id: return-this
+  desc: Detects prototype function that returns this
+  crit: suspicious
+  all:
+  - id: return-this-prototype
+  - id: return-this-body

@@ -36,7 +36,7 @@ traits:
   - shell
   if:
     type: raw
-    regex: curl[^&]{0,120}&&[^&]{0,120}xattr[^&]{0,120}&&[^&]{0,120}chmod[^&]{0,120}&&[^&]{0,120}\./
+    regex: curl.{0,100}xattr.{0,100}chmod.{0,100}\./
 composite_rules:
 - id: gatekeeper-bypass
   desc: macOS Gatekeeper bypass via xattr

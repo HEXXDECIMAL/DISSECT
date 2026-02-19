@@ -23,13 +23,21 @@ traits:
       type: string
       substr: "esxcli"
 
-  - id: vmware-extensions
-    desc: VMware virtual machine file extensions
+  - id: vmware-extensions-core-a
+    desc: VMware file extensions core group A
     crit: notable
     conf: 0.9
     if:
       type: string
-      regex: '\.(vmdk|vmx|vmsd|vmsn|vswp|vmem|nvram|vmxf)($|\b)'
+      regex: '\.(vmdk|vmx|vmsd|vmsn)\b'
+
+  - id: vmware-extensions-core-b
+    desc: VMware file extensions core group B
+    crit: notable
+    conf: 0.9
+    if:
+      type: string
+      regex: '\.(vswp|vmem|nvram|vmxf)\b'
 
   - id: vmfs-path
     desc: Reference to VMware VMFS volumes path
@@ -115,3 +123,12 @@ traits:
     if:
       type: string
       substr: "Waiting for ESXi Preparation"
+
+composite_rules:
+  - id: vmware-extensions
+    desc: VMware virtual machine file extensions
+    crit: notable
+    conf: 0.9
+    any:
+      - id: vmware-extensions-core-a
+      - id: vmware-extensions-core-b

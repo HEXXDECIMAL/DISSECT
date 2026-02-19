@@ -6,13 +6,21 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: stat
-    desc: Read file status and metadata
+  - id: stat-core
+    desc: Read file status and metadata (core)
     crit: notable
     conf: 0.8
     if:
       type: symbol
-      regex: "^_?(stat|lstat|fstat|fstatat|stat64|lstat64|fstat64)$"
+      regex: "^_?(stat|lstat|fstat|fstatat)$"
+
+  - id: stat-legacy64
+    desc: Read file status and metadata (legacy 64-bit)
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "^_?(stat64|lstat64|fstat64)$"
 
   - id: stat-exists
     desc: Check if file exists
@@ -21,3 +29,12 @@ traits:
     if:
       type: symbol
       regex: "^_?(access|faccessat)$"
+
+composite_rules:
+  - id: stat
+    desc: Read file status and metadata
+    crit: notable
+    conf: 0.8
+    any:
+      - id: stat-core
+      - id: stat-legacy64

@@ -51,7 +51,7 @@ traits:
     attack: "T1059"
     if:
       type: symbol
-      regex: "\\b(popen|system|execve|execl|execlp|execle|execv|execvp|execvpe|posix_spawn)\\b"
+      regex: "\\b(popen|system|exec[a-z]{1,6}|posix_spawn)\\b"
       count_min: 15
       per_kb_min: 0.07
 

@@ -115,7 +115,7 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: from\s+['"]\./(?:stealer|grabber|logger|exfil)['"]|require\(['"]\./(?:stealer|grabber|logger|exfil)['"]\)
+    regex: (?:from|require\()\s*['"]\./(?:stealer|grabber|logger|exfil)['"]
 composite_rules:
 - id: stealer-import
   desc: Local stealer/grabber module import

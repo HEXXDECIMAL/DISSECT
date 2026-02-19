@@ -3,14 +3,32 @@
 # ATT&CK: T1070.004
 
 traits:
-  - id: delete-win
+  - id: deletefile
     desc: Delete files (Windows API)
     crit: notable
     conf: 0.66
     for: [pe, dll, c]
     if:
       type: symbol
-      regex: DeleteFile|DeleteFileA|DeleteFileW
+      exact: "DeleteFile"
+
+  - id: deletefile-a
+    desc: Delete files (Windows API ANSI)
+    crit: notable
+    conf: 0.66
+    for: [pe, dll, c]
+    if:
+      type: symbol
+      exact: "DeleteFileA"
+
+  - id: deletefile-w
+    desc: Delete files (Windows API)
+    crit: notable
+    conf: 0.66
+    for: [pe, dll, c]
+    if:
+      type: symbol
+      exact: "DeleteFileW"
   - id: del-command
     desc: 'File deletion using "del" command.'
     crit: notable
@@ -29,3 +47,13 @@ traits:
     if:
       type: raw
       regex: '(?i)del\s+(?:/[a-z]\s+){0,3}"?%~f0"?'
+
+composite_rules:
+  - id: delete-win
+    desc: Delete files (Windows API)
+    crit: notable
+    conf: 0.66
+    any:
+      - id: deletefile
+      - id: deletefile-a
+      - id: deletefile-w

@@ -15,13 +15,13 @@ traits:
   conf: 0.95
   if:
     type: raw
-    regex: (?:pkill|kill)[^;]{0,20}aliyun|aegis[^;]{0,20}uninstall|systemctl\s+(?:stop|disable)\s+aliyun
+    regex: (?:pkill|kill).{0,20}aliyun|aegis.{0,20}uninstall|systemctl\s+stop\s+aliyun
 - id: cloud-agent-uninstall
   desc: Cloud security agent uninstall
   conf: 0.9
   if:
     type: raw
-    regex: (?:qcloud|aegis|YunJing)[^;]{0,30}uninstall|update\.aegis\.aliyun\.com/download/uninstall
+    regex: (?:qcloud|aegis|YunJing).{0,30}uninstall|aegis\.aliyun\.com
 composite_rules:
 - id: multi-agent-disable
   desc: Multiple monitoring agents disabled

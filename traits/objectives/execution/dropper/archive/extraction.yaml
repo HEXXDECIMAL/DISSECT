@@ -69,7 +69,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b(extract|unzip|tar)\s*\(.{0,50}(exec|run|subprocess)\(|\b(extract|unzip|tar)\s+.{0,30}(\||>).{0,20}(exec|bash|sh|python)
+    regex: (?:extract|unzip|tar).{0,80}(?:exec|run|subprocess|bash|sh|python)
 composite_rules:
 - id: archive-extraction
   desc: Archive extraction capability

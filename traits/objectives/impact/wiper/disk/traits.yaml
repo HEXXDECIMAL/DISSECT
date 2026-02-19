@@ -120,8 +120,8 @@ traits:
       \   $rm = \"rm \" ascii\n    $rmrf = \"rm -rf\" ascii\n    $spawn = \"spawn(\"\
       \ ascii\n  condition:\n    ($sdcard or $storage) and any of ($dcim, $pictures,\
       \ $downloads) and any of ($rm, $rmrf, $spawn)\n}\n"
-- id: mass-delete
-  desc: Mass file deletion pattern
+- id: mass-delete-traversal
+  desc: Mass deletion traversal primitive
   crit: suspicious
   conf: 0.85
   attack: T1485
@@ -132,7 +132,20 @@ traits:
   - shell
   if:
     type: raw
-    regex: (fs\.readdirSync|os\.walk|find\s+\.)[\s\S]{0,50}(unlinkSync|os\.remove|os\.unlink|-delete|rm\s+-rf)
+    regex: fs\.readdirSync|os\.walk|find\s+\.
+- id: mass-delete-action
+  desc: Mass deletion action primitive
+  crit: suspicious
+  conf: 0.85
+  attack: T1485
+  for:
+  - javascript
+  - typescript
+  - python
+  - shell
+  if:
+    type: raw
+    regex: unlinkSync|os\.(?:remove|unlink)|-delete|rm\s+-rf
 composite_rules:
 - id: target-vscode
   desc: Targets .vscode configuration directory
@@ -145,6 +158,19 @@ composite_rules:
   any:
   - id: target-vscode-dir
   - id: target-idea-dir
+- id: mass-delete
+  desc: Mass file deletion pattern
+  crit: suspicious
+  conf: 0.85
+  attack: T1485
+  for:
+  - javascript
+  - typescript
+  - python
+  - shell
+  all:
+  - id: mass-delete-traversal
+  - id: mass-delete-action
 - id: protestware
   desc: Protestware pattern - conditional destruction
   crit: suspicious

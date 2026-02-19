@@ -18,14 +18,26 @@ traits:
       regex: "https?://[a-zA-Z0-9]"
       section: text
 
-  - id: shell-command-in-text
-    desc: Shell command pattern in code section
+  - id: shell-command-in-text-a
+    desc: Shell command pattern in text A
     crit: suspicious
     conf: 0.8
     for: [elf, macho, pe]
     if:
       type: string
-      regex: "/(bin|usr/bin)/(sh|bash|chmod|curl|wget)"
+      regex: "/(bin|usr/bin)/(sh|bash|chmod)"
+      section: text
+    downgrade:
+      any:
+        - id: metadata/signed/platform::apple
+  - id: shell-command-in-text-b
+    desc: Shell command pattern in text B
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, pe]
+    if:
+      type: string
+      regex: "/(bin|usr/bin)/(curl|wget)"
       section: text
     downgrade:
       any:
@@ -170,3 +182,13 @@ traits:
       type: string
       regex: "(RPATH|RUNPATH)"
       section: ".dynamic"
+
+composite_rules:
+  - id: shell-command-in-text
+    desc: Shell command pattern in code section
+    crit: suspicious
+    conf: 0.8
+    for: [elf, macho, pe]
+    any:
+      - id: shell-command-in-text-a
+      - id: shell-command-in-text-b

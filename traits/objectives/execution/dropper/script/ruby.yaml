@@ -145,16 +145,6 @@ traits:
       type: raw
       regex: 'gsub\(.{0,10}"---"|\.gsub\(.{0,10}"---"|decode64.{0,50}gsub'
 
-  # === Windows OS Check ===
-  - id: windows-os-check
-    desc: Windows OS platform check
-    crit: notable
-    conf: 0.70
-    attack: "T1497"
-    if:
-      type: string
-      regex: "mswin|msys|mingw|cygwin|bccwin|wince|emc|host_os.{0,50}match"
-
   # === VBS Script Writing ===
   - id: vbs-script-write
     desc: VBS script file creation
@@ -296,7 +286,7 @@ composite_rules:
     crit: suspicious
     needs: 4
     any:
-      - id: windows-os-check
+      - id: micro-traits/os/sysinfo/platform::windows-os-check
       - id: base64-separator-obfuscation
       - id: vbs-script-write
       - id: wscript-execution

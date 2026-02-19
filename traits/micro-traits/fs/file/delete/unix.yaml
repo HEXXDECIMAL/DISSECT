@@ -8,10 +8,36 @@ defaults:
 traits:
   # NOTE: Go runtime and standard library use unlink/remove for temp file
   # cleanup and normal file operations.
-  - id: delete
+  - id: unlink
     desc: Delete files
     crit: notable
     conf: 0.3
     if:
       type: symbol
-      regex: unlink|unlinkat|remove
+      exact: "unlink"
+
+  - id: unlinkat
+    desc: Delete files by fd/path
+    crit: notable
+    conf: 0.3
+    if:
+      type: symbol
+      exact: "unlinkat"
+
+  - id: remove
+    desc: Delete files
+    crit: notable
+    conf: 0.3
+    if:
+      type: symbol
+      exact: "remove"
+
+composite_rules:
+  - id: delete
+    desc: Delete files
+    crit: notable
+    conf: 0.3
+    any:
+      - id: unlink
+      - id: unlinkat
+      - id: remove

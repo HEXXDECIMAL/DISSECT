@@ -61,14 +61,14 @@ traits:
       type: raw
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
 
-  - id: temp-var
+  - id: temp-var-percent-temp
     desc: TEMP environment variable
     crit: notable
     conf: 0.5
     for: [shell, batch]
     if:
       type: raw
-      regex: "(?i)%TEMP%|%TMP%"
+      substr: "%TEMP%"
 
   - id: exe-extension
     desc: .exe file reference

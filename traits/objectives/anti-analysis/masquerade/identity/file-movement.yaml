@@ -27,15 +27,42 @@ traits:
   if:
     type: string
     regex: rename.{0,50}Startup|move.{0,50}Startup|rename.{0,50}AppData
-- id: suspicious-folder-name
-  desc: Suspicious folder name
+- id: suspicious-folder-name-a
+  desc: Suspicious folder combo grabber/logger
   crit: suspicious
   conf: 0.75
   for:
   - python
   if:
     type: string
-    regex: \b(grabber|logger|stealer|bot)\b.{0,50}\b(test|tmp|temp|boot|lmao)\b
+    regex: \b(grabber|logger)\b.{0,50}\b(test|tmp)\b
+- id: suspicious-folder-name-b
+  desc: Suspicious folder combo grabber/logger alt
+  crit: suspicious
+  conf: 0.75
+  for:
+  - python
+  if:
+    type: string
+    regex: \b(grabber|logger)\b.{0,50}\b(temp|boot|lmao)\b
+- id: suspicious-folder-name-c
+  desc: Suspicious folder combo stealer/bot
+  crit: suspicious
+  conf: 0.75
+  for:
+  - python
+  if:
+    type: string
+    regex: \b(stealer|bot)\b.{0,50}\b(test|tmp)\b
+- id: suspicious-folder-name-d
+  desc: Suspicious folder combo stealer/bot alt
+  crit: suspicious
+  conf: 0.75
+  for:
+  - python
+  if:
+    type: string
+    regex: \b(stealer|bot)\b.{0,50}\b(temp|boot|lmao)\b
 - id: appdata-path-manipulation
   desc: AppData path reference
   crit: notable
@@ -50,14 +77,55 @@ traits:
   if:
     type: string
     regex: Start Menu.{0,50}Programs.{0,50}Startup.{0,50}boot
-- id: directory-masquerade
-  desc: Directory masquerading
+- id: directory-masquerade-a
+  desc: Office name with grabber/logger
   crit: suspicious
   conf: 0.8
   if:
     type: string
-    regex: (Powerpoint|Excel|Word|Outlook).{0,50}(grabber|logger|stealer|bot)|(grabber|logger|stealer).{0,50}(Powerpoint|Excel|Word)
+    regex: (Powerpoint|Excel).{0,50}(grabber|logger)
+- id: directory-masquerade-b
+  desc: Office name with stealer/bot
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    regex: (Powerpoint|Excel).{0,50}(stealer|bot)
+- id: directory-masquerade-c
+  desc: Office alt with grabber/logger
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    regex: (Word|Outlook).{0,50}(grabber|logger)
+- id: directory-masquerade-d
+  desc: Office alt with stealer/bot
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    regex: (Word|Outlook).{0,50}(stealer|bot)
 composite_rules:
+- id: suspicious-folder-name
+  desc: Suspicious folder name
+  crit: suspicious
+  conf: 0.75
+  for:
+  - python
+  any:
+  - id: suspicious-folder-name-a
+  - id: suspicious-folder-name-b
+  - id: suspicious-folder-name-c
+  - id: suspicious-folder-name-d
+- id: directory-masquerade
+  desc: Directory masquerading
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: directory-masquerade-a
+  - id: directory-masquerade-b
+  - id: directory-masquerade-c
+  - id: directory-masquerade-d
 - id: file-masquerade-execution
   desc: File masquerade for execution
   crit: suspicious

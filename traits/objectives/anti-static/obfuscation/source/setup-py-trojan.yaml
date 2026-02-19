@@ -39,29 +39,102 @@ traits:
   conf: 0.75
   if:
     type: raw
-    regex: setup\([^)]{0,120}\)\s*\n.{20,500}(exec|eval|__import__|compile|import\s+(os|sys|tempfile|base64))
-- id: conditional-exec-check
-  desc: Conditional execution check (argv, environ)
+    regex: setup\([^)]{0,120}\)\s*\n.{20,500}(exec|eval|__import__|compile)
+- id: conditional-exec-context
+  desc: Conditional execution context (argv, os.name)
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: (?:['\"]sdist['\"].{0,40}in.{0,10}(sys\.)?argv|(?:sys\.)?argv.{0,40}['\"]sdist['\"]|os\.name\s*==\s*['\"]nt['\"]|name\s*==\s*['\"]nt['\"]).{0,50}(?:exec\s*\(|eval\s*\(|compile\s*\(|__import__\s*\(|os\.system\s*\(|subprocess\.(?:Popen|call|run|check_output)\s*\()
-- id: post-setup-execution
-  desc: Code execution after setup() call
+    regex: sdist.{0,40}argv|(?:os\.name|name)\s*==\s*['\"]nt['\"]
+- id: conditional-exec-exec
+  desc: exec execution primitive
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    word: exec
+- id: conditional-exec-eval
+  desc: eval execution primitive
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    word: eval
+- id: conditional-exec-compile
+  desc: compile execution primitive
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    word: compile
+- id: conditional-exec-import
+  desc: __import__ execution primitive
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    word: __import__
+- id: conditional-os-system
+  desc: os.system execution primitive
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    regex: os\.system
+- id: post-setup-import-os-sys
+  desc: setup() followed by os/sys import context
   crit: suspicious
   conf: 0.8
   if:
     type: raw
-    regex: setup\s*\([^\)]{0,120}\)\s*(?:#.{0,80})?\s*\n.{0,250}(?:from|import)\s+(?:os|sys|base64|subprocess).{0,250}(?:exec\s*\(|eval\s*\(|compile\s*\(|__import__\s*\(|os\.system\s*\(|subprocess\.(?:Popen|call|run|check_output)\s*\()
+    regex: setup\s*\([^\)]{0,120}\).{0,250}(?:from|import)\s+(?:os|sys)
+- id: post-setup-import-base64-subprocess
+  desc: setup() followed by base64/subprocess import context
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: raw
+    regex: setup\s*\([^\)]{0,120}\).{0,250}(?:from|import)\s+(?:base64|subprocess)
 - id: tempfile-write-exec
   desc: Write to tempfile then execute
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: t\.gettempdir|tempfile\.(NamedTemporaryFile|mkstemp).{0,50}open.{0,50}write.{0,50}exec|open\s*\(.{0,20}w.{0,20}\).{0,50}write.{0,50}path.{0,20}exe
+    regex: tempfile\.(NamedTemporaryFile|mkstemp).{0,80}write.{0,80}(exec|exe)|gettempdir
 composite_rules:
+- id: conditional-exec-check
+  desc: Conditional execution check (argv, environ)
+  crit: suspicious
+  conf: 0.85
+  all:
+  - id: conditional-exec-context
+  - id: conditional-exec-primitive
+- id: post-setup-execution
+  desc: Code execution after setup() call
+  crit: suspicious
+  conf: 0.8
+  all:
+  - id: post-setup-import-context
+  - id: conditional-exec-primitive
+- id: conditional-exec-primitive
+  desc: Dynamic execution primitive
+  crit: suspicious
+  conf: 0.85
+  any:
+  - id: conditional-exec-exec
+  - id: conditional-exec-eval
+  - id: conditional-exec-compile
+  - id: conditional-exec-import
+  - id: conditional-os-system
+- id: post-setup-import-context
+  desc: setup() followed by import context
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: post-setup-import-os-sys
+  - id: post-setup-import-base64-subprocess
 - id: setup-py-post-install-trojan
   desc: Setup.py with post-install code execution
   crit: suspicious

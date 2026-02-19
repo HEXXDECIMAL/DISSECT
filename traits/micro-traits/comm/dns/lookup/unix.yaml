@@ -12,13 +12,21 @@ defaults:
   attack: "T1071.004"
 
 traits:
-  - id: lookup
-    desc: Uses DNS (Domain Name Service)
+  - id: lookup-res-query
+    desc: Uses res_query DNS API
     crit: notable
     conf: 0.66
     if:
       type: symbol
-      regex: res_query|res_search|getaddrinfo|gethostbyname
+      exact: res_query
+
+  - id: lookup-res-search
+    desc: Uses res_search DNS API
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: res_search
 
   - id: lookup-resolv
     desc: Reads DNS resolver configuration
@@ -27,3 +35,12 @@ traits:
     if:
       type: string
       substr: resolv.conf
+
+composite_rules:
+  - id: lookup
+    desc: Uses DNS (Domain Name Service)
+    crit: notable
+    conf: 0.66
+    any:
+      - id: lookup-res-query
+      - id: lookup-res-search

@@ -67,8 +67,8 @@ traits:
   if:
     type: string
     regex: require\(['"](?:joi|yup|zod|ajv)['"]\)|z\.object\(|Joi\.object\(
-- id: has-config-object
-  desc: Code uses configuration objects
+- id: has-config-assignment
+  desc: Code uses assigned configuration objects
   crit: notable
   conf: 0.75
   for:
@@ -76,9 +76,19 @@ traits:
   - typescript
   if:
     type: string
-    regex: (?:config|options|settings|opts)\s*=\s*\{|function\s*\(.{0,220}(?:config|options|settings)\)
-- id: has-logging
-  desc: Code uses logging library
+    regex: (?:config|options|settings|opts)\s*=\s*\{
+- id: has-config-arg
+  desc: Function parameter likely used as config/options
+  crit: notable
+  conf: 0.75
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: function\s*\(.{0,220}(?:config|options|settings)\)
+- id: has-logging-import
+  desc: Code imports a logging library
   crit: notable
   conf: 0.8
   for:
@@ -86,9 +96,9 @@ traits:
   - typescript
   if:
     type: string
-    regex: require\(['"](?:winston|pino|bunyan|log4js|debug)['"]\)|logger\.|log\.(?:info|warn|error|debug)
-- id: has-database
-  desc: Code interacts with database
+    regex: require\(['"](?:winston|pino|bunyan|log4js|debug)['"]\)
+- id: has-logging-usage
+  desc: Code uses logging APIs
   crit: notable
   conf: 0.8
   for:
@@ -96,9 +106,9 @@ traits:
   - typescript
   if:
     type: string
-    regex: require\(['"](?:mongoose|sequelize|knex|pg|mysql|mongodb)['"]\)|prisma\.|\$queryRaw
-- id: has-cli-args
-  desc: Code parses CLI arguments
+    regex: logger\.|log\.(?:info|warn|error|debug)
+- id: has-database-import
+  desc: Code imports database libraries
   crit: notable
   conf: 0.8
   for:
@@ -106,7 +116,37 @@ traits:
   - typescript
   if:
     type: string
-    regex: require\(['"](?:commander|yargs|meow|minimist)['"]\)|program\.(?:command|option)\(
+    regex: require\(['"](?:mongoose|sequelize|knex|pg|mysql|mongodb)['"]\)
+- id: has-database-usage
+  desc: Code uses database APIs
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: prisma\.|\$queryRaw
+- id: has-cli-args-import
+  desc: Code imports CLI argument parsers
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: require\(['"](?:commander|yargs|meow|minimist)['"]\)
+- id: has-cli-args-usage
+  desc: Code uses CLI argument parser APIs
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: program\.(?:command|option)\(
 - id: has-typescript-types
   desc: Code has TypeScript type annotations
   crit: notable
@@ -115,5 +155,45 @@ traits:
   - typescript
   if:
     type: string
-    regex: :\s*string\b|:\s*number\b|:\s*boolean\b|:\s*object\b|:\s*any\b|:\s*void\b|:\s*never\b|:\s*unknown\b|:\s*null\b|:\s*undefined\b|:\s*Array\b|:\s*Record\b|:\s*Promise\b
-composite_rules: []
+    regex: :\s*(?:string|number|boolean|object|any|void|Array|Promise)\b
+composite_rules:
+- id: has-config-object
+  desc: Code uses configuration objects
+  crit: notable
+  conf: 0.75
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: has-config-assignment
+  - id: has-config-arg
+- id: has-logging
+  desc: Code uses logging library
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: has-logging-import
+  - id: has-logging-usage
+- id: has-database
+  desc: Code interacts with database
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: has-database-import
+  - id: has-database-usage
+- id: has-cli-args
+  desc: Code parses CLI arguments
+  crit: notable
+  conf: 0.8
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: has-cli-args-import
+  - id: has-cli-args-usage

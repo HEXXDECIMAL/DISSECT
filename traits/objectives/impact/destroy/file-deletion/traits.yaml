@@ -63,7 +63,7 @@ traits:
   mbc: C0047
   if:
     type: string
-    regex: (delete|destroy|wipe|erase|eliminate).{0,50}(your |user ).{0,30}(files|data|documents)
+    regex: (delete|destroy|wipe|erase|eliminate).{0,80}(files|data|documents)
     case_insensitive: true
 composite_rules:
 - id: intentional-file-destruction

@@ -147,7 +147,7 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: readme_to_[a-zA-Z0-9_]+\.txt|readme-[a-zA-Z0-9_]+\.txt|HOW_TO_DECRYPT\.txt|DECRYPT_FILES\.txt|READ_ME_NOW\.txt
+    regex: (?:readme(?:_to_|-)[a-zA-Z0-9_]+\.txt|HOW_TO_DECRYPT\.txt|READ_ME_NOW\.txt)
 composite_rules:
 - id: ransom-note-msg
   desc: Ransom note message patterns

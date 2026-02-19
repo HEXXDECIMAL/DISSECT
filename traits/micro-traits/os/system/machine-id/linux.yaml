@@ -55,7 +55,7 @@ traits:
   if:
     type: string
     substr: HOSTNAME
-- id: fingerprint-string
+- id: fingerprint-prefix-a
   desc: hardware/device fingerprint string
   conf: 0.4
   platforms:
@@ -64,5 +64,48 @@ traits:
   - macos
   if:
     type: string
-    regex: (?i)(hardware|device|machine|system|host)[\s_-]?fingerprint|(?i)fingerprint[\s_-]?(id|gen|collect)
-composite_rules: []
+    regex: (hardware|device|machine|system)[\s_-]?fingerprint
+    case_insensitive: true
+- id: fingerprint-prefix-b
+  desc: host fingerprint string
+  conf: 0.4
+  platforms:
+  - linux
+  - windows
+  - macos
+  if:
+    type: string
+    regex: host[\s_-]?fingerprint
+    case_insensitive: true
+- id: fingerprint-suffix
+  desc: fingerprint id/generation string
+  conf: 0.4
+  platforms:
+  - linux
+  - windows
+  - macos
+  if:
+    type: string
+    regex: fingerprint[\s_-]?(id|gen|collect)
+    case_insensitive: true
+composite_rules:
+- id: fingerprint-string
+  desc: hardware/device fingerprint string
+  conf: 0.4
+  platforms:
+  - linux
+  - windows
+  - macos
+  any:
+  - id: fingerprint-prefix
+  - id: fingerprint-suffix
+- id: fingerprint-prefix
+  desc: hardware/device fingerprint string
+  conf: 0.4
+  platforms:
+  - linux
+  - windows
+  - macos
+  any:
+  - id: fingerprint-prefix-a
+  - id: fingerprint-prefix-b

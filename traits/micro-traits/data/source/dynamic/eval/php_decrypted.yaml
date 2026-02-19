@@ -7,5 +7,5 @@ traits:
   - php
   if:
     type: string
-    regex: (?i)(\$[a-zA-Z0-9_]+\s*=\s*[a-zA-Z0-9_]*Decrypt.{0,220}\(.{1,220}\);\s*eval\s*\(\s*\$[a-zA-Z0-9_]+\s*\)|eval\s*\(\s*[a-zA-Z0-9_]*Decrypt.{0,220}\(.{1,220}\)\s*\))
+    regex: (?i)eval\s*\(\s*[a-zA-Z0-9_]*Decrypt.{0,220}\(.{1,220}\)\s*\)
 composite_rules: []

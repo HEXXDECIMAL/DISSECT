@@ -6,10 +6,45 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: chown
+  - id: chown-fn
     desc: Change file ownership
     crit: notable
     conf: 0.66
     if:
       type: symbol
-      regex: chown|fchown|fchownat|lchown
+      exact: "chown"
+
+  - id: fchown-fn
+    desc: Change file ownership by fd
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "fchown"
+
+  - id: fchownat-fn
+    desc: Change file ownership by dirfd/path
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "fchownat"
+
+  - id: lchown-fn
+    desc: Change file ownership
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "lchown"
+
+composite_rules:
+  - id: chown
+    desc: Change file ownership
+    crit: notable
+    conf: 0.66
+    any:
+      - id: chown-fn
+      - id: fchown-fn
+      - id: fchownat-fn
+      - id: lchown-fn

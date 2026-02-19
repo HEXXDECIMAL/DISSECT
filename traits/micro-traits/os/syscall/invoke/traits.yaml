@@ -16,14 +16,23 @@ traits:
       type: string
       substr: "ntdll"
 
-  - id: ntdll-direct-memory-op
-    desc: Direct NT memory manipulation (stealth)
+  - id: ntdll-direct-memory-op-a
+    desc: Direct NT memory manipulation (allocate/write/protect)
     crit: suspicious
     conf: 0.9
     mbc: C0021
     if:
       type: symbol
-      regex: '^Nt(Allocate|Write|Protect|View|Query)VirtualMemory$'
+      regex: '^Nt(Allocate|Write|Protect)VirtualMemory$'
+
+  - id: ntdll-direct-memory-op-b
+    desc: Direct NT memory manipulation (view/query)
+    crit: suspicious
+    conf: 0.9
+    mbc: C0021
+    if:
+      type: symbol
+      regex: '^Nt(View|Query)VirtualMemory$'
 
   - id: ntdll-direct-process-op
     desc: Direct NT process/thread manipulation
@@ -41,3 +50,13 @@ traits:
     if:
       type: symbol
       exact: "EncodePointer"
+
+composite_rules:
+  - id: ntdll-direct-memory-op
+    desc: Direct NT memory manipulation (stealth)
+    crit: suspicious
+    conf: 0.9
+    mbc: C0021
+    any:
+      - id: ntdll-direct-memory-op-a
+      - id: ntdll-direct-memory-op-b

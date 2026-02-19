@@ -20,7 +20,7 @@ traits:
   if:
     type: string
     regex: GET\s+%s\s+HTTP
-- id: compact-beacon
+- id: compact-beacon-a
   desc: Dense C2 patterns in compact binary
   crit: suspicious
   conf: 0.88
@@ -33,7 +33,23 @@ traits:
   size_max: 100000
   if:
     type: string
-    regex: (User-Agent|POST\s+|GET\s+|HTTP/1\.|Content-Type)
+    regex: (User-Agent|POST\s+|GET\s+|HTTP/1\.)
+    count_min: 5
+    per_kb_min: 0.5
+- id: compact-beacon-b
+  desc: Dense C2 patterns in compact binary
+  crit: suspicious
+  conf: 0.88
+  mbc: B0030
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  size_max: 100000
+  if:
+    type: string
+    regex: Content-Type
     count_min: 5
     per_kb_min: 0.5
 - id: user-agent-header-multiple
@@ -97,7 +113,7 @@ traits:
   if:
     type: string
     substr: git-hub
-- id: typosquat-domain-pattern
+- id: typosquat-domain-pattern-a
   desc: Typosquat domain pattern
   crit: suspicious
   conf: 0.8
@@ -105,7 +121,20 @@ traits:
   attack: T1071.001
   if:
     type: string
-    regex: githuk\.|gihub\.|gthub\.|githhub\.|githab\.|githyb\.|github\.[a-z]{2,}
+    regex: githuk\.|gihub\.|gthub\.|githhub\.
+  not:
+  - substr: github.com
+  - substr: github.io
+  - substr: github.org
+- id: typosquat-domain-pattern-b
+  desc: Typosquat domain pattern
+  crit: suspicious
+  conf: 0.8
+  mbc: B0030
+  attack: T1071.001
+  if:
+    type: string
+    regex: githab\.|githyb\.|github\.[a-z]{2,}
   not:
   - substr: github.com
   - substr: github.io
@@ -153,7 +182,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (while.{0,50}True|while\s+1).{0,50}sleep
+    regex: while\s+1.{0,50}sleep
 - id: json-content-type-header
   desc: JSON content-type for C2 communication
   crit: notable
@@ -169,16 +198,24 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: User-Agent:\s*(Mozilla/5\.0|curl/[0-9]|Wget/[0-9]|python-requests/[0-9]|Go-http-client/[0-9]|okhttp/[0-9]|libwww-perl|Java/[0-9]|PowerShell/[0-9]|WinHTTP|Microsoft\s+BITS)
+    regex: User-Agent:\s*(Mozilla/5\.0|curl/[0-9]|Wget/[0-9]|python-requests/[0-9])
     count_min: 2
-- id: user-agent-rotation-keywords
+- id: user-agent-rotation-keywords-a
   desc: User-Agent randomization or rotation terms
   crit: notable
   conf: 0.75
   if:
     type: string
     case_insensitive: true
-    regex: user.?agent.{0,20}(rotate|rotation|random|rand|cycle|switch|pool|list)|random\.choice\(.{0,40}[Uu]ser.?[Aa]gent|Math\.random\(.{0,40}[Uu]ser.?[Aa]gent|shuffle\(.{0,40}[Uu]ser.?[Aa]gent
+    regex: user.?agent.{0,20}(?:rotate|random|pool|list)
+- id: user-agent-rotation-keywords-b
+  desc: User-Agent randomization or rotation terms
+  crit: notable
+  conf: 0.75
+  if:
+    type: string
+    case_insensitive: true
+    regex: random\.choice\(.{0,40}user.?agent
 composite_rules:
 - id: http-template
   desc: HTTP request template with placeholders
@@ -211,6 +248,35 @@ composite_rules:
   - id: user-agent-header-multiple
   - id: user-agent-literal-pool
   - id: user-agent-rotation-keywords
+- id: compact-beacon
+  desc: Dense C2 patterns in compact binary
+  crit: suspicious
+  conf: 0.88
+  mbc: B0030
+  attack: T1071.001
+  for:
+  - elf
+  - macho
+  - pe
+  any:
+  - id: compact-beacon-a
+  - id: compact-beacon-b
+- id: typosquat-domain-pattern
+  desc: Typosquat domain pattern
+  crit: suspicious
+  conf: 0.8
+  mbc: B0030
+  attack: T1071.001
+  any:
+  - id: typosquat-domain-pattern-a
+  - id: typosquat-domain-pattern-b
+- id: user-agent-rotation-keywords
+  desc: User-Agent randomization or rotation terms
+  crit: notable
+  conf: 0.75
+  any:
+  - id: user-agent-rotation-keywords-a
+  - id: user-agent-rotation-keywords-b
 - id: direct-http-c2
   desc: Direct HTTP C2 infrastructure
   crit: notable

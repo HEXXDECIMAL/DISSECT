@@ -2,14 +2,21 @@ defaults:
   for: [all]
 
 traits:
-  - id: root-dirs-list
-    desc: List of root directories for scanning
+  - id: root-dirs-list-mnt-media
+    desc: Root directories list includes mnt/media
     crit: notable
     conf: 0.8
     if:
       type: raw
-      # Matches ['/mnt', '/media', '/Volumes', '/home'] pattern
-      regex: "[\"']/(mnt|media|Volumes)[\"'],\\s*[\"']/(mnt|media|Volumes)[\"']"
+      regex: "[\"']/(mnt|media)[\"'],\\s*[\"']/(mnt|media)[\"']"
+
+  - id: root-dirs-list-volumes
+    desc: Root directories list includes Volumes
+    crit: notable
+    conf: 0.8
+    if:
+      type: raw
+      regex: "[\"']/Volumes[\"']"
 
   - id: root-drives-push
     desc: Adds root directory to scan list
@@ -28,6 +35,14 @@ traits:
       regex: "process\\.platform === ['\"]win32['\"]"
 
 composite_rules:
+  - id: root-dirs-list
+    desc: List of root directories for scanning
+    crit: notable
+    conf: 0.8
+    any:
+      - id: root-dirs-list-mnt-media
+      - id: root-dirs-list-volumes
+
   - id: multi-os-root-scan
     desc: Multi-OS root directory scanning logic
     crit: suspicious

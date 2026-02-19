@@ -653,14 +653,14 @@ traits:
     regex: sina\.com\.cn|163\.com|126\.com|sohu\.com|qq\.com|yahoo\.com\.cn|mysite|rambler\.ru|yandex\.ru|mail\.ru|tbcdn\.cn|xn--hgi\.ws
   if:
     type: raw
-    regex: '[''\"](?:https?://(?:[a-zA-Z0-9-]{1,63}\.){1,6}(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\d{1,5})?(?:[/?#].{0,220})?|(?:[a-zA-Z0-9-]{1,63}\.){1,6}(ru|cn|xyz|top|cc|ws|tk|ml|ga|cf|gq|pw|biz|su|icu)(?::\d{1,5}|/[A-Za-z0-9._~!$&''()*+,;=:@%/-]{1,220}|\?.{1,220}))[''\"]'
+    regex: '[''\"](?:https?://)?(?:[a-zA-Z0-9-]{1,63}\.){1,4}(?:ru|cn|xyz|top)'
 - id: suspicious-php-filename
   desc: Suspicious PHP endpoint URL (gate/upload/etc)
   crit: suspicious
   conf: 0.85
   if:
     type: string
-    regex: https?://[^/]{1,120}/.{0,220}(?:gate|upload|post|send|cmd|shell|webhook|collect|exfil|steal|payload|drop|loader|backdoor).{0,220}\.php(?:\?.{0,220})?
+    regex: https?://[^/]{1,120}/.{0,120}(?:gate|cmd|shell|payload)\.php
 - id: internal-api-probe
   desc: Probes internal network API endpoints
   crit: suspicious
@@ -671,14 +671,14 @@ traits:
   - typescript
   if:
     type: string
-    regex: http://(internal|localhost|127\.0\.0\.1|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01]))[-a-zA-Z0-9.]*/(api|ping|health|status)
+    regex: http://(?:internal|localhost|10\.)[-a-zA-Z0-9.]*/(?:api|health|status)
 - id: dynamic-dns-domain-pattern
   desc: Dynamic DNS domain pattern
   crit: suspicious
   conf: 0.9
   if:
     type: string
-    regex: \b[a-zA-Z0-9][-a-zA-Z0-9]*\.duckdns\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.no-ip\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.dynu\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.freedns\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.afraid\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.hopto\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.zapto\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.sytes\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.ddns\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.servebeer\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.servehttp\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.serveftp\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.servegame\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.servequake\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.redirectme\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.bounceme\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.myftp\.[a-z]{2,6}\b|\b[a-zA-Z0-9][-a-zA-Z0-9]*\.myvnc\.[a-z]{2,6}\b
+    regex: \b[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:duckdns|no-ip|ddns|hopto)\.[a-z]{2,6}\b
 composite_rules:
 - id: c2-domain
   desc: Likely C2 domain (suspicious TLD)

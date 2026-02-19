@@ -6,13 +6,21 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mmap
+  - id: mmap-fn
     desc: Map files or devices into
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: mmap|mmap64
+      exact: "mmap"
+
+  - id: mmap64-fn
+    desc: Map files or devices into
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mmap64"
 
   - id: munmap
     desc: Unmap files from memory
@@ -21,3 +29,12 @@ traits:
     if:
       type: symbol
       regex: munmap
+
+composite_rules:
+  - id: mmap
+    desc: Map files or devices into
+    crit: inert
+    conf: 0.66
+    any:
+      - id: mmap-fn
+      - id: mmap64-fn

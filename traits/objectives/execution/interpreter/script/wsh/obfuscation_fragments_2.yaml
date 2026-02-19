@@ -12,7 +12,7 @@ traits:
     crit: notable
     if:
       type: string
-      regex: 'WScr|\.Shel|ript\.S|hell'
+      regex: 'ript\.S|hell'
     unless:
       - id: metadata/builder/autotools::autotools
       - id: metadata/builder/autotools::configure-ac

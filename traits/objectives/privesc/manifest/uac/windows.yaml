@@ -28,11 +28,25 @@ traits:
   if:
     type: string
     regex: uiAccess=['"]true
-- id: require-admin
-  desc: Manifest requests admin privileges
+- id: require-admin-level
+  desc: Manifest level requires administrator
   crit: notable
   conf: 0.9
   if:
     type: string
-    regex: requestedExecutionLevel.{0,50}requireAdministrator|level=['"]requireAdministrator
-composite_rules: []
+    regex: level=['"]requireAdministrator
+- id: require-admin-execution-level
+  desc: requestedExecutionLevel requires administrator
+  crit: notable
+  conf: 0.9
+  if:
+    type: string
+    regex: requestedExecutionLevel.{0,50}requireAdministrator
+composite_rules:
+- id: require-admin
+  desc: Manifest requests admin privileges
+  crit: notable
+  conf: 0.9
+  any:
+  - id: require-admin-level
+  - id: require-admin-execution-level

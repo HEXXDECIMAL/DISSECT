@@ -60,6 +60,6 @@ traits:
     crit: notable
     if:
       type: string
-      regex: '^(Respo|nseBo|dy|saveT|oFile|eToF|Expa|ndEn|viron|mentS|tring|onse|Bod|dEnvi|ronme|tStrin|teObje|eObjec|oFil|onseB)$'
+      regex: '^(Respo|nseBo|saveT|oFile|Expa|ndEn|viron)$'
     unless:
       - id: metadata/quality/help::usage-title

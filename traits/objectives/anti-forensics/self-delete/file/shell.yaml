@@ -45,7 +45,7 @@ traits:
   attack: T1070.004
   if:
     type: string
-    regex: rm\s+(?:-[rf]{1,4}\s+){1,4}(install|setup|\.install|INSTALL|\.tar|\.tar\.gz|\.zip)
+    regex: (?i)rm\s+(?:-[rf]{1,4}\s+){1,4}(?:install|setup|\.tar(?:\.gz)?|\.zip)
 composite_rules:
 - id: self-delete-shell
   desc: Self-deleting shell script

@@ -48,10 +48,27 @@ traits:
 
   # === Generic Unix/Linux system paths ===
   # /boot: use objectives/impact/system/directory/traits.yaml::boot-dir-ref (canonical)
-  - id: unix-system-paths
-    desc: Common system path reference
+  - id: unix-system-paths-a
+    desc: Common system path reference (usr/proc)
     crit: inert
     conf: 0.5
     if:
       type: string
-      regex: '/usr/lib(32|64|exec)?|/usr/s?bin|/proc|/dev|/sys'
+      regex: '/usr/lib(32|64|exec)?|/usr/s?bin'
+
+  - id: unix-system-paths-b
+    desc: Common system path reference (proc/dev/sys)
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: '/proc|/dev|/sys'
+
+composite_rules:
+  - id: unix-system-paths
+    desc: Common system path reference
+    crit: inert
+    conf: 0.5
+    any:
+      - id: unix-system-paths-a
+      - id: unix-system-paths-b

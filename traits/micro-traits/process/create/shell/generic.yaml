@@ -51,7 +51,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "^(execl|execle|execlp|execv|execvp|execvpe)$"
+      regex: "^exec(?:l(?:e|p)?|v(?:e|p(?:e)?)?)$"
     platforms: [unix, linux, macos]
     for: [binaries]
 
@@ -168,23 +168,77 @@ traits:
     platforms: [windows]
 
   # Behavioral Patterns
-  - id: shell-platform-check
-    desc: Checks OS type
+  - id: shell-platform-check-ostype
+    desc: Checks OSTYPE variable
     crit: notable
     conf: 0.8
     for: [shell]
     if:
       type: raw
-      regex: '$OSTYPE|linux-gnu|darwin|msys|cygwin'
+      regex: '\$OSTYPE'
 
-  - id: curl-pipe-exec
-    desc: One-liner download and execute
+  - id: shell-platform-check-linux
+    desc: Checks linux-gnu platform
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: raw
+      exact: 'linux-gnu'
+
+  - id: shell-platform-check-darwin
+    desc: Checks darwin platform
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: raw
+      exact: 'darwin'
+
+  - id: shell-platform-check-msys
+    desc: Checks msys platform
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: raw
+      exact: 'msys'
+
+  - id: shell-platform-check-cygwin
+    desc: Checks cygwin platform
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    if:
+      type: raw
+      exact: 'cygwin'
+
+  - id: curl-pipe-exec-python-bash
+    desc: Curl piped to python or bash
     crit: suspicious
     conf: 0.9
     for: [shell]
     if:
       type: raw
-      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash|sh|node|php)'
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash)'
+
+  - id: curl-pipe-exec-sh-node
+    desc: Curl piped to sh or node
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: raw
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(sh|node)'
+
+  - id: curl-pipe-exec-php
+    desc: Curl piped to php
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    if:
+      type: raw
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?php'
 
   - id: sudo-piped-exec
     desc: Piped execution with sudo
@@ -244,3 +298,25 @@ composite_rules:
       - id: micro-traits/process/create/methods::shell-execute
       - id: micro-traits/process/create/methods::shell-execute-ex
       - id: shell-execute-ex-a
+
+  - id: shell-platform-check
+    desc: Checks shell platform type
+    crit: notable
+    conf: 0.8
+    for: [shell]
+    any:
+      - id: shell-platform-check-ostype
+      - id: shell-platform-check-linux
+      - id: shell-platform-check-darwin
+      - id: shell-platform-check-msys
+      - id: shell-platform-check-cygwin
+
+  - id: curl-pipe-exec
+    desc: One-liner download and execute
+    crit: suspicious
+    conf: 0.9
+    for: [shell]
+    any:
+      - id: curl-pipe-exec-python-bash
+      - id: curl-pipe-exec-sh-node
+      - id: curl-pipe-exec-php

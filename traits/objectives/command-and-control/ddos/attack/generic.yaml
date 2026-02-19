@@ -26,7 +26,7 @@ traits:
       regex: "Mozilla/5\\.0"
       count_min: 10
   # === DDoS Terminology ===
-  - id: attack-metrics
+  - id: attack-metrics-a
     desc: Performance metrics typical of DDoS
     crit: notable
     conf: 0.7
@@ -34,29 +34,110 @@ traits:
       type: string
       # Match performance metrics in context (e.g., "100 pps", "sent: 1000 bps")
       # Excludes standalone abbreviations that could appear in documentation
-      regex: "\\b[0-9]+\\s*(pps|bps|qps)\\b|\\b(pps|bps|qps)\\s*[=:]\\s*[0-9]+"
+      regex: "\\b[0-9]+\\s*(pps|bps|qps)\\b"
       case_insensitive: true
 
-  - id: flood-types
+  - id: attack-metrics-b
+    desc: Performance metrics typical of DDoS
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\b(pps|bps|qps)\\s*[=:]\\s*[0-9]+"
+      case_insensitive: true
+
+  - id: flood-types-a
     desc: Specific flood attack types
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "(syn|udp|http|icmp|slowloris|post|get|dns|memcached)[_-]?flood"
+      regex: "(syn|udp|http|icmp)[_-]?flood"
+      case_insensitive: true
+
+  - id: flood-types-b
+    desc: Specific flood attack types
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(slowloris|post|get|dns)[_-]?flood"
+      case_insensitive: true
+
+  - id: flood-types-c
+    desc: Specific flood attack types
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "memcached[_-]?flood"
       case_insensitive: true
 
   # === Telemetry ===
-  - id: attack-telemetry
+  - id: attack-telemetry-a1
     desc: Telemetry counters for attack progress
     crit: notable
     conf: 0.7
     if:
       type: string
-      regex: "\\b(packets|requests|bytes|payloads)[_-](sent|total|count|success|fail)\\b"
+      regex: "\\b(packets|requests)[_-](sent|total|count)\\b"
+      case_insensitive: true
+
+  - id: attack-telemetry-a2
+    desc: Telemetry counters for attack progress
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\b(bytes|payloads)[_-](sent|total|count)\\b"
+      case_insensitive: true
+
+  - id: attack-telemetry-b1
+    desc: Telemetry counters for attack progress
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\b(packets|requests)[_-](success|fail)\\b"
+      case_insensitive: true
+
+  - id: attack-telemetry-b2
+    desc: Telemetry counters for attack progress
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "\\b(bytes|payloads)[_-](success|fail)\\b"
       case_insensitive: true
 
 composite_rules:
+  - id: attack-metrics
+    desc: Performance metrics typical of DDoS
+    crit: notable
+    conf: 0.7
+    any:
+      - id: attack-metrics-a
+      - id: attack-metrics-b
+
+  - id: flood-types
+    desc: Specific flood attack types
+    crit: notable
+    conf: 0.8
+    any:
+      - id: flood-types-a
+      - id: flood-types-b
+      - id: flood-types-c
+
+  - id: attack-telemetry
+    desc: Telemetry counters for attack progress
+    crit: notable
+    conf: 0.7
+    any:
+      - id: attack-telemetry-a1
+      - id: attack-telemetry-a2
+      - id: attack-telemetry-b1
+      - id: attack-telemetry-b2
+
   # Helper: Attack terminology
   - id: ddos-terminology
     desc: "DDoS-specific terminology detected"

@@ -9,13 +9,29 @@ defaults:
 
 traits:
   # === Interactive Menu ===
-  - id: cli-interactive-menu
+  - id: cli-menu-case-gets
     desc: CLI interactive menu
     crit: notable
     conf: 0.70
     if:
       type: string
-      regex: 'Choose.{0,50}option|case.{0,50}gets|when.{0,50}[0-9]|menu.{0,50}select'
+      regex: 'case.{0,50}gets'
+
+  - id: cli-menu-when-number
+    desc: CLI interactive menu
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: 'when.{0,50}[0-9]'
+
+  - id: cli-menu-select
+    desc: CLI interactive menu
+    crit: notable
+    conf: 0.70
+    if:
+      type: string
+      regex: 'menu.{0,50}select'
 
   # === User Input Loop ===
   - id: user-input-loop
@@ -52,7 +68,9 @@ composite_rules:
     conf: 0.75
     needs: 2
     any:
-      - id: cli-interactive-menu
+      - id: cli-menu-case-gets
+      - id: cli-menu-when-number
+      - id: cli-menu-select
       - id: user-input-loop
       - id: option-selection
       - id: cli-clear-screen

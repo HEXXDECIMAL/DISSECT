@@ -2,13 +2,21 @@ defaults:
   for: [all]
 
 traits:
-  - id: binary-file-ops
-    desc: Binary file operations
+  - id: binary-file-ops-open
+    desc: Binary file open operations
     crit: inert
     conf: 0.8
     if:
       type: symbol
-      regex: "^(fopen|open|fread|fwrite|read|write)$"
+      regex: "^(fopen|open|read|write)$"
+
+  - id: binary-file-ops-io
+    desc: Binary file read/write operations
+    crit: inert
+    conf: 0.8
+    if:
+      type: symbol
+      regex: "^(fread|fwrite)$"
 
   - id: file-create-win
     desc: Windows file creation API
@@ -25,3 +33,12 @@ traits:
     if:
       type: symbol
       exact: "CreateDirectoryW"
+
+composite_rules:
+  - id: binary-file-ops
+    desc: Binary file operations
+    crit: inert
+    conf: 0.8
+    any:
+      - id: binary-file-ops-open
+      - id: binary-file-ops-io

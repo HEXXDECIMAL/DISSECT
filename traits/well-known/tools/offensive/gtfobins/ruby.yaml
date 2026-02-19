@@ -26,9 +26,7 @@ traits:
     attack: T1059
     if:
       type: raw
-      regex:
-        ruby -e.{0,30}exec.{0,30}bin/sh|ruby -e.{0,30}exec.{0,30}bin/bash|ruby
-        -e.{0,30}system.{0,30}sh
+      regex: ruby -e.{0,30}(exec|system).{0,30}(bin/(?:ba)?sh|sh)
 composite_rules:
   - id: gtfobins-ruby-library-load
     desc: GTFOBins shared library loading via Ruby

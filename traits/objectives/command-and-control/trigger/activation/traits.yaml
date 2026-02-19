@@ -52,56 +52,56 @@ traits:
   conf: 0.5
   if:
     type: string
-    regex: (?:port|pass|key|magic|secret|trigger|backdoor|c2)[=:_\-\s]*1337|1337[=:_\-\s]*(?:port|pass|key|magic|secret|trigger|backdoor|c2)
+    regex: (?:1337.{0,4}(?:port|pass|key|magic)|(?:port|pass|key|magic).{0,4}1337)
 - id: trigger-keyword-lower
   desc: trigger keyword (lowercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\-\s]*trigger|trigger[_\-\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)
+    regex: (?:backdoor|payload|shell).{0,2}trigger|trigger.{0,2}(?:backdoor|payload|shell)
 - id: trigger-keyword-upper
   desc: TRIGGER keyword (uppercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\-\s]*TRIGGER|TRIGGER[_\-\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)
+    regex: (?:BACKDOOR|PAYLOAD|SHELL).{0,2}TRIGGER|TRIGGER.{0,2}(?:BACKDOOR|PAYLOAD|SHELL)
 - id: trigger-keyword-title
   desc: Trigger keyword (titlecase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\-\s]*Trigger|Trigger[_\-\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)
+    regex: (?:Backdoor|Payload|Shell).{0,2}Trigger|Trigger.{0,2}(?:Backdoor|Payload|Shell)
 - id: activate-keyword-lower
   desc: activate keyword (lowercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:backdoor|c2|implant|beacon|payload|shell|revshell)[_\-\s]*activate|activate[_\-\s]*(?:backdoor|c2|implant|beacon|payload|shell|revshell)
+    regex: (?:backdoor|shell).{0,2}activate|activate.{0,2}(?:backdoor|shell)
 - id: activate-keyword-upper
   desc: ACTIVATE keyword (uppercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)[_\-\s]*ACTIVATE|ACTIVATE[_\-\s]*(?:BACKDOOR|C2|IMPLANT|BEACON|PAYLOAD|SHELL|REVSHELL)
+    regex: (?:BACKDOOR|SHELL).{0,2}ACTIVATE|ACTIVATE.{0,2}(?:BACKDOOR|SHELL)
 - id: activate-keyword-title
   desc: Activate keyword (titlecase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)[_\-\s]*Activate|Activate[_\-\s]*(?:Backdoor|C2|Implant|Beacon|Payload|Shell|Revshell)
+    regex: (?:Backdoor|Shell).{0,2}Activate|Activate.{0,2}(?:Backdoor|Shell)
 - id: revshell-keyword-lower
   desc: revshell keyword (lowercase)
   crit: notable
   conf: 0.5
   if:
     type: string
-    regex: (?:trigger|activate|backdoor|payload)[_\-\s]*revshell|revshell[_\-\s]*(?:trigger|activate)
+    regex: (?:trigger|activate)[_\-\s]*revshell|revshell[_\-\s]*(?:trigger|activate)
 composite_rules:
 - id: icmp-context
   desc: ICMP packet handling context

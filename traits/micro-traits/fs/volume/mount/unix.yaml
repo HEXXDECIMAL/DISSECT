@@ -6,10 +6,27 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mount
+  - id: mount-underscore
     desc: Mount file systems
     crit: notable
     conf: 0.66
     if:
       type: symbol
-      regex: _mount|mount
+      exact: "_mount"
+
+  - id: mount-fn
+    desc: Mount file systems
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "mount"
+
+composite_rules:
+  - id: mount
+    desc: Mount file systems
+    crit: notable
+    conf: 0.66
+    any:
+      - id: mount-underscore
+      - id: mount-fn

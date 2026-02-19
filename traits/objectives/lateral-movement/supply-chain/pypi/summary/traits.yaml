@@ -85,6 +85,6 @@ traits:
   if:
     type: kv
     path: summary
-    regex: ^\s*(?:test(?:\s+package)?|example(?:\s+package)?|placeholder|my\s+package|TODO|FIXME|description|nothing|empty|temp|dummy)\s*$
+    regex: ^\s*(?:test|example|placeholder|todo|fixme|description|empty|dummy)\s*$
     case_insensitive: true
 composite_rules: []

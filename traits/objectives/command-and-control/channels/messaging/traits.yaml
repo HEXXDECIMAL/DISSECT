@@ -19,23 +19,8 @@ traits:
       type: string
       regex: "discord\\.gg/[a-zA-Z0-9]+"
 
-  # HTTP C2
-  - id: http-post
-    desc: HTTP POST requests (potential C2)
-    crit: notable
-    mbc: "B0030"
-    attack: "T1071.001"
-    conf: 0.5
-    if:
-      type: symbol
-      # POST: use micro-traits/comm/http/post/generic.yaml::post-method (canonical)
-      regex: http_post|HttpPost
-
-  # Removed user-agent-custom duplicate - use micro-traits/comm/http/request::user-agent-header
-
-  # DNS C2
-  - id: dns-query
-    desc: DNS queries (potential C2 channel)
+  - id: dns-query-symbol
+    desc: DNS query symbol (potential C2 channel)
     crit: notable
     mbc: "B0030"
     attack: "T1071.004"
@@ -43,4 +28,26 @@ traits:
     for: [elf, macho, so, dylib, c]
     if:
       type: symbol
-      regex: res_query|dns_query
+      exact: dns_query
+
+composite_rules:
+  - id: http-post
+    desc: HTTP POST requests (potential C2)
+    crit: notable
+    mbc: "B0030"
+    attack: "T1071.001"
+    conf: 0.5
+    any:
+      - id: micro-traits/comm/http/post::post-method
+      - id: micro-traits/comm/http/post::post
+
+  - id: dns-query
+    desc: DNS queries (potential C2 channel)
+    crit: notable
+    mbc: "B0030"
+    attack: "T1071.004"
+    conf: 0.4
+    for: [elf, macho, so, dylib, c]
+    any:
+      - id: micro-traits/comm/dns/lookup::lookup-res-query
+      - id: dns-query-symbol

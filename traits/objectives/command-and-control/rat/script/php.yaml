@@ -95,7 +95,7 @@ traits:
   attack: T1059
   if:
     type: string
-    regex: function_exists\s*\(\s*["']exec["']\s*\)|function_exists\s*\(\s*["']system["']\s*\)|function_exists\s*\(\s*["']shell_exec["']\s*\)|function_exists\s*\(\s*["']passthru["']\s*\)|function_exists\s*\(\s*["']popen["']\s*\)|function_exists\s*\(\s*["']proc_open["']\s*\)|function_exists\s*\(\s*["']pcntl_exec["']\s*\)
+    regex: function_exists\(['"](?:exec|system|shell_exec|passthru|popen|proc_open)['"]\)
 composite_rules:
 - id: reverse-shell-socket
   desc: PHP reverse shell via socket

@@ -6,10 +6,27 @@ defaults:
   attack: "T1016"
 
 traits:
-  - id: socket-ip-address
+  - id: socket-ip-address-list
     desc: Socket IP address discovery
     crit: notable
     conf: 0.75
     if:
       type: symbol
-      regex: 'ip_address_list|ip_address'
+      exact: "ip_address_list"
+
+  - id: socket-ip-address-single
+    desc: Socket IP address discovery
+    crit: notable
+    conf: 0.75
+    if:
+      type: symbol
+      exact: "ip_address"
+
+composite_rules:
+  - id: socket-ip-address
+    desc: Socket IP address discovery
+    crit: notable
+    conf: 0.75
+    any:
+      - id: socket-ip-address-list
+      - id: socket-ip-address-single

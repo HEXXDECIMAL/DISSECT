@@ -14,5 +14,5 @@ composite_rules:
     any:
       - id: objectives/execution/dropper/script::ruby-ast-check-windows-regex
       - id: objectives/execution/dropper/script::ruby-ast-host-os-access
-      - id: objectives/execution/dropper/script::windows-os-check
+      - id: micro-traits/os/sysinfo/platform::windows-os-check
     needs: 1

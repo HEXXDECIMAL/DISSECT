@@ -28,16 +28,32 @@ traits:
       type: raw
       substr: "ETH_ALEN"
 
-  - id: ntohs-bswap
+  - id: ntohs-bswap-a
     desc: Network byte order conversion
     crit: inert
     conf: 0.5
     if:
       type: raw
-      regex: "(?:ntohs|htons|ntohl|htonl|__builtin_bswap(?:16|32|64))"
+      regex: "(?:ntohs|htons|ntohl|htonl)"
+
+  - id: ntohs-bswap-b
+    desc: Network byte order conversion
+    crit: inert
+    conf: 0.5
+    if:
+      type: raw
+      regex: "__builtin_bswap(?:16|32|64)"
 
 
 composite_rules:
+  - id: ntohs-bswap
+    desc: Network byte order conversion
+    crit: inert
+    conf: 0.5
+    any:
+      - { id: ntohs-bswap-a }
+      - { id: ntohs-bswap-b }
+
   - id: has-packet-manip
     desc: Has packet manipulation capabilities
     crit: notable

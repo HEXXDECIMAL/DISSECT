@@ -17,7 +17,15 @@ traits:
   attack: T1016
   if:
     type: raw
-    regex: \b(ip a|ifconfig|netstat -an|arp -a|route print)\b
+    regex: \b(ip a|ifconfig|netstat -an)\b
+- id: network-discovery-extra
+  desc: Shell command performs network discovery (extra)
+  conf: 0.6
+  crit: notable
+  attack: T1016
+  if:
+    type: raw
+    regex: \b(arp -a|route print)\b
 - id: process-discovery
   desc: Shell command performs process discovery
   conf: 0.6
@@ -30,18 +38,31 @@ traits:
   desc: Helper raw condition
   if:
     type: raw
-    regex: \b(whoami|uname -a|ip a|ifconfig|ps aux|ps -ef|printenv)\b
+    regex: \b(whoami|uname -a|ip a|ifconfig)\b
+- id: sys-info-discovery__any_1b
+  desc: Helper raw condition
+  if:
+    type: raw
+    regex: \b(ps aux|ps -ef|printenv)\b
 - id: sys-info-discovery__any_2
   desc: Helper raw condition
   if:
     type: raw
-    regex: (?:\s|;|\||^)id(?:\s|;|\||$)
+    regex: (?:^|[\s;|])id(?:$|[\s;|])
 - id: sys-info-discovery__any_3
   desc: Helper raw condition
   if:
     type: raw
-    regex: (?:\s|;|\||^)env(?:\s|;|\||$)
+    regex: (?:^|[\s;|])env(?:$|[\s;|])
 composite_rules:
+- id: network-discovery-any
+  desc: Shell command performs network discovery
+  conf: 0.6
+  crit: notable
+  attack: T1016
+  any:
+  - id: network-discovery
+  - id: network-discovery-extra
 - id: sys-info-discovery
   desc: Shell command performs system information discovery
   conf: 0.6
@@ -51,5 +72,6 @@ composite_rules:
   - id: metadata/dev/testing::is-test
   any:
   - id: sys-info-discovery__any_1
+  - id: sys-info-discovery__any_1b
   - id: sys-info-discovery__any_2
   - id: sys-info-discovery__any_3

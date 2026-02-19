@@ -3,13 +3,23 @@ defaults:
   - python
   attack: T1195.002
 traits:
-- id: windows-start-command
+- id: windows-start-command-a
   desc: Windows start command execution
   crit: suspicious
   conf: 0.85
   if:
     type: string
-    regex: \bstart\s+['"]?[a-zA-Z0-9._\\/-]+\.(exe|bat|cmd|ps1|scr|msi|com)
+    regex: \bstart\s+['"]?[a-zA-Z0-9._\\/-]+\.(exe|bat|cmd|ps1)
+  unless:
+  - type: basename
+    regex: \.pyc$
+- id: windows-start-command-b
+  desc: Windows start command execution
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: string
+    regex: \bstart\s+['"]?[a-zA-Z0-9._\\/-]+\.(scr|msi|com)
   unless:
   - type: basename
     regex: \.pyc$
@@ -60,13 +70,20 @@ traits:
   if:
     type: symbol
     regex: open\(.{0,100}\)\.write
-- id: executable-download-url
+- id: executable-download-url-a
   desc: URL ending in executable extension
   crit: suspicious
   conf: 0.9
   if:
     type: string
-    regex: https?://[^\s'"]{1,120}\.(exe|scr|msi|bat|cmd|ps1|dll)(?:[?#][^\s'"]{0,120})?$
+    regex: https?://[^\s'"]{1,120}\.(exe|scr|msi|bat)(?:[?#][^\s'"]{0,120})?$
+- id: executable-download-url-b
+  desc: URL ending in executable extension
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: https?://[^\s'"]{1,120}\.(cmd|ps1|dll)(?:[?#][^\s'"]{0,120})?$
 - id: install-run-override
   desc: Install command run() override
   crit: notable
@@ -229,15 +246,33 @@ traits:
   conf: 0.95
   if:
     type: string
-    regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi|bat|cmd|ps1)
-- id: powershell-download-in-string
-  desc: PowerShell download cradle in Python string
+    regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi|bat|cmd)
+- id: powershell-download-cmd-a
+  desc: PowerShell download command in string
   crit: suspicious
   conf: 0.9
   attack: T1059.001
   if:
     type: string
-    regex: (?:Invoke-WebRequest|IWR|DownloadFile|DownloadString|Start-BitsTransfer).{0,100}(?:https?://|\$env:)
+    regex: (?:Invoke-WebRequest|IWR|DownloadFile|DownloadString).{0,100}
+    case_insensitive: true
+- id: powershell-download-cmd-b
+  desc: PowerShell download command in string
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.001
+  if:
+    type: string
+    regex: Start-BitsTransfer.{0,100}
+    case_insensitive: true
+- id: powershell-download-source
+  desc: PowerShell download source marker
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.001
+  if:
+    type: string
+    regex: 'https?://|\$env:'
     case_insensitive: true
 - id: admin-install-social-engineering
   desc: Social engineering admin install request
@@ -246,9 +281,39 @@ traits:
   attack: T1204.001
   if:
     type: string
-    regex: (?:admin|root|elevated|sudo).{0,15}(?:permission|privilege|right).{0,15}(?:install|run|solv)
+    regex: (?:admin|root|sudo).{0,12}(?:permission|privilege|right).{0,12}(?:install|run)
     case_insensitive: true
 composite_rules:
+- id: windows-start-command
+  desc: Windows start command execution
+  crit: suspicious
+  conf: 0.85
+  any:
+  - id: windows-start-command-a
+  - id: windows-start-command-b
+- id: executable-download-url
+  desc: URL ending in executable extension
+  crit: suspicious
+  conf: 0.9
+  any:
+  - id: executable-download-url-a
+  - id: executable-download-url-b
+- id: powershell-download-cmd
+  desc: PowerShell download command in string
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.001
+  any:
+  - id: powershell-download-cmd-a
+  - id: powershell-download-cmd-b
+- id: powershell-download-in-string
+  desc: PowerShell download cradle in Python string
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.001
+  all:
+  - id: powershell-download-cmd
+  - id: powershell-download-source
 - id: robust-setup-py
   desc: setup.py installation file
   crit: notable

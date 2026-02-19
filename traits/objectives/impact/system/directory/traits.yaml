@@ -120,7 +120,7 @@ traits:
   - windows
   if:
     type: string
-    regex: (rmdir|del|remove|shutil\.rmtree|os\.remove).{0,50}[Ss]ystem32|[Ss]ystem32.{0,50}(rmdir|del|remove)
+    regex: (rmdir|del|remove).{0,50}[Ss]ystem32|[Ss]ystem32.{0,50}(rmdir|del|remove)
 - id: windows-recursive-delete
   desc: Windows system directory recursive deletion
   conf: 0.9
@@ -128,7 +128,7 @@ traits:
   - windows
   if:
     type: string
-    regex: rd\s+/s.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)|rmdir\s+/s.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)|del\s+/f\s+/q.{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
+    regex: (?:r(?:d|mdir)\s+/s|del\s+/f\s+/q).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
 composite_rules:
 - id: mbr-target
   desc: MBR/Boot sector targeting

@@ -13,7 +13,7 @@ traits:
     if:
       type: raw
       # Removed backslash, added t.She, removed hell (FP on powershell)
-      regex: 'WScri|ipt\.S|pt\.She'
+      regex: 'WScri|ipt\.S'
     unless:
       - id: metadata/builder/autotools::autotools
       - id: metadata/builder/autotools::configure-ac

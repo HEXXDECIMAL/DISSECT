@@ -86,11 +86,21 @@ traits:
   if:
     type: raw
     regex: \.mkdir\(\s*["'].{0,200}[\\/]\.[a-zA-Z][a-zA-Z0-9_-]{0,40}["']
-- id: python-mkdir-hidden__unless_1
+- id: python-mkdir-hidden__unless_1a
   desc: Helper string condition
   if:
     type: string
-    regex: \.(tox|cache|git|venv|env|pytest_cache|mypy_cache|build|dist)
+    regex: \.(tox|cache|git|venv)
+- id: python-mkdir-hidden__unless_1b
+  desc: Helper string condition
+  if:
+    type: string
+    regex: \.(env|pytest_cache|mypy_cache|build)
+- id: python-mkdir-hidden__unless_1c
+  desc: Helper string condition
+  if:
+    type: string
+    regex: \.dist
 composite_rules:
 - id: python-write-or-makedirs
   desc: File write or directory creation
@@ -109,3 +119,9 @@ composite_rules:
   any:
   - id: python-mkdir-hidden__any_1
   - id: python-mkdir-hidden__any_2
+- id: python-mkdir-hidden__unless_1
+  desc: Helper string condition
+  any:
+  - id: python-mkdir-hidden__unless_1a
+  - id: python-mkdir-hidden__unless_1b
+  - id: python-mkdir-hidden__unless_1c

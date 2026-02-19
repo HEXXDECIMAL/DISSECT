@@ -34,13 +34,20 @@ traits:
   if:
     type: string
     regex: -done["']|\.done["']|_done["']
-- id: execution-tracker
-  desc: Execution tracking file
+- id: execution-tracker-a
+  desc: Python or script ran marker
   crit: suspicious
   conf: 0.8
   if:
     type: string
-    regex: (?:python|script)-ran|(?:^|[/._-])(?:marker|flag|stamp|tracker|execution)[._-]?(?:installed|executed|ran|done)(?:$|[/._-])|(?:^|[/._-])(?:installed|executed|ran|done)(?:[._-](?:marker|flag|stamp|tracker))(?:$|[/._-])
+    regex: (python|script)-ran
+- id: execution-tracker-b
+  desc: Marker or tracker ran status
+  crit: suspicious
+  conf: 0.8
+  if:
+    type: string
+    regex: (marker|tracker).{0,12}(ran|done)
 composite_rules:
 - id: marker-file-creation
   desc: Marker file creation
@@ -68,3 +75,10 @@ composite_rules:
   any:
   - id: marker-file-creation
   - id: execution-tracker
+- id: execution-tracker
+  desc: Execution tracking file
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: execution-tracker-a
+  - id: execution-tracker-b

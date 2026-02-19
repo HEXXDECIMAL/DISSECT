@@ -101,14 +101,14 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: (?i)(?:syn|udp|http|icmp|tcp|dns|ack)[_-]?flood|(?i)flood[_-]?(?:attack|target|packets?|mode)
+      regex: (?i)(?:syn|udp|http|icmp|tcp)[_-]?flood|flood[_-]?(attack|target|mode)
   - id: ddos-attack
     desc: Attack terminology
     crit: notable
     conf: 0.4
     if:
       type: string
-      regex: (?i)ddos[_-]?attack|(?i)attack[_-]?(?:target|mode|type|vector|method)|(?i)(?:syn|udp|http|icmp)[_-]?attack
+      regex: (?i)ddos[_-]?attack|attack[_-]?(target|mode|type)|(?:syn|udp|http)[_-]?attack
 composite_rules:
   - id: irc-protocol
     desc: IRC protocol commands

@@ -6,13 +6,37 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: parse
-    desc: Parse IP addresses
+  - id: inet-pton-symbol
+    desc: Parse IP with inet_pton
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: inet_pton|inet_ntop|inet_addr|inet_aton
+      exact: inet_pton
+
+  - id: inet-ntop-symbol
+    desc: Parse IP with inet_ntop
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: inet_ntop
+
+  - id: inet-addr-symbol
+    desc: Parse IP with inet_addr
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: inet_addr
+
+  - id: inet-aton-symbol
+    desc: Parse IP with inet_aton
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: inet_aton
 
   - id: parse-string
     desc: IP address string patterns
@@ -22,10 +46,55 @@ traits:
       type: string
       regex: "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}"
 
-  - id: byte-order
-    desc: Network byte order conversion
+  - id: htons-symbol
+    desc: Converts host to network short
     crit: inert
     conf: 0.66
     if:
       type: symbol
-      regex: htons|htonl|ntohs|ntohl
+      exact: htons
+
+  - id: htonl-symbol
+    desc: Converts host to network long
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: htonl
+
+  - id: ntohs-symbol
+    desc: Converts network to host short
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: ntohs
+
+  - id: ntohl-symbol
+    desc: Converts network to host long
+    crit: inert
+    conf: 0.66
+    if:
+      type: symbol
+      exact: ntohl
+
+composite_rules:
+  - id: parse
+    desc: Parse IP addresses
+    crit: inert
+    conf: 0.66
+    any:
+      - id: inet-pton-symbol
+      - id: inet-ntop-symbol
+      - id: inet-addr-symbol
+      - id: inet-aton-symbol
+
+  - id: byte-order
+    desc: Network byte order conversion
+    crit: inert
+    conf: 0.66
+    any:
+      - id: htons-symbol
+      - id: htonl-symbol
+      - id: ntohs-symbol
+      - id: ntohl-symbol

@@ -7,13 +7,21 @@ defaults:
 
 traits:
   # === Environment and Context manipulation ===
-  - id: env-access
+  - id: env-access-_env
     desc: Lua environment access (_ENV)
     crit: notable
     conf: 0.9
     if:
       type: symbol
-      regex: "_ENV|getfenv"
+      exact: "_ENV"
+
+  - id: env-access-getfenv
+    desc: Lua environment access (getfenv)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "getfenv"
 
   - id: env-modify
     desc: Modifies Lua environment (setfenv)
@@ -24,13 +32,21 @@ traits:
       regex: "setfenv"
 
   # === Code Loading and Execution ===
-  - id: exec-dynamic-load
-    desc: Dynamic code loading (load, loadstring)
+  - id: exec-dynamic-load-load
+    desc: Dynamic code loading (load)
     crit: notable
     conf: 0.9
     if:
       type: symbol
-      regex: "load|loadstring"
+      exact: "load"
+
+  - id: exec-dynamic-load-loadstring
+    desc: Dynamic code loading (loadstring)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "loadstring"
 
   - id: exec-file-execution
     desc: Executes Lua files (dofile)
@@ -66,13 +82,21 @@ traits:
       regex: 'os\.rename|os\.remove'
 
   # === Metatable and Proxy patterns ===
-  - id: meta-metatable-access
-    desc: Uses metatables (setmetatable, getmetatable)
+  - id: meta-setmetatable-access
+    desc: Uses metatables (setmetatable)
     crit: notable
     conf: 0.7
     if:
       type: symbol
-      regex: "setmetatable|getmetatable"
+      exact: "setmetatable"
+
+  - id: meta-getmetatable-access
+    desc: Uses metatables (getmetatable)
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      exact: "getmetatable"
 
   - id: meta-proxy-usage
     desc: Uses newproxy for object protection
@@ -107,3 +131,28 @@ traits:
     if:
       type: raw
       regex: 'while\s+g\s+do\s+if\s+g\s*<'
+
+composite_rules:
+  - id: env-access
+    desc: Lua environment access (_ENV)
+    crit: notable
+    conf: 0.9
+    any:
+      - id: env-access-_env
+      - id: env-access-getfenv
+
+  - id: exec-dynamic-load
+    desc: Dynamic code loading (load, loadstring)
+    crit: notable
+    conf: 0.9
+    any:
+      - id: exec-dynamic-load-load
+      - id: exec-dynamic-load-loadstring
+
+  - id: meta-metatable-access
+    desc: Uses metatables (setmetatable, getmetatable)
+    crit: notable
+    conf: 0.7
+    any:
+      - id: meta-setmetatable-access
+      - id: meta-getmetatable-access

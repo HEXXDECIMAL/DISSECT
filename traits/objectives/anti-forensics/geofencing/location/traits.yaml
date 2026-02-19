@@ -81,16 +81,20 @@ traits:
   if:
     type: string
     regex: Intl\.DateTimeFormat.{0,50}resolvedOptions.{0,30}timeZone
-- id: cis-country-codes
-  desc: CIS country code check
+- id: cis-country-codes-a
+  desc: Quoted CIS country code
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: '[''"]RU[''"] |[''"]BY[''"] |[''"]KZ[''"] |[''"]UA[''"] |[''"]UZ[''"] |[''"]AZ[''"]
-      |[''"]AM[''"] |[''"]GE[''"] |[''"]MD[''"] |[''"]TJ[''"] |[''"]TM[''"] |[''"]KG[''"]
-      |\[.{0,50}[''"]RU[''"] |\[.{0,50}[''"]BY[''"] |countries.{0,20}[''"]RU[''"]
-      |countries.{0,20}[''"]BY[''"] |==\s*[''"]RU[''"] |==\s*[''"]BY[''"] |==\s*[''"]UA[''"] '
+    regex: "['\\\"](RU|BY|UA)['\\\"]"
+- id: cis-country-codes-b
+  desc: Equality check for CIS country code
+  crit: notable
+  conf: 0.3
+  if:
+    type: string
+    regex: "==\\s*['\\\"](RU|BY|UA)['\\\"]"
 composite_rules:
 - id: locale-env-checks
   desc: Multiple locale environment checks
@@ -121,6 +125,14 @@ composite_rules:
   - id: moscow-timezone
   - id: locale-env-checks
   - id: cis-country-codes
+
+- id: cis-country-codes
+  desc: CIS country code check
+  crit: notable
+  conf: 0.3
+  any:
+  - id: cis-country-codes-a
+  - id: cis-country-codes-b
   downgrade:
     any:
     - id: well-known/lib::gnulib-locale-functions

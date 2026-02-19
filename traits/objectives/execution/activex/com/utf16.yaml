@@ -57,7 +57,7 @@ traits:
   desc: Shell.Application in UTF-16 script
   if:
     type: raw
-    regex: S\x00h\x00e\x00l\x00l\x00\.\x00A\x00p\x00p\x00l\x00i\x00c\x00a\x00t\x00i\x00o\x00n
+    substr: S\x00h\x00e\x00l\x00l\x00\.\x00A\x00p\x00p\x00l\x00i\x00c\x00a\x00t\x00i\x00o\x00n
 composite_rules:
 - id: utf16-wsh-com-objects
   desc: UTF-16 WSH COM object usage

@@ -29,7 +29,8 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: "LICENSE|license|LICENCE|licence|COPYING"
+      regex: "LICENSE|LICENCE|COPYING"
+      case_insensitive: true
 
   # References CHANGELOG
   - id: references-changelog
@@ -39,7 +40,8 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: "CHANGELOG|changelog|HISTORY|history|CHANGES"
+      regex: "CHANGELOG|HISTORY|CHANGES"
+      case_insensitive: true
 
   # Has dist/lib output directory
   - id: has-changelog-tooling
@@ -60,5 +62,6 @@ traits:
     if:
       type: string
       regex: '"license":\\s*"(?:MIT|ISC|Apache|BSD|GPL|LGPL|MPL|Unlicense)'
+
 
   # Has keywords

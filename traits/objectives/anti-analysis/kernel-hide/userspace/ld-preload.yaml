@@ -170,46 +170,42 @@ traits:
   if:
     type: string
     substr: __libc_dlopen_mode
-- id: original-prefix
-  desc: original_ function prefix (hook backup)
+- id: original-prefix-a
+  desc: original_ prefix core hook set
   crit: notable
   conf: 0.7
   for:
   - elf
-  unless:
-  - id: micro-traits/dylib/load/gnu-coreutils-ref
-  - id: micro-traits/dylib/load/glibc-ref
-  - id: micro-traits/dylib/load/systemd-ref
-  - id: micro-traits/dylib/load/libc-characteristic-symbols
-  - id: micro-traits/dylib/library::llvm-project-ref
-  - id: metadata/lang/compiler::libllvm
-  - id: micro-traits/dylib/library::gcc-project-ref
-  - id: micro-traits/dylib/load/gdb-debugger-ref
-  - id: micro-traits/dylib/load/lldb-debugger-ref
-  - id: micro-traits/dylib/load/debugger-ptrace-marker
   if:
     type: string
-    regex: original_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)
-- id: real-prefix
-  desc: real_ function prefix (hook backup)
+    regex: original_(open|read|write|execve)
+- id: original-prefix-b
+  desc: original_ prefix network hook set
   crit: notable
   conf: 0.7
   for:
   - elf
-  unless:
-  - id: micro-traits/dylib/load/gnu-coreutils-ref
-  - id: micro-traits/dylib/load/glibc-ref
-  - id: micro-traits/dylib/load/systemd-ref
-  - id: micro-traits/dylib/load/libc-characteristic-symbols
-  - id: micro-traits/dylib/library::llvm-project-ref
-  - id: metadata/lang/compiler::libllvm
-  - id: micro-traits/dylib/library::gcc-project-ref
-  - id: micro-traits/dylib/load/gdb-debugger-ref
-  - id: micro-traits/dylib/load/lldb-debugger-ref
-  - id: micro-traits/dylib/load/debugger-ptrace-marker
   if:
     type: string
-    regex: real_(?:open|read|write|stat|fopen|readdir|execve|connect|socket|getdents|unlink)
+    regex: original_(connect|socket|unlink)
+- id: real-prefix-a
+  desc: real_ prefix core hook set
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  if:
+    type: string
+    regex: real_(open|read|write|execve)
+- id: real-prefix-b
+  desc: real_ prefix network hook set
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  if:
+    type: string
+    regex: real_(connect|socket|unlink)
 - id: ld-so-preload-clear
   desc: Clears /etc/ld.so.preload content
   crit: suspicious
@@ -220,7 +216,7 @@ traits:
   - shell
   if:
     type: string
-    regex: cat\s+/dev/null\s*>\s*/etc/ld\.so\.preload|>\s*/etc/ld\.so\.preload|echo\s*>\s*/etc/ld\.so\.preload|truncate\s+.{0,50}\s*/etc/ld\.so\.preload
+    regex: (?:cat\s+/dev/null\s*>|echo\s*>|truncate\s+.{0,50}|>)\s*/etc/ld\.so\.preload
 composite_rules:
 - id: ld-preload
   desc: References LD_PRELOAD environment variable
@@ -268,6 +264,46 @@ composite_rules:
   all:
   - id: original-prefix
   - id: real-prefix
+- id: original-prefix
+  desc: original_ function prefix (hook backup)
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  unless:
+  - id: micro-traits/dylib/load/gnu-coreutils-ref
+  - id: micro-traits/dylib/load/glibc-ref
+  - id: micro-traits/dylib/load/systemd-ref
+  - id: micro-traits/dylib/load/libc-characteristic-symbols
+  - id: micro-traits/dylib/library::llvm-project-ref
+  - id: metadata/lang/compiler::libllvm
+  - id: micro-traits/dylib/library::gcc-project-ref
+  - id: micro-traits/dylib/load/gdb-debugger-ref
+  - id: micro-traits/dylib/load/lldb-debugger-ref
+  - id: micro-traits/dylib/load/debugger-ptrace-marker
+  any:
+  - id: original-prefix-a
+  - id: original-prefix-b
+- id: real-prefix
+  desc: real_ function prefix (hook backup)
+  crit: notable
+  conf: 0.7
+  for:
+  - elf
+  unless:
+  - id: micro-traits/dylib/load/gnu-coreutils-ref
+  - id: micro-traits/dylib/load/glibc-ref
+  - id: micro-traits/dylib/load/systemd-ref
+  - id: micro-traits/dylib/load/libc-characteristic-symbols
+  - id: micro-traits/dylib/library::llvm-project-ref
+  - id: metadata/lang/compiler::libllvm
+  - id: micro-traits/dylib/library::gcc-project-ref
+  - id: micro-traits/dylib/load/gdb-debugger-ref
+  - id: micro-traits/dylib/load/lldb-debugger-ref
+  - id: micro-traits/dylib/load/debugger-ptrace-marker
+  any:
+  - id: real-prefix-a
+  - id: real-prefix-b
 - id: symbiote
   desc: Symbiote rootkit indicators
   crit: suspicious

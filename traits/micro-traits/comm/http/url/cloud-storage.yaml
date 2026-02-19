@@ -13,5 +13,24 @@ traits:
   desc: Discord CDN download URL
   if:
     type: string
-    regex: https?://cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s]{1,50}\.(exe|dll|bat|ps1|zip|7z|rar)
-composite_rules: []
+    regex: https?://cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.
+- id: discord-cdn-suspicious-extension-a
+  desc: Suspicious executable extension in URL
+  if:
+    type: string
+    regex: \.(exe|dll|bat|ps1)\b
+- id: discord-cdn-suspicious-extension-b
+  desc: Suspicious archive extension in URL
+  if:
+    type: string
+    regex: \.(zip|7z|rar)\b
+composite_rules:
+- id: discord-cdn-download-url-any
+  desc: Discord CDN download URL
+  crit: notable
+  conf: 0.9
+  all:
+  - id: discord-cdn-download-url
+  any:
+  - id: discord-cdn-suspicious-extension-a
+  - id: discord-cdn-suspicious-extension-b

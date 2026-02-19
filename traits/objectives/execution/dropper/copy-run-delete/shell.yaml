@@ -98,7 +98,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: '&&\s*rm\s+(?:-[a-z]{1,8}\s+){0,3}(/bin/|/sbin/|/usr/bin/|/usr/sbin/|/usr/local/bin/|/usr/local/sbin/)'
+    regex: '&&\s*rm\s+(?:-[a-z]{1,8}\s+){0,3}/(?:usr/(?:local/)?s?bin|s?bin)/'
 - id: exec-and-rm-chain
   desc: Execute then remove chain
   crit: notable
@@ -107,7 +107,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: (?:^|[\s;&|])/(?:bin|sbin|usr/(?:local/)?(?:s?bin))/[a-zA-Z0-9_.-]{1,80}.{0,240}&&.{0,240}rm\s+
+    regex: /(?:usr/(?:local/)?s?bin|s?bin)/[a-zA-Z0-9_.-]{1,80}.{0,200}&&.{0,200}rm\s+
 composite_rules:
 - id: copy-to-system-bin
   desc: Copy file to system bin directory

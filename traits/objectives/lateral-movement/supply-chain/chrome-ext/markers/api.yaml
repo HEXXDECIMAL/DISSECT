@@ -238,8 +238,8 @@ traits:
   if:
     type: string
     regex: https?://[a-zA-Z0-9][-a-zA-Z0-9]*\.io/
-- id: chrome-namespace
-  desc: Uses chrome.* namespace
+- id: chrome-namespace-core
+  desc: Uses core chrome.* namespace APIs
   crit: notable
   conf: 0.95
   for:
@@ -247,9 +247,19 @@ traits:
   - typescript
   if:
     type: string
-    regex: chrome\.(runtime|tabs|storage|webRequest|cookies|history|bookmarks|alarms|notifications)
-- id: tabs-execute-script
-  desc: Executes script in tab context
+    regex: chrome\.(runtime|tabs|storage|webRequest|cookies)
+- id: chrome-namespace-extra
+  desc: Uses extended chrome.* namespace APIs
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: chrome\.(history|bookmarks|alarms|notifications)
+- id: tabs-execute-script-tabs
+  desc: Executes script via tabs API
   crit: suspicious
   conf: 0.95
   for:
@@ -258,8 +268,39 @@ traits:
   if:
     type: ast
     kind: call
-    regex: chrome\.tabs\.executeScript|tabs\.executeScript\(|chrome\.scripting\.executeScript
+    regex: chrome\.tabs\.executeScript|tabs\.executeScript\(
+- id: tabs-execute-script-scripting
+  desc: Executes script via scripting API
+  crit: suspicious
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  if:
+    type: ast
+    kind: call
+    regex: chrome\.scripting\.executeScript
 composite_rules:
+- id: chrome-namespace
+  desc: Uses chrome.* namespace
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: chrome-namespace-core
+  - id: chrome-namespace-extra
+- id: tabs-execute-script
+  desc: Executes script in tab context
+  crit: suspicious
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  any:
+  - id: tabs-execute-script-tabs
+  - id: tabs-execute-script-scripting
 - id: is-extension
   desc: File is part of a browser extension
   crit: notable

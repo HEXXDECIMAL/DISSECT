@@ -52,14 +52,29 @@ traits:
   if:
     type: raw
     regex: \$MD5[^=]{0,20}=[^$]{0,20}\$sum|\$sum[^=]{0,20}=[^$]{0,20}\$MD5|checkExists
-- id: loader-selection
-  desc: Selects curl or wget dynamically
+- id: loader-selection-command-test
+  desc: Checks command -v for curl or wget
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: if[^;]{0,30}command\s+-v\s+(?:curl|wget)|(?:LDR|WGET|DL)\s*=[^;]{0,30}(?:curl|wget)
+    regex: command\s+-v\s+(?:curl|wget)
+- id: loader-selection-env-var
+  desc: LDR/WGET/DL env var for curl/wget
+  crit: suspicious
+  conf: 0.85
+  if:
+    type: raw
+    regex: \b(?:LDR|WGET|DL)\s*=\s*(?:curl|wget)
 composite_rules:
+- id: loader-selection
+  desc: Selects curl or wget dynamically
+  crit: suspicious
+  conf: 0.85
+  any:
+    - id: loader-selection-command-test
+    - id: loader-selection-env-var
+
 - id: verified-dropper
   desc: Verified payload dropper
   crit: hostile

@@ -199,11 +199,29 @@ traits:
       type: string
       substr: "karma.conf"
 
-  - id: coverage-markers
-    desc: Code coverage markers
+  - id: coverage-markers-a
+    desc: Code coverage markers family A
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
     if:
       type: string
-      regex: "istanbul|nyc|c8|coverage|__coverage__|lcov"
+      regex: "istanbul|nyc|c8|coverage"
+  - id: coverage-markers-b
+    desc: Code coverage markers family B
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: "__coverage__|lcov"
+
+composite_rules:
+  - id: coverage-markers
+    desc: Code coverage markers
+    crit: notable
+    conf: 0.9
+    for: [javascript, typescript]
+    any:
+      - id: coverage-markers-a
+      - id: coverage-markers-b

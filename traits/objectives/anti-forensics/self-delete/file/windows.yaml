@@ -29,14 +29,24 @@ traits:
       case_insensitive: true
 
   # Script file deletion (generic)
-  - id: script-file-delete
-    desc: Delete script files
+  - id: script-file-delete-del
+    desc: Delete script files using del
     crit: notable
     conf: 0.75
     for: [all]
     if:
       type: string
-      regex: "del\\s.{0,50}\\.(ps1|bat|cmd|vbs)|Remove-Item.{0,50}\\.(ps1|bat|cmd|vbs)"
+      regex: "del\\s.{0,50}\\.(ps1|bat|cmd|vbs)"
+      case_insensitive: true
+
+  - id: script-file-delete-remove-item
+    desc: Delete script files using Remove-Item
+    crit: notable
+    conf: 0.75
+    for: [all]
+    if:
+      type: string
+      regex: "Remove-Item.{0,50}\\.(ps1|bat|cmd|vbs)"
       case_insensitive: true
 
   # Multiple VBS deletions (dropper cleanup pattern)
@@ -49,3 +59,14 @@ traits:
       type: string
       regex: "del.{0,50}\\.vbs|Remove-Item.{0,50}\\.vbs"
       case_insensitive: true
+      count_min: 2
+
+composite_rules:
+  - id: script-file-delete
+    desc: Delete script files
+    crit: notable
+    conf: 0.75
+    for: [all]
+    any:
+      - id: script-file-delete-del
+      - id: script-file-delete-remove-item

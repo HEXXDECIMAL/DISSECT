@@ -136,7 +136,7 @@ traits:
   - ruby
   if:
     type: string
-    regex: ruby\s+-rsocket\s+-e.{0,100}(exec|spawn|syscall|system|popen|`|/bin/sh|/bin/bash|cmd\.exe)|TCPSocket\.open.{0,50}exec
+    regex: ruby\s+-rsocket\s+-e.{0,80}(exec|spawn|system|/bin/sh|/bin/bash)|TCPSocket\.open
 composite_rules:
 - id: reverse-shell-mkfifo
   desc: Reverse shell using mkfifo and

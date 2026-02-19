@@ -11,5 +11,5 @@ traits:
   mbc: B0011.001
   if:
     type: encoded
-    regex: (?i)The document is corrupted and cannot be opened|document[^'"]{1,50}corrupted|\{[^:]+:['"]c['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]o['"]\}\.[a-zA-Z0-9_$]+\+\{[^:]+:['"]r['"]\}\.[a-zA-Z0-9_$]+
+    regex: (?i)document[^'"]{1,50}corrupted|document is corrupted
 composite_rules: []

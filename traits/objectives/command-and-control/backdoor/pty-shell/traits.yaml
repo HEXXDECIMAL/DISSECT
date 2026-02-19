@@ -10,24 +10,48 @@ defaults:
 
 traits:
   # PTY allocation functions - used to create interactive shell
-  - id: pty-alloc-symbols
-    desc: PTY allocation symbols
+  - id: pty-alloc-group-1
+    desc: PTY allocation symbols (grantpt/ptsname/unlockpt)
     crit: notable
     conf: 0.9
     if:
       type: symbol
-      regex: "^(grantpt|ptsname|unlockpt|posix_openpt|openpty|forkpty)$"
+      regex: "^(grantpt|ptsname|unlockpt)$"
+
+  - id: pty-alloc-group-2
+    desc: PTY allocation symbols (posix_openpt/openpty/forkpty)
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      regex: "^(posix_openpt|openpty|forkpty)$"
 
   # vhangup - use canonical micro-traits/ trait
 
   # Terminal attribute control - for PTY configuration
-  - id: termios-symbols
-    desc: Terminal attribute control symbols
+  - id: termios-cfmakeraw
+    desc: cfmakeraw terminal attribute control symbol
     crit: notable
     conf: 0.9
     if:
       type: symbol
-      regex: "^(tcgetattr|tcsetattr|cfmakeraw|cfsetispeed|cfsetospeed)$"
+      exact: "cfmakeraw"
+
+  - id: termios-cfsetispeed
+    desc: cfsetispeed terminal attribute control symbol
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "cfsetispeed"
+
+  - id: termios-cfsetospeed
+    desc: cfsetospeed terminal attribute control symbol
+    crit: notable
+    conf: 0.9
+    if:
+      type: symbol
+      exact: "cfsetospeed"
 
   # File descriptor duplication - use canonical micro-traits/ trait
 
@@ -50,15 +74,86 @@ traits:
       regex: '/dev/pt[msy]'
 
   # Terminal type strings (vt100, xterm, ansi, linux) - for PTY negotiation
-  - id: terminal-type-string
-    desc: Terminal type identifier string
+  - id: terminal-type-vt102
+    desc: Terminal type vt102 identifier
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: '^(vt10[02]|xterm|ansi|linux|dumb|screen)$'
+      regex: '^vt10[02]$'
+
+  - id: terminal-type-xterm
+    desc: Terminal type xterm identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "xterm"
+
+  - id: terminal-type-ansi
+    desc: Terminal type ansi identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "ansi"
+
+  - id: terminal-type-linux
+    desc: Terminal type linux identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "linux"
+
+  - id: terminal-type-dumb
+    desc: Terminal type dumb identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "dumb"
+
+  - id: terminal-type-screen
+    desc: Terminal type screen identifier
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      exact: "screen"
 
 composite_rules:
+  - id: pty-alloc-symbols
+    desc: PTY allocation symbol set (legacy wrapper)
+    crit: notable
+    conf: 0.9
+    any:
+      - id: pty-alloc-group-1
+      - id: pty-alloc-group-2
+
+  - id: termios-symbols
+    desc: Terminal attribute control symbols
+    crit: notable
+    conf: 0.9
+    any:
+      - id: objectives/execution/tty/pty::tcgetattr
+      - id: objectives/execution/tty/pty::tcsetattr
+      - id: termios-cfmakeraw
+      - id: termios-cfsetispeed
+      - id: termios-cfsetospeed
+
+  - id: terminal-type-string
+    desc: Terminal type identifier string (legacy wrapper)
+    crit: notable
+    conf: 0.8
+    any:
+      - id: terminal-type-vt102
+      - id: terminal-type-xterm
+      - id: terminal-type-ansi
+      - id: terminal-type-linux
+      - id: terminal-type-dumb
+      - id: terminal-type-screen
+
   # PTY shell backdoor - allocates PTY and has network capability
   # This is the core pattern: PTY + network = interactive remote shell
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE

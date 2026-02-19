@@ -7,11 +7,11 @@ defaults:
   conf: 0.9
 
 traits:
-  - id: loadswf-typos
+  - id: loadswf-typo-reqest
     desc: Function name typos in LoadSWF (Reqest, Decript)
     if:
       type: raw
-      regex: 'SendGetSwfKeyReqest|Decript'
+      exact: "SendGetSwfKeyReqest"
 
   - id: loadswf-fingerprint-params
     desc: System fingerprinting parameters (fp_vs, os_vs)
@@ -25,9 +25,47 @@ traits:
       type: raw
       regex: '\^ swf_key\['
 
-  - id: loadswf-class-name
+  - id: loadswf-typo-decript
+    desc: Function name typos in LoadSWF (Reqest, Decript)
+    if:
+      type: raw
+      exact: "Decript"
+
+  - id: loadswf-class-name-core
     desc: Class name 'loadswf' or 'loadswf_MyURL'
     crit: notable
     if:
       type: raw
-      regex: 'loadswf|loadswf_MyURL|loadswf_SWFBClass'
+      exact: "loadswf"
+
+  - id: loadswf-class-name-myurl
+    desc: Class name 'loadswf_MyURL'
+    crit: notable
+    if:
+      type: raw
+      exact: "loadswf_MyURL"
+
+  - id: loadswf-class-name-swfb
+    desc: Class name 'loadswf_SWFBClass'
+    crit: notable
+    if:
+      type: raw
+      exact: "loadswf_SWFBClass"
+
+composite_rules:
+  - id: loadswf-typos
+    desc: Function name typos in LoadSWF (Reqest, Decript)
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: loadswf-typo-reqest
+      - id: loadswf-typo-decript
+
+  - id: loadswf-class-name
+    desc: Class name loadswf variants
+    crit: notable
+    conf: 0.9
+    any:
+      - id: loadswf-class-name-core
+      - id: loadswf-class-name-myurl
+      - id: loadswf-class-name-swfb

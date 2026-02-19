@@ -61,8 +61,8 @@ traits:
   unless:
   - type: raw
     regex: syscall|runtime
-- id: environment-probe-indicator
-  desc: Sandbox/VM environment indicator
+- id: environment-probe-indicator-a
+  desc: Sandbox and VM vendors
   crit: notable
   conf: 0.7
   for:
@@ -70,8 +70,27 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: \\bsandbox\\b|\\bvirtualbox\\b|\\bvmware\\b|\\bqemu\\b|\\bvbox\\b|\\bgithub_actions\\b|\\btravis\\b|\\bjenkins_url\\b|\\bappveyor\\b|\\btf_build\\b|\\bteamcity_version\\b
+    regex: \\b(sandbox|virtualbox|vmware)\\b
+- id: environment-probe-indicator-b
+  desc: Emulator and CI environment markers
+  crit: notable
+  conf: 0.7
+  for:
+  - go
+  if:
+    type: string
+    case_insensitive: true
+    regex: \\b(qemu|vbox|travis|appveyor)\\b
 composite_rules:
+- id: environment-probe-indicator
+  desc: Sandbox/VM environment indicator
+  crit: notable
+  conf: 0.7
+  for:
+  - go
+  any:
+  - id: environment-probe-indicator-a
+  - id: environment-probe-indicator-b
 - id: environment-check
   desc: Runtime environment checks
   crit: suspicious

@@ -2,6 +2,9 @@
 # MBC: B0028 (Scheduled Task/Job)
 # ATT&CK: T1543.004
 
+defaults:
+  for: [all]
+
 traits:
   - id: launch-agents
     desc: LaunchAgents directory (user-level services)

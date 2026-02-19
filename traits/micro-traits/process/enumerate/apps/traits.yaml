@@ -8,26 +8,120 @@ defaults:
   mbc: "E1592"
 
 traits:
-  - id: browser-apps
-    desc: Web browser application names
+  - id: browser-apps-chrome-firefox
+    desc: Browser apps chrome or firefox
     crit: notable
     conf: 0.5
     if:
       type: string
-      regex: "(?i)\\b(chrome|firefox|msedge|safari|opera|brave|iexplore)\\b"
+      regex: "(?i)\\b(chrome|firefox)\\b"
+
+  - id: browser-apps-msedge-safari
+    desc: Browser apps msedge or safari
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(msedge|safari)\\b"
+
+  - id: browser-apps-opera-brave
+    desc: Browser apps opera or brave
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(opera|brave)\\b"
+
+  - id: browser-apps-iexplore
+    desc: Browser app iexplore
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\biexplore\\b"
+
+  - id: office-apps-word-excel
+    desc: Office apps word or excel
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(winword|excel)\\b"
+
+  - id: office-apps-powerpoint-soffice
+    desc: Office apps powerpoint or soffice
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(powerpnt|soffice)\\b"
+
+  - id: office-apps-outlook-onenote
+    desc: Office apps outlook or onenote
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(outlook|onenote)\\b"
+
+  - id: dev-apps-vscode-sublime
+    desc: Dev apps vscode or sublime
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(vscode|sublime_text)\\b"
+
+  - id: dev-apps-notepad-vim
+    desc: Dev apps notepad or vim
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(notepad\\+\\+|vim)\\b"
+
+  - id: dev-apps-emacs-pycharm
+    desc: Dev apps emacs or pycharm
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\b(emacs|pycharm)\\b"
+
+  - id: dev-apps-intellij
+    desc: Dev app intellij
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      regex: "(?i)\\bintellij\\b"
+
+composite_rules:
+  - id: browser-apps
+    desc: Web browser application names
+    crit: notable
+    conf: 0.5
+    any:
+      - id: browser-apps-chrome-firefox
+      - id: browser-apps-msedge-safari
+      - id: browser-apps-opera-brave
+      - id: browser-apps-iexplore
 
   - id: office-apps
     desc: Office/Productivity application names
     crit: notable
     conf: 0.5
-    if:
-      type: string
-      regex: "(?i)\\b(winword|excel|powerpnt|soffice|outlook|onenote)\\b"
+    any:
+      - id: office-apps-word-excel
+      - id: office-apps-powerpoint-soffice
+      - id: office-apps-outlook-onenote
 
   - id: dev-apps
     desc: Developer/Editor application names
     crit: notable
     conf: 0.5
-    if:
-      type: string
-      regex: "(?i)\\b(vscode|sublime_text|notepad\\+\\+|vim|emacs|pycharm|intellij)\\b"
+    any:
+      - id: dev-apps-vscode-sublime
+      - id: dev-apps-notepad-vim
+      - id: dev-apps-emacs-pycharm
+      - id: dev-apps-intellij

@@ -58,7 +58,7 @@ traits:
       regex: "_?fts_close"
 
   # nftw/ftw API
-  - id: traverse-nftw
+  - id: nftw
     desc: Traverse filesystem hierarchy via nftw/ftw
     crit: inert
     conf: 0.66
@@ -66,7 +66,17 @@ traits:
     attack: T1083
     if:
       type: symbol
-      regex: "nftw|ftw"
+      exact: "nftw"
+
+  - id: ftw
+    desc: Traverse filesystem hierarchy via nftw/ftw
+    crit: inert
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    if:
+      type: symbol
+      exact: "ftw"
 
 composite_rules:
   - id: traverse-fts
@@ -82,3 +92,13 @@ composite_rules:
       - id: fts-children
       - id: fts-set
       - id: fts-close
+
+  - id: traverse-nftw
+    desc: Traverse filesystem hierarchy via nftw/ftw
+    crit: inert
+    conf: 0.66
+    mbc: E1083
+    attack: T1083
+    any:
+      - id: nftw
+      - id: ftw

@@ -37,7 +37,8 @@ traits:
     for: [all]
     if:
       type: string
-      regex: 'Authorization|AUTHORIZATION|authorization'
+      exact: "Authorization"
+      case_insensitive: true
 
   - id: hardcoded-auth-token
     desc: Hardcoded Authorization token

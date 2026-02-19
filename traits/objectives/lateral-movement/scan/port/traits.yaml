@@ -353,15 +353,26 @@ traits:
   if:
     type: symbol
     regex: ^_?pmap_(getmaps|clnt_call|getport)$
-- id: probe-word
-  desc: Probe keyword
+- id: probe-word-core
+  desc: Generic probe keyword
   crit: notable
   conf: 0.4
   platforms:
   - all
   if:
     type: string
-    regex: (?i)network[_\-\s]?probe|(?i)probe[_\-\s]?(?:port|host|target|scan|packet)|(?i)(?:tcp|udp|icmp)[_\-\s]?probe
+    regex: \bnetwork[_\-\s]?probe|probe[_\-\s]?(?:port|host|target|scan|packet)\b
+    case_insensitive: true
+- id: probe-word-proto
+  desc: Protocol probe keyword
+  crit: notable
+  conf: 0.4
+  platforms:
+  - all
+  if:
+    type: string
+    regex: \b(?:tcp|udp|icmp)[_\-\s]?probe\b
+    case_insensitive: true
 composite_rules:
 - id: target-ip-ref
   desc: References target IP concept
@@ -401,6 +412,15 @@ composite_rules:
   any:
   - id: probe-word
   - id: banner-grab
+- id: probe-word
+  desc: Probe keyword
+  crit: notable
+  conf: 0.4
+  platforms:
+  - all
+  any:
+  - id: probe-word-core
+  - id: probe-word-proto
 - id: target-ref
   desc: Scan target terminology
   crit: notable

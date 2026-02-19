@@ -132,7 +132,7 @@ traits:
   attack: T1057
   if:
     type: raw
-    regex: /proc/\$[a-zA-Z_][a-zA-Z0-9_]*/cmdline|/proc/\$\{[a-zA-Z_][a-zA-Z0-9_]*\}/cmdline
+    regex: /proc/\$\{?[a-zA-Z_][a-zA-Z0-9_]*\}?/cmdline
 composite_rules:
 - id: init-script-selinux-bypass
   desc: Init script with SELinux bypass

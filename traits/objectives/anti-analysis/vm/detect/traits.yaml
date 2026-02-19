@@ -338,8 +338,8 @@ traits:
   if:
     type: string
     regex: 169\.254\.169\.254|metadata\.google\.internal|169\.254\.169\.123
-- id: cpuid-check
-  desc: CPUID instruction for hypervisor detection
+- id: cpuid-check-a
+  desc: CPUID with hypervisor vendors A
   crit: suspicious
   conf: 0.9
   for:
@@ -348,10 +348,20 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: /proc/cpuinfo.{0,80}hypervisor|cpuid.{0,80}(hypervisor|vmware|virtualbox|kvm|xen|qemu|microsoft
-      hv)|hypervisor.{0,80}cpuid|hypervisor\s*flag
-- id: hardware-model
-  desc: Checks hardware model for VM
+    regex: cpuid.{0,80}(hypervisor|vmware|kvm)
+- id: cpuid-check-b
+  desc: CPUID with hypervisor vendors B
+  crit: suspicious
+  conf: 0.9
+  for:
+  - python
+  - shell
+  if:
+    type: string
+    case_insensitive: true
+    regex: cpuid.{0,80}(xen|qemu)|hypervisor\s*flag
+- id: hardware-model-cmd
+  desc: Checks hardware model command output
   crit: suspicious
   conf: 0.8
   for:
@@ -359,8 +369,40 @@ traits:
   - shell
   if:
     type: string
-    regex: system_profiler.{0,30}Model|wmic.{0,30}computersystem.{0,30}model|/sys/devices/virtual
+    regex: system_profiler.{0,30}Model|wmic.{0,30}computersystem.{0,30}model
+- id: hardware-model-linux-path
+  desc: Checks Linux virtual devices path
+  crit: suspicious
+  conf: 0.8
+  for:
+  - python
+  - shell
+  if:
+    type: string
+    substr: /sys/devices/virtual
 composite_rules:
+- id: hardware-model
+  desc: Checks hardware model for VM
+  crit: suspicious
+  conf: 0.8
+  for:
+  - python
+  - shell
+  any:
+  - id: cpuid-check
+  - id: hardware-model-cmd
+  - id: hardware-model-linux-path
+
+- id: cpuid-check
+  desc: CPUID instruction for hypervisor detection
+  crit: suspicious
+  conf: 0.9
+  for:
+  - python
+  - shell
+  any:
+  - id: cpuid-check-a
+  - id: cpuid-check-b
 - id: vendor-xen
   desc: Xen hypervisor vendor string
   crit: notable

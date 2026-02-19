@@ -25,10 +25,27 @@ traits:
       type: symbol
       regex: "init_keylogger"
 
-  - id: keystroke-capture-string
-    desc: "Key capture strings"
+  - id: keystroke-capture-string-a
+    desc: "Key capture strings (locks)"
     crit: notable
     conf: 0.7
     if:
       type: string
-      regex: "(?:CAPSLOCK|PRINTSCREEN|SCROLLOCK|NUMLOCK|BACKSPACE)"
+      regex: "(?:CAPSLOCK|SCROLLOCK|NUMLOCK)"
+
+  - id: keystroke-capture-string-b
+    desc: "Key capture strings (actions)"
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?:PRINTSCREEN|BACKSPACE)"
+
+composite_rules:
+  - id: keystroke-capture-string
+    desc: "Key capture strings"
+    crit: notable
+    conf: 0.7
+    any:
+      - id: keystroke-capture-string-a
+      - id: keystroke-capture-string-b

@@ -91,7 +91,7 @@ traits:
       - id: micro-traits/interface/usage/usage-help
     if:
       type: string
-      regex: (?:[\x00-\x1f](?:admin|root|password|default|guest|user|1234|qwerty)[\x00-\x1f]?)
+      regex: '[\x00-\x1f](?:admin|root|password|default|guest|user|1234|qwerty)[\x00-\x1f]?'
       count_min: 15
       per_kb_min: 0.5
 composite_rules:

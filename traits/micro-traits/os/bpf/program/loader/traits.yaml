@@ -135,7 +135,17 @@ traits:
   - elf
   if:
     type: raw
-    regex: (?s)RLIMIT_MEMLOCK.{0,200}(?:\d+UL\s*<<\s*20|1\s*<<\s*30)|(?s)(?:\d+UL\s*<<\s*20|1\s*<<\s*30).{0,200}RLIMIT_MEMLOCK
+    regex: (?s)RLIMIT_MEMLOCK.{0,200}(?:\d+UL\s*<<\s*20|1\s*<<\s*30)
+- id: bpf-rlimit-memlock-reversed
+  desc: RLIMIT_MEMLOCK near high limits (reversed order)
+  crit: notable
+  conf: 0.8
+  for:
+  - c
+  - elf
+  if:
+    type: raw
+    regex: (?s)(?:\d+UL\s*<<\s*20|1\s*<<\s*30).{0,200}RLIMIT_MEMLOCK
 composite_rules:
 - id: ebpf-core-header
   desc: eBPF CO-RE development header

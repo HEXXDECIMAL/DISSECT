@@ -43,7 +43,7 @@ traits:
   if:
     type: kv
     path: author-email
-    regex: '@(proton\.me|protonmail\.com|tutanota\.com|tutamail\.com|guerrillamail\.|mailinator\.com|yopmail\.com|sharklasers\.com|tempmail\.|dispostable\.com|trashmail\.|throwaway\.email)'
+    regex: '@(?:proton|tutanota|mailinator|tempmail|throwaway)\.'
     case_insensitive: true
 - id: pyproject-privacy-email
   desc: pyproject.toml author uses privacy email
@@ -54,6 +54,6 @@ traits:
   if:
     type: kv
     path: project.authors
-    regex: '@(proton\.me|protonmail\.com|tutanota\.com|tutamail\.com|guerrillamail\.|mailinator\.com|yopmail\.com|sharklasers\.com)'
+    regex: '@(?:proton|tutanota|tutamail|guerrillamail|mailinator|yopmail|sharklasers)\.'
     case_insensitive: true
 composite_rules: []

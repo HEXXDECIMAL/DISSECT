@@ -9,66 +9,68 @@ defaults:
   platforms: [all]
 
 traits:
-  # === Setuid Privilege Escalation ===
+  - id: gtfobins-ruby-indicator
+    desc: GTFOBins Ruby utility indicator
+    crit: notable
+    conf: 0.5
+    if:
+      type: string
+      word: "ruby"
+
+composite_rules:
   - id: setuid-privilege-escalation
     desc: Setuid privilege escalation
     crit: notable
     conf: 0.95
     attack: "T1068"
-    if:
-      type: string
-      regex: 'setuid|Process::Sys\.setuid|setuid\(0\)|cap_setuid'
+    any:
+      - id: objectives/privesc/setuid/abuse::ruby-setuid
+      - id: objectives/privesc/setuid/abuse::setuid-capability
 
-  # === Root Shell Execution ===
   - id: root-shell-exec
     desc: Root shell execution attempt
     crit: suspicious
-    conf: 0.90
+    conf: 0.9
     attack: "T1068"
-    if:
-      type: string
-      regex: "exec.{0,50}bin/sh.{0,50}root|setuid.{0,50}exec.{0,50}sh|/bin/sh.{0,50}setuid"
+    all:
+      - id: objectives/privesc/setuid/abuse::ruby-root-shell
+      - id: gtfobins-ruby-indicator
 
-  # === File Read ===
   - id: ruby-file-read
     desc: Ruby file read operation
     crit: notable
-    conf: 0.60
+    conf: 0.6
     attack: "T1083"
-    if:
-      type: string
-      regex: 'File\.read|puts File\.read|File\.open.{0,50}read'
+    any:
+      - id: micro-traits/fs/file/read::ruby-file-read-content
+      - id: micro-traits/fs/file/read::ruby-file-read-open
 
-  # === File Write ===
   - id: ruby-file-write
     desc: Ruby file write operation
     crit: notable
-    conf: 0.60
+    conf: 0.6
     attack: "T1083"
-    if:
-      type: string
-      regex: 'File\.open.{0,50}w.{0,50}write|File\.write|f\.write'
+    all:
+      - id: micro-traits/fs/write/file::ruby-file-write-content
+      - id: gtfobins-ruby-indicator
 
-  # === Shell Execution via Ruby ===
   - id: ruby-shell-exec
     desc: Shell command execution via Ruby
     crit: notable
-    conf: 0.70
+    conf: 0.7
     attack: "T1059"
-    if:
-      type: string
-      regex: "exec.{0,50}bin/sh|exec.{0,50}bin/bash|system.{0,50}bin/sh"
+    all:
+      - id: micro-traits/process/create/shell/lang::ruby-shell-exec
+      - id: gtfobins-ruby-indicator
 
-  # === Command Line Ruby ===
   - id: cli-ruby-exec
     desc: Command line Ruby execution
     crit: notable
-    conf: 0.50
-    if:
-      type: raw
-      regex: "ruby -e|ruby -rsocket|ruby -ropen-uri"
+    conf: 0.5
+    any:
+      - id: well-known/tools/offensive/gtfobins::gtfobins-ruby-marker
+      - id: gtfobins-ruby-indicator
 
-composite_rules:
   # === GTFOBins Library Load ===
   - id: gtfobins-library-load
     desc: GTFOBins shared library loading

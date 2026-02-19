@@ -68,7 +68,7 @@ traits:
   conf: 0.95
   if:
     type: raw
-    regex: (?:oct|hex|copyright|credits|license)\.__str__\(\)
+    regex: (oct|hex|c[a-z]+)\.__str__\(\)
     count_min: 3
 - id: is-admin-flag
   desc: IsAdmin flag check (Python)
@@ -90,7 +90,7 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: (?:^|\n)\s*(?:[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF][\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FFA-Za-z0-9_]{0,63}|[A-Za-z_][A-Za-z0-9_]{0,62}[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF][A-Za-z0-9_]{0,63})\s*=[^=\n]
+    regex: "[\\u4E00-\\u9FFF\\u3040-\\u30FF][\\u4E00-\\u9FFF\\u3040-\\u30FFA-Za-z0-9_]{0,63}\\s*="
 - id: getattr-builtins-obfuscation
   desc: getattr builtins obfuscation
   crit: suspicious
@@ -100,14 +100,14 @@ traits:
     regex: (test_|_test\.|\.test\.|\.spec\.).*\.py$
   if:
     type: raw
-    regex: getattr\((?:__builtins__|.{0,30}builtins)\s*,\s*(?:[A-Za-z_][A-Za-z0-9_]{0,40}|["'][^"'\n]{1,20}["']\s*\+\s*["'][^"'\n]{1,20}["']|chr\(|bytes\(|base64\.|decode\()
+    regex: getattr\((?:__builtins__|builtins)\s*,\s*[a-z_]{2,10}\(
 - id: getattr-obfuscated-access
   desc: getattr obfuscated access
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: getattr\(.{0,40},\s*(?:["'][^"'\n]{1,20}["']\s*\+\s*["'][^"'\n]{1,20}["']|chr\([^\n\)]{1,20}\)\s*\+\s*chr\([^\n\)]{1,20}\))
+    regex: getattr\(.{0,40},\s*(?:["'][^"'\n]{1,20}["']\s*\+\s*["'][^"'\n]{1,20}["']|chr\()
 composite_rules:
 - id: advanced-python-obfuscation
   desc: Advanced Python obfuscation

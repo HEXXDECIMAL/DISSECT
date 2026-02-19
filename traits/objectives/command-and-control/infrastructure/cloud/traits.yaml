@@ -68,7 +68,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.png$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.jpg$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.jpeg$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.gif$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.ico$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.bmp$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.pdf$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.doc$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.docx$|https?://[a-z0-9-]+\.s3[^/]{0,120}\.amazonaws\.com/[^"\s]{1,120}\.txt$
+    regex: https?://.{1,80}\.s3.{0,40}\.amazonaws\.com/.{1,120}\.(?:png|jpe?g|gif|pdf)$
 composite_rules:
 - id: cloud-payload-dropper
   desc: Cloud storage payload dropper

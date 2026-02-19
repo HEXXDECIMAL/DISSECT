@@ -72,13 +72,20 @@ traits:
   if:
     type: symbol
     regex: lookup_decode
-- id: char-map-symbol
-  desc: char_map symbol
+- id: char-map-symbol-a
+  desc: char_map symbol decode family
   crit: notable
   conf: 0.3
   if:
     type: symbol
-    regex: (?:xor|decode|decrypt|obfusc|cipher)[_-]?char_map|char_map[_-]?(?:xor|decode|decrypt|obfusc|cipher)
+    regex: (xor|decode|decrypt)[_-]?char_map
+- id: char-map-symbol-b
+  desc: char_map symbol obfusc/cipher family
+  crit: notable
+  conf: 0.3
+  if:
+    type: symbol
+    regex: (obfusc|cipher)[_-]?char_map
 composite_rules:
 - id: xor-decode-loop
   desc: XOR decryption loop pattern
@@ -99,6 +106,13 @@ composite_rules:
   - id: table-decode-symbol
   - id: lookup-decode-symbol
   - id: char-map-symbol
+- id: char-map-symbol
+  desc: char_map symbol
+  crit: notable
+  conf: 0.3
+  any:
+  - id: char-map-symbol-a
+  - id: char-map-symbol-b
 - id: string-decrypt
   desc: String decryption capability
   crit: suspicious

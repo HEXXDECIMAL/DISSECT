@@ -8,5 +8,22 @@ traits:
   - typescript
   if:
     type: raw
-    regex: if\s*\(\s*typeof\s*exports\s*===\s*["']object["']\s*&&\s*typeof\s*module\s*!==\s*["']undefined["']\)|typeof\s*define\s*===\s*["']function["']\s*&&\s*define\.amd
-composite_rules: []
+    regex: typeof\s*exports\s*===\s*["']object["']
+- id: js-umd-wrapper-amd
+  desc: UMD AMD branch marker
+  crit: inert
+  conf: 0.9
+  for:
+  - javascript
+  - typescript
+  if:
+    type: raw
+    regex: typeof\s*define\s*===\s*["']function["']\s*&&\s*define\.amd
+composite_rules:
+- id: js-umd-wrapper-any
+  desc: Universal Module Definition (UMD) wrapper
+  crit: inert
+  conf: 0.9
+  any:
+  - id: js-umd-wrapper
+  - id: js-umd-wrapper-amd

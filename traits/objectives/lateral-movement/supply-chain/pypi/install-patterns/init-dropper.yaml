@@ -89,14 +89,28 @@ traits:
   if:
     type: raw
     substr: '"Linux" in platform.system()'
-- id: platform-checks
-  desc: Combined platform.system and platform.machine
+- id: platform-system-check
+  desc: platform.system call present
   crit: notable
   conf: 0.75
   if:
     type: raw
-    regex: platform\.system.{0,50}platform\.machine|platform\.machine.{0,50}platform\.system
+    substr: platform.system
+- id: platform-machine-check
+  desc: platform.machine call present
+  crit: notable
+  conf: 0.75
+  if:
+    type: raw
+    substr: platform.machine
 composite_rules:
+- id: platform-checks
+  desc: Combined platform.system and platform.machine
+  crit: notable
+  conf: 0.75
+  all:
+  - id: platform-system-check
+  - id: platform-machine-check
 - id: platform-targeted-download
   desc: Platform-targeted binary download
   crit: suspicious

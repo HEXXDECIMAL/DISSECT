@@ -66,8 +66,8 @@ traits:
     type: string
     regex: (dlsym\(RTLD_NEXT|__libc_dlsym|__libc_dlopen_mode)
   attack: T1547.015
-- id: libc-preload
-  desc: Preload libc library
+- id: libc-preload-env
+  desc: LD_PRELOAD references libc
   crit: suspicious
   conf: 0.8
   for:
@@ -75,7 +75,17 @@ traits:
   - shell
   if:
     type: string
-    regex: LD_PRELOAD\s*=\s*[^\s]{0,120}libc(?:\.so|-)|ld\.so\.preload[^\n]{0,80}libc(?:\.so|-)
+    regex: LD_PRELOAD\s*=\s*[^\s]{0,120}libc(?:\.so|-)
+- id: libc-preload-file
+  desc: ld.so.preload references libc
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: ld\.so\.preload[^\n]{0,80}libc(?:\.so|-)
 composite_rules:
 - id: dlopen-dlsym-pattern
   desc: dlopen+dlsym dynamic loading pair
@@ -128,3 +138,13 @@ composite_rules:
   - id: dlfcn-hook-symbol
   - id: ld-environment-hijacking
   - id: dynamic-function-interception
+- id: libc-preload
+  desc: Preload libc library
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  any:
+  - id: libc-preload-env
+  - id: libc-preload-file

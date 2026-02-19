@@ -72,15 +72,35 @@ traits:
     if:
       type: string
       exact: tcph
-  - id: xdp-payload
-    desc: Packet payload reference
+  - id: xdp-payload-xdp-packet
+    desc: XDP or packet payload reference
     crit: notable
     conf: 0.5
     for:
       - c
     if:
       type: string
-      regex: (?:xdp|packet|ctx)[_-]?(?:payload|data)|payload[_-]?(?:ptr|offset|len)
+      regex: (xdp|packet)[_-]?(payload|data)
+
+  - id: xdp-payload-ctx
+    desc: Context payload or data reference
+    crit: notable
+    conf: 0.5
+    for:
+      - c
+    if:
+      type: string
+      regex: ctx[_-]?(payload|data)
+
+  - id: xdp-payload-pointer
+    desc: Payload pointer offset or length
+    crit: notable
+    conf: 0.5
+    for:
+      - c
+    if:
+      type: string
+      regex: payload[_-]?(ptr|offset|len)
   - id: cilium-ebpf
     desc: github.com/cilium/ebpf library
     crit: notable
@@ -204,17 +224,48 @@ traits:
     if:
       type: string
       substr: HTTP_DROP
-  - id: http-string
-    desc: HTTP packet manipulation marker
+  - id: http-string-action-a
+    desc: HTTP action edit or drop
     crit: notable
     conf: 0.3
     for:
       - c
     if:
       type: string
-      regex: HTTP[_-](?:EDIT|DROP|PASS|REDIRECT|HIJACK)|packet.{0,20}HTTP|HTTP.{0,20}packet
-  - id: password-string
-    desc: Password string reference
+      regex: HTTP[_-](EDIT|DROP)
+
+  - id: http-string-action-b
+    desc: HTTP action pass or redirect
+    crit: notable
+    conf: 0.3
+    for:
+      - c
+    if:
+      type: string
+      regex: HTTP[_-](PASS|REDIRECT)
+
+  - id: http-string-action-c
+    desc: HTTP action hijack
+    crit: notable
+    conf: 0.3
+    for:
+      - c
+    if:
+      type: string
+      regex: HTTP[_-]HIJACK
+
+  - id: http-string-packet-near
+    desc: HTTP and packet near each other
+    crit: notable
+    conf: 0.3
+    for:
+      - c
+    if:
+      type: string
+      regex: packet.{0,20}HTTP|HTTP.{0,20}packet
+
+  - id: password-string-direct-a
+    desc: Password buffer pointer or length
     crit: notable
     conf: 0.4
     for:
@@ -222,8 +273,65 @@ traits:
       - elf
     if:
       type: string
-      regex: password[_-]?(?:buf|ptr|len|hash|data|struct|arg)|get[_-]?password|check[_-]?password
+      regex: password[_-]?(buf|ptr|len)
+
+  - id: password-string-direct-b
+    desc: Password hash or data
+    crit: notable
+    conf: 0.4
+    for:
+      - c
+      - elf
+    if:
+      type: string
+      regex: password[_-]?(hash|data)
+
+  - id: password-string-op
+    desc: Password getter or checker
+    crit: notable
+    conf: 0.4
+    for:
+      - c
+      - elf
+    if:
+      type: string
+      regex: (get|check)[_-]?password
 composite_rules:
+  - id: xdp-payload
+    desc: Packet payload reference
+    crit: notable
+    conf: 0.5
+    for:
+      - c
+    any:
+      - id: xdp-payload-xdp-packet
+      - id: xdp-payload-ctx
+      - id: xdp-payload-pointer
+
+  - id: http-string
+    desc: HTTP packet manipulation marker
+    crit: notable
+    conf: 0.3
+    for:
+      - c
+    any:
+      - id: http-string-action-a
+      - id: http-string-action-b
+      - id: http-string-action-c
+      - id: http-string-packet-near
+
+  - id: password-string
+    desc: Password string reference
+    crit: notable
+    conf: 0.4
+    for:
+      - c
+      - elf
+    any:
+      - id: password-string-direct-a
+      - id: password-string-direct-b
+      - id: password-string-op
+
   - id: syscall-hooking
     desc: eBPF program hooking syscall tracepoints
     crit: suspicious

@@ -99,7 +99,7 @@ traits:
     type: raw
     regex: -ExclusionPath\s+["']?[A-Za-z]:\\?["']?
     case_insensitive: true
-- id: amsi-bypass-init
+- id: amsi-bypass-init-flag
   desc: AMSI initialization bypass
   crit: suspicious
   conf: 0.9
@@ -109,7 +109,19 @@ traits:
   - batch
   if:
     type: raw
-    regex: amsiInitFailed|AmsiScanBuffer
+    exact: amsiInitFailed
+    case_insensitive: true
+- id: amsi-bypass-init-scan-buffer
+  desc: AMSI initialization bypass
+  crit: suspicious
+  conf: 0.9
+  for:
+  - powershell
+  - shell
+  - batch
+  if:
+    type: raw
+    exact: AmsiScanBuffer
     case_insensitive: true
 - id: amsi-bypass-reflection
   desc: AMSI bypass via reflection
@@ -167,10 +179,10 @@ traits:
   - powershell
   if:
     type: raw
-    regex: (sc|net)\s+(stop|delete|config).{0,50}(WinDefend|WdNisSvc|SecurityHealthService)
+    regex: (sc|net)\s+\w+.{0,50}(WinDefend|WdNisSvc|SecurityHealthService)
     case_insensitive: true
-- id: tasklist-av-check
-  desc: Tasklist checking for AV processes
+- id: tasklist-av-check-a
+  desc: Tasklist checks common AV set A
   crit: notable
   conf: 0.8
   for:
@@ -178,7 +190,18 @@ traits:
   - batch
   if:
     type: raw
-    regex: tasklist.{0,50}(Malwarebytes|avast|avg|norton|mcafee|kaspersky|defender|bitdefender|sophos|eset)
+    regex: tasklist.{0,50}(Malwarebytes|avast|avg|norton)
+    case_insensitive: true
+- id: tasklist-av-check-b
+  desc: Tasklist checks common AV set B
+  crit: notable
+  conf: 0.8
+  for:
+  - shell
+  - batch
+  if:
+    type: raw
+    regex: tasklist.{0,50}(mcafee|kaspersky|defender)
     case_insensitive: true
 composite_rules:
 - id: defender-exclusion
@@ -227,6 +250,16 @@ composite_rules:
   any:
   - id: start-process-runas
   - id: micro-traits/os/env/vars::uac-bypass-compact-layer
+- id: tasklist-av-check
+  desc: Tasklist checking for AV processes
+  crit: notable
+  conf: 0.8
+  for:
+  - shell
+  - batch
+  any:
+  - id: tasklist-av-check-a
+  - id: tasklist-av-check-b
 - id: windows-bypass
   desc: Windows security bypass detected
   crit: suspicious
@@ -242,3 +275,15 @@ composite_rules:
   - id: malwarebytes-stop-service
   - id: uac-bypass
   - id: tasklist-av-check
+
+- id: amsi-bypass-init
+  desc: AMSI initialization bypass
+  crit: suspicious
+  conf: 0.9
+  for:
+  - powershell
+  - shell
+  - batch
+  any:
+  - id: amsi-bypass-init-flag
+  - id: amsi-bypass-init-scan-buffer

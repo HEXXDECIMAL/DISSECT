@@ -27,10 +27,22 @@ traits:
   if:
     type: raw
     regex: jenkins|gitlab-ci|github-actions|travis-ci
-- id: health-check
-  desc: HTTP health check pattern
+- id: health-check-fetch
+  desc: HTTP health check fetch command
   conf: 0.9
   if:
     type: raw
-    regex: curl\s+[^|&]{0,120}health|wget\s+[^|&]{0,120}health|http://(localhost|127\.0\.0\.1).{0,50}/health
-composite_rules: []
+    regex: (curl|wget)\s+[^|&]{0,120}health
+- id: health-check-local
+  desc: Localhost health endpoint
+  conf: 0.9
+  if:
+    type: raw
+    regex: http://(?:localhost|127\.0\.0\.1).{0,50}/health
+composite_rules:
+- id: health-check
+  desc: HTTP health check pattern
+  conf: 0.9
+  any:
+  - id: health-check-fetch
+  - id: health-check-local

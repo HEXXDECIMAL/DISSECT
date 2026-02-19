@@ -27,13 +27,21 @@ traits:
       type: string
       regex: "sleep\\s*\\(\\s*60\\s*\\)"
 
-  - id: sleep-interval-var
+  - id: sleep-interval-var-a
     desc: Sleep interval variable
     crit: notable
     conf: 0.65
     if:
       type: string
-      regex: "(interval|delay|period|beacon).{0,50}sleep|sleep.{0,50}(interval|delay|period)"
+      regex: "(interval|delay|period|beacon).{0,50}sleep"
+
+  - id: sleep-interval-var-b
+    desc: Sleep interval variable
+    crit: notable
+    conf: 0.65
+    if:
+      type: string
+      regex: "sleep.{0,50}(interval|delay|period)"
 
   # === Polling Patterns ===
   - id: c2-poll-loop
@@ -95,6 +103,14 @@ traits:
       regex: "RequestException.{0,50}sleep|sleep.{0,50}RequestException"
 
 composite_rules:
+  - id: sleep-interval-var
+    desc: Sleep interval variable
+    crit: notable
+    conf: 0.65
+    any:
+      - id: sleep-interval-var-a
+      - id: sleep-interval-var-b
+
   # === Beaconing Detection ===
   - id: c2-sleep-beacon
     desc: C2 sleep beacon pattern

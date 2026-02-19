@@ -6,10 +6,27 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: umount
+  - id: umount-fn
     desc: Unmount file system
     crit: notable
     conf: 0.66
     if:
       type: symbol
-      regex: umount|umount2
+      exact: "umount"
+
+  - id: umount2-fn
+    desc: Unmount file system
+    crit: notable
+    conf: 0.66
+    if:
+      type: symbol
+      exact: "umount2"
+
+composite_rules:
+  - id: umount
+    desc: Unmount file system
+    crit: notable
+    conf: 0.66
+    any:
+      - id: umount-fn
+      - id: umount2-fn
