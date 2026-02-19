@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/post::formdata-class",
+      "id": "micro-behaviors/communications/http/post::formdata-class",
       "kind": "capability",
       "desc": "FormData class",
       "conf": 0.6,
@@ -34,7 +34,7 @@
           "location": "0x1357"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/credential-access/browser/chromium::cookies",
@@ -554,7 +554,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-form",
+      "id": "micro-behaviors/communications/http/post::post-form",
       "kind": "capability",
       "desc": "HTTP form data upload",
       "conf": 0.75,
@@ -575,7 +575,7 @@
           "location": "0x1357"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/collection/stealer/behavior::js-browser-target",

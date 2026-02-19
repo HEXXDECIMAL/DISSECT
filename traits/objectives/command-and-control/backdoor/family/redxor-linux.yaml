@@ -8,7 +8,7 @@ composite_rules:
       - id: well-known/malware/backdoor/redxor::redxor-po1kitd-masquerade
     any:
       - id: well-known/malware/backdoor/redxor::redxor-check-proc
-      - id: micro-behaviors/comm/http/request::user-agent-header
+      - id: micro-behaviors/communications/http/request::user-agent-header
     none:
       - id: objectives/lateral-movement/brute-force/iot-creds::mirai-cred-admin
       - id: objectives/lateral-movement/brute-force/iot-creds::mirai-cred-xc3511

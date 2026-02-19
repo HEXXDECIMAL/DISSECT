@@ -56,7 +56,7 @@ composite_rules:
     desc: "Detects fragmented tracking/logging URL construction"
     crit: suspicious
     all:
-      - id: micro-behaviors/comm/http/lib/netlib
+      - id: micro-behaviors/communications/http/lib/netlib
     any:
       - id: objectives/discovery/network/scan::iplogger-keyword
       - id: iplogger-domain
@@ -66,7 +66,7 @@ composite_rules:
     desc: "Detects HTTP indicators often with iplogger"
     crit: notable
     any:
-      - id: micro-behaviors/comm/http/protocol/
-      - id: micro-behaviors/comm/http/get/
-      - id: micro-behaviors/comm/http/post/
-      - id: micro-behaviors/comm/http/request/
+      - id: micro-behaviors/communications/http/protocol/
+      - id: micro-behaviors/communications/http/get/
+      - id: micro-behaviors/communications/http/post/
+      - id: micro-behaviors/communications/http/request/

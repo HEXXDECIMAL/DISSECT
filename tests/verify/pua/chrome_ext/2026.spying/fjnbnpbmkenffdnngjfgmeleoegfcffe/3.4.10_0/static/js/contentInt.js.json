@@ -44,7 +44,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/websocket::websocket-class",
+      "id": "micro-behaviors/communications/http/websocket::websocket-class",
       "kind": "capability",
       "desc": "WebSocket class reference",
       "conf": 0.5,
@@ -58,10 +58,10 @@
           "value": "window.WebSocket"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/websocket/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/websocket/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -106,7 +106,7 @@
           "location": "0x11bf"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
@@ -545,7 +545,7 @@
       "source_file": "objectives/anti-static/obfuscation/code-metrics/structure/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/websocket::websocket",
+      "id": "micro-behaviors/communications/http/websocket::websocket",
       "kind": "capability",
       "desc": "WebSocket communication",
       "conf": 0.66,
@@ -559,7 +559,7 @@
           "value": "window.WebSocket"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/websocket/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/websocket/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",

@@ -197,12 +197,12 @@ composite_rules:
     desc: SSH authentication methods
     any:
       - id: password-auth
-      - id: micro-behaviors/comm/ssh/client::keyboard-interactive
+      - id: micro-behaviors/communications/ssh/client::keyboard-interactive
     crit: notable
   - id: ssh-auth-errors
     desc: SSH authentication error messages
     any:
-      - id: micro-behaviors/comm/ssh/client::auth-failed
+      - id: micro-behaviors/communications/ssh/client::auth-failed
       - id: too-many-auth-failures
     crit: notable
   - id: ssh-port-refs
@@ -226,12 +226,12 @@ composite_rules:
       - id: scanner-keyword
       - id: scanning-keyword
       - id: ssh-port-refs
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/connect::connect
     crit: notable
   - id: ssh-with-auth
     desc: SSH protocol with authentication methods
     all:
-      - id: micro-behaviors/comm/ssh/client::protocol
+      - id: micro-behaviors/communications/ssh/client::protocol
       - id: ssh-auth-methods
     crit: notable
   - id: auth-spray
@@ -242,7 +242,7 @@ composite_rules:
     attack: T1110.001
     needs: 2
     any:
-      - id: micro-behaviors/comm/ssh/client::protocol
+      - id: micro-behaviors/communications/ssh/client::protocol
       - id: ssh-auth-methods
       - id: ssh-auth-errors
     downgrade:
@@ -251,8 +251,8 @@ composite_rules:
         - id: micro-behaviors/os/pam/auth::libpam-string
         - id: metadata/sign/apple::platform
         - id: metadata/apple/system-component
-        - id: micro-behaviors/comm/ssh/client::library
-        - id: micro-behaviors/comm/ssh/client::full-implementation
+        - id: micro-behaviors/communications/ssh/client::library
+        - id: micro-behaviors/communications/ssh/client::full-implementation
   - id: iot-credential-access
     desc: Default IoT device credentials for brute-force
     crit: suspicious
@@ -287,7 +287,7 @@ composite_rules:
     all:
       - id: ssh-port-refs
       - id: micro-behaviors/process/threading/operations::concurrent
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/connect::connect
     crit: notable
   - id: scanner
     desc: SSH network scanner for brute-force

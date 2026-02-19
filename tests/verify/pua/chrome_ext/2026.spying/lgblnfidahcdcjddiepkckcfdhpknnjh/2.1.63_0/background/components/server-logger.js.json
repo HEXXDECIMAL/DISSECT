@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -33,7 +33,7 @@
           "location": "0x305"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
@@ -141,7 +141,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -162,10 +162,10 @@
           "location": "0x305"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -186,7 +186,7 @@
           "location": "0x305"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",

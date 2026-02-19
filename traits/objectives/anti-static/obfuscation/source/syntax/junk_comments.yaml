@@ -5,6 +5,7 @@ traits:
   - id: js-junk-comment-long
     desc: Detects very long, continuous alphanumeric comments often
     crit: notable
+    for: [javascript, typescript]
     if:
       type: raw
       regex: '//[a-zA-Z0-9]{100,}'

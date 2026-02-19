@@ -72,7 +72,7 @@ traits:
       - id: micro-behaviors/interface/usage/usage-help
       - id: micro-behaviors/data/encode/base64/alphabet-standard
       # Exclude curl/libcurl which has special chars in help text
-      - id: micro-behaviors/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/communications/download/curl::curl-easy-init
       # Exclude character set definitions
       - id: micro-behaviors/data/text/encoding/iso-8859-1
     downgrade:

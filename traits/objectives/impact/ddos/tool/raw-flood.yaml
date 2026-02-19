@@ -6,8 +6,8 @@ composite_rules:
     mbc: T1498
     attack: T1498
     all:
-      - id: micro-behaviors/comm/socket/options::ip-hdrincl-option
-      # - id: micro-behaviors/comm/socket/send::send-loop-infinite
+      - id: micro-behaviors/communications/socket/options::ip-hdrincl-option
+      # - id: micro-behaviors/communications/socket/send::send-loop-infinite
     any:
-      - id: micro-behaviors/comm/socket/raw::raw
-      - id: micro-behaviors/comm/socket/raw::raw-socket-creation-regex
+      - id: micro-behaviors/communications/socket/raw::raw
+      - id: micro-behaviors/communications/socket/raw::raw-socket-creation-regex

@@ -27,7 +27,7 @@ Rules must follow a strict dependency hierarchy to maintain taxonomy clarity:
 **Hostile Criticality:** `micro-behaviors/` traits must NEVER use `crit: hostile`. Hostile criticality requires intent inference and must be in `objectives/` where rules are properly categorized by attacker objective (C2, exfil, impact, etc.). Cap's maximum criticality is `suspicious` for rarely legitimate but still observable capabilities.
 
 **Examples:**
-- ✅ `objectives/command-and-control/reverse-shell` references `micro-behaviors/comm/socket/create` (objective uses capability)
+- ✅ `objectives/command-and-control/reverse-shell` references `micro-behaviors/communications/socket/create` (objective uses capability)
 - ✅ `micro-behaviors/process/create/shell` references `micro-behaviors/fs/file/read` (capability uses capability)
 - ✅ `micro-behaviors/process/hollow` with `crit: suspicious` (rarely legitimate capability)
 - ❌ `micro-behaviors/process/create/dropper` references `objectives/anti-static/obfuscation` (capability cannot depend on objective)
@@ -58,7 +58,7 @@ Within micro-behaviors/ - rules should be organized by micro-behaviors/CATEGORY/
 
 ```
 micro-behaviors/
-├── comm/               # Network communication
+├── communications/               # Network communication
 │   ├── socket/         # Raw socket operations          → MBC: Communication
 │   │   ├── netcat/     # nc/netcat tools
 │   │   └── telnet/     # Telnet connections
@@ -109,7 +109,7 @@ micro-behaviors/
 │           ├── storage/  # Block storage (/dev/sda, /dev/nvme) - wiper relevant
 │           └── terminal/ # TTY/PTY devices (/dev/tty, /dev/pts)
 │
-├── hw/                 # Hardware interaction           → MBC: Hardware
+├── hardware/                 # Hardware interaction           → MBC: Hardware
 │   ├── input/          # Keyboard, mouse
 │   ├── display/        # Screenshot, screen access
 │   ├── audio/          # Microphone, speakers
@@ -352,8 +352,8 @@ directory/path::trait-name
 
 **Reference patterns:**
 - `trait-name` - Matches trait in same directory (local reference)
-- `micro-behaviors/comm/http` - Matches any trait in that directory (directory reference)
-- `micro-behaviors/comm/http::curl-download` - Matches specific trait (exact match)
+- `micro-behaviors/communications/http` - Matches any trait in that directory (directory reference)
+- `micro-behaviors/communications/http::curl-download` - Matches specific trait (exact match)
 
 ## Decision Framework
 
@@ -382,7 +382,7 @@ composite_rules:
     desc: "Reverse shell pattern"
     crit: hostile
     all:
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/socket/create
       - id: micro-behaviors/process/fd/dup
       - id: micro-behaviors/process/create/shell
 ```
@@ -391,10 +391,10 @@ composite_rules:
 
 | Code Pattern | Tier | Path | Criticality |
 |--------------|------|------|-------------|
-| `socket()` call | Capability | `micro-behaviors/comm/socket/create` | notable |
+| `socket()` call | Capability | `micro-behaviors/communications/socket/create` | notable |
 | `eval()` call | Capability | `micro-behaviors/process/create/eval/dynamic` | notable |
 | Process hollowing | Capability | `micro-behaviors/process/hollow` | suspicious |
-| Screenshot API | Capability | `micro-behaviors/hw/display/screenshot` | notable |
+| Screenshot API | Capability | `micro-behaviors/hardware/display/screenshot` | notable |
 | Screenshot + timer + upload | Objective | `objectives/collection/screenshot` | suspicious |
 | Reverse shell pattern | Objective | `objectives/command-and-control/reverse-shell` | hostile |
 | Cobalt Strike beacon | Known | `known/malware/rat/cobalt-strike` | hostile |

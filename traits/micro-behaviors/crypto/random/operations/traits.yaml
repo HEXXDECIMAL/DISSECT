@@ -5,7 +5,7 @@ defaults:
 
 traits:
   # === Secure random atomic indicators ===
-  # dev-urandom: use micro-behaviors/hw/random/device::urandom (canonical)
+  # dev-urandom: use micro-behaviors/hardware/random/device::urandom (canonical)
 
   - id: dev-random
     desc: /dev/random access
@@ -55,7 +55,7 @@ composite_rules:
     desc: Secure random number generation
     conf: 0.8
     any:
-      - id: micro-behaviors/hw/random/device::urandom
+      - id: micro-behaviors/hardware/random/device::urandom
       - id: dev-random
       - id: rand-bytes
       - id: getrandom

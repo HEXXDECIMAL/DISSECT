@@ -12,7 +12,7 @@ composite_rules:
     mbc: "B0030"
     for: [elf, macho, pe]
     all:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/download/curl::libcurl-http
     any:
       - id: objectives/collection/file-targeting
       - id: objectives/impact/cryptojacking/miner::wallet-ref
@@ -28,8 +28,8 @@ composite_rules:
     all:
       - id: micro-behaviors/fs/file/binary::fcopyfile-macos
     any:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/download/curl::libcurl-http
+      - id: micro-behaviors/communications/socket/create
 
   # Combination 3: Directory traversal + file extensions + network
   # NOTE: Excludes system libraries (libc) which provide these primitives
@@ -45,8 +45,8 @@ composite_rules:
     needs: 2
     any:
       - id: objectives/collection/file-targeting
-      - id: micro-behaviors/comm/download/curl::libcurl-http
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/download/curl::libcurl-http
+      - id: micro-behaviors/communications/socket/create
     none:
       - id: micro-behaviors/dylib/library::system-lib-marker
       - id: micro-behaviors/dylib/library::network-lib-marker
@@ -80,8 +80,8 @@ composite_rules:
       - id: micro-behaviors/data/encode/base64::custom-implementation
       - id: objectives/anti-static/obfuscation/encoding::string-decrypt
     any:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/download/curl::libcurl-http
+      - id: micro-behaviors/communications/socket/create
 
   # Combination 6: libcurl + fingerprinting + obfuscation
   - id: stealer-trifecta
@@ -92,7 +92,7 @@ composite_rules:
     mbc: "B0030"
     for: [elf, macho, pe]
     all:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/download/curl::libcurl-http
       - id: objectives/anti-static/obfuscation/encoding::string-decrypt
     any:
       - id: objectives/discovery/host/fingerprint
@@ -106,7 +106,7 @@ composite_rules:
     mbc: "B0028"
     all:
       - id: objectives/credential-access/browser/chromium::cookies-path
-      - id: micro-behaviors/comm/http/upload::curl-upload-file
+      - id: micro-behaviors/communications/http/upload::curl-upload-file
 
   # Combination 8: CookieMiner dropper script
   - id: cookieminer-dropper
@@ -120,4 +120,4 @@ composite_rules:
       - id: objectives/execution/dropper/script::curl-download
       - id: objectives/credential-access/browser/chromium::cookies-path
       - id: objectives/execution/dropper/payload::cp-execute
-      - id: micro-behaviors/comm/http/upload::curl-upload-file
+      - id: micro-behaviors/communications/http/upload::curl-upload-file

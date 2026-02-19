@@ -1341,8 +1341,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/socket/connect::dial"),
-            "Expected micro-behaviors/comm/socket/connect::dial, found: {:?}",
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
+            "Expected micro-behaviors/communications/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
         assert!(
@@ -1363,8 +1363,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/socket/listen::listen-go"),
-            "Expected micro-behaviors/comm/socket/listen::listen-go, found: {:?}",
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/listen::listen-go"),
+            "Expected micro-behaviors/communications/socket/listen::listen-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1380,8 +1380,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/socket/connect::dial"),
-            "Expected micro-behaviors/comm/socket/connect::dial, found: {:?}",
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
+            "Expected micro-behaviors/communications/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1397,8 +1397,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/http/get::http-get"),
-            "Expected micro-behaviors/comm/http/get::http-get, found: {:?}",
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
+            "Expected micro-behaviors/communications/http/get::http-get, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1414,8 +1414,8 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/http/server::server-go"),
-            "Expected micro-behaviors/comm/http/server::server-go, found: {:?}",
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/server::server-go"),
+            "Expected micro-behaviors/communications/http/server::server-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }
@@ -1529,8 +1529,8 @@ func main() {
             "Expected micro-behaviors/process/create/direct::exec-command"
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/comm/http/get::http-get"),
-            "Expected micro-behaviors/comm/http/get::http-get"
+            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
+            "Expected micro-behaviors/communications/http/get::http-get"
         );
     }
 }

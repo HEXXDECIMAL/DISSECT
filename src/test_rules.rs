@@ -2780,7 +2780,7 @@ mod tests {
     /// Test that exact trait ID match in findings is detected
     #[test]
     fn test_debug_trait_reference_exact_match_in_findings() {
-        let findings = vec![create_test_finding("micro-behaviors/comm/socket/send/send")];
+        let findings = vec![create_test_finding("micro-behaviors/communications/socket/send/send")];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2799,7 +2799,7 @@ mod tests {
 
         // Test exact match - should find the finding directly
         let condition = Condition::Trait {
-            id: "micro-behaviors/comm/socket/send/send".to_string(),
+            id: "micro-behaviors/communications/socket/send/send".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
@@ -2859,7 +2859,7 @@ mod tests {
         let findings = vec![
             create_test_finding("micro-behaviors/execution/dylib/load/objc-method-swizzle"),
             create_test_finding("micro-behaviors/execution/dylib/load/nsbundle"),
-            create_test_finding("micro-behaviors/comm/socket/send/send"),
+            create_test_finding("micro-behaviors/communications/socket/send/send"),
         ];
 
         // Create a MachO file type report
@@ -2963,8 +2963,8 @@ mod tests {
     fn test_debug_trait_reference_prefix_match_mirrors_eval() {
         // Create findings with a specific path
         let findings = vec![
-            create_test_finding("micro-behaviors/comm/socket/send/unix"),
-            create_test_finding("micro-behaviors/comm/socket/send/windows"),
+            create_test_finding("micro-behaviors/communications/socket/send/unix"),
+            create_test_finding("micro-behaviors/communications/socket/send/windows"),
         ];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
@@ -2984,13 +2984,13 @@ mod tests {
 
         // Test prefix match - should find both findings
         let condition = Condition::Trait {
-            id: "micro-behaviors/comm/socket/send".to_string(),
+            id: "micro-behaviors/communications/socket/send".to_string(),
         };
         let result = debugger.debug_condition(&condition);
 
         assert!(
             result.matched,
-            "Prefix 'micro-behaviors/comm/socket/send' should match findings with that prefix"
+            "Prefix 'micro-behaviors/communications/socket/send' should match findings with that prefix"
         );
         // Should mention both matched findings
         let detail_text = result.details.join(" ");

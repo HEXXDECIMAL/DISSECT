@@ -163,7 +163,7 @@ composite_rules:
     any:
       - id: requests-post
       - id: requests-get
-      - id: micro-behaviors/comm/http/lib/urllib::urllib-word
+      - id: micro-behaviors/communications/http/lib/urllib::urllib-word
       - id: socket-dot
       - id: fetch-call
       - id: xmlhttprequest-word

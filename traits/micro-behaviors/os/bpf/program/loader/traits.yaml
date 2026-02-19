@@ -156,7 +156,7 @@ composite_rules:
     all:
       - id: vmlinux-h
       - id: bpf-helpers-h
-micro-behaviors  - id: ebpf-program-header
+  - id: ebpf-program-header
     desc: eBPF program with license section
     crit: notable
     conf: 0.8

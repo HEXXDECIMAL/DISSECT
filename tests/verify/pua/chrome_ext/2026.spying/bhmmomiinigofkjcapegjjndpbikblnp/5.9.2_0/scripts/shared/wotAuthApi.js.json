@@ -12,7 +12,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -33,10 +33,10 @@
           "location": "0x88"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::bearer-token",
+      "id": "micro-behaviors/communications/http/headers::bearer-token",
       "kind": "capability",
       "desc": "Bearer token authentication",
       "conf": 0.5,
@@ -69,7 +69,7 @@
           "location": "0x406"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::token",
@@ -391,7 +391,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::headers-auth",
+      "id": "micro-behaviors/communications/http/headers::headers-auth",
       "kind": "capability",
       "desc": "HTTP Authorization header",
       "conf": 0.66,
@@ -424,7 +424,7 @@
           "location": "0x406"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "meta/internal/imported::wotnetwork/postjson",

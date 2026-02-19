@@ -66,5 +66,5 @@ composite_rules:
       - id: shell-prompt-string
       - id: micro-behaviors/os/console/io::exit-command-check
       - id: micro-behaviors/data/control-flow/analysis::ruby-while-true
-      - id: micro-behaviors/comm/http/lib/netlib::open-uri
+      - id: micro-behaviors/communications/http/lib/netlib::open-uri
       - id: micro-behaviors/process/create/shell::ruby-system

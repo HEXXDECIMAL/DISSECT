@@ -1,5 +1,5 @@
 traits:
-micro-behaviors  - id: icmp-prog-reply
+  - id: icmp-prog-reply
     desc: ICMP reply program reference
     crit: notable
     conf: 0.8
@@ -68,7 +68,7 @@ composite_rules:
       - elf
     needs: 2
     any:
-      - id: micro-behaviors/comm/ip/services::ipproto-icmp
+      - id: micro-behaviors/communications/ip/services::ipproto-icmp
       - id: icmphdr-struct
       - id: icmp-type-field
       - id: icmp-echo-request
@@ -94,5 +94,4 @@ composite_rules:
     any:
       - id: icmp-pingback
       - id: icmp-prog-reply
-      - id: micro-behaviors/comm/ip/services::services-icmp
-micro-behaviors
+      - id: micro-behaviors/communications/ip/services::services-icmp

@@ -62,7 +62,7 @@ composite_rules:
     for: [go]
     all:
       - id: micro-behaviors/process/create/direct::exec-command
-      - id: micro-behaviors/comm/socket/connect::dial
+      - id: micro-behaviors/communications/socket/connect::dial
       - id: many-init-functions
 
   # Detect supply chain attack patterns
@@ -77,5 +77,5 @@ composite_rules:
       - id: many-init-functions
     any:
       - id: micro-behaviors/process/create/direct::exec-command
-      - id: micro-behaviors/comm/socket/connect::dial
-      - id: micro-behaviors/comm/http/post::http-post
+      - id: micro-behaviors/communications/socket/connect::dial
+      - id: micro-behaviors/communications/http/post::http-post

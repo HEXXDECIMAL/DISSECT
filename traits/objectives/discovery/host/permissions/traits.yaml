@@ -96,7 +96,7 @@ composite_rules:
       - id: cap-set-proc
     downgrade:
       any:
-        - id: micro-behaviors/comm/icmp/ping::ping
+        - id: micro-behaviors/communications/icmp/ping::ping
 
   - id: linux-caps-enum
     desc: Linux capabilities enumeration
@@ -110,7 +110,7 @@ composite_rules:
       - id: linux-caps-via-api
     downgrade:
       any:
-        - id: micro-behaviors/comm/icmp/ping::ping
+        - id: micro-behaviors/communications/icmp/ping::ping
 
   # User/group ID gathering - only notable when combined with multiple checks
   - id: uid-gid-gathering

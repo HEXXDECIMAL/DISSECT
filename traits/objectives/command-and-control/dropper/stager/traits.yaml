@@ -14,8 +14,8 @@ composite_rules:
     desc: ARM direct network syscalls
     crit: notable
     any:
-      - id: micro-behaviors/comm/syscall/socket::svc-socket
-      - id: micro-behaviors/comm/syscall/socket::svc-connect
+      - id: micro-behaviors/communications/syscall/socket::svc-socket
+      - id: micro-behaviors/communications/syscall/socket::svc-connect
 
   # Helper: Structural anomalies
   # NOTE: Stripped binaries are normal for release builds. Require additional
@@ -41,5 +41,5 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: micro-behaviors/comm/syscall/socket::svc-socket
-      - id: micro-behaviors/comm/syscall/socket::svc-connect
+      - id: micro-behaviors/communications/syscall/socket::svc-socket
+      - id: micro-behaviors/communications/syscall/socket::svc-connect

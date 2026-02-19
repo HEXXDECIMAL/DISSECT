@@ -300,7 +300,7 @@ composite_rules:
   all:
   - id: direct-http-c2
   - id: micro-behaviors/process/create/
-  - id: micro-behaviors/comm/socket/
+  - id: micro-behaviors/communications/socket/
 - id: hardcoded-ip
   desc: Hardcoded IP endpoint
   crit: suspicious

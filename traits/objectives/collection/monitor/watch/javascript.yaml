@@ -45,11 +45,11 @@ composite_rules:
     attack: "T1113"
     for: [javascript]
     all:
-      - id: micro-behaviors/comm/http/lib/axios::js-axios-post
+      - id: micro-behaviors/communications/http/lib/axios::js-axios-post
     any:
       - id: objectives/collection/monitor/watch::js-node-screenshots
       - id: objectives/collection/monitor/watch::js-desktop-screenshot
-      - id: micro-behaviors/hw/display/screen::monitor-get-displays
+      - id: micro-behaviors/hardware/display/screen::monitor-get-displays
 
   - id: js-screenshot-file-write
     desc: Screen capture saved to file (potential exfil staging)
@@ -61,5 +61,5 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/loader::file-write
     any:
-      - id: micro-behaviors/hw/display/screen::monitor-get-displays
-      - id: micro-behaviors/hw/display/screen::screenshot-capture-fn
+      - id: micro-behaviors/hardware/display/screen::monitor-get-displays
+      - id: micro-behaviors/hardware/display/screen::screenshot-capture-fn

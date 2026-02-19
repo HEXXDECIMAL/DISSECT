@@ -5,4 +5,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: micro-behaviors/fs/directory/traverse::multi-os-root-scan
-      - id: micro-behaviors/comm/http/upload::form-data-stream-upload
+      - id: micro-behaviors/communications/http/upload::form-data-stream-upload

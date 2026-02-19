@@ -7,5 +7,5 @@ composite_rules:
     attack: "T1498" # Network Denial of Service
     all:
       - id: micro-behaviors/data/control-flow/loop/infinite::infinite-loop-header
-      - id: micro-behaviors/comm/socket/send::send-call-raw
+      - id: micro-behaviors/communications/socket/send::send-call-raw
     near_lines: 20

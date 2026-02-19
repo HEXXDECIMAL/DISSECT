@@ -23,7 +23,7 @@ composite_rules:
     attack: "T1027"
     all:
       - id: objectives/execution/dropper/script::ruby-ast-base64-dns
-      - id: micro-behaviors/comm/dns/lookup::dns-resolve
+      - id: micro-behaviors/communications/dns/lookup::dns-resolve
 
   # === Windows Dropper (New) ===
   - id: ruby-windows-dropper

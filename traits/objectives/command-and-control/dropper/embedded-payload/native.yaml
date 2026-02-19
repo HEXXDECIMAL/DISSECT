@@ -60,7 +60,7 @@ composite_rules:
     for: [elf]
     size_max: 500000
     all:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/download/curl::libcurl-http
       - id: micro-behaviors/process/create/shell::shell-execution
       - id: micro-behaviors/fs/file/operations::binary-file-ops
       - id: micro-behaviors/fs/proc/info::process-pid-exe
@@ -76,7 +76,7 @@ composite_rules:
     attack: "T1105"
     for: [elf]
     all:
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/download/curl::libcurl-http
       - id: micro-behaviors/process/create/shell::shell-execution
       - id: objectives/anti-static/obfuscation/payload::minimal-imports
 

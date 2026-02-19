@@ -51,7 +51,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -64,7 +64,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/encode/base64::padding-char",
@@ -2698,7 +2698,7 @@
       "source_file": "known/malware/trojan/powersuite.yaml"
     },
     {
-      "id": "micro-behaviors/comm/ssh/connect::ssh-string",
+      "id": "micro-behaviors/communications/ssh/connect::ssh-string",
       "kind": "capability",
       "desc": "ssh string",
       "conf": 0.4,
@@ -2718,7 +2718,7 @@
           "location": "0x3fbf1"
         }
       ],
-      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/communications/ssh/connect/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::token",
@@ -2992,7 +2992,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -3005,7 +3005,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "micro-behaviors/os/admin/observability::datadog",
@@ -3485,7 +3485,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/remote-config::remote-config-service",
+      "id": "micro-behaviors/communications/http/remote-config::remote-config-service",
       "kind": "capability",
       "desc": "Remote configuration or shepherd service",
       "conf": 0.7,
@@ -3504,7 +3504,7 @@
           "location": "0x18fc70"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/remote-config/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/remote-config/javascript.yaml"
     },
     {
       "id": "meta/quality/versioning::version-upper",
@@ -8489,7 +8489,7 @@
       "source_file": "objectives/anti-static/obfuscation/payload/javascript.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/server::listen-keyword",
+      "id": "micro-behaviors/communications/http/server::listen-keyword",
       "kind": "capability",
       "desc": "listen() socket call",
       "conf": 0.5,
@@ -8503,7 +8503,7 @@
           "value": "listen"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/server/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/server/generic.yaml"
     },
     {
       "id": "objectives/anti-analysis/sandbox/detect::js-debugger-stmt",
@@ -10494,7 +10494,7 @@
       "source_file": "objectives/command-and-control/reverse-shell/pty/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/ssh/connect::connect",
+      "id": "micro-behaviors/communications/ssh/connect::connect",
       "kind": "capability",
       "desc": "SSH connection",
       "conf": 0.66,
@@ -10514,7 +10514,7 @@
           "location": "0x3fbf1"
         }
       ],
-      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/communications/ssh/connect/generic.yaml"
     },
     {
       "id": "objectives/collection/stealer/data::sensitive-paths",

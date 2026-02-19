@@ -13,5 +13,5 @@ composite_rules:
     all:
       - id: micro-behaviors/process/create/shell::format-string-injection
       - id: micro-behaviors/process/create/shell::system-fn
-      - id: micro-behaviors/comm/socket/create::create
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/create::create
+      - id: micro-behaviors/communications/socket/connect::connect

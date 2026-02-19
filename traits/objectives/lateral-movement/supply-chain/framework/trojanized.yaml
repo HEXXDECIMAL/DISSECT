@@ -269,7 +269,7 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: suspicious-trojanized-framework
-      - id: micro-behaviors/comm/socket/bind::bind
+      - id: micro-behaviors/communications/socket/bind::bind
 
   # Most suspicious: trojanized framework with C2 communication
   - id: trojanized-framework-with-c2

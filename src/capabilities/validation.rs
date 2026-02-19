@@ -2161,6 +2161,231 @@ pub(crate) fn find_malware_subcategory_violations(
     violations
 }
 
+/// Count the minimum number of literal characters that must appear in a regex match.
+/// This is a simplified heuristic that counts:
+/// - Literal characters (e.g., 'a', '.')
+/// - Escape sequences as single characters (e.g., '\w', '\s', '\x1b')
+/// - Skips quantifiers (*, +, ?, {n,m}) and optional groups
+fn count_regex_min_literals(pattern: &str) -> usize {
+    let mut count: usize = 0;
+    let mut chars = pattern.chars().peekable();
+    let mut in_bracket = false; // Track character classes [...]
+    let mut bracket_depth: usize = 0;
+
+    while let Some(ch) = chars.next() {
+        match ch {
+            '\\' => {
+                // Escape sequence - peek ahead
+                if let Some(&next) = chars.peek() {
+                    chars.next(); // Consume the next character
+                    // Special escape sequences that match variable content don't count as literals
+                    if !matches!(next, 'w' | 'W' | 'd' | 'D' | 's' | 'S' | 'b' | 'B' | 'A' | 'Z') {
+                        // \n, \t, \x.., \u.., etc. are literals
+                        count += 1;
+                        // For \x.. and similar, consume additional hex digits
+                        if next == 'x' {
+                            // Consume up to 2 hex digits
+                            for _ in 0..2 {
+                                if chars.peek().map_or(false, |c| c.is_ascii_hexdigit()) {
+                                    chars.next();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            '[' => {
+                in_bracket = true;
+                bracket_depth += 1;
+                // Character class counts as 1 potential character
+                count += 1;
+            }
+            ']' if in_bracket => {
+                bracket_depth = bracket_depth.saturating_sub(1);
+                if bracket_depth == 0 {
+                    in_bracket = false;
+                }
+                // Don't count the closing bracket
+            }
+            '*' | '+' | '?' if !in_bracket => {
+                // Quantifiers reduce the count for the previous character
+                // * and ? make previous optional (reduce by 1), + keeps at least 1
+                if ch == '*' || ch == '?' {
+                    count = count.saturating_sub(1);
+                }
+            }
+            '(' | ')' | '|' | '^' | '$' | '.' if !in_bracket => {
+                // Metacharacters that don't add literal content (except '.' which matches anything)
+                if ch == '.' {
+                    // '.' matches any char, but we don't count it as a specific literal
+                }
+            }
+            '{' if !in_bracket => {
+                // Quantifier like {n,m} - skip until closing }
+                while let Some(c) = chars.next() {
+                    if c == '}' {
+                        break;
+                    }
+                }
+                // Quantifiers can make previous optional
+                count = count.saturating_sub(1);
+            }
+            _ if !in_bracket => {
+                // Regular literal character
+                count += 1;
+            }
+            _ => {
+                // Inside character class, don't count individual chars
+            }
+        }
+    }
+
+    count
+}
+
+/// Find traits with short patterns that are likely to produce too many false positives.
+/// Short patterns (3 chars or less for substr/regex, 3 bytes or less for hex) are flagged
+/// unless the trait uses specificity constraints like count_min, section, or offset.
+///
+/// Returns `(trait_id, pattern, pattern_type, source_file)` for warnings.
+pub(crate) fn find_short_pattern_warnings(
+    trait_definitions: &[TraitDefinition],
+    rule_source_files: &HashMap<String, String>,
+) -> Vec<(String, String, String, String)> {
+    let mut warnings = Vec::new();
+
+    for trait_def in trait_definitions {
+        // Check if trait has specificity constraints on ConditionWithFilters
+        // count_min: 1 is not meaningful (it's the default), require count_min >= 2
+        let has_meaningful_count = trait_def.r#if.count_min.map_or(false, |c| c >= 2)
+            || trait_def.r#if.count_max.is_some()
+            || trait_def.r#if.per_kb_min.is_some()
+            || trait_def.r#if.per_kb_max.is_some();
+
+        // Specific file type constraints provide specificity (not matching all file types)
+        // For 3-char patterns, require no more than 3 specific file types
+        use crate::composite_rules::types::FileType;
+
+        // Count actual file types after expanding meta-types
+        let actual_type_count = if trait_def.r#for.is_empty() {
+            // Empty means "all" (default behavior)
+            usize::MAX
+        } else if trait_def.r#for.iter().any(|ft| matches!(ft, FileType::All)) {
+            // FileType::All means all file types
+            usize::MAX
+        } else {
+            // Count specific types (no meta-types to expand in current FileType enum)
+            trait_def.r#for.len()
+        };
+
+        let has_specific_file_types = actual_type_count <= 3;
+
+        // Helper to check if condition has location constraints
+        let has_location_constraints = |condition: &Condition| -> bool {
+            match condition {
+                Condition::Raw {
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                    ..
+                } => {
+                    section.is_some()
+                        || offset.is_some()
+                        || offset_range.is_some()
+                        || section_offset.is_some()
+                        || section_offset_range.is_some()
+                }
+                Condition::Hex {
+                    section,
+                    offset,
+                    offset_range,
+                    section_offset,
+                    section_offset_range,
+                    ..
+                } => {
+                    section.is_some()
+                        || offset.is_some()
+                        || offset_range.is_some()
+                        || section_offset.is_some()
+                        || section_offset_range.is_some()
+                }
+                _ => false,
+            }
+        };
+
+        // Skip if trait has any specificity constraints
+        if has_meaningful_count || has_specific_file_types || has_location_constraints(&trait_def.r#if.condition) {
+            continue;
+        }
+
+        // Check the condition
+        match &trait_def.r#if.condition {
+            Condition::Raw {
+                substr,
+                regex,
+                ..
+            } => {
+                // Check substr length
+                if let Some(pattern) = substr {
+                    if pattern.len() <= 3 {
+                        let source = rule_source_files
+                            .get(&trait_def.id)
+                            .cloned()
+                            .unwrap_or_else(|| "unknown".to_string());
+                        warnings.push((
+                            trait_def.id.clone(),
+                            pattern.clone(),
+                            "raw substr".to_string(),
+                            source,
+                        ));
+                    }
+                }
+                // Check regex minimum literal content
+                // Count characters that MUST appear (not quantified or optional)
+                if let Some(pattern) = regex {
+                    let literal_count = count_regex_min_literals(pattern);
+                    if literal_count <= 3 && literal_count > 0 {
+                        let source = rule_source_files
+                            .get(&trait_def.id)
+                            .cloned()
+                            .unwrap_or_else(|| "unknown".to_string());
+                        warnings.push((
+                            trait_def.id.clone(),
+                            pattern.clone(),
+                            "raw regex".to_string(),
+                            source,
+                        ));
+                    }
+                }
+            }
+            Condition::Hex { pattern, .. } => {
+                // Count hex bytes in pattern (space-separated, ignoring ?? wildcards and gaps)
+                let hex_parts: Vec<&str> = pattern
+                    .split_whitespace()
+                    .filter(|p| !p.starts_with('[') && !p.ends_with(']'))
+                    .collect();
+                if hex_parts.len() <= 3 && !hex_parts.is_empty() {
+                    let source = rule_source_files
+                        .get(&trait_def.id)
+                        .cloned()
+                        .unwrap_or_else(|| "unknown".to_string());
+                    warnings.push((
+                        trait_def.id.clone(),
+                        pattern.clone(),
+                        "hex pattern".to_string(),
+                        source,
+                    ));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    warnings
+}
+
 /// Platform/language names that should be YAML filenames, not directories.
 /// These match values that can be used in `for:` or `platform:` fields.
 const PLATFORM_NAMES: &[&str] = &[
@@ -2251,7 +2476,7 @@ pub(crate) fn find_duplicate_second_level_directories(
     let mut second_level_map: HashMap<String, Vec<String>> = HashMap::new();
 
     for dir_path in trait_dirs {
-        // Split path: "micro-behaviors/comm/http" -> ["cap", "comm", "http"]
+        // Split path: "micro-behaviors/communications/http" -> ["cap", "comm", "http"]
         let parts: Vec<&str> = dir_path.split('/').collect();
         if parts.len() < 2 {
             continue; // Need at least namespace/second-level
@@ -2302,7 +2527,7 @@ pub(crate) fn find_depth_violations(yaml_files: &[String]) -> Vec<(String, usize
         }
 
         // Count directory components (excluding the root micro-behaviors/ or objectives/ and the filename)
-        // e.g., "micro-behaviors/comm/http/client/shell.yaml" -> ["cap", "comm", "http", "client", "shell.yaml"]
+        // e.g., "micro-behaviors/communications/http/client/shell.yaml" -> ["cap", "comm", "http", "client", "shell.yaml"]
         let parts: Vec<&str> = path.split('/').collect();
         if parts.len() < 2 {
             continue;
@@ -3185,7 +3410,7 @@ mod tests {
     #[test]
     fn test_find_platform_named_directories_no_violations() {
         let dirs = vec![
-            "micro-behaviors/comm/http/client".to_string(),
+            "micro-behaviors/communications/http/client".to_string(),
             "objectives/credential-access/browser".to_string(),
         ];
         assert!(find_platform_named_directories(&dirs).is_empty());
@@ -4458,7 +4683,7 @@ mod tests {
     #[test]
     fn test_find_banned_directory_segments_valid() {
         let dirs = vec![
-            "micro-behaviors/comm/http/client".to_string(),
+            "micro-behaviors/communications/http/client".to_string(),
             "objectives/credential-access/browser/chromium".to_string(),
         ];
         assert!(find_banned_directory_segments(&dirs).is_empty());
@@ -5022,7 +5247,7 @@ mod tests {
     fn test_find_inert_obj_rules_cap_ok() {
         // Cap rule with inert criticality is fine (handled by other validators)
         let rule = CompositeTrait {
-            id: "micro-behaviors/comm/socket::rule".to_string(),
+            id: "micro-behaviors/communications/socket::rule".to_string(),
             desc: "test".to_string(),
             conf: 1.0,
             crit: Criticality::Inert,

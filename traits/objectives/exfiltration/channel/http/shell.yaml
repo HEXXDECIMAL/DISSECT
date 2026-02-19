@@ -2,7 +2,7 @@
 # Behavioral composites that combine shell tools with exfiltration indicators
 # ATT&CK: T1041 (Exfiltration Over C2 Channel)
 #
-# Note: Atomic curl/wget/nc traits moved to comm/http/client/shell.yaml
+# Note: Atomic curl/wget/nc traits moved to communications/http/client/shell.yaml
 # This file contains only behavioral composites that indicate exfiltration
 
 defaults:
@@ -16,7 +16,7 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-behaviors/comm/http/client::curl-post
+      - id: micro-behaviors/communications/http/client::curl-post
     unless:
       - id: micro-behaviors/os/admin/legitimate/http-tools/package-manager
       - id: micro-behaviors/os/admin/legitimate/http-tools/ci-cd-pipeline
@@ -28,13 +28,13 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-behaviors/comm/http/client::curl-upload
+      - id: micro-behaviors/communications/http/client::curl-upload
     unless:
       - id: micro-behaviors/os/admin/legitimate/http-tools/package-manager
       - id: micro-behaviors/os/admin/legitimate/http-tools/ci-cd-pipeline
       - id: micro-behaviors/os/admin/legitimate/http-tools/backup-script
       - id: metadata/signed/id::com.apple.curl
-      - id: micro-behaviors/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/communications/download/curl::curl-easy-init
 
   - id: shell-tool-exfil
     desc: Shell tool exfiltration
@@ -42,7 +42,7 @@ composite_rules:
     conf: 0.85
     attack: "T1048"
     all:
-      - id: micro-behaviors/comm/http/client::client
+      - id: micro-behaviors/communications/http/client::client
     unless:
       - id: micro-behaviors/os/admin/legitimate::backup-script
       - id: micro-behaviors/os/admin/legitimate::health-check

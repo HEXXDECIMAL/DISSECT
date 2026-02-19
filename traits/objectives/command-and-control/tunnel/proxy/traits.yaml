@@ -308,13 +308,13 @@ composite_rules:
     size_max: 500000
     needs: 2
     any:
-      - id: micro-behaviors/comm/proxy/socks::socks4-proto
-      - id: micro-behaviors/comm/proxy/socks::socks5-proto
+      - id: micro-behaviors/communications/proxy/socks::socks4-proto
+      - id: micro-behaviors/communications/proxy/socks::socks5-proto
       - id: socks-default-port
       - id: socks-server-ref
     none:
       - id: metadata/signed/platform::apple
       # Exclude curl/libcurl which uses SOCKS as a CLIENT, not server
-      - id: micro-behaviors/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/communications/download/curl::curl-easy-init
       # Exclude HTTP client libraries (urllib, requests, etc.) that support SOCKS proxying
-      - id: micro-behaviors/comm/http/request::http-client
+      - id: micro-behaviors/communications/http/request::http-client

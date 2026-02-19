@@ -299,7 +299,7 @@ composite_rules:
     conf: 0.95
     for: [elf, macho]
     all:                              # AND (all must match)
-      - id: micro-behaviors/comm/socket/create
+        - id: micro-behaviors/communications/socket/create
       - id: micro-behaviors/process/fd/dup2
       - id: micro-behaviors/process/create/shell
     any:                              # OR (at least one)

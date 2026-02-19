@@ -5,8 +5,8 @@ composite_rules:
     crit: suspicious
     conf: 0.85
     all:
-      - id: micro-behaviors/comm/socket/udp/unix::sock-dgram
-      - id: micro-behaviors/comm/socket/bind::bind
+      - id: micro-behaviors/communications/socket/udp/unix::sock-dgram
+      - id: micro-behaviors/communications/socket/bind::bind
       - id: micro-behaviors/process/fd/dup::dup2
       - any:
           - id: micro-behaviors/process/create/shell::system-fn

@@ -29,6 +29,7 @@ traits:
     desc: "Nemucod-style character array (tuples)"
     crit: suspicious
     conf: 0.95
+    for: [javascript]
     if:
       type: raw
       # Matches: var jo = [("x", ba),("x", ix), ... or var wv = [('x', ba)

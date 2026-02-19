@@ -212,7 +212,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     all:
-      - id: micro-behaviors/comm/http/request
+      - id: micro-behaviors/communications/http/request
 
   # Remote Code Execution via VM
   - id: vm-with-http
@@ -245,7 +245,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: micro-behaviors/comm/http/request
+      - id: micro-behaviors/communications/http/request
       - id: request-method-call
 
   # Remote Code Loading via Function Constructor

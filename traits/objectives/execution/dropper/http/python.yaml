@@ -59,8 +59,8 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: micro-behaviors/comm/http/request::request
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request
+      - id: micro-behaviors/communications/http/request::request-python
 
   # Temp directory composite
   - id: python-tmp-dir
@@ -87,8 +87,8 @@ composite_rules:
     crit: notable
     conf: 0.65
     any:
-      - id: micro-behaviors/comm/http/url::payload-path
-      - id: micro-behaviors/comm/http/url::php-collector
+      - id: micro-behaviors/communications/http/url::payload-path
+      - id: micro-behaviors/communications/http/url::php-collector
 
   # Original rule - tmp directory dropper
   - id: tmp-dropper

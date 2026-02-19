@@ -53,7 +53,7 @@ pub(crate) fn eval_structure<'a>(
 ///
 /// Reference formats:
 /// - Specific trait (contains `::`): exact match only
-///   e.g., "micro-behaviors/comm/http::curl-download" matches exactly that trait
+///   e.g., "micro-behaviors/communications/http::curl-download" matches exactly that trait
 /// - Short names (no `/` or `::`): suffix match within same directory
 ///   e.g., "terminate" matches "execution/process::terminate"
 /// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory

@@ -50,7 +50,7 @@
       "source_file": "meta/quality/logging/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -71,7 +71,7 @@
           "location": "0x3115"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
@@ -336,7 +336,7 @@
       "source_file": "meta/quality/versioning/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -357,7 +357,7 @@
           "location": "0x30de"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/os/admin/observability::opentelemetry",
@@ -1115,7 +1115,7 @@
       "source_file": "objectives/impact/ransomware/behavior/patterns.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::application-json",
+      "id": "micro-behaviors/communications/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -1136,7 +1136,7 @@
           "location": "0x3125"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "objectives/discovery/host/fingerprint::object-entries-call",
@@ -1263,7 +1263,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -1284,7 +1284,7 @@
           "location": "0x30de"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-clients",
@@ -1388,7 +1388,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -1409,7 +1409,7 @@
           "location": "0x30de"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/impact/ransomware/behavior::encryption-functions",

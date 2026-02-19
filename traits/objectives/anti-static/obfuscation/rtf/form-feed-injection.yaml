@@ -1,5 +1,5 @@
 defaults:
-  for: [all]
+  for: [rtf]
 
 traits:
   - id: form-feed-injection
@@ -9,4 +9,3 @@ traits:
     if:
       type: raw
       regex: "(\\\\'0C[0-9a-fA-F]{2}){4,}"
-      count_min: 1

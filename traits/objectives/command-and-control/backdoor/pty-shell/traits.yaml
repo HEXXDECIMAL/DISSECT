@@ -166,7 +166,7 @@ composite_rules:
     for: [elf]
     all:
       - id: pty-alloc-symbols
-      - id: micro-behaviors/comm/socket/
+      - id: micro-behaviors/communications/socket/
       - id: micro-behaviors/process/fd/dup::dup2
 
   # Full PTY backdoor with terminal control
@@ -182,7 +182,7 @@ composite_rules:
     all:
       - id: pty-alloc-symbols
       - id: termios-symbols
-      - id: micro-behaviors/comm/socket/
+      - id: micro-behaviors/communications/socket/
       - id: daemon-symbols
 
   # Bind shell with PTY - waits for incoming connections
@@ -195,6 +195,6 @@ composite_rules:
     for: [elf]
     all:
       - id: pty-alloc-symbols
-      - id: micro-behaviors/comm/socket/
+      - id: micro-behaviors/communications/socket/
       - id: micro-behaviors/process/fd/dup::dup2
       - id: micro-behaviors/process/create/shell::shell-symbols

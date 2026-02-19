@@ -29,7 +29,7 @@
       "source_file": "micro-behaviors/fs/file/operations/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -42,7 +42,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
@@ -61,7 +61,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth-lower",
+      "id": "micro-behaviors/communications/http/oauth::oauth-lower",
       "kind": "capability",
       "desc": "oauth lowercase",
       "conf": 0.5,
@@ -92,7 +92,7 @@
           "location": "0x8665"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-ast",
@@ -1496,7 +1496,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth",
+      "id": "micro-behaviors/communications/http/oauth::oauth",
       "kind": "capability",
       "desc": "OAuth authentication",
       "conf": 0.66,
@@ -1527,7 +1527,7 @@
           "location": "0x8665"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics::minification-pattern",

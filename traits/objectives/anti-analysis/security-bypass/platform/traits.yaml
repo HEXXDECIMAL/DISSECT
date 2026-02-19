@@ -229,7 +229,7 @@ traits:
     if:
       type: string
       substr: SELINUX=permissive
-micro-behaviors  - id: selinux-state-symbol
+  - id: selinux-state-symbol
     desc: selinux_state kernel structure
     crit: notable
     conf: 0.75

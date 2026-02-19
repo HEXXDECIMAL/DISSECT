@@ -140,7 +140,7 @@ traits:
       substr: "exploit"
 
   # === Network Terms ===
-  # Removed socket duplicate - use objectives/command-and-control/reverse-shell/pty::python-socket or micro-behaviors/comm/socket patterns
+  # Removed socket duplicate - use objectives/command-and-control/reverse-shell/pty::python-socket or micro-behaviors/communications/socket patterns
 
   - id: connect
     desc: connect keyword

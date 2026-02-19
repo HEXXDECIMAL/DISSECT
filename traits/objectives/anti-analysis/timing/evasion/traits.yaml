@@ -15,6 +15,7 @@ traits:
     if:
       type: hex
       pattern: "0F 31"
+      count_min: 2
 
   # NOTE: "time" is far too generic - matches Go runtime, standard library, etc.
   # Changed to more specific pattern

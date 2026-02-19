@@ -13,6 +13,7 @@ traits:
     if:
       type: hex
       pattern: "FF D?"
+      count_min: 2
 
   - id: indirect-call-mem
     desc: Indirect call via memory (call
@@ -21,6 +22,7 @@ traits:
     if:
       type: hex
       pattern: "FF 1?"
+      count_min: 2
 
   # === CPU Feature Detection ===
   - id: cpuid-instr
@@ -30,6 +32,7 @@ traits:
     if:
       type: hex
       pattern: "0F A2"
+      count_min: 1
 
   - id: xgetbv-instr
     desc: XGETBV instruction bytes
@@ -38,6 +41,7 @@ traits:
     if:
       type: hex
       pattern: "0F 01 D0"
+      count_min: 1
 
 composite_rules:
   - id: cpuid-fingerprinting

@@ -13,6 +13,6 @@ composite_rules:
       - id: micro-behaviors/process/enumerate/apps::browser-apps
       - id: micro-behaviors/process/enumerate/apps::office-apps
     any:
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/connect::connect
       - id: objectives/command-and-control/infrastructure/ip::hardcoded-ipv4-script
       - id: objectives/command-and-control/network/beacon::direct-http-c2

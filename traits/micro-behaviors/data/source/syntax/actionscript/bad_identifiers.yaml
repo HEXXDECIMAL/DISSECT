@@ -11,3 +11,4 @@ traits:
     if:
       type: raw
       regex: "§[^\\x00]{1,100}§"
+      count_min: 2

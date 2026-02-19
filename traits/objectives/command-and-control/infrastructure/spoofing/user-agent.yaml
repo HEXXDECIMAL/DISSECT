@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1071.001"
     all:
       - id: micro-behaviors/data/encode/spoofing::xor-user-agent-spoofing
-      - id: micro-behaviors/comm/http/client
+      - id: micro-behaviors/communications/http/client
 
   - id: http-fingerprinting-campaign
     desc: HTTP fingerprinting evasion campaign

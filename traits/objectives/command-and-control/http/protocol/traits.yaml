@@ -32,7 +32,7 @@ traits:
       type: raw
       regex: '\r\n\r\n'
 
-  # Removed http-user-agent duplicate - use micro-behaviors/comm/http/request::user-agent-header
+  # Removed http-user-agent duplicate - use micro-behaviors/communications/http/request::user-agent-header
 
   - id: http-content-type
     desc: Content-Type header string
@@ -61,5 +61,5 @@ composite_rules:
       - id: objectives/execution/vm/sandbox::http-protocol-string
       - id: http-delimiter
     any:
-      - id: micro-behaviors/comm/http/request::user-agent-header
+      - id: micro-behaviors/communications/http/request::user-agent-header
       - id: http-content-type

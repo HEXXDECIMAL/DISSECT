@@ -9,5 +9,5 @@ composite_rules:
       - id: micro-behaviors/data/telemetry/activity::activity-tracker
       - id: micro-behaviors/data/telemetry/logging::hardware-id-context
     any:
-      - id: micro-behaviors/comm/http/remote-config::remote-config-service
+      - id: micro-behaviors/communications/http/remote-config::remote-config-service
       - id: micro-behaviors/data/telemetry/logging::telemetry-send

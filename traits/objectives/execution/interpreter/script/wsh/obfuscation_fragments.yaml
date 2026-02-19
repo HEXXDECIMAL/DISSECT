@@ -23,7 +23,7 @@ traits:
     desc: ADODB.Stream string fragment (ADODB/ADO)
     if:
       type: raw
-      substr: 'ADO'
+      word: 'ADO'
 
   - id: adodb-fragment-2
     desc: ADODB.Stream string fragment (B.Str/B.St/DB.St/ODB.St)

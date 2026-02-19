@@ -8,6 +8,6 @@ composite_rules:
     size_max: 50000
     all:
       - id: micro-behaviors/data/control-flow/loop::infinite-loop-header
-      - id: micro-behaviors/comm/socket/send::send-call-raw
+      - id: micro-behaviors/communications/socket/send::send-call-raw
     unless:
-      - id: micro-behaviors/comm/socket/family::af-alg-socket
+      - id: micro-behaviors/communications/socket/family::af-alg-socket

@@ -1,5 +1,5 @@
 defaults:
-  for: [all]
+  for: [rtf]
 
 traits:
   - id: byte-nibble

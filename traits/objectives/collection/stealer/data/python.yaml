@@ -12,7 +12,7 @@ composite_rules:
     needs: 3
     all:
       - id: objectives/discovery/system/
-      - id: micro-behaviors/comm/http/request
+      - id: micro-behaviors/communications/http/request
     any:
       - id: micro-behaviors/fs/file/write
       - id: objectives/credential-access/
@@ -42,7 +42,7 @@ composite_rules:
     all:
       - id: objectives/anti-analysis/aliasing/dynamic::python-std-alias
       - id: objectives/discovery/system/
-      - id: micro-behaviors/comm/http/request
+      - id: micro-behaviors/communications/http/request
 
   - id: data-staging
     desc: "Data staging for exfiltration"

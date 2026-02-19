@@ -58,4 +58,3 @@ composite_rules:
       - id: micro-behaviors/fs/attributes/xattr::xattr-clear
       - id: objectives/execution/dropper/script::chmod-plus-x-cmd
       - id: objectives/execution/dropper/script::execute-dot-slash
-micro-behaviors

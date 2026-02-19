@@ -6,7 +6,7 @@ composite_rules:
     all:
       - id: micro-behaviors/fs/disk/partition::mbr-mod-asm
     any:
-      - id: micro-behaviors/hw/memory/region::bios-mem-steal-asm
+      - id: micro-behaviors/hardware/memory/region::bios-mem-steal-asm
       - id: micro-behaviors/os/dos/interrupt::int-vector-calc-asm
 
   - id: andropinis-virus

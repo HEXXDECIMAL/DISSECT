@@ -12,4 +12,4 @@ composite_rules:
     all:
       - id: micro-behaviors/ui/framework/tkinter::tkinter-init
       - id: micro-behaviors/data/text/parse::hash-algo-strings
-      - id: micro-behaviors/hw/clipboard/access::tkinter-clipboard-append
+      - id: micro-behaviors/hardware/clipboard/access::tkinter-clipboard-append

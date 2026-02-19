@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -26,7 +26,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
@@ -3517,7 +3517,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -3530,7 +3530,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::connect",
@@ -3826,7 +3826,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::basic-auth",
+      "id": "micro-behaviors/communications/http/headers::basic-auth",
       "kind": "capability",
       "desc": "Basic authentication",
       "conf": 0.5,
@@ -3847,7 +3847,7 @@
           "location": "0x6cf0f"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::overflow",
@@ -9090,7 +9090,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::headers-auth",
+      "id": "micro-behaviors/communications/http/headers::headers-auth",
       "kind": "capability",
       "desc": "HTTP Authorization header",
       "conf": 0.66,
@@ -9111,7 +9111,7 @@
           "location": "0x6cf0f"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "meta/quality::error-handling",

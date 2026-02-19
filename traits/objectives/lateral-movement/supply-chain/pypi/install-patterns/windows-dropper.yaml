@@ -20,9 +20,9 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-behaviors/comm/http/request::request-python
-      - id: micro-behaviors/comm/http/lib/requests::requests-python
-      - id: micro-behaviors/comm/socket/connect::socket-data-transfer
+      - id: micro-behaviors/communications/http/request::request-python
+      - id: micro-behaviors/communications/http/lib/requests::requests-python
+      - id: micro-behaviors/communications/socket/connect::socket-data-transfer
 
   # Helper: Install context
   - id: pypi-install-context-combo

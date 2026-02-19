@@ -1,7 +1,7 @@
 # Remote Shell Detection
 # MBC: OB0004 (Command & Control) → B0030 (C2 Communication)
 # ATT&CK: T1059 (Command and Scripting Interpreter)
-# NOTE: Socket connect/bind/listen are defined in comm/socket/*/unix.yaml
+# NOTE: Socket connect/bind/listen are defined in communications/socket/*/unix.yaml
 
 traits:
   # Python-specific reverse shell patterns

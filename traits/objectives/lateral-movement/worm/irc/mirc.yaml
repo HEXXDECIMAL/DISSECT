@@ -5,5 +5,5 @@ composite_rules:
     attack: T1571
     all:
       - id: micro-behaviors/fs/path/application::mirc-config-file
-      - id: micro-behaviors/comm/protocol/irc::mirc-script-cmd
-      - id: micro-behaviors/comm/protocol/irc::mirc-script-event
+      - id: micro-behaviors/communications/protocol/irc::mirc-script-cmd
+      - id: micro-behaviors/communications/protocol/irc::mirc-script-event

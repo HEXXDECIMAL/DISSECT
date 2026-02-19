@@ -18,5 +18,5 @@ composite_rules:
     all:
       - id: xmlhttp-clsid-any
       - id: micro-behaviors/os/com/instantiation::create-instance
-      - id: micro-behaviors/comm/http/client::response-text
+      - id: micro-behaviors/communications/http/client::response-text
       - id: objectives/execution/interpreter/eval/invoke::iex

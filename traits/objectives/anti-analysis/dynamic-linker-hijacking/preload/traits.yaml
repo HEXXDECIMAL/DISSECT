@@ -1,7 +1,8 @@
 traits:
-micro-behaviors  - id: ld-preload-env
+  - id: ld-preload-env
     desc: LD_PRELOAD environment variable
     crit: suspicious
+    attack: T1547.015
     conf: 0.85
     for:
       - elf
@@ -12,8 +13,8 @@ micro-behaviors  - id: ld-preload-env
     downgrade:
       any:
         - id: metadata/dev/testing/gnu-tests::gnu-coreutils-test
-    attack: T1547.015
-micro-behaviorsmicro-behaviors  - id: dlfcn-hook-symbol
+
+  - id: dlfcn-hook-symbol
     desc: _dlfcn_hook dynamic linker hook
     crit: suspicious
     conf: 0.9

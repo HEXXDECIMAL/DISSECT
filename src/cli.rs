@@ -447,7 +447,7 @@ pub(crate) enum Command {
 
     /// Generate a graph visualization of trait relationships
     Graph {
-        /// Directory depth level (2 = micro-behaviors/comm, 3 = micro-behaviors/comm/socket, etc.)
+        /// Directory depth level (2 = micro-behaviors/comm, 3 = micro-behaviors/communications/socket, etc.)
         #[arg(short, long, default_value = "3")]
         depth: usize,
 

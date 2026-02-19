@@ -7,5 +7,5 @@ composite_rules:
     mbc: "B0030"
     all:
       - id: micro-behaviors/data/control-flow/analysis::iteration-loop-pattern
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
       - id: micro-behaviors/data/text/keywords/malware::c2-polling-params

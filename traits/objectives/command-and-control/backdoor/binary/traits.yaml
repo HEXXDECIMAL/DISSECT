@@ -258,8 +258,8 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - id: micro-behaviors/comm/socket/create::create
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/create::create
+      - id: micro-behaviors/communications/socket/connect::connect
     none:
       - id: micro-behaviors/dylib/library::network-lib-marker
       - id: micro-behaviors/dylib/library::system-lib-marker

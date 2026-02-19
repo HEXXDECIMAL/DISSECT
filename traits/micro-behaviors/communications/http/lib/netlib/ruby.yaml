@@ -75,7 +75,7 @@ composite_rules:
       - id: net-http
     any:
       - id: http-get-symbol
-      - id: micro-behaviors/comm/http/get/
+      - id: micro-behaviors/communications/http/get/
 
   - id: request-ruby
     desc: HTTP requests (Ruby)

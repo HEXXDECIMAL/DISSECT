@@ -6,8 +6,8 @@
 #     mbc: T1498
 #     attack: T1498
 #     all:
-#       - trait: micro-behaviors/comm/protocol/udp::chargen-port
-#       - trait: micro-behaviors/comm/socket/send::send-loop-infinite
+#       - trait: micro-behaviors/communications/protocol/udp::chargen-port
+#       - trait: micro-behaviors/communications/socket/send::send-loop-infinite
 #       - any:
-#           - trait: micro-behaviors/comm/socket/raw::raw
-#           - trait: micro-behaviors/comm/socket/raw::raw-socket-creation-regex
+#           - trait: micro-behaviors/communications/socket/raw::raw
+#           - trait: micro-behaviors/communications/socket/raw::raw-socket-creation-regex

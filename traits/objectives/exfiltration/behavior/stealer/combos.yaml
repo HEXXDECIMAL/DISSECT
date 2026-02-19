@@ -11,5 +11,5 @@ composite_rules:
     for: [go]
     all:
       - id: micro-behaviors/crypto/symmetric/aes::go-cfb-encrypter
-      - id: micro-behaviors/comm/http/lib/netlib::go-http-client-do
-      - id: micro-behaviors/comm/http/request::application-json
+      - id: micro-behaviors/communications/http/lib/netlib::go-http-client-do
+      - id: micro-behaviors/communications/http/request::application-json

@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/post::enctype-attr",
+      "id": "micro-behaviors/communications/http/post::enctype-attr",
       "kind": "capability",
       "desc": "enctype attribute",
       "conf": 0.6,
@@ -28,10 +28,10 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -44,7 +44,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::buffer",
@@ -321,7 +321,7 @@
       "source_file": "meta/format/json/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-new",
+      "id": "micro-behaviors/communications/http/upload::form-data-new",
       "kind": "capability",
       "desc": "Creates FormData object",
       "conf": 0.6,
@@ -334,7 +334,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "objectives/discovery/host/geo::ip-address-camel",
@@ -598,7 +598,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -611,7 +611,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "meta/quality/metrics::metrics-word-lower",
@@ -8959,7 +8959,7 @@
       "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "micro-behaviors/comm/download/curl::fetch-call",
+      "id": "micro-behaviors/communications/download/curl::fetch-call",
       "kind": "capability",
       "desc": "fetch function call",
       "conf": 0.5,
@@ -8979,7 +8979,7 @@
           "location": "0xbc25"
         }
       ],
-      "source_file": "micro-behaviors/comm/download/curl/shell.yaml"
+      "source_file": "micro-behaviors/communications/download/curl/shell.yaml"
     },
     {
       "id": "micro-behaviors/execution/dropper/script::output-flag",
@@ -16385,7 +16385,7 @@
       "source_file": "known/malware/miner/kinsing-enhanced/malware-elimination.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-form",
+      "id": "micro-behaviors/communications/http/post::post-form",
       "kind": "capability",
       "desc": "HTTP form data upload",
       "conf": 0.75,
@@ -16400,7 +16400,7 @@
           "location": "0x134e5"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/dropper/script::download-tool",
@@ -16419,7 +16419,7 @@
       "source_file": "micro-behaviors/execution/dropper/script/batch.yaml"
     },
     {
-      "id": "micro-behaviors/comm/download/curl::fetch",
+      "id": "micro-behaviors/communications/download/curl::fetch",
       "kind": "capability",
       "desc": "Download via fetch",
       "conf": 0.66,
@@ -16439,7 +16439,7 @@
           "location": "0xbc25"
         }
       ],
-      "source_file": "micro-behaviors/comm/download/curl/shell.yaml"
+      "source_file": "micro-behaviors/communications/download/curl/shell.yaml"
     },
     {
       "id": "known/malware/backdoor/upstyle::panos-context",

@@ -27,4 +27,4 @@ composite_rules:
       - id: micro-behaviors/data/encode/rot13::rot13-windows
       - id: micro-behaviors/data/encode/base64::b64decode-call
       - id: objectives/anti-static/obfuscation/payload::exec-function-call
-      - id: micro-behaviors/comm/http/post::requests-post-call
+      - id: micro-behaviors/communications/http/post::requests-post-call

@@ -48,6 +48,6 @@ composite_rules:
     attack: "T1105"
     all:
       - id: objectives/command-and-control/channel/discord::discord-string
-      - id: micro-behaviors/comm/http/lib/requests::requests-python
+      - id: micro-behaviors/communications/http/lib/requests::requests-python
       - id: python-write-capability
       - id: python-exec-capability

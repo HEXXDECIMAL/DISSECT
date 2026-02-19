@@ -63,10 +63,10 @@ composite_rules:
       desc: DDoS technique indicators
       crit: notable
       any:
-        - id: micro-behaviors/comm/socket/raw::raw-socket-creation-regex
+        - id: micro-behaviors/communications/socket/raw::raw-socket-creation-regex
         - id: syn-flood
         - id: ack-flood
-        - id: micro-behaviors/comm/ip/spoof::spoof
+        - id: micro-behaviors/communications/ip/spoof::spoof
   
     - id: ddos-offensive-markers
       desc: Offensive markers for DDoS

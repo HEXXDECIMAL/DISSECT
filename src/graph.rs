@@ -117,7 +117,7 @@ pub fn generate_trait_graph(
 }
 
 /// Extract directory path up to specified depth
-/// Example: "micro-behaviors/comm/socket/raw::trait-id" with depth=3 -> "micro-behaviors/comm/socket"
+/// Example: "micro-behaviors/communications/socket/raw::trait-id" with depth=3 -> "micro-behaviors/communications/socket"
 fn extract_directory(trait_id: &str, depth: usize) -> String {
     // Remove trait name after "::" if present
     let path_part = trait_id.split("::").next().unwrap_or(trait_id);
@@ -241,21 +241,21 @@ mod tests {
     #[test]
     fn test_extract_directory() {
         assert_eq!(
-            extract_directory("micro-behaviors/comm/socket/raw::trait-id", 2),
+            extract_directory("micro-behaviors/communications/socket/raw::trait-id", 2),
             "micro-behaviors/comm"
         );
         assert_eq!(
-            extract_directory("micro-behaviors/comm/socket/raw::trait-id", 3),
-            "micro-behaviors/comm/socket"
+            extract_directory("micro-behaviors/communications/socket/raw::trait-id", 3),
+            "micro-behaviors/communications/socket"
         );
         assert_eq!(
-            extract_directory("micro-behaviors/comm/socket/raw::trait-id", 4),
-            "micro-behaviors/comm/socket/raw"
+            extract_directory("micro-behaviors/communications/socket/raw::trait-id", 4),
+            "micro-behaviors/communications/socket/raw"
         );
-        assert_eq!(extract_directory("micro-behaviors/comm/socket/raw::trait-id", 1), "cap");
+        assert_eq!(extract_directory("micro-behaviors/communications/socket/raw::trait-id", 1), "cap");
 
         // Without :: separator
-        assert_eq!(extract_directory("micro-behaviors/comm/socket", 2), "micro-behaviors/comm");
+        assert_eq!(extract_directory("micro-behaviors/communications/socket", 2), "micro-behaviors/comm");
         assert_eq!(extract_directory("cap", 2), "cap");
     }
 
@@ -282,7 +282,7 @@ mod tests {
 
     #[test]
     fn test_outline_color() {
-        assert_eq!(outline_color("micro-behaviors/comm/socket"), "#228B22"); // Green
+        assert_eq!(outline_color("micro-behaviors/communications/socket"), "#228B22"); // Green
         assert_eq!(outline_color("objectives/command-and-control/beacon"), "#DC143C"); // Red
         assert_eq!(outline_color("known/malware/mirai"), "#8B008B"); // Purple
         assert_eq!(outline_color("metadata/lang"), "#696969"); // Gray
@@ -293,8 +293,8 @@ mod tests {
     fn test_shorten_path() {
         assert_eq!(shorten_path("cap"), "cap");
         assert_eq!(shorten_path("micro-behaviors/comm"), "micro-behaviors/comm");
-        assert_eq!(shorten_path("micro-behaviors/comm/socket"), "micro-behaviors/.../socket");
-        assert_eq!(shorten_path("micro-behaviors/comm/socket/raw"), "micro-behaviors/.../raw");
+        assert_eq!(shorten_path("micro-behaviors/communications/socket"), "micro-behaviors/.../socket");
+        assert_eq!(shorten_path("micro-behaviors/communications/socket/raw"), "micro-behaviors/.../raw");
     }
 
     #[test]

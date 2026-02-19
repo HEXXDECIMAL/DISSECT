@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/request::user-agent-header",
+      "id": "micro-behaviors/communications/http/request::user-agent-header",
       "kind": "capability",
       "desc": "User-Agent header",
       "conf": 0.5,
@@ -39,7 +39,7 @@
           "value": "fetchRequest.options.headers.User-Agent"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",
@@ -355,7 +355,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -368,7 +368,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "objectives/discovery/host/browser::brave-name",
@@ -394,7 +394,7 @@
       "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::access-token",
+      "id": "micro-behaviors/communications/http/oauth::access-token",
       "kind": "capability",
       "desc": "access_token reference",
       "conf": 0.5,
@@ -413,7 +413,7 @@
           "location": "0x796b"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "objectives/discovery/host/browser::chrome-name",
@@ -510,7 +510,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -531,7 +531,7 @@
           "location": "0x252a"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/encoding/charset::json-stringify-js",
@@ -1431,7 +1431,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth",
+      "id": "micro-behaviors/communications/http/oauth::oauth",
       "kind": "capability",
       "desc": "OAuth authentication",
       "conf": 0.66,
@@ -1450,7 +1450,7 @@
           "location": "0x796b"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "objectives/discovery/host/fingerprint::system-id-sources",
@@ -1521,7 +1521,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -1542,7 +1542,7 @@
           "location": "0x252a"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-clients",
@@ -1721,7 +1721,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -1742,7 +1742,7 @@
           "location": "0x252a"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics/identifiers::identifier-obfuscation",
@@ -1794,7 +1794,7 @@
       "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::request",
+      "id": "micro-behaviors/communications/http/request::request",
       "kind": "capability",
       "desc": "Makes HTTP requests",
       "conf": 0.66,
@@ -1820,7 +1820,7 @@
           "value": "fetchRequest.options.headers.User-Agent"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "meta/lang::modern-javascript",

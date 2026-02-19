@@ -226,7 +226,7 @@ traits:
     if:
       type: string
       substr: qemu-ga
-micro-behaviors  - id: mac-vmware-1
+  - id: mac-vmware-1
     desc: VMware MAC prefix 00:0c:29
     crit: suspicious
     conf: 0.8
@@ -403,7 +403,7 @@ composite_rules:
     any:
       - id: cpuid-check-a
       - id: cpuid-check-b
-micro-behaviors  - id: vendor-xen
+  - id: vendor-xen
     desc: Xen hypervisor vendor string
     crit: notable
     conf: 0.7
@@ -451,19 +451,7 @@ micro-behaviors  - id: vendor-xen
     any:
       - id: vendor-hyperv-dash
       - id: vendor-microsoft-hv
-micro-behaviorsmicro-behaviors  - id: hypervisor-vendor
-    desc: Checks for hypervisor vendor strings
-    crit: suspicious
-    conf: 0.85
-    any:
-      - id: vendor-xen
-      - id: vendor-kvm
-      - id: vendor-vmware
-      - id: vendor-vbox
-      - id: vendor-hyperv
-      - id: vendor-qemu
-      - id: vendor-parallels
-      - id: vendor-bhyve
+      - id: hypervisor-vendor
   - id: dmi-check
     desc: DMI/SMBIOS check for VM detection
     crit: notable
@@ -526,6 +514,18 @@ micro-behaviorsmicro-behaviors  - id: hypervisor-vendor
     mbc: B0003
     all:
       - id: hypervisor-vendor
-      - id: micro-behaviors/comm/http/request::http-client-usage
+      - id: micro-behaviors/communications/http/request::http-client-usage
       - id: objectives/discovery/host/system/hardware-fingerprint::js-profiling
-micro-behaviors
+  - id: hypervisor-vendor
+    desc: Checks for hypervisor vendor strings
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: vendor-xen
+      - id: vendor-kvm
+      - id: vendor-vmware
+      - id: vendor-vbox
+      - id: vendor-hyperv
+      - id: vendor-qemu
+      - id: vendor-parallels
+      - id: vendor-bhyve

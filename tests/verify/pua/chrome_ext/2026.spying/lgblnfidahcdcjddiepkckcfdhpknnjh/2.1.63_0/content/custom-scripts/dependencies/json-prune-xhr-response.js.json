@@ -28,7 +28,7 @@
       "source_file": "micro-behaviors/fs/file/operations/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::xmlhttprequest-word",
+      "id": "micro-behaviors/communications/http/request::xmlhttprequest-word",
       "kind": "capability",
       "desc": "XMLHttpRequest reference",
       "conf": 0.4,
@@ -40,7 +40,7 @@
           "value": "self.XMLHttpRequest"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics/structure::very-low-comment-ratio",
@@ -124,7 +124,7 @@
       "source_file": "micro-behaviors/execution/vm/sandbox/node.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-client",
+      "id": "micro-behaviors/communications/http/request::http-client",
       "kind": "capability",
       "desc": "HTTP client library usage",
       "conf": 0.7,
@@ -136,7 +136,7 @@
           "value": "self.XMLHttpRequest"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-fetch-methods",

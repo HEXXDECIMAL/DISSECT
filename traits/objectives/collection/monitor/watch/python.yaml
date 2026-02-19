@@ -79,6 +79,6 @@ composite_rules:
     attack: "T1113"
     for: [python]
     any:
-      - id: micro-behaviors/hw/display/screen::mss-screenshot
-      - id: micro-behaviors/hw/display/screen::pil-imagegrab
-      - id: micro-behaviors/hw/display/screen::pyautogui-screenshot
+      - id: micro-behaviors/hardware/display/screen::mss-screenshot
+      - id: micro-behaviors/hardware/display/screen::pil-imagegrab
+      - id: micro-behaviors/hardware/display/screen::pyautogui-screenshot

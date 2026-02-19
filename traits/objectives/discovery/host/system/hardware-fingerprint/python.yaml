@@ -176,4 +176,4 @@ composite_rules:
       - id: python-platform-system
       - id: python-mac-discovery
       - id: python-username
-      - id: micro-behaviors/comm/http/request
+      - id: micro-behaviors/communications/http/request

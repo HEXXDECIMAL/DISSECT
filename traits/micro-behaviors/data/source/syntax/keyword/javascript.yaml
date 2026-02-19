@@ -15,10 +15,10 @@ traits:
       word: "fromCharCode"
 
   - id: js-keyword-xor
-    desc: XOR operator
+    desc: XOR bitwise operator in expression
     if:
       type: raw
-      regex: '\s\^'
+      regex: '\w+\s*\^\s*\w+'
 
   - id: js-obfuscated-string-method
     desc: Obfuscated String method call (String[...])

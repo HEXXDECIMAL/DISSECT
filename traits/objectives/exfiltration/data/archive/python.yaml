@@ -14,5 +14,5 @@ composite_rules:
       - id: micro-behaviors/fs/directory/traverse::traverse-walk
       - id: micro-behaviors/fs/file/write::py-write
     any:
-      - id: micro-behaviors/comm/http/request::py-post-generic
-      - id: micro-behaviors/comm/http/lib/requests::requests-post
+      - id: micro-behaviors/communications/http/request::py-post-generic
+      - id: micro-behaviors/communications/http/lib/requests::requests-post

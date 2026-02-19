@@ -191,8 +191,8 @@ traits:
       type: string
       substr: "aHR0cHM6Ly"
 
-  # NOTE: Discord webhook traits are defined in comm/messaging/discord/
-  # NOTE: Telegram bot traits are defined in comm/messaging/telegram/
+  # NOTE: Discord webhook traits are defined in communications/messaging/discord/
+  # NOTE: Telegram bot traits are defined in communications/messaging/telegram/
   # Use those directory references in composite rules
 
   # Slack webhook exfiltration
@@ -300,5 +300,5 @@ composite_rules:
     mbc: "B0030"
     for: [python, javascript]
     all:
-      - { id: micro-behaviors/comm/http/request }
+      - { id: micro-behaviors/communications/http/request }
       - { id: encoded-oob-indicators }

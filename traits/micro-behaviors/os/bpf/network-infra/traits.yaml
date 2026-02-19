@@ -37,8 +37,8 @@ traits:
       regex: "\\bpcap_(?:next|close|findalldevs|lookupdev)\\b"
 
   # Removed recvfrom-fn - recvfrom is a general socket function, not BPF-specific
-  # It's already covered by micro-behaviors/comm/socket/receive::receive for binaries
-  # and micro-behaviors/comm/socket/connect/python::socket-recvfrom-call for Python
+  # It's already covered by micro-behaviors/communications/socket/receive::receive for binaries
+  # and micro-behaviors/communications/socket/connect/python::socket-recvfrom-call for Python
 
 composite_rules:
   - id: pcap-prefix
@@ -58,4 +58,4 @@ composite_rules:
       - { id: bpf-program }
       - { id: bpf-prefix }
       - { id: pcap-prefix }
-      - { id: micro-behaviors/comm/socket/receive::receive }
+      - { id: micro-behaviors/communications/socket/receive::receive }

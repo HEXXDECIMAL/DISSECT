@@ -53,7 +53,7 @@ composite_rules:
     attack: T1555.003
     all:
       - id: process-env-token
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
   - id: npm-token-stealer
     desc: NPM registry token stealer
     crit: hostile
@@ -62,4 +62,4 @@ composite_rules:
     attack: T1555.003
     all:
       - id: process-env-npm-token
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post

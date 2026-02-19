@@ -183,7 +183,7 @@ traits:
       substr: "pty.spawn"
 
   # NOTE: Generic symbols (dup2, fork, execve, setsid, socket, connect, recv, send)
-  # are defined in their canonical locations under micro-behaviors/process/ and micro-behaviors/comm/.
+  # are defined in their canonical locations under micro-behaviors/process/ and micro-behaviors/communications/.
   # Composite rules below reference them using full paths.
 
 composite_rules:
@@ -289,16 +289,16 @@ composite_rules:
     for: [elf, macho]
     platforms: [macos, linux, unix]
     all:
-      - id: micro-behaviors/comm/socket/create::create
-      - id: micro-behaviors/comm/socket/connect::connect
+      - id: micro-behaviors/communications/socket/create::create
+      - id: micro-behaviors/communications/socket/connect::connect
       - id: micro-behaviors/process/fork/clone::fork
     any:
       - id: posix-openpt
       - id: openpty
       - id: grantpt
       - id: unlockpt
-      - id: micro-behaviors/comm/socket/receive::receive
-      - id: micro-behaviors/comm/socket/send::send
+      - id: micro-behaviors/communications/socket/receive::receive
+      - id: micro-behaviors/communications/socket/send::send
       - id: micro-behaviors/process/create/shell::c-execve
       - id: micro-behaviors/process/create/shell::bin-sh
     # Downgrade for Apple system components (e.g., /bin/bash), debuggers, graphics libs, and system libraries

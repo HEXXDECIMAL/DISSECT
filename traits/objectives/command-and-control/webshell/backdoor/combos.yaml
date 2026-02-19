@@ -56,12 +56,12 @@ composite_rules:
     attack: "T1090"
     for: [php]
     all:
-      - id: micro-behaviors/comm/http/curl::init
+      - id: micro-behaviors/communications/http/curl::init
     any:
       - id: micro-behaviors/data/user-input/
       - id: micro-behaviors/data/user-input/
-      - id: micro-behaviors/comm/http/curl::ssl-verify-disable
-      - id: micro-behaviors/comm/http/curl::ssl-host-disable
+      - id: micro-behaviors/communications/http/curl::ssl-verify-disable
+      - id: micro-behaviors/communications/http/curl::ssl-host-disable
 
     needs: 1
 
@@ -99,7 +99,7 @@ composite_rules:
     for: [php]
     any:
       - id: micro-behaviors/data/user-input/
-      - id: micro-behaviors/comm/http/curl::file-upload
+      - id: micro-behaviors/communications/http/curl::file-upload
       - id: micro-behaviors/fs/write/
       - id: micro-behaviors/fs/write/
   # Command execution webshell
@@ -151,7 +151,7 @@ composite_rules:
     for: [php]
     all:
       - id: objectives/command-and-control/webshell/backdoor::google-search-scrape
-      - id: micro-behaviors/comm/http/curl::init
+      - id: micro-behaviors/communications/http/curl::init
 
   # Obfuscated payload webshell
   - id: php-obfuscated

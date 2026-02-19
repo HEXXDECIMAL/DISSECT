@@ -147,7 +147,7 @@ composite_rules:
       - elf
     size_max: 100000
     unless:
-      - id: micro-behaviors/comm/download/curl::curl-easy-init
+      - id: micro-behaviors/communications/download/curl::curl-easy-init
     any:
       - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_1
       - id: objectives/lateral-movement/brute-force/password::inline__telnet-combo__any_2

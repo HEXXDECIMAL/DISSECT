@@ -175,4 +175,3 @@ composite_rules:
     all:
       - id: xdp-tx
       - id: micro-behaviors/os/bpf/program/loader::packet-manip-helpers
-micro-behaviors

@@ -18,5 +18,5 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: micro-behaviors/hw/input/keyboard::keylogger-string
-      - id: micro-behaviors/hw/input/keyboard::init-keylogger-sym
+      - id: micro-behaviors/hardware/input/keyboard::keylogger-string
+      - id: micro-behaviors/hardware/input/keyboard::init-keylogger-sym

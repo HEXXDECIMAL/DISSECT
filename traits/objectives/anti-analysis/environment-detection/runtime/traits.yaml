@@ -12,7 +12,7 @@ traits:
       regex: (^GetConsoleMode$|^GetConsoleOutputCP$|^GetConsoleScreenBufferInfo$)
     attack: T1497
     mbc: B0001
-micro-behaviors  - id: getenv-api
+  - id: getenv-api
     desc: Environment variable access
     crit: notable
     conf: 0.5
@@ -41,7 +41,7 @@ composite_rules:
     needs: 2
     any:
       - id: console-check-api
-      - id: micro-behaviors/hw/display/screen::write-console-w
+      - id: micro-behaviors/hardware/display/screen::write-console-w
   - id: environment-aware-malware
     desc: Environment-aware malware adaptation
     crit: suspicious
@@ -72,4 +72,3 @@ composite_rules:
     all:
       - id: environment-aware-malware
       - id: micro-behaviors/data/control-flow
-micro-behaviors

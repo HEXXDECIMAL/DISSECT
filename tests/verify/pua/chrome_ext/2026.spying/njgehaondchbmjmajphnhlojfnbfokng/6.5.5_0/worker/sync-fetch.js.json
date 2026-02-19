@@ -175,7 +175,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -188,7 +188,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "micro-behaviors/data/encoding/charset::json-parse-js",

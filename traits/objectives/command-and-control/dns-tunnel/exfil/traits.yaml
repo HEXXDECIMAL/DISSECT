@@ -160,7 +160,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: micro-behaviors/comm/dns/doh::doh-content-type
+      - id: micro-behaviors/communications/dns/doh::doh-content-type
       - id: doh-json-content
 
   # dnscat2 protocol

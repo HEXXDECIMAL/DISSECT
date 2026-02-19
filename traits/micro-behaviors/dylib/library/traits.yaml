@@ -1,15 +1,16 @@
 defaults:
   for:
     - all
+
 traits:
-micro-behaviorsmicro-behaviors  - id: libcurl-ref
+  - id: libcurl-ref
     desc: libcurl library reference
     crit: inert
     conf: 0.3
     if:
       type: string
       substr: libcurl
-micro-behaviors  - id: gnu-coreutils-ref
+  - id: gnu-coreutils-ref
     desc: GNU coreutils reference
     crit: inert
     conf: 0.3
@@ -44,7 +45,7 @@ micro-behaviors  - id: gnu-coreutils-ref
     if:
       type: string
       regex: lib.{1,20}_debug\.so
-micro-behaviors  - id: lzma-ref
+  - id: lzma-ref
     desc: lzma compression reference
     crit: inert
     conf: 0.3
@@ -480,7 +481,7 @@ micro-behaviors  - id: lzma-ref
     if:
       type: string
       regex: (?i)LIBVA_DRIVER
-micro-behaviors  - id: gdb-debugger-ref
+  - id: gdb-debugger-ref
     desc: GDB debugger reference
     crit: inert
     conf: 0.9
@@ -741,7 +742,7 @@ composite_rules:
       - id: micro-behaviors/dylib/library/ssl::libssl-ref
       - id: micro-behaviors/dylib/library/ssl::libcrypto-ref
       - id: libcurl-ref
-      - id: micro-behaviors/comm/ssh/client::libssh
+      - id: micro-behaviors/communications/ssh/client::libssh
       - id: x11-ipc-lib-marker
   - id: video-lib-marker
     desc: Video acceleration library markers (VA-API, VDPAU)
@@ -816,7 +817,7 @@ composite_rules:
     crit: inert
     conf: 0.9
     all:
-      - id: micro-behaviors/comm/async
+      - id: micro-behaviors/communications/async
   - id: lldb-debugger-ref
     desc: LLDB debugger reference
     crit: inert

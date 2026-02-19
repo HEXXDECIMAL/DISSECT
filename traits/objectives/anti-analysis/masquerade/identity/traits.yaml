@@ -162,7 +162,7 @@ composite_rules:
     conf: 0.95
     for: [elf]
     all:
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/socket/create
       - id: micro-behaviors/process/create/shell::shell-symbols
     any:
       - id: fake-smartd
@@ -179,5 +179,5 @@ composite_rules:
     for: [elf]
     all:
       - id: daemon-paths
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/socket/create
       - id: objectives/command-and-control/backdoor/pty-shell::daemon-symbols

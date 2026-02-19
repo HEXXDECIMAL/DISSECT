@@ -231,7 +231,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: micro-behaviors/comm/http/post::multipart-form
+      - id: micro-behaviors/communications/http/post::multipart-form
       - id: boundary-param
       - id: content-disposition-filename
       - id: form-data-header

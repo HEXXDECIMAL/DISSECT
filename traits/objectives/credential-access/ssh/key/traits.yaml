@@ -496,8 +496,8 @@ composite_rules:
   - id: id-ed25519
   downgrade:
     any:
-    - id: micro-behaviors/comm/ssh/client::library
-    - id: micro-behaviors/comm/ssh/client::full-implementation
+    - id: micro-behaviors/communications/ssh/client::library
+    - id: micro-behaviors/communications/ssh/client::full-implementation
 - id: sshd-password-trace
   desc: SSHD memory tracing for passwords
   crit: suspicious

@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -26,7 +26,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::for-loop-content",

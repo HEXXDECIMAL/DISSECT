@@ -28,7 +28,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -49,7 +49,7 @@
           "location": "0x924a"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::runtime",
@@ -1226,7 +1226,7 @@
       "source_file": "micro-behaviors/data/exploitation/memory/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::application-json",
+      "id": "micro-behaviors/communications/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -1259,7 +1259,7 @@
           "location": "0x9270"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/code-metrics/functions::single-char-function-names",

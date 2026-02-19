@@ -17,6 +17,6 @@ composite_rules:
     conf: 0.80
     for: [macho, dylib]
     all:
-      - id: micro-behaviors/comm/http/lib/nsurlsession::nsurlsession-download-task
+      - id: micro-behaviors/communications/http/lib/nsurlsession::nsurlsession-download-task
       - id: micro-behaviors/fs/file/write::nsfilehandle-write
       - id: micro-behaviors/fs/file/write::nsfilemanager-move

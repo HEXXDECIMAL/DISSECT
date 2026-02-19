@@ -27,6 +27,6 @@ composite_rules:
       - id: objectives/credential-access/validation/check::csidentity-password-auth
       - id: objectives/discovery/host/fingerprint::macos-hardware-uuid
       - id: micro-behaviors/fs/file/binary::fcopyfile-macos
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/download/curl::libcurl-http
       - id: objectives/collection/notes/app::notestore-db
       - id: micro-behaviors/data/browser/access::telegram-keepcoder-path

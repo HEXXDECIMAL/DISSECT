@@ -394,7 +394,7 @@ composite_rules:
   all:
   - id: heartbeat-function
   - id: register-to-server
-  - id: micro-behaviors/comm/socket/create
+  - id: micro-behaviors/communications/socket/create
 - id: cpp-rat-file-mgmt
   desc: C++ RAT with file management
   crit: hostile
@@ -409,7 +409,7 @@ composite_rules:
   - id: heartbeat-function
   - id: file-op-functions
   - id: dir-op-functions
-  - id: micro-behaviors/comm/socket/create
+  - id: micro-behaviors/communications/socket/create
 - id: cpp-rat-with-profiling
   desc: C++ RAT with victim profiling
   crit: hostile
@@ -441,4 +441,4 @@ composite_rules:
   - id: heartbeat-function
   - id: session-id-mgmt
   - id: task-dispatch
-  - id: micro-behaviors/comm/socket/create
+  - id: micro-behaviors/communications/socket/create

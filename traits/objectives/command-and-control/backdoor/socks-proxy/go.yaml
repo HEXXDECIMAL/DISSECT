@@ -131,4 +131,4 @@ composite_rules:
     all:
       - id: go-pty-with-shell
       - id: go-socks-proxy
-      - id: micro-behaviors/comm/tcp/connect::net-dial
+      - id: micro-behaviors/communications/tcp/connect::net-dial

@@ -15,8 +15,8 @@ composite_rules:
     conf: 0.8
     attack: "T1115"
     all:
-      - id: micro-behaviors/hw/clipboard/access::macos-nspasteboard
-      - id: micro-behaviors/hw/clipboard/access::macos-pasteboard-items
+      - id: micro-behaviors/hardware/clipboard/access::macos-nspasteboard
+      - id: micro-behaviors/hardware/clipboard/access::macos-pasteboard-items
     downgrade:
       any:
         - id: metadata/apple/system-component

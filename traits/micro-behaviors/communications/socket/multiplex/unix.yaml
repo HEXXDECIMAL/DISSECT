@@ -6,7 +6,7 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  # epoll_create/epoll_ctl/epoll_wait/kqueue/kevent: use micro-behaviors/comm/async/library/traits.yaml (canonical)
+  # epoll_create/epoll_ctl/epoll_wait/kqueue/kevent: use micro-behaviors/communications/async/library/traits.yaml (canonical)
   - id: select-multiplex
     desc: select() I/O multiplexing
     crit: inert
@@ -31,4 +31,4 @@ composite_rules:
     any:
       - id: select-multiplex
       - id: poll-multiplex
-      - id: micro-behaviors/comm/async/library
+      - id: micro-behaviors/communications/async/library

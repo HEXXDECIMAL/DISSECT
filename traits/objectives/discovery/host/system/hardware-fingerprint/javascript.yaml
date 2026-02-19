@@ -222,7 +222,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: js-sysinfo-multi
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
       - id: objectives/discovery/host/fingerprint::json-stringify-call
 
   # === Process-based fingerprinting (content-based detection) ===
@@ -266,5 +266,5 @@ composite_rules:
     all:
       - id: js-victim-id
       - id: process-fingerprint-multi
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
       - id: objectives/discovery/host/fingerprint::json-stringify-call

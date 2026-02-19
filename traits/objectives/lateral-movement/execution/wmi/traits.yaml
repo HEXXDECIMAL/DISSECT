@@ -106,4 +106,4 @@ composite_rules:
   mbc: E1080
   all:
   - id: wmi-process-spawn
-  - id: micro-behaviors/comm
+  - id: micro-behaviors/communications

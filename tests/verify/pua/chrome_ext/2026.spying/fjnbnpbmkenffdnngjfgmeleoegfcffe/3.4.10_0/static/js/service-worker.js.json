@@ -465,7 +465,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth-lower",
+      "id": "micro-behaviors/communications/http/oauth::oauth-lower",
       "kind": "capability",
       "desc": "oauth lowercase",
       "conf": 0.5,
@@ -542,7 +542,7 @@
           "value": "t.oauth_token_secret"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/encoding/charset::proto-extension",
@@ -583,7 +583,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/manifest.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -727,7 +727,7 @@
           "value": "r.Content-Type"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "meta/quality/versioning::version-word-title",
@@ -792,7 +792,7 @@
       "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::bearer-token",
+      "id": "micro-behaviors/communications/http/headers::bearer-token",
       "kind": "capability",
       "desc": "Bearer token authentication",
       "conf": 0.5,
@@ -830,7 +830,7 @@
           "value": "\"Bearer \".concat"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::runtime",
@@ -2373,7 +2373,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth-upper",
+      "id": "micro-behaviors/communications/http/oauth::oauth-upper",
       "kind": "capability",
       "desc": "OAuth capitalized",
       "conf": 0.5,
@@ -2428,7 +2428,7 @@
           "location": "0x3a542"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "known/malware/trojan::powersuite-credits-text-3",
@@ -2447,7 +2447,7 @@
       "source_file": "known/malware/trojan/powersuite.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::x-header-client",
+      "id": "micro-behaviors/communications/http/headers::x-header-client",
       "kind": "capability",
       "desc": "X-Client header",
       "conf": 0.5,
@@ -2468,7 +2468,7 @@
           "location": "0x431ed"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::secret",
@@ -3236,7 +3236,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::access-token",
+      "id": "micro-behaviors/communications/http/oauth::access-token",
       "kind": "capability",
       "desc": "access_token reference",
       "conf": 0.5,
@@ -3248,10 +3248,10 @@
           "value": "t.access_token"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::refresh-token",
+      "id": "micro-behaviors/communications/http/oauth::refresh-token",
       "kind": "capability",
       "desc": "refresh_token reference",
       "conf": 0.5,
@@ -3270,7 +3270,7 @@
           "location": "0x3ec20"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "micro-behaviors/interface/usage/api::usage-help",
@@ -5087,7 +5087,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -5576,7 +5576,7 @@
           "location": "0x7c7f9"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/os/admin/observability::opentelemetry",
@@ -10086,7 +10086,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/minifier/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::method-field",
+      "id": "micro-behaviors/communications/http/request::method-field",
       "kind": "capability",
       "desc": "method field in HTTP config",
       "conf": 0.6,
@@ -10107,7 +10107,7 @@
           "location": "0x3aa50"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "objectives/lateral-movement/supply-chain/chrome-ext/api::chrome-namespace",
@@ -11731,7 +11731,7 @@
       "source_file": "objectives/persist/startup/registry/windows.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::application-json",
+      "id": "micro-behaviors/communications/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -11836,7 +11836,7 @@
           "location": "0x592f4"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "known/malware/dropper::function-constructor",
@@ -12282,7 +12282,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth",
+      "id": "micro-behaviors/communications/http/oauth::oauth",
       "kind": "capability",
       "desc": "OAuth authentication",
       "conf": 0.66,
@@ -12424,7 +12424,7 @@
           "location": "0x3ec20"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/strings/encoding::js-dynamic-exec",
@@ -13083,7 +13083,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -13572,7 +13572,7 @@
           "location": "0x7c7f9"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-clients",
@@ -14233,7 +14233,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -14722,7 +14722,7 @@
           "location": "0x7c7f9"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/impact/ransomware/behavior::encryption-functions",
@@ -17054,7 +17054,7 @@
       "source_file": "micro-behaviors/crypto/symmetric/aes/node.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::bot-headers",
+      "id": "micro-behaviors/communications/http/headers::bot-headers",
       "kind": "capability",
       "desc": "Bot identification HTTP headers",
       "conf": 0.7,
@@ -17075,7 +17075,7 @@
           "location": "0x431ed"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
@@ -18638,7 +18638,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::headers-auth",
+      "id": "micro-behaviors/communications/http/headers::headers-auth",
       "kind": "capability",
       "desc": "HTTP Authorization header",
       "conf": 0.66,
@@ -18676,7 +18676,7 @@
           "value": "\"Bearer \".concat"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "meta/quality::error-handling",

@@ -5787,7 +5787,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -5868,7 +5868,7 @@
           "location": "0x18cc83"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "objectives/discovery/host/browser::firefox-name",
@@ -8176,7 +8176,7 @@
       "source_file": "known/malware/trojan/powersuite.yaml"
     },
     {
-      "id": "micro-behaviors/comm/ssh/connect::ssh-string",
+      "id": "micro-behaviors/communications/ssh/connect::ssh-string",
       "kind": "capability",
       "desc": "ssh string",
       "conf": 0.4,
@@ -8196,7 +8196,7 @@
           "location": "0xa1316"
         }
       ],
-      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/communications/ssh/connect/generic.yaml"
     },
     {
       "id": "objectives/discovery/host/fingerprint/machine-id::hwid-string",
@@ -8736,7 +8736,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -8749,7 +8749,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "objectives/credential-access/browser/chromium::edge-path",
@@ -10150,7 +10150,7 @@
       "source_file": "objectives/discovery/host/browser/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::xmlhttprequest-word",
+      "id": "micro-behaviors/communications/http/request::xmlhttprequest-word",
       "kind": "capability",
       "desc": "XMLHttpRequest reference",
       "conf": 0.4,
@@ -10181,7 +10181,7 @@
           "location": "0x188627"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::payload",
@@ -10560,7 +10560,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/remote-config::remote-config-service",
+      "id": "micro-behaviors/communications/http/remote-config::remote-config-service",
       "kind": "capability",
       "desc": "Remote configuration or shepherd service",
       "conf": 0.7,
@@ -10601,7 +10601,7 @@
           "value": "shepherd."
         }
       ],
-      "source_file": "micro-behaviors/comm/http/remote-config/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/remote-config/javascript.yaml"
     },
     {
       "id": "micro-behaviors/data/db/conn/elasticsearch::es-search-endpoint",
@@ -13962,7 +13962,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -14060,7 +14060,7 @@
           "value": "POST"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/discovery/host/geo::country-code-camel",
@@ -22303,7 +22303,7 @@
       "source_file": "objectives/anti-analysis/sandbox/detect/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::application-json",
+      "id": "micro-behaviors/communications/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -22348,7 +22348,7 @@
           "location": "0x18c75f"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "objectives/command-and-control/reverse-shell/pty::raw-mode",
@@ -25612,7 +25612,7 @@
       "source_file": "micro-behaviors/data/telemetry/logging/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -25710,7 +25710,7 @@
           "value": "POST"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-clients",
@@ -27236,7 +27236,7 @@
       "source_file": "objectives/execution/condition/platform/os.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-client",
+      "id": "micro-behaviors/communications/http/request::http-client",
       "kind": "capability",
       "desc": "HTTP client library usage",
       "conf": 0.7,
@@ -27267,7 +27267,7 @@
           "location": "0x188627"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "meta/quality::versioned",
@@ -27521,7 +27521,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -27619,7 +27619,7 @@
           "value": "POST"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/lateral-movement/supply-chain/dropper::wscript-xmlhttp",
@@ -28638,7 +28638,7 @@
       "source_file": "objectives/command-and-control/reverse-shell/pty/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/ssh/connect::connect",
+      "id": "micro-behaviors/communications/ssh/connect::connect",
       "kind": "capability",
       "desc": "SSH connection",
       "conf": 0.66,
@@ -28658,7 +28658,7 @@
           "location": "0xa1316"
         }
       ],
-      "source_file": "micro-behaviors/comm/ssh/connect/generic.yaml"
+      "source_file": "micro-behaviors/communications/ssh/connect/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/scripting/host::msxml-http-variants",

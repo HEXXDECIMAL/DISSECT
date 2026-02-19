@@ -13,7 +13,7 @@
   },
   "findings": [
     {
-      "id": "micro-behaviors/comm/http/request::user-agent-header",
+      "id": "micro-behaviors/communications/http/request::user-agent-header",
       "kind": "capability",
       "desc": "User-Agent header",
       "conf": 0.5,
@@ -34,10 +34,10 @@
           "location": "0x1ac1e"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-config-fields",
+      "id": "micro-behaviors/communications/http/request::http-config-fields",
       "kind": "capability",
       "desc": "HTTP configuration fields (method/body/headers)",
       "conf": 0.5,
@@ -50,7 +50,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::buffer",
@@ -138,7 +138,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/websocket::websocket-class",
+      "id": "micro-behaviors/communications/http/websocket::websocket-class",
       "kind": "capability",
       "desc": "WebSocket class reference",
       "conf": 0.5,
@@ -171,7 +171,7 @@
           "location": "0x1dee3"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/websocket/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/websocket/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/malware::slave-term",
@@ -290,7 +290,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/lib/nsurlsession::content-type-json",
+      "id": "micro-behaviors/communications/http/lib/nsurlsession::content-type-json",
       "kind": "capability",
       "desc": "Content-Type JSON header",
       "conf": 0.6,
@@ -311,7 +311,7 @@
           "location": "0x28231"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/lib/nsurlsession/traits.yaml"
+      "source_file": "micro-behaviors/communications/http/lib/nsurlsession/traits.yaml"
     },
     {
       "id": "meta/quality/versioning::version-word-title",
@@ -376,7 +376,7 @@
       "source_file": "objectives/discovery/host/geo/api.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::bearer-token",
+      "id": "micro-behaviors/communications/http/headers::bearer-token",
       "kind": "capability",
       "desc": "Bearer token authentication",
       "conf": 0.5,
@@ -397,7 +397,7 @@
           "location": "0x2b868"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::runtime",
@@ -1848,7 +1848,7 @@
       "source_file": "objectives/command-and-control/channels/messaging/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::multipart-form",
+      "id": "micro-behaviors/communications/http/post::multipart-form",
       "kind": "capability",
       "desc": "multipart/form-data content type",
       "conf": 0.6,
@@ -1869,7 +1869,7 @@
           "location": "0x283f5"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/fs/path/sensitive/crypto::crypto-wallets",
@@ -2084,7 +2084,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/upload::form-data-append",
+      "id": "micro-behaviors/communications/http/upload::form-data-append",
       "kind": "capability",
       "desc": "Appends data to FormData",
       "conf": 0.6,
@@ -2097,7 +2097,7 @@
           "location": "file"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/upload/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/upload/javascript.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::connect",
@@ -2156,7 +2156,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::access-token",
+      "id": "micro-behaviors/communications/http/oauth::access-token",
       "kind": "capability",
       "desc": "access_token reference",
       "conf": 0.5,
@@ -2169,10 +2169,10 @@
           "location": "0x2b867"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::refresh-token",
+      "id": "micro-behaviors/communications/http/oauth::refresh-token",
       "kind": "capability",
       "desc": "refresh_token reference",
       "conf": 0.5,
@@ -2191,7 +2191,7 @@
           "location": "0x31853"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "micro-behaviors/interface/usage/api::usage-help",
@@ -2514,7 +2514,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::xmlhttprequest-word",
+      "id": "micro-behaviors/communications/http/request::xmlhttprequest-word",
       "kind": "capability",
       "desc": "XMLHttpRequest reference",
       "conf": 0.4,
@@ -2569,7 +2569,7 @@
           "location": "0x1e09f"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/text/keywords::password",
@@ -2710,7 +2710,7 @@
       "source_file": "micro-behaviors/data/control-flow/analysis/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::form-data-header",
+      "id": "micro-behaviors/communications/http/headers::form-data-header",
       "kind": "capability",
       "desc": "HTTP multipart form-data header",
       "conf": 0.5,
@@ -2731,7 +2731,7 @@
           "location": "0x286be"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "objectives/command-and-control/infrastructure/domain::hardcoded-domain-com",
@@ -3129,7 +3129,7 @@
       "source_file": "micro-behaviors/data/text/keywords/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method",
+      "id": "micro-behaviors/communications/http/post::post-method",
       "kind": "capability",
       "desc": "POST HTTP method",
       "conf": 0.5,
@@ -3186,7 +3186,7 @@
           "location": "0x281fb"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/os/admin/observability::opentelemetry",
@@ -6525,7 +6525,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/testing/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::application-json",
+      "id": "micro-behaviors/communications/http/request::application-json",
       "kind": "capability",
       "desc": "application/json content type",
       "conf": 0.65,
@@ -6558,7 +6558,7 @@
           "location": "0x2a515"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/javascript.yaml"
+      "source_file": "micro-behaviors/communications/http/request/javascript.yaml"
     },
     {
       "id": "objectives/lateral-movement/supply-chain/npm/testing::it-with-string",
@@ -6796,7 +6796,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/npm/code-quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::multipart-upload",
+      "id": "micro-behaviors/communications/http/headers::multipart-upload",
       "kind": "capability",
       "desc": "Multipart form data upload",
       "conf": 0.6,
@@ -6829,10 +6829,10 @@
           "location": "0x286be"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/oauth::oauth",
+      "id": "micro-behaviors/communications/http/oauth::oauth",
       "kind": "capability",
       "desc": "OAuth authentication",
       "conf": 0.66,
@@ -6857,7 +6857,7 @@
           "location": "0x31853"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/oauth/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/oauth/generic.yaml"
     },
     {
       "id": "objectives/anti-static/obfuscation/strings/encoding::js-dynamic-exec",
@@ -6928,7 +6928,7 @@
       "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-form",
+      "id": "micro-behaviors/communications/http/post::post-form",
       "kind": "capability",
       "desc": "HTTP form data upload",
       "conf": 0.75,
@@ -6949,7 +6949,7 @@
           "location": "0x283f5"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/exploitation/memory::js-path-split",
@@ -7026,7 +7026,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/vscode/malicious.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post-method-detection",
+      "id": "micro-behaviors/communications/http/post::post-method-detection",
       "kind": "capability",
       "desc": "Makes HTTP POST requests (method detection)",
       "conf": 0.75,
@@ -7083,7 +7083,7 @@
           "location": "0x281fb"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "micro-behaviors/execution/vm/sandbox::http-clients",
@@ -7599,7 +7599,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/permissions/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::http-client",
+      "id": "micro-behaviors/communications/http/request::http-client",
       "kind": "capability",
       "desc": "HTTP client library usage",
       "conf": 0.7,
@@ -7654,7 +7654,7 @@
           "location": "0x1e09f"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "meta/quality::versioned",
@@ -7743,7 +7743,7 @@
       "source_file": "meta/quality/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/post::post",
+      "id": "micro-behaviors/communications/http/post::post",
       "kind": "capability",
       "desc": "HTTP POST request capability",
       "conf": 0.8,
@@ -7800,7 +7800,7 @@
           "location": "0x281fb"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/post/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/post/generic.yaml"
     },
     {
       "id": "objectives/lateral-movement/supply-chain/npm/testing::test-block-functions",
@@ -7975,7 +7975,7 @@
       "source_file": "objectives/discovery/host/fingerprint/node.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/request::request",
+      "id": "micro-behaviors/communications/http/request::request",
       "kind": "capability",
       "desc": "Makes HTTP requests",
       "conf": 0.66,
@@ -7996,7 +7996,7 @@
           "location": "0x1ac1e"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/request/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/request/generic.yaml"
     },
     {
       "id": "meta/lang::modern-javascript",
@@ -8395,7 +8395,7 @@
       "source_file": "objectives/lateral-movement/supply-chain/chrome-ext/api/api.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/websocket::websocket",
+      "id": "micro-behaviors/communications/http/websocket::websocket",
       "kind": "capability",
       "desc": "WebSocket communication",
       "conf": 0.66,
@@ -8428,7 +8428,7 @@
           "location": "0x1dee3"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/websocket/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/websocket/generic.yaml"
     },
     {
       "id": "micro-behaviors/data/control-flow/analysis::iteration-loop-pattern",
@@ -9841,7 +9841,7 @@
       "source_file": "micro-behaviors/data/encoding/charset/traits.yaml"
     },
     {
-      "id": "micro-behaviors/comm/http/headers::headers-auth",
+      "id": "micro-behaviors/communications/http/headers::headers-auth",
       "kind": "capability",
       "desc": "HTTP Authorization header",
       "conf": 0.66,
@@ -9862,7 +9862,7 @@
           "location": "0x2b868"
         }
       ],
-      "source_file": "micro-behaviors/comm/http/headers/generic.yaml"
+      "source_file": "micro-behaviors/communications/http/headers/generic.yaml"
     },
     {
       "id": "objectives/lateral-movement/supply-chain/npm/testing::testing-library-methods",
@@ -32445,7 +32445,7 @@
       ]
     },
     {
-      "id": "meta/internal/imported::hw/split",
+      "id": "meta/internal/imported::hardware/split",
       "kind": "structural",
       "desc": "calls Hw.split",
       "conf": 0.95,

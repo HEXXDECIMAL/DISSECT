@@ -28,4 +28,4 @@ composite_rules:
       - id: micro-behaviors/os/bpf/program/icmp::icmp-indicators
     any:
       - id: micro-behaviors/os/bpf/program/network::bpf-skeleton-include
-      - id: micro-behaviors/comm/ip/services::services-icmp
+      - id: micro-behaviors/communications/ip/services::services-icmp

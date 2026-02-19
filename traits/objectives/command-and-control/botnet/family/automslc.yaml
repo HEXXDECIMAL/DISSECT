@@ -15,4 +15,4 @@ composite_rules:
     attack: "T1071.001"
     all:
       - id: well-known/malware/botnet/automslc::automslc-c2-ip
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python

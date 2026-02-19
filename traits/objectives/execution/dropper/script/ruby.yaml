@@ -238,7 +238,7 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: micro-behaviors/comm/http/protocol/
+      - id: micro-behaviors/communications/http/protocol/
       - id: micro-behaviors/fs/write/file
       - id: micro-behaviors/process/create/shell
 
@@ -249,9 +249,9 @@ composite_rules:
     needs: 3
     any:
       - id: micro-behaviors/data/encode/base64::base64-decode
-      - id: micro-behaviors/comm/dns/lookup::dns-resolve
-      - id: micro-behaviors/comm/http/lib/netlib::net-http
-      - id: micro-behaviors/comm/http/get/
+      - id: micro-behaviors/communications/dns/lookup::dns-resolve
+      - id: micro-behaviors/communications/http/lib/netlib::net-http
+      - id: micro-behaviors/communications/http/get/
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and execute
@@ -273,7 +273,7 @@ composite_rules:
     crit: suspicious
     needs: 2
     any:
-      - id: micro-behaviors/comm/socket/listen::ruby-tcp-socket
+      - id: micro-behaviors/communications/socket/listen::ruby-tcp-socket
       - id: micro-behaviors/process/create/shell
       - id: micro-behaviors/process/tty/pty::ruby-pty
     downgrade:
@@ -300,5 +300,5 @@ composite_rules:
     crit: notable
     needs: 2
     any:
-      - id: micro-behaviors/comm/http/lib/netlib::request-ruby
+      - id: micro-behaviors/communications/http/lib/netlib::request-ruby
       - id: micro-behaviors/fs/write/file::ruby-file-open-write-binary

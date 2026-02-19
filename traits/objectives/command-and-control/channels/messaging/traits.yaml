@@ -7,8 +7,8 @@ defaults:
 
 traits:
   # Messaging platforms
-  # NOTE: Telegram API traits are defined in comm/messaging/telegram/
-  # NOTE: Discord webhook traits are defined in comm/messaging/discord/
+  # NOTE: Telegram API traits are defined in communications/messaging/telegram/
+  # NOTE: Discord webhook traits are defined in communications/messaging/discord/
   # Use those directory references in composite rules
 
   - id: discord-invite
@@ -38,7 +38,7 @@ composite_rules:
     attack: "T1071.001"
     conf: 0.5
     any:
-      - id: micro-behaviors/comm/http/post/
+      - id: micro-behaviors/communications/http/post/
 
   - id: dns-query
     desc: DNS queries (potential C2 channel)
@@ -48,5 +48,5 @@ composite_rules:
     conf: 0.4
     for: [elf, macho, so, dylib, c]
     any:
-      - id: micro-behaviors/comm/dns/lookup::lookup-res-query
+      - id: micro-behaviors/communications/dns/lookup::lookup-res-query
       - id: dns-query-symbol

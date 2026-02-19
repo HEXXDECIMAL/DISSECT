@@ -490,7 +490,7 @@ composite_rules:
     for:
       - javascript
     all:
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
       - id: small-file-5k
     any:
       - id: objectives/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
@@ -505,7 +505,7 @@ composite_rules:
       - javascript
     all:
       - id: objectives/discovery/host/system/hardware-fingerprint::js-victim-id
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
       - id: small-file-5k
   - id: has-exports
     desc: Module has exports
@@ -632,7 +632,7 @@ composite_rules:
       - javascript
     all:
       - id: objectives/discovery/host/system/hardware-fingerprint::js-victim-id
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
   - id: dependency-confusion-claim
     desc: Package claims dependency confusion protection
     crit: notable

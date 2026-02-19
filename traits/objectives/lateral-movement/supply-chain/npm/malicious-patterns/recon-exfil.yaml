@@ -9,7 +9,7 @@ composite_rules:
     any:
       - id: objectives/lateral-movement/supply-chain/npm/install::script-curl
       - id: objectives/lateral-movement/supply-chain/npm/install::script-wget
-      - id: micro-behaviors/comm/http/post::post
+      - id: micro-behaviors/communications/http/post::post
 
   - id: npm-victim-id-recon
     desc: NPM package collects victim identifiers

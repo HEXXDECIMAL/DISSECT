@@ -52,6 +52,6 @@ composite_rules:
     any:
       - id: ssh-string
       - id: paramiko
-      - id: micro-behaviors/comm/ssh/client::libssh
+      - id: micro-behaviors/communications/ssh/client::libssh
       - id: openssh
       - id: ssh-client

@@ -31,8 +31,8 @@ composite_rules:
     all:
       - id: micro-behaviors/os/sysinfo/hostname::socket-hostname
       - id: micro-behaviors/os/network/interface::socket-ip-address
-      - id: micro-behaviors/comm/http/lib/netlib::net-http
-      - id: micro-behaviors/comm/http/lib/netlib::hardcoded-ip-url
+      - id: micro-behaviors/communications/http/lib/netlib::net-http
+      - id: micro-behaviors/communications/http/lib/netlib::hardcoded-ip-url
 
   # === System Info Exfiltration - SUSPICIOUS ===
   # Less certainty than info-stealer, but still concerning
@@ -44,6 +44,6 @@ composite_rules:
     needs: 2
     any:
       - id: micro-behaviors/os/sysinfo
-      - id: micro-behaviors/comm/http/lib/netlib::hardcoded-ip-url
+      - id: micro-behaviors/communications/http/lib/netlib::hardcoded-ip-url
       - id: base64-json-encode
       - id: micro-behaviors/process/env/access::getenv-user

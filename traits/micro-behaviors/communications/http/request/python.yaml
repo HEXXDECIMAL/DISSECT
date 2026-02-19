@@ -42,11 +42,11 @@ composite_rules:
     crit: inert
     conf: 0.9
     any:
-      - id: micro-behaviors/comm/http/lib/requests::requests-get
-      - id: micro-behaviors/comm/http/lib/requests::requests-post
-      - id: micro-behaviors/comm/http/lib/urllib::urllib-urlopen
-      - id: micro-behaviors/comm/http/lib/urllib::urllib-urlopen-py2
+      - id: micro-behaviors/communications/http/lib/requests::requests-get
+      - id: micro-behaviors/communications/http/lib/requests::requests-post
+      - id: micro-behaviors/communications/http/lib/urllib::urllib-urlopen
+      - id: micro-behaviors/communications/http/lib/urllib::urllib-urlopen-py2
       - id: url-literal
-      - id: micro-behaviors/comm/http/lib/aiohttp::aiohttp-session
-      - id: micro-behaviors/comm/http/lib/httpx::httpx-get
-      - id: micro-behaviors/comm/http/lib/httpx::httpx-post
+      - id: micro-behaviors/communications/http/lib/aiohttp::aiohttp-session
+      - id: micro-behaviors/communications/http/lib/httpx::httpx-get
+      - id: micro-behaviors/communications/http/lib/httpx::httpx-post

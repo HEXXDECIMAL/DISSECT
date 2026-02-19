@@ -10,7 +10,7 @@ composite_rules:
     mbc: "B0015"
     for: [javascript]
     all:
-      - id: micro-behaviors/comm/http/request::axios-post-call
+      - id: micro-behaviors/communications/http/request::axios-post-call
     any:
-      - id: micro-behaviors/hw/input/keyboard::node-keyboard-listener
-      - id: micro-behaviors/hw/input/keyboard::global-keyboard-listener
+      - id: micro-behaviors/hardware/input/keyboard::node-keyboard-listener
+      - id: micro-behaviors/hardware/input/keyboard::global-keyboard-listener

@@ -5,8 +5,8 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  # socket: use micro-behaviors/comm/socket/listen/unix.yaml::socket-sym (canonical)
-  # socketpair: use micro-behaviors/comm/socket/pair/unix.yaml::pair (canonical)
+  # socket: use micro-behaviors/communications/socket/listen/unix.yaml::socket-sym (canonical)
+  # socketpair: use micro-behaviors/communications/socket/pair/unix.yaml::pair (canonical)
   - id: socketcall-sym
     desc: socketcall multiplexed socket syscall (Linux)
     crit: notable
@@ -64,8 +64,8 @@ composite_rules:
     crit: notable
     conf: 0.75
     any:
-      - id: micro-behaviors/comm/socket/listen::socket-sym
-      - id: micro-behaviors/comm/socket/pair::pair
+      - id: micro-behaviors/communications/socket/listen::socket-sym
+      - id: micro-behaviors/communications/socket/pair::pair
       - id: socketcall-sym
 
   - id: client

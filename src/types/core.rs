@@ -174,6 +174,30 @@ impl AnalysisReport {
         }
     }
 
+    /// Filter findings using a predicate function.
+    /// Applies the filter to both the top-level findings and findings within files.
+    /// Returns the number of findings removed.
+    pub fn filter_findings<F>(&mut self, predicate: F) -> usize
+    where
+        F: Fn(&Finding) -> bool,
+    {
+        let initial_count = self.findings.len()
+            + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
+
+        // Filter top-level findings
+        self.findings.retain(&predicate);
+
+        // Filter findings in files array (v2 schema)
+        for file in &mut self.files {
+            file.findings.retain(&predicate);
+        }
+
+        let final_count = self.findings.len()
+            + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
+
+        initial_count - final_count
+    }
+
 /// Shrink all Vec fields to fit their contents, freeing excess capacity.
     /// Call this after analysis is complete to reduce memory footprint.
     pub fn shrink_to_fit(&mut self) {

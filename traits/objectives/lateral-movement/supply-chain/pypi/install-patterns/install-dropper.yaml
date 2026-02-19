@@ -402,7 +402,7 @@ composite_rules:
   crit: suspicious
   conf: 0.9
   all:
-  - id: micro-behaviors/comm/http/request::request-python
+  - id: micro-behaviors/communications/http/request::request-python
   - id: executable-download-url
 - id: binary-file-drop
   desc: Binary file write to disk
@@ -413,7 +413,7 @@ composite_rules:
   - id: exe-file-extension
   any:
   - id: python-command-exec
-  - id: micro-behaviors/comm/http/request::request-python
+  - id: micro-behaviors/communications/http/request::request-python
   unless:
   - id: metadata/builder/pip::setuptools-package-index
   downgrade:
@@ -437,7 +437,7 @@ composite_rules:
   attack: T1204.002
   all:
   - id: robust-setup-py
-  - id: micro-behaviors/comm/http/request::request-python
+  - id: micro-behaviors/communications/http/request::request-python
   - id: binary-file-write
   - id: python-command-exec
 - id: pypi-install-downloader
@@ -448,7 +448,7 @@ composite_rules:
   attack: T1204.002
   all:
   - id: robust-setup-py
-  - id: micro-behaviors/comm/http/request::request-python
+  - id: micro-behaviors/communications/http/request::request-python
   - id: setup-py-file-write
   - id: python-command-exec
 - id: download-execute-chain

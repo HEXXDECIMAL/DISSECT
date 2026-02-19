@@ -50,7 +50,7 @@ composite_rules:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::setup-py-file
       - id: objectives/execution/setup/hooks::setuptools-run-override
       - id: setup-computername-access
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # === HOSTILE: Custom Install Download & Execute ===
   # setup.py uses a custom install command to download a file and execute it.
@@ -64,7 +64,7 @@ composite_rules:
     all:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::setup-py-file
       - id: objectives/execution/setup/hooks::setuptools-run-override
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
       - id: micro-behaviors/fs/file/open::generic
       - id: micro-behaviors/process/create/shell::shell-execution-indicators
 
@@ -78,4 +78,4 @@ composite_rules:
     all:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::setup-py-file
       - id: objectives/execution/setup/hooks::setuptools-run-override
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python

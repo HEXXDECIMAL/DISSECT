@@ -857,6 +857,13 @@ fn analyze_file(
     // Convert to v2 schema (flat files array) and filter based on verbosity
     report.convert_to_v2(verbose);
 
+    // Filter out low-value composite "any" rules before output
+    // These are rules with needs=1 that add no value over the underlying trait
+    let removed = report.filter_findings(|f| !capability_mapper.is_low_value_any_rule(&f.id));
+    if removed > 0 {
+        tracing::debug!("Filtered {} low-value composite 'any' rules from output", removed);
+    }
+
     // Format output based on requested format
     let _t4 = std::time::Instant::now();
 
@@ -1447,6 +1454,12 @@ fn analyze_file_with_shared_mapper(
         memory_tracker::log_after_file_processing(target, file_size, _t_start.elapsed());
     }
 
+    // Filter out low-value composite "any" rules before output
+    let removed = report.filter_findings(|f| !capability_mapper.is_low_value_any_rule(&f.id));
+    if removed > 0 {
+        tracing::debug!("Filtered {} low-value composite 'any' rules from {}", removed, target);
+    }
+
     // Output as JSONL format for parallel scanning
     output::format_jsonl(&report)
 }
@@ -1483,6 +1496,10 @@ fn analyze_archive_streaming_jsonl(
     let report = analyzer.analyze_streaming(path, |file_analysis| {
         let mut fa = file_analysis.clone();
         fa.path = types::file_analysis::encode_archive_path(&archive_path, &fa.path);
+
+        // Filter out low-value composite "any" rules before output
+        fa.findings.retain(|f| !capability_mapper.is_low_value_any_rule(&f.id));
+
         if let Ok(line) = output::format_jsonl_line(&fa) {
             println!("{}", line);
         }
@@ -1500,8 +1517,12 @@ fn analyze_archive_streaming_jsonl(
         .unwrap_or(types::Criticality::Inert);
     let mut counts = report.summary.as_ref().map(|s| s.counts.clone()).unwrap_or_default();
 
+    // Filter low-value composite "any" rules from archive-level findings
+    let mut filtered_findings = report.findings.clone();
+    filtered_findings.retain(|f| !capability_mapper.is_low_value_any_rule(&f.id));
+
     // Include archive-level findings (zip-bomb, path traversal, etc.)
-    for finding in &report.findings {
+    for finding in &filtered_findings {
         if finding.crit > max_risk {
             max_risk = finding.crit;
         }
@@ -1529,7 +1550,7 @@ fn analyze_archive_streaming_jsonl(
         },
         counts: Some(counts),
         encoding: None,
-        findings: report.findings,
+        findings: filtered_findings,
         traits: Vec::new(),
         structure: report.structure,
         functions: Vec::new(),

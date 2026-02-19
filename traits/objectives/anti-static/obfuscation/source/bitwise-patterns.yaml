@@ -11,4 +11,5 @@ traits:
   if:
     type: raw
     regex: \d+.{0,20}&.{0,20}\d+.{0,20}\|.{0,20}\d+.{0,20}<<.{0,20}>>
+    count_min: 3
 composite_rules: []

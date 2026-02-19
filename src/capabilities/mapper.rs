@@ -35,8 +35,8 @@ use super::validation::{
     find_impossible_size_constraints, find_invalid_trait_ids, find_line_number,
     find_missing_search_patterns, find_oversized_trait_directories, find_parent_duplicate_segments,
     find_overlapping_conditions, find_platform_named_directories, find_redundant_any_refs,
-    find_redundant_needs_one, find_single_item_clauses, find_slow_regex_patterns,
-    find_string_content_collisions,
+    find_redundant_needs_one, find_short_pattern_warnings, find_single_item_clauses,
+    find_slow_regex_patterns, find_string_content_collisions,
     find_string_pattern_duplicates, precalculate_all_composite_precisions,
     simple_rule_to_composite_rule, validate_composite_trait_only,
     validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
@@ -844,8 +844,8 @@ impl CapabilityMapper {
             .iter()
             .filter_map(|t| {
                 // Extract the directory prefix from trait IDs
-                // New format: everything before '::' (e.g., "micro-behaviors/comm/http::curl" -> "micro-behaviors/comm/http")
-                // Legacy format: everything before last '/' (e.g., "micro-behaviors/comm/http/curl" -> "micro-behaviors/comm/http")
+                // New format: everything before '::' (e.g., "micro-behaviors/communications/http::curl" -> "micro-behaviors/communications/http")
+                // Legacy format: everything before last '/' (e.g., "micro-behaviors/communications/http/curl" -> "micro-behaviors/communications/http")
                 if let Some(idx) = t.id.find("::") {
                     Some(t.id[..idx].to_string())
                 } else {
@@ -1715,6 +1715,36 @@ impl CapabilityMapper {
             ));
         }
 
+        // Validate: short patterns that are likely to produce too many false positives
+        let short_pattern_warnings = find_short_pattern_warnings(&trait_definitions, &trait_source_files);
+        if !short_pattern_warnings.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} traits have open-ended short patterns",
+                short_pattern_warnings.len()
+            );
+            eprintln!("   Open-ended short patterns are too likely to create false positives.");
+            eprintln!("   Try to create a more specific trait; see RULES.md for details.\n");
+            for (trait_id, pattern, pattern_type, source_file) in &short_pattern_warnings {
+                let line_hint = find_line_number(source_file, &pattern);
+                if let Some(line) = line_hint {
+                    eprintln!(
+                        "   {}:{}: Trait '{}' uses {} pattern '{}'",
+                        source_file, line, trait_id, pattern_type, pattern
+                    );
+                } else {
+                    eprintln!(
+                        "   {}: Trait '{}' uses {} pattern '{}'",
+                        source_file, trait_id, pattern_type, pattern
+                    );
+                }
+            }
+            eprintln!();
+            warnings.push(format!(
+                "{} traits have open-ended short patterns",
+                short_pattern_warnings.len()
+            ));
+        }
+
         // Validate: directories with too many traits (should be split)
         let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
         if !oversized_dirs.is_empty() {
@@ -1804,6 +1834,7 @@ impl CapabilityMapper {
                 }
             }
             eprintln!();
+            has_fatal_errors = true;
         }
 
         // Validate metric field references
@@ -1870,6 +1901,7 @@ impl CapabilityMapper {
                 eprintln!("     ... and {} more", sorted_fields.len() - 10);
             }
             eprintln!();
+            has_fatal_errors = true;
         }
 
         // Validate that composite rules only contain trait references (not inline primitives)
@@ -2860,6 +2892,47 @@ impl CapabilityMapper {
                 report.findings.push(finding);
             }
         }
+    }
+
+    /// Check if a composite rule ID represents a low-value "any" rule.
+    /// These are composite rules with `any` conditions where `needs` is 1 or unset.
+    /// Such rules add no value over the underlying matched trait since they
+    /// just match if ANY ONE of their conditions is true.
+    ///
+    /// Returns true if the finding should be filtered out (is low-value).
+    pub fn is_low_value_any_rule(&self, finding_id: &str) -> bool {
+        // Find the composite rule with this ID
+        if let Some(rule) = self.composite_rules.iter().find(|r| r.id == finding_id) {
+            // Check if it has an `any` clause
+            if let Some(any_conditions) = &rule.any {
+                // If there's only 1 condition in `any`, it's always low-value
+                // (equivalent to just that one condition)
+                if any_conditions.len() == 1 {
+                    return true;
+                }
+
+                // Check the `needs` value
+                let needs = rule.needs.unwrap_or(1);
+
+                // If needs is 1 (or implicitly 1), this is low-value
+                // because it just matches if ANY ONE condition is true
+                if needs <= 1 {
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    /// Filter out low-value composite "any" rules from findings.
+    /// These rules match when needs=1 (or unset with `any`), providing no
+    /// additional value over the underlying trait that matched.
+    /// Keeps rules with needs >= 2 which provide meaningful signal combination.
+    pub fn filter_low_value_any_rules(&self, findings: Vec<Finding>) -> Vec<Finding> {
+        findings
+            .into_iter()
+            .filter(|finding| !self.is_low_value_any_rule(&finding.id))
+            .collect()
     }
 
     /// Generate metadata/import/ findings from discovered imports.

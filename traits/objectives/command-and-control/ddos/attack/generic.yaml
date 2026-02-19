@@ -242,9 +242,9 @@ composite_rules:
   - id: http-methods
     desc: "HTTP request methods detected"
     any:
-      - id: micro-behaviors/comm/http/post
-      - id: micro-behaviors/comm/http/request::request
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/post
+      - id: micro-behaviors/communications/http/request::request
+      - id: micro-behaviors/communications/http/request::request-python
     crit: notable
 
   # High-confidence DDoS capability
@@ -255,7 +255,7 @@ composite_rules:
     all:
       - id: ddos-terminology
       - id: ddos-mechanics
-      - id: micro-behaviors/comm/socket/create
+      - id: micro-behaviors/communications/socket/create
 
   # Layer 7 DDoS (Application Layer)
   - id: layer7-ddos

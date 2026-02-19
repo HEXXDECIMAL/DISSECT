@@ -84,5 +84,5 @@ composite_rules:
     needs: 3
     all:
       - id: gtfobins-ruby-marker
-      - id: micro-behaviors/comm/http/lib/netlib::open-uri
+      - id: micro-behaviors/communications/http/lib/netlib::open-uri
       - id: micro-behaviors/fs/write/file::io-copy-stream

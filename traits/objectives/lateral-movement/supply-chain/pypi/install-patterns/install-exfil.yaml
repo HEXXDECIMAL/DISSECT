@@ -331,7 +331,7 @@ composite_rules:
       - id: setup-py-file
       - id: objectives/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
       - id: base64-encode-string
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # === HOSTILE: PyPI Install-Time Atexit Exfiltration ===
   # setup.py registers atexit callback that collects system info and
@@ -348,7 +348,7 @@ composite_rules:
       - id: setup-py-file
       - id: atexit-register-callback
       - id: base64-encode-string
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # Lighter variant without setup.py check
   # Complexity: for(+1) + all(+3) = 4 (meets HOSTILE threshold)
@@ -361,7 +361,7 @@ composite_rules:
     all:
       - id: objectives/discovery/host/system/hardware-fingerprint::python-sysinfo-multi
       - id: base64-encode-string
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # === HOSTILE: Python Environment Variable Exfiltration ===
   # Pattern: enumerate environ + base64 encode + HTTP send
@@ -376,7 +376,7 @@ composite_rules:
     all:
       - id: micro-behaviors/os/env/vars::py-environ-enumerate
       - id: base64-encode-string
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # Fingerprint with VID parameter (high confidence)
   # Complexity: for(+1) + all(+3) = 4 (meets SUSPICIOUS threshold; HOSTILE would need >=4)
@@ -389,7 +389,7 @@ composite_rules:
     all:
       - id: vid-parameter
       - id: base64-encode-string
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
 
   # === HOSTILE: PyPI OOB Callback with User Info ===
   # Supply-chain package that POSTs user information to an OOB testing domain
@@ -403,7 +403,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: objectives/exfiltration/channel/oob::oob-domains
-      - id: micro-behaviors/comm/http/lib/requests::requests-post
+      - id: micro-behaviors/communications/http/lib/requests::requests-post
       - id: objectives/discovery/host/user::username-env
 
   # === HOSTILE: PyPI Install-Time Beacon ===
@@ -420,7 +420,7 @@ composite_rules:
     all:
       - id: robust-setup-py
       - id: suspicious-php-endpoint
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::windows-computername-env
 
   # === SUSPICIOUS: PyPI Probe Package ===
@@ -435,5 +435,5 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: setup-py-file
-      - id: micro-behaviors/comm/http/request::request-python
+      - id: micro-behaviors/communications/http/request::request-python
       - id: probe-print-test

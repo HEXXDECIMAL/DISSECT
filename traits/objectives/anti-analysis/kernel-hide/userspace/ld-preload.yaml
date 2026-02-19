@@ -2,7 +2,7 @@ defaults:
   for:
     - all
 traits:
-micro-behaviors  - id: ld-library-path-env
+  - id: ld-library-path-env
     desc: References LD_LIBRARY_PATH environment variable
     crit: notable
     conf: 0.6
@@ -23,7 +23,7 @@ micro-behaviors  - id: ld-library-path-env
     if:
       type: string
       regex: dlsym\s*\(\s*RTLD_NEXT
-micro-behaviorsmicro-behaviorsmicro-behaviors  - id: skullseclabs-string
+  - id: skullseclabs-string
     desc: skullseclabs author string
     crit: suspicious
     conf: 0.95
@@ -59,7 +59,7 @@ micro-behaviorsmicro-behaviorsmicro-behaviors  - id: skullseclabs-string
     if:
       type: string
       regex: Static:\s+\w+
-micro-behaviors  - id: proc-pid-pattern
+  - id: proc-pid-pattern
     desc: /proc/[pid] path pattern
     crit: notable
     conf: 0.4
@@ -69,7 +69,7 @@ micro-behaviors  - id: proc-pid-pattern
     if:
       type: string
       regex: /proc/[0-9]+
-micro-behaviors  - id: hidden-proc-string
+  - id: hidden-proc-string
     desc: hidden_proc string reference
     crit: suspicious
     conf: 0.9

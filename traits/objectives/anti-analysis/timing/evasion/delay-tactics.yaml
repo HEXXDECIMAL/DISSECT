@@ -52,8 +52,8 @@ composite_rules:
     all:
       - id: delay-capability
     any:
-      - id: micro-behaviors/comm/socket/create
-      - id: micro-behaviors/comm/download/curl::libcurl-http
+      - id: micro-behaviors/communications/socket/create
+      - id: micro-behaviors/communications/download/curl::libcurl-http
 
   # Timing measurement + delay = sandbox evasion
   # NOTE: clock_gettime + nanosleep is extremely common in legitimate software.

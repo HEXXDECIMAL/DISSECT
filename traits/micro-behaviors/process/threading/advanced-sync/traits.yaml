@@ -1,5 +1,5 @@
 traits:
-micro-behaviors  - id: srw-lock-acquire
+  - id: srw-lock-acquire
     desc: SRW lock acquisition
     crit: notable
     conf: 0.65
@@ -60,7 +60,7 @@ micro-behaviors  - id: srw-lock-acquire
       regex: (^WakeConditionVariable$|^WakeAllConditionVariable$)
     attack: T1129
   # Removed duplicate - use micro-behaviors/mem/sync/mutex::initialize-slist-head
-micro-behaviors  - id: slist-operations
+  - id: slist-operations
     desc: Interlocked SList ops
     crit: notable
     conf: 0.65
@@ -114,7 +114,7 @@ composite_rules:
     all:
       - id: micro-behaviors/mem/sync/mutex::initialize-slist-head
       - id: slist-operations
-micro-behaviors  - id: advanced-sync-primitives
+  - id: advanced-sync-primitives
     desc: Advanced sync primitives
     crit: suspicious
     conf: 0.75

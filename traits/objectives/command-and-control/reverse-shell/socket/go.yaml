@@ -98,7 +98,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     all:
-      - id: micro-behaviors/comm/socket/
+      - id: micro-behaviors/communications/socket/
 
   # Go exec composite
   - id: go-exec

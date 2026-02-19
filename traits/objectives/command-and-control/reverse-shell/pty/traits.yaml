@@ -245,7 +245,7 @@ composite_rules:
     attack: "T1059.006"
     for: [python]
     all:
-      - id: micro-behaviors/comm/socket/connect::socket-socket-call
+      - id: micro-behaviors/communications/socket/connect::socket-socket-call
       - id: socket-connect
       - id: objectives/execution/fileless/memory::subprocess-mod
       - id: python-pipe
@@ -270,7 +270,7 @@ composite_rules:
     any:
       - id: net-socket-node
       - id: socket-connect-node
-      - id: micro-behaviors/comm/http/websocket::websocket-class
+      - id: micro-behaviors/communications/http/websocket::websocket-class
 
   # Node.js PTY shell (migrated from YARA)
   - id: node-pty

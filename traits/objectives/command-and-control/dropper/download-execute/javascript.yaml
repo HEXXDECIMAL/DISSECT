@@ -18,4 +18,4 @@ composite_rules:
     any:
       - id: micro-behaviors/data/format/executable::mz-header-check
       - id: objectives/anti-static/obfuscation/source/syntax::js-property-concatenation-obfuscation
-      - id: micro-behaviors/comm/http/url::dropper-common-params
+      - id: micro-behaviors/communications/http/url::dropper-common-params

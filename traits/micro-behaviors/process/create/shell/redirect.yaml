@@ -61,8 +61,8 @@ composite_rules:
     platforms: [linux]
     for: [elf]
     all:
-      - id: micro-behaviors/comm/socket/create::socket-create
-      - id: micro-behaviors/comm/socket/create::socket-connect
+      - id: micro-behaviors/communications/socket/create::socket-create
+      - id: micro-behaviors/communications/socket/create::socket-connect
       - id: syscall-dup-redirect-linux
       - id: syscall-execve-linux
 
@@ -83,7 +83,7 @@ composite_rules:
     platforms: [macos]
     for: [macho]
     all:
-      - id: micro-behaviors/comm/socket/create::socket-socket-macos
-      - id: micro-behaviors/comm/socket/create::socket-connect-macos
+      - id: micro-behaviors/communications/socket/create::socket-socket-macos
+      - id: micro-behaviors/communications/socket/create::socket-connect-macos
       - id: syscall-dup-redirect-macos
       - id: syscall-execve-macos

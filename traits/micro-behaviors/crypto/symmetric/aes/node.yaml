@@ -235,7 +235,7 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     all:
-      - id: micro-behaviors/comm/http/request/
+      - id: micro-behaviors/communications/http/request/
 
   # Compression library composite
   - id: compression-lib

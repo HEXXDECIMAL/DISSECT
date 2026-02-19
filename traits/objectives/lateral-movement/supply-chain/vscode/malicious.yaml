@@ -139,9 +139,9 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: micro-behaviors/comm/http/post/
-      - id: micro-behaviors/comm/http/request/
-      - id: micro-behaviors/comm/http/request::axios
+      - id: micro-behaviors/communications/http/post/
+      - id: micro-behaviors/communications/http/request/
+      - id: micro-behaviors/communications/http/request::axios
 
   # Post-Install Code Execution
   - id: post-install-exec
