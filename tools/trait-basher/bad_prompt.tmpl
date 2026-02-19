@@ -85,7 +85,8 @@ touch {{.BenignMarkerPath}}
 - ✓ Traits fire on this sample with appropriate criticality
 - ✓ Reusable patterns (not sample-specific fingerprints)
 - ✓ No duplicate traits (searched existing before creating)
-- ✓ No false positives on benign tools
 - ✓ Trait IDs reflect semantic organization per TAXONOMY.md (used by humans and ML pipelines)
 - ✓ Atomic traits are properly organized based on what they detect rather than living next to intent-based composite rules.
 - ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable
+- ✓ Zero misleading or inaccurate findings (even inert ones)
+- ✓ Output accurately describes file capabilities - no false positives.

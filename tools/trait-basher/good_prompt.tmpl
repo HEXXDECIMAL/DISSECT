@@ -76,7 +76,7 @@ Run `{{.DissectBin}} --format jsonl {{.Path}}` and confirm:
 - ✓ Suspicious findings ≤1 (acceptable for security/admin tools)
 
 **Quality checks:**
-- ✓ Output accurately describes file capabilities
+- ✓ Output accurately describes file capabilities - no false positives.
 - ✓ No legitimate behaviors completely hidden (prefer downgrade over unless)
 - ✓ Context-appropriate criticality (`kill()` syscall: suspicious in game, notable in htop)
 - ✓ No trait duplicates (same evidence, same scenario)
