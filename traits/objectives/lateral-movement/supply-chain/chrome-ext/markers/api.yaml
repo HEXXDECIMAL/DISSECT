@@ -1,3 +1,6 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
 - id: runtime-set-uninstall-url
   desc: Sets uninstall tracking URL
@@ -218,16 +221,16 @@ traits:
   if:
     type: string
     regex: observer\.observe\(document\.body|observe\(document\.body
-- id: browser-namespace
-  desc: Uses browser.* namespace (Firefox/WebExtension)
-  crit: notable
-  conf: 0.95
-  for:
-  - javascript
-  - typescript
+- id: browser-namespace-1
+  desc: Uses browser.* namespace (core APIs)
   if:
     type: string
-    regex: browser\.(runtime|tabs|storage|webRequest|cookies|history|bookmarks)
+    regex: browser\.(runtime|tabs|storage|webRequest)
+- id: browser-namespace-2
+  desc: Uses browser.* namespace (data APIs)
+  if:
+    type: string
+    regex: browser\.(cookies|history|bookmarks)
 - id: external-url-io-domain
   desc: URL to .io domain
   crit: notable
@@ -238,16 +241,16 @@ traits:
   if:
     type: string
     regex: https?://[a-zA-Z0-9][-a-zA-Z0-9]*\.io/
-- id: chrome-namespace-core
-  desc: Uses core chrome.* namespace APIs
-  crit: notable
-  conf: 0.95
-  for:
-  - javascript
-  - typescript
+- id: chrome-namespace-core-1
+  desc: Uses core chrome.* APIs (runtime/tabs/storage)
   if:
     type: string
-    regex: chrome\.(runtime|tabs|storage|webRequest|cookies)
+    regex: chrome\.(runtime|tabs|storage)
+- id: chrome-namespace-core-2
+  desc: Uses core chrome.* APIs (webRequest/cookies)
+  if:
+    type: string
+    regex: chrome\.(webRequest|cookies)
 - id: chrome-namespace-extra
   desc: Uses extended chrome.* namespace APIs
   crit: notable
@@ -281,6 +284,26 @@ traits:
     kind: call
     regex: chrome\.scripting\.executeScript
 composite_rules:
+- id: browser-namespace
+  desc: Uses browser.* namespace (Firefox/WebExtension)
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  any:
+    - id: browser-namespace-1
+    - id: browser-namespace-2
+- id: chrome-namespace-core
+  desc: Uses core chrome.* namespace APIs
+  crit: notable
+  conf: 0.95
+  for:
+  - javascript
+  - typescript
+  any:
+    - id: chrome-namespace-core-1
+    - id: chrome-namespace-core-2
 - id: chrome-namespace
   desc: Uses chrome.* namespace
   crit: notable

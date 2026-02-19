@@ -107,22 +107,13 @@ traits:
     type: string
     regex: ^grabber\.
     case_insensitive: true
-- id: local-stealer-import
-  desc: Import from local stealer module
-  crit: suspicious
-  conf: 0.95
-  mbc: E1059
-  if:
-    type: string
-    case_insensitive: true
-    regex: (?:from|require\()\s*['"]\./(?:stealer|grabber|logger|exfil)['"]
 composite_rules:
 - id: stealer-import
   desc: Local stealer/grabber module import
   crit: suspicious
   conf: 0.9
   any:
-  - id: local-stealer-import
+  - id: objectives/lateral-movement/supply-chain/npm/behavior::local-stealer-import
   - id: stealer-string
   - id: grabber-string
 - id: cloud-sandbox-check

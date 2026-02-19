@@ -27,15 +27,31 @@ traits:
       kind: call
       regex: "Daemonize::"
 
-  - id: rust-spawn-detached
-    desc: Process spawned in detached mode
+  - id: rust-spawn-detached-win
+    desc: Process spawned in detached mode (Windows)
     crit: notable
     conf: 0.7
     if:
       type: string
-      regex: "CREATE_NEW_PROCESS_GROUP|detach"
+      word: "CREATE_NEW_PROCESS_GROUP"
+
+  - id: rust-spawn-detached-unix
+    desc: Process spawned in detached mode (Unix)
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      substr: "detach"
 
 composite_rules:
+  - id: rust-spawn-detached
+    desc: Process spawned in detached mode
+    crit: notable
+    conf: 0.7
+    any:
+      - id: rust-spawn-detached-win
+      - id: rust-spawn-detached-unix
+
   - id: daemonized-execution
     desc: Process daemonization in Rust
     crit: notable

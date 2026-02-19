@@ -102,13 +102,21 @@ traits:
       regex: "armory.{0,50}wallet|armory.{0,50}path"
 
   # === Vespy Markers ===
-  - id: vespy-marker-file
-    desc: Vespy marker file
+  - id: vespy-marker-file-1
+    desc: Vespy marker file (procvesp111)
     crit: suspicious
     conf: 0.98
     if:
       type: string
-      regex: "procvesp111|vesp111"
+      substr: "procvesp111"
+
+  - id: vespy-marker-file-2
+    desc: Vespy marker file (vesp111)
+    crit: suspicious
+    conf: 0.98
+    if:
+      type: string
+      substr: "vesp111"
 
   - id: vespy-path-marker
     desc: Vespy path pattern
@@ -128,6 +136,14 @@ traits:
       regex: "Profile [0-9].{0,50}Local Extension|Default.{0,50}Profile [0-9]"
 
 composite_rules:
+  - id: vespy-marker-file
+    desc: Vespy marker file
+    crit: suspicious
+    conf: 0.98
+    any:
+      - id: vespy-marker-file-1
+      - id: vespy-marker-file-2
+
   # === Vespy Grabber Detection ===
   - id: vespy-wallet-stealer
     desc: Vespy wallet stealer

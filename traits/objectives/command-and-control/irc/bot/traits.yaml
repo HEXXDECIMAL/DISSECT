@@ -95,20 +95,6 @@ traits:
       type: string
       regex: \bUDP[_-]?ATTACK\b|\bUDP[_-]?FLOOD\b
       case_insensitive: true
-  - id: ddos-flood
-    desc: Flood attack terminology
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      regex: (?i)(?:syn|udp|http|icmp|tcp)[_-]?flood|flood[_-]?(attack|target|mode)
-  - id: ddos-attack
-    desc: Attack terminology
-    crit: notable
-    conf: 0.4
-    if:
-      type: string
-      regex: (?i)ddos[_-]?attack|attack[_-]?(target|mode|type)|(?:syn|udp|http)[_-]?attack
 composite_rules:
   - id: irc-protocol
     desc: IRC protocol commands
@@ -122,8 +108,8 @@ composite_rules:
     any:
       - id: attack-pan
       - id: attack-udp
-      - id: ddos-flood
-      - id: ddos-attack
+      - id: objectives/command-and-control/ddos/attack::flood-types
+      - id: objectives/command-and-control/ddos/attack::ddos-attack-terminology
     crit: notable
   - id: tsunami-artifact
     desc: Tsunami/Kaiten IRC bot identifier

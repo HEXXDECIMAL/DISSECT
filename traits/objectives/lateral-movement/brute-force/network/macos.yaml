@@ -1,19 +1,24 @@
+defaults:
+  for: [macho]
+
 # Network service password cracking (macOS)
 # ATT&CK: T1110.001 (Brute Force: Password Guessing)
 # MBC: E1110 (Brute Force)
 
 traits:
-  - id: crack-passwords-protocol
-    desc: Protocol password cracking wording
-    crit: suspicious
-    conf: 0.85
-    for: [macho]
-    attack: "T1110.001"
-    mbc: "E1110"
+  - id: crack-passwords-protocol-1
+    desc: Protocol password cracking wording (pop3/ftp/hotline)
     if:
       type: encoded
       encoding: base64
-      regex: "(?i)uses (?:pop3|ftp|hotline|msn|aim/icq2000) protocol to crack passwords"
+      regex: "(?i)uses (?:pop3|ftp|hotline) protocol to crack passwords"
+
+  - id: crack-passwords-protocol-2
+    desc: Protocol password cracking wording (msn/icq)
+    if:
+      type: encoded
+      encoding: base64
+      regex: "(?i)uses (?:msn|aim/icq2000) protocol to crack passwords"
 
   - id: username-dictionary-file
     desc: Username dictionary file for attack
@@ -99,6 +104,17 @@ traits:
       regex: "(?i)proxy/sock server"
 
 composite_rules:
+  - id: crack-passwords-protocol
+    desc: Protocol password cracking wording
+    crit: suspicious
+    conf: 0.85
+    for: [macho]
+    attack: "T1110.001"
+    mbc: "E1110"
+    any:
+      - id: crack-passwords-protocol-1
+      - id: crack-passwords-protocol-2
+
   - id: dictionary-attack-inputs
     desc: Username and password dictionaries
     crit: suspicious

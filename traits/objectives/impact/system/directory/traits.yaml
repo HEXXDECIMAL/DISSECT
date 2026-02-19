@@ -113,23 +113,47 @@ traits:
   if:
     type: string
     exact: /usr
+- id: windows-system32-delete-cmd-first
+  desc: Windows System32 deletion (cmd first)
+  if:
+    type: string
+    regex: (rmdir|del|remove).{0,50}[Ss]ystem32
+    platforms: [windows]
+- id: windows-system32-delete-path-first
+  desc: Windows System32 deletion (path first)
+  if:
+    type: string
+    regex: '[Ss]ystem32.{0,50}(rmdir|del|remove)'
+    platforms: [windows]
+- id: windows-recursive-delete-rd
+  desc: Windows recursive deletion (rmdir/rd)
+  if:
+    type: string
+    regex: (?:r(?:d|mdir)\s+/s).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
+    platforms: [windows]
+- id: windows-recursive-delete-del
+  desc: Windows recursive deletion (del)
+  if:
+    type: string
+    regex: (?:del\s+/f\s+/q).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
+    platforms: [windows]
+composite_rules:
 - id: windows-system32-delete
   desc: Windows System32 directory deletion
   conf: 0.95
   platforms:
   - windows
-  if:
-    type: string
-    regex: (rmdir|del|remove).{0,50}[Ss]ystem32|[Ss]ystem32.{0,50}(rmdir|del|remove)
+  any:
+    - id: windows-system32-delete-cmd-first
+    - id: windows-system32-delete-path-first
 - id: windows-recursive-delete
   desc: Windows system directory recursive deletion
   conf: 0.9
   platforms:
   - windows
-  if:
-    type: string
-    regex: (?:r(?:d|mdir)\s+/s|del\s+/f\s+/q).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
-composite_rules:
+  any:
+    - id: windows-recursive-delete-rd
+    - id: windows-recursive-delete-del
 - id: mbr-target
   desc: MBR/Boot sector targeting
   crit: suspicious

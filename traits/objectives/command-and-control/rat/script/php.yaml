@@ -88,15 +88,31 @@ traits:
   if:
     type: string
     regex: tcp://(127\.0\.0\.1|localhost|0\.0\.0\.0)(:\d+)?
-- id: function-exists-exec
-  desc: Check for exec function availability
+- id: function-exists-exec-1
+  desc: Check for exec/system/shell_exec availability
   crit: suspicious
   conf: 0.85
   attack: T1059
   if:
     type: string
-    regex: function_exists\(['"](?:exec|system|shell_exec|passthru|popen|proc_open)['"]\)
+    regex: function_exists\(['"](?:exec|system|shell_exec)['"]\)
+- id: function-exists-exec-2
+  desc: Check for passthru/popen/proc_open availability
+  crit: suspicious
+  conf: 0.85
+  attack: T1059
+  if:
+    type: string
+    regex: function_exists\(['"](?:passthru|popen|proc_open)['"]\)
 composite_rules:
+- id: function-exists-exec
+  desc: Check for exec function availability
+  crit: suspicious
+  conf: 0.85
+  attack: T1059
+  any:
+  - id: function-exists-exec-1
+  - id: function-exists-exec-2
 - id: reverse-shell-socket
   desc: PHP reverse shell via socket
   crit: hostile

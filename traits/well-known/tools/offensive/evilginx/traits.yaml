@@ -263,15 +263,16 @@ traits:
   if:
     type: string
     substr: built for educational purposes only
-- id: config-phishlet-ref
-  desc: Evilginx phishlet reference
-  crit: suspicious
-  conf: 0.9
-  for:
-  - all
+- id: config-phishlet-ref-1
+  desc: Evilginx phishlet reference (google/outlook/facebook/linkedin)
   if:
     type: raw
-    regex: phishlet:\s*(google|outlook|facebook|linkedin|microsoft|office365|o365)
+    regex: phishlet:\s*(google|outlook|facebook|linkedin)
+- id: config-phishlet-ref-2
+  desc: Evilginx phishlet reference (microsoft/office365/o365)
+  if:
+    type: raw
+    regex: phishlet:\s*(microsoft|office365|o365)
 - id: phishlet-credentials
   desc: Phishlet credentials section
   crit: suspicious
@@ -282,6 +283,12 @@ traits:
     type: raw
     regex: 'credentials:\s*[\s\S]{0,30}(?:username|password):[\s\S]{0,30}(?:key|search):'
 composite_rules:
+- id: config-phishlet-ref
+  desc: Evilginx phishlet reference
+  crit: suspicious
+  any:
+    - id: config-phishlet-ref-1
+    - id: config-phishlet-ref-2
 - id: phishlet-config
   desc: Evilginx phishlet configuration file
   crit: hostile

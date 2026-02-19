@@ -86,13 +86,35 @@ traits:
     type: string
     regex: (don.t\s+use\s+gmail|use.{0,30}protonmail|secure\s+mail\s+service)
     case_insensitive: true
-- id: extension-target-list
-  desc: File extension targeting list
-  crit: suspicious
-  conf: 0.85
+- id: extension-target-list-office-word
+  desc: File extension targeting (Word)
   if:
     type: string
-    regex: \|\.(pdf|doc|docx|xls|xlsx|ppt|pptx|sql|db|java|cpp|py)\|
+    regex: \|\.(doc|docx)\|
+    case_insensitive: true
+- id: extension-target-list-office-excel
+  desc: File extension targeting (Excel)
+  if:
+    type: string
+    regex: \|\.(xls|xlsx)\|
+    case_insensitive: true
+- id: extension-target-list-office-ppt
+  desc: File extension targeting (PowerPoint)
+  if:
+    type: string
+    regex: \|\.(ppt|pptx)\|
+    case_insensitive: true
+- id: extension-target-list-data
+  desc: File extension targeting (Data/PDF)
+  if:
+    type: string
+    regex: \|\.(pdf|sql|db)\|
+    case_insensitive: true
+- id: extension-target-list-code
+  desc: File extension targeting (Code)
+  if:
+    type: string
+    regex: \|\.(java|cpp|py)\|
     case_insensitive: true
 - id: multi-extension-pattern
   desc: Multiple file extensions in pattern
@@ -149,6 +171,16 @@ traits:
     case_insensitive: true
     regex: (?:readme(?:_to_|-)[a-zA-Z0-9_]+\.txt|HOW_TO_DECRYPT\.txt|READ_ME_NOW\.txt)
 composite_rules:
+- id: extension-target-list
+  desc: File extension targeting list
+  crit: suspicious
+  conf: 0.85
+  any:
+    - id: extension-target-list-office-word
+    - id: extension-target-list-office-excel
+    - id: extension-target-list-office-ppt
+    - id: extension-target-list-data
+    - id: extension-target-list-code
 - id: ransom-note-msg
   desc: Ransom note message patterns
   crit: suspicious

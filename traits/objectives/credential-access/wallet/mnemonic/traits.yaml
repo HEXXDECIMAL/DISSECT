@@ -5,12 +5,18 @@ defaults:
   mbc: B0028
   crit: suspicious
 traits:
-- id: derivation-path
-  desc: HD wallet derivation path (BIP-44/49/84)
+- id: derivation-path-bip
+  desc: HD wallet derivation path (BIP-44/49/84/86)
   conf: 0.8
   if:
     type: string
-    regex: m/44'/|m/49'/|m/84'/|m/86'/|derivation_?path|derivationPath
+    regex: m/44'/|m/49'/|m/84'/|m/86'/
+- id: derivation-path-word
+  desc: HD wallet derivation path (keywords)
+  conf: 0.8
+  if:
+    type: string
+    regex: derivation_?path|derivationPath
 - id: mnemonic-word
   desc: mnemonic term
   crit: notable
@@ -76,13 +82,34 @@ traits:
   if:
     type: string
     regex: \bbrowser[_-]?(wallet|extension|addon)\b
-- id: word-count-check
-  desc: Mnemonic word count validation (12/15/18/21/24)
+- id: word-count-check-prefix-mnemonic
+  desc: Mnemonic word count validation (mnemonic/seed)
   conf: 0.85
   crit: suspicious
   if:
     type: string
-    regex: (?:split|len|words?_?count).{0,80}\b(?:12|15|18|21|24)\b
+    regex: \b(?:mnemonic|seed)\b.{0,40}\b(?:split|len|count)\b
+- id: word-count-check-prefix-words
+  desc: Mnemonic word count validation (words/phrase)
+  conf: 0.85
+  crit: suspicious
+  if:
+    type: string
+    regex: \b(?:words?|phrase)\b.{0,40}\b(?:split|len|count)\b
+- id: word-count-check-values-1
+  desc: Mnemonic word count validation (values 12/15/18)
+  conf: 0.85
+  crit: suspicious
+  if:
+    type: string
+    regex: \b(?:12|15|18)\b
+- id: word-count-check-values-2
+  desc: Mnemonic word count validation (values 21/24)
+  conf: 0.85
+  crit: suspicious
+  if:
+    type: string
+    regex: \b(?:21|24)\b
 - id: bip39-wordlist
   desc: BIP-39 wordlist reference
   conf: 0.85
@@ -104,26 +131,73 @@ traits:
   if:
     type: string
     regex: \b(?:wallet|eth|btc|crypto)\b.{0,50}\bprivate_?key\b
-- id: bitcoin-wif
-  desc: Bitcoin WIF private key format
+- id: bitcoin-wif-format
+  desc: Bitcoin WIF private key format (word)
   conf: 0.85
   crit: suspicious
   if:
     type: string
-    regex: wallet_import_format|(?:wif|bitcoin).{0,20}(?:wif|key|private)
+    word: wallet_import_format
+- id: bitcoin-wif-pattern
+  desc: Bitcoin WIF private key format (pattern)
+  conf: 0.85
+  crit: suspicious
+  if:
+    type: string
+    regex: (?:wif|bitcoin).{0,20}(?:wif|key|private)
 - id: keystore-file
   desc: Ethereum keystore file reference
   conf: 0.8
   if:
     type: string
     regex: UTC--.{0,50}--[a-fA-F0-9]{40}|ethereum.{0,30}keystore|\.json.{0,30}wallet
-- id: variable-names
-  desc: Mnemonic-related variable or function names
+- id: variable-names-1
+  desc: Mnemonic-related variable names (mnemonic, seed)
   conf: 0.8
   if:
     type: string
-    regex: \b(?:mnemonic|seed_?phrase|recovery_?phrase|secret_?words|wallet_?words)\s*[=:]
+    regex: \b(?:mnemonic|seed_?phrase)\s*[=:]
+- id: variable-names-2
+  desc: Mnemonic-related variable names (recovery, secret, wallet)
+  conf: 0.8
+  if:
+    type: string
+    regex: \b(?:recovery_?phrase|secret_?words|wallet_?words)\s*[=:]
 composite_rules:
+- id: derivation-path
+  desc: HD wallet derivation path (BIP-44/49/84)
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: derivation-path-bip
+  - id: derivation-path-word
+- id: word-count-check-prefix
+  desc: Mnemonic word count validation prefix
+  any:
+  - id: word-count-check-prefix-mnemonic
+  - id: word-count-check-prefix-words
+- id: word-count-check
+  desc: Mnemonic word count validation (12/15/18/21/24)
+  conf: 0.85
+  crit: suspicious
+  all:
+  - id: word-count-check-prefix
+  any:
+  - id: word-count-check-values-1
+  - id: word-count-check-values-2
+- id: bitcoin-wif
+  desc: Bitcoin WIF private key format
+  conf: 0.85
+  crit: suspicious
+  any:
+  - id: bitcoin-wif-format
+  - id: bitcoin-wif-pattern
+- id: variable-names
+  desc: Mnemonic-related variable or function names
+  conf: 0.8
+  any:
+  - id: variable-names-1
+  - id: variable-names-2
 - id: mnemonic-terms
   desc: Mnemonic or seed phrase terminology
   crit: notable

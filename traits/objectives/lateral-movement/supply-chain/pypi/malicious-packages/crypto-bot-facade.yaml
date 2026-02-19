@@ -37,29 +37,41 @@ traits:
       regex: "from\\s+(?:[a-zA-Z_]{1,30}\\.){0,6}utils\\s+import\\s+\\*"
 
   # === Crypto Trading Terminology ===
-  - id: defi-protocol-ref
-    desc: DeFi protocol references
-    crit: notable
-    conf: 0.50
+  - id: defi-protocol-ref-1
+    desc: DeFi protocol (uniswap/sushiswap/pancakeswap)
     if:
       type: string
-      regex: "(?i)(uniswap|sushiswap|pancakeswap|curve|aave|compound)"
+      regex: "(?i)(uniswap|sushiswap|pancakeswap)"
 
-  - id: token-swap-pattern
-    desc: Token swap operation patterns
-    crit: notable
-    conf: 0.50
+  - id: defi-protocol-ref-2
+    desc: DeFi protocol (curve/aave/compound)
     if:
       type: string
-      regex: "(getReserves|calculatePrice|getPairContract|swapExact|swap_tokens)"
+      regex: "(?i)(curve|aave|compound)"
 
-  - id: arbitrage-terms
-    desc: Arbitrage trading terms
-    crit: notable
-    conf: 0.50
+  - id: token-swap-pattern-1
+    desc: Token swap (getReserves/calculatePrice/getPair)
     if:
       type: string
-      regex: "(arbitrage|arb_for|arb_against|price_difference|flash_loan)"
+      regex: "(getReserves|calculatePrice|getPairContract)"
+
+  - id: token-swap-pattern-2
+    desc: Token swap (swapExact/swap_tokens)
+    if:
+      type: string
+      regex: "(swapExact|swap_tokens)"
+
+  - id: arbitrage-terms-1
+    desc: Arbitrage (arbitrage/arb_for/arb_against)
+    if:
+      type: string
+      regex: "(arbitrage|arb_for|arb_against)"
+
+  - id: arbitrage-terms-2
+    desc: Arbitrage (price_difference/flash_loan)
+    if:
+      type: string
+      regex: "(price_difference|flash_loan)"
 
   - id: web3-provider
     desc: Web3 provider usage
@@ -69,13 +81,17 @@ traits:
       type: string
       regex: "(from\\s+web3\\s+import|Web3\\(|provider\\.eth)"
 
-  - id: meme-token-keywords
-    desc: Meme token related keywords
-    crit: notable
-    conf: 0.50
+  - id: meme-token-keywords-1
+    desc: Meme token (meme token/token hunter)
     if:
       type: string
-      regex: "(?i)(meme.?token|token.?hunter|sniper.?bot|trading.?bot)"
+      regex: "(?i)(meme.?token|token.?hunter)"
+
+  - id: meme-token-keywords-2
+    desc: Meme token (sniper bot/trading bot)
+    if:
+      type: string
+      regex: "(?i)(sniper.?bot|trading.?bot)"
 
   # === Suspicious Helper Patterns ===
   - id: helper-subprocess-exec
@@ -96,6 +112,38 @@ traits:
 
 composite_rules:
   # === Helper composites ===
+  - id: defi-protocol-ref
+    desc: DeFi protocol references
+    crit: notable
+    conf: 0.50
+    any:
+      - id: defi-protocol-ref-1
+      - id: defi-protocol-ref-2
+
+  - id: token-swap-pattern
+    desc: Token swap operation patterns
+    crit: notable
+    conf: 0.50
+    any:
+      - id: token-swap-pattern-1
+      - id: token-swap-pattern-2
+
+  - id: arbitrage-terms
+    desc: Arbitrage trading terms
+    crit: notable
+    conf: 0.50
+    any:
+      - id: arbitrage-terms-1
+      - id: arbitrage-terms-2
+
+  - id: meme-token-keywords
+    desc: Meme token related keywords
+    crit: notable
+    conf: 0.50
+    any:
+      - id: meme-token-keywords-1
+      - id: meme-token-keywords-2
+
   - id: wildcard-imports
     desc: Wildcard import patterns
     any:
@@ -114,7 +162,6 @@ composite_rules:
       - id: meme-token-keywords
 
   # === Main Detection Rules ===
-  # Complexity: all(+2) = 2 (suspicious is ok for < 4)
   - id: crypto-facade-with-wildcard
     desc: Crypto trading facade with wildcard
     crit: suspicious
@@ -125,7 +172,6 @@ composite_rules:
       - id: crypto-trading-facade
 
   # === HOSTILE: Crypto Bot Facade with Execution ===
-  # Complexity: file_types(+1) + all(+2) + any(+1) = 4 >= 4
   - id: crypto-bot-dropper-facade
     desc: Crypto bot facade with dropper
     crit: hostile

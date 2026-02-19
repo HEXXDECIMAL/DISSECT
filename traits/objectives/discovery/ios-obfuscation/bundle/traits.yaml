@@ -27,15 +27,25 @@ traits:
       type: string
       regex: "com\\.[a-z]\\.[a-z0-9]+$"
 
-  - id: placeholder-bundle-id
-    desc: Bundle ID with placeholder components
+  - id: placeholder-bundle-id-1
+    desc: Bundle ID with placeholder components (random/test)
     crit: suspicious
     conf: 0.8
     attack: "T1036"
     for: [ipa]
     if:
       type: string
-      regex: "\\.(sdfdf|xxxx|aaaa|test123|dummy|fake)$"
+      regex: "\\.(sdfdf|xxxx|aaaa|test123)$"
+
+  - id: placeholder-bundle-id-2
+    desc: Bundle ID with placeholder components (dummy/fake)
+    crit: suspicious
+    conf: 0.8
+    attack: "T1036"
+    for: [ipa]
+    if:
+      type: string
+      regex: "\\.(dummy|fake)$"
 
   # === Display Name Obfuscation ===
   - id: zero-width-space-display-name
@@ -58,7 +68,8 @@ composite_rules:
     any:
       - id: short-random-bundle-id
       - id: single-letter-bundle-component
-      - id: placeholder-bundle-id
+      - id: placeholder-bundle-id-1
+      - id: placeholder-bundle-id-2
 
   - id: suspicious-bundle-masquerading
     desc: Suspicious masquerading

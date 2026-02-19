@@ -28,9 +28,15 @@ traits:
     type: string
     case_insensitive: true
     regex: unrecoverable.{0,30}(pay|ransom|decrypt|restore)
-- id: inline__data-loss-threat__unless_1
-  desc: Derived string condition
+- id: inline__data-loss-threat__unless_1_a
+  desc: Derived string condition (password/account/credential)
   if:
     type: string
-    regex: (password|account|credential|token|user).{0,80}cannot.{0,30}recover
+    regex: (password|account|credential).{0,80}cannot.{0,30}recover
+    case_insensitive: true
+- id: inline__data-loss-threat__unless_1_b
+  desc: Derived string condition (token/user)
+  if:
+    type: string
+    regex: (token|user).{0,80}cannot.{0,30}recover
     case_insensitive: true

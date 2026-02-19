@@ -223,7 +223,7 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: micro-traits/mem/protect/modify::mprotect
+      - id: micro-traits/mem/protect/modify::mprotect-symbol
       - id: micro-traits/mem/protect/modify::virtual-protect
       - id: micro-traits/mem/protect/modify::virtual-protect-ex
       - id: prot-write
@@ -253,6 +253,7 @@ composite_rules:
       any:
         - id: metadata/vendor/valve/valve-corp-binary
 
+  # Code cave or slack space
   - id: code-cave
     desc: Code cave or slack space
     crit: suspicious

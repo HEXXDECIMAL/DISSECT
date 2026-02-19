@@ -81,14 +81,17 @@ traits:
 
   # === Atomic: Docker API targeting ===
 
-  - id: docker-api-port
-    desc: Docker API port 2375 target
-    crit: suspicious
-    conf: 0.85
-    attack: "T1595.001"
+  - id: docker-api-port-scanner
+    desc: Docker API port (2375) with scanner keywords
     if:
       type: string
-      regex: '(scan|masscan|zgrab|nmap).{0,64}2375|2375.{0,32}docker|docker.{0,32}2375'
+      regex: '(scan|masscan|zgrab|nmap).{0,64}2375'
+
+  - id: docker-api-port-direct
+    desc: Docker API port (2375) with docker keyword
+    if:
+      type: string
+      regex: '2375.{0,32}docker|docker.{0,32}2375'
 
   - id: docker-api-version-probe
     desc: Docker API version endpoint probe
@@ -100,6 +103,15 @@ traits:
       regex: '/v[0-9.]+/version'
 
 composite_rules:
+  - id: docker-api-port
+    desc: Docker API port reference
+    crit: suspicious
+    conf: 0.85
+    attack: "T1595.001"
+    any:
+      - id: docker-api-port-scanner
+      - id: docker-api-port-direct
+
   # Masscan execution
   - id: masscan
     desc: masscan network scanner execution

@@ -1,3 +1,6 @@
+defaults:
+  for: [all]
+
 traits:
 - id: recursive-delete
   desc: Recursive directory deletion function
@@ -9,10 +12,17 @@ traits:
   - typescript
   if:
     type: yara
-    source: "rule node_recursive_delete {\n  strings:\n    $readdir = \"readdirSync\"\
-      \ ascii\n    $unlink = \"unlinkSync\" ascii\n    $rmdir = \"rmdirSync\" ascii\n\
-      \    $rmrf = \"rm -rf\" ascii\n    $rimraf = \"rimraf\" ascii\n  condition:\n\
-      \    ($readdir and ($unlink or $rmdir)) or $rmrf or $rimraf\n}\n"
+    source: |
+      rule node_recursive_delete {
+        strings:
+          $readdir = "readdirSync" ascii
+          $unlink = "unlinkSync" ascii
+          $rmdir = "rmdirSync" ascii
+          $rmrf = "rm -rf" ascii
+          $rimraf = "rimraf" ascii
+        condition:
+          ($readdir and ($unlink or $rmdir)) or $rmrf or $rimraf
+      }
 - id: target-dev-dirs
   desc: Targets development directories for deletion
   crit: notable
@@ -24,12 +34,23 @@ traits:
   - python
   if:
     type: yara
-    source: "rule target_dev_directories {\n  strings:\n    $dir1 = \".git\" ascii\n\
-      \    $dir2 = \".svn\" ascii\n    $dir3 = \"node_modules\" ascii\n    $dir4 =\
-      \ \".vscode\" ascii\n    $dir5 = \"/src\" ascii\n    $dir6 = \"/public\" ascii\n\
-      \    $delete1 = \"unlink\" ascii\n    $delete2 = \"rmdir\" ascii\n    $delete3\
-      \ = \"rm -rf\" ascii\n    $delete4 = \"rmtree\" ascii\n    $delete5 = \"shutil.rmtree\"\
-      \ ascii\n  condition:\n    3 of ($dir*) and any of ($delete*)\n}\n"
+    source: |
+      rule target_dev_directories {
+        strings:
+          $dir1 = ".git" ascii
+          $dir2 = ".svn" ascii
+          $dir3 = "node_modules" ascii
+          $dir4 = ".vscode" ascii
+          $dir5 = "/src" ascii
+          $dir6 = "/public" ascii
+          $delete1 = "unlink" ascii
+          $delete2 = "rmdir" ascii
+          $delete3 = "rm -rf" ascii
+          $delete4 = "rmtree" ascii
+          $delete5 = "shutil.rmtree" ascii
+        condition:
+          3 of ($dir*) and any of ($delete*)
+      }
 - id: target-git
   desc: Targets .git directory (version control)
   crit: notable
@@ -42,7 +63,7 @@ traits:
   - shell
   if:
     type: string
-    regex: '["'']\\./?\\.git["'']'
+    regex: '["'']\./?\.git["'']'
 - id: target-node-modules
   desc: Targets node_modules directory
   crit: notable
@@ -53,7 +74,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: '["'']/?(\\./)?node_modules["'']'
+    regex: '["'']/?(\./)?node_modules["'']'
 - id: target-src
   desc: Targets source code directory
   crit: notable
@@ -65,7 +86,7 @@ traits:
   - python
   if:
     type: string
-    regex: '["'']/?(\\./)?src["'']'
+    regex: '["'']/?(\./)?src["'']'
 - id: target-vscode-dir
   desc: Targets .vscode directory
   crit: notable
@@ -76,7 +97,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: '["'']/?(\\./)?\\.(vscode)["'']'
+    regex: '["'']/?(\./)?\.(vscode)["'']'
 - id: target-idea-dir
   desc: Targets .idea directory
   crit: notable
@@ -87,7 +108,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: '["'']/?(\\./)?\\.(idea)["'']'
+    regex: '["'']/?(\./)?\.(idea)["'']'
 - id: conditional-destroy
   desc: Conditional destruction based on environment
   crit: suspicious
@@ -98,11 +119,17 @@ traits:
   - typescript
   if:
     type: yara
-    source: "rule conditional_destruction {\n  strings:\n    $env_check = /process\\\
-      .env\\[[^\\]]+\\]\\s*(!=|!==|==|===)/ ascii\n    $node_env = \"NODE_ENV\" ascii\n\
-      \    $destroy1 = \"unlinkSync\" ascii\n    $destroy2 = \"rmdirSync\" ascii\n\
-      \    $destroy3 = \"rm -rf\" ascii\n  condition:\n    ($env_check or $node_env)\
-      \ and any of ($destroy*)\n}\n"
+    source: |
+      rule conditional_destruction {
+        strings:
+          $env_check = /process\.env\[[^\]]+\]\s*(!=|!==|==|===)/ ascii
+          $node_env = "NODE_ENV" ascii
+          $destroy1 = "unlinkSync" ascii
+          $destroy2 = "rmdirSync" ascii
+          $destroy3 = "rm -rf" ascii
+        condition:
+          ($env_check or $node_env) and any of ($destroy*)
+      }
 - id: target-android-storage
   desc: Targets Android storage directories
   crit: suspicious
@@ -114,12 +141,20 @@ traits:
   - shell
   if:
     type: yara
-    source: "rule target_android_storage {\n  strings:\n    $sdcard = \"/sdcard\"\
-      \ ascii\n    $storage = \"/storage/emulated\" ascii\n    $dcim = \"DCIM\" ascii\n\
-      \    $pictures = \"Pictures\" ascii\n    $downloads = \"Download\" ascii\n \
-      \   $rm = \"rm \" ascii\n    $rmrf = \"rm -rf\" ascii\n    $spawn = \"spawn(\"\
-      \ ascii\n  condition:\n    ($sdcard or $storage) and any of ($dcim, $pictures,\
-      \ $downloads) and any of ($rm, $rmrf, $spawn)\n}\n"
+    source: |
+      rule target_android_storage {
+        strings:
+          $sdcard = "/sdcard" ascii
+          $storage = "/storage/emulated" ascii
+          $dcim = "DCIM" ascii
+          $pictures = "Pictures" ascii
+          $downloads = "Download" ascii
+          $rm = "rm " ascii
+          $rmrf = "rm -rf" ascii
+          $spawn = "spawn(" ascii
+        condition:
+          ($sdcard or $storage) and any of ($dcim, $pictures, $downloads) and any of ($rm, $rmrf, $spawn)
+      }
 - id: mass-delete-traversal
   desc: Mass deletion traversal primitive
   crit: suspicious
@@ -133,20 +168,29 @@ traits:
   if:
     type: raw
     regex: fs\.readdirSync|os\.walk|find\s+\.
+- id: mass-delete-action-node-py
+  desc: Mass deletion action (Node.js/Python)
+  if:
+    type: raw
+    regex: unlinkSync|os\.(?:remove|unlink)
+- id: mass-delete-action-shell-base
+  desc: Mass deletion action (Shell -delete)
+  if:
+    type: raw
+    regex: -delete
+composite_rules:
+- id: mass-delete-action-shell
+  desc: Mass deletion action (Shell)
+  any:
+    - id: mass-delete-action-shell-base
+    - id: objectives/impact/system/directory::rm-rf-cmd
 - id: mass-delete-action
   desc: Mass deletion action primitive
   crit: suspicious
   conf: 0.85
-  attack: T1485
-  for:
-  - javascript
-  - typescript
-  - python
-  - shell
-  if:
-    type: raw
-    regex: unlinkSync|os\.(?:remove|unlink)|-delete|rm\s+-rf
-composite_rules:
+  any:
+    - id: mass-delete-action-node-py
+    - id: mass-delete-action-shell
 - id: target-vscode
   desc: Targets .vscode configuration directory
   crit: notable

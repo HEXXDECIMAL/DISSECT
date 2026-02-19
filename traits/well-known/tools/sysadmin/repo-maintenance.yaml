@@ -26,21 +26,52 @@ traits:
       type: string
       word: "awk"
 
+  - id: git-operations-1
+    desc: Git ops (clone/pull/push/commit)
+    if:
+      type: string
+      regex: '\bgit (clone|pull|push|commit)\b'
+
+  - id: git-operations-2
+    desc: Git ops (add/status/remote/checkout)
+    if:
+      type: string
+      regex: '\bgit (add|status|remote|checkout)\b'
+
+  - id: hg-operations-1
+    desc: Mercurial ops (init/log/status/diff)
+    if:
+      type: string
+      regex: '\bhg (init|log|status|diff)\b'
+
+  - id: hg-operations-2
+    desc: Mercurial ops (bookmarks/revert/add/forget)
+    if:
+      type: string
+      regex: '\bhg (bookmarks|revert|add|forget)\b'
+
+  - id: hg-operations-3
+    desc: Mercurial ops (commit/ci)
+    if:
+      type: string
+      regex: '\bhg (commit|ci)\b'
+
+composite_rules:
   - id: git-operations
     desc: Git repository operations
     crit: inert
-    if:
-      type: string
-      regex: '\bgit (clone|pull|push|commit|add|status|remote|checkout)\b'
+    any:
+      - id: git-operations-1
+      - id: git-operations-2
 
   - id: hg-operations
     desc: Mercurial repository operations
     crit: inert
-    if:
-      type: string
-      regex: '\bhg (init|log|status|diff|bookmarks|revert|add|forget|commit|ci)\b'
+    any:
+      - id: hg-operations-1
+      - id: hg-operations-2
+      - id: hg-operations-3
 
-composite_rules:
   - id: github-issue-maintenance
     desc: GitHub issue maintenance script
     crit: notable

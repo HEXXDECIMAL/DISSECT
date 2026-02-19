@@ -252,15 +252,31 @@ traits:
         }
 
   # JIT runtime references
-  - id: jit-runtime-ref
-    desc: JIT compilation runtime reference
+  - id: jit-runtime-ref-1
+    desc: JIT compilation runtime reference (jit_compile/jit_runtime)
     crit: notable
     conf: 0.85
     if:
       type: string
-      regex: "(?i)jit_compile|jit_runtime|libjit|LuaJIT|V8 JIT"
+      regex: "(?i)jit_compile|jit_runtime"
+
+  - id: jit-runtime-ref-2
+    desc: JIT compilation runtime reference (libjit/LuaJIT/V8 JIT)
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      regex: "(?i)libjit|LuaJIT|V8 JIT"
 
 composite_rules:
+  - id: jit-runtime-ref
+    desc: JIT compilation runtime reference
+    crit: notable
+    conf: 0.85
+    any:
+      - id: jit-runtime-ref-1
+      - id: jit-runtime-ref-2
+
   # JIT compilation indicators
   - id: jit
     desc: JIT compilation patterns

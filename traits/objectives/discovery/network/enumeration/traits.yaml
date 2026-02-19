@@ -87,8 +87,8 @@ traits:
     type: string
     regex: (for|while).{0,50}\{.{0,50}nc.{0,20}-z
   attack: T1046
-- id: ssh-port-check
-  desc: SSH port availability check
+- id: ssh-port-check-p22
+  desc: SSH port availability check (-p 22)
   crit: suspicious
   conf: 0.8
   for:
@@ -96,7 +96,29 @@ traits:
   - shell
   if:
     type: string
-    regex: (-p 22|nc -z|nmap -p|nmap -sS|nmap -sT)
+    substr: "-p 22"
+  attack: T1046
+- id: ssh-port-check-nc
+  desc: SSH port availability check (nc -z)
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    substr: "nc -z"
+  attack: T1046
+- id: ssh-port-check-nmap
+  desc: SSH port availability check (nmap)
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (nmap -p|nmap -sS|nmap -sT)
   attack: T1046
 - id: ssh-key-reuse
   desc: stolen SSH key usage detected
@@ -110,6 +132,14 @@ traits:
     regex: (ssh -i|-i /root/\.ssh|ssh\s+.{0,50}-i\s+)
   attack: T1021.004
 composite_rules:
+- id: ssh-port-check
+  desc: SSH port availability check
+  crit: suspicious
+  conf: 0.8
+  any:
+  - id: ssh-port-check-p22
+  - id: ssh-port-check-nc
+  - id: ssh-port-check-nmap
 - id: network-enumeration
   desc: Local network enumeration
   crit: suspicious

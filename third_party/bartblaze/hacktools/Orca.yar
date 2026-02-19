@@ -17,7 +17,7 @@ meta:
 	tool = "ORCAC2"
 
 strings:
-	$ = "C:/Users/blood/Desktop/AAA/Orcacommand-and-control/"
+	$ = "C:/Users/blood/Desktop/AAA/OrcaC2/"
 	$ = "Orca_Puppet/pkg/"
 	$ = "Orca_Puppet/cli/"
 	$ = "Orca_Puppet/stager"

@@ -16,13 +16,20 @@ traits:
       substr: victim
       case_insensitive: true
 
-  - id: summary-poc-research
-    desc: Summary claims proof of concept or research
-    conf: 0.85
+  - id: summary-poc-research-1
+    desc: Summary claims POC/Research (POC/Research)
     if:
       type: kv
       path: summary
-      regex: "(?:proof.of.concept|\\bpoc\\b|security.research|bug.bounty|dependency.confusion)"
+      regex: "(?:proof.of.concept|\\bpoc\\b|security.research)"
+      case_insensitive: true
+
+  - id: summary-poc-research-2
+    desc: Summary claims POC/Research (Bounty/Confusion)
+    if:
+      type: kv
+      path: summary
+      regex: "(?:bug.bounty|dependency.confusion)"
       case_insensitive: true
 
   - id: summary-confirms-install
@@ -42,3 +49,11 @@ traits:
       path: summary
       regex: "\\bbeacon\\b"
       case_insensitive: true
+
+composite_rules:
+  - id: summary-poc-research
+    desc: Summary claims proof of concept or research
+    conf: 0.85
+    any:
+      - id: summary-poc-research-1
+      - id: summary-poc-research-2

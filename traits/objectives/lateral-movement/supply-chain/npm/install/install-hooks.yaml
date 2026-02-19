@@ -64,28 +64,40 @@ traits:
       path: "scripts"
       regex: "\\beval\\b"
 
-  - id: script-base64
+  - id: script-base64-word
     desc: Script uses base64
-    crit: notable
-    conf: 0.8
     if:
       type: kv
       path: "scripts"
-      regex: "base64|atob|btoa"
+      substr: "base64"
 
-  - id: script-hidden-file
-    desc: Script references hidden file
-    crit: notable
-    conf: 0.75
+  - id: script-atob-word
+    desc: Script uses atob
     if:
       type: kv
       path: "scripts"
-      regex: "/\\.(?:[ac-z]|b[^i]|bi[^n]|b$|bi$)"
-    # TODO: Fix 'unless' block structure (parsing error)
-    # unless:
-    #   - type: kv
-    #     path: "scripts"
-    #     regex: "/\\.bin/"
+      substr: "atob"
+
+  - id: script-btoa-word
+    desc: Script uses btoa
+    if:
+      type: kv
+      path: "scripts"
+      substr: "btoa"
+
+  - id: script-hidden-file-1
+    desc: Script hidden file (base)
+    if:
+      type: kv
+      path: "scripts"
+      regex: "/\\.[ac-z]"
+
+  - id: script-hidden-file-2
+    desc: Script hidden file (bin/bi)
+    if:
+      type: kv
+      path: "scripts"
+      regex: "/\\.(b[^i]|bi[^n]|b$|bi$)"
 
   - id: script-tmp-dir
     desc: Script uses /tmp directory
@@ -105,15 +117,19 @@ traits:
       path: "scripts"
       regex: "https?://"
 
-  - id: script-sysinfo-cmd
-    desc: Script runs system info command
-    crit: notable
-    conf: 0.8
-    attack: "T1082"
+  - id: script-sysinfo-cmd-1
+    desc: Script runs system info (uname/whoami/hostname)
     if:
       type: kv
       path: "scripts"
-      regex: "\\b(uname|whoami|hostname|ifconfig|ip\\s+addr)\\b"
+      regex: "\\b(uname|whoami|hostname)\\b"
+
+  - id: script-sysinfo-cmd-2
+    desc: Script runs system info (ifconfig/ip addr)
+    if:
+      type: kv
+      path: "scripts"
+      regex: "\\b(ifconfig|ip\\s+addr)\\b"
 
   - id: script-network-exfil-vars
     desc: Network request with command substitution (exfiltration)
@@ -127,6 +143,32 @@ traits:
 
 # === Composite Rules ===
 composite_rules:
+  - id: script-base64
+    desc: Script uses base64
+    crit: notable
+    conf: 0.8
+    any:
+      - id: script-base64-word
+      - id: script-atob-word
+      - id: script-btoa-word
+
+  - id: script-hidden-file
+    desc: Script references hidden file
+    crit: notable
+    conf: 0.75
+    any:
+      - id: script-hidden-file-1
+      - id: script-hidden-file-2
+
+  - id: script-sysinfo-cmd
+    desc: Script runs system info command
+    crit: notable
+    conf: 0.8
+    attack: "T1082"
+    any:
+      - id: script-sysinfo-cmd-1
+      - id: script-sysinfo-cmd-2
+
   - id: install-script-exfil
     desc: Install script performs data exfiltration
     crit: hostile

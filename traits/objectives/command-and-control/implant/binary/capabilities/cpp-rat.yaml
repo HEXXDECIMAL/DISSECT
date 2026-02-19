@@ -209,6 +209,7 @@ traits:
   desc: SendHeart function symbol
   crit: suspicious
   conf: 0.95
+  for: [elf, macho, pe, go]
   if:
     type: string
     regex: SendHeart\b
@@ -217,17 +218,10 @@ traits:
   desc: setHeart function symbol
   crit: suspicious
   conf: 0.95
+  for: [elf, macho, pe, go]
   if:
     type: string
     regex: setHeart\b
-
-- id: heartbeat-thread
-  desc: HeartBeatThread function symbol
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: string
-    regex: HeartBeatThread\b
 
 - id: heartbeat-loop
   desc: HeartBeatLoop function symbol

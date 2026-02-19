@@ -1,4 +1,4 @@
-# PyPI Typosquatting Detection
+# PyPI Typosquat Detection
 # Detects malware using typosquatted PyPI domains
 # ATT&CK: T1036.005 (Masquerading), T1071.001 (Web Protocols)
 # MBC: B0030 (C2 Communication)
@@ -28,13 +28,19 @@ traits:
       regex: "pypi[0-9]\\.|pipy\\.|pipi\\.|ppyi\\."
 
   # === Fake Package Servers ===
-  - id: fake-pypi-server
-    desc: Fake package repository server
+  - id: fake-pypi-server-1
+    desc: Fake repo (pypi.online/shop/xyz/top)
     crit: suspicious
-    conf: 0.85
     if:
       type: string
-      regex: "(pypi\\.(online|shop|xyz|top)|python-packages|pip-install)"
+      regex: "pypi\\.(online|shop|xyz|top)"
+
+  - id: fake-pypi-server-2
+    desc: Fake repo (python-packages/pip-install)
+    crit: suspicious
+    if:
+      type: string
+      regex: "(python-packages|pip-install)"
 
   # === Cloud.php Pattern (common in these attacks) ===
   - id: cloud-php-endpoint
@@ -63,6 +69,14 @@ traits:
       regex: "oshelper_session"
 
 composite_rules:
+  - id: fake-pypi-server
+    desc: Fake package repository server
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: fake-pypi-server-1
+      - id: fake-pypi-server-2
+
   # === PyPI Typosquat Attack ===
   - id: pypi-typosquat-attack
     desc: PyPI typosquatting attack

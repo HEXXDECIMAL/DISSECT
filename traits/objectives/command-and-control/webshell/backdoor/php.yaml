@@ -148,15 +148,25 @@ traits:
       kind: call
       regex: "(curl_init|file_get_contents|fopen)\\s*\\(.{0,50}\\$_(GET|POST)"
 
-  - id: dynamic-user-input-call
-    desc: User input used as function
+  - id: dynamic-user-input-call-1
+    desc: User input used as function (GET/POST/REQUEST)
     crit: suspicious
     conf: 0.98
     attack: "T1505.003"
     if:
       type: ast
       kind: call
-      regex: "\\$_(GET|POST|REQUEST|COOKIE|SERVER)\\s*\\[[^]]+\\]\\s*\\("
+      regex: "\\$_(GET|POST|REQUEST)\\s*\\[[^]]+\\]\\s*\\("
+
+  - id: dynamic-user-input-call-2
+    desc: User input used as function (COOKIE/SERVER)
+    crit: suspicious
+    conf: 0.98
+    attack: "T1505.003"
+    if:
+      type: ast
+      kind: call
+      regex: "\\$_(COOKIE|SERVER)\\s*\\[[^]]+\\]\\s*\\("
 
   # HOSTILE: eval of base64-decoded large payload
   # This pattern is used exclusively by webshells/backdoors
@@ -171,14 +181,32 @@ traits:
       regex: "base64_decode\\s*\\([\"'][A-Za-z0-9+/=]{500,}"
 
   # WordPress CMS backdoor patterns
-  - id: wp-user-creation
-    desc: WordPress user creation API
+  - id: wp-user-creation-1
+    desc: WordPress user creation API (wp_create_user)
     crit: notable
     conf: 0.7
     attack: "T1136.001"
     if:
       type: raw
-      regex: "wp_create_user|WP_User|username_exists"
+      word: "wp_create_user"
+
+  - id: wp-user-creation-2
+    desc: WordPress user creation API (WP_User)
+    crit: notable
+    conf: 0.7
+    attack: "T1136.001"
+    if:
+      type: raw
+      word: "WP_User"
+
+  - id: wp-user-creation-3
+    desc: WordPress user creation API (username_exists)
+    crit: notable
+    conf: 0.7
+    attack: "T1136.001"
+    if:
+      type: raw
+      word: "username_exists"
 
   - id: wp-role-assignment
     desc: WordPress role assignment
@@ -209,6 +237,25 @@ traits:
       substr: "d3AtY29udGVudC9wbHVnaW5z"
 
 composite_rules:
+  - id: dynamic-user-input-call
+    desc: User input used as function
+    crit: suspicious
+    conf: 0.98
+    attack: "T1505.003"
+    any:
+      - id: dynamic-user-input-call-1
+      - id: dynamic-user-input-call-2
+
+  - id: wp-user-creation
+    desc: WordPress user creation API
+    crit: notable
+    conf: 0.7
+    attack: "T1136.001"
+    any:
+      - id: wp-user-creation-1
+      - id: wp-user-creation-2
+      - id: wp-user-creation-3
+
   - id: proxy-port
     desc: High port number (proxy/backdoor indicator)
     crit: suspicious

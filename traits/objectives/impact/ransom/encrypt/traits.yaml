@@ -13,8 +13,8 @@ traits:
   downgrade:
     any:
     - id: metadata/signed/platform::apple
-- id: encrypt-func-symbol
-  desc: File encryption function symbols
+- id: encrypt-func-symbol-1
+  desc: File encryption function symbols (file/dir/folder)
   crit: suspicious
   conf: 0.9
   for:
@@ -23,14 +23,41 @@ traits:
   - macho
   if:
     type: symbol
-    regex: ^encrypt_(file|directory|folder|data|content)s?$
-- id: ransomware-source-path
-  desc: Ransomware source file path
+    regex: ^encrypt_(file|directory|folder)s?$
+- id: encrypt-func-symbol-2
+  desc: File encryption function symbols (data/content)
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - pe
+  - macho
+  if:
+    type: symbol
+    regex: ^encrypt_(data|content)s?$
+- id: ransomware-source-path-1a
+  desc: Ransomware source file path (ransomware/ransom/locker .c/.cpp)
   crit: suspicious
   conf: 0.95
   if:
     type: string
-    regex: (ransomware|ransom|locker|crypter)\.(c|cpp|rs|go)$
+    regex: (ransomware|ransom|locker)\.(c|cpp)$
+    case_insensitive: true
+- id: ransomware-source-path-1b
+  desc: Ransomware source file path (ransomware/ransom/locker .rs/.go)
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: string
+    regex: (ransomware|ransom|locker)\.(rs|go)$
+    case_insensitive: true
+- id: ransomware-source-path-2
+  desc: Ransomware source file path (crypter)
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: string
+    regex: crypter\.(c|cpp|rs|go)$
     case_insensitive: true
 - id: locker-namespace
   desc: Ransomware locker module namespace
@@ -46,20 +73,31 @@ traits:
   if:
     type: string
     regex: library/(encrypt-lib|locker)/src/
-- id: config-note-fields
-  desc: Ransomware note config fields
-  crit: suspicious
-  conf: 0.95
+- id: config-note-field-name
+  desc: note_file_name config field
   if:
     type: string
-    regex: note_file_name|note_full_text|note_short_text
-- id: config-cipher-fields
-  desc: Ransomware cipher config fields
-  crit: notable
-  conf: 0.9
+    substr: note_file_name
+- id: config-note-field-full
+  desc: note_full_text config field
   if:
     type: string
-    regex: default_file_cipher|default_file_mode
+    substr: note_full_text
+- id: config-note-field-short
+  desc: note_short_text config field
+  if:
+    type: string
+    substr: note_short_text
+- id: config-cipher-field-cipher
+  desc: default_file_cipher config field
+  if:
+    type: string
+    substr: default_file_cipher
+- id: config-cipher-field-mode
+  desc: default_file_mode config field
+  if:
+    type: string
+    substr: default_file_mode
 - id: template-placeholders
   desc: Ransomware config template variables (EXTENSION, NOTE_FILE_NAME, ACCESS_KEY)
   crit: suspicious
@@ -67,27 +105,48 @@ traits:
   if:
     type: string
     regex: \$\{(EXTENSION|NOTE_FILE_NAME|ACCESS_KEY)\}
-- id: vm-kill-config
-  desc: VM kill configuration fields
-  crit: suspicious
-  conf: 0.95
+- id: vm-kill-config-1
+  desc: enable_esxi_vm_kill config field
   if:
     type: string
-    regex: enable_esxi_vm_kill|enable_esxi_vm_snapshot_kill|esxi_vm_kill_exclude
-- id: kill-services-config
-  desc: Service kill config for ransomware
-  crit: suspicious
-  conf: 0.85
+    substr: enable_esxi_vm_kill
+- id: vm-kill-config-2
+  desc: enable_esxi_vm_snapshot_kill config field
   if:
     type: string
-    regex: kill_services|kill_processes
-- id: ransom-extension
-  desc: Ransomware file extension markers
+    substr: enable_esxi_vm_snapshot_kill
+- id: vm-kill-config-3
+  desc: esxi_vm_kill_exclude config field
+  if:
+    type: string
+    substr: esxi_vm_kill_exclude
+- id: kill-services-config-1
+  desc: kill_services config field
+  if:
+    type: string
+    substr: kill_services
+- id: kill-services-config-2
+  desc: kill_processes config field
+  if:
+    type: string
+    substr: kill_processes
+- id: ransom-extension-1
+  desc: Ransomware file extension markers (crypt/encrypted/locked)
   crit: notable
   conf: 0.85
   if:
     type: string
-    regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked|enc|crypted|cry)$'
+    regex: '[a-zA-Z0-9_]{2,}\.(crypt|encrypted|locked)$'
+  unless:
+  - type: string
+    regex: ^(matplotlib|tex)$
+- id: ransom-extension-2
+  desc: Ransomware file extension markers (enc/crypted/cry)
+  crit: notable
+  conf: 0.85
+  if:
+    type: string
+    regex: '[a-zA-Z0-9_]{2,}\.(enc|crypted|cry)$'
   unless:
   - type: string
     regex: ^(matplotlib|tex)$
@@ -107,13 +166,21 @@ traits:
   if:
     type: string
     regex: EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt
-- id: crypto-openssl-asymmetric
-  desc: OpenSSL asymmetric key operations
-  crit: notable
-  conf: 0.9
+- id: crypto-openssl-asymmetric-1
+  desc: ECDH_compute_key function
   if:
     type: string
-    regex: ECDH_compute_key|EC_KEY_generate_key|RSA_public_encrypt
+    substr: ECDH_compute_key
+- id: crypto-openssl-asymmetric-2
+  desc: EC_KEY_generate_key function
+  if:
+    type: string
+    substr: EC_KEY_generate_key
+- id: crypto-openssl-asymmetric-3
+  desc: RSA_public_encrypt function
+  if:
+    type: string
+    substr: RSA_public_encrypt
 - id: file-locked-message
   desc: File locked status message
   crit: suspicious
@@ -128,8 +195,8 @@ traits:
   if:
     type: string
     regex: 'Total (Crypted|Encrypted)|Crypted:.{0,20}Error:|Files Encrypted:'
-- id: payment-status-check
-  desc: Ransomware payment verification
+- id: payment-status-check-1
+  desc: Ransomware payment verification (getHasPayed|checkPayment)
   crit: suspicious
   conf: 0.9
   for:
@@ -138,7 +205,19 @@ traits:
   - macho
   if:
     type: string
-    regex: (getHasPayed|checkPayment|isPaid|payment.{0,20}status|verify.{0,20}payment)
+    regex: (getHasPayed|checkPayment)
+    case_insensitive: true
+- id: payment-status-check-2
+  desc: Ransomware payment verification (isPaid|payment/verify)
+  crit: suspicious
+  conf: 0.9
+  for:
+  - elf
+  - pe
+  - macho
+  if:
+    type: string
+    regex: (isPaid|payment.{0,20}status|verify.{0,20}payment)
     case_insensitive: true
 - id: desktop-note-path
   desc: Ransom note file dropped to Desktop directory
@@ -190,14 +269,97 @@ traits:
     type: string
     case_insensitive: true
     regex: (?:README.{0,20}RESTORE|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)
+- id: locker-config-field-extensions-full
+  desc: vecFullEncryptionExtensions config field
+  if:
+    type: string
+    substr: vecFullEncryptionExtensions
+- id: locker-config-field-extensions-skip
+  desc: vecSkipFileExtensions config field
+  if:
+    type: string
+    substr: vecSkipFileExtensions
+- id: locker-config-field-key
+  desc: sMasterPublicKey config field
+  if:
+    type: string
+    substr: sMasterPublicKey
+composite_rules:
+- id: encrypt-func-symbol
+  desc: File encryption function symbols
+  crit: suspicious
+  conf: 0.9
+  any:
+    - id: encrypt-func-symbol-1
+    - id: encrypt-func-symbol-2
+- id: ransomware-source-path
+  desc: Ransomware source file path
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: ransomware-source-path-1a
+    - id: ransomware-source-path-1b
+    - id: ransomware-source-path-2
+- id: config-note-fields
+  desc: Ransomware note config fields
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: config-note-field-name
+    - id: config-note-field-full
+    - id: config-note-field-short
+- id: config-cipher-fields
+  desc: Ransomware cipher config fields
+  crit: notable
+  conf: 0.9
+  any:
+    - id: config-cipher-field-cipher
+    - id: config-cipher-field-mode
+- id: vm-kill-config
+  desc: VM kill configuration fields
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: vm-kill-config-1
+    - id: vm-kill-config-2
+    - id: vm-kill-config-3
+- id: kill-services-config
+  desc: Service kill config for ransomware
+  crit: suspicious
+  conf: 0.85
+  any:
+    - id: kill-services-config-1
+    - id: kill-services-config-2
+- id: ransom-extension
+  desc: Ransomware file extension markers
+  crit: notable
+  conf: 0.85
+  any:
+    - id: ransom-extension-1
+    - id: ransom-extension-2
+- id: crypto-openssl-asymmetric
+  desc: OpenSSL asymmetric key operations
+  crit: notable
+  conf: 0.9
+  any:
+    - id: crypto-openssl-asymmetric-1
+    - id: crypto-openssl-asymmetric-2
+    - id: crypto-openssl-asymmetric-3
+- id: payment-status-check
+  desc: Ransomware payment verification
+  crit: suspicious
+  conf: 0.9
+  any:
+    - id: payment-status-check-1
+    - id: payment-status-check-2
 - id: locker-config-fields
   desc: Ransomware locker configuration schema fields
   crit: suspicious
   conf: 0.95
-  if:
-    type: string
-    regex: vecFullEncryptionExtensions|vecSkipFileExtensions|sMasterPublicKey
-composite_rules:
+  any:
+    - id: locker-config-field-extensions-full
+    - id: locker-config-field-extensions-skip
+    - id: locker-config-field-key
 - id: locker-behavioral-indicators
   desc: Ransomware behavioral indicators (logging and schema)
   crit: suspicious
@@ -294,7 +456,6 @@ composite_rules:
   all:
   - id: micro-traits/crypto/symmetric/stream::chacha-salsa-constant
   - id: micro-traits/process/threading/operations::pthread
-  - id: micro-traits/fs/proc/info::process-pid-exe
   - id: micro-traits/fs/file/read
 - id: c-file-encryptor
   desc: C/C++ file encryption ransomware with payment verification
@@ -310,13 +471,13 @@ composite_rules:
   - id: payment-status-check
   any:
   - id: data-loss-threat
-  - id: micro-traits/fs/proc/info::process-pid-exe
 - id: data-loss-threat
   desc: Ransomware data loss threat
   crit: suspicious
   conf: 0.9
   unless:
-  - id: objectives/impact/ransom/encrypt::inline__data-loss-threat__unless_1
+  - id: objectives/impact/ransom/encrypt::inline__data-loss-threat__unless_1_a
+  - id: objectives/impact/ransom/encrypt::inline__data-loss-threat__unless_1_b
   any:
   - id: objectives/impact/ransom/encrypt::inline__data-loss-threat__any_1
   - id: objectives/impact/ransom/encrypt::inline__data-loss-threat__any_2

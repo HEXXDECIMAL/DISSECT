@@ -7,6 +7,15 @@ defaults:
 
 traits:
   # === HTTP request micro-traits (migrated from YARA) ===
+  - id: request
+    desc: HTTP REQUEST method
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      word: "REQUEST"
+      case_insensitive: false
+
   - id: http-request-func
     desc: httpRequest function reference
     crit: notable
@@ -142,18 +151,6 @@ composite_rules:
       - id: http-config-method
       - id: http-config-body
       - id: http-config-headers
-
-  # HTTP request composite (migrated from YARA)
-  - id: request
-    desc: Makes HTTP requests
-    crit: notable
-    conf: 0.66
-    mbc: "C0002"
-    attack: "T1071.001"
-    any:
-      - id: http-request-func
-      - id: user-agent-header
-      - id: http-version
 
   # Network client library composite
   # NOTE: These are common HTTP/network client patterns used in any networked

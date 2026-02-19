@@ -238,7 +238,7 @@ composite_rules:
     crit: suspicious
     needs: 3
     any:
-      - id: micro-traits/comm/http/request
+      - id: micro-traits/comm/http/protocol/
       - id: micro-traits/fs/write/file
       - id: micro-traits/process/create/shell
 
@@ -251,7 +251,7 @@ composite_rules:
       - id: micro-traits/data/encode/base64::base64-decode
       - id: micro-traits/comm/dns/lookup::dns-resolve
       - id: micro-traits/comm/http/lib/netlib::net-http
-      - id: micro-traits/comm/http/lib/netlib::http-get-method
+      - id: micro-traits/comm/http/get/
 
   - id: ruby-tmp-execution
     desc: Write to /tmp, chmod, and execute

@@ -18,14 +18,6 @@ traits:
       type: raw
       substr: "Net::HTTP"
 
-  - id: http-get-method
-    desc: HTTP GET method call
-    crit: notable
-    conf: 0.85
-    if:
-      type: symbol
-      exact: "get"
-
   - id: open-uri
     desc: open-uri module
     crit: notable
@@ -49,6 +41,12 @@ traits:
     if:
       type: string
       substr: "httparty"
+
+  - id: http-get-symbol
+    desc: HTTP get symbol call
+    if:
+      type: symbol
+      exact: "get"
 
   # Hardcoded IP in URL
   - id: hardcoded-ip-url
@@ -75,7 +73,9 @@ composite_rules:
     conf: 0.85
     all:
       - id: net-http
-      - id: http-get-method
+    any:
+      - id: http-get-symbol
+      - id: micro-traits/comm/http/get/
 
   - id: request-ruby
     desc: HTTP requests (Ruby)

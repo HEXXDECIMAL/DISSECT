@@ -1,3 +1,6 @@
+defaults:
+  for: [javascript, typescript]
+
 # Test File Context Markers
 
 traits:
@@ -199,24 +202,40 @@ traits:
       type: string
       substr: "karma.conf"
 
-  - id: coverage-markers-a
-    desc: Code coverage markers family A
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "istanbul|nyc|c8|coverage"
-  - id: coverage-markers-b
-    desc: Code coverage markers family B
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "__coverage__|lcov"
+  - id: coverage-marker-istanbul
+    desc: istanbul coverage marker
+    if: { type: string, word: "istanbul" }
+  - id: coverage-marker-nyc
+    desc: nyc coverage marker
+    if: { type: string, word: "nyc" }
+  - id: coverage-marker-c8
+    desc: c8 coverage marker
+    if: { type: string, word: "c8" }
+  - id: coverage-marker-coverage
+    desc: coverage keyword marker
+    if: { type: string, word: "coverage" }
+  - id: coverage-marker-internal
+    desc: __coverage__ marker
+    if: { type: string, substr: "__coverage__" }
+  - id: coverage-marker-lcov
+    desc: lcov marker
+    if: { type: string, word: "lcov" }
 
 composite_rules:
+  - id: coverage-markers-a
+    desc: Code coverage markers family A
+    any:
+      - id: coverage-marker-istanbul
+      - id: coverage-marker-nyc
+      - id: coverage-marker-c8
+      - id: coverage-marker-coverage
+
+  - id: coverage-markers-b
+    desc: Code coverage markers family B
+    any:
+      - id: coverage-marker-internal
+      - id: coverage-marker-lcov
+
   - id: coverage-markers
     desc: Code coverage markers
     crit: notable

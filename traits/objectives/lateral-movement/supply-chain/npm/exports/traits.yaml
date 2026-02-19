@@ -1,6 +1,9 @@
 # Module Export/Import Patterns
 # CommonJS, ES modules, package.json module fields
 
+defaults:
+  for: [package.json, javascript, typescript]
+
 traits:
   - id: has-cjs-export
     desc: Code exports functionality via CommonJS
@@ -11,20 +14,22 @@ traits:
       type: string
       regex: "module\\.exports\\s*=|exports\\.[a-zA-Z]"
 
-  - id: has-esm-export
-    desc: Code exports functionality via ES
-    crit: notable
-    conf: 0.85
-    for: [javascript, typescript]
+  - id: has-esm-export-base
+    desc: ES export (default/const/func/class)
     if:
       type: string
-      regex: "^export\\s+(default|const|function|class|async|let|var|\\{)"
+      regex: "^export\\s+(default|const|function|class)"
+
+  - id: has-esm-export-complex
+    desc: ES export (async/let/var/{)
+    if:
+      type: string
+      regex: "^export\\s+(async|let|var|\\{)"
 
   - id: imports-dependencies
     desc: Code imports from external packages
     crit: notable
     conf: 0.8
-    for: [javascript, typescript]
     if:
       type: string
       regex: "require\\(['\"][^./][^'\"]{1,120}['\"]\\)|from\\s+['\"][^./][^'\"]{1,120}['\"]"
@@ -33,7 +38,6 @@ traits:
     desc: Code has default export
     crit: notable
     conf: 0.8
-    for: [javascript, typescript]
     if:
       type: string
       regex: "export\\s+default"
@@ -42,7 +46,6 @@ traits:
     desc: "module.exports = {} object pattern"
     crit: notable
     conf: 0.6
-    for: [javascript, typescript]
     if:
       type: string
       regex: "module\\.exports = \\{"
@@ -52,7 +55,6 @@ traits:
     desc: Package has ESM module entry
     crit: notable
     conf: 0.85
-    for: [package.json]
     if:
       type: string
       regex: '"module":\s*"'
@@ -61,7 +63,6 @@ traits:
     desc: '"module": field in package.json'
     crit: notable
     conf: 0.6
-    for: [package.json]
     if:
       type: string
       substr: '"module":'
@@ -70,7 +71,6 @@ traits:
     desc: '"exports": field in package.json'
     crit: notable
     conf: 0.6
-    for: [package.json]
     if:
       type: string
       substr: '"exports":'
@@ -79,35 +79,51 @@ traits:
     desc: Package has modern exports field
     crit: notable
     conf: 0.85
-    for: [package.json]
     if:
       type: kv
       path: "exports"
 
-  - id: esm-export-pattern
-    desc: ES module export keyword pattern
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
+  - id: esm-export-pattern-base
+    desc: ES module export (const/func/class)
     if:
       type: string
-      regex: "^export (const|function|class|let|var|async)"
+      regex: "^export (const|function|class)"
+
+  - id: esm-export-pattern-async
+    desc: ES module export (let/var/async)
+    if:
+      type: string
+      regex: "^export (let|var|async)"
 
   - id: cjs-exports-pattern
     desc: CommonJS exports.property pattern
     crit: notable
     conf: 0.6
-    for: [javascript, typescript]
     if:
       type: string
       regex: "exports\\.[a-zA-Z]+ ="
 
 composite_rules:
+  - id: has-esm-export
+    desc: Code exports functionality via ES
+    crit: notable
+    conf: 0.85
+    any:
+      - id: has-esm-export-base
+      - id: has-esm-export-complex
+
+  - id: esm-export-pattern
+    desc: ES module export keyword pattern
+    crit: notable
+    conf: 0.6
+    any:
+      - id: esm-export-pattern-base
+      - id: esm-export-pattern-async
+
   - id: has-multiple-exports
     desc: Code has multiple named exports
     crit: notable
     conf: 0.85
-    for: [javascript, typescript]
     any:
       - { id: esm-export-pattern }
       - { id: cjs-exports-pattern }

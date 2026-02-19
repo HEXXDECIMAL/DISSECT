@@ -324,17 +324,16 @@ traits:
   if:
     type: string
     regex: (?i)(?:http|port|web|connect).{0,20}[:\s]80\b
-- id: port-number-https
-  desc: HTTPS port number (443)
-  crit: notable
-  conf: 0.6
-  platforms:
-  - all
-  for:
-  - scripts
+- id: port-number-https-1
+  desc: HTTPS port (443) variants (https/port/ssl)
   if:
     type: string
-    regex: (?i)(?:https|port|ssl|tls|connect).{0,20}[:\s]443\b
+    regex: (?i)(?:https|port|ssl).{0,20}[:\s]443\b
+- id: port-number-https-2
+  desc: HTTPS port (443) variants (tls/connect)
+  if:
+    type: string
+    regex: (?i)(?:tls|connect).{0,20}[:\s]443\b
 - id: cidr-range
   desc: CIDR network range notation
   crit: notable
@@ -353,15 +352,23 @@ traits:
   if:
     type: symbol
     regex: ^_?pmap_(getmaps|clnt_call|getport)$
-- id: probe-word-core
-  desc: Generic probe keyword
-  crit: notable
-  conf: 0.4
-  platforms:
-  - all
+- id: probe-word-core-prefix
+  desc: Generic probe keyword (network probe)
   if:
     type: string
-    regex: \bnetwork[_\-\s]?probe|probe[_\-\s]?(?:port|host|target|scan|packet)\b
+    regex: \bnetwork[_\-\s]?probe\b
+    case_insensitive: true
+- id: probe-word-core-suffix-1
+  desc: Generic probe keyword (probe port/host/target)
+  if:
+    type: string
+    regex: \bprobe[_\-\s]?(port|host|target)\b
+    case_insensitive: true
+- id: probe-word-core-suffix-2
+  desc: Generic probe keyword (probe scan/packet)
+  if:
+    type: string
+    regex: \bprobe[_\-\s]?(scan|packet)\b
     case_insensitive: true
 - id: probe-word-proto
   desc: Protocol probe keyword
@@ -374,6 +381,21 @@ traits:
     regex: \b(?:tcp|udp|icmp)[_\-\s]?probe\b
     case_insensitive: true
 composite_rules:
+- id: port-number-https
+  desc: HTTPS port number (443)
+  crit: notable
+  conf: 0.6
+  any:
+    - id: port-number-https-1
+    - id: port-number-https-2
+- id: probe-word-core
+  desc: Generic probe keyword
+  crit: notable
+  conf: 0.4
+  any:
+    - id: probe-word-core-prefix
+    - id: probe-word-core-suffix-1
+    - id: probe-word-core-suffix-2
 - id: target-ip-ref
   desc: References target IP concept
   crit: notable

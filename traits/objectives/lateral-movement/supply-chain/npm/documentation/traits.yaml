@@ -1,15 +1,21 @@
 # Documentation Patterns
 # JSDoc, README, license references
 
+defaults:
+  for: [package.json, javascript, typescript]
+
 traits:
-  - id: has-jsdoc
-    desc: Code has JSDoc documentation
-    crit: notable
-    conf: 0.85
-    for: [javascript, typescript]
+  - id: has-jsdoc-type
+    desc: Code has JSDoc @type
     if:
       type: string
-      regex: "/\\*\\*[\\s\\S]*?@(?:param|returns?|type|typedef|example)"
+      substr: "@type"
+
+  - id: has-jsdoc-example
+    desc: Code has JSDoc @example
+    if:
+      type: string
+      substr: "@example"
 
   # Has proper error handling
   - id: references-readme
@@ -22,25 +28,40 @@ traits:
       regex: '"readme":|README\\.md|readme\\.md'
 
   # References LICENSE file
-  - id: references-license
-    desc: Package references LICENSE file
-    crit: notable
-    conf: 0.85
-    for: [package.json]
+  - id: references-license-1
+    desc: Package references LICENSE/LICENCE
     if:
       type: string
-      regex: "LICENSE|LICENCE|COPYING"
+      regex: "LICEN[SC]E"
+      case_insensitive: true
+
+  - id: references-license-2
+    desc: Package references COPYING
+    if:
+      type: string
+      word: "COPYING"
       case_insensitive: true
 
   # References CHANGELOG
-  - id: references-changelog
+  - id: references-changelog-1
     desc: Package references CHANGELOG
-    crit: notable
-    conf: 0.85
-    for: [package.json]
     if:
       type: string
-      regex: "CHANGELOG|HISTORY|CHANGES"
+      word: "CHANGELOG"
+      case_insensitive: true
+
+  - id: references-changelog-history
+    desc: Package references HISTORY
+    if:
+      type: string
+      word: "HISTORY"
+      case_insensitive: true
+
+  - id: references-changelog-changes
+    desc: Package references CHANGES
+    if:
+      type: string
+      word: "CHANGES"
       case_insensitive: true
 
   # Has dist/lib output directory
@@ -54,14 +75,53 @@ traits:
       regex: "@changesets/|standard-version|semantic-release|conventional-changelog"
 
   # Has peer dependency range (well-designed library)
+  - id: has-license-1
+    desc: Package has license (MIT/ISC/Apache/BSD)
+    if:
+      type: string
+      regex: '"license":\\s*"(MIT|ISC|Apache|BSD)'
+
+  - id: has-license-2
+    desc: Package has license (GPL/LGPL/MPL/Unlicense)
+    if:
+      type: string
+      regex: '"license":\\s*"(GPL|LGPL|MPL|Unlicense)'
+
+composite_rules:
+  - id: has-jsdoc
+    desc: Code has JSDoc documentation
+    crit: notable
+    conf: 0.85
+    any:
+      - id: metadata/quality/documentation::param-annotation
+      - id: metadata/quality/documentation::return-annotation
+      - id: has-jsdoc-type
+      - id: has-jsdoc-example
+
+  - id: references-license
+    desc: Package references LICENSE file
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: references-license-1
+      - id: references-license-2
+
+  - id: references-changelog
+    desc: Package references CHANGELOG
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: references-changelog-1
+      - id: references-changelog-history
+      - id: references-changelog-changes
+
   - id: has-license
     desc: Package has license field
     crit: notable
     conf: 0.8
     for: [package.json]
-    if:
-      type: string
-      regex: '"license":\\s*"(?:MIT|ISC|Apache|BSD|GPL|LGPL|MPL|Unlicense)'
-
-
-  # Has keywords
+    any:
+      - id: has-license-1
+      - id: has-license-2

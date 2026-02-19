@@ -32,14 +32,24 @@ traits:
   if:
     type: raw
     regex: install_requires\s*=\s*\w+\.read\(|install_requires\s*=\s*read_requirements
+- id: affiliate-network-url-1
+  desc: Affiliate URL (clickbank/jvz)
+  if:
+    type: string
+    regex: \b(?:hop\.clickbank\.net|jvz\d*\.com)\b
+- id: affiliate-network-url-2
+  desc: Affiliate URL (warriorplus/digistore24/impact)
+  if:
+    type: string
+    regex: \b(?:warriorplus|digistore24|impact)\.com\b
+composite_rules:
 - id: affiliate-network-url
   desc: Affiliate network redirect URL
   crit: suspicious
   conf: 0.9
-  if:
-    type: string
-    regex: \b(?:hop\.clickbank\.net|(?:jvz\d*|warriorplus|digistore24|impact)\.com)\b
-composite_rules:
+  any:
+    - id: affiliate-network-url-1
+    - id: affiliate-network-url-2
 - id: pypi-affiliate-spam
   desc: PyPI package with affiliate spam URL
   crit: suspicious

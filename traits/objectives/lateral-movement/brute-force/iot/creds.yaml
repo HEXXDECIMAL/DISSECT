@@ -9,14 +9,65 @@ defaults:
   - python
   - go
 traits:
+- id: router-default-admin-1
+  desc: Default router admin credentials (1)
+  if:
+    type: string
+    regex: ^(admin123|admin1234|root123)$
+- id: router-default-admin-2
+  desc: Default router admin credentials (2)
+  if:
+    type: string
+    regex: ^(1234567890|123456)$
+- id: mirai-style-credential-access-1
+  desc: Mirai-style credential patterns (1)
+  if:
+    type: string
+    regex: ^(ubnt|root621|root123|admin1234)$
+- id: mirai-style-credential-access-2
+  desc: Mirai-style credential patterns (2)
+  if:
+    type: string
+    regex: ^(888888|666666|7ujMko0)$
+- id: busybox-command-injection-1
+  desc: Busybox command injection (Bot names)
+  if:
+    type: string
+    regex: /bin/busybox\s+(FASTCAT|ECCHI|MIRAI)
+- id: busybox-command-injection-2
+  desc: Busybox command injection (Tools)
+  if:
+    type: string
+    regex: /bin/busybox\s+(wget|tftp)
+- id: shell-injection-pattern-1
+  desc: Shell injection pattern (1)
+  if:
+    type: string
+    regex: ^(ping; sh|; sh|/bin/sh;|enable\nshell)$
+- id: shell-injection-pattern-2
+  desc: Shell injection pattern (2)
+  if:
+    type: string
+    regex: ^(system\nshell|linuxshell)$
+- id: iot-vendor-credential-access-1
+  desc: IoT vendor default credentials (1)
+  if:
+    type: string
+    regex: ^(hikvision|cisco123|vstarcam2015)$
+- id: iot-vendor-credential-access-2
+  desc: IoT vendor default credentials (2)
+  if:
+    type: string
+    regex: ^(icatch99|hslwificam|ipcam_rt5350)$
+composite_rules:
 - id: router-default-admin
   desc: Default router admin credentials
   crit: notable
   conf: 0.85
   size_max: 10000
-  if:
-    type: string
-    regex: ^(admin123|admin1234|root123|1234567890|123456)$
+  any:
+    - id: router-default-admin-1
+    - id: router-default-admin-2
   not:
   - id: metadata/signed/platform::apple
   unless:
@@ -26,31 +77,30 @@ traits:
   desc: Mirai-style credential patterns
   crit: suspicious
   conf: 0.95
-  if:
-    type: string
-    regex: ^(ubnt|root621|root123|admin1234|888888|666666|7ujMko0)$
+  any:
+    - id: mirai-style-credential-access-1
+    - id: mirai-style-credential-access-2
 - id: busybox-command-injection
   desc: Busybox command injection pattern
   crit: suspicious
   conf: 0.95
-  if:
-    type: string
-    regex: /bin/busybox\s+(FASTCAT|ECCHI|MIRAI|wget|tftp)
+  any:
+    - id: busybox-command-injection-1
+    - id: busybox-command-injection-2
 - id: shell-injection-pattern
   desc: Shell injection via service prompt
   crit: suspicious
   conf: 0.9
-  if:
-    type: string
-    regex: ^(ping; sh|; sh|/bin/sh;|enable\nshell|system\nshell|linuxshell)$
+  any:
+    - id: shell-injection-pattern-1
+    - id: shell-injection-pattern-2
 - id: iot-vendor-credential-access
   desc: IoT vendor default credentials
   crit: suspicious
   conf: 0.9
-  if:
-    type: string
-    regex: ^(?:hikvision|cisco123|vstarcam2015|icatch99|hslwificam|ipcam_rt5350)$
-composite_rules:
+  any:
+    - id: iot-vendor-credential-access-1
+    - id: iot-vendor-credential-access-2
 - id: iot-botnet-scanner-vendor
   desc: IoT botnet scanner (vendor credential-access)
   crit: hostile

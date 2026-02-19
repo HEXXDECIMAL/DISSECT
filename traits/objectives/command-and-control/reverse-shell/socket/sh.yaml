@@ -125,8 +125,8 @@ traits:
   if:
     type: string
     regex: php\s+-r\s+['"].{0,50}fsockopen.{0,50}shell_exec|\$sock\s*=\s*fsockopen
-- id: sh-reverse-shell-ruby
-  desc: Ruby socket reverse shell
+- id: sh-reverse-shell-ruby-1
+  desc: Ruby socket reverse shell (cli execution)
   crit: suspicious
   conf: 0.95
   attack: T1059
@@ -136,8 +136,45 @@ traits:
   - ruby
   if:
     type: string
-    regex: ruby\s+-rsocket\s+-e.{0,80}(exec|spawn|system|/bin/sh|/bin/bash)|TCPSocket\.open
+    regex: ruby\s+-rsocket\s+-e.{0,80}(exec|spawn|system)
+- id: sh-reverse-shell-ruby-2
+  desc: Ruby socket reverse shell (cli path)
+  crit: suspicious
+  conf: 0.95
+  attack: T1059
+  for:
+  - shell
+  - package.json
+  - ruby
+  if:
+    type: string
+    regex: ruby\s+-rsocket\s+-e.{0,80}(/bin/sh|/bin/bash)
+- id: sh-reverse-shell-ruby-3
+  desc: Ruby socket reverse shell (TCPSocket)
+  crit: suspicious
+  conf: 0.95
+  attack: T1059
+  for:
+  - shell
+  - package.json
+  - ruby
+  if:
+    type: string
+    regex: TCPSocket\.open
 composite_rules:
+- id: sh-reverse-shell-ruby
+  desc: Ruby socket reverse shell
+  crit: suspicious
+  conf: 0.95
+  attack: T1059
+  for:
+  - shell
+  - package.json
+  - ruby
+  any:
+  - id: sh-reverse-shell-ruby-1
+  - id: sh-reverse-shell-ruby-2
+  - id: sh-reverse-shell-ruby-3
 - id: reverse-shell-mkfifo
   desc: Reverse shell using mkfifo and
   crit: hostile

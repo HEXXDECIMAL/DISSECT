@@ -47,21 +47,30 @@ traits:
             ) and not any of ($fp_*)
         }
 
-  - id: encrypt-decryptor
-    desc: References decryptor
-    crit: suspicious
-    conf: 0.66
+  - id: encrypt-decryptor-msg-1
+    desc: References decryptor (your/run/download)
     if:
       type: string
-      # Match "decryptor" in ransom context, not browser password decryptor code
-      # Real ransomware: "decryptor.exe", "your decryptor", "run decryptor"
-      # False positive: "src/browsers/firefox/modules/decryptors.rs"
-      regex: "\\b(your|run|download|get|free)\\s+decryptor|decryptor\\.(exe|bin|bat)"
+      regex: "\\b(your|run|download)\\s+decryptor"
+      case_insensitive: true
+
+  - id: encrypt-decryptor-msg-2
+    desc: References decryptor (get/free)
+    if:
+      type: string
+      regex: "\\b(get|free)\\s+decryptor"
+      case_insensitive: true
+
+  - id: encrypt-decryptor-file
+    desc: References decryptor file (exe/bin/bat)
+    if:
+      type: string
+      regex: "decryptor\\.(exe|bin|bat)"
       case_insensitive: true
 
   # Go file encryption patterns (ransomware)
   - id: go-file-encrypt-yara
-    desc: Go file encryption patterns (potential
+    desc: Go file encryption patterns
     crit: suspicious
     conf: 0.8
     if:
@@ -84,6 +93,15 @@ traits:
         }
 
 composite_rules:
+  - id: encrypt-decryptor
+    desc: References decryptor
+    crit: suspicious
+    conf: 0.66
+    any:
+      - id: encrypt-decryptor-msg-1
+      - id: encrypt-decryptor-msg-2
+      - id: encrypt-decryptor-file
+
   - id: encrypt-note
     desc: Ransom note patterns
     crit: notable

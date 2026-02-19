@@ -32,24 +32,42 @@ traits:
       type: string
       regex: "Web3Response(DTO|Message|Object)?"
 
-  - id: request-forwarding
-    desc: Request forwarding or relay semantics
+  - id: request-forwarding-req
+    desc: Request forwarding or relay semantics (request)
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "(request|response).{0,30}(forward|relay|proxy|tunnel)"
+      regex: "request.{0,30}(forward|relay|proxy|tunnel)"
+      case_insensitive: true
+
+  - id: request-forwarding-res
+    desc: Request forwarding or relay semantics (response)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "response.{0,30}(forward|relay|proxy|tunnel)"
       case_insensitive: true
 
   # === Session management indicators ===
-  - id: session-management
-    desc: Session/connection state management
+  - id: session-management-sess
+    desc: Session state management
     crit: notable
     conf: 0.75
     for: [macho, dylib]
     if:
       type: string
-      regex: "(Session|Connection).{0,30}(ID|Key|Secret|Token)"
+      regex: "Session.{0,30}(ID|Key|Secret|Token)"
+
+  - id: session-management-conn
+    desc: Connection state management
+    crit: notable
+    conf: 0.75
+    for: [macho, dylib]
+    if:
+      type: string
+      regex: "Connection.{0,30}(ID|Key|Secret|Token)"
 
   - id: host-request
     desc: Host request handling (request forwarding)
@@ -72,6 +90,14 @@ traits:
       substr: "HTTPResponse"
 
 composite_rules:
+  - id: session-management
+    desc: Session/connection state management
+    crit: notable
+    conf: 0.75
+    any:
+      - id: session-management-sess
+      - id: session-management-conn
+
   # http-response-handler: composite referencing canonical dataTaskWithRequest plus HTTPResponse
   - id: http-response-handler
     desc: HTTP response handling (data task or HTTPResponse)
@@ -113,4 +139,4 @@ composite_rules:
     any:
       - id: web3-request-dto
       - id: web3-response-dto
-      - id: micro-traits/comm/http/post::post-method
+      - id: micro-traits/comm/http/post/

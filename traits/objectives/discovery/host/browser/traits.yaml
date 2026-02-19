@@ -32,8 +32,8 @@ traits:
   if:
     type: string
     substr: Safari
-- id: edge-name
-  desc: Edge browser name
+- id: edge-name-path
+  desc: Edge browser name (path)
   crit: notable
   conf: 0.4
   attack: T1217
@@ -41,9 +41,9 @@ traits:
   - all
   if:
     type: string
-    regex: Edge[/\\]|Microsoft\s*Edge|MicrosoftEdge|Edge\s+(?:Browser|Chromium)
-- id: opera-name
-  desc: Opera browser name
+    regex: Edge[/\\]
+- id: edge-name-ms
+  desc: Edge browser name (Microsoft Edge)
   crit: notable
   conf: 0.4
   attack: T1217
@@ -51,7 +51,37 @@ traits:
   - all
   if:
     type: string
-    regex: Opera[/\\]|Opera\s+(?:GX|Stable|Software|Browser)
+    regex: Microsoft\s*Edge|MicrosoftEdge
+- id: edge-name-other
+  desc: Edge browser name (Browser/Chromium)
+  crit: notable
+  conf: 0.4
+  attack: T1217
+  for:
+  - all
+  if:
+    type: string
+    regex: Edge\s+(?:Browser|Chromium)
+- id: opera-name-path
+  desc: Opera browser name (path)
+  crit: notable
+  conf: 0.4
+  attack: T1217
+  for:
+  - all
+  if:
+    type: string
+    regex: Opera[/\\]
+- id: opera-name-other
+  desc: Opera browser name (GX/Stable/Software/Browser)
+  crit: notable
+  conf: 0.4
+  attack: T1217
+  for:
+  - all
+  if:
+    type: string
+    regex: Opera\s+(?:GX|Stable|Software|Browser)
 - id: brave-name
   desc: Brave browser name
   crit: notable
@@ -188,6 +218,23 @@ traits:
     type: string
     regex: 'Cookies(\.sqlite|\.binarycookies|\.db)?$|browser.{0,30}cookies'
 composite_rules:
+- id: edge-name
+  desc: Edge browser name
+  crit: notable
+  conf: 0.4
+  attack: T1217
+  any:
+  - id: edge-name-path
+  - id: edge-name-ms
+  - id: edge-name-other
+- id: opera-name
+  desc: Opera browser name
+  crit: notable
+  conf: 0.4
+  attack: T1217
+  any:
+  - id: opera-name-path
+  - id: opera-name-other
 - id: browser-names
   desc: Browser name references
   crit: notable

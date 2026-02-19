@@ -30,36 +30,6 @@ traits:
       type: string
       regex: "(bitly\\.com|tinyurl\\.com)"
 
-  # Removed iplogger-string duplicate - use objectives/discovery/network/scan::iplogger-keyword (more complete, has attack mapping)
-
-  - id: iplogger-http-http
-    desc: "Detects HTTP indicators often with iplogger"
-    crit: notable
-    if:
-      type: string
-      word: "http"
-
-  - id: iplogger-http-get
-    desc: "Detects HTTP indicators often with iplogger"
-    crit: notable
-    if:
-      type: string
-      word: "get"
-
-  - id: iplogger-http-post
-    desc: "Detects HTTP indicators often with iplogger"
-    crit: notable
-    if:
-      type: string
-      word: "post"
-
-  - id: iplogger-http-request
-    desc: "Detects HTTP indicators often with iplogger"
-    crit: notable
-    if:
-      type: string
-      word: "request"
-
 composite_rules:
   - id: iplogger-domain
     desc: "Detects iplogger tracking domains"
@@ -96,7 +66,7 @@ composite_rules:
     desc: "Detects HTTP indicators often with iplogger"
     crit: notable
     any:
-      - id: iplogger-http-http
-      - id: iplogger-http-get
-      - id: iplogger-http-post
-      - id: iplogger-http-request
+      - id: micro-traits/comm/http/protocol/
+      - id: micro-traits/comm/http/get/
+      - id: micro-traits/comm/http/post/
+      - id: micro-traits/comm/http/request/

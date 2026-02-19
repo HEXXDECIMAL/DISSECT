@@ -1,3 +1,6 @@
+defaults:
+  for: [package.json]
+
 traits:
 - id: has-index-entry
   desc: Package has standard index entry
@@ -134,15 +137,21 @@ traits:
   if:
     type: string
     substr: '"private": true'
-- id: conventional-version
-  desc: Uses conventional version format
-  crit: notable
-  conf: 0.75
-  for:
-  - package.json
+- id: conventional-version-base
+  desc: Uses standard version format
   if:
     type: string
-    regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta|rc|next|canary)\.[0-9]+)?"'
+    regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+"'
+- id: conventional-version-pre-1
+  desc: Uses pre-release version format (alpha/beta/rc)
+  if:
+    type: string
+    regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+-(alpha|beta|rc)'
+- id: conventional-version-pre-2
+  desc: Uses pre-release version format (next/canary)
+  if:
+    type: string
+    regex: '"version":\s*"[0-9]+\.[0-9]+\.[0-9]+-(next|canary)'
 - id: mature-version
   desc: Package has mature version number
   crit: notable
@@ -260,16 +269,36 @@ traits:
   if:
     type: string
     regex: github\.com/.{0,50}actions
+- id: scoped-known-org-1
+  desc: Package from known org scope (types/babel/rollup/webpack)
+  if:
+    type: string
+    regex: '"name":\s*"@(types|babel|rollup|webpack)/'
+- id: scoped-known-org-2
+  desc: Package from known org scope (eslint/angular/vue)
+  if:
+    type: string
+    regex: '"name":\s*"@(eslint|angular|vue)/'
+composite_rules:
+- id: conventional-version
+  desc: Uses conventional version format
+  crit: notable
+  conf: 0.75
+  for:
+  - package.json
+  any:
+    - id: conventional-version-base
+    - id: conventional-version-pre-1
+    - id: conventional-version-pre-2
 - id: scoped-known-org
   desc: Package from known organization scope
   crit: notable
   conf: 0.85
   for:
   - package.json
-  if:
-    type: string
-    regex: '"name":\s*"@(?:types|babel|rollup|webpack|eslint|angular|vue)/'
-composite_rules:
+  any:
+    - id: scoped-known-org-1
+    - id: scoped-known-org-2
 - id: ci-badge-reference
   desc: References CI service (professional project)
   crit: notable

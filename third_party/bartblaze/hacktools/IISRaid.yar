@@ -22,7 +22,7 @@ rule IISRaid
         $pdb1 = "\\IIS-Raid-master\\" ascii wide
         $pdb2 = "\\IIS-Backdoor.pdb"
         $s1 = "C:\\Windows\\System32\\credwiz.exe" ascii wide
-        $s2 = "C:\\Windows\\Temp\\credential-access.db" ascii wide
+        $s2 = "C:\\Windows\\Temp\\creds.db" ascii wide
         $s3 = "CHttpModule::" ascii wide
         $s4 = "%02d/%02d/%04d %02d:%02d:%02d | %s" ascii wide
 

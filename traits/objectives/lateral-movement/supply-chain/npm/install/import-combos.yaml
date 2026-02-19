@@ -93,26 +93,30 @@ traits:
   if:
     type: string
     regex: Login Data|cookies\.sqlite|logins\.json
-- id: scripts-preinstall-pipe
-  desc: preinstall download-execute pipe
-  crit: suspicious
-  conf: 0.95
-  for:
-  - package.json
+- id: scripts-preinstall-pipe-1
+  desc: preinstall pipe (curl/wget with |/;/&&)
   if:
     type: kv
     path: scripts.preinstall
-    regex: (curl|wget).{0,50}(\||;|&&).{0,20}(node|sh|bash|eval)
-- id: scripts-postinstall-pipe
-  desc: postinstall download-execute pipe
-  crit: suspicious
-  conf: 0.95
-  for:
-  - package.json
+    regex: (curl|wget).{0,50}(\||;|&&)
+- id: scripts-preinstall-pipe-2
+  desc: preinstall pipe (executors node/sh/bash/eval)
+  if:
+    type: kv
+    path: scripts.preinstall
+    regex: (node|sh|bash|eval)
+- id: scripts-postinstall-pipe-1
+  desc: postinstall pipe (curl/wget with |/;/&&)
   if:
     type: kv
     path: scripts.postinstall
-    regex: (curl|wget).{0,50}(\||;|&&).{0,20}(node|sh|bash|eval)
+    regex: (curl|wget).{0,50}(\||;|&&)
+- id: scripts-postinstall-pipe-2
+  desc: postinstall pipe (executors node/sh/bash/eval)
+  if:
+    type: kv
+    path: scripts.postinstall
+    regex: (node|sh|bash|eval)
 - id: scripts-preinstall-node-e
   desc: preinstall node -e with URL
   crit: suspicious
@@ -133,27 +137,67 @@ traits:
     type: kv
     path: scripts.postinstall
     regex: node\s+-e\s+['"].{0,100}https?://
+- id: scripts-preinstall-shell-1
+  desc: preinstall runs shell command (network)
+  if:
+    type: kv
+    path: scripts.preinstall
+    regex: \b(curl|wget)\b
+- id: scripts-preinstall-shell-2
+  desc: preinstall runs shell command (interpreters)
+  if:
+    type: kv
+    path: scripts.preinstall
+    regex: \b(sh|bash|powershell)\b
+- id: scripts-postinstall-shell-1
+  desc: postinstall runs shell command (network)
+  if:
+    type: kv
+    path: scripts.postinstall
+    regex: \b(curl|wget)\b
+- id: scripts-postinstall-shell-2
+  desc: postinstall runs shell command (interpreters)
+  if:
+    type: kv
+    path: scripts.postinstall
+    regex: \b(sh|bash|powershell)\b
+composite_rules:
+- id: scripts-preinstall-pipe
+  desc: preinstall download-execute pipe
+  crit: suspicious
+  conf: 0.95
+  for:
+  - package.json
+  all:
+    - id: scripts-preinstall-pipe-1
+    - id: scripts-preinstall-pipe-2
+- id: scripts-postinstall-pipe
+  desc: postinstall download-execute pipe
+  crit: suspicious
+  conf: 0.95
+  for:
+  - package.json
+  all:
+    - id: scripts-postinstall-pipe-1
+    - id: scripts-postinstall-pipe-2
 - id: scripts-preinstall-shell
   desc: preinstall runs shell command
   crit: suspicious
   conf: 0.85
   for:
   - package.json
-  if:
-    type: kv
-    path: scripts.preinstall
-    regex: \b(curl|wget|sh|bash|powershell)(?:\.exe)?\b
+  any:
+    - id: scripts-preinstall-shell-1
+    - id: scripts-preinstall-shell-2
 - id: scripts-postinstall-shell
   desc: postinstall runs shell command
   crit: suspicious
   conf: 0.85
   for:
   - package.json
-  if:
-    type: kv
-    path: scripts.postinstall
-    regex: \b(curl|wget|sh|bash|powershell)(?:\.exe)?\b
-composite_rules:
+  any:
+    - id: scripts-postinstall-shell-1
+    - id: scripts-postinstall-shell-2
 - id: http-client-imports
   desc: HTTP client imports
   crit: notable

@@ -1,636 +1,141 @@
-# Testing Framework Patterns
-# Jest, Mocha, test blocks, assertions
+# npm package.json Testing Patterns
+# Detects test-related artifacts and configuration
+
+defaults:
+  for: [package.json]
 
 traits:
-  - id: describe-with-string
-    desc: "describe() test block with string"
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      exact: "describe"
-
-  - id: it-with-string
-    desc: "it() test block with string"
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      exact: "it"
-
-  - id: test-with-string
-    desc: "test() block with string"
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: ast
-      kind: call
-      exact: "test"
-
-  - id: assert-method
-    desc: assert. method call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "assert."
-
-  - id: should-assertion
-    desc: .should. assertion pattern
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: ".should."
-
-  # Has assertion library usage
-  - id: has-assertions-assert
-    desc: Code uses assert assertion
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "assert\\s*[.\\(]"
-
-  - id: has-assertions-expect
-    desc: Code uses expect assertion
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "expect\\s*[.\\(]"
-
-  - id: has-assertions-should
-    desc: Code uses should assertion
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "should\\s*[.\\(]"
-
-  - id: has-assertions-test
-    desc: Code uses test assertion style
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "test\\s*[.\\(]"
-
-  - id: has-assertions-b
-    desc: Code uses assertion patterns
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "toMatch\\("
-
-  # Uses popular web framework
-  - id: has-test-directory-test
-    desc: Package references test directory
-    crit: notable
-    conf: 0.85
-    for: [package.json]
-    if:
-      type: string
-      exact: '"test"'
-
-  - id: has-test-directory-tests
-    desc: Package references tests directory
-    crit: notable
-    conf: 0.85
-    for: [package.json]
-    if:
-      type: string
-      exact: '"tests"'
-
-  - id: has-test-directory-spec
-    desc: Package references spec directory
-    crit: notable
-    conf: 0.85
-    for: [package.json]
-    if:
-      type: string
-      exact: '"spec"'
-
-  - id: has-test-directory-b
-    desc: Package references test directory
-    crit: notable
-    conf: 0.85
-    for: [package.json]
-    if:
-      type: string
-      exact: '"__mocks__"'
-
-  # Has examples directory
-  - id: has-jest-config
-    desc: Package has Jest configuration
-    crit: notable
-    conf: 0.9
-    for: [package.json]
-    if:
-      type: string
-      regex: 'jest\\.config'
-
-  # Has Babel config
   - id: pkg-test-script-field
     desc: '"test": script in package.json'
     crit: notable
     conf: 0.6
-    for: [package.json]
     if:
       type: string
       substr: '"test":'
 
-  - id: has-test-script-a
-    desc: Package has test script (legitimate
+  - id: has-jest
+    desc: Package uses Jest testing framework
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      regex: '"test":\\s*"[^"]{0,120}(?:jest|mocha|ava|tap)'
+      regex: '"jest"|jest\.config\.js'
 
-  - id: has-test-script-b
-    desc: Package has test script (legitimate
+  - id: has-mocha
+    desc: Package uses Mocha testing framework
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      regex: '"test":\\s*"[^"]{0,120}(?:vitest|node --test|npm test)'
+      regex: '"mocha"|\.mocharc'
 
-  # Has TypeScript configuration
-  - id: uses-test-framework-jest
-    desc: Package uses jest framework
+  - id: has-ava
+    desc: Package uses Ava testing framework
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      exact: '"jest"'
+      regex: '"ava"|"ava":'
 
-  - id: uses-test-framework-mocha
-    desc: Package uses mocha framework
+  - id: has-cypress
+    desc: Package uses Cypress testing framework
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      exact: '"mocha"'
+      regex: '"cypress"|cypress\.config'
 
-  - id: uses-test-framework-ava
-    desc: Package uses ava framework
+  - id: has-playwright
+    desc: Package uses Playwright testing framework
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      exact: '"ava"'
+      regex: '"playwright"|playwright\.config'
 
-  - id: uses-test-framework-vitest
-    desc: Package uses vitest framework
+  - id: has-karma
+    desc: Package uses Karma test runner
     crit: notable
     conf: 0.9
-    for: [package.json]
     if:
       type: string
-      exact: '"vitest"'
+      regex: '"karma"|karma\.conf\.js'
 
-  - id: uses-test-framework-b
-    desc: Package uses established testing framework
-    crit: notable
-    conf: 0.9
-    for: [package.json]
-    if:
-      type: string
-      regex: '"@testing-library|"chai"|"sinon"|"tap"'
-
-  # Has files field (explicit inclusion)
-  - id: test-call
-    desc: test() function call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "test("
-
-  # jest-word for javascript: use metadata/dev/testing/jest::jest-word (canonical)
-  - id: jest-word
-    desc: jest keyword
-    crit: notable
-    conf: 0.6
-    for: [typescript]
-    if:
-      type: string
-      word: "jest"
-
-  - id: jest-mock-call
-    desc: jest.mock call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "jest.mock"
-
-  - id: assert-word
-    desc: assert keyword
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "assert"
-
-  # Vitest test file
-  - id: vitest-test-file
-    desc: Vitest test file markers
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "from ['\"]vitest['\"]|import.{0,50}vitest|vi\\.mock|vi\\.fn"
-
-  # Test file naming patterns
-  - id: dot-test-filename
-    desc: .test. in filename
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: ".test."
-
-  - id: underscore-test-filename
-    desc: _test. in filename
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "_test."
-
-  - id: tests-directory
-    desc: /__tests__/ directory
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "/__tests__/"
-
-  - id: fixtures-word
-    desc: fixtures keyword
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "fixtures"
-
-  - id: testdata-word
-    desc: testdata keyword
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "testdata"
-
-  - id: jest-fn-call
-    desc: jest.fn() mock function
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "jest.fn()"
-
-  - id: snapshot-test
-    desc: Snapshot testing patterns
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'toMatchSnapshot|toMatchInlineSnapshot|\.snap'
-
-  # E2E test framework imports
-  - id: testing-library-from
-    desc: from '@testing-library
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "from '@testing-library"
-
-  - id: render-call-test
-    desc: render() call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "render("
-
-  - id: jest-config-ref
-    desc: jest.config reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "jest.config"
-
-  - id: jest-setup-files
-    desc: setupFilesAfterEnv Jest option
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "setupFilesAfterEnv"
-
-  - id: jest-test-environment
-    desc: testEnvironment Jest option
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "testEnvironment"
-
-  - id: mocharc-ref
-    desc: mocharc config file
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      word: "mocharc"
-
-  - id: vitest-config-ref
-    desc: vitest.config reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "vitest.config"
-
-  # Coverage markers
-  - id: test-function-wpt
-    desc: test() WPT function
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "\\btest\\s*\\(\\s*['\"`][^'\"]{0,120}WPT|\\btest\\s*\\(\\s*function\\(\\)"
-
-# === COMPOSITE RULES ===
-composite_rules:
-  - id: has-assertions-a
-    desc: Code uses assertion patterns
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    any:
-      - id: has-assertions-assert
-      - id: has-assertions-expect
-      - id: has-assertions-should
-      - id: has-assertions-test
-      - id: has-assertions-b
-
-  - id: has-test-directory-a
-    desc: Package references test directory
+  - id: has-test-dir
+    desc: Package has a test directory
     crit: notable
     conf: 0.85
-    for: [package.json]
-    any:
-      - id: has-test-directory-test
-      - id: has-test-directory-tests
-      - id: has-test-directory-spec
-      - id: has-test-directory-b
-
-  - id: uses-test-framework-a
-    desc: Package uses established testing framework
-    crit: notable
-    conf: 0.9
-    for: [package.json]
-    any:
-      - id: uses-test-framework-jest
-      - id: uses-test-framework-mocha
-      - id: uses-test-framework-ava
-      - id: uses-test-framework-vitest
-
-  - id: has-test-directory
-    desc: Package references test directory
-    crit: notable
-    conf: 0.85
-    for: [package.json]
-    any:
-      - id: has-test-directory-a
-      - id: has-test-directory-b
-
-  - id: has-test-script
-    desc: Package has test script (legitimate
-    crit: notable
-    conf: 0.9
-    for: [package.json]
-    any:
-      - id: has-test-script-a
-      - id: has-test-script-b
-
-  - id: uses-test-framework
-    desc: Package uses established testing framework
-    crit: notable
-    conf: 0.9
-    for: [package.json]
-    any:
-      - id: uses-test-framework-a
-      - id: uses-test-framework-b
+    if:
+      type: string
+      regex: '"test"|"tests"|"__tests__"'
 
   - id: has-assertions
-    desc: Code uses assertion patterns
+    desc: Code uses common assertion libraries
+    crit: notable
+    conf: 0.85
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: '"chai"|"expect"|"should"|"assert"'
+
+  - id: test-fixtures
+    desc: References to test fixture files
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    if:
+      type: string
+      regex: 'fixtures/|testdata/|__fixtures__/'
+
+  - id: wpt-test-title
+    desc: Web Platform Test title pattern
+    if:
+      type: string
+      substr: "Web Platform Test"
+
+  - id: test-filename-pattern
+    desc: Common test filename pattern
+    if:
+      type: string
+      regex: '\.(test|spec|test-case)\.[a-z]+$'
+
+  - id: jest-expect-call
+    desc: Jest expect() call
+    if:
+      type: string
+      substr: "expect("
+
+  - id: mocha-describe-call
+    desc: Mocha describe() call
+    if:
+      type: string
+      substr: "describe("
+
+composite_rules:
+  - id: jest-test-file
+    desc: Jest test file
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
-    any:
-      - id: has-assertions-a
-      - id: has-assertions-b
-
-  # Terser/UglifyJS minified output
-  - id: test-block-functions
-    desc: Test block functions (describe/it/test)
-    for: [javascript, typescript]
-    any:
-      - { id: describe-with-string }
-      - { id: it-with-string }
-      - { id: test-with-string }
-    crit: notable
-
-  - id: test-assertions
-    desc: Test assertion patterns
-    for: [javascript, typescript]
-    any:
-      - { id: metadata/dev/testing/rspec::rspec-expect }
-      - { id: assert-method }
-      - { id: should-assertion }
-    crit: notable
-
-  - id: has-test-blocks
-    desc: Code contains test definitions
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
     all:
-      - { id: test-block-functions }
-      - { id: test-assertions }
-
-  # Multiple exports
-  - id: jest-test-blocks
-    desc: Jest test blocks
-    for: [javascript, typescript]
-    any:
-      - { id: metadata/dev/testing/jest::jest-describe }
-      - { id: test-call }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::it-with-string }
-    crit: notable
-
-  - id: jest-assertions-or-hooks
-    desc: Jest assertions or lifecycle hooks
-    for: [javascript, typescript]
-    any:
-      - { id: metadata/dev/testing/rspec::rspec-expect }
-      - { id: jest-word }
-      - { id: metadata/dev/testing/jest::jest-word }
-      - { id: jest-mock-call }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-blocks }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-blocks }
-    crit: notable
-
-  - id: jest-test-file
-    desc: Jest test file markers
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
-    all:
-      - { id: jest-test-blocks }
-      - { id: jest-assertions-or-hooks }
-
-  # Mocha test file
-  - id: mocha-test-blocks
-    desc: Mocha test blocks
-    for: [javascript, typescript]
-    all:
-      - { id: metadata/dev/testing/jest::jest-describe }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::it-with-string }
-    crit: notable
-
-  - id: mocha-assertions-or-hooks
-    desc: Mocha assertions or hooks
-    for: [javascript, typescript]
-    any:
-      - { id: assert-word }
-      - { id: should-assertion }
-    crit: notable
-
+      - id: jest-expect-call
+      - id: test-filename-pattern
 
   - id: mocha-test-file
-    desc: Mocha test file markers
+    desc: Mocha test file
     crit: notable
-    conf: 0.95
+    conf: 0.9
     for: [javascript, typescript]
     all:
-      - { id: mocha-test-blocks }
-      - { id: mocha-assertions-or-hooks }
+      - id: mocha-describe-call
+      - id: test-filename-pattern
 
-  # Test filename pattern
-  - id: test-filename-pattern
-    desc: File follows test naming convention
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    any:
-      - { id: dot-test-filename }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::dot-test-filename }
-      - { id: underscore-test-filename }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::underscore-test-filename }
-      - { id: tests-directory }
-      - { id: objectives/lateral-movement/supply-chain/npm/project-structure::mocks-directory }
-
-  # Test fixtures
-  - id: test-fixtures
-    desc: Test fixture or mock data
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    any:
-      - { id: fixtures-word }
-      - { id: testdata-word }
-      - { id: jest-fn-call }
-
-
-  # E2E test frameworks
-  - id: e2e-test
-    desc: E2E test framework markers
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    any:
-      - { id: objectives/lateral-movement/supply-chain/npm/browser-automation }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::e2e-test }
-
-  # Testing Library
-  - id: testing-library
-    desc: Testing Library patterns
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
-    any:
-      - {
-          id: objectives/lateral-movement/supply-chain/npm/browser-automation::testing-library-imports,
-        }
-      - { id: render-call-test }
-
-  # Test configuration files
-  - id: test-config
-    desc: Test configuration file
-    crit: notable
-    conf: 0.95
-    for: [javascript, typescript]
-    any:
-      - { id: jest-config-ref }
-      - { id: jest-setup-files }
-      - { id: jest-test-environment }
-      - { id: mocharc-ref }
-      - { id: objectives/lateral-movement/supply-chain/npm/testing::test-config }
-      - { id: vitest-config-ref }
-
-  # WPT test file
   - id: wpt-test-file
-    desc: Web Platform Test file markers
+    desc: Web Platform Test (WPT) file
     crit: notable
     conf: 0.95
-    for: [javascript, typescript]
+    for: [javascript, html]
     any:
-      - {
-          id: objectives/lateral-movement/supply-chain/npm/language-features::promise-test-call,
-        }
-      - { id: objectives/lateral-movement/supply-chain/npm/language-features::async-test-call }
+      - id: wpt-test-title
+      - id: objectives/lateral-movement/supply-chain/npm/language-features::promise-test-call
+      - id: objectives/lateral-movement/supply-chain/npm/language-features::async-test-call

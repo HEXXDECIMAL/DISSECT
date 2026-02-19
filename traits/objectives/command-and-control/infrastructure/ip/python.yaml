@@ -10,7 +10,7 @@ traits:
   conf: 0.85
   if:
     type: string
-    regex: f["']https?://\{(?:ip|ipv4|ip_addr|ipaddress|server_ip|c2_ip|host_ip)\}
+    regex: f["']https?://\{[a-zA-Z_][a-zA-Z0-9_]*\}
 - id: python-fstring-url-with-port
   desc: f-string URL construction with host
   conf: 0.85

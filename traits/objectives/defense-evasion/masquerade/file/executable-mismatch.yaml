@@ -8,21 +8,117 @@ defaults:
   conf: 0.95
 
 traits:
-  - id: basename-is-doc
-    desc: Filename has document extension
+  - id: basename-is-doc-office-word
+    desc: Filename has Word document extension
     crit: notable
     if:
       type: basename
-      regex: '\.(pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|txt|csv|ods|odt)$'
+      regex: '\.(doc|docx)$'
+
+  - id: basename-is-doc-office-excel
+    desc: Filename has Excel document extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(xls|xlsx)$'
+
+  - id: basename-is-doc-office-ppt
+    desc: Filename has PPT document extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(ppt|pptx)$'
+
+  - id: basename-is-doc-other-1
+    desc: Filename has PDF, RTF or TXT extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(pdf|rtf|txt)$'
+
+  - id: basename-is-doc-other-2
+    desc: Filename has CSV, ODS or ODT extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(csv|ods|odt)$'
+
+  - id: basename-is-media-video-1
+    desc: Filename has video extension (1)
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(mp4|avi|mov)$'
+
+  - id: basename-is-media-video-2
+    desc: Filename has video extension (2)
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(mkv|flv|wmv)$'
+
+  - id: basename-is-media-audio
+    desc: Filename has audio extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(mp3|wav)$'
+
+  - id: basename-is-media-image-common
+    desc: Filename has common image extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(png|jpg|jpeg|gif)$'
+
+  - id: basename-is-media-image-web
+    desc: Filename has web image extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(bmp|ico|svg|webp)$'
+
+  - id: basename-is-media-image-pro
+    desc: Filename has professional image extension
+    crit: notable
+    if:
+      type: basename
+      regex: '\.(tiff|tif)$'
+
+composite_rules:
+  - id: basename-is-doc-office
+    desc: Filename has Office document extension
+    crit: notable
+    any:
+      - id: basename-is-doc-office-word
+      - id: basename-is-doc-office-excel
+      - id: basename-is-doc-office-ppt
+
+  - id: basename-is-doc
+    desc: Filename has document extension
+    crit: notable
+    any:
+      - id: basename-is-doc-office
+      - id: basename-is-doc-other-1
+      - id: basename-is-doc-other-2
+
+  - id: basename-is-media-image
+    desc: Filename has image extension
+    crit: notable
+    any:
+      - id: basename-is-media-image-common
+      - id: basename-is-media-image-web
+      - id: basename-is-media-image-pro
 
   - id: basename-is-media
     desc: Filename has media extension
     crit: notable
-    if:
-      type: basename
-      regex: '\.(mp3|mp4|wav|avi|mov|mkv|flv|wmv|png|jpg|jpeg|gif|bmp|ico|svg|webp|tiff|tif)$'
+    any:
+      - id: basename-is-media-video-1
+      - id: basename-is-media-video-2
+      - id: basename-is-media-audio
+      - id: basename-is-media-image
 
-composite_rules:
   - id: pe-masquerading-as-image
     desc: PE executable hiding as image file
     all:

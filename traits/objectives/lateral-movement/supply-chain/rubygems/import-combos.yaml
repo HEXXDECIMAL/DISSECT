@@ -81,13 +81,6 @@ traits:
       type: string
       regex: "Open3\\.(capture|popen)"
 
-  # === Eval patterns ===
-  # NOTE: eval-call moved to objectives/execution/interpreter/eval/dynamic (content type, not string)
-
-  # instance-eval duplicate removed - use objectives/execution/interpreter/eval/dynamic::instance-eval
-
-  # Removed class-eval duplicate - use objectives/execution/interpreter/eval/dynamic::class-eval
-
   # === Base64 patterns ===
   - id: base64-decode
     desc: Base64 decode call
@@ -140,8 +133,6 @@ traits:
       type: string
       substr: ".ssh/id_rsa"
 
-  # Removed aws-credentials-path duplicate - use micro-traits/fs/path/sensitive/cloud::aws-credentials
-
   - id: netrc-path
     desc: .netrc file path
     crit: notable
@@ -149,8 +140,6 @@ traits:
     if:
       type: string
       substr: ".netrc"
-
-  # Removed browser-login-data duplicate - use micro-traits/fs/path/sensitive/browser::login-data
 
   - id: chrome-config-path
     desc: Chrome config path
@@ -170,13 +159,17 @@ traits:
       regex: "discord(app)?\\.com/api/webhooks"
 
   # === Remote download patterns ===
-  - id: remote-binary-url
-    desc: Remote binary URL
-    crit: suspicious
-    conf: 0.85
+  - id: remote-binary-url-1
+    desc: Remote binary (so/dll/dylib)
     if:
       type: string
-      regex: "https?://[^\\s]{1,120}\\.(so|dll|dylib|exe|sh|rb)"
+      regex: "https?://[^\\s]{1,120}\\.(so|dll|dylib)"
+
+  - id: remote-binary-url-2
+    desc: Remote binary (exe/sh/rb)
+    if:
+      type: string
+      regex: "https?://[^\\s]{1,120}\\.(exe|sh|rb)"
 
   # === Reverse shell patterns ===
   - id: tcpsocket-exec
@@ -204,15 +197,35 @@ traits:
       regex: "dup2.{0,30}STDIN|STDIN.{0,30}reopen"
 
   # === File operations ===
+  - id: file-read-write-1
+    desc: File read/write
+    if:
+      type: string
+      regex: "File\\.(read|write)"
+
+  - id: file-read-write-2
+    desc: File open/delete
+    if:
+      type: string
+      regex: "File\\.(open|delete)"
+
+composite_rules:
+  - id: remote-binary-url
+    desc: Remote binary URL
+    crit: suspicious
+    conf: 0.85
+    any:
+      - id: remote-binary-url-1
+      - id: remote-binary-url-2
+
   - id: file-read-write
     desc: File read/write operations
     crit: notable
     conf: 0.5
-    if:
-      type: string
-      regex: "File\\.(read|write|open|delete)"
+    any:
+      - id: file-read-write-1
+      - id: file-read-write-2
 
-composite_rules:
   # === INERT: Common legitimate patterns ===
 
   - id: http-client-imports
@@ -339,7 +352,6 @@ composite_rules:
   # === HOSTILE: Clear malware patterns ===
 
   # gemspec downloads and evals remote code
-  # Precision: all(3) = 3.0, + for(1) = 4.0 (meets hostile threshold)
   - id: gemspec-remote-eval
     desc: Gemspec downloads and evaluates remote code
     crit: hostile
@@ -351,7 +363,6 @@ composite_rules:
       - id: eval-imports
 
   # Credential stealer pattern
-  # Precision: all(3) + any(1) = 4.0 (meets hostile threshold)
   - id: credential-stealer
     desc: Steals and exfiltrates credentials
     crit: hostile
@@ -364,7 +375,6 @@ composite_rules:
       - id: http-client-imports
 
   # Reverse shell pattern
-  # Precision: all(1) + any(hostile traits) = 4.0+ (meets hostile threshold)
   - id: reverse-shell-pattern
     desc: Ruby reverse shell pattern
     crit: hostile
@@ -379,7 +389,6 @@ composite_rules:
       - id: stdin-reopen
 
   # Install-time dropper pattern
-  # Precision: all(2) = 2.0, + for(1) = 3.0, + hostile trait(1) = 4.0 (meets hostile threshold)
   - id: extconf-dropper
     desc: Ruby native extension performs dropper behavior
     crit: hostile

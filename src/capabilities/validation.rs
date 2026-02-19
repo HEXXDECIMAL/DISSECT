@@ -936,6 +936,10 @@ struct PatternLocation {
     match_type: String,     // "exact", "substr", "word", "regex"
     original_value: String, // Original pattern before normalization
     for_types: HashSet<String>,
+    count_min: Option<usize>,
+    count_max: Option<usize>,
+    per_kb_min: Option<f64>,
+    per_kb_max: Option<f64>,
 }
 
 /// Split a regex pattern on top-level `|` only — not inside parentheses or brackets.
@@ -1017,6 +1021,10 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
                 match_type: match_type.to_string(),
                 original_value: value,
                 for_types: for_types.clone(),
+                count_min: trait_def.r#if.count_min,
+                count_max: trait_def.r#if.count_max,
+                per_kb_min: trait_def.r#if.per_kb_min,
+                per_kb_max: trait_def.r#if.per_kb_max,
             },
         ));
     };
@@ -1099,6 +1107,13 @@ fn has_filetype_overlap(loc_a: &PatternLocation, loc_b: &PatternLocation) -> boo
 
     // Check intersection
     !loc_a.for_types.is_disjoint(&loc_b.for_types)
+}
+
+fn has_same_count_density_filters(loc_a: &PatternLocation, loc_b: &PatternLocation) -> bool {
+    loc_a.count_min == loc_b.count_min
+        && loc_a.count_max == loc_b.count_max
+        && loc_a.per_kb_min == loc_b.per_kb_min
+        && loc_a.per_kb_max == loc_b.per_kb_max
 }
 
 /// Detect string pattern duplicates and overlaps across trait files
@@ -1197,8 +1212,7 @@ pub(crate) fn find_string_pattern_duplicates(
     );
 }
 
-/// Check for regex patterns with | (OR) that overlap with standalone exact/word/substr patterns
-/// This indicates poor organization - prefer splitting into separate exact matches for better ML signal
+/// Check for regex patterns with | (OR) that overlap with standalone exact/word/substr patterns.
 pub(crate) fn check_regex_or_overlapping_exact(
     trait_definitions: &[TraitDefinition],
     warnings: &mut Vec<String>,
@@ -1266,7 +1280,7 @@ pub(crate) fn check_regex_or_overlapping_exact(
                 .collect();
 
             warnings.push(format!(
-                "Regex OR pattern overlaps with exact/word/substr patterns (prefer splitting for better ML signal):\n   Regex: {} (in {}::{})\n{}",
+                "Regex OR pattern overlaps with exact/word/substr patterns:\n   Regex: {} (in {}::{})\n{}",
                 regex_value,
                 regex_loc.file_path,
                 regex_loc.trait_id,
@@ -1281,6 +1295,120 @@ pub(crate) fn check_regex_or_overlapping_exact(
         start.elapsed(),
         overlaps_found
     );
+}
+
+/// Check for overlapping regex patterns across traits with overlapping file type coverage.
+///
+/// This bans regex-to-regex overlap where alternatives are shared, which usually indicates
+/// a monolithic rule layout and should be split into atomic traits.
+pub(crate) fn check_overlapping_regex_patterns(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+    let initial_warning_count = warnings.len();
+
+    let mut regex_locations: Vec<PatternLocation> = Vec::new();
+    for trait_def in trait_definitions {
+        let patterns = extract_patterns(trait_def);
+        for (_, location) in patterns {
+            if location.match_type == "regex" {
+                regex_locations.push(location);
+            }
+        }
+    }
+
+    let mut seen_pairs: HashSet<(String, String)> = HashSet::new();
+
+    for i in 0..regex_locations.len() {
+        for j in (i + 1)..regex_locations.len() {
+            let a = &regex_locations[i];
+            let b = &regex_locations[j];
+
+            // Skip same trait instance.
+            if a.trait_id == b.trait_id && a.file_path == b.file_path {
+                continue;
+            }
+
+            // Must overlap in filetype scope to be a real conflict.
+            if !has_filetype_overlap(a, b) {
+                continue;
+            }
+
+            // Different count/per-kb thresholds are intentionally layered evidence.
+            if !has_same_count_density_filters(a, b) {
+                continue;
+            }
+
+            let shared = shared_top_level_regex_alternatives(&a.original_value, &b.original_value);
+            if shared.is_empty() {
+                continue;
+            }
+
+            let key_a = format!("{}::{}", a.file_path, a.trait_id);
+            let key_b = format!("{}::{}", b.file_path, b.trait_id);
+            let key = if key_a <= key_b {
+                (key_a.clone(), key_b.clone())
+            } else {
+                (key_b.clone(), key_a.clone())
+            };
+
+            if !seen_pairs.insert(key) {
+                continue;
+            }
+
+            let mut shared_preview = shared;
+            shared_preview.sort();
+            if shared_preview.len() > 5 {
+                shared_preview.truncate(5);
+            }
+
+            warnings.push(format!(
+                "Overlapping regex patterns with same file type coverage:\n   {}::{} => {}\n   {}::{} => {}\n   shared alternatives: {}",
+                a.file_path,
+                a.trait_id,
+                a.original_value,
+                b.file_path,
+                b.trait_id,
+                b.original_value,
+                shared_preview.join(", ")
+            ));
+        }
+    }
+
+    let overlaps_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "Regex-to-regex overlap detection completed in {:?} ({} overlaps found)",
+        start.elapsed(),
+        overlaps_found
+    );
+}
+
+fn shared_top_level_regex_alternatives(regex_a: &str, regex_b: &str) -> Vec<String> {
+    let mut set_a: HashSet<String> = split_top_level_alternation(regex_a)
+        .into_iter()
+        .map(|s| normalize_regex(s.trim()))
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    let set_b: HashSet<String> = split_top_level_alternation(regex_b)
+        .into_iter()
+        .map(|s| normalize_regex(s.trim()))
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    // If no top-level alternatives exist, still treat exact-normalized equality as overlap.
+    if set_a.is_empty() && set_b.is_empty() {
+        let na = normalize_regex(regex_a.trim());
+        let nb = normalize_regex(regex_b.trim());
+        if !na.is_empty() && na == nb {
+            return vec![na];
+        }
+        return Vec::new();
+    }
+
+    set_a.retain(|alt| set_b.contains(alt));
+    set_a.into_iter().collect()
 }
 
 /// Check for regex patterns that are just ^word$ and should use exact instead
@@ -5762,6 +5890,63 @@ mod tests {
         // Should warn - unrestricted overlaps with restricted
         assert_eq!(warnings.len(), 1);
         assert!(warnings[0].contains("/proc/net/tcp"));
+    }
+
+    #[test]
+    fn test_check_overlapping_regex_patterns_warns_on_filetype_overlap() {
+        let mut t1 = make_regex_trait("test::regex_a", r"eval|exec|system");
+        t1.r#for = vec![RuleFileType::Python];
+        t1.defined_in = std::path::PathBuf::from("traits/test/a.yaml");
+
+        let mut t2 = make_regex_trait("test::regex_b", r"exec|spawn|popen");
+        t2.r#for = vec![RuleFileType::Python, RuleFileType::Shell];
+        t2.defined_in = std::path::PathBuf::from("traits/test/b.yaml");
+
+        let traits = vec![t1, t2];
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Overlapping regex patterns with same file type coverage"));
+        assert!(warnings[0].contains("shared alternatives: exec"));
+    }
+
+    #[test]
+    fn test_check_overlapping_regex_patterns_no_warning_without_filetype_overlap() {
+        let mut t1 = make_regex_trait("test::regex_a", r"eval|exec|system");
+        t1.r#for = vec![RuleFileType::Python];
+        t1.defined_in = std::path::PathBuf::from("traits/test/a.yaml");
+
+        let mut t2 = make_regex_trait("test::regex_b", r"exec|spawn|popen");
+        t2.r#for = vec![RuleFileType::JavaScript];
+        t2.defined_in = std::path::PathBuf::from("traits/test/b.yaml");
+
+        let traits = vec![t1, t2];
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_check_overlapping_regex_patterns_no_warning_when_count_filters_differ() {
+        let mut t1 = make_regex_trait("test::regex_a", r"\bpopen\b");
+        t1.r#for = vec![RuleFileType::Python];
+        t1.defined_in = std::path::PathBuf::from("traits/test/a.yaml");
+        t1.r#if.count_min = Some(10);
+        t1.r#if.per_kb_min = Some(0.05);
+
+        let mut t2 = make_regex_trait("test::regex_b", r"\bpopen\b");
+        t2.r#for = vec![RuleFileType::Python];
+        t2.defined_in = std::path::PathBuf::from("traits/test/b.yaml");
+        t2.r#if.count_min = Some(20);
+        t2.r#if.per_kb_min = Some(0.10);
+
+        let traits = vec![t1, t2];
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        assert!(warnings.is_empty());
     }
 }
 

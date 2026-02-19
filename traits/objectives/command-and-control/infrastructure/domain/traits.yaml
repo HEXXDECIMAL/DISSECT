@@ -661,8 +661,8 @@ traits:
   if:
     type: string
     regex: https?://[^/]{1,120}/.{0,120}(?:gate|cmd|shell|payload)\.php
-- id: internal-api-probe
-  desc: Probes internal network API endpoints
+- id: internal-api-probe-local
+  desc: Probes internal/localhost API endpoints
   crit: suspicious
   conf: 0.9
   attack: T1046
@@ -671,7 +671,20 @@ traits:
   - typescript
   if:
     type: string
-    regex: http://(?:internal|localhost|10\.)[-a-zA-Z0-9.]*/(?:api|health|status)
+    regex: http://(?:internal|localhost)[-a-zA-Z0-9.]*/(?:api|health|status)
+
+- id: internal-api-probe-10
+  desc: Probes 10.x API endpoints
+  crit: suspicious
+  conf: 0.9
+  attack: T1046
+  for:
+  - javascript
+  - typescript
+  if:
+    type: string
+    regex: http://10\.[-a-zA-Z0-9.]*/(?:api|health|status)
+
 - id: dynamic-dns-domain-pattern
   desc: Dynamic DNS domain pattern
   crit: suspicious
@@ -680,6 +693,18 @@ traits:
     type: string
     regex: \b[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:duckdns|no-ip|ddns|hopto)\.[a-z]{2,6}\b
 composite_rules:
+- id: internal-api-probe
+  desc: Probes internal network API endpoints
+  crit: suspicious
+  conf: 0.9
+  attack: T1046
+  for:
+  - javascript
+  - typescript
+  any:
+    - id: internal-api-probe-local
+    - id: internal-api-probe-10
+
 - id: c2-domain
   desc: Likely C2 domain (suspicious TLD)
   crit: notable

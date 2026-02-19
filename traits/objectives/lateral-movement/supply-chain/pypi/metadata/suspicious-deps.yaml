@@ -61,15 +61,27 @@ traits:
       regex: "requests.{0,50}sockets|sockets.{0,50}requests"
 
   # === Suspicious Combo ===
+  - id: suspicious-dep-combo-1
+    desc: Suspicious combo (git/socket/aio with discord/request)
+    if:
+      type: string
+      regex: "(gitpython|sockets|aiohttp).{0,50}(discord|requests)"
+
+  - id: suspicious-dep-combo-2
+    desc: Suspicious combo (discord/request with pynput/keyboard)
+    if:
+      type: string
+      regex: "(discord|requests).{0,50}(pynput|keyboard)"
+
+composite_rules:
   - id: suspicious-dep-combo
     desc: Suspicious dependency combination
     crit: suspicious
     conf: 0.80
-    if:
-      type: string
-      regex: "(gitpython|sockets|aiohttp).{0,50}(discord|requests).{0,50}(pynput|keyboard)"
+    all:
+      - id: suspicious-dep-combo-1
+      - id: suspicious-dep-combo-2
 
-composite_rules:
   # === PyPI Dependency Analysis ===
   - id: pypi-suspicious-deps
     desc: Suspicious PyPI dependencies

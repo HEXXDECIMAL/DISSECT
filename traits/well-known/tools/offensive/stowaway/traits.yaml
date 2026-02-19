@@ -16,14 +16,17 @@ defaults:
 
 traits:
   # Stowaway module path - definitive identifier
-  - id: stowaway-module-path
-    desc: Stowaway Go module path
-    crit: suspicious
-    conf: 0.99
-    attack: "T1090"
+  - id: stowaway-module-path-cmd
+    desc: Stowaway Go module path (cmd)
     if:
       type: string
-      regex: 'Stowaway/(cmd|pkg)/(agent|admin|share|protocol)'
+      regex: 'Stowaway/cmd/(agent|admin|share|protocol)'
+
+  - id: stowaway-module-path-pkg
+    desc: Stowaway Go module path (pkg)
+    if:
+      type: string
+      regex: 'Stowaway/pkg/(agent|admin|share|protocol)'
 
   # Stowaway agent startup strings
   - id: stowaway-agent-startup
@@ -46,34 +49,79 @@ traits:
       regex: 'reusing (host|port).{0,50}\((SO_REUSEPORT|IPTABLES)\)'
 
   # Stowaway protocol message types
-  - id: stowaway-proto-messages
-    desc: Stowaway protocol message types
-    crit: suspicious
-    conf: 0.95
-    attack: "T1090"
+  - id: stowaway-proto-messages-1a
+    desc: Stowaway protocol types (Backward/Forward - Control)
     if:
       type: string
-      regex: 'proto\.(Backward|Forward|Socks|SSH|UDPAss)(Seq|Start|Stop|Data|Fin|Test|Ready)'
+      regex: 'proto\.(Backward|Forward)(Seq|Start|Stop)'
+
+  - id: stowaway-proto-messages-1b
+    desc: Stowaway protocol types (Backward/Forward - Data)
+    if:
+      type: string
+      regex: 'proto\.(Backward|Forward)(Data|Fin)'
+
+  - id: stowaway-proto-messages-1c
+    desc: Stowaway protocol types (Backward/Forward - Misc)
+    if:
+      type: string
+      regex: 'proto\.(Backward|Forward)(Test|Ready)'
+
+  - id: stowaway-proto-messages-2a
+    desc: Stowaway protocol types (Socks - Control)
+    if:
+      type: string
+      regex: 'proto\.Socks(Seq|Start|Stop)'
+
+  - id: stowaway-proto-messages-2b
+    desc: Stowaway protocol types (SSH/UDPAss - Control)
+    if:
+      type: string
+      regex: 'proto\.(SSH|UDPAss)(Seq|Start|Stop)'
+
+  - id: stowaway-proto-messages-3a
+    desc: Stowaway protocol types (Socks - Data/Misc)
+    if:
+      type: string
+      regex: 'proto\.Socks(Data|Fin|Test|Ready)'
+
+  - id: stowaway-proto-messages-3b
+    desc: Stowaway protocol types (SSH/UDPAss - Data)
+    if:
+      type: string
+      regex: 'proto\.(SSH|UDPAss)(Data|Fin)'
+
+  - id: stowaway-proto-messages-3c
+    desc: Stowaway protocol types (SSH/UDPAss - Misc)
+    if:
+      type: string
+      regex: 'proto\.(SSH|UDPAss)(Test|Ready)'
 
   # Stowaway handler functions
-  - id: stowaway-handlers
-    desc: Stowaway handler functions
-    crit: suspicious
-    conf: 0.95
-    attack: "T1090"
+  - id: stowaway-handlers-1
+    desc: Stowaway handler functions (Backward/Forward/SSHTunnel)
     if:
       type: string
-      regex: 'handler\.\*(Backward|Forward|SSHTunnel|Socks|Connect|ForceClose)'
+      regex: 'handler\.\*(Backward|Forward|SSHTunnel)'
+
+  - id: stowaway-handlers-2
+    desc: Stowaway handler functions (Socks/Connect/ForceClose)
+    if:
+      type: string
+      regex: 'handler\.\*(Socks|Connect|ForceClose)'
 
   # Stowaway manager patterns
-  - id: stowaway-managers
-    desc: Stowaway manager components
-    crit: suspicious
-    conf: 0.9
-    attack: "T1090"
+  - id: stowaway-managers-1
+    desc: Stowaway manager components (Backward/Forward/SSHTunnel)
     if:
       type: string
-      regex: '(Backward|Forward|SSHTunnel|Socks|ForceClose)Manager'
+      regex: '(Backward|Forward|SSHTunnel)Manager'
+
+  - id: stowaway-managers-2
+    desc: Stowaway manager components (Socks/ForceClose)
+    if:
+      type: string
+      regex: '(Socks|ForceClose)Manager'
 
   # Stowaway crypto functions
   - id: stowaway-crypto
@@ -105,8 +153,49 @@ traits:
       substr: "Reconnecting every %d seconds"
 
 composite_rules:
+  - id: stowaway-module-path
+    desc: Stowaway Go module path
+    crit: suspicious
+    conf: 0.99
+    attack: "T1090"
+    any:
+      - id: stowaway-module-path-cmd
+      - id: stowaway-module-path-pkg
+
+  - id: stowaway-proto-messages
+    desc: Stowaway protocol message types
+    crit: suspicious
+    conf: 0.95
+    attack: "T1090"
+    any:
+      - id: stowaway-proto-messages-1a
+      - id: stowaway-proto-messages-1b
+      - id: stowaway-proto-messages-1c
+      - id: stowaway-proto-messages-2a
+      - id: stowaway-proto-messages-2b
+      - id: stowaway-proto-messages-3a
+      - id: stowaway-proto-messages-3b
+      - id: stowaway-proto-messages-3c
+
+  - id: stowaway-handlers
+    desc: Stowaway handler functions
+    crit: suspicious
+    conf: 0.95
+    attack: "T1090"
+    any:
+      - id: stowaway-handlers-1
+      - id: stowaway-handlers-2
+
+  - id: stowaway-managers
+    desc: Stowaway manager components
+    crit: suspicious
+    conf: 0.9
+    attack: "T1090"
+    any:
+      - id: stowaway-managers-1
+      - id: stowaway-managers-2
+
   # Definitive Stowaway detection via module path
-  # Complexity: all(2) + for(1) = 3, but primary identifier is conf 0.99
   - id: stowaway-detected
     desc: Stowaway multi-hop proxy tool detected
     crit: hostile
@@ -119,7 +208,6 @@ composite_rules:
       - id: micro-traits/process/create/shell::go-shell-strings
 
   # Stowaway with SSH tunneling
-  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
   - id: stowaway-ssh-tunnel
     desc: Stowaway with SSH tunneling
     crit: hostile
@@ -133,7 +221,6 @@ composite_rules:
       - id: micro-traits/process/create/shell::go-shell-strings
 
   # Stowaway with SOCKS proxy and agent startup
-  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
   - id: stowaway-agent
     desc: Stowaway agent with C2 capabilities
     crit: hostile
@@ -147,7 +234,6 @@ composite_rules:
       - id: micro-traits/process/create/shell::go-shell-strings
 
   # Stowaway with iptables manipulation (advanced evasion)
-  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
   - id: stowaway-iptables-evasion
     desc: Stowaway with iptables evasion
     crit: hostile

@@ -32,16 +32,18 @@ traits:
       type: string
       substr: ".mozilla/firefox"
 
-  # Removed chrome-macos-path duplicate - use objectives/lateral-movement/supply-chain/npm/install::chrome-macos-support
-
   # === Shellcode/memory execution patterns ===
-  - id: prot-exec-string
-    desc: PROT_EXEC memory protection
-    crit: notable
-    conf: 0.9
+  - id: prot-exec-word
+    desc: PROT_EXEC memory protection word
     if:
       type: string
-      regex: "PROT_EXEC|PAGE_EXECUTE"
+      word: "PROT_EXEC"
+
+  - id: page-execute-word
+    desc: PAGE_EXECUTE memory protection word
+    if:
+      type: string
+      word: "PAGE_EXECUTE"
 
   # === Clipboard patterns ===
   - id: clipboard-string
@@ -53,6 +55,14 @@ traits:
       substr: "clipboard"
 
 composite_rules:
+  - id: prot-exec-string
+    desc: PROT_EXEC/PAGE_EXECUTE memory protection
+    crit: notable
+    conf: 0.9
+    any:
+      - id: prot-exec-word
+      - id: page-execute-word
+
   # === INERT: Common legitimate patterns ===
 
   # Network client package pattern

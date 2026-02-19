@@ -45,12 +45,14 @@ traits:
     type: raw
     regex: \b(ps aux|ps -ef|printenv)\b
 - id: sys-info-discovery__any_2
-  desc: Helper raw condition
+  desc: Helper raw condition (id command)
+  for: [scripts]
   if:
     type: raw
     regex: (?:^|[\s;|])id(?:$|[\s;|])
 - id: sys-info-discovery__any_3
-  desc: Helper raw condition
+  desc: Helper raw condition (env command)
+  for: [scripts]
   if:
     type: raw
     regex: (?:^|[\s;|])env(?:$|[\s;|])

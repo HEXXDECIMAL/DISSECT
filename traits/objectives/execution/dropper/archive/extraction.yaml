@@ -7,13 +7,20 @@ defaults:
   - shell
   - javascript
 traits:
-- id: tar-extract
-  desc: tar archive extraction
+- id: tar-extract-x
+  desc: tar archive extraction (x flag)
   crit: notable
   conf: 0.7
   if:
     type: string
-    regex: tar\s+(x|extract|xf|xzf|xvzf)
+    regex: tar\s+x[fzv]*
+- id: tar-extract-word
+  desc: tar archive extraction (word)
+  crit: notable
+  conf: 0.7
+  if:
+    type: string
+    substr: "tar extract"
 - id: tar-gzip-extract
   desc: tar.gz extraction command
   crit: notable
@@ -63,14 +70,44 @@ traits:
   if:
     type: string
     regex: (tempdir|gettempdir).{0,15}extract|extract.{0,15}tempdir
-- id: extract-then-execute
-  desc: Extract then execute pattern
+- id: extract-then-execute-arch
+  desc: Extract then execute pattern (archive)
   crit: suspicious
   conf: 0.9
   if:
     type: string
-    regex: (?:extract|unzip|tar).{0,80}(?:exec|run|subprocess|bash|sh|python)
+    regex: (?:extract|unzip|tar).{0,80}
+- id: extract-then-execute-run-1
+  desc: Extract then execute pattern (exec/run/sub)
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: (?:exec|run|subprocess)
+- id: extract-then-execute-run-2
+  desc: Extract then execute pattern (shell/python)
+  crit: suspicious
+  conf: 0.9
+  if:
+    type: string
+    regex: (?:bash|sh|python)
 composite_rules:
+- id: tar-extract
+  desc: tar archive extraction
+  crit: notable
+  conf: 0.7
+  any:
+  - id: tar-extract-x
+  - id: tar-extract-word
+- id: extract-then-execute
+  desc: Extract then execute pattern
+  crit: suspicious
+  conf: 0.9
+  all:
+  - id: extract-then-execute-arch
+  any:
+  - id: extract-then-execute-run-1
+  - id: extract-then-execute-run-2
 - id: archive-extraction
   desc: Archive extraction capability
   crit: notable

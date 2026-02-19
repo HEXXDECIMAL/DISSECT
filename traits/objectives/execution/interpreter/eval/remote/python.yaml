@@ -42,15 +42,25 @@ traits:
       regex: "exec\\s*\\(.{0,220}\\.get\\s*\\(.{0,160}\\)\\s*\\.get\\s*\\("
 
   # eval/exec on response/config object access
-  - id: eval-config-access
-    desc: eval on config/response field
+  - id: eval-config-access-1
+    desc: eval on config/response/data field
     crit: suspicious
     conf: 0.9
     attack: "T1195.002"
     mbc: "E1059"
     if:
       type: raw
-      regex: "eval\\s*\\(\\s*(config|response|data|result|payload|body)\\s*[\\[\\.]"
+      regex: "eval\\s*\\(\\s*(config|response|data)\\s*[\\[\\.]"
+
+  - id: eval-config-access-2
+    desc: eval on result/payload/body field
+    crit: suspicious
+    conf: 0.9
+    attack: "T1195.002"
+    mbc: "E1059"
+    if:
+      type: raw
+      regex: "eval\\s*\\(\\s*(result|payload|body)\\s*[\\[\\.]"
 
   # Client config evaluation - ML/inference server pattern
   - id: eval-client-config
@@ -85,5 +95,10 @@ traits:
       regex: "eval\\s*\\(.{0,220}\\[[\"'][^\"']{1,120}[\"']\\]"
 
 composite_rules:
-  # Chained get with eval - strong supply chain indicator
-  # Complexity: file_types(+1) + any(+1) + all(+2) = 4
+  - id: eval-config-access
+    desc: eval on config/response field
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: eval-config-access-1
+      - id: eval-config-access-2

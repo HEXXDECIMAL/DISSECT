@@ -59,14 +59,23 @@ traits:
         type: raw
         regex: '\b\w+\s*=\s*this(?:[^\.]|$)'
 
-  - id: js-assign-common-root
-    desc: Common global object assignment (root, self, global)
+  - id: js-assign-common-root-1
+    desc: Global object assignment (root/self/global)
     crit: notable
     conf: 0.9
     for: [javascript]
     if:
         type: raw
-        regex: '\b(root|self|global|that|_this|me|window|globalThis)\s*=\s*this\b'
+        regex: '\b(root|self|global|that)\s*=\s*this\b'
+
+  - id: js-assign-common-root-2
+    desc: Global object assignment (_this/me/window)
+    crit: notable
+    conf: 0.9
+    for: [javascript]
+    if:
+        type: raw
+        regex: '\b(_this|me|window|globalThis)\s*=\s*this\b'
 
   # Indirect eval execution via window[var] or similar
   - id: js-indirect-eval-window
@@ -88,3 +97,12 @@ traits:
     if:
         type: raw
         regex: '[''"]e[''"]\s*\+\s*[''"]val[''"]'
+
+composite_rules:
+  - id: js-assign-common-root
+    desc: Common global object assignment (root, self, global)
+    crit: notable
+    conf: 0.9
+    any:
+      - id: js-assign-common-root-1
+      - id: js-assign-common-root-2

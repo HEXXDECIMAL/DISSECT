@@ -17,14 +17,19 @@ traits:
       path: home-page
       exact: "UNKNOWN"
 
-  - id: pkginfo-free-hosting-homepage
-    desc: PKG-INFO homepage on free hosting service
-    crit: notable
-    conf: 0.70
+  - id: pkginfo-free-hosting-homepage-1
+    desc: PKG-INFO homepage (yolasite/weebly/wixsite)
     if:
       type: kv
       path: home-page
-      regex: "(?:yolasite|weebly|wixsite|000webhostapp|blogspot)\\.com"
+      regex: "(?:yolasite|weebly|wixsite)\\.com"
+
+  - id: pkginfo-free-hosting-homepage-2
+    desc: PKG-INFO homepage (000webhostapp/blogspot)
+    if:
+      type: kv
+      path: home-page
+      regex: "(?:000webhostapp|blogspot)\\.com"
 
   - id: pkginfo-no-homepage
     desc: PKG-INFO missing Home-page field
@@ -47,3 +52,12 @@ traits:
     unless:
       - type: raw
         substr: "[project.urls]"
+
+composite_rules:
+  - id: pkginfo-free-hosting-homepage
+    desc: PKG-INFO homepage on free hosting service
+    crit: notable
+    conf: 0.70
+    any:
+      - id: pkginfo-free-hosting-homepage-1
+      - id: pkginfo-free-hosting-homepage-2

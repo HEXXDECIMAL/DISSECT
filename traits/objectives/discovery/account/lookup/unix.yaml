@@ -19,15 +19,40 @@ traits:
       type: symbol
       exact: "user_from_uid"
 
-  - id: group-lookup
-    desc: Convert group ID to group name
+  - id: group-lookup-getgrgid
+    desc: Convert group ID to group name (getgrgid)
     crit: notable
     conf: 0.8
     if:
       type: symbol
-      regex: "getgrgid|getgrnam|group_from_gid"
+      exact: "getgrgid"
+
+  - id: group-lookup-getgrnam
+    desc: Convert group name to group ID (getgrnam)
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "getgrnam"
+
+  - id: group-lookup-from-gid
+    desc: Convert group ID to group name (group_from_gid)
+    crit: notable
+    conf: 0.8
+    if:
+      type: symbol
+      exact: "group_from_gid"
 
 composite_rules:
+  - id: group-lookup
+    desc: Convert group ID to group name
+    crit: notable
+    conf: 0.8
+    any:
+      - id: group-lookup-getgrgid
+      - id: group-lookup-getgrnam
+      - id: group-lookup-from-gid
+
   # user-lookup: composite referencing canonical user query traits plus local user_from_uid
   - id: user-lookup
     desc: Convert user ID to username

@@ -49,13 +49,20 @@ traits:
   if:
     type: string
     regex: curl.{0,50}-X POST.{0,50}webhook|webhook.{0,50}curl.{0,50}POST
-- id: webhook-with-system-data-host
-  desc: Webhook with host identity data
+- id: webhook-with-system-data-host-1
+  desc: Webhook with host identity data (hostname/whoami)
   crit: suspicious
   conf: 0.95
   if:
     type: raw
-    regex: webhook.{0,50}(hostname|whoami|ipconfig|ifconfig|systeminfo)
+    regex: webhook.{0,50}(hostname|whoami)
+- id: webhook-with-system-data-host-2
+  desc: Webhook with host identity data (net info)
+  crit: suspicious
+  conf: 0.95
+  if:
+    type: raw
+    regex: webhook.{0,50}(ipconfig|ifconfig|systeminfo)
 - id: webhook-with-system-data-curl
   desc: curl webhook JSON exfil pattern
   crit: suspicious
@@ -105,5 +112,6 @@ composite_rules:
   crit: suspicious
   conf: 0.95
   any:
-  - id: webhook-with-system-data-host
+  - id: webhook-with-system-data-host-1
+  - id: webhook-with-system-data-host-2
   - id: webhook-with-system-data-curl

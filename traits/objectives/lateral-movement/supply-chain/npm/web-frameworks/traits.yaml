@@ -1,41 +1,40 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
 - id: has-eventemitter
   desc: Code uses EventEmitter pattern
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: extends\s+EventEmitter|require\(['"]events['"]\)
+    regex: 'extends\s+EventEmitter|require\([''"]events[''"]\)'
 - id: has-stream-require
   desc: Code uses Node.js streams
   crit: notable
   conf: 0.75
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: require\(['"]stream['"]\)
-- id: has-stream-classes-a
-  desc: Code uses Node.js stream classes
-  crit: notable
-  conf: 0.75
-  for:
-  - javascript
-  - typescript
+    regex: 'require\([''"]stream[''"]\)'
+- id: has-stream-classes-a-1
+  desc: Code uses Node.js Readable stream
   if:
     type: string
-    regex: Readable|Writable|Transform
+    word: 'Readable'
+- id: has-stream-classes-a-2
+  desc: Code uses Node.js Writable stream
+  if:
+    type: string
+    word: 'Writable'
+- id: has-stream-classes-a-3
+  desc: Code uses Node.js Transform stream
+  if:
+    type: string
+    word: 'Transform'
 - id: has-stream-classes-b
   desc: Code uses Node.js stream classes
   crit: notable
   conf: 0.75
-  for:
-  - javascript
-  - typescript
   if:
     type: string
     exact: Duplex
@@ -43,120 +42,115 @@ traits:
   desc: Code uses middleware pattern
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: (?:app|router)\.use\(|middleware\s*[=:]
+    regex: '(?:app|router)\.use\(|middleware\s*[=:]'
 - id: has-routes-app-a
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: app\.(?:get|post|put|delete)\s*\(['"]/
+    regex: 'app\.(?:get|post|put|delete)\s*\([''"]/'
 - id: has-routes-app-patch
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: app\.patch\s*\(['"]/
+    regex: 'app\.patch\s*\([''"]/'
 - id: has-routes-router-a
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: router\.(?:get|post|put|delete)\s*\(['"]/
+    regex: 'router\.(?:get|post|put|delete)\s*\([''"]/'
 - id: has-routes-router-patch
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: router\.patch\s*\(['"]/
+    regex: 'router\.patch\s*\([''"]/'
 - id: has-di-pattern-a
   desc: Code uses dependency injection
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: (@Inject|container\.resolve|inversify|\.provide)
+    regex: '(@Inject|container\.resolve|inversify|\.provide)'
 - id: has-di-pattern-b
   desc: Code uses dependency injection
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: \.inject
-- id: uses-web-framework-a
-  desc: Code uses established web framework
-  crit: notable
-  conf: 0.85
-  for:
-  - javascript
-  - typescript
+    regex: '\.inject'
+- id: uses-web-framework-express
+  desc: Uses Express
   if:
     type: string
-    regex: (?:require\(['"]|from ['"])(?:express|koa|fastify|hapi)['"]
+    regex: '(?:require\([''"]|from [''"])express[''"]'
+- id: uses-web-framework-koa
+  desc: Uses Koa
+  if:
+    type: string
+    regex: '(?:require\([''"]|from [''"])koa[''"]'
+- id: uses-web-framework-fastify
+  desc: Uses Fastify
+  if:
+    type: string
+    regex: '(?:require\([''"]|from [''"])fastify[''"]'
+- id: uses-web-framework-hapi
+  desc: Uses Hapi
+  if:
+    type: string
+    regex: '(?:require\([''"]|from [''"])hapi[''"]'
+
 - id: uses-web-framework-b
   desc: Code uses established web framework
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: (?:require\(['"]|from ['"])(?:next|nuxt)['"]
+    regex: '(?:require\([''"]|from [''"])(?:next|nuxt)[''"]'
 - id: has-frontend-framework-core
   desc: Uses React/Vue component primitives
   crit: notable
   conf: 0.9
-  for:
-  - javascript
-  - typescript
   if:
     type: string
-    regex: (?:React|Vue|Component)\.(?:createElement|defineComponent)
+    regex: '(?:React|Vue|Component)\.(?:createElement|defineComponent)'
 - id: has-frontend-framework-hooks
   desc: Uses component decorators or hooks
   crit: notable
   conf: 0.9
-  for:
-  - javascript
-  - typescript
   if:
     type: string
     regex: '@Component\(|useEffect\(|useState\('
 composite_rules:
+- id: has-stream-classes-a
+  desc: Code uses Node.js stream classes
+  crit: notable
+  conf: 0.75
+  any:
+    - id: has-stream-classes-a-1
+    - id: has-stream-classes-a-2
+    - id: has-stream-classes-a-3
+- id: uses-web-framework-a
+  desc: Code uses established web framework (Set A)
+  crit: notable
+  conf: 0.85
+  any:
+    - id: uses-web-framework-express
+    - id: uses-web-framework-koa
+    - id: uses-web-framework-fastify
+    - id: uses-web-framework-hapi
 - id: has-stream
   desc: Code uses Node.js streams
   crit: notable
   conf: 0.75
-  for:
-  - javascript
-  - typescript
   any:
   - id: has-stream-require
   - id: has-stream-classes-a
@@ -165,9 +159,6 @@ composite_rules:
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
-  for:
-  - javascript
-  - typescript
   any:
   - id: has-routes-app-a
   - id: has-routes-app-patch
@@ -177,9 +168,6 @@ composite_rules:
   desc: Code uses dependency injection
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   any:
   - id: has-di-pattern-a
   - id: has-di-pattern-b
@@ -187,19 +175,13 @@ composite_rules:
   desc: Code uses established web framework
   crit: notable
   conf: 0.85
-  for:
-  - javascript
-  - typescript
   any:
-  - id: uses-web-framework-a
-  - id: uses-web-framework-b
+    - id: uses-web-framework-a
+    - id: uses-web-framework-b
 - id: has-frontend-framework
   desc: Code uses frontend framework patterns
   crit: notable
   conf: 0.9
-  for:
-  - javascript
-  - typescript
   any:
   - id: has-frontend-framework-core
   - id: has-frontend-framework-hooks

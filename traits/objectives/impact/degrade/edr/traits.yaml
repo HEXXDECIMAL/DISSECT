@@ -74,14 +74,23 @@ traits:
       case_insensitive: true
 
   # Avast AV detection - must be specific to avoid nautical term "avast" (meaning "stop")
-  - id: avast-service
-    desc: Avast service reference
+  - id: avast-service-bin
+    desc: Avast service reference (binaries)
     crit: notable
     conf: 0.7
     for: [pe, elf]
     if:
       type: string
-      regex: "(?i)avast(svc|ui|setup|antivirus|\\.exe|software|service)"
+      regex: "(?i)avast(svc|ui|setup|\\.exe)"
+
+  - id: avast-service-other
+    desc: Avast service reference (terms)
+    crit: notable
+    conf: 0.7
+    for: [pe, elf]
+    if:
+      type: string
+      regex: "(?i)avast(antivirus|software|service)"
 
   - id: avast-path
     desc: Avast installation path
@@ -141,6 +150,14 @@ traits:
       word: "ESET"
 
 composite_rules:
+  - id: avast-service
+    desc: Avast service reference
+    crit: notable
+    conf: 0.7
+    any:
+      - id: avast-service-bin
+      - id: avast-service-other
+
   # EDR/AV product names composite
   - id: edr-product-name
     desc: EDR/Antivirus product name reference

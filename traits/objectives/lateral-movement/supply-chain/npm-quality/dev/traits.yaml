@@ -1,3 +1,6 @@
+defaults:
+  for: [package.json]
+
 # Development Workflow Scripts and Tools
 
 traits:
@@ -46,14 +49,17 @@ traits:
       type: string
       substr: '"start":'
 
-  - id: has-release-scripts
-    desc: Package has release management scripts
-    crit: notable
-    conf: 0.85
-    for: [package.json]
+  - id: has-release-scripts-1
+    desc: Package has release management scripts (rel/pub/ver)
     if:
       type: string
-      regex: '"(?:release|publish|version|prepublishOnly|postversion)":'
+      regex: '"(release|publish|version)":'
+
+  - id: has-release-scripts-2
+    desc: Package has release management scripts (pre/post)
+    if:
+      type: string
+      regex: '"(prepublishOnly|postversion)":'
 
   - id: has-typescript
     desc: Package has TypeScript support
@@ -64,14 +70,17 @@ traits:
       type: string
       regex: '"typescript"|"@types/|"\.d\.ts"|"tsconfig"'
 
-  - id: has-build-script
-    desc: Package has build script (compiled)
-    crit: notable
-    conf: 0.85
-    for: [package.json]
+  - id: has-build-script-1
+    desc: Package has build script (tsc/rollup/webpack)
     if:
       type: string
-      regex: '"build":\s*"[^"]{0,120}(?:tsc|rollup|webpack|esbuild|babel|vite)'
+      regex: '"build":\s*"[^"]{0,120}(tsc|rollup|webpack)'
+
+  - id: has-build-script-2
+    desc: Package has build script (esbuild/babel/vite)
+    if:
+      type: string
+      regex: '"build":\s*"[^"]{0,120}(esbuild|babel|vite)'
 
   - id: has-lint-script
     desc: Package has linting configured
@@ -110,6 +119,24 @@ traits:
       regex: '"husky"|"lint-staged"|"pre-commit"|"simple-git-hooks"'
 
 composite_rules:
+  - id: has-release-scripts
+    desc: Package has release management scripts
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: has-release-scripts-1
+      - id: has-release-scripts-2
+
+  - id: has-build-script
+    desc: Package has build script (compiled)
+    crit: notable
+    conf: 0.85
+    for: [package.json]
+    any:
+      - id: has-build-script-1
+      - id: has-build-script-2
+
   - id: has-dev-workflow
     desc: Package has development workflow scripts
     crit: notable

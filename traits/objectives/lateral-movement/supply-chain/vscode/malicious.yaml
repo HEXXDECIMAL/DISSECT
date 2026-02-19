@@ -2,6 +2,9 @@
 # Detects high-confidence malicious patterns in VSCode extensions
 # These combine multiple indicators to reduce false positives
 
+defaults:
+  for: [all]
+
 traits:
   # NOTE: YARA kept for api-usage - requires fullword match on "activate" which
   # DISSECT doesn't support, plus regex patterns for require/import
@@ -78,15 +81,23 @@ traits:
       regex: "vscode\\."
 
   # Persistence location references
-  - id: persistence-locations
-    desc: References persistence locations (startup/autorun paths)
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
+  - id: persistence-location-startup
+    desc: References Startup location
     if:
       type: string
-      # APPDATA: use objectives/discovery/host/user/traits.yaml::appdata (canonical)
-      regex: "Startup|crontab|launchd|systemd"
+      word: "Startup"
+
+  - id: persistence-location-crontab
+    desc: References crontab location
+    if:
+      type: string
+      word: "crontab"
+
+  - id: persistence-location-launchd
+    desc: References launchd location
+    if:
+      type: string
+      word: "launchd"
 
   # File write operations
   - id: file-write-ops
@@ -128,8 +139,8 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: micro-traits/comm/http/post::post-method
-      - id: micro-traits/comm/http/request::fetch-call
+      - id: micro-traits/comm/http/post/
+      - id: micro-traits/comm/http/request/
       - id: micro-traits/comm/http/request::axios
 
   # Post-Install Code Execution
@@ -170,6 +181,17 @@ composite_rules:
       - id: well-known/malware/dropper::js-decrypt-eval
       - id: api-usage
       - id: vscode-namespace
+
+  - id: persistence-locations
+    desc: References persistence locations (startup/autorun paths)
+    crit: notable
+    conf: 0.8
+    for: [javascript, typescript]
+    any:
+      - id: persistence-location-startup
+      - id: persistence-location-crontab
+      - id: persistence-location-launchd
+      - id: objectives/persist/systemd/service::systemd-keyword
 
   # Extension Persistence via well-known hooks
   - id: persistence

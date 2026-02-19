@@ -2,7 +2,7 @@
 # ATT&CK: T1055 (Process Injection)
 
 traits:
-  - id: mprotect
+  - id: mprotect-symbol
     desc: Change memory protection (mprotect)
     crit: notable
     conf: 1.0
@@ -14,7 +14,7 @@ traits:
       regex: "^_?mprotect$"
 
   - id: rwx-prot-bytes
-    desc: RWX protection bytes (PROT_READ|WRITE|EXEC =
+    desc: RWX protection bytes (PROT_READ|WRITE|EXEC = 7)
     crit: inert
     conf: 0.6
     attack: "T1055"
@@ -23,3 +23,4 @@ traits:
     if:
       type: hex
       pattern: "07 00 00 00"
+      section: "__TEXT"

@@ -10,17 +10,67 @@ defaults:
   mbc: "F0009"
 
 traits:
-  # Generic executable names
+  - id: generic-executable-name-1
+    desc: "Generic executable name (App/Installer/Update/Setup)"
+    if:
+      type: basename
+      regex: "^(Application|Installer|Update|Setup)$"
+      case_insensitive: true
+
+  - id: generic-executable-name-2
+    desc: "Generic executable name (Service/Helper/Tool/Utility)"
+    if:
+      type: basename
+      regex: "^(Service|Helper|Tool|Utility)$"
+      case_insensitive: true
+
+  - id: placeholder-author-generic-1
+    desc: Generic author placeholder (set 1)
+    for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
+    if:
+      type: string
+      regex: "^(author|your name|name|test)$"
+      case_insensitive: true
+
+  - id: placeholder-author-generic-2a
+    desc: Generic author placeholder (user/admin/example)
+    for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
+    if:
+      type: string
+      regex: "^(user|admin|example)$"
+      case_insensitive: true
+
+  - id: placeholder-author-generic-2b
+    desc: Generic author placeholder (sample/anonymous)
+    for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
+    if:
+      type: string
+      regex: "^(sample|anonymous)$"
+      case_insensitive: true
+
+composite_rules:
   - id: generic-executable-name
     desc: "Generic executable name"
     crit: notable
     conf: 0.6
-    if:
-      type: basename
-      regex: "^(Application|Installer|Update|Setup|Service|Helper|Tool|Utility)$"
-      case_insensitive: true
+    any:
+      - id: generic-executable-name-1
+      - id: generic-executable-name-2
 
-composite_rules:
+  - id: placeholder-author-generic-2
+    desc: Generic author placeholder (set 2)
+    any:
+      - id: placeholder-author-generic-2a
+      - id: placeholder-author-generic-2b
+
+  - id: placeholder-author-generic
+    desc: Generic author placeholder
+    crit: notable
+    conf: 0.7
+    any:
+      - id: placeholder-author-generic-1
+      - id: placeholder-author-generic-2
+
   # Match bundle IDs with generic utility/app patterns
   # The metadata/signed/id:: trait is already extracted by macho parser
   - id: generic-bundle-id-pattern

@@ -46,32 +46,101 @@ traits:
       regex: "\\b(pps|bps|qps)\\s*[=:]\\s*[0-9]+"
       case_insensitive: true
 
-  - id: flood-types-a
-    desc: Specific flood attack types
+  - id: syn-flood
+    desc: SYN flood terminology
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "(syn|udp|http|icmp)[_-]?flood"
-      case_insensitive: true
+      regex: "[sS][yY][nN][_-]?flood"
 
-  - id: flood-types-b
-    desc: Specific flood attack types
+  - id: udp-flood
+    desc: UDP flood terminology
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "(slowloris|post|get|dns)[_-]?flood"
-      case_insensitive: true
+      regex: "[uU][dD][pP][_-]?flood"
 
-  - id: flood-types-c
-    desc: Specific flood attack types
+  - id: http-flood
+    desc: HTTP flood terminology
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "memcached[_-]?flood"
-      case_insensitive: true
+      regex: "[hH][tT][tT][pP][_-]?flood"
+
+  - id: icmp-flood
+    desc: ICMP flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "[iI][cC][mM][pP][_-]?flood"
+
+  - id: slowloris-flood
+    desc: Slowloris flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)slowloris[_-]?flood"
+
+  - id: post-flood
+    desc: POST flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)post[_-]?flood"
+
+  - id: get-flood
+    desc: GET flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)get[_-]?flood"
+
+  - id: dns-flood
+    desc: DNS flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)dns[_-]?flood"
+
+  - id: memcached-flood
+    desc: Memcached flood terminology
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      regex: "(?i)memcached[_-]?flood"
+
+  - id: ddos-attack-ddos
+    desc: DDOS attack terminology
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)ddos[_-]?attack"
+
+  - id: ddos-attack-syn
+    desc: SYN attack terminology
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)syn[_-]?attack"
+
+  - id: ddos-attack-target-mode-type
+    desc: Attack target/mode/type terminology
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: "(?i)attack[_-]?(target|mode|type)"
 
   # === Telemetry ===
   - id: attack-telemetry-a1
@@ -124,9 +193,15 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: flood-types-a
-      - id: flood-types-b
-      - id: flood-types-c
+      - id: syn-flood
+      - id: udp-flood
+      - id: http-flood
+      - id: icmp-flood
+      - id: slowloris-flood
+      - id: post-flood
+      - id: get-flood
+      - id: dns-flood
+      - id: memcached-flood
 
   - id: attack-telemetry
     desc: Telemetry counters for attack progress
@@ -137,6 +212,15 @@ composite_rules:
       - id: attack-telemetry-a2
       - id: attack-telemetry-b1
       - id: attack-telemetry-b2
+
+  - id: ddos-attack-terminology
+    desc: Additional DDoS attack terminology
+    crit: notable
+    conf: 0.7
+    any:
+      - id: ddos-attack-ddos
+      - id: ddos-attack-syn
+      - id: ddos-attack-target-mode-type
 
   # Helper: Attack terminology
   - id: ddos-terminology

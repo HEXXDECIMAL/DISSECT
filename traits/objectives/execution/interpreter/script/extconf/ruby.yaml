@@ -2,13 +2,29 @@ defaults:
   for: [ruby]
 
 traits:
-  - id: calls-create-makefile
+  - id: calls-create-makefile-1
     desc: Calls create_makefile (standard extconf behavior)
     crit: notable
     conf: 0.8
     if:
       type: string
-      regex: "create_makefile|create_header|mkmf"
+      word: "create_makefile"
+
+  - id: calls-create-makefile-2
+    desc: Calls create_header (standard extconf behavior)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      word: "create_header"
+
+  - id: calls-create-makefile-3
+    desc: References mkmf (standard extconf behavior)
+    crit: notable
+    conf: 0.8
+    if:
+      type: string
+      word: "mkmf"
 
   - id: ast-httparty-get
     desc: HTTParty GET request invocation
@@ -25,6 +41,15 @@ traits:
          (#eq? @method "get"))
 
 composite_rules:
+  - id: calls-create-makefile
+    desc: Calls create_makefile (standard extconf behavior)
+    crit: notable
+    conf: 0.8
+    any:
+      - id: calls-create-makefile-1
+      - id: calls-create-makefile-2
+      - id: calls-create-makefile-3
+
   - id: extconf-http-fetch
     desc: extconf.rb performs HTTParty fetch during build
     crit: suspicious

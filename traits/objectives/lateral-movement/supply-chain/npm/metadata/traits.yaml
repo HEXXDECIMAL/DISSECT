@@ -105,8 +105,6 @@ traits:
   # === Repository Format Patterns ===
 
   # GitHub shorthand: "User/repo-name" (no full URL)
-  # npm supports this as a shorthand for GitHub repositories
-  # Typosquats often copy the original repo field directly
   - id: repo-shorthand-format
     desc: Repository uses GitHub shorthand format
     crit: notable
@@ -117,7 +115,6 @@ traits:
       regex: "^[A-Za-z0-9_.-]+/[a-z0-9][a-z0-9._-]*$"
 
   # Package name is a hyphenated multi-word name
-  # Common target for word-swap typosquatting (e.g., config-cordova vs cordova-config)
   - id: name-hyphenated-multiword
     desc: Package name has hyphenated multi-word format
     crit: notable
@@ -128,8 +125,6 @@ traits:
       regex: "^[a-z][a-z0-9]{0,60}(?:-[a-z][a-z0-9]{0,60}){1,8}$"
 
   # Package version suggests maturity (>= 0.2.0 or >= 1.0.0)
-  # Mature packages should have complete metadata (bugs, homepage)
-  # Version inflation is a dependency confusion indicator
   - id: version-mature
     desc: Package version suggests maturity
     crit: notable
@@ -189,14 +184,20 @@ traits:
       regex: "powerful.{0,100}(library|framework)"
       case_insensitive: true
 
-  - id: desc-simple-easy
-    desc: Description mentions simple/easy
-    crit: notable
-    conf: 0.5
+  - id: desc-simple
+    desc: Description contains "simple"
     if:
       type: kv
       path: "description"
-      regex: "simple|easy"
+      substr: "simple"
+      case_insensitive: true
+
+  - id: desc-easy
+    desc: Description contains "easy"
+    if:
+      type: kv
+      path: "description"
+      substr: "easy"
       case_insensitive: true
 
   # === Security Research Patterns ===
@@ -260,6 +261,14 @@ composite_rules:
       - id: npm-has-repository
       - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-bin-field
 
+  - id: desc-simple-easy
+    desc: Description mentions simple/easy
+    crit: notable
+    conf: 0.5
+    any:
+      - id: desc-simple
+      - id: desc-easy
+
   # Generic descriptions group
   - id: generic-descriptions
     desc: Package has generic marketing description
@@ -283,11 +292,6 @@ composite_rules:
       - id: install-hooks
 
   # === Cloned/Copied Package Identity ===
-  # When a package has a GitHub shorthand repo pointing to someone else's project
-  # but is missing standard auto-generated metadata fields (bugs, homepage),
-  # it suggests the package.json was copied from the original and the name changed.
-  # This is an indicator of typosquatting or name-confusion attacks.
-  # Many legitimate small packages also match, so crit is notable not suspicious.
   - id: cloned-package-identity
     desc: Package with shorthand repo but missing bugs/homepage (possible copy)
     crit: notable
@@ -303,12 +307,6 @@ composite_rules:
       - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-engines
       - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-contributors
 
-  # Mature version with cloned identity
-  # A package claiming version >= 0.2.0 should have complete metadata.
-  # Combined with shorthand repo and missing bugs/homepage, this strongly
-  # suggests the package was copied from another project with a new name.
-  # This pattern is common in typosquatting and dependency confusion attacks.
-  # Complexity: all(+3) + none(+0.6+2) = 5.6 (meets suspicious threshold)
   - id: mature-cloned-package
     desc: Mature version package with incomplete copied metadata
     crit: notable
@@ -327,9 +325,6 @@ composite_rules:
       - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-contributors
 
   # === Fake Security Research ===
-  # Claims to be a "whitehat" or "research" package but executes code on install.
-  # Legitimate research packages usually don't need install hooks to function
-  # or are clearly documented tools, not libraries masquerading as others.
   - id: fake-security-research
     desc: Package claims security research but runs install hooks
     crit: suspicious
@@ -345,8 +340,7 @@ composite_rules:
     conf: 0.9
     attack: "T1195.002"
     all:
-      - id: version-inflated
+      - id: version-mature
       - id: install-hooks
     none:
       - id: npm-has-repository
-  

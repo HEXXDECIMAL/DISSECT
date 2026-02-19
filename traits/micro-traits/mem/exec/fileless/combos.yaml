@@ -74,7 +74,7 @@ composite_rules:
     any:
       - id: fexecve-symbol
       - id: micro-traits/process/create/shell::c-execve
-      - id: micro-traits/mem/protect/modify::mprotect
+      - id: micro-traits/mem/protect/modify::mprotect-symbol
 
   - id: python-shellcode
     desc: Python shellcode injection via VirtualProtect

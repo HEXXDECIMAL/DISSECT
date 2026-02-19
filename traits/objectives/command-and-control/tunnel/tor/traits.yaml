@@ -108,14 +108,23 @@ traits:
       type: string
       regex: "Bridge\\s+obfs4|UseBridges\\s+1"
 
-  - id: pluggable-transport
-    desc: Tor pluggable transport config
+  - id: pluggable-transport-1
+    desc: Tor pluggable transport config (ClientTransportPlugin)
     crit: notable
     conf: 0.8
     for: [all]
     if:
       type: string
-      regex: "ClientTransportPlugin|pluggable_transports"
+      word: "ClientTransportPlugin"
+
+  - id: pluggable-transport-2
+    desc: Tor pluggable transport config (pluggable_transports)
+    crit: notable
+    conf: 0.8
+    for: [all]
+    if:
+      type: string
+      word: "pluggable_transports"
 
   # === Exposed services via Tor ===
   - id: rdp-over-tor
@@ -149,6 +158,14 @@ traits:
       regex: "HiddenServicePort\\s+22\\b"
 
 composite_rules:
+  - id: pluggable-transport
+    desc: Tor pluggable transport config
+    crit: notable
+    conf: 0.8
+    any:
+      - id: pluggable-transport-1
+      - id: pluggable-transport-2
+
   # Hidden service setup
   - id: hidden-service-setup
     desc: Tor hidden service configuration

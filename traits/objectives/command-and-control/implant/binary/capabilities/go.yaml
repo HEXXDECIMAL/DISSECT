@@ -13,37 +13,14 @@ defaults:
 
 traits:
   # Go C2 heartbeat function patterns
-  - id: go-heartbeat-sendheart
-    desc: Go SendHeart heartbeat function
+  - id: go-heartbeat-task-loop
+    desc: Go HeartBeat/heartbeat worker functions
     crit: suspicious
     conf: 0.95
+    for: [go]
     if:
       type: string
-      regex: 'SendHeart\b'
-
-  - id: go-heartbeat-setheart
-    desc: Go setHeart heartbeat function
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'setHeart\b'
-
-  - id: go-heartbeat-uppercase
-    desc: Go HeartBeat(X) heartbeat function
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'HeartBeat(Task|Loop|Worker)\b'
-
-  - id: go-heartbeat-lowercase
-    desc: Go heartbeat(X) function
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'heartbeat(Task|Loop|Worker)\b'
+      regex: '(heartbeat|HeartBeat)(Task|Loop|Worker)\b'
 
   # Go C2 command execution patterns
   - id: go-cmd-exec-module-cmd
@@ -131,10 +108,9 @@ composite_rules:
   crit: suspicious
   conf: 0.95
   any:
-    - id: go-heartbeat-sendheart
-    - id: go-heartbeat-setheart
-    - id: go-heartbeat-uppercase
-    - id: go-heartbeat-lowercase
+    - id: objectives/command-and-control/implant/binary/capabilities::heartbeat-send
+    - id: objectives/command-and-control/implant/binary/capabilities::heartbeat-set
+    - id: go-heartbeat-task-loop
 
 - id: go-cmd-exec-module
   desc: Go C2 command execution module
@@ -146,61 +122,61 @@ composite_rules:
 
   # Go C2 implant with heartbeat and exec
   # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-  - id: go-c2-implant-heartbeat
-    desc: Go C2 implant with heartbeat
-    crit: hostile
-    conf: 0.95
-    mbc: "B0030"
-    attack: "T1071.001"
-    for: [elf, macho, pe]
-    all:
-      - id: go-heartbeat-function
-      - id: go-cmd-exec-module
-      - id: micro-traits/process/create/shell::go-shell-strings
+- id: go-c2-implant-heartbeat
+  desc: Go C2 implant with heartbeat
+  crit: hostile
+  conf: 0.95
+  mbc: "B0030"
+  attack: "T1071.001"
+  for: [elf, macho, pe]
+  all:
+    - id: go-heartbeat-function
+    - id: go-cmd-exec-module
+    - id: micro-traits/process/create/shell::go-shell-strings
 
-  # Go C2 implant with file transfer
-  # Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
-  - id: go-c2-implant-transfer
-    desc: Go C2 implant with file transfer
-    crit: hostile
-    conf: 0.95
-    mbc: "B0030"
-    attack: "T1105"
-    for: [elf, macho, pe]
-    all:
-      - id: go-heartbeat-function
-      - id: go-file-transfer
-      - id: micro-traits/process/create/shell::go-shell-strings
+# Go C2 implant with file transfer
+# Complexity: all(3) + for(1) = 4 >= 4 HOSTILE
+- id: go-c2-implant-transfer
+  desc: Go C2 implant with file transfer
+  crit: hostile
+  conf: 0.95
+  mbc: "B0030"
+  attack: "T1105"
+  for: [elf, macho, pe]
+  all:
+    - id: go-heartbeat-function
+    - id: go-file-transfer
+    - id: micro-traits/process/create/shell::go-shell-strings
 
-  # Go C2 with monitor/worker pattern
-  # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
-  - id: go-c2-implant-monitor
-    desc: Go C2 with monitor worker
-    crit: hostile
-    conf: 0.95
-    mbc: "B0030"
-    for: [elf, macho, pe]
-    all:
-      - id: go-heartbeat-function
-      - id: go-monitor-worker
-      - id: go-cmd-exec-module
-      - id: micro-traits/process/create/shell::go-shell-strings
+# Go C2 with monitor/worker pattern
+# Complexity: all(4) + for(1) = 5 >= 4 HOSTILE
+- id: go-c2-implant-monitor
+  desc: Go C2 with monitor worker
+  crit: hostile
+  conf: 0.95
+  mbc: "B0030"
+  for: [elf, macho, pe]
+  all:
+    - id: go-heartbeat-function
+    - id: go-monitor-worker
+    - id: go-cmd-exec-module
+    - id: micro-traits/process/create/shell::go-shell-strings
 
-  # Full Go C2 implant
-  # Complexity: all(4) + any(1) + for(1) = 6 >= 4 HOSTILE
-  - id: go-c2-implant-full
-    desc: Full Go C2 implant
-    crit: hostile
-    conf: 0.98
-    mbc: "B0030"
-    attack: "T1071.001"
-    for: [elf, macho, pe]
-    all:
-      - id: go-heartbeat-function
-      - id: go-cmd-exec-module
-      - id: go-file-transfer
-      - id: micro-traits/process/create/shell::go-shell-strings
-    any:
-      - id: go-xor-encoding
-      - id: suspicious-log-path
-      - id: go-machine-id
+# Full Go C2 implant
+# Complexity: all(4) + any(1) + for(1) = 6 >= 4 HOSTILE
+- id: go-c2-implant-full
+  desc: Full Go C2 implant
+  crit: hostile
+  conf: 0.98
+  mbc: "B0030"
+  attack: "T1071.001"
+  for: [elf, macho, pe]
+  all:
+    - id: go-heartbeat-function
+    - id: go-cmd-exec-module
+    - id: go-file-transfer
+    - id: micro-traits/process/create/shell::go-shell-strings
+  any:
+    - id: go-xor-encoding
+    - id: suspicious-log-path
+    - id: go-machine-id

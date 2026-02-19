@@ -2,370 +2,614 @@ defaults:
   for:
   - chrome-manifest
 traits:
-- id: manifest-v3
-  desc: Chrome extension using Manifest V3
-  crit: notable
-  conf: 0.95
-  if:
-    type: kv
-    path: manifest_version
-    exact: '3'
-- id: manifest-v2
-  desc: Uses deprecated Manifest V2
-  crit: notable
-  conf: 0.95
-  if:
-    type: kv
-    path: manifest_version
-    exact: '2'
-- id: permission-all-urls
-  desc: Requests all URLs access
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    exact: <all_urls>
-- id: permission-active-tab
-  desc: Extension requests activeTab permission
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: activeTab
-- id: permission-tabs
-  desc: Extension requests tabs permission
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: tabs
-- id: permission-web-request
-  desc: Extension requests webRequest permission
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    regex: webRequest|webRequestBlocking
-- id: permission-cookies
-  desc: Extension requests cookies permission
-  crit: suspicious
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: cookies
-- id: permission-history
-  desc: Extension requests history permission
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    exact: history
-- id: permission-bookmarks
-  desc: Extension requests bookmarks permission
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: bookmarks
-- id: permission-geolocation
-  desc: Extension requests geolocation permission
-  crit: suspicious
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: geolocation
-- id: permission-clipboard-read
-  desc: Extension can read clipboard
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    exact: clipboardRead
-- id: permission-clipboard-write
-  desc: Extension can write clipboard
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: clipboardWrite
-- id: permission-native-messaging
-  desc: Extension uses native messaging
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    exact: nativeMessaging
-- id: permission-debugger
-  desc: Uses debugger API
-  crit: suspicious
-  conf: 0.98
-  if:
-    type: kv
-    path: permissions
-    exact: debugger
-- id: permission-proxy
-  desc: Extension can modify proxy settings
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: permissions
-    exact: proxy
-- id: permission-declarative-net-request
-  desc: Extension uses declarativeNetRequest
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: permissions
-    regex: declarativeNetRequest|declarativeNetRequestWithHostAccess
-- id: permission-scripting
-  desc: Extension requests scripting permission (MV3)
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: permissions
-    exact: scripting
-- id: host-all-urls
-  desc: Host permission for all URLs
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: host_permissions
-    exact: <all_urls>
-- id: host-all-http
-  desc: Access to all HTTP sites
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: host_permissions
-    regex: ^\*://\*/\*$|^https?://\*/\*$
-- id: host-shopping-sites
-  desc: Extension targets e-commerce sites
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: host_permissions
-    regex: amazon\.|ebay\.|walmart\.|aliexpress\.
-- id: content-script-all-urls
-  desc: Content script on all URLs
-  crit: suspicious
-  conf: 0.95
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    exact: <all_urls>
-- id: content-script-run-at-start
-  desc: Content script runs at document_start
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: content_scripts[*].run_at
-    exact: document_start
-- id: content-script-all-frames
-  desc: Content script runs in all frames
-  crit: notable
-  conf: 0.8
-  if:
-    type: kv
-    path: content_scripts[*].all_frames
-    exact: 'true'
-- id: content-script-shopping
-  desc: Content script targets shopping sites
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: amazon\.|ebay\.|walmart\.|aliexpress\.
-- id: content-script-api-target
-  desc: Content script targets API/Key management pages
-  crit: suspicious
-  conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: /(user|account|settings|profile|my)/(openapi|api|keys|tokens|security|auth)
-- id: description-crypto-finance-a
-  desc: Extension description crypto/finance family A
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: description
-    regex: crypto|wallet|blockchain|defi
-    case_insensitive: true
-- id: description-crypto-finance-b
-  desc: Extension description crypto/finance family B
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: description
-    regex: token|trading|swap|nft
-    case_insensitive: true
-- id: description-crypto-finance-c
-  desc: Extension description crypto/finance family C
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: description
-    regex: ethereum|solana|bitcoin
-    case_insensitive: true
-- id: name-crypto-finance-a
-  desc: Extension name crypto/finance family A
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: name
-    regex: crypto|wallet|blockchain|defi
-    case_insensitive: true
-- id: name-crypto-finance-b
-  desc: Extension name crypto/finance family B
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: name
-    regex: token|swap|nft|ethereum
-    case_insensitive: true
-- id: name-crypto-finance-c
-  desc: Extension name crypto/finance family C
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: name
-    regex: solana|bitcoin
-    case_insensitive: true
-- id: name-adblocker
-  desc: Extension name mentions ad blocking
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: name
-    regex: ad\s*block|block\s*ads|remove\s*ads|no\s*ads|ads\s*cleaner|sponsored
-    case_insensitive: true
-- id: description-adblocker
-  desc: Extension description mentions ad blocking
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: description
-    regex: ad\s*block|block\s*ads|remove\s*ads|no\s*ads|ads\s*cleaner|sponsored
-    case_insensitive: true
-- id: background-persistent
-  desc: Extension uses persistent background page
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: background.persistent
-    exact: 'true'
-- id: background-service-worker
-  desc: Extension uses service worker (MV3)
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: background.service_worker
-- id: host-amazon-global
-  desc: Targets many Amazon regional domains
-  crit: notable
-  conf: 0.9
-  if:
-    type: raw
-    regex: amazon\.
-    count_min: 15
-- id: externally-connectable
-  desc: Extension allows external connections
-  crit: suspicious
-  conf: 0.9
-  if:
-    type: kv
-    path: externally_connectable
-- id: update-url-present
-  desc: Has update_url field
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: update_url
-- id: update-url-google
-  desc: Uses Google update URL
-  crit: notable
-  conf: 0.95
-  if:
-    type: kv
-    path: update_url
-    substr: clients2.google.com
-- id: web-accessible-resources
-  desc: Exposes resources to web
-  crit: notable
-  conf: 0.85
-  if:
-    type: kv
-    path: web_accessible_resources
-- id: is-chrome-manifest
-  desc: Chrome extension manifest file
-  crit: notable
-  conf: 0.95
-  if:
-    type: kv
-    path: manifest_version
-- id: content-script-social-media-a
-  desc: Targets social media domains (set A)
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: twitter\.com|x\.com|facebook\.com|instagram\.com
-- id: content-script-social-media-b
-  desc: Targets social media domains (set B)
-  crit: notable
-  conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: linkedin\.com|reddit\.com|tiktok\.com
+  - id: manifest-v3
+    desc: Chrome extension using Manifest V3
+    crit: notable
+    conf: 0.95
+    if:
+      type: kv
+      path: manifest_version
+      exact: '3'
+  - id: manifest-v2
+    desc: Uses deprecated Manifest V2
+    crit: notable
+    conf: 0.95
+    if:
+      type: kv
+      path: manifest_version
+      exact: '2'
+  - id: permission-all-urls
+    desc: Requests all URLs access
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: permissions
+      exact: '<all_urls>'
+  - id: permission-active-tab
+    desc: Extension requests activeTab permission
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'activeTab'
+  - id: permission-tabs
+    desc: Extension requests tabs permission
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'tabs'
+  - id: permission-web-request-base
+    desc: webRequest permission
+    if:
+      type: kv
+      path: permissions
+      exact: 'webRequest'
+  - id: permission-web-request-blocking
+    desc: webRequestBlocking permission
+    if:
+      type: kv
+      path: permissions
+      exact: 'webRequestBlocking'
+  - id: permission-cookies
+    desc: Extension requests cookies permission
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'cookies'
+  - id: permission-history
+    desc: Extension requests history permission
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: permissions
+      exact: 'history'
+  - id: permission-bookmarks
+    desc: Extension requests bookmarks permission
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'bookmarks'
+  - id: permission-geolocation
+    desc: Extension requests geolocation permission
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'geolocation'
+  - id: permission-clipboard-read
+    desc: Extension can read clipboard
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: permissions
+      exact: 'clipboardRead'
+  - id: permission-clipboard-write
+    desc: Extension can write clipboard
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'clipboardWrite'
+  - id: permission-native-messaging
+    desc: Extension uses native messaging
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: permissions
+      exact: 'nativeMessaging'
+  - id: permission-debugger
+    desc: Uses debugger API
+    crit: suspicious
+    conf: 0.98
+    if:
+      type: kv
+      path: permissions
+      exact: 'debugger'
+  - id: permission-proxy
+    desc: Extension can modify proxy settings
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: permissions
+      exact: 'proxy'
+  - id: permission-dnr-base
+    desc: declarativeNetRequest permission
+    if:
+      type: kv
+      path: permissions
+      exact: 'declarativeNetRequest'
+  - id: permission-dnr-host
+    desc: declarativeNetRequestWithHostAccess permission
+    if:
+      type: kv
+      path: permissions
+      exact: 'declarativeNetRequestWithHostAccess'
+  - id: permission-scripting
+    desc: Extension requests scripting permission (MV3)
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: permissions
+      exact: 'scripting'
+  - id: host-all-urls
+    desc: Host permission for all URLs
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: host_permissions
+      exact: '<all_urls>'
+  - id: host-all-http
+    desc: Access to all HTTP sites
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: host_permissions
+      regex: '^\*://\*/\*$|^https?://\*/\*$'
+  - id: host-shopping-sites
+    desc: Extension targets e-commerce sites
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: host_permissions
+      regex: 'amazon\.|ebay\.|walmart\.|aliexpress\.'
+  - id: content-script-all-urls
+    desc: Content script on all URLs
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      exact: '<all_urls>'
+  - id: content-script-run-at-start
+    desc: Content script runs at document_start
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: 'content_scripts[*].run_at'
+      exact: 'document_start'
+  - id: content-script-all-frames
+    desc: Content script runs in all frames
+    crit: notable
+    conf: 0.8
+    if:
+      type: kv
+      path: 'content_scripts[*].all_frames'
+      exact: 'true'
+  - id: content-script-shopping
+    desc: Content script targets shopping sites
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'amazon\.|ebay\.|walmart\.|aliexpress\.'
+  - id: content-script-api-target-user
+    desc: Content script targets /user/ pages
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      substr: '/user/'
+  - id: content-script-api-target-account
+    desc: Content script targets /account/ pages
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      substr: '/account/'
+  - id: content-script-api-target-settings
+    desc: Content script targets /settings/ pages
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      substr: '/settings/'
+  - id: content-script-api-target-profile
+    desc: Content script targets /profile/ pages
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      substr: '/profile/'
+  - id: content-script-api-target-my
+    desc: Content script targets /my/ pages
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      substr: '/my/'
+  - id: description-crypto-finance-word-crypto
+    desc: Description word crypto
+    if:
+      type: kv
+      path: 'description'
+      substr: 'crypto'
+      case_insensitive: true
+  - id: description-crypto-finance-word-wallet
+    desc: Description word wallet
+    if:
+      type: kv
+      path: 'description'
+      substr: 'wallet'
+      case_insensitive: true
+  - id: description-crypto-finance-word-blockchain
+    desc: Description word blockchain
+    if:
+      type: kv
+      path: 'description'
+      substr: 'blockchain'
+      case_insensitive: true
+  - id: description-crypto-finance-word-defi
+    desc: Description word defi
+    if:
+      type: kv
+      path: 'description'
+      substr: 'defi'
+      case_insensitive: true
+  - id: description-crypto-finance-word-token
+    desc: Description word token
+    if:
+      type: kv
+      path: 'description'
+      substr: 'token'
+      case_insensitive: true
+  - id: description-crypto-finance-word-trading
+    desc: Description word trading
+    if:
+      type: kv
+      path: 'description'
+      substr: 'trading'
+      case_insensitive: true
+  - id: description-crypto-finance-word-swap
+    desc: Description word swap
+    if:
+      type: kv
+      path: 'description'
+      substr: 'swap'
+      case_insensitive: true
+  - id: description-crypto-finance-word-nft
+    desc: Description word nft
+    if:
+      type: kv
+      path: 'description'
+      substr: 'nft'
+      case_insensitive: true
+  - id: description-crypto-finance-word-ethereum
+    desc: Description word ethereum
+    if:
+      type: kv
+      path: 'description'
+      substr: 'ethereum'
+      case_insensitive: true
+  - id: description-crypto-finance-word-solana
+    desc: Description word solana
+    if:
+      type: kv
+      path: 'description'
+      substr: 'solana'
+      case_insensitive: true
+  - id: description-crypto-finance-word-bitcoin
+    desc: Description word bitcoin
+    if:
+      type: kv
+      path: 'description'
+      substr: 'bitcoin'
+      case_insensitive: true
+  - id: name-crypto-finance-word-crypto
+    desc: Name word crypto
+    if:
+      type: kv
+      path: 'name'
+      substr: 'crypto'
+      case_insensitive: true
+  - id: name-crypto-finance-word-wallet
+    desc: Name word wallet
+    if:
+      type: kv
+      path: 'name'
+      substr: 'wallet'
+      case_insensitive: true
+  - id: name-crypto-finance-word-blockchain
+    desc: Name word blockchain
+    if:
+      type: kv
+      path: 'name'
+      substr: 'blockchain'
+      case_insensitive: true
+  - id: name-crypto-finance-word-defi
+    desc: Name word defi
+    if:
+      type: kv
+      path: 'name'
+      substr: 'defi'
+      case_insensitive: true
+  - id: name-crypto-finance-word-token
+    desc: Name word token
+    if:
+      type: kv
+      path: 'name'
+      substr: 'token'
+      case_insensitive: true
+  - id: name-crypto-finance-word-swap
+    desc: Name word swap
+    if:
+      type: kv
+      path: 'name'
+      substr: 'swap'
+      case_insensitive: true
+  - id: name-crypto-finance-word-nft
+    desc: Name word nft
+    if:
+      type: kv
+      path: 'name'
+      substr: 'nft'
+      case_insensitive: true
+  - id: name-crypto-finance-word-ethereum
+    desc: Name word ethereum
+    if:
+      type: kv
+      path: 'name'
+      substr: 'ethereum'
+      case_insensitive: true
+  - id: name-crypto-finance-word-solana
+    desc: Name word solana
+    if:
+      type: kv
+      path: 'name'
+      substr: 'solana'
+      case_insensitive: true
+  - id: name-crypto-finance-word-bitcoin
+    desc: Name word bitcoin
+    if:
+      type: kv
+      path: 'name'
+      substr: 'bitcoin'
+      case_insensitive: true
+  - id: name-adblocker-1
+    desc: Name ad blocker (1)
+    if:
+      type: kv
+      path: 'name'
+      regex: 'ad\s*block|block\s*ads|remove\s*ads'
+      case_insensitive: true
+  - id: name-adblocker-2
+    desc: Name ad blocker (2)
+    if:
+      type: kv
+      path: 'name'
+      regex: 'no\s*ads|ads\s*cleaner|sponsored'
+      case_insensitive: true
+  - id: description-adblocker-1
+    desc: Description ad blocker (1)
+    if:
+      type: kv
+      path: 'description'
+      regex: 'ad\s*block|block\s*ads|remove\s*ads'
+      case_insensitive: true
+  - id: description-adblocker-2
+    desc: Description ad blocker (2)
+    if:
+      type: kv
+      path: 'description'
+      regex: 'no\s*ads|ads\s*cleaner|sponsored'
+      case_insensitive: true
+  - id: background-persistent
+    desc: Extension uses persistent background page
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: 'background.persistent'
+      exact: 'true'
+  - id: background-service-worker
+    desc: Extension uses service worker (MV3)
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: 'background.service_worker'
+  - id: host-amazon-global
+    desc: Targets many Amazon regional domains
+    crit: notable
+    conf: 0.9
+    if:
+      type: raw
+      regex: 'amazon\.'
+      count_min: 15
+  - id: externally-connectable
+    desc: Extension allows external connections
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: kv
+      path: 'externally_connectable'
+  - id: update-url-present
+    desc: Has update_url field
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: 'update_url'
+  - id: update-url-google
+    desc: Uses Google update URL
+    crit: notable
+    conf: 0.95
+    if:
+      type: kv
+      path: 'update_url'
+      substr: 'clients2.google.com'
+  - id: web-accessible-resources
+    desc: Exposes resources to web
+    crit: notable
+    conf: 0.85
+    if:
+      type: kv
+      path: 'web_accessible_resources'
+  - id: is-chrome-manifest
+    desc: Chrome extension manifest file
+    crit: notable
+    conf: 0.95
+    if:
+      type: kv
+      path: 'manifest_version'
+  - id: content-script-social-media-a
+    desc: Targets social media domains (set A)
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'twitter\.com|x\.com|facebook\.com|instagram\.com'
+  - id: content-script-social-media-b
+    desc: Targets social media domains (set B)
+    crit: notable
+    conf: 0.9
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'linkedin\.com|reddit\.com|tiktok\.com'
+  - id: content-script-crypto-exchange-a1
+    desc: Content script targets crypto exchanges (set A1)
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'binance\.com|coinbase\.com|kraken\.com'
+  - id: content-script-crypto-exchange-a2
+    desc: Content script targets crypto exchanges (set A2)
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'bybit\.com|okx\.com'
+  - id: content-script-crypto-exchange-b1
+    desc: Content script targets crypto exchanges (set B1)
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'kucoin\.com|mexc\.com|gate\.io'
+  - id: content-script-crypto-exchange-b2
+    desc: Content script targets crypto exchanges (set B2)
+    if:
+      type: kv
+      path: 'content_scripts[*].matches'
+      regex: 'crypto\.com|bitfinex\.com'
+composite_rules:
 - id: content-script-crypto-exchange-a
   desc: Content script targets crypto exchanges (set A)
   crit: notable
   conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: binance\.com|coinbase\.com|kraken\.com|bybit\.com|okx\.com
+  any:
+    - id: content-script-crypto-exchange-a1
+    - id: content-script-crypto-exchange-a2
 - id: content-script-crypto-exchange-b
   desc: Content script targets crypto exchanges (set B)
   crit: notable
   conf: 0.9
-  if:
-    type: kv
-    path: content_scripts[*].matches
-    regex: kucoin\.com|mexc\.com|gate\.io|crypto\.com|bitfinex\.com
-composite_rules:
+  any:
+    - id: content-script-crypto-exchange-b1
+    - id: content-script-crypto-exchange-b2
+- id: permission-web-request
+  desc: Extension requests webRequest permission
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: permission-web-request-base
+    - id: permission-web-request-blocking
+- id: permission-declarative-net-request
+  desc: Extension uses declarativeNetRequest
+  crit: notable
+  conf: 0.85
+  any:
+    - id: permission-dnr-base
+    - id: permission-dnr-host
+- id: content-script-api-target
+  desc: Content script targets API/Key management pages
+  crit: suspicious
+  conf: 0.9
+  any:
+    - id: content-script-api-target-user
+    - id: content-script-api-target-account
+    - id: content-script-api-target-settings
+    - id: content-script-api-target-profile
+    - id: content-script-api-target-my
+- id: description-crypto-finance-a
+  desc: Extension description crypto/finance family A
+  crit: notable
+  conf: 0.85
+  any:
+    - id: description-crypto-finance-word-crypto
+    - id: description-crypto-finance-word-wallet
+    - id: description-crypto-finance-word-blockchain
+    - id: description-crypto-finance-word-defi
+- id: description-crypto-finance-b
+  desc: Extension description crypto/finance family B
+  crit: notable
+  conf: 0.85
+  any:
+    - id: description-crypto-finance-word-token
+    - id: description-crypto-finance-word-trading
+    - id: description-crypto-finance-word-swap
+    - id: description-crypto-finance-word-nft
+- id: description-crypto-finance-c
+  desc: Extension description crypto/finance family C
+  crit: notable
+  conf: 0.85
+  any:
+    - id: description-crypto-finance-word-ethereum
+    - id: description-crypto-finance-word-solana
+    - id: description-crypto-finance-word-bitcoin
+- id: name-crypto-finance-a
+  desc: Extension name crypto/finance family A
+  crit: notable
+  conf: 0.85
+  any:
+    - id: name-crypto-finance-word-crypto
+    - id: name-crypto-finance-word-wallet
+    - id: name-crypto-finance-word-blockchain
+    - id: name-crypto-finance-word-defi
+- id: name-crypto-finance-b
+  desc: Extension name crypto/finance family B
+  crit: notable
+  conf: 0.85
+  any:
+    - id: name-crypto-finance-word-token
+    - id: name-crypto-finance-word-swap
+    - id: name-crypto-finance-word-nft
+    - id: name-crypto-finance-word-ethereum
+- id: name-crypto-finance-c
+  desc: Extension name crypto/finance family C
+  crit: notable
+  conf: 0.85
+  any:
+    - id: name-crypto-finance-word-solana
+    - id: name-crypto-finance-word-bitcoin
+- id: name-adblocker
+  desc: Extension name mentions ad blocking
+  crit: notable
+  conf: 0.85
+  any:
+    - id: name-adblocker-1
+    - id: name-adblocker-2
+- id: description-adblocker
+  desc: Extension description mentions ad blocking
+  crit: notable
+  conf: 0.85
+  any:
+    - id: description-adblocker-1
+    - id: description-adblocker-2
 - id: content-script-social-media
   desc: Content script targets social media sites
   crit: notable

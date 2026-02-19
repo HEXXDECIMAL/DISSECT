@@ -25,7 +25,8 @@ use super::models::{TraitInfo, TraitMappings};
 use super::parsing::{apply_composite_defaults, apply_trait_defaults};
 use super::validation::{
     autoprefix_trait_refs, check_regex_or_overlapping_exact, check_regex_should_be_exact,
-    check_same_string_different_types, collect_trait_refs_from_rule,
+    check_overlapping_regex_patterns, check_same_string_different_types,
+    collect_trait_refs_from_rule,
     find_alternation_merge_candidates, find_banned_directory_segments, find_cap_obj_violations,
     find_depth_violations, find_duplicate_second_level_directories,
     find_duplicate_traits_and_composites, find_empty_condition_clauses, find_for_only_duplicates,
@@ -806,6 +807,13 @@ impl CapabilityMapper {
             tracing::debug!("Step 1e/15: Checking for regex OR patterns overlapping exact matches");
             check_regex_or_overlapping_exact(&trait_definitions, &mut warnings);
             tracing::debug!("Step 1e completed in {:?}", step_start.elapsed());
+
+            let step_start = std::time::Instant::now();
+            tracing::debug!(
+                "Step 1e2/15: Checking for overlapping regex patterns with same filetype coverage"
+            );
+            check_overlapping_regex_patterns(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1e2 completed in {:?}", step_start.elapsed());
 
             // Check for simple regex that should be exact
             let step_start = std::time::Instant::now();

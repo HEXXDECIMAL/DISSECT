@@ -11,7 +11,7 @@ traits:
     if:
       type: ast
       kind: assignment
-      exact: module.exports
+      exact: 'module.exports'
   - id: exports-dot-pattern
     desc: CommonJS exports.{0,50} pattern
     crit: notable
@@ -21,8 +21,8 @@ traits:
     if:
       type: ast
       kind: assignment
-      exact: exports.
-  - id: esm-export-pattern
+      exact: 'exports.'
+  - id: esm-export-pattern-key
     desc: ESM export statement
     crit: notable
     conf: 0.8
@@ -30,8 +30,8 @@ traits:
       - javascript
     if:
       type: ast
-      node: export_statement
-      exact: export
+      node: 'export_statement'
+      exact: 'export'
   - id: require-os
     desc: require('os') import
     crit: notable
@@ -40,10 +40,7 @@ traits:
       - javascript
     if:
       type: ast
-      query:
-        "((call_expression\n  function: (identifier) @fn\n  arguments: (arguments\
-        \ (string) @arg))\n (#eq? @fn \"require\")\n (#match? @arg \"'os'|\\\"os\\\"\
-        \"))\n"
+      query: "((call_expression function: (identifier) @fn arguments: (arguments (string) @arg)) (#eq? @fn \"require\") (#match? @arg \"'os'|\\\"os\\\"\"))"
   - id: require-child-process
     desc: require('child_process') import
     crit: notable
@@ -52,10 +49,7 @@ traits:
       - javascript
     if:
       type: ast
-      query:
-        "((call_expression\n  function: (identifier) @fn\n  arguments: (arguments\
-        \ (string) @arg))\n (#eq? @fn \"require\")\n (#match? @arg \"'child_process'|\\\
-        \"child_process\\\"\"))\n"
+      query: "((call_expression function: (identifier) @fn arguments: (arguments (string) @arg)) (#eq? @fn \"require\") (#match? @arg \"'child_process'|\\\"child_process\\\"\"))"
   - id: require-https
     desc: require('https') import
     crit: notable
@@ -64,10 +58,7 @@ traits:
       - javascript
     if:
       type: ast
-      query:
-        "((call_expression\n  function: (identifier) @fn\n  arguments: (arguments\
-        \ (string) @arg))\n (#eq? @fn \"require\")\n (#match? @arg \"'https'|\\\"https\\\
-        \"\"))\n"
+      query: "((call_expression function: (identifier) @fn arguments: (arguments (string) @arg)) (#eq? @fn \"require\") (#match? @arg \"'https'|\\\"https\\\"\"))"
   - id: require-fs
     desc: require('fs') import
     crit: notable
@@ -76,25 +67,22 @@ traits:
       - javascript
     if:
       type: ast
-      query:
-        "((call_expression\n  function: (identifier) @fn\n  arguments: (arguments\
-        \ (string) @arg))\n (#eq? @fn \"require\")\n (#match? @arg \"'fs'|\\\"fs\\\"\
-        \"))\n"
+      query: "((call_expression function: (identifier) @fn arguments: (arguments (string) @arg)) (#eq? @fn \"require\") (#match? @arg \"'fs'|\\\"fs\\\"\"))"
   - id: pkg-dependencies
     desc: Package has dependencies field
     crit: notable
     conf: 0.9
     if:
       type: kv
-      path: dependencies
+      path: 'dependencies'
   - id: pkg-version-001
     desc: Package version 0.0.1 (brand new)
     crit: notable
     conf: 0.6
     if:
       type: kv
-      path: version
-      exact: 0.0.1
+      path: 'version'
+      exact: '0.0.1'
   - id: node-modules-write
     desc: Package writes to node_modules directory
     crit: suspicious
@@ -104,7 +92,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: (?:writeFile|writeFileSync|appendFile)\s*\(.{0,220}node_modules
+      regex: '(?:writeFile|writeFileSync|appendFile)\s*\(.{0,220}node_modules'
   - id: npmrc-read
     desc: Reads .npmrc file (token theft)
     crit: suspicious
@@ -114,7 +102,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: (?:readFile|readFileSync)\s*\(.{0,220}\.npmrc
+      regex: '(?:readFile|readFileSync)\s*\(.{0,220}\.npmrc'
   - id: package-json-write
     desc: Writes to package.json file
     crit: suspicious
@@ -124,7 +112,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: writeFileSync\s*\(.{0,220}package\.json|writeFile\s*\(.{0,220}package\.json
+      regex: 'writeFileSync\s*\(.{0,220}package\.json|writeFile\s*\(.{0,220}package\.json'
   - id: child-dot-unref
     desc: child.unref() call (orphan process)
     crit: notable
@@ -134,8 +122,8 @@ traits:
       - typescript
     if:
       type: ast
-      kind: call
-      exact: .unref()
+      kind: 'call'
+      exact: '.unref()'
   - id: spawn-unref
     desc: spawn().unref() call (orphan process)
     crit: notable
@@ -145,7 +133,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: spawn\(.{1,220}\)\.unref\(\)
+      regex: 'spawn\(.{1,220}\)\.unref\(\)'
   - id: stdio-ignore-array
     desc: "stdio: [...ignore...] pattern"
     crit: notable
@@ -155,7 +143,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: stdio:\s*\[.{0,50}ignore
+      regex: 'stdio:\s*\[.{0,50}ignore'
   - id: small-file-5k
     desc: Small file under 5KB
     crit: notable
@@ -180,7 +168,7 @@ traits:
       - package.json
     if:
       type: string
-      substr: oast.fun
+      substr: 'oast.fun'
   - id: oastify-domain
     desc: oastify.com exfil domain
     crit: suspicious
@@ -191,7 +179,7 @@ traits:
       - package.json
     if:
       type: string
-      substr: oastify.com
+      substr: 'oastify.com'
   - id: oast-me-domain
     desc: oast.me exfil domain
     crit: suspicious
@@ -202,7 +190,7 @@ traits:
       - package.json
     if:
       type: string
-      substr: oast.me
+      substr: 'oast.me'
   - id: pipedream-domain
     desc: pipedream.net exfil domain
     crit: suspicious
@@ -213,7 +201,7 @@ traits:
       - package.json
     if:
       type: string
-      substr: pipedream.net
+      substr: 'pipedream.net'
   - id: discord-webhook
     desc: Discord webhook exfil endpoint
     crit: suspicious
@@ -224,7 +212,7 @@ traits:
       - package.json
     if:
       type: string
-      substr: discord.com/api/webhooks
+      substr: 'discord.com/api/webhooks'
   - id: placeholder-author-your-name
     desc: Author field is "Your Name"
     crit: suspicious
@@ -233,18 +221,35 @@ traits:
       - package.json
     if:
       type: kv
-      path: author
-      exact: Your Name
-  - id: placeholder-author-generic
-    desc: Author field contains generic placeholder
-    crit: notable
-    conf: 0.75
-    for:
-      - package.json
+      path: 'author'
+      exact: 'Your Name'
+  - id: placeholder-author-generic-1a
+    desc: Author field contains generic placeholder (author/your name)
     if:
       type: kv
-      path: author
-      regex: ^(?:author|your name|name|test|user|admin|example|sample|anonymous)$
+      path: 'author'
+      regex: '^(?:author|your name)$'
+      case_insensitive: true
+  - id: placeholder-author-generic-1b
+    desc: Author field contains generic placeholder (name/test/user)
+    if:
+      type: kv
+      path: 'author'
+      regex: '^(?:name|test|user)$'
+      case_insensitive: true
+  - id: placeholder-author-generic-2a
+    desc: Author field contains generic placeholder (admin/example/sample)
+    if:
+      type: kv
+      path: 'author'
+      regex: '^(?:admin|example|sample)$'
+      case_insensitive: true
+  - id: placeholder-author-generic-2b
+    desc: Author field contains generic placeholder (anonymous)
+    if:
+      type: kv
+      path: 'author'
+      regex: '^(?:anonymous)$'
       case_insensitive: true
   - id: pkg-no-description-short
     desc: Very short/empty description
@@ -254,8 +259,8 @@ traits:
       - package.json
     if:
       type: kv
-      path: description
-      regex: ^.{0,15}$
+      path: 'description'
+      regex: '^.{0,15}$'
   - id: pkg-main-resp-path
     desc: Main uses resp/ directory
     crit: notable
@@ -264,18 +269,32 @@ traits:
       - package.json
     if:
       type: kv
-      path: main
-      substr: resp/
-  - id: cdn-keyword-facade
-    desc: CDN-related keywords
-    crit: notable
-    conf: 0.6
-    for:
-      - package.json
+      path: 'main'
+      substr: 'resp/'
+  - id: cdn-keyword-jsdelivr
+    desc: jsdelivr keyword
     if:
       type: kv
-      path: keywords
-      regex: jsdelivr|cdn|cloudflare|unpkg
+      path: 'keywords'
+      exact: 'jsdelivr'
+  - id: cdn-keyword-cdn
+    desc: cdn keyword
+    if:
+      type: kv
+      path: 'keywords'
+      exact: 'cdn'
+  - id: cdn-keyword-cloudflare
+    desc: cloudflare keyword
+    if:
+      type: kv
+      path: 'keywords'
+      exact: 'cloudflare'
+  - id: cdn-keyword-unpkg
+    desc: unpkg keyword
+    if:
+      type: kv
+      path: 'keywords'
+      exact: 'unpkg'
   - id: template-keyword
     desc: Template keyword in package
     crit: notable
@@ -284,8 +303,8 @@ traits:
       - package.json
     if:
       type: kv
-      path: keywords
-      exact: template
+      path: 'keywords'
+      exact: 'template'
   - id: desc-dependency-confusion
     desc: Description mentions dependency confusion
     crit: notable
@@ -294,8 +313,8 @@ traits:
       - package.json
     if:
       type: kv
-      path: description
-      regex: dependency\s*confusion
+      path: 'description'
+      regex: 'dependency\s*confusion'
       case_insensitive: true
   - id: desc-placeholder-package
     desc: Description mentions placeholder package
@@ -305,27 +324,131 @@ traits:
       - package.json
     if:
       type: kv
-      path: description
-      substr: placeholder
+      path: 'description'
+      substr: 'placeholder'
       case_insensitive: true
-  - id: desc-prevent-squat
-    desc: Description claims to prevent squatting
-    crit: notable
-    conf: 0.75
-    for:
-      - package.json
+  - id: desc-prevent-squat-1
+    desc: Description claims to prevent squatting (prevent/protect)
     if:
       type: kv
-      path: description
-      regex: (prevent|protect|reserve|claim).{0,100}(squat|confusion|typo)
+      path: 'description'
+      regex: '(prevent|protect).{0,100}(squat|confusion|typo)'
       case_insensitive: true
+  - id: desc-prevent-squat-2
+    desc: Description claims to prevent squatting (reserve/claim)
+    if:
+      type: kv
+      path: 'description'
+      regex: '(reserve|claim).{0,100}(squat|confusion|typo)'
+      case_insensitive: true
+  - id: scoped-typosquat-1
+    desc: Scoped typosquat pattern 1
+    if:
+      type: string
+      regex: '"name":\s*"@[^/]{1,80}/(?:react|vue|angular)'
+  - id: scoped-typosquat-2
+    desc: Scoped typosquat pattern 2
+    if:
+      type: string
+      regex: '"name":\s*"@[^/]{1,80}/(?:express|lodash|axios)'
+  - id: js-placeholder-announcement-1a
+    desc: Code announces placeholder/fake package (pkg)
+    if:
+      type: string
+      regex: '(placeholder|fake|demo).{0,30}package'
+      case_insensitive: true
+  - id: js-placeholder-announcement-1b
+    desc: Code announces placeholder/fake package (module)
+    if:
+      type: string
+      regex: '(placeholder|fake|demo).{0,30}module'
+      case_insensitive: true
+  - id: js-placeholder-announcement-2
+    desc: Code announces placeholder/fake package (npm)
+    if:
+      type: string
+      regex: '(placeholder|fake|demo).{0,30}npm'
+      case_insensitive: true
+  - id: js-placeholder-announcement-3
+    desc: Code mentions "do not use"
+    if:
+      type: string
+      regex: 'do\s+not\s+use'
+      case_insensitive: true
+  - id: bug-bounty-marker-1
+    desc: Bug bounty marker 1
+    if:
+      type: string
+      case_insensitive: true
+      regex: 'bug\s*bounty|hackerone|bugcrowd'
+  - id: bug-bounty-marker-2
+    desc: Bug bounty marker 2
+    if:
+      type: string
+      case_insensitive: true
+      regex: 'proof\s*of\s*concept|\bPoC\b'
+  - id: local-stealer-import-1
+    desc: Local stealer import pattern 1
+    if:
+      type: string
+      regex: '(?:from|require\()\s*\./(?:stealer|grabber)'
+  - id: local-stealer-import-2
+    desc: Local stealer import pattern 2
+    if:
+      type: string
+      regex: '(?:from|require\()\s*\./(?:logger|exfil)'
+composite_rules:
+  - id: local-stealer-import
+    desc: Imports local stealer module
+    crit: suspicious
+    conf: 0.8
+    for:
+      - javascript
+      - typescript
+    any:
+      - id: local-stealer-import-1
+      - id: local-stealer-import-2
+  - id: bug-bounty-marker
+    desc: Bug bounty or security research
+    crit: notable
+    conf: 0.9
+    for:
+      - javascript
+      - package.json
+    any:
+      - id: bug-bounty-marker-1
+      - id: bug-bounty-marker-2
   - id: scoped-typosquat
     desc: Scoped package mimicking well-known package
     crit: suspicious
     conf: 0.85
-    if:
-      type: string
-      regex: '"name":\\s*"@[^/]{1,80}/(?:react|vue|angular|express|lodash|axios)'
+    any:
+      - id: scoped-typosquat-1
+      - id: scoped-typosquat-2
+  - id: placeholder-author-generic-1
+    desc: Author field contains generic placeholder (set 1)
+    any:
+      - id: placeholder-author-generic-1a
+      - id: placeholder-author-generic-1b
+  - id: placeholder-author-generic-2
+    desc: Author field contains generic placeholder (set 2)
+    any:
+      - id: placeholder-author-generic-2a
+      - id: placeholder-author-generic-2b
+  - id: placeholder-author-generic
+    desc: Author field contains generic placeholder
+    crit: notable
+    conf: 0.75
+    for:
+      - package.json
+    any:
+      - id: placeholder-author-generic-1
+      - id: placeholder-author-generic-2
+  - id: js-placeholder-announcement-1
+    desc: Code announces placeholder or fake package (set 1)
+    any:
+      - id: js-placeholder-announcement-1a
+      - id: js-placeholder-announcement-1b
   - id: js-placeholder-announcement
     desc: Code announces placeholder or fake package
     crit: suspicious
@@ -334,22 +457,56 @@ traits:
     attack: T1195.002
     for:
       - javascript
-    if:
-      type: string
-      regex: (?:placeholder|fake|demo).{0,30}(?:package|module|npm)|do\s+not\s+use
-      case_insensitive: true
-  - id: bug-bounty-marker
-    desc: Bug bounty or security research
+    any:
+      - id: js-placeholder-announcement-1
+      - id: js-placeholder-announcement-2
+      - id: js-placeholder-announcement-3
+  - id: desc-prevent-squat
+    desc: Description claims to prevent squatting
     crit: notable
-    conf: 0.9
+    conf: 0.75
+    for:
+      - package.json
+    any:
+      - id: desc-prevent-squat-1
+      - id: desc-prevent-squat-2
+  - id: cdn-keyword-facade
+    desc: CDN-related keywords
+    crit: notable
+    conf: 0.6
+    for:
+      - package.json
+    any:
+      - id: cdn-keyword-jsdelivr
+      - id: cdn-keyword-cdn
+      - id: cdn-keyword-cloudflare
+      - id: cdn-keyword-unpkg
+  - id: npm-data-exfil
+    desc: NPM package exfiltrates system info via HTTP
+    crit: notable
+    conf: 0.95
+    attack: T1020
+    mbc: E1041
     for:
       - javascript
-      - package.json
-    if:
-      type: string
-      case_insensitive: true
-      regex: bug\s*bounty|hackerone|bugcrowd|proof\s*of\s*concept|\bPoC\b
-composite_rules:
+    all:
+      - id: micro-traits/comm/http/post::post
+      - id: small-file-5k
+    any:
+      - id: objectives/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
+      - id: objectives/discovery/host/system/hardware-fingerprint::process-fingerprint-multi
+  - id: npm-victim-exfil
+    desc: NPM package sends victim ID via HTTP POST
+    crit: notable
+    conf: 0.92
+    attack: T1020
+    mbc: E1041
+    for:
+      - javascript
+    all:
+      - id: objectives/discovery/host/system/hardware-fingerprint::js-victim-id
+      - id: micro-traits/comm/http/post::post
+      - id: small-file-5k
   - id: has-exports
     desc: Module has exports
     crit: notable
@@ -359,7 +516,7 @@ composite_rules:
     any:
       - id: module-exports-pattern
       - id: exports-dot-pattern
-      - id: esm-export-pattern
+      - id: esm-export-pattern-key
   - id: dangerous-requires
     desc: Dangerous Node.js API imports
     crit: notable
@@ -456,7 +613,7 @@ composite_rules:
       - id: objectives/exfiltration/channel/oob::webhook-site
       - id: pipedream-domain
       - id: discord-webhook
-  - id: placeholder-no-repo
+  - id: placeholder-author-no-repo
     desc: Package with placeholder author and no repository URL
     crit: suspicious
     conf: 0.85
@@ -466,32 +623,6 @@ composite_rules:
       - id: placeholder-author-your-name
     none:
       - id: objectives/lateral-movement/supply-chain/npm/metadata::repository-key
-  - id: npm-data-exfil
-    desc: NPM package exfiltrates system info via HTTP
-    crit: hostile
-    conf: 0.95
-    attack: T1020
-    mbc: E1041
-    for:
-      - javascript
-    all:
-      - id: micro-traits/comm/http/post::post
-      - id: small-file-5k
-    any:
-      - id: objectives/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
-      - id: objectives/discovery/host/system/hardware-fingerprint::process-fingerprint-multi
-  - id: npm-victim-exfil
-    desc: NPM package sends victim ID via HTTP POST
-    crit: hostile
-    conf: 0.92
-    attack: T1020
-    mbc: E1041
-    for:
-      - javascript
-    all:
-      - id: objectives/discovery/host/system/hardware-fingerprint::js-victim-id
-      - id: micro-traits/comm/http/post::post
-      - id: small-file-5k
   - id: npm-sysinfo-http
     desc: NPM package with system info and HTTP POST
     crit: suspicious

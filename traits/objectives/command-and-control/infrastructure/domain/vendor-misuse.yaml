@@ -20,13 +20,32 @@ traits:
   if:
     type: string
     substr: 5334.com
-- id: generic-vendor-port-misuse
-  desc: Vendor subdomain on non-standard port
+- id: generic-vendor-port-8080
+  desc: Vendor subdomain on port 8080
   crit: notable
   conf: 0.7
   mbc: C0002
   attack: T1071.001
   if:
     type: string
-    regex: (?i)\b(?:update|crash|api)\.[\w-]+\.(?:qq|microsoft)\.com:(?:8080|8443)\b
-composite_rules: []
+    regex: (?i)\b(?:update|crash|api)\.[\w-]+\.(?:qq|microsoft)\.com:8080\b
+
+- id: generic-vendor-port-8443
+  desc: Vendor subdomain on port 8443
+  crit: notable
+  conf: 0.7
+  mbc: C0002
+  attack: T1071.001
+  if:
+    type: string
+    regex: (?i)\b(?:update|crash|api)\.[\w-]+\.(?:qq|microsoft)\.com:8443\b
+composite_rules:
+  - id: generic-vendor-port-misuse
+    desc: Vendor subdomain on non-standard port
+    crit: notable
+    conf: 0.7
+    mbc: C0002
+    attack: T1071.001
+    any:
+      - id: generic-vendor-port-8080
+      - id: generic-vendor-port-8443

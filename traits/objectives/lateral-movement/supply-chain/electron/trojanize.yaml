@@ -90,7 +90,8 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "Exodus|exodus"
+      substr: "exodus"
+      case_insensitive: true
 
   - id: ledger-live-path
     desc: Ledger Live path reference

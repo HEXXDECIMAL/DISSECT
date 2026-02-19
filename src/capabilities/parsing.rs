@@ -530,6 +530,59 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
 }
 
 /// Check that the regex pattern in a condition does not exceed 80 bytes.
+const MAX_REGEX_OR_SYMBOLS: usize = 3;
+
+/// Count regex alternation symbols (`|`) outside character classes.
+fn count_regex_or_symbols(pattern: &str) -> usize {
+    let mut count = 0usize;
+    let mut in_char_class = false;
+    let mut escaped = false;
+
+    for ch in pattern.chars() {
+        if escaped {
+            escaped = false;
+            continue;
+        }
+
+        match ch {
+            '\\' => escaped = true,
+            '[' if !in_char_class => in_char_class = true,
+            ']' if in_char_class => in_char_class = false,
+            '|' if !in_char_class => count += 1,
+            _ => {}
+        }
+    }
+
+    count
+}
+
+/// Detect simple alphanumeric alternation chains like:
+/// `word1|word2|word3` or `^word1|word2$` (after anchor stripping).
+/// These should be split into atomic exact/word traits instead of regex.
+fn is_simple_alphanumeric_or_chain(pattern: &str) -> bool {
+    let mut p = pattern.trim();
+    if let Some(stripped) = p.strip_prefix('^') {
+        p = stripped;
+    }
+    if let Some(stripped) = p.strip_suffix('$') {
+        p = stripped;
+    }
+
+    // Must be an alternation to trigger this rule.
+    if !p.contains('|') {
+        return false;
+    }
+
+    let parts: Vec<&str> = p.split('|').collect();
+    if parts.len() < 2 {
+        return false;
+    }
+
+    parts.into_iter().all(|part| {
+        !part.is_empty() && part.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+    })
+}
+
 fn check_regex_length(
     trait_id: &str,
     condition: &crate::composite_rules::Condition,
@@ -556,6 +609,25 @@ fn check_regex_length(
                 "Trait '{}': regex pattern exceeds 80 bytes ({} bytes): {:?}",
                 trait_id,
                 pattern.len(),
+                pattern
+            ));
+        }
+
+        let or_symbol_count = count_regex_or_symbols(pattern);
+        if or_symbol_count > MAX_REGEX_OR_SYMBOLS {
+            warnings.push(format!(
+                "Trait '{}': regex uses too many '|' symbols ({} > {}): {:?}",
+                trait_id,
+                or_symbol_count,
+                MAX_REGEX_OR_SYMBOLS,
+                pattern
+            ));
+        }
+
+        if is_simple_alphanumeric_or_chain(pattern) {
+            warnings.push(format!(
+                "Trait '{}': regex is a simple alphanumeric alternation chain. Use atomic exact/word traits instead: {:?}",
+                trait_id,
                 pattern
             ));
         }
@@ -1003,6 +1075,58 @@ mod tests {
         let mut warnings = Vec::new();
         super::check_regex_length("test-trait", &condition, &mut warnings);
         assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_regex_or_symbol_limit_warns() {
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some("a|b|c|d|e".to_string()),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(warnings.iter().any(|w| w.contains("too many '|' symbols")));
+    }
+
+    #[test]
+    fn test_regex_or_symbol_limit_allows_escaped_and_charclass_pipes() {
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(r"a\|b|[|]|c|d".to_string()),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(!warnings.iter().any(|w| w.contains("too many '|' symbols")));
+    }
+
+    #[test]
+    fn test_simple_alphanumeric_alternation_warns() {
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some("word1|word2|word3".to_string()),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(warnings.iter().any(|w| w.contains("simple alphanumeric alternation chain")));
+    }
+
+    #[test]
+    fn test_non_simple_alternation_does_not_warn() {
+        let condition = crate::composite_rules::Condition::Basename {
+            exact: None,
+            substr: None,
+            regex: Some(r"word1|word-2|\d+".to_string()),
+            case_insensitive: false,
+        };
+        let mut warnings = Vec::new();
+        super::check_regex_length("test-trait", &condition, &mut warnings);
+        assert!(!warnings.iter().any(|w| w.contains("simple alphanumeric alternation chain")));
     }
 }
 

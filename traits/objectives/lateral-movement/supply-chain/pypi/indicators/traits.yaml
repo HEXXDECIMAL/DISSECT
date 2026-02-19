@@ -374,7 +374,7 @@ composite_rules:
     platforms: [all]
     all:
       - id: objectives/lateral-movement/supply-chain/pypi/general::is-pkginfo-file
-      - id: objectives/lateral-movement/supply-chain/pypi/name::pkginfo-name-malware-term
+      - id: objectives/lateral-movement/supply-chain/pypi/name::pkginfo-name-malware-term-any
       - id: objectives/lateral-movement/supply-chain/pypi/email::pkginfo-privacy-email
       - id: objectives/lateral-movement/supply-chain/pypi/homepage::pkginfo-no-homepage
 

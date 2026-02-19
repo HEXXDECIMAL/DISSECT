@@ -1,3 +1,6 @@
+defaults:
+  for: [javascript, typescript]
+
 traits:
 - id: has-try-catch
   desc: Code has try-catch error handling
@@ -28,16 +31,16 @@ traits:
   if:
     type: string
     regex: ^(?:export\s+)?(?:interface|type)\s+[A-Z]
-- id: has-buffer-encoding
-  desc: Code uses Buffer with explicit encoding
-  crit: notable
-  conf: 0.7
-  for:
-  - javascript
-  - typescript
+- id: has-buffer-encoding-1
+  desc: Code uses Buffer (utf8/ascii)
   if:
     type: string
-    regex: Buffer\.from\(.{1,220},\s*['"](?:utf8|utf-8|ascii|hex|binary)['"]\)
+    regex: Buffer\.from\(.{1,220},\s*['"](utf8|utf-8|ascii)['"]\)
+- id: has-buffer-encoding-2
+  desc: Code uses Buffer (hex/binary)
+  if:
+    type: string
+    regex: Buffer\.from\(.{1,220},\s*['"](hex|binary)['"]\)
 - id: has-callback-pattern
   desc: Code uses Node.js callback pattern
   crit: notable
@@ -57,16 +60,16 @@ traits:
   if:
     type: string
     substr: '''use strict'''
-- id: has-validation
-  desc: Code uses schema validation
-  crit: notable
-  conf: 0.85
-  for:
-  - javascript
-  - typescript
+- id: has-validation-libs
+  desc: Code uses validation libraries (joi/zod/etc)
   if:
     type: string
-    regex: require\(['"](?:joi|yup|zod|ajv)['"]\)|z\.object\(|Joi\.object\(
+    regex: require\(['"](joi|yup|zod|ajv)['"]\)
+- id: has-validation-calls
+  desc: Code uses validation object calls
+  if:
+    type: string
+    regex: (z|Joi)\.object\(
 - id: has-config-assignment
   desc: Code uses assigned configuration objects
   crit: notable
@@ -87,36 +90,36 @@ traits:
   if:
     type: string
     regex: function\s*\(.{0,220}(?:config|options|settings)\)
-- id: has-logging-import
-  desc: Code imports a logging library
-  crit: notable
-  conf: 0.8
-  for:
-  - javascript
-  - typescript
+- id: has-logging-import-1
+  desc: Code imports logging (winston/pino/bunyan)
   if:
     type: string
-    regex: require\(['"](?:winston|pino|bunyan|log4js|debug)['"]\)
-- id: has-logging-usage
-  desc: Code uses logging APIs
-  crit: notable
-  conf: 0.8
-  for:
-  - javascript
-  - typescript
+    regex: require\(['"](winston|pino|bunyan)['"]\)
+- id: has-logging-import-2
+  desc: Code imports logging (log4js/debug)
   if:
     type: string
-    regex: logger\.|log\.(?:info|warn|error|debug)
-- id: has-database-import
-  desc: Code imports database libraries
-  crit: notable
-  conf: 0.8
-  for:
-  - javascript
-  - typescript
+    regex: require\(['"](log4js|debug)['"]\)
+- id: has-logging-usage-1
+  desc: Code uses logging APIs (info/warn)
   if:
     type: string
-    regex: require\(['"](?:mongoose|sequelize|knex|pg|mysql|mongodb)['"]\)
+    regex: logger\.|log\.(info|warn)
+- id: has-logging-usage-2
+  desc: Code uses logging APIs (error/debug)
+  if:
+    type: string
+    regex: log\.(error|debug)
+- id: has-database-import-1
+  desc: Code imports database (mongoose/sequelize/knex)
+  if:
+    type: string
+    regex: require\(['"](mongoose|sequelize|knex)['"]\)
+- id: has-database-import-2
+  desc: Code imports database (pg/mysql/mongodb)
+  if:
+    type: string
+    regex: require\(['"](pg|mysql|mongodb)['"]\)
 - id: has-database-usage
   desc: Code uses database APIs
   crit: notable
@@ -147,16 +150,61 @@ traits:
   if:
     type: string
     regex: program\.(?:command|option)\(
+- id: has-typescript-types-1
+  desc: Code has TS type annotations (base)
+  if:
+    type: string
+    regex: ':\s*(string|number|boolean|object)\b'
+- id: has-typescript-types-2
+  desc: Code has TS type annotations (extra)
+  if:
+    type: string
+    regex: ':\s*(any|void|Array|Promise)\b'
+composite_rules:
+- id: has-buffer-encoding
+  desc: Code uses Buffer with explicit encoding
+  crit: notable
+  conf: 0.7
+  for:
+  - javascript
+  - typescript
+  any:
+    - id: has-buffer-encoding-1
+    - id: has-buffer-encoding-2
+- id: has-validation
+  desc: Code uses schema validation
+  crit: notable
+  conf: 0.85
+  for:
+  - javascript
+  - typescript
+  any:
+    - id: has-validation-libs
+    - id: has-validation-calls
+- id: has-logging-import
+  desc: Code imports a logging library
+  any:
+    - id: has-logging-import-1
+    - id: has-logging-import-2
+- id: has-logging-usage
+  desc: Code uses logging APIs
+  any:
+    - id: has-logging-usage-1
+    - id: has-logging-usage-2
+- id: has-database-import
+  desc: Code imports database libraries
+  any:
+    - id: has-database-import-1
+    - id: has-database-import-2
 - id: has-typescript-types
   desc: Code has TypeScript type annotations
   crit: notable
   conf: 0.9
   for:
   - typescript
-  if:
-    type: string
-    regex: :\s*(?:string|number|boolean|object|any|void|Array|Promise)\b
-composite_rules:
+  any:
+    - id: has-typescript-types-1
+    - id: has-typescript-types-2
 - id: has-config-object
   desc: Code uses configuration objects
   crit: notable
@@ -174,7 +222,7 @@ composite_rules:
   for:
   - javascript
   - typescript
-  any:
+  all:
   - id: has-logging-import
   - id: has-logging-usage
 - id: has-database
@@ -184,7 +232,7 @@ composite_rules:
   for:
   - javascript
   - typescript
-  any:
+  all:
   - id: has-database-import
   - id: has-database-usage
 - id: has-cli-args

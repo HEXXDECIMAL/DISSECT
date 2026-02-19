@@ -44,13 +44,21 @@ traits:
       type: string
       regex: "(giithub|githhub|githuub|githubb)\\.[a-z]{2,}"
 
-  - id: typosquat-letter-swap
-    desc: Letter swap typosquat
+  - id: typosquat-letter-swap-1
+    desc: Letter swap typosquat 1
     crit: suspicious
     conf: 0.80
     if:
       type: string
-      regex: "(githuk\\.|gihhub\\.|gituhb\\.|githbu\\.|githyb\\.)[a-z]{2,}"
+      regex: "(githuk\\.|gihhub\\.|gituhb\\.)[a-z]{2,}"
+
+  - id: typosquat-letter-swap-2
+    desc: Letter swap typosquat 2
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: string
+      regex: "(githbu\\.|githyb\\.)[a-z]{2,}"
 
   # === Popular Service Typosquatting ===
   - id: typosquat-google-domain
@@ -116,7 +124,8 @@ composite_rules:
       - id: typosquat-githab-domain
       - id: typosquat-githup-domain
       - id: typosquat-double-letter
-      - id: typosquat-letter-swap
+      - id: typosquat-letter-swap-1
+      - id: typosquat-letter-swap-2
 
   - id: popular-service-typosquat
     desc: Popular service typosquatting

@@ -1,6 +1,6 @@
 traits:
-- id: useradd-command
-  desc: useradd user creation command
+- id: useradd-command-base
+  desc: useradd/adduser base command
   crit: notable
   conf: 0.75
   for:
@@ -8,7 +8,18 @@ traits:
   - shell
   if:
     type: string
-    regex: (useradd|adduser|/usr/sbin/useradd|useradd -m|adduser --disabled-password)
+    regex: (useradd|adduser|/usr/sbin/useradd)
+  attack: T1136.001
+- id: useradd-command-flags
+  desc: useradd/adduser with creation flags
+  crit: notable
+  conf: 0.75
+  for:
+  - elf
+  - shell
+  if:
+    type: string
+    regex: (useradd -m|adduser --disabled-password)
   attack: T1136.001
 - id: user-bash-shell
   desc: Create user with bash shell
@@ -118,6 +129,12 @@ traits:
     type: string
     substr: cp -r /etc/skel
 composite_rules:
+- id: useradd-command
+  desc: useradd user creation command
+  crit: notable
+  any:
+    - id: useradd-command-base
+    - id: useradd-command-flags
 - id: account-creation
   desc: User account creation
   crit: suspicious

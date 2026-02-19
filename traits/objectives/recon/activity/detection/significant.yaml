@@ -18,4 +18,3 @@ composite_rules:
         - id: objectives/lateral-movement/supply-chain/npm/testing::has-assertions
         - id: metadata/library/nodeunit::nodeunit
         - id: metadata/library/nodeunit::nodeunit-require
-        # - id: metadata/library/nodeunit::nodeunit

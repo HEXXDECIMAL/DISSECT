@@ -37,29 +37,78 @@ traits:
       - id: metadata/library/jquery::domain
       - id: metadata/quality/help::usage-title
 
-  - id: wscript-shell-fragment-tiny-exact
-    desc: Exact tiny WScript fragments (WScr, ipt., She,
+  - id: wscript-shell-fragment-tiny-exact-1
+    desc: Exact tiny WScript fragments (WScr, ipt.)
     crit: notable
     if:
       type: string
-      regex: '^(WScr|ipt\.|She|ll)$'
+      regex: '^(WScr|ipt\.)$'
     unless:
       - id: metadata/quality/help::usage-title
+
+  - id: wscript-shell-fragment-tiny-exact-2
+    desc: Exact tiny WScript fragments (She, ll)
+    crit: notable
+    if:
+      type: string
+      regex: '^(She|ll)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: timing-fragment-tiny-exact-1
+    desc: Tiny timing fragments (Sl, eep, Date)
+    crit: notable
+    if:
+      type: string
+      regex: '^(Sl|eep|Date)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: timing-fragment-tiny-exact-2
+    desc: Tiny timing fragments (Mill, illi, onds)
+    crit: notable
+    if:
+      type: string
+      regex: '^(Mill|illi|onds)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: payload-handling-fragment-tiny-exact-1
+    desc: Tiny payload fragments (Respo, nseBo, saveT)
+    crit: notable
+    if:
+      type: string
+      regex: '^(Respo|nseBo|saveT)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+  - id: payload-handling-fragment-tiny-exact-2
+    desc: Tiny payload fragments (oFile, Expa, ndEn, viron)
+    crit: notable
+    if:
+      type: string
+      regex: '^(oFile|Expa|ndEn|viron)$'
+    unless:
+      - id: metadata/quality/help::usage-title
+
+composite_rules:
+  - id: wscript-shell-fragment-tiny-exact
+    desc: Exact tiny WScript fragments
+    crit: notable
+    any:
+      - id: wscript-shell-fragment-tiny-exact-1
+      - id: wscript-shell-fragment-tiny-exact-2
 
   - id: timing-fragment-tiny-exact
-    desc: Exact tiny timing/delay fragments (Sl, eep, Date,
+    desc: Exact tiny timing/delay fragments
     crit: notable
-    if:
-      type: string
-      regex: '^(Sl|eep|Date|Mill|illi|onds)$'
-    unless:
-      - id: metadata/quality/help::usage-title
+    any:
+      - id: timing-fragment-tiny-exact-1
+      - id: timing-fragment-tiny-exact-2
 
   - id: payload-handling-fragment-tiny-exact
-    desc: Exact tiny payload handling fragments (ResponseBody, SaveToFile,
+    desc: Exact tiny payload handling fragments
     crit: notable
-    if:
-      type: string
-      regex: '^(Respo|nseBo|saveT|oFile|Expa|ndEn|viron)$'
-    unless:
-      - id: metadata/quality/help::usage-title
+    any:
+      - id: payload-handling-fragment-tiny-exact-1
+      - id: payload-handling-fragment-tiny-exact-2

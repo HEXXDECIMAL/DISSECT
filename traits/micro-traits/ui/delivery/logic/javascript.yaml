@@ -2,7 +2,7 @@
 # Detects patterns related to dynamic ad or malicious content delivery
 
 defaults:
-  for: [all]
+  for: [javascript, typescript, html, package.json]
 
 traits:
   - id: ui-delivery-class
@@ -35,7 +35,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '(?i)(delivery|ad[s]?)'
+      regex: '(?i)\b(delivery|ads?)\b'
 
   - id: dynamic-ad-injection-keyword-b
     desc: Promo keyword
@@ -43,7 +43,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '(?i)promo'
+      regex: '(?i)\bpromo\b'
 
   - id: news-delivery-pattern
     desc: Potential malicious news or content delivery pattern

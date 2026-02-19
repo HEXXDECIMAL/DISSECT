@@ -28,4 +28,4 @@ composite_rules:
     for: [javascript, typescript]
     all:
       - id: micro-traits/os/env/vars::npm-package-info
-      - id: micro-traits/comm/http/post::post-method
+      - id: micro-traits/comm/http/post/

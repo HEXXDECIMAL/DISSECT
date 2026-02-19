@@ -1,3 +1,4 @@
+---
 # PTY-based Reverse Shell Patterns
 # ATT&CK: T1059 (Command and Scripting Interpreter)
 # Detects interactive shell spawning via PTY
@@ -14,8 +15,6 @@ traits:
       substr: "socket"
 
   # === Python subprocess micro-traits ===
-  # Removed duplicate - use micro-traits/comm/socket/connect::socket-socket-call
-
   - id: socket-connect
     desc: .connect( socket method
     crit: notable
@@ -101,8 +100,6 @@ traits:
       type: string
       substr: "socket.connect"
 
-  # Removed websocket-ref duplicate - use micro-traits/comm/http/websocket::websocket-class
-
   # === STDIO piping micro-traits ===
   - id: stdin-string
     desc: stdin string reference
@@ -148,60 +145,6 @@ traits:
     if:
       type: raw
       regex: "\\.PIPE\\b"
-
-  # === Interactive shell micro-traits ===
-  # Removed isatty-call duplicate - use micro-traits/process/terminal/tty::isatty (symbol works for all file types)
-
-  - id: ttyname-call
-    desc: ttyname function call
-    crit: notable
-    conf: 0.5
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "ttyname"
-
-  # Removed dev-tty duplicate - use micro-traits/fs/path/device/terminal::dev-tty
-
-  - id: term-env
-    desc: TERM= environment setting
-    crit: notable
-    conf: 0.3
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "TERM="
-
-  - id: xterm-ref
-    desc: xterm terminal reference
-    crit: notable
-    conf: 0.3
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "xterm"
-
-  - id: stty-cmd
-    desc: stty command reference
-    crit: notable
-    conf: 0.4
-    for: [python, javascript, shell]
-    # NOTE: stty alone is legitimate (reading user input in installers)
-    # Only suspicious when combined with socket/network operations
-    if:
-      type: string
-      exact: "stty"
-
-  - id: raw-mode
-    desc: raw mode reference
-    crit: notable
-    conf: 0.4
-    for: [python, javascript, shell]
-    if:
-      type: string
-      # Match "raw mode", "setraw", "cfmakeraw", "stty raw" etc.
-      # Avoid matching "draw", "drawing" etc.
-      regex: "\\braw\\s*(mode)?\\b|setraw|cfmakeraw|stty\\s+raw"
 
   # === Socat atomic indicators ===
   - id: socat-exec-sh
@@ -384,27 +327,6 @@ composite_rules:
       any:
         - id: metadata/quality/testing::unittest-module
 
-  # TTY marker composite
-  - id: tty-markers
-    desc: TTY device markers
-    crit: notable
-    conf: 0.5
-    any:
-      - id: micro-traits/process/terminal/tty::isatty
-      - id: ttyname-call
-      - id: micro-traits/fs/path/device/terminal::dev-tty
-
-  # Terminal setup composite
-  - id: terminal-setup
-    desc: Terminal setup markers
-    crit: notable
-    conf: 0.4
-    any:
-      - id: term-env
-      - id: xterm-ref
-      - id: stty-cmd
-      - id: raw-mode
-
   # Interactive shell markers (migrated from YARA)
   # NOTE: TTY manipulation alone is legitimate (e.g., reading user input)
   # Only flag as suspicious when combined with network/socket operations
@@ -414,14 +336,10 @@ composite_rules:
     conf: 0.7
     attack: "T1059"
     for: [python, javascript, shell]
-    needs: 3
+    needs: 2
     any:
-      - id: tty-markers
-      - id: terminal-setup
-      - id: micro-traits/process/terminal/tty::isatty
-      - id: ttyname-call
+      - id: micro-traits/process/terminal/tty/
       - id: micro-traits/fs/path/device/terminal::dev-tty
-      - id: stty-cmd
 
   # Socat composite
   - id: socat
@@ -439,7 +357,7 @@ composite_rules:
   - id: telnet
     desc: Telnet-based reverse shell
     crit: suspicious
-    conf: 0.9
+    conf: 0.95
     attack: "T1059.004"
     for: [shell, package.json]
     any:

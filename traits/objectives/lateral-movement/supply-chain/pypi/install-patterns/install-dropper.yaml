@@ -170,14 +170,18 @@ traits:
   if:
     type: string
     regex: '[Ii]nstalling dependencies.{0,50}(?:please wait|please be patient)'
-- id: surveillance-deps-install
-  desc: Surveillance library mass installation
-  crit: suspicious
-  conf: 0.9
-  attack: T1059.006
+
+- id: surveillance-deps-install-1
+  desc: Surveillance library (screens/input)
   if:
     type: string
-    regex: pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput|pyperclip|keyring)
+    regex: pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput)
+- id: surveillance-deps-install-2
+  desc: Surveillance library (clip/key)
+  if:
+    type: string
+    regex: pip install.{0,200}(?:pyperclip|keyring)
+
 - id: cmd-move-rename
   desc: Windows cmd /c move file rename
   crit: notable
@@ -240,13 +244,18 @@ traits:
   if:
     type: string
     regex: -m\s+pip
-- id: python-release-impersonation-url
-  desc: Fake Python release URL
-  crit: suspicious
-  conf: 0.95
+
+- id: python-release-impersonation-url-1
+  desc: Fake Python release (exe/scr/msi)
   if:
     type: string
-    regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi|bat|cmd)
+    regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi)
+- id: python-release-impersonation-url-2
+  desc: Fake Python release (bat/cmd)
+  if:
+    type: string
+    regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(bat|cmd)
+
 - id: powershell-download-cmd-a
   desc: PowerShell download command in string
   crit: suspicious
@@ -274,16 +283,55 @@ traits:
     type: string
     regex: 'https?://|\$env:'
     case_insensitive: true
+
+- id: admin-install-social-engineering-1a
+  desc: Admin install SE (root/admin/sudo)
+  if:
+    type: string
+    regex: (?:admin|root|sudo)
+    case_insensitive: true
+- id: admin-install-social-engineering-1b
+  desc: Admin install SE (permission/privilege/right)
+  if:
+    type: string
+    regex: (?:permission|privilege|right)
+    case_insensitive: true
+- id: admin-install-social-engineering-2
+  desc: Admin install SE (install/run)
+  if:
+    type: string
+    regex: (?:install|run)
+    case_insensitive: true
+
+composite_rules:
+- id: admin-install-social-engineering-1
+  desc: Admin install SE (privileged terminology)
+  all:
+    - id: admin-install-social-engineering-1a
+    - id: admin-install-social-engineering-1b
+- id: surveillance-deps-install
+  desc: Surveillance library mass installation
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.006
+  all:
+    - id: surveillance-deps-install-1
+    - id: surveillance-deps-install-2
+- id: python-release-impersonation-url
+  desc: Fake Python release URL
+  crit: suspicious
+  conf: 0.95
+  any:
+    - id: python-release-impersonation-url-1
+    - id: python-release-impersonation-url-2
 - id: admin-install-social-engineering
   desc: Social engineering admin install request
   crit: suspicious
   conf: 0.9
   attack: T1204.001
-  if:
-    type: string
-    regex: (?:admin|root|sudo).{0,12}(?:permission|privilege|right).{0,12}(?:install|run)
-    case_insensitive: true
-composite_rules:
+  all:
+    - id: admin-install-social-engineering-1
+    - id: admin-install-social-engineering-2
 - id: windows-start-command
   desc: Windows start command execution
   crit: suspicious

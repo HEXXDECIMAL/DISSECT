@@ -10,22 +10,70 @@ defaults:
 
 traits:
   # === Download and Execute function patterns ===
-  - id: download-and-execute-func
-    desc: download_and_execute function
+  - id: download-and-execute-func-1
+    desc: download_and_execute function (snake_case)
     crit: suspicious
     conf: 0.9
     if:
       type: symbol
-      regex: "download_and_execute|download_execute|downloadAndExecute|downloadExecute"
+      substr: "download_and_execute"
+
+  - id: download-and-execute-func-2
+    desc: download_execute function (snake_case)
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: symbol
+      substr: "download_execute"
+
+  - id: download-and-execute-func-3
+    desc: downloadAndExecute function (camelCase)
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: symbol
+      substr: "downloadAndExecute"
+
+  - id: download-and-execute-func-4
+    desc: downloadExecute function (camelCase)
+    crit: suspicious
+    conf: 0.9
+    if:
+      type: symbol
+      substr: "downloadExecute"
 
   # === Process checking patterns (anti-duplicate infection) ===
-  - id: is-process-running-func
-    desc: is_process_running function
+  - id: is-process-running-func-1
+    desc: is_process_running function (snake_case)
     crit: notable
     conf: 0.85
     if:
       type: string
-      regex: "is_process_running|isProcessRunning|check_if_running|process_running"
+      substr: "is_process_running"
+
+  - id: is-process-running-func-2
+    desc: isProcessRunning function (camelCase)
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "isProcessRunning"
+
+  - id: is-process-running-func-3
+    desc: check_if_running function
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "check_if_running"
+
+  - id: is-process-running-func-4
+    desc: process_running function
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "process_running"
 
   # === MD5-based process validation (anti-analysis/integrity) ===
   - id: kill-process-md5
@@ -93,6 +141,26 @@ traits:
       regex: "http.{0,60}/bin($|\"|\\')"
 
 composite_rules:
+  - id: download-and-execute-func
+    desc: download_and_execute function patterns
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: download-and-execute-func-1
+      - id: download-and-execute-func-2
+      - id: download-and-execute-func-3
+      - id: download-and-execute-func-4
+
+  - id: is-process-running-func
+    desc: is_process_running function patterns
+    crit: notable
+    conf: 0.85
+    any:
+      - id: is-process-running-func-1
+      - id: is-process-running-func-2
+      - id: is-process-running-func-3
+      - id: is-process-running-func-4
+
   # Process checking + killing = anti-duplicate infection
   - id: anti-duplicate-infection
     desc: Anti-duplicate infection pattern
@@ -114,7 +182,3 @@ composite_rules:
     any:
       - id: http-ip-port-url
       - id: download-and-execute-func
-
-  # Dropper with multiple persistence locations
-  # Complexity: file_types:+1, all:+3 = 4 (hostile allowed)
-

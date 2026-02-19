@@ -1,5 +1,5 @@
 defaults:
-  for: [all]
+  for: [scripts]
 
 traits:
 - id: anti-forensics-cleanup-a

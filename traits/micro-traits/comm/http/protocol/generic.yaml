@@ -1,0 +1,11 @@
+defaults:
+  crit: notable
+  conf: 0.7
+  for: [all]
+
+traits:
+  - id: http
+    desc: HTTP protocol indicator
+    if:
+      type: string
+      regex: 'https?://|HTTP/1\.[01]|HTTP/2'

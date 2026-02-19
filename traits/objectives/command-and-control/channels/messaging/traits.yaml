@@ -38,8 +38,7 @@ composite_rules:
     attack: "T1071.001"
     conf: 0.5
     any:
-      - id: micro-traits/comm/http/post::post-method
-      - id: micro-traits/comm/http/post::post
+      - id: micro-traits/comm/http/post/
 
   - id: dns-query
     desc: DNS queries (potential C2 channel)

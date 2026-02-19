@@ -17,45 +17,82 @@ defaults:
 
 traits:
 
-  - id: arch-macro-detection
-    desc: Architecture detection macros
+  - id: arch-macro-detection-1
+    desc: Architecture detection macros (x86/arm)
     crit: notable
     conf: 0.8
     for: [c]
     if:
       type: raw
-      regex: "#ifdef\\s+__(?:x86_64|arm|i386|aarch64)__"
+      regex: "#ifdef\\s+__(?:x86_64|arm|i386)__"
 
-  - id: arch-const-mapping
-    desc: Multi-architecture numeric constant mapping
+  - id: arch-macro-detection-2
+    desc: Architecture detection macros (aarch64)
+    crit: notable
+    conf: 0.8
+    for: [c]
+    if:
+      type: raw
+      regex: "#ifdef\\s+__(?:aarch64)__"
+
+  - id: arch-const-mapping-1
+    desc: Multi-architecture numeric constant mapping (x86/arm)
     crit: notable
     conf: 0.85
     for: [c]
     if:
       type: raw
-      regex: "#elif\\s+__(?:x86_64|arm|i386|aarch64)__"
+      regex: "#elif\\s+__(?:x86_64|arm|i386)__"
       count_min: 2
 
-  - id: arch-aware-lib-filter
-    desc: Architecture-aware library filtering
+  - id: arch-const-mapping-2
+    desc: Multi-architecture numeric constant mapping (aarch64)
+    crit: notable
+    conf: 0.85
+    for: [c]
+    if:
+      type: raw
+      regex: "#elif\\s+__(?:aarch64)__"
+      count_min: 2
+
+  - id: arch-aware-lib-filter-1
+    desc: Architecture-aware library filtering (x86/arm)
     crit: suspicious
     conf: 0.9
     for: [c]
     if:
       type: raw
-      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:x86_64|arm|i386|aarch64|linux)"\s*\)'
+      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:x86_64|arm|i386)"\s*\)'
+
+  - id: arch-aware-lib-filter-2
+    desc: Architecture-aware library filtering (aarch64/linux)
+    crit: suspicious
+    conf: 0.9
+    for: [c]
+    if:
+      type: raw
+      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:aarch64|linux)"\s*\)'
 
   # === Library Resolver Function Patterns ===
   # Function naming patterns that suggest library resolution code
 
-  - id: resolve-library-fn
-    desc: Library resolver function name
+  - id: resolve-library-fn-1
+    desc: Library resolver function name (resolve/search)
     crit: notable
     conf: 0.75
     for: [c]
     if:
       type: raw
-      regex: "(?i)\\b(?:resolve|search|find|lookup)[_-]?(?:lib(?:rary)?|so|shared)\\b"
+      regex: "(?i)\\b(?:resolve|search)[_-]?(?:lib(?:rary)?|so|shared)\\b"
+
+  - id: resolve-library-fn-2
+    desc: Library resolver function name (find/lookup)
+    crit: notable
+    conf: 0.75
+    for: [c]
+    if:
+      type: raw
+      regex: "(?i)\\b(?:find|lookup)[_-]?(?:lib(?:rary)?|so|shared)\\b"
 
   - id: global-search-library-fn
     desc: Global library search function
@@ -91,6 +128,38 @@ traits:
       substr: "MDQueryCreate"
 
 composite_rules:
+  - id: arch-macro-detection
+    desc: Architecture detection macros
+    crit: notable
+    conf: 0.8
+    any:
+      - id: arch-macro-detection-1
+      - id: arch-macro-detection-2
+
+  - id: arch-const-mapping
+    desc: Multi-architecture numeric constant mapping
+    crit: notable
+    conf: 0.85
+    any:
+      - id: arch-const-mapping-1
+      - id: arch-const-mapping-2
+
+  - id: arch-aware-lib-filter
+    desc: Architecture-aware library filtering
+    crit: suspicious
+    conf: 0.9
+    any:
+      - id: arch-aware-lib-filter-1
+      - id: arch-aware-lib-filter-2
+
+  - id: resolve-library-fn
+    desc: Library resolver function name
+    crit: notable
+    conf: 0.75
+    any:
+      - id: resolve-library-fn-1
+      - id: resolve-library-fn-2
+
   # Spotlight application enumeration
   - id: spotlight-app-enum
     desc: Spotlight application enumeration

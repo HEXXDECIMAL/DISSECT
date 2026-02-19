@@ -302,14 +302,6 @@ composite_rules:
       - id: keyword-grab
       - id: keyword-steal
 
-  - id: keyword-target-patterns
-    desc: Keywords contain target app terms
-    crit: notable
-    conf: 0.5
-    any:
-      - id: keyword-discord
-      - id: keyword-token
-
   # === Keyword theft + target combo ===
 
   - id: keyword-theft-target-combo
@@ -318,7 +310,8 @@ composite_rules:
     conf: 0.85
     all:
       - id: keyword-theft-patterns
-      - id: keyword-target-patterns
+      - id: keyword-discord
+      - id: keyword-token
 
   # === Suspicious name without metadata ===
   # Malicious packages often have minimal metadata
@@ -360,6 +353,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: name-theft-target-combo
-      - id: keyword-target-patterns
+      - id: keyword-discord
+      - id: keyword-token
     none:
       - id: objectives/lateral-movement/supply-chain/npm/metadata::npm-has-repository
