@@ -121,18 +121,6 @@ fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
     Some(decoded)
 }
 
-/// Check if raw bytes represent a hex-encoded payload (for direct use by tests/external callers)
-pub fn is_hex_encoded(data: &[u8]) -> bool {
-    let Ok(s) = std::str::from_utf8(data) else { return false };
-    is_hex_string(s.trim())
-}
-
-/// Decode raw hex-encoded bytes into the original payload
-pub fn decode_hex(data: &[u8]) -> Option<Vec<u8>> {
-    let s = std::str::from_utf8(data).ok()?;
-    decode_hex_string(s.trim())
-}
-
 /// Maximum size for decompressed payloads to prevent decompression bombs
 const MAX_DECOMPRESSED_SIZE: usize = 50 * 1024 * 1024; // 50 MB
 
