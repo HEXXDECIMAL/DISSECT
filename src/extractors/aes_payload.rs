@@ -195,7 +195,7 @@ fn is_valid_key_length(algo: &str, len: usize) -> bool {
 }
 
 /// Decrypt AES-256-CBC ciphertext
-fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
+pub(crate) fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
     use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
     type Aes256CbcDec = cbc::Decryptor<aes::Aes256>;
 
@@ -213,7 +213,7 @@ fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u
 }
 
 /// Decrypt AES-128-CBC ciphertext
-fn decrypt_aes_128_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
+pub(crate) fn decrypt_aes_128_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> Option<Vec<u8>> {
     use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
     type Aes128CbcDec = cbc::Decryptor<aes::Aes128>;
 

@@ -5,7 +5,7 @@
 use dissect::analyzers::pe::PEAnalyzer;
 use dissect::analyzers::Analyzer;
 use dissect::memory_tracker::{
-    get_current_rss, global_tracker, log_after_file_processing, log_before_file_processing,
+    current_rss, global_tracker, log_after_file_processing, log_before_file_processing,
 };
 use std::env;
 use std::fs;
@@ -24,7 +24,7 @@ fn format_bytes(bytes: u64) -> String {
 }
 
 fn log_memory(label: &str) {
-    if let Some(rss) = get_current_rss() {
+    if let Some(rss) = current_rss() {
         println!("[{}] RSS: {}", label, format_bytes(rss));
     } else {
         println!("[{}] RSS: Unable to determine", label);
@@ -129,7 +129,7 @@ fn main() -> anyhow::Result<()> {
     log_memory("END");
 
     // Final stats
-    if let Some(peak_rss) = get_current_rss() {
+    if let Some(peak_rss) = current_rss() {
         println!();
         println!("=== Summary ===");
         println!("File size: {}", format_bytes(file_size));

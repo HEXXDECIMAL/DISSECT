@@ -9,15 +9,17 @@ mod tests {
     use aes::cipher::{block_padding::Pkcs7, BlockEncryptMut, KeyIvInit};
 
     // Helper to encrypt test data with AES-256-CBC
-    fn encrypt_aes_256_cbc(plaintext: &[u8], key: &[u8], iv: &[u8]) -> Vec<u8> {
+    fn encrypt_aes_256_cbc(plaintext: &[u8], key: &[u8], iv: &[u8]) -> Result<Vec<u8>, &'static str> {
         type Aes256CbcEnc = cbc::Encryptor<aes::Aes256>;
 
-        let key_array: [u8; 32] = key.try_into().unwrap();
-        let iv_array: [u8; 16] = iv.try_into().unwrap();
+        let key_array: [u8; 32] = key.try_into()
+            .map_err(|_| "Key must be exactly 32 bytes")?;
+        let iv_array: [u8; 16] = iv.try_into()
+            .map_err(|_| "IV must be exactly 16 bytes")?;
 
         let cipher = Aes256CbcEnc::new(&key_array.into(), &iv_array.into());
 
-        cipher.encrypt_padded_vec_mut::<Pkcs7>(plaintext)
+        Ok(cipher.encrypt_padded_vec_mut::<Pkcs7>(plaintext))
     }
 
     #[test]
@@ -115,7 +117,8 @@ let b = d.update("00112233445566778899aabbccddeeff", "hex", "utf8");
         let plaintext = b"console.log('hello world');";
 
         // Encrypt
-        let ciphertext = encrypt_aes_256_cbc(plaintext, key, &iv);
+        let ciphertext = encrypt_aes_256_cbc(plaintext, key, &iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
 
         // Decrypt
         let decrypted = decrypt_aes_256_cbc(&ciphertext, key, &iv);
@@ -134,7 +137,8 @@ let b = d.update("00112233445566778899aabbccddeeff", "hex", "utf8");
         let iv = hex::decode("dfc1fefb224b2a757b7d3d97a93a1db9").unwrap();
         let plaintext = b"console.log('hello world');";
 
-        let ciphertext = encrypt_aes_256_cbc(plaintext, key, &iv);
+        let ciphertext = encrypt_aes_256_cbc(plaintext, key, &iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let decrypted = decrypt_aes_256_cbc(&ciphertext, wrong_key, &iv);
 
         // Wrong key should either fail or produce garbage that fails validation
@@ -234,7 +238,8 @@ let b = d.update("00112233445566778899aabbccddeeff", "hex", "utf8");
         let iv = hex::decode("dfc1fefb224b2a757b7d3d97a93a1db9").unwrap();
         let payload = b"const os = require('os'); function steal() { return os.homedir(); }";
 
-        let ciphertext = encrypt_aes_256_cbc(payload, key, &iv);
+        let ciphertext = encrypt_aes_256_cbc(payload, key, &iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let ciphertext_hex = hex::encode(&ciphertext);
 
         let malicious_code = format!(
@@ -298,7 +303,8 @@ let d = crypto.createDecipheriv("aes-256-cbc", "wDO6YyTm6DL0T0zJ0SXhUql5Mo0pdlSz
         let iv = hex::decode("4c4b9a3773e9dced6015a670855fd32b").unwrap();
         let stage1 = b"const child_process = require('child_process'); function exec(cmd) { return child_process.execSync(cmd); }";
 
-        let ciphertext = encrypt_aes_256_cbc(stage1, key, &iv);
+        let ciphertext = encrypt_aes_256_cbc(stage1, key, &iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let ciphertext_hex = hex::encode(&ciphertext);
 
         let content = format!(
@@ -340,7 +346,8 @@ function activate(context) {{
         let final_payload = b"function malicious() { require('child_process').exec('whoami'); }";
 
         // Encrypt inner payload
-        let inner_ciphertext = encrypt_aes_256_cbc(final_payload, inner_key, &inner_iv);
+        let inner_ciphertext = encrypt_aes_256_cbc(final_payload, inner_key, &inner_iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let inner_hex = hex::encode(&inner_ciphertext);
 
         // Create stage 1 code that decrypts inner
@@ -352,7 +359,8 @@ function activate(context) {{
         // Encrypt stage 1
         let outer_key = b"outerkey12345678outerkey12345678";
         let outer_iv = hex::decode("ffffffffffffffffffffffffffffffff").unwrap();
-        let outer_ciphertext = encrypt_aes_256_cbc(stage1.as_bytes(), outer_key, &outer_iv);
+        let outer_ciphertext = encrypt_aes_256_cbc(stage1.as_bytes(), outer_key, &outer_iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let outer_hex = hex::encode(&outer_ciphertext);
 
         let content = format!(
@@ -387,7 +395,8 @@ function activate(context) {{
         let iv = hex::decode("dfc1fefb224b2a757b7d3d97a93a1db9").unwrap();
         let payload = b"const test = require('test'); function run() { return 42; }";
 
-        let ciphertext = encrypt_aes_256_cbc(payload, key, &iv);
+        let ciphertext = encrypt_aes_256_cbc(payload, key, &iv)
+            .expect("Test uses valid hardcoded 32-byte key and 16-byte IV");
         let ciphertext_hex = hex::encode(&ciphertext);
 
         // Generate ~500KB of padding (realistic webpack bundle)

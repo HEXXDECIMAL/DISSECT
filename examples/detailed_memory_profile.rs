@@ -1,7 +1,7 @@
 //! Detailed memory profiling to identify memory hotspots
 
 use dissect::analyzers::{pe::PEAnalyzer, Analyzer};
-use dissect::memory_tracker::get_current_rss;
+use dissect::memory_tracker::current_rss;
 use std::env;
 use std::fs;
 
@@ -14,7 +14,7 @@ fn format_bytes(bytes: u64) -> String {
 }
 
 fn log_memory(label: &str) -> u64 {
-    let rss = get_current_rss().unwrap_or(0);
+    let rss = current_rss().unwrap_or(0);
     println!("[{}] RSS: {}", label, format_bytes(rss));
     rss
 }

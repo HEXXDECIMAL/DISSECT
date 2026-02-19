@@ -60,7 +60,7 @@ impl MemoryTracker {
         }
 
         // Update current memory usage
-        if let Some(current_rss) = get_current_rss() {
+        if let Some(current_rss) = current_rss() {
             let peak = self.peak_rss_bytes.load(Ordering::Relaxed);
             if current_rss > peak {
                 self.peak_rss_bytes.store(current_rss, Ordering::Relaxed);
@@ -97,7 +97,7 @@ impl MemoryTracker {
 
     /// Log current memory statistics
     pub fn log_stats(&self) {
-        let current_rss = get_current_rss();
+        let current_rss = current_rss();
         let peak_rss = self.peak_rss_bytes.load(Ordering::Relaxed);
         let total_read = self.total_bytes_read.load(Ordering::Relaxed);
         let files = self.files_processed.load(Ordering::Relaxed);
@@ -138,16 +138,16 @@ impl MemoryTracker {
 
 /// Get current RSS (Resident Set Size) in bytes
 /// Returns None if unable to determine
-#[must_use] 
-pub fn get_current_rss() -> Option<u64> {
+#[must_use]
+pub fn current_rss() -> Option<u64> {
     #[cfg(target_os = "linux")]
     {
-        get_rss_linux()
+        rss_linux()
     }
 
     #[cfg(target_os = "macos")]
     {
-        get_rss_macos()
+        rss_macos()
     }
 
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
@@ -157,7 +157,7 @@ pub fn get_current_rss() -> Option<u64> {
 }
 
 #[cfg(target_os = "linux")]
-fn get_rss_linux() -> Option<u64> {
+fn rss_linux() -> Option<u64> {
     use std::fs;
 
     // Read /proc/self/status
@@ -179,7 +179,7 @@ fn get_rss_linux() -> Option<u64> {
 }
 
 #[cfg(target_os = "macos")]
-fn get_rss_macos() -> Option<u64> {
+fn rss_macos() -> Option<u64> {
     use std::mem;
 
     // Mach task info structures
@@ -239,7 +239,7 @@ fn get_rss_macos() -> Option<u64> {
 
 /// Log memory usage before processing a file
 pub fn log_before_file_processing(file_path: &str, file_size: u64) {
-    let current_rss = get_current_rss();
+    let current_rss = current_rss();
 
     info!(
         file_path = file_path,
@@ -261,7 +261,7 @@ pub fn log_before_file_processing(file_path: &str, file_size: u64) {
 
 /// Log memory usage after processing a file
 pub fn log_after_file_processing(file_path: &str, file_size: u64, duration: Duration) {
-    let current_rss = get_current_rss();
+    let current_rss = current_rss();
 
     info!(
         file_path = file_path,
@@ -279,7 +279,7 @@ pub fn start_periodic_logging(interval: Duration) -> std::thread::JoinHandle<()>
         loop {
             std::thread::sleep(interval);
 
-            if let Some(rss) = get_current_rss() {
+            if let Some(rss) = current_rss() {
                 info!(
                     rss_mb = rss / 1024 / 1024,
                     rss_gb = rss / 1024 / 1024 / 1024,
@@ -318,9 +318,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_get_current_rss() {
+    fn test_current_rss() {
         // Should be able to get RSS on supported platforms
-        let rss = get_current_rss();
+        let rss = current_rss();
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         {
