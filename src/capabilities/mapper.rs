@@ -1725,7 +1725,7 @@ impl CapabilityMapper {
             eprintln!("   Open-ended short patterns are too likely to create false positives.");
             eprintln!("   Try to create a more specific trait; see RULES.md for details.\n");
             for (trait_id, pattern, pattern_type, source_file) in &short_pattern_warnings {
-                let line_hint = find_line_number(source_file, &pattern);
+                let line_hint = find_line_number(source_file, pattern);
                 if let Some(line) = line_hint {
                     eprintln!(
                         "   {}:{}: Trait '{}' uses {} pattern '{}'",
@@ -2900,6 +2900,7 @@ impl CapabilityMapper {
     /// just match if ANY ONE of their conditions is true.
     ///
     /// Returns true if the finding should be filtered out (is low-value).
+    #[must_use]
     pub fn is_low_value_any_rule(&self, finding_id: &str) -> bool {
         // Find the composite rule with this ID
         if let Some(rule) = self.composite_rules.iter().find(|r| r.id == finding_id) {
@@ -2928,6 +2929,7 @@ impl CapabilityMapper {
     /// These rules match when needs=1 (or unset with `any`), providing no
     /// additional value over the underlying trait that matched.
     /// Keeps rules with needs >= 2 which provide meaningful signal combination.
+    #[must_use]
     pub fn filter_low_value_any_rules(&self, findings: Vec<Finding>) -> Vec<Finding> {
         findings
             .into_iter()

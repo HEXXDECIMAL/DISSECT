@@ -155,10 +155,10 @@ fn fill_color(avg_criticality: f32) -> &'static str {
 fn outline_color(path: &str) -> &'static str {
     let top_level = path.split('/').next().unwrap_or("");
     match top_level {
-        "cap" => "#228B22",   // Forest green
-        "obj" => "#DC143C",   // Crimson red
-        "known" => "#8B008B", // Dark magenta (purple)
-        "meta" => "#696969",  // Dim gray
+        "micro-behaviors" => "#228B22",   // Forest green
+        "objectives" => "#DC143C",   // Crimson red
+        "well-known" => "#8B008B", // Dark magenta (purple)
+        "metadata" => "#696969",  // Dim gray
         _ => "#000000",       // Black (fallback)
     }
 }
@@ -242,7 +242,7 @@ mod tests {
     fn test_extract_directory() {
         assert_eq!(
             extract_directory("micro-behaviors/communications/socket/raw::trait-id", 2),
-            "micro-behaviors/comm"
+            "micro-behaviors/communications"
         );
         assert_eq!(
             extract_directory("micro-behaviors/communications/socket/raw::trait-id", 3),
@@ -252,11 +252,11 @@ mod tests {
             extract_directory("micro-behaviors/communications/socket/raw::trait-id", 4),
             "micro-behaviors/communications/socket/raw"
         );
-        assert_eq!(extract_directory("micro-behaviors/communications/socket/raw::trait-id", 1), "cap");
+        assert_eq!(extract_directory("micro-behaviors/communications/socket/raw::trait-id", 1), "micro-behaviors");
 
         // Without :: separator
-        assert_eq!(extract_directory("micro-behaviors/communications/socket", 2), "micro-behaviors/comm");
-        assert_eq!(extract_directory("cap", 2), "cap");
+        assert_eq!(extract_directory("micro-behaviors/communications/socket", 2), "micro-behaviors/communications");
+        assert_eq!(extract_directory("micro-behaviors", 2), "micro-behaviors");
     }
 
     #[test]
@@ -284,15 +284,15 @@ mod tests {
     fn test_outline_color() {
         assert_eq!(outline_color("micro-behaviors/communications/socket"), "#228B22"); // Green
         assert_eq!(outline_color("objectives/command-and-control/beacon"), "#DC143C"); // Red
-        assert_eq!(outline_color("known/malware/mirai"), "#8B008B"); // Purple
+        assert_eq!(outline_color("well-known/malware/mirai"), "#8B008B"); // Purple
         assert_eq!(outline_color("metadata/lang"), "#696969"); // Gray
         assert_eq!(outline_color("unknown/namespace"), "#000000"); // Black fallback
     }
 
     #[test]
     fn test_shorten_path() {
-        assert_eq!(shorten_path("cap"), "cap");
-        assert_eq!(shorten_path("micro-behaviors/comm"), "micro-behaviors/comm");
+        assert_eq!(shorten_path("micro-behaviors"), "micro-behaviors");
+        assert_eq!(shorten_path("micro-behaviors/communications"), "micro-behaviors/communications");
         assert_eq!(shorten_path("micro-behaviors/communications/socket"), "micro-behaviors/.../socket");
         assert_eq!(shorten_path("micro-behaviors/communications/socket/raw"), "micro-behaviors/.../raw");
     }

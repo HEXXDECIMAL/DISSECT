@@ -1002,15 +1002,15 @@ rule test_rule {
 
     #[test]
     fn test_extract_namespace_with_prefix() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_with_mapper(CapabilityMapper::empty());
         let path = Path::new("/path/to/traits/execution/shell/test.yar");
         let namespace = engine.extract_namespace_with_prefix(path, "traits");
-        assert_eq!(namespace, "traits.exec.shell");
+        assert_eq!(namespace, "traits.execution.shell");
     }
 
     #[test]
     fn test_extract_namespace_with_prefix_third_party() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_with_mapper(CapabilityMapper::empty());
         let path = Path::new("/path/to/third_party/malware/test.yar");
         let namespace = engine.extract_namespace_with_prefix(path, "third_party");
         assert_eq!(namespace, "third_party.malware");
@@ -1018,7 +1018,7 @@ rule test_rule {
 
     #[test]
     fn test_extract_namespace_with_prefix_no_subdirs() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_with_mapper(CapabilityMapper::empty());
         let path = Path::new("/path/to/traits/test.yar");
         let namespace = engine.extract_namespace_with_prefix(path, "traits");
         assert_eq!(namespace, "traits");

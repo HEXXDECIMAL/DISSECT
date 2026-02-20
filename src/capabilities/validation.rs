@@ -1966,11 +1966,11 @@ pub(crate) fn find_hostile_cap_rules(
         if let Some(idx) = id.find("::") {
             let prefix = &id[..idx];
             if let Some(slash_idx) = prefix.find('/') {
-                return &prefix[..slash_idx] == "cap";
+                return &prefix[..slash_idx] == "micro-behaviors";
             }
-            return prefix == "cap";
+            return prefix == "micro-behaviors";
         } else if let Some(slash_idx) = id.find('/') {
-            return &id[..slash_idx] == "cap";
+            return &id[..slash_idx] == "micro-behaviors";
         }
         false
     }
@@ -2015,8 +2015,8 @@ pub(crate) fn find_inert_obj_rules(
     fn is_obj_rule(id: &str) -> bool {
         let prefix = id.find("::").map_or(id, |i| &id[..i]);
         match prefix.find('/') {
-            Some(slash_idx) => &prefix[..slash_idx] == "obj",
-            None => prefix == "obj",
+            Some(slash_idx) => &prefix[..slash_idx] == "objectives",
+            None => prefix == "objectives",
         }
     }
 
@@ -2074,14 +2074,14 @@ pub(crate) fn find_cap_obj_violations(
     for trait_def in trait_definitions {
         // Only check micro-behaviors/ traits
         if let Some(tier) = extract_tier(&trait_def.id) {
-            if tier != "cap" {
+            if tier != "micro-behaviors" {
                 continue;
             }
 
             // Check if the trait condition references other traits
             if let Condition::Trait { id: ref_id } = &trait_def.r#if.condition {
                 if let Some(ref_tier) = extract_tier(ref_id) {
-                    if ref_tier == "obj" {
+                    if ref_tier == "objectives" {
                         let source = rule_source_files
                             .get(&trait_def.id)
                             .cloned()
@@ -2097,7 +2097,7 @@ pub(crate) fn find_cap_obj_violations(
     for rule in composite_rules {
         // Only check micro-behaviors/ rules
         if let Some(tier) = extract_tier(&rule.id) {
-            if tier != "cap" {
+            if tier != "micro-behaviors" {
                 continue;
             }
 
@@ -2105,7 +2105,7 @@ pub(crate) fn find_cap_obj_violations(
             let trait_refs = collect_trait_refs_from_rule(rule);
             for (ref_id, _) in trait_refs {
                 if let Some(ref_tier) = extract_tier(&ref_id) {
-                    if ref_tier == "obj" {
+                    if ref_tier == "objectives" {
                         let source = rule_source_files
                             .get(&rule.id)
                             .cloned()
@@ -2186,7 +2186,7 @@ fn count_regex_min_literals(pattern: &str) -> usize {
                         if next == 'x' {
                             // Consume up to 2 hex digits
                             for _ in 0..2 {
-                                if chars.peek().map_or(false, |c| c.is_ascii_hexdigit()) {
+                                if chars.peek().is_some_and(char::is_ascii_hexdigit) {
                                     chars.next();
                                 }
                             }
@@ -2222,7 +2222,7 @@ fn count_regex_min_literals(pattern: &str) -> usize {
             }
             '{' if !in_bracket => {
                 // Quantifier like {n,m} - skip until closing }
-                while let Some(c) = chars.next() {
+                for c in chars.by_ref() {
                     if c == '}' {
                         break;
                     }
@@ -2257,7 +2257,7 @@ pub(crate) fn find_short_pattern_warnings(
     for trait_def in trait_definitions {
         // Check if trait has specificity constraints on ConditionWithFilters
         // count_min: 1 is not meaningful (it's the default), require count_min >= 2
-        let has_meaningful_count = trait_def.r#if.count_min.map_or(false, |c| c >= 2)
+        let has_meaningful_count = trait_def.r#if.count_min.is_some_and(|c| c >= 2)
             || trait_def.r#if.count_max.is_some()
             || trait_def.r#if.per_kb_min.is_some()
             || trait_def.r#if.per_kb_max.is_some();
@@ -2290,14 +2290,8 @@ pub(crate) fn find_short_pattern_warnings(
                     section_offset,
                     section_offset_range,
                     ..
-                } => {
-                    section.is_some()
-                        || offset.is_some()
-                        || offset_range.is_some()
-                        || section_offset.is_some()
-                        || section_offset_range.is_some()
                 }
-                Condition::Hex {
+                | Condition::Hex {
                     section,
                     offset,
                     offset_range,
@@ -3074,6 +3068,13 @@ pub(crate) fn find_parent_duplicate_segments(trait_dirs: &[String]) -> Vec<(Stri
                 let parent_stem = parent.trim_end_matches('s');
                 let child_stem = child.trim_end_matches('s');
                 if parent_stem == child_stem {
+                    violations.push((dir_path.clone(), window[1].to_string()));
+                    break;
+                }
+
+                // Check for abbreviations: child is a prefix of parent
+                // e.g., "execution" contains "exec", "credential-access" contains "cred"
+                if parent.starts_with(&child) || child.starts_with(&parent) {
                     violations.push((dir_path.clone(), window[1].to_string()));
                     break;
                 }
