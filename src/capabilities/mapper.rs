@@ -2135,14 +2135,14 @@ impl CapabilityMapper {
 
         if enable_full_validation && !warnings.is_empty() {
             eprintln!(
-                "\n⚠️  WARNING: {} trait configuration warning(s) found:\n",
+                "\n⚠️  ERROR: {} trait configuration validation issue(s) found:\n",
                 warnings.len()
             );
             for warning in &warnings {
                 eprintln!("   ⚠️  {}", warning);
             }
-            eprintln!("\n   Consider fixing these issues in the YAML files.\n");
-            // NOTE: Temporarily non-fatal - will be fixed separately
+            eprintln!("\n   Fix these issues in the YAML files before continuing.\n");
+            has_fatal_errors = true;
         }
 
         // Exit if any fatal errors occurred (parse errors, etc.)
@@ -2273,10 +2273,12 @@ impl CapabilityMapper {
 
         // Validate trait and composite conditions and warn about problematic patterns
         if enable_full_validation {
-            validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
+            let has_validation_errors = validate_conditions(&trait_definitions, &composite_rules, path.as_ref());
 
-            // NOTE: Validation warnings are non-fatal (Phase 6-8 decision)
-            // They are printed above but don't block execution
+            if has_validation_errors {
+                eprintln!("\n==> Fix all validation errors before continuing.\n");
+                std::process::exit(1);
+            }
         }
 
         // Build trait index for fast lookup by file type
