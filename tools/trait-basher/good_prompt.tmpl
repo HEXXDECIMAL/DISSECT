@@ -45,9 +45,9 @@ For each hostile or suspicious finding:
 ### Step 3: Fix Strategy (choose one)
 
 **A. Improve the trait** (preferred - improves precision):
-- Find ways to address the inaccuracy by improving how it's matched
+- Some traits are poorly written or incomplete - find ways to address the inaccuracy by improving how it matches programs
 - Consider adding constraits like `near`, `count_min`, `size_min`, `for` - see RULES.md for details!
-- Upgrade pattern type to a more specific matcher: raw → string → symbol → ast
+- Upgrade pattern type to a more specific matcher: raw → string → symbol → ast (symbol & AST are the most specific matchers)
 - Perfect already but in a misleading subdirectory? Move the trait to more neutral directory in taxonomy within micro-behaviors/ or metadata/
 
 **B. Downgrade criticality** (if the finding is perfect, but contextually not suspicious):
