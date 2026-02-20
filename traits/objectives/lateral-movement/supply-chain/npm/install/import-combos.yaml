@@ -95,24 +95,32 @@ traits:
     regex: Login Data|cookies\.sqlite|logins\.json
 - id: scripts-preinstall-pipe-1
   desc: preinstall pipe (curl/wget with |/;/&&)
+  crit: suspicious
+  conf: 0.9
   if:
     type: kv
     path: scripts.preinstall
     regex: (curl|wget).{0,50}(\||;|&&)
 - id: scripts-preinstall-pipe-2
   desc: preinstall pipe (executors node/sh/bash/eval)
+  crit: notable
+  conf: 0.75
   if:
     type: kv
     path: scripts.preinstall
     regex: (node|sh|bash|eval)
 - id: scripts-postinstall-pipe-1
   desc: postinstall pipe (curl/wget with |/;/&&)
+  crit: suspicious
+  conf: 0.9
   if:
     type: kv
     path: scripts.postinstall
     regex: (curl|wget).{0,50}(\||;|&&)
 - id: scripts-postinstall-pipe-2
   desc: postinstall pipe (executors node/sh/bash/eval)
+  crit: notable
+  conf: 0.75
   if:
     type: kv
     path: scripts.postinstall
@@ -139,24 +147,32 @@ traits:
     regex: node\s+-e\s+['"].{0,100}https?://
 - id: scripts-preinstall-shell-1
   desc: preinstall runs shell command (network)
+  crit: notable
+  conf: 0.7
   if:
     type: kv
     path: scripts.preinstall
     regex: \b(curl|wget)\b
 - id: scripts-preinstall-shell-2
   desc: preinstall runs shell command (interpreters)
+  crit: inert
+  conf: 0.6
   if:
     type: kv
     path: scripts.preinstall
     regex: \b(sh|bash|powershell)\b
 - id: scripts-postinstall-shell-1
   desc: postinstall runs shell command (network)
+  crit: notable
+  conf: 0.7
   if:
     type: kv
     path: scripts.postinstall
     regex: \b(curl|wget)\b
 - id: scripts-postinstall-shell-2
   desc: postinstall runs shell command (interpreters)
+  crit: inert
+  conf: 0.5
   if:
     type: kv
     path: scripts.postinstall

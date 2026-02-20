@@ -18,18 +18,24 @@ traits:
 
   - id: tracking-utm-params-1
     desc: UTM tracking (source/medium/campaign)
+    crit: inert
+    conf: 0.5
     if:
       type: string
       regex: "utm_(source|medium|campaign)="
 
   - id: tracking-utm-params-2
     desc: UTM tracking (content/term)
+    crit: inert
+    conf: 0.5
     if:
       type: string
       regex: "utm_(content|term)="
 
   - id: affiliate-domain-pattern-1
     desc: Affiliate domain (affiliate/partner/track/click)
+    crit: suspicious
+    conf: 0.8
     if:
       type: string
       regex: "(affiliate|partner|track|click)\\.[a-z]{2,6}\\b"
@@ -37,6 +43,8 @@ traits:
 
   - id: affiliate-domain-pattern-2
     desc: Affiliate domain (redir/monetize/revenue/earn)
+    crit: suspicious
+    conf: 0.85
     if:
       type: string
       regex: "(redir|monetize|revenue|earn)\\.[a-z]{2,6}\\b"

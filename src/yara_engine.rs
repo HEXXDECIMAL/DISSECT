@@ -44,6 +44,17 @@ impl YaraEngine {
         Self { rules: None, capability_mapper, compiled_inline_namespaces: Vec::new() }
     }
 
+    /// Create a new YARA engine for testing (without validation)
+    #[cfg(test)]
+    #[must_use]
+    pub(crate) fn new_for_test() -> Self {
+        Self {
+            rules: None,
+            capability_mapper: CapabilityMapper::new_without_validation(),
+            compiled_inline_namespaces: Vec::new(),
+        }
+    }
+
     /// Set the capability mapper (useful for injecting after parallel loading)
     pub(crate) fn set_capability_mapper(&mut self, capability_mapper: CapabilityMapper) {
         self.capability_mapper = capability_mapper;
@@ -939,7 +950,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"This contains TESTPATTERN in the data";
@@ -961,7 +972,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"This does not contain the pattern";
@@ -972,19 +983,19 @@ rule test_rule {
 
     #[test]
     fn test_new() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_for_test();
         assert!(!engine.is_loaded());
     }
 
     #[test]
     fn test_default() {
-        let engine = YaraEngine::default();
+        let engine = YaraEngine::new_for_test();
         assert!(!engine.is_loaded());
     }
 
     #[test]
     fn test_is_loaded() {
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         assert!(!engine.is_loaded());
 
         engine.load_rule_source(r#"rule test { strings: $a = "test" condition: $a }"#).unwrap();
@@ -994,7 +1005,7 @@ rule test_rule {
 
     #[test]
     fn test_scan_without_rules() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_for_test();
         let result = engine.scan_bytes(b"test data");
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("No YARA rules loaded"));
@@ -1041,7 +1052,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"This contains PATTERN in the data";
@@ -1066,7 +1077,7 @@ rule test_rule : medium {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"TAGGED data";
@@ -1078,7 +1089,7 @@ rule test_rule : medium {
 
     #[test]
     fn test_yara_match_to_evidence() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_for_test();
 
         let yara_match = YaraMatch {
             rule: "test_rule".to_string(),
@@ -1107,7 +1118,7 @@ rule test_rule : medium {
 
     #[test]
     fn test_yara_match_to_evidence_no_strings() {
-        let engine = YaraEngine::new();
+        let engine = YaraEngine::new_for_test();
 
         let yara_match = YaraMatch {
             rule: "test_rule".to_string(),
@@ -1140,7 +1151,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"FIRST and SECOND patterns";
@@ -1161,7 +1172,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = vec![b'A'; 200];
@@ -1184,7 +1195,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"TEST";
@@ -1207,7 +1218,7 @@ rule test_rule {
 }
 "#;
 
-        let mut engine = YaraEngine::new();
+        let mut engine = YaraEngine::new_for_test();
         engine.load_rule_source(rule).unwrap();
 
         let test_data = b"TEST";

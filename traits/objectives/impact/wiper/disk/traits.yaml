@@ -167,7 +167,7 @@ traits:
   - shell
   if:
     type: raw
-    regex: fs\.readdirSync|os\.walk|find\s+\.
+    regex: fs\.readdirSync|os\.walk|find\s+\\.
 - id: mass-delete-action-node-py
   desc: Mass deletion action (Node.js/Python)
   if:
@@ -186,7 +186,7 @@ composite_rules:
     - id: objectives/impact/system/directory::rm-rf-cmd
 - id: mass-delete-action
   desc: Mass deletion action primitive
-  crit: suspicious
+  crit: notable
   conf: 0.85
   any:
     - id: mass-delete-action-node-py

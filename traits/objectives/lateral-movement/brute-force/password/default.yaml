@@ -81,6 +81,8 @@ traits:
       substr: Zxic521
   - id: credential-wordlist-1
     desc: Dense credential wordlist (admin/root/password/default)
+    crit: notable
+    conf: 0.7
     for:
       - elf
     if:
@@ -89,6 +91,8 @@ traits:
       count_min: 8
   - id: credential-wordlist-2
     desc: Dense credential wordlist (guest/user/1234/qwerty)
+    crit: notable
+    conf: 0.7
     for:
       - elf
     if:

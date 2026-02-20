@@ -1,9 +1,9 @@
 # macOS-specific Authentication and Validation
-# Detects use of Mach-O APIs for verifying user credentials
+# Detects use of Mach-O APIs and shell commands for verifying user credentials
 
 defaults:
   platforms: [macos]
-  for: [macho]
+  for: [macho, shell, javascript, python, ruby]
 
 traits:
   - id: csidentity-auth
@@ -13,3 +13,26 @@ traits:
     if:
       type: symbol
       exact: "CSIdentityAuthenticateUsingPassword"
+
+  - id: dscl-authonly
+    desc: "macOS dscl -authonly (password validation)"
+    crit: suspicious
+    conf: 0.85
+    mbc: "T1078.001" # Valid Accounts
+    if:
+      type: section
+      range: 256
+      all:
+        - { type: string, substr: "dscl" }
+        - { type: string, substr: "-authonly" }
+
+  - id: dscl-local-default
+    desc: "macOS dscl /Local/Default (local directory service)"
+    crit: notable
+    conf: 0.8
+    if:
+      type: section
+      range: 256
+      all:
+        - { type: string, substr: "dscl" }
+        - { type: string, substr: "/Local/Default" }

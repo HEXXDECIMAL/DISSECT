@@ -212,6 +212,15 @@ traits:
       type: string
       regex: 'eval\s*`wget'
 
+  - id: eval-openssl-subshell
+    desc: eval "$(openssl ..."
+    crit: suspicious
+    conf: 0.8
+    attack: "T1059.004"
+    if:
+      type: raw
+      regex: 'eval\s*"\$\(openssl'
+
   # === Base64 decode exec atomic indicators ===
   - id: base64-d-pipe-sh
     desc: base64 -d piped to sh
@@ -379,6 +388,7 @@ composite_rules:
       - id: eval-curl-backtick
       - id: eval-wget-subshell
       - id: eval-wget-backtick
+      - id: eval-openssl-subshell
 
   # Base64 decode exec composite
   - id: base64-decode-exec

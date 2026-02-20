@@ -49,35 +49,39 @@ traits:
     regex: sdist.{0,40}argv|(?:os\.name|name)\s*==\s*['\"]nt['\"]
 - id: conditional-exec-exec
   desc: exec execution primitive
-  crit: suspicious
+  crit: inert
   conf: 0.85
   if:
-    type: raw
-    word: exec
+    type: ast
+    kind: call
+    exact: exec
 - id: conditional-exec-eval
   desc: eval execution primitive
-  crit: suspicious
+  crit: inert
   conf: 0.85
   if:
-    type: raw
-    word: eval
+    type: ast
+    kind: call
+    exact: eval
 - id: conditional-exec-compile
   desc: compile execution primitive
-  crit: suspicious
+  crit: inert
   conf: 0.85
   if:
-    type: raw
-    word: compile
+    type: ast
+    kind: call
+    exact: compile
 - id: conditional-exec-import
   desc: __import__ execution primitive
-  crit: suspicious
+  crit: inert
   conf: 0.85
   if:
-    type: raw
-    word: __import__
+    type: ast
+    kind: call
+    exact: __import__
 - id: conditional-os-system
   desc: os.system execution primitive
-  crit: suspicious
+  crit: notable
   conf: 0.85
   if:
     type: raw

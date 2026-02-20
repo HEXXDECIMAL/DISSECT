@@ -7,7 +7,7 @@ defaults:
 traits:
   - id: has-class
     desc: Code defines classes
-    crit: notable
+    crit: inert
     conf: 0.8
     if:
       type: string
@@ -16,7 +16,7 @@ traits:
   # Has JSDoc comments
   - id: has-async-await
     desc: Code uses async/await patterns
-    crit: notable
+    crit: inert
     conf: 0.7
     if:
       type: string
@@ -45,7 +45,7 @@ traits:
   # Has dependency injection
   - id: has-error-class
     desc: Code defines custom error classes
-    crit: notable
+    crit: inert
     conf: 0.85
     if:
       type: string
@@ -54,7 +54,7 @@ traits:
   # Has getter/setter
   - id: has-accessors
     desc: Code uses getters/setters
-    crit: notable
+    crit: inert
     conf: 0.8
     if:
       type: string
@@ -77,7 +77,7 @@ traits:
   # Has Proxy usage
   - id: has-proxy
     desc: Code uses Proxy for metaprogramming
-    crit: notable
+    crit: inert
     conf: 0.8
     if:
       type: string
@@ -86,7 +86,7 @@ traits:
   # Has generator functions
   - id: has-generators
     desc: Code uses generator functions
-    crit: notable
+    crit: inert
     conf: 0.85
     if:
       type: string
@@ -95,7 +95,7 @@ traits:
   # Multiple export patterns
   - id: promise-test-call
     desc: promise_test() WPT call
-    crit: notable
+    crit: inert
     conf: 0.95
     if:
       type: string
@@ -103,7 +103,7 @@ traits:
 
   - id: async-test-call
     desc: async_test() WPT call
-    crit: notable
+    crit: inert
     conf: 0.95
     if:
       type: string
@@ -112,7 +112,7 @@ traits:
 composite_rules:
   - id: has-promise
     desc: Code uses Promises
-    crit: notable
+    crit: inert
     conf: 0.7
     any:
       - id: has-promise-new
@@ -122,7 +122,7 @@ composite_rules:
 
   - id: has-decorators
     desc: Code uses TypeScript/ES decorators
-    crit: notable
+    crit: inert
     conf: 0.85
     any:
       - id: has-decorators-1
@@ -130,7 +130,7 @@ composite_rules:
 
   - id: has-symbols
     desc: Code uses Symbol for private
-    crit: notable
+    crit: inert
     conf: 0.85
     any:
       - id: has-symbols-base
@@ -138,7 +138,7 @@ composite_rules:
 
   - id: has-weak-collections
     desc: Code uses WeakMap/WeakSet patterns
-    crit: notable
+    crit: inert
     conf: 0.85
     any:
       - id: has-weak-collections-map

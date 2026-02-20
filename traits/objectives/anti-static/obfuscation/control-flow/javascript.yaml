@@ -1,16 +1,21 @@
 traits:
-  - id: retry-loop
-    desc: Detects retry loop wrapping try-catch (probabilistic loader)
+  - id: retry-loop-while
+    desc: Detects retry loop wrapping try-catch (while loop)
     crit: notable
-    conf: 1.0
-    attack: T1027
-    mbc: B0032
     for: [javascript, typescript]
     if:
       type: raw
       regex: "(?s)while\\s*\\((?:[^()]|\\([^()]{0,120}\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
     not:
       - regex: "while\\s*\\(_\\)\\s*\\{\\s*try"
+
+  - id: retry-loop-for
+    desc: Detects retry loop wrapping try-catch (for loop)
+    crit: notable
+    for: [javascript, typescript]
+    if:
+      type: raw
+      regex: "(?s)for\\s*\\((?:[^()]|\\([^()]{0,120}\\))*\\)\\s*\\{[^}]{0,300}\\s*try"
 
   - id: retry-loop-with-success
     desc: Retry loop with success counter
@@ -22,3 +27,15 @@ traits:
     if:
       type: raw
       regex: '(?s)while\s*\(\s*\w+\s*<\s*\d+\s*\)\s*\{\s*try\s*\{.*?\+\+\s*;?\s*\}\s*catch'
+
+composite_rules:
+  - id: retry-loop
+    desc: Detects retry loop wrapping try-catch (probabilistic loader)
+    crit: notable
+    conf: 1.0
+    attack: T1027
+    mbc: B0032
+    for: [javascript, typescript]
+    any:
+      - id: retry-loop-while
+      - id: retry-loop-for

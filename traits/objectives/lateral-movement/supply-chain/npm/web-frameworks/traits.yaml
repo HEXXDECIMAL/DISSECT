@@ -16,21 +16,6 @@ traits:
   if:
     type: string
     regex: 'require\([''"]stream[''"]\)'
-- id: has-stream-classes-a-1
-  desc: Code uses Node.js Readable stream
-  if:
-    type: string
-    word: 'Readable'
-- id: has-stream-classes-a-2
-  desc: Code uses Node.js Writable stream
-  if:
-    type: string
-    word: 'Writable'
-- id: has-stream-classes-a-3
-  desc: Code uses Node.js Transform stream
-  if:
-    type: string
-    word: 'Transform'
 - id: has-stream-classes-b
   desc: Code uses Node.js stream classes
   crit: notable
@@ -87,27 +72,6 @@ traits:
   if:
     type: string
     regex: '\.inject'
-- id: uses-web-framework-express
-  desc: Uses Express
-  if:
-    type: string
-    regex: '(?:require\([''"]|from [''"])express[''"]'
-- id: uses-web-framework-koa
-  desc: Uses Koa
-  if:
-    type: string
-    regex: '(?:require\([''"]|from [''"])koa[''"]'
-- id: uses-web-framework-fastify
-  desc: Uses Fastify
-  if:
-    type: string
-    regex: '(?:require\([''"]|from [''"])fastify[''"]'
-- id: uses-web-framework-hapi
-  desc: Uses Hapi
-  if:
-    type: string
-    regex: '(?:require\([''"]|from [''"])hapi[''"]'
-
 - id: uses-web-framework-b
   desc: Code uses established web framework
   crit: notable
@@ -135,18 +99,18 @@ composite_rules:
   crit: notable
   conf: 0.75
   any:
-    - id: has-stream-classes-a-1
-    - id: has-stream-classes-a-2
-    - id: has-stream-classes-a-3
+    - id: metadata/library/web-frameworks/npm::stream-readable
+    - id: metadata/library/web-frameworks/npm::stream-writable
+    - id: metadata/library/web-frameworks/npm::stream-transform
 - id: uses-web-framework-a
   desc: Code uses established web framework (Set A)
   crit: notable
   conf: 0.85
   any:
-    - id: uses-web-framework-express
-    - id: uses-web-framework-koa
-    - id: uses-web-framework-fastify
-    - id: uses-web-framework-hapi
+    - id: metadata/library/web-frameworks/npm::uses-express
+    - id: metadata/library/web-frameworks/npm::uses-koa
+    - id: metadata/library/web-frameworks/npm::uses-fastify
+    - id: metadata/library/web-frameworks/npm::uses-hapi
 - id: has-stream
   desc: Code uses Node.js streams
   crit: notable

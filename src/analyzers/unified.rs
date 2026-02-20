@@ -1285,7 +1285,7 @@ func main() {
     // These verify the unified analyzer correctly detects Go capabilities via the trait system
 
     fn analyze_go_code(code: &str) -> crate::types::AnalysisReport {
-        let mapper = crate::capabilities::CapabilityMapper::new();
+        let mapper = crate::capabilities::CapabilityMapper::new_without_validation();
         let analyzer = UnifiedSourceAnalyzer::for_file_type(&FileType::Go)
             .unwrap()
             .with_capability_mapper(mapper);

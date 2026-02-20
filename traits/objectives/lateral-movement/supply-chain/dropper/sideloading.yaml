@@ -11,11 +11,15 @@ traits:
     exact: BugReport.exe
 - id: sideloading-host-generic-1
   desc: Potential side-loading host (BugReport/CrashReport/Update)
+  crit: inert
+  conf: 0.6
   if:
     type: basename
     regex: (?i)^(BugReport|CrashReport|Update)\.exe$
 - id: sideloading-host-generic-2
   desc: Potential side-loading host (Setup/OneDriveStandaloneUpdater)
+  crit: inert
+  conf: 0.6
   if:
     type: basename
     regex: (?i)^(Setup|OneDriveStandaloneUpdater)\.exe$

@@ -17,3 +17,7 @@ traits:
       any:
         - type: string
           regex: "BinaryParser"
+        - type: raw
+          regex: "typeof\\s+module\\s*!=\\s*['\"]undefined['\"]"
+        - type: raw
+          regex: "typeof\\s+window\\s*!=\\s*['\"]undefined['\"]"

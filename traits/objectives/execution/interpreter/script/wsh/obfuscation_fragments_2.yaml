@@ -1,39 +1,124 @@
-# Obfuscated WSH String Fragments (Extended)
-# Detects smaller fragmented strings common in specific JScript obfuscation (e.g. 2016 samples)
-
+# More Obfuscated WSH String Fragments
 defaults:
-  crit: suspicious
-  conf: 0.9
-  for: [javascript]
+  crit: notable
+  conf: 0.8
+  for: [javascript, typescript, shell, vbs, html]
 
 traits:
-  - id: wscript-shell-fragment-short
-    desc: WScript.Shell string fragment (short)
-    crit: notable
+  # save-to-file fragments
+  - id: save-to-file-fragment-saveto
+    desc: SaveToFile string fragment (saveTo)
     if:
-      type: string
-      regex: 'ript\.S|hell'
-    unless:
-      - id: metadata/builder/autotools::autotools
-      - id: metadata/builder/autotools::configure-ac
-      - id: metadata/builder/pip::setup-py
-      - id: metadata/quality/help::usage-title
+      type: raw
+      substr: 'saveTo'
+
+  - id: save-to-file-fragment-veto
+    desc: SaveToFile string fragment (veTo)
+    if:
+      type: raw
+      substr: 'veTo'
+
+  - id: save-to-file-fragment-etof
+    desc: SaveToFile string fragment (eToF)
+    if:
+      type: raw
+      substr: 'eToF'
+
+  # ADODB Type
+  - id: type-binary-fragment
+    desc: ADODB Type assignment fragment (ype =)
+    if:
+      type: raw
+      substr: 'ype ='
+
+  # String.fromCharCode
+  - id: from-char-code-fragment
+    desc: String.fromCharCode fragment (romChar/CharCode/ode\()
+    if:
+      type: raw
+      regex: 'romChar|CharCode|ode\('
+
+  # MSXML fragments
+  - id: msxml-fragment-tiny
+    desc: MSXML2.XMLHTTP string fragment (2.XML/LHTT/ironme)
+    if:
+      type: raw
+      regex: '2\.XML|LHTT|ironme'
+
+  - id: msxml-fragment-msxml
+    desc: MSXML2.XMLHTTP string fragment (MSXML)
+    if:
+      type: raw
+      word: 'MSXML'
+
+  - id: msxml-fragment-xmlhttp
+    desc: MSXML2.XMLHTTP string fragment (XMLHTTP)
+    if:
+      type: raw
+      word: 'XMLHTTP'
+
+  # WScript.Shell fragments
+  - id: wscript-shell-fragment-shell
+    desc: Shell string fragment
+    if:
+      type: raw
+      word: 'Shell'
+
+  # ADODB fragments
+  - id: adodb-fragment-adodb
+    desc: ADODB string fragment
+    if:
+      type: raw
+      word: 'ADODB'
+
+  - id: adodb-fragment-stream
+    desc: Stream string fragment
+    if:
+      type: raw
+      word: 'Stream'
+
+  # ExpandEnvironmentStrings fragments
+  - id: expand-env-fragment-env
+    desc: Environment string fragment
+    if:
+      type: raw
+      word: 'Environment'
+
+composite_rules:
+  - id: save-to-file-fragment
+    desc: SaveToFile string fragment
+    any:
+      - id: save-to-file-fragment-saveto
+      - id: save-to-file-fragment-veto
+      - id: save-to-file-fragment-etof
 
   - id: msxml-fragment-short
-    desc: MSXML2.XMLHTTP string fragment (short)
-    crit: notable
-    if:
-      type: string
-      regex: '2\.XML'
+    desc: MSXML string fragment (short)
+    any:
+      - id: msxml-fragment-msxml
+      - id: msxml-fragment-xmlhttp
+
+  - id: msxml-fragment
+    desc: MSXML2.XMLHTTP string fragment
+    any:
+      - id: msxml-fragment-tiny
+      - id: msxml-fragment-short
+      - id: micro-behaviors/net/http/client::http-client-xml2-fragment
+
+  - id: wscript-shell-fragment-short
+    desc: WScript.Shell string fragment (short)
+    any:
+      - id: micro-behaviors/host/interpreter/jscript::is-jscript # WScript
+      - id: wscript-shell-fragment-shell
 
   - id: adodb-fragment-short
     desc: ADODB.Stream string fragment (short)
-    if:
-      type: string
-      regex: 'DODB'
+    any:
+      - id: adodb-fragment-adodb
+      - id: adodb-fragment-stream
 
   - id: expand-env-fragment-short
-    desc: ExpandEnvironmentStrings fragment (short)
-    if:
-      type: string
-      regex: 'EnvStrings'
+    desc: ExpandEnvironmentStrings string fragment (short)
+    any:
+      - id: objectives/execution/interpreter/script/wsh::wsh-expand-env-strings # ExpandEnvironmentStrings
+      - id: expand-env-fragment-env

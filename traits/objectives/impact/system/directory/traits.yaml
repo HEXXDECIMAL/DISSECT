@@ -2,10 +2,10 @@ defaults:
   for:
   - all
   attack: T1485
-  crit: suspicious
 traits:
 - id: linux-etc-delete
   desc: Linux /etc directory deletion attempt
+  crit: suspicious
   conf: 0.95
   platforms:
   - linux
@@ -14,6 +14,7 @@ traits:
     regex: rm\s+-rf\s+/etc|shutil\.rmtree.{0,50}["']/etc
 - id: linux-usr-delete
   desc: Linux /usr directory deletion attempt
+  crit: suspicious
   conf: 0.95
   platforms:
   - linux
@@ -22,6 +23,7 @@ traits:
     regex: rm\s+-rf\s+/usr|shutil\.rmtree.{0,50}["']/usr
 - id: linux-boot-delete
   desc: Linux /boot directory deletion attempt
+  crit: suspicious
   conf: 0.95
   platforms:
   - linux
@@ -30,6 +32,7 @@ traits:
     regex: rm\s+-rf\s+/boot|shutil\.rmtree.{0,50}["']/boot
 - id: root-wipe
   desc: Root filesystem wipe attempt
+  crit: suspicious
   conf: 0.95
   attack: T1561
   if:
@@ -37,6 +40,7 @@ traits:
     regex: rm\s+-rf\s+/\s|rm\s+-rf\s+/\*|shutil\.rmtree.{0,50}["']/["']
 - id: macos-system-delete
   desc: macOS system directory deletion
+  crit: suspicious
   conf: 0.95
   platforms:
   - macos
@@ -45,6 +49,7 @@ traits:
     regex: rm\s+-rf.{0,50}(/System|/Library/System)|shutil\.rmtree.{0,50}/System
 - id: physical-drive0
   desc: Windows PhysicalDrive0 reference
+  crit: suspicious
   conf: 0.9
   attack: T1561.002
   if:
@@ -52,6 +57,7 @@ traits:
     substr: PhysicalDrive0
 - id: physical-drive-unc
   desc: Windows \\.\PhysicalDrive UNC path reference
+  crit: suspicious
   conf: 0.9
   attack: T1561.002
   if:
@@ -69,7 +75,7 @@ traits:
   crit: notable
   conf: 0.6
   if:
-    type: string
+    type: raw
     regex: rm\s+-rf
 - id: rmdir-recursive
   desc: rmdir recursive command
@@ -105,7 +111,7 @@ traits:
   conf: 0.6
   if:
     type: string
-    substr: /boot
+    regex: /boot(?:/|$)
 - id: usr-dir-ref
   desc: /usr directory reference
   crit: notable
@@ -115,24 +121,28 @@ traits:
     exact: /usr
 - id: windows-system32-delete-cmd-first
   desc: Windows System32 deletion (cmd first)
+  crit: suspicious
   if:
     type: string
     regex: (rmdir|del|remove).{0,50}[Ss]ystem32
     platforms: [windows]
 - id: windows-system32-delete-path-first
   desc: Windows System32 deletion (path first)
+  crit: suspicious
   if:
     type: string
     regex: '[Ss]ystem32.{0,50}(rmdir|del|remove)'
     platforms: [windows]
 - id: windows-recursive-delete-rd
   desc: Windows recursive deletion (rmdir/rd)
+  crit: suspicious
   if:
     type: string
     regex: (?:r(?:d|mdir)\s+/s).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
     platforms: [windows]
 - id: windows-recursive-delete-del
   desc: Windows recursive deletion (del)
+  crit: suspicious
   if:
     type: string
     regex: (?:del\s+/f\s+/q).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
@@ -140,6 +150,7 @@ traits:
 composite_rules:
 - id: windows-system32-delete
   desc: Windows System32 directory deletion
+  crit: suspicious
   conf: 0.95
   platforms:
   - windows
@@ -148,6 +159,7 @@ composite_rules:
     - id: windows-system32-delete-path-first
 - id: windows-recursive-delete
   desc: Windows system directory recursive deletion
+  crit: suspicious
   conf: 0.9
   platforms:
   - windows
@@ -189,6 +201,7 @@ composite_rules:
   - id: usr-dir-ref
 - id: mass-deletion
   desc: Mass system file deletion
+  crit: suspicious
   conf: 0.95
   all:
   - id: recursive-delete-cmd

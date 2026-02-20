@@ -34,11 +34,15 @@ traits:
     regex: install_requires\s*=\s*\w+\.read\(|install_requires\s*=\s*read_requirements
 - id: affiliate-network-url-1
   desc: Affiliate URL (clickbank/jvz)
+  crit: suspicious
+  conf: 0.9
   if:
     type: string
     regex: \b(?:hop\.clickbank\.net|jvz\d*\.com)\b
 - id: affiliate-network-url-2
   desc: Affiliate URL (warriorplus/digistore24/impact)
+  crit: suspicious
+  conf: 0.85
   if:
     type: string
     regex: \b(?:warriorplus|digistore24|impact)\.com\b

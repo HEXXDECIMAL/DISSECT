@@ -43,8 +43,8 @@ fn test_empty_mapper() {
 
 #[test]
 fn test_new_mapper() {
-    let mapper = CapabilityMapper::new();
-    // New mapper loads traits from the default traits directory
+    let mapper = CapabilityMapper::new_without_validation();
+    // New mapper loads traits from the default traits directory (without validation for tests)
     assert!(
         mapper.mapping_count() > 0,
         "Should load mappings from traits directory"

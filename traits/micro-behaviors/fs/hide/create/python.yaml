@@ -88,16 +88,19 @@ traits:
     regex: \.mkdir\(\s*["'].{0,200}[\\/]\.[a-zA-Z][a-zA-Z0-9_-]{0,40}["']
 - id: python-mkdir-hidden__unless_1a
   desc: Helper string condition
+  crit: inert
   if:
     type: string
     regex: \.(tox|cache|git|venv)
 - id: python-mkdir-hidden__unless_1b
   desc: Helper string condition
+  crit: inert
   if:
     type: string
     regex: \.(env|pytest_cache|mypy_cache|build)
 - id: python-mkdir-hidden__unless_1c
   desc: Helper string condition
+  crit: inert
   if:
     type: string
     regex: \.dist

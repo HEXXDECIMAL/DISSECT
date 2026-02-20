@@ -68,7 +68,8 @@ Before using `unless:`/`downgrade:`, tighten with:
 - ✓ Validate taxonomy placement (semantic directories)
 - ✓ Prefer `downgrade:` over `unless:` (keep detections visible)
 - ✓ Use AST patterns for source code (highest precision)
-
+- ✓ No trait should be misleading or false, not even inert ones. Seek to improve and relocate misleading traits to a location that matches the query performed.
 **Scale**: This tool analyzes millions of open-source packages. Precision is critical.
+- ✓ Consider notability and suspicion in the lens of: how surprised would you be to see this feature pop up in an updated version this file. Could it be the sign of a supply-chain attack?
 
 Try hard to not emit broken traits - review *RULES.md* for trait syntax.

@@ -79,5 +79,5 @@ traits:
   crit: notable
   conf: 0.8
   if:
-    type: raw
+    type: string
     regex: "ext/[^/]{1,120}/[^/]{1,120}/[^/]{1,120}/"

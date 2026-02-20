@@ -71,7 +71,7 @@ fn create_test_report_for_diff(path: &str, trait_ids: Vec<&str>) -> AnalysisRepo
 
 #[test]
 fn test_diff_analyzer_new() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     assert_eq!(analyzer.baseline_path.to_str().unwrap(), "/baseline");
     assert_eq!(analyzer.target_path.to_str().unwrap(), "/target");
 }
@@ -79,7 +79,7 @@ fn test_diff_analyzer_new() {
 
 #[test]
 fn test_compare_reports_no_changes() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let baseline = create_test_report_for_diff("/baseline/file", vec!["net/http"]);
     let target = create_test_report_for_diff("/target/file", vec!["net/http"]);
 
@@ -93,7 +93,7 @@ fn test_compare_reports_no_changes() {
 
 #[test]
 fn test_compare_reports_new_capabilities() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let baseline = create_test_report_for_diff("/baseline/file", vec!["net/http"]);
     let target = create_test_report_for_diff("/target/file", vec!["net/http", "fs/write"]);
 
@@ -105,7 +105,7 @@ fn test_compare_reports_new_capabilities() {
 
 #[test]
 fn test_compare_reports_removed_capabilities() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let baseline = create_test_report_for_diff("/baseline/file", vec!["net/http", "fs/write"]);
     let target = create_test_report_for_diff("/target/file", vec!["net/http"]);
 
@@ -117,7 +117,7 @@ fn test_compare_reports_removed_capabilities() {
 
 #[test]
 fn test_compare_reports_risk_increase() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let baseline = create_test_report_for_diff("/baseline/file", vec!["net/http"]);
     let target = create_test_report_for_diff("/target/file", vec!["net/http", "execution/shell"]);
 
@@ -148,7 +148,7 @@ fn make_test_cap(id: &str) -> Finding {
 
 #[test]
 fn test_assess_risk_increase_new_high_risk() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![];
 
@@ -157,7 +157,7 @@ fn test_assess_risk_increase_new_high_risk() {
 
 #[test]
 fn test_assess_risk_increase_no_high_risk() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let new_caps = vec![make_test_cap("net/http")];
     let removed_caps = vec![];
 
@@ -166,7 +166,7 @@ fn test_assess_risk_increase_no_high_risk() {
 
 #[test]
 fn test_assess_risk_increase_balanced() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![make_test_cap("anti-analysis/debugger")];
 
@@ -175,7 +175,7 @@ fn test_assess_risk_increase_balanced() {
 
 #[test]
 fn test_assess_risk_increase_more_removed_than_added() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
     let new_caps = vec![make_test_cap("execution/shell")];
     let removed_caps = vec![
         make_test_cap("anti-analysis/debugger"),
@@ -187,7 +187,7 @@ fn test_assess_risk_increase_more_removed_than_added() {
 
 #[test]
 fn test_collect_files_creates_relative_paths() {
-    let analyzer = DiffAnalyzer::new("/baseline", "/target");
+    let analyzer = DiffAnalyzer::new_for_test("/baseline", "/target");
 
     // Test with src directory which should exist
     if let Ok(files) = analyzer.collect_files(Path::new("src")) {

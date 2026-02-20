@@ -8,4 +8,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(?:bil\\.gen\\.asl\\.a|\\.con)"
+      regex: "bil\\.gen\\.asl\\.a"

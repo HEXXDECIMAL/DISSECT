@@ -44,6 +44,15 @@ traits:
       type: string
       regex: "(freehost|byethost|000webhost).{0,50}:[0-9]+"
 
+  # === Cloudflare Pages ===
+  - id: cloudflare-pages
+    desc: Cloudflare Pages domain
+    crit: suspicious
+    conf: 0.80
+    if:
+      type: raw
+      regex: "\\.pages\\.dev"
+
 composite_rules:
   - id: free-webhost-c2-channel
     desc: Free webhosting C2 channel

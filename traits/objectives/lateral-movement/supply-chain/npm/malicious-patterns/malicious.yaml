@@ -6,11 +6,15 @@ defaults:
 traits:
   - id: process-env-token-1
     desc: Accesses process.env (TOKEN/KEY/AUTH)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: process\.env\.(?:TOKEN|KEY|AUTH)
   - id: process-env-token-2
     desc: Accesses process.env (SECRET/PASSWORD)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: process\.env\.(?:SECRET|PASSWORD)

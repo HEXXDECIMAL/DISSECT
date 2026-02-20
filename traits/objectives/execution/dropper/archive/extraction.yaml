@@ -72,25 +72,25 @@ traits:
     regex: (tempdir|gettempdir).{0,15}extract|extract.{0,15}tempdir
 - id: extract-then-execute-arch
   desc: Extract then execute pattern (archive)
-  crit: suspicious
+  crit: inert
   conf: 0.9
   if:
     type: string
     regex: (?:extract|unzip|tar).{0,80}
 - id: extract-then-execute-run-1
   desc: Extract then execute pattern (exec/run/sub)
-  crit: suspicious
+  crit: inert
   conf: 0.9
   if:
     type: string
     regex: (?:exec|run|subprocess)
 - id: extract-then-execute-run-2
   desc: Extract then execute pattern (shell/python)
-  crit: suspicious
+  crit: inert
   conf: 0.9
   if:
     type: string
-    regex: (?:bash|sh|python)
+    regex: \b(?:bash|python|sh\b)
 composite_rules:
 - id: tar-extract
   desc: tar archive extraction

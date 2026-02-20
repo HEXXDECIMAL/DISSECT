@@ -8,6 +8,8 @@ defaults:
 traits:
   - id: crack-passwords-protocol-1
     desc: Protocol password cracking wording (pop3/ftp/hotline)
+    crit: notable
+    conf: 0.75
     if:
       type: encoded
       encoding: base64
@@ -15,6 +17,8 @@ traits:
 
   - id: crack-passwords-protocol-2
     desc: Protocol password cracking wording (msn/icq)
+    crit: notable
+    conf: 0.75
     if:
       type: encoded
       encoding: base64

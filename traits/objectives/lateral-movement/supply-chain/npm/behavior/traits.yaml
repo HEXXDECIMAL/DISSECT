@@ -329,6 +329,8 @@ traits:
       case_insensitive: true
   - id: desc-prevent-squat-1
     desc: Description claims to prevent squatting (prevent/protect)
+    crit: notable
+    conf: 0.75
     if:
       type: kv
       path: 'description'
@@ -389,11 +391,15 @@ traits:
       regex: 'proof\s*of\s*concept|\bPoC\b'
   - id: local-stealer-import-1
     desc: Local stealer import pattern 1
+    crit: suspicious
+    conf: 0.9
     if:
       type: string
       regex: '(?:from|require\()\s*\./(?:stealer|grabber)'
   - id: local-stealer-import-2
     desc: Local stealer import pattern 2
+    crit: suspicious
+    conf: 0.85
     if:
       type: string
       regex: '(?:from|require\()\s*\./(?:logger|exfil)'
@@ -549,7 +555,7 @@ composite_rules:
       - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
     none:
       - id: pkg-dependencies
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-bin-field
+      - id: metadata/quality/npm/pkg-meta::has-bin-field
   - id: multiple-hooks
     desc: Package has multiple install lifecycle
     crit: suspicious
@@ -576,7 +582,7 @@ composite_rules:
       - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
     none:
       - id: objectives/lateral-movement/supply-chain/npm/metadata::repository-key
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-bin-field
+      - id: metadata/quality/npm/pkg-meta::has-bin-field
   - id: child-unref
     desc: Orphan child process (unref pattern)
     crit: suspicious

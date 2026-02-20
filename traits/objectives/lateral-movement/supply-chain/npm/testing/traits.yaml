@@ -87,39 +87,16 @@ traits:
       type: string
       regex: 'fixtures/|testdata/|__fixtures__/'
 
-  - id: wpt-test-title
-    desc: Web Platform Test title pattern
-    if:
-      type: string
-      substr: "Web Platform Test"
-
-  - id: test-filename-pattern
-    desc: Common test filename pattern
-    if:
-      type: string
-      regex: '\.(test|spec|test-case)\.[a-z]+$'
-
-  - id: jest-expect-call
-    desc: Jest expect() call
-    if:
-      type: string
-      substr: "expect("
-
-  - id: mocha-describe-call
-    desc: Mocha describe() call
-    if:
-      type: string
-      substr: "describe("
-
 composite_rules:
+  # Reference metadata for test detection
   - id: jest-test-file
     desc: Jest test file
     crit: notable
     conf: 0.9
     for: [javascript, typescript]
     all:
-      - id: jest-expect-call
-      - id: test-filename-pattern
+      - id: metadata/quality/testing/npm::jest-expect-call
+      - id: metadata/quality/testing/npm::test-filename-pattern
 
   - id: mocha-test-file
     desc: Mocha test file
@@ -127,8 +104,8 @@ composite_rules:
     conf: 0.9
     for: [javascript, typescript]
     all:
-      - id: mocha-describe-call
-      - id: test-filename-pattern
+      - id: metadata/quality/testing/npm::mocha-describe-call
+      - id: metadata/quality/testing/npm::test-filename-pattern
 
   - id: wpt-test-file
     desc: Web Platform Test (WPT) file
@@ -136,6 +113,6 @@ composite_rules:
     conf: 0.95
     for: [javascript, html]
     any:
-      - id: wpt-test-title
-      - id: objectives/lateral-movement/supply-chain/npm/language-features::promise-test-call
-      - id: objectives/lateral-movement/supply-chain/npm/language-features::async-test-call
+      - id: metadata/quality/testing/npm::wpt-test-title
+      - id: metadata/lang/javascript-features::promise-test-call
+      - id: metadata/lang/javascript-features::async-test-call

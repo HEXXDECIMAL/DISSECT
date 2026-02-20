@@ -43,3 +43,20 @@ traits:
       type: raw
       # Matches loop using concat property access
       regex: '\w+\s*=\s*\w+\[\s*["'']conca["'']\s*\+\s*["'']t["'']\s*\]'
+
+  - id: nemucod-function-fragmentation
+    desc: "Nemucod function-based string fragmentation"
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: ast
+      language: javascript
+      query: |
+        (function_declaration
+          body: (statement_block
+            (return_statement
+              (string)
+            )
+          )
+        ) @func_return_string
+      count_min: 20

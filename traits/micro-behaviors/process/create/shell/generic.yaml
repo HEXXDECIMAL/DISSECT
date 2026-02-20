@@ -220,7 +220,7 @@ traits:
     for: [shell]
     if:
       type: raw
-      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(python|bash)'
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\b(python|bash)'
 
   - id: curl-pipe-exec-sh-node
     desc: Curl piped to sh or node
@@ -229,7 +229,7 @@ traits:
     for: [shell]
     if:
       type: raw
-      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?(sh|node)'
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\b(sh|node)'
 
   - id: curl-pipe-exec-php
     desc: Curl piped to php
@@ -238,7 +238,7 @@ traits:
     for: [shell]
     if:
       type: raw
-      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?php'
+      regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\bphp'
 
   - id: sudo-piped-exec
     desc: Piped execution with sudo

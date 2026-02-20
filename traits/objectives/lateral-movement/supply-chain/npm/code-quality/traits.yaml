@@ -24,7 +24,7 @@ composite_rules:
     for: [package.json]
     needs: 2
     any:
-      - { id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::pkg-main-field }
+      - { id: metadata/quality/npm/pkg-meta::pkg-main-field }
       - { id: objectives/lateral-movement/supply-chain/npm/exports::pkg-module-field }
       - { id: objectives/lateral-movement/supply-chain/npm/exports::pkg-exports-field-entry }
-      - { id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::pkg-types-field }
+      - { id: metadata/quality/npm/pkg-meta::pkg-types-field }

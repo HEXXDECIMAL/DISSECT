@@ -95,18 +95,18 @@ traits:
   crit: suspicious
   if:
     type: string
-    regex: \b(?:words?|phrase)\b.{0,40}\b(?:split|len|count)\b
+    regex: \bwords?\b.{0,40}\b(?:split|len|count)\b
 - id: word-count-check-values-1
   desc: Mnemonic word count validation (values 12/15/18)
   conf: 0.85
-  crit: suspicious
+  crit: inert
   if:
     type: string
     regex: \b(?:12|15|18)\b
 - id: word-count-check-values-2
   desc: Mnemonic word count validation (values 21/24)
   conf: 0.85
-  crit: suspicious
+  crit: inert
   if:
     type: string
     regex: \b(?:21|24)\b

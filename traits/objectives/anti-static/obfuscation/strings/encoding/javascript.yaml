@@ -77,7 +77,9 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: '(globalThis|window|self).{0,80}='
+      regex: '\b(globalThis|window|self)(?:(?:\.[a-zA-Z_$][\w$]*|\[[^\]]{1,200}\]))?\s*=[^=]'
+    unless:
+      - id: metadata/library::umd-window-assignment
 
   - id: js-global-property-write-eval
     desc: Global property using eval

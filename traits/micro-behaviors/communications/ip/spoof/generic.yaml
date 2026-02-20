@@ -81,8 +81,8 @@ traits:
       regex: "(SYN|syn).?cookie"
 
   - id: bitwise-ip-rand-source
-    desc: Random source used in bitwise IP construction
-    crit: suspicious
+    desc: Random number generation function call
+    crit: inert
     conf: 0.8
     if:
       type: raw

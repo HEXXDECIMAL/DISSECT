@@ -259,7 +259,7 @@ composite_rules:
       - id: install-hooks
     none:
       - id: npm-has-repository
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-bin-field
+      - id: metadata/quality/npm/pkg-meta::has-bin-field
 
   - id: desc-simple-easy
     desc: Description mentions simple/easy
@@ -303,9 +303,9 @@ composite_rules:
     none:
       - id: has-bugs-url
       - id: has-homepage
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-files-field
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-engines
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-contributors
+      - id: metadata/quality/npm/pkg-meta::has-files-field
+      - id: metadata/quality/npm/pkg-meta::has-engines
+      - id: metadata/quality/npm/pkg-meta::has-contributors
 
   - id: mature-cloned-package
     desc: Mature version package with incomplete copied metadata
@@ -320,9 +320,9 @@ composite_rules:
     none:
       - id: has-bugs-url
       - id: has-homepage
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-files-field
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-engines
-      - id: objectives/lateral-movement/supply-chain/npm-quality/pkg-meta::has-contributors
+      - id: metadata/quality/npm/pkg-meta::has-files-field
+      - id: metadata/quality/npm/pkg-meta::has-engines
+      - id: metadata/quality/npm/pkg-meta::has-contributors
 
   # === Fake Security Research ===
   - id: fake-security-research

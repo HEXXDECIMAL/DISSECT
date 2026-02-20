@@ -28,7 +28,15 @@ traits:
     mbc: "E1110"
     if:
       type: string
-      regex: "dscl.{0,30}-authonly"
+      substr: "-authonly"
+
+  - id: dscl-local-default
+    desc: dscl /Local/Default path
+    crit: notable
+    conf: 0.85
+    if:
+      type: string
+      substr: "/Local/Default"
 
   # === dscl read atomic indicators ===
   - id: dscl-dot-read
@@ -224,4 +232,7 @@ composite_rules:
     for: [shell, applescript, python]
     all:
       - id: dscl-authonly
+      - id: objectives/credential-access/phishing/ui::jxa-password-prompt
+    any:
+      # Optional additional indicators
       - id: objectives/anti-analysis/window-hide/ui::password-dialog

@@ -21,3 +21,9 @@ traits:
       type: string
       regex: '[а-яА-Я]{4,}'
       count_min: 20
+    downgrade:
+      any:
+        - type: basename
+          regex: "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?\\.js$"
+        - type: string
+          regex: "moment\\.lang\\(['\"][a-z]{2}"

@@ -1,5 +1,5 @@
 defaults:
-  for: [all]
+  for: [php]
 
 traits:
   - id: php-file-write-func

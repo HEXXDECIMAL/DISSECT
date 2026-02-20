@@ -6,6 +6,7 @@ composite_rules:
     any:
       - id: objectives/anti-static/obfuscation/source/syntax::js-nemucod-decoder-loop
       - id: objectives/anti-static/obfuscation/source/syntax::nemucod-chunked-array-sequence
+      - id: objectives/anti-static/obfuscation/source/syntax::nemucod-function-fragmentation
 
   - id: nemucod-dropper
     desc: Detects Nemucod JScript dropper variants using custom array-chunking and dynamic execution.
@@ -16,6 +17,7 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/obfuscated-script::nemucod-packer-structure
     any:
+      - id: micro-behaviors/data/source/dynamic/eval/javascript::js-eval-assignment
       - id: objectives/execution/interpreter/eval/dynamic::eval-call-js
       - id: objectives/anti-static/obfuscation/strings/encoding::js-dynamic-exec
       - id: micro-behaviors/data/encode/arrays::js-large-int-array

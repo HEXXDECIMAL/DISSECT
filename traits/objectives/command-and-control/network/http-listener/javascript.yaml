@@ -21,7 +21,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "\\.post\\s*\\(|app\\.post"
+      regex: "(?:app|router)\\.post\\s*\\("
 
   - id: express-get-endpoint
     desc: Express GET endpoint

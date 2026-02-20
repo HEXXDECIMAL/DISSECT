@@ -30,7 +30,7 @@ traits:
       regex: icmp[h]?->type
   - id: icmp-echo-request
     desc: ICMP echo request type (8)
-    crit: notable
+    crit: inert
     conf: 0.6
     for:
       - c
@@ -40,7 +40,7 @@ traits:
       regex: ->type\s*==\s*8|type\s*==\s*(?:ICMP_ECHO|8)
   - id: icmp-echo-reply
     desc: ICMP echo reply type (0)
-    crit: notable
+    crit: inert
     conf: 0.6
     for:
       - c

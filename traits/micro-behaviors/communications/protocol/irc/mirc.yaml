@@ -68,7 +68,7 @@ traits:
     substr: "/writeini"
 - id: mirc-script-cmd-me
   description: Detects mIRC $me variable
-  crit: suspicious
+  crit: inert
   attack: T1546
   if:
     type: string
@@ -76,7 +76,7 @@ traits:
     regex: "\\$me\\b"
 - id: mirc-script-cmd-nick
   description: Detects mIRC $nick variable
-  crit: suspicious
+  crit: inert
   attack: T1546
   if:
     type: string
@@ -109,6 +109,4 @@ composite_rules:
   - id: mirc-script-cmd-msg-chan
   - id: mirc-script-cmd-ignore-nick
   - id: mirc-script-cmd-writeini
-  - id: mirc-script-cmd-me
-  - id: mirc-script-cmd-nick
   - id: mirc-script-cmd-script

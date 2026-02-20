@@ -18,7 +18,7 @@ traits:
     regex: \],\s+(?:al|e[abcd]x)
 - id: asm-loop-control-transfer
   conf: 0.7
-  crit: suspicious
+  crit: inert
   desc: Detects loop/jump control transfer in assembly
   if:
     type: raw

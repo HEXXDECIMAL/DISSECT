@@ -4,20 +4,20 @@ defaults:
 traits:
 - id: return-this-prototype
   desc: Detects prototype function pattern
-  crit: suspicious
+  crit: inert
   if:
     type: raw
     regex: \.prototype\.[a-zA-Z0-9_$]+
 - id: return-this-body
   desc: Detects function returning this
-  crit: suspicious
+  crit: inert
   if:
     type: raw
-    regex: function\s*\(\s*\)\s*\{[^}]{0,80}return\s+this
+    regex: function\s*\(\s*\)\s*\{[^}]{0,80}return\s+this\s*[;}]
 composite_rules:
 - id: return-this
   desc: Detects prototype function that returns this
-  crit: suspicious
+  crit: inert
   all:
   - id: return-this-prototype
   - id: return-this-body

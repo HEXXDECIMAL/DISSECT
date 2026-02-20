@@ -51,6 +51,16 @@ impl DiffAnalyzer {
         }
     }
 
+    /// Create a new diff analyzer for testing (without validation)
+    #[cfg(test)]
+    pub(crate) fn new_for_test(baseline: impl AsRef<Path>, target: impl AsRef<Path>) -> Self {
+        Self {
+            baseline_path: baseline.as_ref().to_path_buf(),
+            target_path: target.as_ref().to_path_buf(),
+            capability_mapper: CapabilityMapper::new_without_validation(),
+        }
+    }
+
     /// Run the diff analysis and return a DiffReport
     pub fn analyze(&self) -> Result<DiffReport> {
         // Determine if we're comparing files or directories

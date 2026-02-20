@@ -112,7 +112,7 @@ traits:
       regex: \.slice\(\d{1,4},\s*\d{1,4}\)
   - id: payload-transform-loop
     desc: XOR/Transform loop on data buffer
-    crit: suspicious
+    crit: notable
     conf: 0.85
     if:
       type: yara

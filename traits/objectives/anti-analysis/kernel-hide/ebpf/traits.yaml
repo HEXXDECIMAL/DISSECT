@@ -172,7 +172,7 @@ traits:
       - c
       - elf
     if:
-      type: symbol
+      type: raw
       regex: bpf_probe_write_user
   - id: getdents64-tracepoint
     desc: tp/syscalls/sys_exit_getdents64 tracepoint

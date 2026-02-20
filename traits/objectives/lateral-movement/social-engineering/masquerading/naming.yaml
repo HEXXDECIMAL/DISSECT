@@ -12,6 +12,8 @@ defaults:
 traits:
   - id: generic-executable-name-1
     desc: "Generic executable name (App/Installer/Update/Setup)"
+    crit: notable
+    conf: 0.6
     if:
       type: basename
       regex: "^(Application|Installer|Update|Setup)$"
@@ -19,13 +21,17 @@ traits:
 
   - id: generic-executable-name-2
     desc: "Generic executable name (Service/Helper/Tool/Utility)"
+    crit: notable
+    conf: 0.6
     if:
       type: basename
-      regex: "^(Service|Helper|Tool|Utility)$"
+      regex: "^(Service|Helper|Tool/Utility)$"
       case_insensitive: true
 
   - id: placeholder-author-generic-1
     desc: Generic author placeholder (set 1)
+    crit: suspicious
+    conf: 0.75
     for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
     if:
       type: string
@@ -34,6 +40,8 @@ traits:
 
   - id: placeholder-author-generic-2a
     desc: Generic author placeholder (user/admin/example)
+    crit: suspicious
+    conf: 0.75
     for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
     if:
       type: string
@@ -42,6 +50,8 @@ traits:
 
   - id: placeholder-author-generic-2b
     desc: Generic author placeholder (sample/anonymous)
+    crit: suspicious
+    conf: 0.75
     for: [package.json, chrome-manifest, cargo.toml, pyproject.toml, composer.json, pkginfo]
     if:
       type: string

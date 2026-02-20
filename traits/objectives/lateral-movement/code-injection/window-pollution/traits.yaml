@@ -4,6 +4,8 @@ defaults:
 traits:
   - id: window-expose-sensitive-1
     desc: Exposing sensitive functions to window (getToken/login/auth)
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: 'window\.(getToken|login|auth)\s*='
@@ -11,6 +13,8 @@ traits:
 
   - id: window-expose-sensitive-2
     desc: Exposing sensitive functions to window (key/secret/token)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: 'window\.(key|secret|token)\s*='

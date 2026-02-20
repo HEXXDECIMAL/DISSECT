@@ -75,26 +75,36 @@ traits:
     regex: library/(encrypt-lib|locker)/src/
 - id: config-note-field-name
   desc: note_file_name config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: note_file_name
 - id: config-note-field-full
   desc: note_full_text config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: note_full_text
 - id: config-note-field-short
   desc: note_short_text config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: note_short_text
 - id: config-cipher-field-cipher
   desc: default_file_cipher config field
+  crit: notable
+  conf: 0.7
   if:
     type: string
     substr: default_file_cipher
 - id: config-cipher-field-mode
   desc: default_file_mode config field
+  crit: notable
+  conf: 0.7
   if:
     type: string
     substr: default_file_mode
@@ -122,11 +132,15 @@ traits:
     substr: esxi_vm_kill_exclude
 - id: kill-services-config-1
   desc: kill_services config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: kill_services
 - id: kill-services-config-2
   desc: kill_processes config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: kill_processes
@@ -168,16 +182,22 @@ traits:
     regex: EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt
 - id: crypto-openssl-asymmetric-1
   desc: ECDH_compute_key function
+  crit: inert
+  conf: 0.7
   if:
     type: string
     substr: ECDH_compute_key
 - id: crypto-openssl-asymmetric-2
   desc: EC_KEY_generate_key function
+  crit: inert
+  conf: 0.7
   if:
     type: string
     substr: EC_KEY_generate_key
 - id: crypto-openssl-asymmetric-3
   desc: RSA_public_encrypt function
+  crit: inert
+  conf: 0.7
   if:
     type: string
     substr: RSA_public_encrypt
@@ -271,16 +291,22 @@ traits:
     regex: (?:README.{0,20}RESTORE|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)
 - id: locker-config-field-extensions-full
   desc: vecFullEncryptionExtensions config field
+  crit: notable
+  conf: 0.8
   if:
     type: string
     substr: vecFullEncryptionExtensions
 - id: locker-config-field-extensions-skip
   desc: vecSkipFileExtensions config field
+  crit: notable
+  conf: 0.8
   if:
     type: string
     substr: vecSkipFileExtensions
 - id: locker-config-field-key
   desc: sMasterPublicKey config field
+  crit: notable
+  conf: 0.8
   if:
     type: string
     substr: sMasterPublicKey

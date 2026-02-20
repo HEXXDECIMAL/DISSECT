@@ -58,7 +58,7 @@ traits:
     desc: Obfuscated repository name prefix
     crit: notable
     conf: 0.7
-    if: { type: string, regex: '(?:not|un|dis|anti)[-_a-z0-9]{0,12}' }
+    if: { type: string, regex: '\\b(?:not|un|dis|anti)[-_a-z0-9]{0,12}' }
 
   - id: obfuscated-repo-suffix-grabber
     desc: Obfuscated repository name suffix (grabber)

@@ -14,18 +14,6 @@ traits:
       type: string
       regex: "module\\.exports\\s*=|exports\\.[a-zA-Z]"
 
-  - id: has-esm-export-base
-    desc: ES export (default/const/func/class)
-    if:
-      type: string
-      regex: "^export\\s+(default|const|function|class)"
-
-  - id: has-esm-export-complex
-    desc: ES export (async/let/var/{)
-    if:
-      type: string
-      regex: "^export\\s+(async|let|var|\\{)"
-
   - id: imports-dependencies
     desc: Code imports from external packages
     crit: notable
@@ -83,18 +71,6 @@ traits:
       type: kv
       path: "exports"
 
-  - id: esm-export-pattern-base
-    desc: ES module export (const/func/class)
-    if:
-      type: string
-      regex: "^export (const|function|class)"
-
-  - id: esm-export-pattern-async
-    desc: ES module export (let/var/async)
-    if:
-      type: string
-      regex: "^export (let|var|async)"
-
   - id: cjs-exports-pattern
     desc: CommonJS exports.property pattern
     crit: notable
@@ -109,16 +85,16 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: has-esm-export-base
-      - id: has-esm-export-complex
+      - id: metadata/lang/javascript-features/esm::export-default-const-func-class
+      - id: metadata/lang/javascript-features/esm::export-async-let-var-brace
 
   - id: esm-export-pattern
     desc: ES module export keyword pattern
     crit: notable
     conf: 0.6
     any:
-      - id: esm-export-pattern-base
-      - id: esm-export-pattern-async
+      - id: metadata/lang/javascript-features/esm::export-const-func-class
+      - id: metadata/lang/javascript-features/esm::export-let-var-async
 
   - id: has-multiple-exports
     desc: Code has multiple named exports

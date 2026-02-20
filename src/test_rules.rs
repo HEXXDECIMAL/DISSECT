@@ -2549,7 +2549,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"<?php test ?>";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2583,7 +2583,7 @@ mod tests {
         let report = create_test_report_with_findings(vec![]);
         let binary_data = b"<?php test ?>";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2626,7 +2626,7 @@ mod tests {
         let report = AnalysisReport::new(target);
         let binary_data = b"\x7fELF\x00";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2666,7 +2666,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2702,7 +2702,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2737,7 +2737,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"<?php test ?>";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2784,7 +2784,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2821,7 +2821,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2874,7 +2874,7 @@ mod tests {
         report.findings = findings;
         let binary_data = b"\xCF\xFA\xED\xFE"; // MachO magic
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2931,7 +2931,7 @@ mod tests {
         let report = create_test_report_with_findings(vec![]);
         let binary_data = b"test data with some content";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 
@@ -2969,7 +2969,7 @@ mod tests {
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
-        let mapper = CapabilityMapper::new();
+        let mapper = CapabilityMapper::new_without_validation();
         let composites = &mapper.composite_rules;
         let traits = mapper.trait_definitions();
 

@@ -7,12 +7,16 @@ defaults:
 traits:
   - id: has-jsdoc-type
     desc: Code has JSDoc @type
+    crit: inert
+    conf: 0.7
     if:
       type: string
       substr: "@type"
 
   - id: has-jsdoc-example
     desc: Code has JSDoc @example
+    crit: inert
+    conf: 0.7
     if:
       type: string
       substr: "@example"
@@ -30,6 +34,8 @@ traits:
   # References LICENSE file
   - id: references-license-1
     desc: Package references LICENSE/LICENCE
+    crit: inert
+    conf: 0.7
     if:
       type: string
       regex: "LICEN[SC]E"
@@ -37,6 +43,8 @@ traits:
 
   - id: references-license-2
     desc: Package references COPYING
+    crit: inert
+    conf: 0.7
     if:
       type: string
       word: "COPYING"
@@ -45,6 +53,8 @@ traits:
   # References CHANGELOG
   - id: references-changelog-1
     desc: Package references CHANGELOG
+    crit: inert
+    conf: 0.7
     if:
       type: string
       word: "CHANGELOG"

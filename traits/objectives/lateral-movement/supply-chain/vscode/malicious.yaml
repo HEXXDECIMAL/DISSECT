@@ -83,18 +83,24 @@ traits:
   # Persistence location references
   - id: persistence-location-startup
     desc: References Startup location
+    crit: inert
+    conf: 0.5
     if:
       type: string
       word: "Startup"
 
   - id: persistence-location-crontab
     desc: References crontab location
+    crit: inert
+    conf: 0.5
     if:
       type: string
       word: "crontab"
 
   - id: persistence-location-launchd
     desc: References launchd location
+    crit: inert
+    conf: 0.5
     if:
       type: string
       word: "launchd"

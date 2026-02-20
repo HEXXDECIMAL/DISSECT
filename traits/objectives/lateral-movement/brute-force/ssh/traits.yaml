@@ -170,12 +170,16 @@ traits:
       case_insensitive: true
   - id: scanning-keyword-1
     desc: scanning keyword (port/network)
+    crit: inert
+    conf: 0.5
     if:
       type: string
       regex: \b(port|network)[_-]?scanning\b
       case_insensitive: true
   - id: scanning-keyword-2
     desc: scanning keyword (port/target/thread)
+    crit: inert
+    conf: 0.5
     if:
       type: string
       regex: \bscanning[_-]?(port|target|thread)\b

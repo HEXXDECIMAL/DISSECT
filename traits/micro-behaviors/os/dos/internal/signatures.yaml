@@ -4,7 +4,7 @@ defaults:
 traits:
   - id: dispatcher-signature-op
     desc: DOS dispatcher check op
-    crit: suspicious
+    crit: inert
     conf: 0.9
     if:
       type: raw

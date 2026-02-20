@@ -650,10 +650,10 @@ traits:
   conf: 0.85
   unless:
   - type: raw
-    regex: sina\.com\.cn|163\.com|126\.com|sohu\.com|qq\.com|yahoo\.com\.cn|mysite|rambler\.ru|yandex\.ru|mail\.ru|tbcdn\.cn|xn--hgi\.ws
+    regex: sina\.com\.cn|163\.com|126\.com|sohu\.com|qq\.com|yahoo\.com\.cn|mysite|rambler\.ru|yandex\.ru|mail\.ru|tbcdn\.cn|xn--hgi\.ws|a\.b\.c\.xyz
   if:
     type: raw
-    regex: '[''\"](?:https?://)?(?:[a-zA-Z0-9-]{1,63}\.){1,4}(?:ru|cn|xyz|top)'
+    regex: '[''\"](?:https?://)?(?:[a-zA-Z0-9-]{1,63}\.){1,4}(?:ru|cn|xyz|top)[''"/:]'
 - id: suspicious-php-filename
   desc: Suspicious PHP endpoint URL (gate/upload/etc)
   crit: suspicious

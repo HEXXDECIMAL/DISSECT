@@ -30,6 +30,12 @@ traits:
       type: string
       regex: "[\\p{Devanagari}\\p{Cyrillic}\\p{Arabic}\\p{Hebrew}\\p{Han}]"
       count_min: 5
+    downgrade:
+      any:
+        - type: basename
+          regex: "^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?\\.js$"
+        - type: string
+          regex: "moment\\.lang\\(['\"][a-z]{2}"
 
   # Mixed Unicode blocks in single string (sophisticated obfuscation)
   - id: mixed-unicode-blocks

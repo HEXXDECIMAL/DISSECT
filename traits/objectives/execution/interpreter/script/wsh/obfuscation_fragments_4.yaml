@@ -41,7 +41,7 @@ traits:
     desc: Tiny ADODB.Stream fragment (variant 2b)
     if:
       type: string
-      substr: 'trea'
+      word: 'trea'
 
   - id: xmlhttp-fragment-tiny-2
     desc: Tiny XMLHTTP fragment (variant 2)

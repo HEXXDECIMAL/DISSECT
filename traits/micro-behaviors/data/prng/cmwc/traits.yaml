@@ -3,8 +3,8 @@ defaults:
 
 traits:
   - id: cmwc-prng-constants
-    desc: "Detects CMWC PRNG constants (PHI 0x9e3779b9, 362436)"
-    crit: suspicious
+    desc: "Golden Ratio constant (0x9e3779b9)"
+    crit: inert
     conf: 0.9
     if:
       type: raw

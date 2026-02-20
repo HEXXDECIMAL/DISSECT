@@ -71,9 +71,9 @@ traits:
       type: raw
       regex: "#include\\s*<openssl/md5"
 
-  - id: md5-password-context-c
+  - id: password-context-c
     desc: Password/crypt context in C source
-    crit: suspicious
+    crit: inert
     conf: 0.8
     mbc: "C0029"
     for: [c]
@@ -99,5 +99,5 @@ composite_rules:
     mbc: "C0029"
     for: [c]
     all:
-      - id: md5-password-context-c
+      - id: password-context-c
       - id: md5-init-update-final-c

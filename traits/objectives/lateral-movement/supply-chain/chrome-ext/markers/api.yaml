@@ -223,11 +223,15 @@ traits:
     regex: observer\.observe\(document\.body|observe\(document\.body
 - id: browser-namespace-1
   desc: Uses browser.* namespace (core APIs)
+  crit: notable
+  conf: 0.95
   if:
     type: string
     regex: browser\.(runtime|tabs|storage|webRequest)
 - id: browser-namespace-2
   desc: Uses browser.* namespace (data APIs)
+  crit: notable
+  conf: 0.95
   if:
     type: string
     regex: browser\.(cookies|history|bookmarks)
@@ -243,11 +247,15 @@ traits:
     regex: https?://[a-zA-Z0-9][-a-zA-Z0-9]*\.io/
 - id: chrome-namespace-core-1
   desc: Uses core chrome.* APIs (runtime/tabs/storage)
+  crit: notable
+  conf: 0.95
   if:
     type: string
     regex: chrome\.(runtime|tabs|storage)
 - id: chrome-namespace-core-2
   desc: Uses core chrome.* APIs (webRequest/cookies)
+  crit: notable
+  conf: 0.95
   if:
     type: string
     regex: chrome\.(webRequest|cookies)

@@ -6,6 +6,7 @@ traits:
     description: "Detects PHP code string containing include/require statement"
     crit: suspicious
     attack: T1546
+    for: [php]
     if:
       type: raw
       regex: '["'']\s*(?:include|require)(?:_once)?\s*[(]'

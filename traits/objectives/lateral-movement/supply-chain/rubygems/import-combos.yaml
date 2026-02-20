@@ -161,12 +161,16 @@ traits:
   # === Remote download patterns ===
   - id: remote-binary-url-1
     desc: Remote binary (so/dll/dylib)
+    crit: suspicious
+    conf: 0.9
     if:
       type: string
       regex: "https?://[^\\s]{1,120}\\.(so|dll|dylib)"
 
   - id: remote-binary-url-2
     desc: Remote binary (exe/sh/rb)
+    crit: suspicious
+    conf: 0.9
     if:
       type: string
       regex: "https?://[^\\s]{1,120}\\.(exe|sh|rb)"
