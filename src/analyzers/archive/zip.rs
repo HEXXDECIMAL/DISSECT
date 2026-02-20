@@ -11,7 +11,8 @@
 //! - Firefox extensions (.xpi)
 
 use super::guards::{
-    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+    sanitize_entry_path, symlink_escapes, ExtractionGuard, HostileArchiveReason, LimitedReader,
+    MAX_FILE_SIZE,
 };
 use anyhow::{Context, Result};
 use std::fs::{self, File};
@@ -171,7 +172,21 @@ pub(crate) fn extract_zip_entries_safe<R: Read + Seek>(
         // S_IFLNK = 0o120000, S_IFMT = 0o170000
         if let Some(mode) = entry.unix_mode() {
             if mode & 0o170000 == 0o120000 {
-                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+                // Symlink target is stored as file content in ZIP
+                let mut target_buf = Vec::new();
+                if let Ok(read_size) = entry.read_to_end(&mut target_buf) {
+                    if read_size > 0 && read_size < 4096 {
+                        // Reasonable symlink path length
+                        if let Ok(target_str) = String::from_utf8(target_buf) {
+                            if symlink_escapes(&outpath, &target_str, dest_dir) {
+                                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                                    format!("{} -> {}", entry_name, target_str),
+                                ));
+                            }
+                        }
+                    }
+                }
+                // Skip symlinks regardless (we don't extract them)
                 continue;
             }
         }

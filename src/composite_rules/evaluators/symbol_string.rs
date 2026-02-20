@@ -397,10 +397,17 @@ pub(crate) fn eval_string<'a, 'b>(
 
 /// Evaluate raw content condition - searches directly in file bytes as text.
 ///
+/// Determines if a pattern can be matched on raw bytes (ASCII-only, no Unicode features).
+/// Returns true if the pattern contains only ASCII characters and doesn't use Unicode escapes.
+#[inline]
+fn can_use_byte_matching(pattern: &str) -> bool {
+    pattern.is_ascii() && !pattern.contains("\\u") && !pattern.contains("\\p") && !pattern.contains("\\P")
+}
+
 /// Used by `type: raw` conditions to search raw file content rather than extracted strings.
 /// Use for cross-boundary patterns or when string extraction is insufficient.
 #[allow(clippy::too_many_arguments)]
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_raw<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
@@ -436,122 +443,257 @@ pub(crate) fn eval_raw<'a>(
     // Get the slice of binary data to search
     let search_data = &ctx.binary_data[search_start..search_end];
 
-    // Convert binary data to string (use lossy conversion for binary files)
-    let content = String::from_utf8_lossy(search_data);
-
     // Track match count for constraint checking
     let mut match_count = 0usize;
 
     // Use pre-compiled regex (handles both word and regex patterns)
+    // OPTIMIZATION: Try bytes regex first for ASCII patterns to avoid UTF-8 conversion
     if let Some(re) = compiled_regex {
-        let mut first_match = None;
-        for (idx, mat) in re.find_iter(&content).enumerate() {
-            // Limit match processing to prevent DoS on pattern-dense files
-            if idx >= MAX_MATCHES_TO_PROCESS {
-                eprintln!(
-                    "WARNING: Hit match limit of {} matches for regex pattern, stopping early",
-                    MAX_MATCHES_TO_PROCESS
-                );
-                break;
+        // Check if the original pattern is ASCII-only to use bytes regex
+        let pattern_str = re.as_str();
+        let use_bytes_regex = can_use_byte_matching(pattern_str);
+
+        if use_bytes_regex {
+            // FAST PATH: Use bytes::Regex on raw binary data (no UTF-8 conversion!)
+            // Get or compile bytes regex from cache
+            let bytes_re = super::regex_cache_v2()
+                .entry((pattern_str.to_string(), case_insensitive))
+                .or_try_insert_with(|| super::compile_regex_optimal(pattern_str, case_insensitive))
+                .map_err(|e| anyhow::anyhow!("Regex error: {}", e))
+                .ok();
+
+            if let Some(super::CachedRegex::Bytes(bytes_re)) = bytes_re.as_ref().map(|r| r.value()) {
+                let mut first_match = None;
+                for (idx, mat) in bytes_re.find_iter(search_data).enumerate() {
+                    if idx >= MAX_MATCHES_TO_PROCESS {
+                        eprintln!(
+                            "WARNING: Hit match limit of {} matches for regex pattern, stopping early",
+                            MAX_MATCHES_TO_PROCESS
+                        );
+                        break;
+                    }
+                    let match_bytes = mat.as_bytes();
+
+                    // For external_ip or not filters, convert only the match to string
+                    if external_ip || not.is_some() {
+                        let match_str = String::from_utf8_lossy(match_bytes);
+                        if external_ip && !contains_external_ip(&match_str) {
+                            continue;
+                        }
+                        if let Some(not_filters) = not {
+                            if not_filters.iter().any(|filter| filter.matches(&match_str)) {
+                                continue;
+                            }
+                        }
+                        if first_match.is_none() {
+                            first_match = Some(match_str.to_string());
+                        }
+                    } else {
+                        // No filters, just count
+                        if first_match.is_none() {
+                            first_match = Some(String::from_utf8_lossy(match_bytes).to_string());
+                        }
+                    }
+
+                    match_count += 1;
+                }
+                if match_count > 0 {
+                    evidence.push(Evidence {
+                        method: "raw".to_string(),
+                        source: "raw_content".to_string(),
+                        value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
+                        location: Some("file".to_string()),
+                    });
+                }
             }
-            let match_str = mat.as_str();
-            // Skip matches without external IP when external_ip is required
-            if external_ip && !contains_external_ip(match_str) {
-                continue;
-            }
-            // Skip matches that trigger 'not' filters
-            if let Some(not_filters) = not {
-                if not_filters.iter().any(|filter| filter.matches(match_str)) {
+        } else {
+            // UNICODE PATH: Use cached UTF-8 conversion for Unicode regex
+            let content = super::get_utf8_cached(ctx.binary_data, (search_start, search_end));
+
+            let mut first_match = None;
+            for (idx, mat) in re.find_iter(&content).enumerate() {
+                // Limit match processing to prevent DoS on pattern-dense files
+                if idx >= MAX_MATCHES_TO_PROCESS {
+                    eprintln!(
+                        "WARNING: Hit match limit of {} matches for regex pattern, stopping early",
+                        MAX_MATCHES_TO_PROCESS
+                    );
+                    break;
+                }
+                let match_str = mat.as_str();
+                // Skip matches without external IP when external_ip is required
+                if external_ip && !contains_external_ip(match_str) {
                     continue;
                 }
-            }
-            match_count += 1;
-            if first_match.is_none() {
-                first_match = Some(match_str.to_string());
-            }
-        }
-        if match_count > 0 {
-            evidence.push(Evidence {
-                method: "raw".to_string(),
-                source: "raw_content".to_string(),
-                value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
-                location: Some("file".to_string()),
-            });
-        }
-    } else if let Some(exact_str) = exact {
-        // Full string match - entire file content must equal the pattern
-        let matched = if case_insensitive {
-            content.eq_ignore_ascii_case(exact_str)
-        } else {
-            content == *exact_str
-        };
-        // When external_ip is set, require the match to contain an external IP
-        let ip_ok = !external_ip || contains_external_ip(exact_str);
-        // Skip matches that trigger 'not' filters
-        let excluded_by_not = not
-            .map(|exceptions| exceptions.iter().any(|exc| exc.matches(exact_str)))
-            .unwrap_or(false);
-
-        if matched && ip_ok && !excluded_by_not {
-            match_count = 1;
-            evidence.push(Evidence {
-                method: "raw".to_string(),
-                source: "raw_content".to_string(),
-                value: format!("Exact match: {}", exact_str),
-                location: Some("file".to_string()),
-            });
-        }
-    } else if let Some(substr_str) = substr {
-        // Substring match - count occurrences in raw content
-        // When external_ip is set, we need to find actual matches and check each
-        if external_ip {
-            // For external_ip validation, we need to find actual match positions
-            let search_content = if case_insensitive {
-                content.to_lowercase()
-            } else {
-                content.to_string()
-            };
-            let search_pattern = if case_insensitive {
-                substr_str.to_lowercase()
-            } else {
-                substr_str.clone()
-            };
-            let mut start = 0;
-            while let Some(pos) = search_content[start..].find(&search_pattern) {
-                let abs_pos = start + pos;
-                // Get some context around the match to check for IP
-                let context_start = abs_pos.saturating_sub(50);
-                let context_end = (abs_pos + search_pattern.len() + 50).min(content.len());
-                let context = &content[context_start..context_end];
-                if contains_external_ip(context) {
-                    // Also check 'not' filters for this match
-                    let excluded_by_not = not
-                        .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
-                        .unwrap_or(false);
-                    if !excluded_by_not {
-                        match_count += 1;
+                // Skip matches that trigger 'not' filters
+                if let Some(not_filters) = not {
+                    if not_filters.iter().any(|filter| filter.matches(match_str)) {
+                        continue;
                     }
                 }
-                start = abs_pos + 1;
+                match_count += 1;
+                if first_match.is_none() {
+                    first_match = Some(match_str.to_string());
+                }
             }
             if match_count > 0 {
                 evidence.push(Evidence {
                     method: "raw".to_string(),
                     source: "raw_content".to_string(),
-                    value: format!(
-                        "Found {} occurrences of {} (with external IP)",
-                        match_count, substr_str
-                    ),
+                    value: format!("Found {} {}", match_count, first_match.unwrap_or_default()),
+                    location: Some("file".to_string()),
+                });
+            }
+        }
+    } else if let Some(exact_str) = exact {
+        // Full string match - OPTIMIZED: byte-level comparison for ASCII
+        if can_use_byte_matching(exact_str) {
+            // Fast path: Byte-level exact match (no UTF-8 conversion needed!)
+            let matched = if case_insensitive {
+                search_data.eq_ignore_ascii_case(exact_str.as_bytes())
+            } else {
+                search_data == exact_str.as_bytes()
+            };
+
+            // When external_ip is set, only convert to string for IP check if needed
+            let ip_ok = !external_ip || {
+                let content = String::from_utf8_lossy(search_data);
+                contains_external_ip(&content)
+            };
+
+            let excluded_by_not = not
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(exact_str)))
+                .unwrap_or(false);
+
+            if matched && ip_ok && !excluded_by_not {
+                match_count = 1;
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!("Exact match: {}", exact_str),
                     location: Some("file".to_string()),
                 });
             }
         } else {
-            // Skip matches that trigger 'not' filters
+            // Unicode pattern - use cached UTF-8 conversion
+            let content = super::get_utf8_cached(ctx.binary_data, (search_start, search_end));
+
+            let matched = if case_insensitive {
+                content.eq_ignore_ascii_case(exact_str)
+            } else {
+                content.as_ref() == exact_str
+            };
+
+            let ip_ok = !external_ip || contains_external_ip(&content);
             let excluded_by_not = not
-                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
+                .map(|exceptions| exceptions.iter().any(|exc| exc.matches(exact_str)))
                 .unwrap_or(false);
 
-            if !excluded_by_not {
+            if matched && ip_ok && !excluded_by_not {
+                match_count = 1;
+                evidence.push(Evidence {
+                    method: "raw".to_string(),
+                    source: "raw_content".to_string(),
+                    value: format!("Exact match: {}", exact_str),
+                    location: Some("file".to_string()),
+                });
+            }
+        }
+    } else if let Some(substr_str) = substr {
+        // Substring match - OPTIMIZED: use byte-level search for ASCII patterns
+        if can_use_byte_matching(substr_str) {
+            // Fast path: Byte-level substring search (avoids UTF-8 conversion)
+            if external_ip {
+                // Need to check each match context for external IP
+                if case_insensitive {
+                    let pattern_lower = substr_str.to_ascii_lowercase();
+                    let needle = pattern_lower.as_bytes();
+                    let finder = memchr::memmem::Finder::new(needle);
+
+                    let mut pos = 0;
+                    while let Some(offset) = finder.find(&search_data[pos..].to_ascii_lowercase()) {
+                        let abs_pos = pos + offset;
+                        // Convert only context window for IP check (not entire file!)
+                        let ctx_start = abs_pos.saturating_sub(50);
+                        let ctx_end = (abs_pos + needle.len() + 50).min(search_data.len());
+                        let context = String::from_utf8_lossy(&search_data[ctx_start..ctx_end]);
+
+                        if contains_external_ip(&context) {
+                            let excluded = not
+                                .map(|excs| excs.iter().any(|e| e.matches(substr_str)))
+                                .unwrap_or(false);
+                            if !excluded {
+                                match_count += 1;
+                            }
+                        }
+                        pos = abs_pos + 1;
+                    }
+                } else {
+                    let needle = substr_str.as_bytes();
+                    let finder = memchr::memmem::Finder::new(needle);
+
+                    let mut pos = 0;
+                    while let Some(offset) = finder.find(&search_data[pos..]) {
+                        let abs_pos = pos + offset;
+                        let ctx_start = abs_pos.saturating_sub(50);
+                        let ctx_end = (abs_pos + needle.len() + 50).min(search_data.len());
+                        let context = String::from_utf8_lossy(&search_data[ctx_start..ctx_end]);
+
+                        if contains_external_ip(&context) {
+                            let excluded = not
+                                .map(|excs| excs.iter().any(|e| e.matches(substr_str)))
+                                .unwrap_or(false);
+                            if !excluded {
+                                match_count += 1;
+                            }
+                        }
+                        pos = abs_pos + 1;
+                    }
+                }
+
+                if match_count > 0 {
+                    evidence.push(Evidence {
+                        method: "raw".to_string(),
+                        source: "raw_content".to_string(),
+                        value: format!(
+                            "Found {} occurrences of {} (with external IP)",
+                            match_count, substr_str
+                        ),
+                        location: Some("file".to_string()),
+                    });
+                }
+            } else {
+                // Simple count - just count byte occurrences (fastest path!)
+                let excluded = not
+                    .map(|excs| excs.iter().any(|e| e.matches(substr_str)))
+                    .unwrap_or(false);
+
+                if !excluded {
+                    if case_insensitive {
+                        let pattern_lower = substr_str.to_ascii_lowercase();
+                        let needle = pattern_lower.as_bytes();
+                        match_count = memchr::memmem::find_iter(&search_data.to_ascii_lowercase(), needle).count();
+                    } else {
+                        let needle = substr_str.as_bytes();
+                        match_count = memchr::memmem::find_iter(search_data, needle).count();
+                    }
+
+                    if match_count > 0 {
+                        evidence.push(Evidence {
+                            method: "raw".to_string(),
+                            source: "raw_content".to_string(),
+                            value: format!("Found {} occurrences of {}", match_count, substr_str),
+                            location: Some("file".to_string()),
+                        });
+                    }
+                }
+            }
+        } else {
+            // Unicode pattern - fall back to cached UTF-8 conversion
+            let content = super::get_utf8_cached(ctx.binary_data, (search_start, search_end));
+
+            if external_ip {
+                // For external_ip validation, we need to find actual match positions
                 let search_content = if case_insensitive {
                     content.to_lowercase()
                 } else {
@@ -562,14 +704,60 @@ pub(crate) fn eval_raw<'a>(
                 } else {
                     substr_str.clone()
                 };
-                match_count = search_content.matches(&search_pattern).count();
+                let mut start = 0;
+                while let Some(pos) = search_content[start..].find(&search_pattern) {
+                    let abs_pos = start + pos;
+                    // Get some context around the match to check for IP
+                    let context_start = abs_pos.saturating_sub(50);
+                    let context_end = (abs_pos + search_pattern.len() + 50).min(content.len());
+                    let context = &content[context_start..context_end];
+                    if contains_external_ip(context) {
+                        let excluded_by_not = not
+                            .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
+                            .unwrap_or(false);
+                        if !excluded_by_not {
+                            match_count += 1;
+                        }
+                    }
+                    start = abs_pos + 1;
+                }
                 if match_count > 0 {
                     evidence.push(Evidence {
                         method: "raw".to_string(),
                         source: "raw_content".to_string(),
-                        value: format!("Found {} occurrences of {}", match_count, substr_str),
+                        value: format!(
+                            "Found {} occurrences of {} (with external IP)",
+                            match_count, substr_str
+                        ),
                         location: Some("file".to_string()),
                     });
+                }
+            } else {
+                // Skip matches that trigger 'not' filters
+                let excluded_by_not = not
+                    .map(|exceptions| exceptions.iter().any(|exc| exc.matches(substr_str)))
+                    .unwrap_or(false);
+
+                if !excluded_by_not {
+                    let search_content = if case_insensitive {
+                        content.to_lowercase()
+                    } else {
+                        content.to_string()
+                    };
+                    let search_pattern = if case_insensitive {
+                        substr_str.to_lowercase()
+                    } else {
+                        substr_str.clone()
+                    };
+                    match_count = search_content.matches(&search_pattern).count();
+                    if match_count > 0 {
+                        evidence.push(Evidence {
+                            method: "raw".to_string(),
+                            source: "raw_content".to_string(),
+                            value: format!("Found {} occurrences of {}", match_count, substr_str),
+                            location: Some("file".to_string()),
+                        });
+                    }
                 }
             }
         }

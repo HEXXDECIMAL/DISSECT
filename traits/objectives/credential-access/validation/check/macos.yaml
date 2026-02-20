@@ -192,7 +192,7 @@ composite_rules:
     any:
       - id: dslocal-db
       - id: shadow-hash-data
-      - id: micro-behaviors/fs/path/config/accounts::etc-shadow
+      - id: micro-behaviors/os/privilege/paths::etc-shadow
 
   # CoreServices Identity query composite
   - id: csidentity-query

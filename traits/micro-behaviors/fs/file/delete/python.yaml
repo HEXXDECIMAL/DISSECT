@@ -2,20 +2,19 @@
 
 defaults:
   for: [python]
+  crit: inert
+  conf: 0.8
 
 traits:
   - id: py-remove
-    desc: "os.remove() or os.unlink() call"
-    crit: notable
-    conf: 0.8
+    desc: "File deletion (os.remove/os.unlink)"
     if:
       type: raw
       regex: 'os\.(remove|unlink)\('
-      
+
   - id: py-rmtree
-    desc: "rmtree() call (recursive delete)"
+    desc: "Recursive directory deletion (rmtree)"
     crit: notable
-    conf: 0.8
     if:
       type: string
       regex: '\.rmtree\('

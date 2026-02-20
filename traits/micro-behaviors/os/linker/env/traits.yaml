@@ -3,7 +3,7 @@
 # ATT&CK: T1574.006 (Dynamic Linker Hijacking)
 
 defaults:
-  for: [elf, so, c]
+  for: [so, c]
   platforms: [linux]
 
 traits:

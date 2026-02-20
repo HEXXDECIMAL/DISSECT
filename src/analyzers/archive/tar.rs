@@ -13,7 +13,8 @@
 //! - Alpine Linux packages (.apk) - TAR.GZ format (detected by magic)
 
 use super::guards::{
-    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+    sanitize_entry_path, symlink_escapes, ExtractionGuard, HostileArchiveReason, LimitedReader,
+    MAX_FILE_SIZE,
 };
 use anyhow::{Context, Result};
 use std::fs::{self, File};
@@ -58,10 +59,18 @@ pub(crate) fn extract_tar_safe(
             continue;
         };
 
-        // Check for symlinks
+        // Check for symlinks - validate that target doesn't escape
         let entry_type = entry.header().entry_type();
         if entry_type.is_symlink() || entry_type.is_hard_link() {
-            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+            if let Ok(Some(link_target)) = entry.link_name() {
+                let target_str = link_target.to_string_lossy();
+                if symlink_escapes(&outpath, &target_str, dest_dir) {
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                        format!("{} -> {}", entry_name, target_str),
+                    ));
+                }
+            }
+            // Skip symlinks regardless (we don't extract them)
             continue;
         }
 
@@ -123,7 +132,15 @@ pub(crate) fn extract_tar_entries_safe<R: Read>(
 
         let entry_type = entry.header().entry_type();
         if entry_type.is_symlink() || entry_type.is_hard_link() {
-            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name));
+            if let Ok(Some(link_target)) = entry.link_name() {
+                let target_str = link_target.to_string_lossy();
+                if symlink_escapes(&outpath, &target_str, dest_dir) {
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                        format!("{} -> {}", entry_name, target_str),
+                    ));
+                }
+            }
+            // Skip symlinks regardless (we don't extract them)
             continue;
         }
 

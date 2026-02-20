@@ -56,13 +56,6 @@ traits:
   if:
     type: raw
     regex: \.scr['"]
-- id: binary-file-write
-  desc: Binary mode file write
-  crit: notable
-  conf: 0.8
-  if:
-    type: string
-    word: wb
 - id: open-write-content
   desc: open().write() to file
   crit: notable
@@ -114,14 +107,6 @@ traits:
   if:
     type: raw
     substr: from distutils
-- id: setup-py-expanduser
-  desc: User home directory resolution in setup.py
-  crit: notable
-  conf: 0.85
-  attack: T1083
-  if:
-    type: raw
-    substr: os.path.expanduser
 - id: setup-py-shortcut-target-fingerprint
   desc: Shortcut target executable fingerprinting
   crit: notable
@@ -130,13 +115,6 @@ traits:
   if:
     type: raw
     substr: os.path.basename
-- id: setup-py-file-write
-  desc: File write operation in setup.py
-  crit: notable
-  conf: 0.8
-  if:
-    type: raw
-    substr: .write(
 - id: powershell-encoded-command-in-string
   desc: PowerShell encoded command in Python string
   crit: suspicious
@@ -218,14 +196,6 @@ traits:
   if:
     type: raw
     substr: from win32com.client import Dispatch
-- id: setup-py-mkdir-staging
-  desc: Directory staging in setup.py
-  crit: notable
-  conf: 0.85
-  attack: T1074.001
-  if:
-    type: raw
-    substr: os.path.exists
 - id: setup-py-getenv
   desc: Environment variable access in setup.py
   crit: notable
@@ -292,39 +262,7 @@ traits:
     regex: 'https?://|\$env:'
     case_insensitive: true
 
-- id: admin-install-social-engineering-1a
-  desc: Admin install SE (root/admin/sudo)
-  crit: notable
-  conf: 0.75
-  if:
-    type: string
-    regex: (?:admin|root|sudo)
-    case_insensitive: true
-- id: admin-install-social-engineering-1b
-  desc: Admin install SE (permission/privilege/right)
-  crit: notable
-  conf: 0.75
-  if:
-    type: string
-    regex: (?:permission|privilege|right)
-    case_insensitive: true
-- id: admin-install-social-engineering-2
-  desc: Admin install SE (install/run)
-  crit: notable
-  conf: 0.75
-  if:
-    type: string
-    regex: (?:install|run)
-    case_insensitive: true
-
 composite_rules:
-- id: admin-install-social-engineering-1
-  desc: Admin install SE (privileged terminology)
-  crit: notable
-  conf: 0.75
-  all:
-    - id: admin-install-social-engineering-1a
-    - id: admin-install-social-engineering-1b
 - id: surveillance-deps-install
   desc: Surveillance library mass installation
   crit: suspicious
@@ -340,14 +278,6 @@ composite_rules:
   any:
     - id: python-release-impersonation-url-1
     - id: python-release-impersonation-url-2
-- id: admin-install-social-engineering
-  desc: Social engineering admin install request
-  crit: suspicious
-  conf: 0.9
-  attack: T1204.001
-  all:
-    - id: admin-install-social-engineering-1
-    - id: admin-install-social-engineering-2
 - id: windows-start-command
   desc: Windows start command execution
   crit: suspicious
@@ -425,7 +355,6 @@ composite_rules:
   crit: suspicious
   conf: 0.85
   all:
-  - id: binary-file-write
   - id: exe-file-extension
   any:
   - id: python-command-exec
@@ -443,7 +372,6 @@ composite_rules:
   - id: scr-file-extension
   - id: exe-file-extension
   any:
-  - id: binary-file-write
   - id: open-write-content
 - id: pypi-install-dropper
   desc: PyPI install-time dropper
@@ -454,18 +382,6 @@ composite_rules:
   all:
   - id: robust-setup-py
   - id: micro-behaviors/communications/http/request::request-python
-  - id: binary-file-write
-  - id: python-command-exec
-- id: pypi-install-downloader
-  desc: PyPI install-time downloader and executor
-  crit: hostile
-  conf: 0.95
-  mbc: E1204
-  attack: T1204.002
-  all:
-  - id: robust-setup-py
-  - id: micro-behaviors/communications/http/request::request-python
-  - id: setup-py-file-write
   - id: python-command-exec
 - id: download-execute-chain
   desc: Downloads and executes file
@@ -475,7 +391,6 @@ composite_rules:
   attack: T1204.002
   all:
   - id: executable-download
-  - id: binary-file-write
   - id: python-command-exec
 - id: pypi-c2-dropper
   desc: PyPI setup.py downloads and executes C2 payload
@@ -486,7 +401,6 @@ composite_rules:
   all:
   - id: robust-setup-py
   - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
-  - id: binary-file-write
   - id: micro-behaviors/process/create/subprocess::methods
 - id: windows-rename-execute-delete
   desc: Windows file rename-execute-delete dropper chain
@@ -529,7 +443,6 @@ composite_rules:
   all:
   - id: setup-py-win32com-import
   - id: setup-py-getenv
-  - id: setup-py-file-write
   - id: objectives/persist/startup/registry::create-shortcut
 - id: shortcut-target-browser-fingerprint
   desc: Browser fingerprinting via shortcut TargetPath
@@ -565,7 +478,6 @@ composite_rules:
   all:
   - id: robust-setup-py
   - id: objectives/anti-static/obfuscation/source::advanced-python-obfuscation
-  - id: setup-py-file-write
   - id: micro-behaviors/fs/directory/mkdir::mkdir-python
 - id: pypi-powershell-dropper
   desc: PyPI setup.py PowerShell download-execute chain
@@ -610,7 +522,6 @@ composite_rules:
   - id: setup-py-getenv
   - id: micro-behaviors/os/admin/check::ctypes-is-admin
   - id: micro-behaviors/fs/directory/mkdir::mkdir-python
-  - id: setup-py-file-write
 - id: python-impersonation-dropper
   desc: Fake Python release dropper
   crit: hostile
@@ -619,5 +530,4 @@ composite_rules:
   attack: T1036.005
   all:
   - id: python-release-impersonation-url
-  - id: binary-file-write
   - id: python-command-exec

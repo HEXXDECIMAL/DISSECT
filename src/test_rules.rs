@@ -2311,6 +2311,9 @@ fn evaluate_condition_simple(
             length_max,
             entropy_min,
             entropy_max,
+            readable,
+            writable,
+            executable,
         } => eval_section(
             exact.as_ref(),
             substr.as_ref(),
@@ -2321,6 +2324,9 @@ fn evaluate_condition_simple(
             *length_max,
             *entropy_min,
             *entropy_max,
+            *readable,
+            *writable,
+            *executable,
             ctx,
         ),
         Condition::Syscall { name, number, arch } => {

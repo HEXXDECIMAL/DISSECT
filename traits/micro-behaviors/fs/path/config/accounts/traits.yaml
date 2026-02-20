@@ -15,14 +15,6 @@ traits:
       type: string
       substr: "/etc/passwd"
 
-  - id: etc-shadow
-    desc: /etc/shadow password hashes
-    attack: "T1003.008"
-    conf: 0.85
-    if:
-      type: string
-      substr: "/etc/shadow"
-
 composite_rules:
   - id: account-files
     desc: Account configuration file access
@@ -30,4 +22,4 @@ composite_rules:
     conf: 0.8
     any:
       - id: etc-passwd
-      - id: etc-shadow
+      - id: micro-behaviors/os/privilege/paths::etc-shadow

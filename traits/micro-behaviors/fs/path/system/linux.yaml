@@ -47,7 +47,30 @@ traits:
       regex: "/var/(lib/)?(docker|containers)/[\\w\\.\\-/]+"
 
   # === Generic Unix/Linux system paths ===
-  # /boot: use objectives/impact/system/directory/traits.yaml::boot-dir-ref (canonical)
+  - id: etc-dir
+    desc: /etc directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: /etc
+
+  - id: boot-dir
+    desc: /boot directory reference
+    crit: inert
+    conf: 0.6
+    if:
+      type: string
+      regex: /boot(?:/|$)
+
+  - id: usr-dir
+    desc: /usr directory reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      exact: /usr
+
   - id: unix-system-paths-a
     desc: Common system path reference (usr/proc)
     crit: inert

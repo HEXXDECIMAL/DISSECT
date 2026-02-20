@@ -54,14 +54,28 @@ traits:
   not:
   - substr: apple.com
   - substr: microsoft.com
+  - substr: visualstudio.com
+  - substr: azure.com
+  - substr: live.com
+  - substr: outlook.com
+  - substr: office.com
   - substr: google.com
+  - substr: googleapis.com
+  - substr: gstatic.com
+  - substr: youtube.com
   - substr: amazon.com
+  - substr: amazonaws.com
+  - substr: aws.amazon.com
   - substr: github.com
   - substr: gitlab.com
+  - substr: bitbucket.org
   - substr: npmjs.com
+  - substr: npmjs.org
+  - substr: yarnpkg.com
   - substr: pypi.org
   - substr: python.org
   - substr: rust-lang.org
+  - substr: crates.io
   - substr: llvm.org
   - substr: kernel.org
   - substr: gnu.org
@@ -77,6 +91,13 @@ traits:
   - substr: translationproject.org
   - substr: sourceware.org
   - substr: sage.com
+  - substr: cloudflare.com
+  - substr: fastly.com
+  - substr: akamai.com
+  - substr: jquery.com
+  - substr: jsdelivr.net
+  - substr: unpkg.com
+  - substr: cdnjs.com
 - id: short-domain-url-pattern
   desc: Very short domain in URL
   crit: notable
@@ -128,9 +149,14 @@ traits:
     - cdnjs\.cloudflare\.com
     - apple\.com
     - microsoft\.com
+    - visualstudio\.com
+    - azure\.com
+    - office\.com
     - amazon\.com
     - aws\.amazon\.com
     - google\.com
+    - googleapis\.com
+    - gstatic\.com
     - sourceforge\.net
     - llvm\.org
     - clang\.llvm\.org
@@ -192,9 +218,14 @@ traits:
     - cdnjs\.cloudflare\.com
     - apple\.com
     - microsoft\.com
+    - visualstudio\.com
+    - azure\.com
+    - office\.com
     - amazon\.com
     - aws\.amazon\.com
     - google\.com
+    - googleapis\.com
+    - gstatic\.com
     - sourceforge\.net
     - llvm\.org
     - clang\.llvm\.org

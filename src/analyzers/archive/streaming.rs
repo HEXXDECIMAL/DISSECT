@@ -23,7 +23,8 @@ use std::io::Read;
 use std::path::{Path, PathBuf};
 
 use super::guards::{
-    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+    sanitize_entry_path, symlink_escapes, ExtractionGuard, HostileArchiveReason, LimitedReader,
+    MAX_FILE_SIZE,
 };
 use super::utils::{calculate_file_sha256, calculate_sha256};
 use super::ArchiveAnalyzer;
@@ -372,7 +373,16 @@ impl ArchiveAnalyzer {
             return Ok(None);
         }
         if entry_type.is_symlink() || entry_type.is_hard_link() {
-            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name.to_string()));
+            // Check if symlink target escapes extraction directory
+            if let Ok(Some(link_target)) = entry.link_name() {
+                let target_str = link_target.to_string_lossy();
+                let symlink_path = temp_dir.join(entry_name);
+                if symlink_escapes(&symlink_path, &target_str, temp_dir) {
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                        format!("{} -> {}", entry_name, target_str),
+                    ));
+                }
+            }
             return Ok(None);
         }
         if !entry_type.is_file() {
@@ -443,8 +453,8 @@ impl ArchiveAnalyzer {
     /// If the entry is larger than `max_memory_file_size` or is a nested archive,
     /// it will be written to a temp file instead.
     #[allow(dead_code)] // Used by binary target
-    pub(crate) fn extract_zip_entry_to_memory(
-        entry: &mut zip::read::ZipFile<'_>,
+    pub(crate) fn extract_zip_entry_to_memory<R: std::io::Read>(
+        entry: &mut zip::read::ZipFile<'_, R>,
         temp_dir: &Path,
         guard: &ExtractionGuard,
         max_memory_file_size: u64,
@@ -469,7 +479,21 @@ impl ArchiveAnalyzer {
         // Check for symlinks via unix mode
         if let Some(mode) = entry.unix_mode() {
             if mode & 0o170000 == 0o120000 {
-                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(entry_name.clone()));
+                // Symlink target is stored as file content in ZIP
+                let mut target_buf = Vec::new();
+                if let Ok(read_size) = entry.read_to_end(&mut target_buf) {
+                    if read_size > 0 && read_size < 4096 {
+                        // Reasonable symlink path length
+                        if let Ok(target_str) = String::from_utf8(target_buf) {
+                            let symlink_path = temp_dir.join(&entry_name);
+                            if symlink_escapes(&symlink_path, &target_str, temp_dir) {
+                                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                                    format!("{} -> {}", entry_name, target_str),
+                                ));
+                            }
+                        }
+                    }
+                }
                 return Ok(None);
             }
         }
@@ -1686,12 +1710,30 @@ fn extract_cpio_streaming<R: Read>(
         // Skip directories and non-regular files
         if mode & 0o170000 != 0o100000 {
             if mode & 0o170000 == 0o120000 {
-                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
-                    clean_name.to_string(),
-                ));
+                // Symlink - target is stored as file data
+                let mut target_buf = Vec::new();
+                if file_size > 0 && file_size < 4096 {
+                    // Reasonable symlink path length
+                    let mut limited = LimitedReader::new(entry_reader, file_size.min(4096));
+                    if limited.read_to_end(&mut target_buf).is_ok() {
+                        if let Ok(target_str) = String::from_utf8(target_buf) {
+                            let symlink_path = temp_dir.join(clean_name);
+                            if symlink_escapes(&symlink_path, &target_str, temp_dir) {
+                                guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                                    format!("{} -> {}", clean_name, target_str),
+                                ));
+                            }
+                        }
+                    }
+                } else {
+                    // Consume the entry data
+                    let mut sink = std::io::sink();
+                    std::io::copy(&mut { entry_reader }, &mut sink).ok();
+                }
+            } else {
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
             }
-            let mut sink = std::io::sink();
-            std::io::copy(&mut { entry_reader }, &mut sink).ok();
             continue;
         }
 

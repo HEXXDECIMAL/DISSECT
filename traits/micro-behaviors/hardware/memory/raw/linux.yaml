@@ -5,16 +5,6 @@ defaults:
   for: [all]
 
 traits:
-  - id: kmem
-    desc: Access raw kernel memory (/dev/kmem)
-    crit: suspicious
-    conf: 0.9
-    attack: "T1003"
-    platforms: [linux, unix]
-    if:
-      type: string
-      substr: "/dev/kmem"
-
   - id: dev-mem
     desc: Access raw system memory (/dev/mem)
     crit: suspicious

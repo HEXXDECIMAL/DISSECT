@@ -6,19 +6,18 @@ defaults:
   for: [javascript, python, ruby, shell, pe, elf, macho]
   attack: "T1057"
   mbc: "E1592"
+  crit: inert  # Too broad - matches user agents, docs, etc. Not process enum alone.
 
 traits:
   - id: browser-apps-chrome-firefox
-    desc: Browser apps chrome or firefox
-    crit: notable
+    desc: Browser names in strings
     conf: 0.5
     if:
       type: string
       regex: "(?i)\\b(chrome|firefox)\\b"
 
   - id: browser-apps-msedge-safari
-    desc: Browser apps msedge or safari
-    crit: notable
+    desc: Browser names in strings
     conf: 0.5
     if:
       type: string

@@ -155,48 +155,14 @@ traits:
         condition:
           ($sdcard or $storage) and any of ($dcim, $pictures, $downloads) and any of ($rm, $rmrf, $spawn)
       }
-- id: mass-delete-traversal
-  desc: Mass deletion traversal primitive
-  crit: suspicious
-  conf: 0.85
-  attack: T1485
-  for:
-  - javascript
-  - typescript
-  - python
-  - shell
-  if:
-    type: raw
-    regex: fs\.readdirSync|os\.walk|find\s+\\.
-- id: mass-delete-action-node-py
-  desc: Mass deletion action (Node.js/Python)
-  crit: notable
-  conf: 0.85
-  if:
-    type: raw
-    regex: unlinkSync|os\.(?:remove|unlink)
-- id: mass-delete-action-shell-base
-  desc: Mass deletion action (Shell -delete)
-  crit: notable
-  conf: 0.85
-  if:
-    type: raw
-    regex: -delete
 composite_rules:
-- id: mass-delete-action-shell
-  desc: Mass deletion action (Shell)
-  crit: notable
-  conf: 0.85
-  any:
-    - id: mass-delete-action-shell-base
-    - id: objectives/impact/system/directory::rm-rf-cmd
 - id: mass-delete-action
   desc: Mass deletion action primitive
   crit: notable
   conf: 0.85
   any:
-    - id: mass-delete-action-node-py
-    - id: mass-delete-action-shell
+    - id: micro-behaviors/fs/directory/traverse::delete-unlink-node-py
+    - id: micro-behaviors/fs/directory/traverse::delete-shell
 - id: target-vscode
   desc: Targets .vscode configuration directory
   crit: notable
@@ -219,7 +185,7 @@ composite_rules:
   - python
   - shell
   all:
-  - id: mass-delete-traversal
+  - id: micro-behaviors/fs/directory/traverse::traverse-readdir-walk-find
   - id: mass-delete-action
 - id: protestware
   desc: Protestware pattern - conditional destruction

@@ -84,41 +84,6 @@ traits:
   if:
     type: string
     regex: (?:rmdir|rd).{0,30}(/s|/q)
-- id: windows-dir-ref
-  desc: Windows directory reference
-  crit: notable
-  conf: 0.5
-  if:
-    type: string
-    regex: '[A-Za-z]:\\\\Windows(?:\\\\System32)?|\\\\Windows\\\\System32|/Windows/System32'
-- id: system32-ref
-  desc: System32 directory reference
-  crit: notable
-  conf: 0.6
-  if:
-    type: string
-    substr: System32
-- id: etc-dir-ref
-  desc: /etc directory reference
-  crit: notable
-  conf: 0.5
-  if:
-    type: string
-    exact: /etc
-- id: boot-dir-ref
-  desc: /boot directory reference
-  crit: notable
-  conf: 0.6
-  if:
-    type: string
-    regex: /boot(?:/|$)
-- id: usr-dir-ref
-  desc: /usr directory reference
-  crit: notable
-  conf: 0.5
-  if:
-    type: string
-    exact: /usr
 - id: windows-system32-delete-cmd-first
   desc: Windows System32 deletion (cmd first)
   crit: suspicious
@@ -194,11 +159,7 @@ composite_rules:
   crit: notable
   conf: 0.4
   any:
-  - id: windows-dir-ref
-  - id: system32-ref
-  - id: etc-dir-ref
-  - id: boot-dir-ref
-  - id: usr-dir-ref
+  - id: micro-behaviors/fs/path/system
 - id: mass-deletion
   desc: Mass system file deletion
   crit: suspicious

@@ -268,6 +268,9 @@ fn score_condition(condition: &Condition) -> f32 {
             length_max,
             entropy_min,
             entropy_max,
+            readable,
+            writable,
+            executable,
         } => {
             score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
@@ -277,6 +280,15 @@ fn score_condition(condition: &Condition) -> f32 {
                 score += PARAM_UNIT;
             }
             if length_min.is_some() {
+                score += PARAM_UNIT;
+            }
+            if readable.is_some() {
+                score += PARAM_UNIT;
+            }
+            if writable.is_some() {
+                score += PARAM_UNIT;
+            }
+            if executable.is_some() {
                 score += PARAM_UNIT;
             }
             if length_max.is_some() {

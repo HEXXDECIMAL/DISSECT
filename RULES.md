@@ -91,7 +91,7 @@ traits:
 |------|---------|--------|
 | `ast` | Parse source | `kind`/`node`, `exact`/`substr`/`regex`/`query` |
 | `syscall` | Direct syscalls | `name`, `number`, `arch`, `count_min`, `count_max`, `per_kb_min`, `per_kb_max` |
-| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive`, `length_min`, `length_max`, `entropy_min`, `entropy_max` |
+| `section` | Binary sections | `exact`, `substr`, `regex`, `word`, `case_insensitive`, `length_min`, `length_max`, `entropy_min`, `entropy_max`, `readable`, `writable`, `executable` |
 | `section_ratio` | Section size ratio | `section`, `compare_to`, `min`, `max` |
 | `import_combination` | Import patterns | `required`, `suspicious`, `min_suspicious` |
 | `metrics` | Code metrics | `field`, `min`, `max`, `min_size` |
@@ -160,7 +160,9 @@ Available on `string`, `raw`, `encoded`, `base64`, `xor`. Hex supports `offset` 
     offset: 0
 ```
 
-## Section Size Constraints
+## Section Constraints
+
+### Size Constraints
 
 The `section` condition type supports absolute size constraints to detect structural anomalies:
 
@@ -205,6 +207,36 @@ The `section` condition type supports absolute size constraints to detect struct
 - `length_max` - Maximum section length in bytes
 - Can be used alone or combined with name patterns
 - Evidence includes section size in output
+
+### Permission Constraints
+
+Filter sections by permission flags (PE/ELF/Mach-O):
+
+| Field | Match Behavior |
+|-------|----------------|
+| `readable: true` | Section contains 'r' in permissions string |
+| `writable: true` | Section contains 'w' in permissions string |
+| `executable: true` | Section contains 'x' in permissions string |
+
+Adds +0.5 precision per constraint. Combinable with entropy/size/name filters.
+
+```yaml
+# Packing detection
+type: section
+executable: true
+entropy_min: 7.0
+
+# W^X violation
+type: section
+writable: true
+executable: true
+
+# Obfuscated writable data
+type: section
+regex: "^(\\.data|__data)"
+writable: true
+entropy_min: 6.5
+```
 
 ## Encoded Strings
 

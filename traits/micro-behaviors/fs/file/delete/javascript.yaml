@@ -1,27 +1,27 @@
 # File Delete Operations - JavaScript/Node.js
 # MBC: C0047 (Delete File)
 # ATT&CK: T1070.004
+#
+# NOTE: Individual file deletion is a normal operation (inert).
+# Only suspicious in context (mass deletion, targeting system files, etc.)
+
+defaults:
+  for: [javascript]
+  crit: inert
+  conf: 0.9
+  mbc: "C0047"
+  attack: "T1070.004"
 
 traits:
   - id: fs-unlink
     desc: Delete file (fs.unlink)
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
     if:
       type: ast
       kind: call
       exact: "fs.unlink"
 
   - id: fs-unlinkSync
-    desc: Delete file synchronously
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
+    desc: Delete file synchronously (fs.unlinkSync)
     if:
       type: ast
       kind: call
@@ -29,35 +29,20 @@ traits:
 
   - id: fs-rm
     desc: Delete file or directory (fs.rm)
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
     if:
       type: ast
       kind: call
       exact: "fs.rm"
 
   - id: fs-rmSync
-    desc: Delete file or directory synchronously
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
+    desc: Delete file or directory sync
     if:
       type: ast
       kind: call
       exact: "fs.rmSync"
 
   - id: fs-rmdir
-    desc: Delete empty directory
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
+    desc: Delete empty directory (fs.rmdir)
     if:
       type: ast
       kind: call
@@ -65,11 +50,6 @@ traits:
 
   - id: promises-unlink
     desc: Delete file (promises API)
-    crit: notable
-    conf: 0.9
-    mbc: "C0047"
-    attack: "T1070.004"
-    for: [javascript]
     if:
       type: ast
       kind: call

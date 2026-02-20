@@ -68,13 +68,6 @@ traits:
   if:
     type: string
     substr: USERPROFILE
-- id: username-var
-  desc: USERNAME environment variable
-  crit: notable
-  conf: 0.5
-  if:
-    type: string
-    word: USERNAME
 - id: user-var
   desc: USER environment variable
   crit: notable
@@ -94,16 +87,6 @@ traits:
   - regex: ^\s*USER\s+(user|fwuser)(@|$)
   - regex: USERNAME|USERPROFILE|USERID
   - regex: '[|,]USER[|,]'
-- id: logname-var
-  desc: LOGNAME environment variable
-  crit: notable
-  conf: 0.5
-  attack: T1033
-  for:
-  - all
-  if:
-    type: string
-    substr: LOGNAME
 - id: getpwnam
   desc: Get password entry by name
   crit: notable
@@ -226,9 +209,9 @@ composite_rules:
   for:
   - all
   any:
-  - id: username-var
+  - id: micro-behaviors/os/env/vars/user-info::username-var
   - id: user-var
-  - id: logname-var
+  - id: micro-behaviors/os/env/vars/user-info::logname-var
 - id: active-enum-cmds
   desc: Active user enumeration commands
   crit: notable

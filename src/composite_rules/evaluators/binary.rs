@@ -172,6 +172,9 @@ pub(crate) fn eval_section<'a>(
     length_max: Option<u64>,
     entropy_min: Option<f64>,
     entropy_max: Option<f64>,
+    readable: Option<bool>,
+    writable: Option<bool>,
+    executable: Option<bool>,
     ctx: &EvaluationContext<'a>,
 ) -> ConditionResult {
     let mut evidence = Vec::new();
@@ -239,7 +242,29 @@ pub(crate) fn eval_section<'a>(
             true
         };
 
-        let matched = name_matched && size_ok && entropy_ok;
+        // Check permission constraints
+        let permissions_ok = {
+            let mut ok = true;
+            if let Some(perms) = &section.permissions {
+                if let Some(r) = readable {
+                    ok = ok && (perms.contains('r') == r);
+                }
+                if let Some(w) = writable {
+                    ok = ok && (perms.contains('w') == w);
+                }
+                if let Some(x) = executable {
+                    ok = ok && (perms.contains('x') == x);
+                }
+            } else {
+                // If no permissions info, fail strict checks
+                if readable.is_some() || writable.is_some() || executable.is_some() {
+                    ok = false;
+                }
+            }
+            ok
+        };
+
+        let matched = name_matched && size_ok && entropy_ok && permissions_ok;
 
         if matched {
             let mut details = vec![];
@@ -248,6 +273,11 @@ pub(crate) fn eval_section<'a>(
             }
             if entropy_min.is_some() || entropy_max.is_some() {
                 details.push(format!("entropy: {:.2}", section.entropy));
+            }
+            if readable.is_some() || writable.is_some() || executable.is_some() {
+                if let Some(perms) = &section.permissions {
+                    details.push(format!("perms: {}", perms));
+                }
             }
 
             let value = if details.is_empty() {
@@ -292,6 +322,17 @@ pub(crate) fn eval_section<'a>(
         precision += 0.5;
     }
     if entropy_max.is_some() {
+        precision += 0.5;
+    }
+
+    // Add precision for permission constraints
+    if readable.is_some() {
+        precision += 0.5;
+    }
+    if writable.is_some() {
+        precision += 0.5;
+    }
+    if executable.is_some() {
         precision += 0.5;
     }
 

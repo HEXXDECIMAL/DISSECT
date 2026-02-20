@@ -44,16 +44,20 @@ impl Radare2Analyzer {
 
         let compressed = fs::read(&cache_path).ok()?;
         let decompressed = zstd::decode_all(compressed.as_slice()).ok()?;
-        bincode::deserialize(&decompressed).ok()
+        bincode::serde::decode_from_slice(&decompressed, bincode::config::standard())
+            .map(|(v, _)| v)
+            .ok()
     }
 
     /// Save BatchedAnalysis to disk cache (zstd compressed)
     pub(super) fn save_to_cache(sha256: &str, analysis: &BatchedAnalysis) {
         if let Ok(cache_path) = re_cache_path(sha256) {
             // Serialize with bincode, then compress with zstd
-            if let Ok(serialized) = bincode::serialize(analysis) {
+            if let Ok(serialized) =
+                bincode::serde::encode_to_vec(analysis, bincode::config::standard())
+            {
                 // Use compression level 3 (good balance of speed and ratio)
-                if let Ok(compressed) = zstd::encode_all(serialized.as_slice(), 3) {
+                if let Ok(compressed) = zstd::encode_all(&serialized[..], 3) {
                     // Write atomically: temp file then rename
                     let temp_path = cache_path.with_extension("tmp");
                     if let Ok(mut file) = File::create(&temp_path) {

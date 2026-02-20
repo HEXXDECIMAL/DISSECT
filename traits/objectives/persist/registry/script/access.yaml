@@ -104,16 +104,3 @@ composite_rules:
   all:
   - id: script-regwrite
   - id: run-key-reference
-- id: script-registry-cleanup
-  desc: Script registry cleanup
-  crit: suspicious
-  conf: 0.85
-  platforms:
-  - windows
-  for:
-  - javascript
-  attack: T1562.004
-  mbc: E1006
-  all:
-  - id: script-regdelete
-  - id: objectives/anti-forensics/cleanup/artifact::anti-forensics-cleanup

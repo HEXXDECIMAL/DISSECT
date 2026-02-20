@@ -65,117 +65,112 @@ impl YaraEngine {
     pub(crate) fn load_all_rules(&mut self, enable_third_party: bool) -> (usize, usize) {
         let _span = tracing::info_span!("load_yara_rules").entered();
         tracing::info!("Loading YARA rules");
+
         // Try to load from cache
         if let Ok(cache_path) = crate::cache::yara_cache_path(enable_third_party) {
             if cache_path.exists() {
                 tracing::debug!("Attempting to load from cache");
-                let _t_cache = std::time::Instant::now();
                 match self.load_from_cache(&cache_path) {
                     Ok((builtin, third_party)) => {
-                        tracing::info!(
-                            "Loaded {} built-in + {} third-party YARA rules from cache",
-                            builtin,
-                            third_party
-                        );
-                        eprintln!(
-                            "✅ Loaded {} built-in + {} third-party YARA rules from cache",
-                            builtin, third_party
-                        );
+                        // Count actual rules from loaded Rules object
+                        let actual_count = self.rules.as_ref().map(|r| r.iter().count()).unwrap_or(0);
+                        tracing::info!("Loaded {} YARA rules from cache", actual_count);
+                        eprintln!("✅ Loaded {} YARA rules from cache", actual_count);
                         return (builtin, third_party);
                     },
                     Err(e) => {
-                        tracing::warn!("Cache load failed: {}, recompiling from source", e);
-                        eprintln!("⚠️  Cache load failed ({}), recompiling...", e);
+                        tracing::warn!("Cache load failed: {}, recompiling", e);
+                        eprintln!("⚠️  Cache invalid, recompiling...");
                     },
                 }
             } else {
-                tracing::debug!("No cache found, compiling from source");
+                tracing::debug!("No cache found");
             }
         }
 
         // Cache miss or invalid - compile from source
         tracing::info!("Compiling YARA rules from source");
+        eprintln!("🔨 Compiling YARA rules from source...");
+
+        let traits_dir = crate::cache::traits_path();
+        let third_party_dir = Path::new("third_party");
+
         let mut compiler = yara_x::Compiler::new();
         let mut builtin_count = 0;
         let mut third_party_count = 0;
+        let mut inline_count = 0;
 
-        // 0. Load inline YARA from trait YAML files into the combined compiler.
-        //    These are `type: yara` conditions in .yaml trait definitions.
-        //    By compiling them here, a single JIT pass covers both inline and third-party rules.
-        let traits_dir = crate::cache::traits_path();
+        // 0. Load inline YARA from trait YAML files
         if traits_dir.exists() {
             self.compiled_inline_namespaces =
                 Self::load_inline_trait_rules(&mut compiler, &traits_dir);
-            if !self.compiled_inline_namespaces.is_empty() {
-                tracing::debug!(
-                    "Loaded {} inline YARA rules from trait YAML files",
-                    self.compiled_inline_namespaces.len()
-                );
+            inline_count = self.compiled_inline_namespaces.len();
+            if inline_count > 0 {
+                eprintln!("  ✓ {} inline sources", inline_count);
             }
         }
 
         // 1. Load built-in YARA rules from traits directory
         if traits_dir.exists() {
-            tracing::debug!("Loading built-in YARA rules from {}", traits_dir.display());
             match self.load_rules_into_compiler(&mut compiler, &traits_dir, "traits") {
                 Ok(count) => {
                     builtin_count = count;
                     if count > 0 {
-                        eprintln!(
-                            "✅ Loaded {} built-in YARA rules from {}",
-                            count,
-                            traits_dir.display()
-                        );
+                        eprintln!("  ✓ {} built-in sources", count);
                     }
                 },
                 Err(e) => {
-                    // Only warn if this is an actual error, not just "no rules found"
                     let err_str = e.to_string();
                     if !err_str.contains("No YARA rules found") {
-                        eprintln!(
-                            "⚠️  Failed to load YARA rules from {}: {}",
-                            traits_dir.display(),
-                            e
-                        );
+                        eprintln!("  ⚠️  Failed to load built-in sources: {}", e);
                     }
                 },
             }
         }
 
-        // 2. Optionally load third-party YARA rules from third_party/ with per-vendor namespaces
-        if enable_third_party {
-            let third_party_dir = Path::new("third_party");
-            if third_party_dir.exists() {
-                tracing::debug!("Loading third-party YARA rules");
-                let count = self.load_third_party_rules(&mut compiler, third_party_dir);
-                third_party_count = count;
-                if count > 0 {
-                    tracing::info!("Loaded {} third-party YARA rules from third_party/", count);
-                }
-            } else {
-                tracing::warn!("third_party/ directory not found");
+        // 2. Optionally load third-party YARA rules
+        if enable_third_party && third_party_dir.exists() {
+            let count = self.load_third_party_rules(&mut compiler, third_party_dir);
+            third_party_count = count;
+            if count > 0 {
+                eprintln!("  ✓ {} third-party sources", count);
             }
         }
 
-        if builtin_count + third_party_count == 0 {
-            // Don't fail if no rules - just return empty
-            tracing::info!("No YARA rules found");
+        let total_count = builtin_count + third_party_count + inline_count;
+        if total_count == 0 {
+            eprintln!("⚠️  No YARA rules loaded");
             return (0, 0);
         }
 
-        let _t_build = std::time::Instant::now();
-        tracing::info!("Compiling {} YARA rules", builtin_count + third_party_count);
-        self.rules = Some(compiler.build());
-        tracing::debug!("YARA compilation complete");
+        // Compile all rules with progress indicator
+        let pb = indicatif::ProgressBar::new_spinner();
+        pb.set_style(
+            indicatif::ProgressStyle::default_spinner()
+                .template("{spinner:.green} {msg}")
+                .expect("valid template"),
+        );
+        pb.set_message(format!("Compiling {} rules (JIT optimization)...", total_count));
+        pb.enable_steady_tick(std::time::Duration::from_millis(80));
+
+        let compile_start = std::time::Instant::now();
+        let rules = compiler.build();
+        let compile_time = compile_start.elapsed();
+
+        // Count actual compiled rules (not source files)
+        let actual_rule_count = rules.iter().count();
+
+        pb.finish_and_clear();
+        eprintln!("✅ Compiled {} rules in {:.1}s", actual_rule_count, compile_time.as_secs_f64());
+
+        self.rules = Some(rules);
 
         // Save to cache for next time
-        tracing::debug!("Saving compiled rules to cache");
         if let Ok(cache_path) = crate::cache::yara_cache_path(enable_third_party) {
             if let Err(e) = self.save_to_cache(&cache_path, builtin_count, third_party_count) {
                 eprintln!("⚠️  Failed to save cache: {}", e);
             } else {
-                eprintln!("✅ Saved YARA rules to cache");
-                // Clean up old caches
+                // Clean up old caches silently
                 let _ = crate::cache::cleanup_old_caches(&cache_path);
             }
         }
@@ -309,7 +304,7 @@ impl YaraEngine {
 
         // Warn on slow rules
         const SLOW_RULE_THRESHOLD: Duration = Duration::from_millis(500);
-        for profiling_data in scanner.most_expensive_rules(20) {
+        for profiling_data in scanner.slowest_rules(20) {
             let total = profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
             if total >= SLOW_RULE_THRESHOLD {
                 tracing::warn!(
@@ -391,10 +386,11 @@ impl YaraEngine {
             anyhow::bail!("No YARA rules found in {}", dir.display());
         }
 
-        tracing::debug!("Found {} YARA rule files", rule_files.len());
+        let file_count = rule_files.len();
+        tracing::debug!("Found {} YARA rule files", file_count);
+
         // Read all files in parallel (I/O bound operation)
-        let _t_read = std::time::Instant::now();
-        tracing::trace!("Reading YARA rule files");
+        tracing::trace!("Reading {} YARA rule files in parallel", file_count);
         let sources: Vec<_> = rule_files
             .par_iter()
             .filter_map(|path| {
@@ -404,25 +400,30 @@ impl YaraEngine {
             })
             .collect();
 
-        tracing::debug!("Read {} rule files", sources.len());
+        tracing::debug!("Read {} rule files successfully", sources.len());
 
         compiler.new_namespace(namespace_prefix);
 
         // Compile all sources (separate calls for better error reporting)
-        let _t_compile = std::time::Instant::now();
-        tracing::debug!("Compiling {} YARA rule sources", sources.len());
+        tracing::debug!("Adding {} YARA rule sources to compiler", sources.len());
         let mut count = 0;
+        let mut failed = 0;
         for (path, source) in sources {
-            tracing::trace!("Compiling {}", path.display());
+            tracing::trace!("Adding {}", path.display());
             match compiler.add_source(source.as_bytes()) {
                 Ok(_) => count += 1,
                 Err(e) => {
-                    tracing::warn!("Failed to compile {}: {:?}", path.display(), e);
-                    eprintln!("⚠️  Failed to compile {}: {:?}", path.display(), e);
+                    failed += 1;
+                    tracing::warn!("Failed to add {}: {:?}", path.display(), e);
                 },
             }
         }
-        tracing::debug!("Successfully compiled {} YARA rules", count);
+
+        if failed > 0 {
+            tracing::warn!("{} built-in file(s) failed to compile", failed);
+        }
+
+        tracing::debug!("Successfully added {} YARA rule sources", count);
 
         if count == 0 {
             anyhow::bail!("Failed to compile any YARA rules from {}", dir.display());
@@ -451,7 +452,16 @@ impl YaraEngine {
             }
         }
 
+        let namespace_count = files_by_dir.len();
+        let total_files: usize = files_by_dir.values().map(Vec::len).sum();
+        tracing::debug!(
+            "Found {} third-party YARA files across {} namespaces",
+            total_files,
+            namespace_count
+        );
+
         let mut total = 0;
+        let mut failed = 0;
         for (dir_path, rule_files) in &files_by_dir {
             // Derive namespace from directory path relative to third_party/
             let namespace = dir_path
@@ -467,6 +477,7 @@ impl YaraEngine {
 
             compiler.new_namespace(&namespace);
 
+            // Read files in parallel
             let sources: Vec<_> = rule_files
                 .par_iter()
                 .filter_map(|path| fs::read(path).ok().map(|b| (path.clone(), b)))
@@ -476,11 +487,19 @@ impl YaraEngine {
                 let source = String::from_utf8_lossy(&bytes);
                 match compiler.add_source(source.as_bytes()) {
                     Ok(_) => total += 1,
-                    Err(e) => tracing::warn!("{}: {}", path.display(), e),
+                    Err(e) => {
+                        failed += 1;
+                        tracing::warn!("{}: {}", path.display(), e);
+                    },
                 }
             }
         }
 
+        if failed > 0 {
+            tracing::warn!("{} third-party file(s) failed to compile", failed);
+        }
+
+        tracing::debug!("Successfully added {} third-party YARA rule sources", total);
         total
     }
 
@@ -886,7 +905,8 @@ impl YaraEngine {
         };
 
         // Serialize to file
-        let encoded = bincode::serialize(&cache_data).context("Failed to encode cache data")?;
+        let encoded = bincode::serde::encode_to_vec(&cache_data, bincode::config::standard())
+            .context("Failed to encode cache data")?;
 
         fs::write(cache_path, encoded).context("Failed to write cache file")?;
 
@@ -899,8 +919,9 @@ impl YaraEngine {
         let data = fs::read(cache_path).context("Failed to read cache file")?;
 
         let _t_bincode = std::time::Instant::now();
-        let cache_data: CacheData =
-            bincode::deserialize(&data).context("Failed to decode cache data")?;
+        let (cache_data, _): (CacheData, usize) =
+            bincode::serde::decode_from_slice(&data, bincode::config::standard())
+                .context("Failed to decode cache data")?;
 
         // Deserialize the YARA rules
         let _t_yara = std::time::Instant::now();

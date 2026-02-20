@@ -54,6 +54,7 @@ Compare DISSECT output against your research findings. Document gaps: Does DISSE
 - Pattern priority: ast > symbol > string > content (highest precision first)
 - Max criticality: suspicious
 - Search existing traits first to avoid duplicates
+- Avoid hardcoding strings that are unlikely to be shared between samples, such as custom C2 IP's or hostnames; focus on detecting techniques.
 - Prefer multiple reusable atomic traits over complex regular expressions
 - Consider using advanced rule types such as 'metrics' and 'section' to catch obfuscated samples
 

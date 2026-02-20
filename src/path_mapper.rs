@@ -248,238 +248,34 @@ pub(crate) fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
 }
 
 /// Detect platform based on path patterns
-fn detect_platform_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
-    let mut traits = Vec::new();
-
-    // IoT/Embedded detection (MTD flash)
-    let mtd_paths: Vec<_> = paths
-        .iter()
-        .filter(|p| p.path.starts_with("/mnt/mtd/") || p.path.contains("/dev/mtd"))
-        .collect();
-
-    if mtd_paths.len() >= 2 {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "platform/embedded/mtd_device".to_string(),
-            desc: "Targets embedded device with MTD flash storage".to_string(),
-            conf: 0.9,
-            crit: Criticality::Suspicious,
-            mbc: None,
-            attack: None,
-            evidence: mtd_paths
-                .iter()
-                .map(|p| Evidence {
-                    method: "path_pattern".to_string(),
-                    source: p.source.clone(),
-                    value: p.path.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // Android detection
-    let android_paths: Vec<_> = paths
-        .iter()
-        .filter(|p| {
-            p.path.starts_with("/system/")
-                || p.path.starts_with("/data/data/")
-                || p.path.contains("/apex/")
-        })
-        .collect();
-
-    if android_paths.len() >= 3 {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "platform/mobile/android".to_string(),
-            desc: "Android platform-specific paths detected".to_string(),
-            conf: 0.95,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: None,
-            evidence: android_paths
-                .iter()
-                .map(|p| Evidence {
-                    method: "path_pattern".to_string(),
-                    source: p.source.clone(),
-                    value: p.path.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    traits
+/// NOTE: MTD and Android platform detection moved to YAML:
+/// - traits/micro-behaviors/os/platform/embedded/mtd-device.yaml
+/// - traits/micro-behaviors/os/platform/mobile/android.yaml
+fn detect_platform_from_paths(_paths: &[PathInfo]) -> Vec<Finding> {
+    Vec::new()
 }
 
 /// Detect anomalous paths (hidden files in system directories, etc.)
-fn detect_anomalous_paths(paths: &[PathInfo]) -> Vec<Finding> {
-    let mut traits = Vec::new();
-
-    // Hidden files in system directories
-    // Exclude paths with relative components (/../ or /./) as these are typically
-    // DWARF debug paths from compilation, not actual hidden file references
-    // Also exclude Rust cargo registry paths (/usr/share/cargo/registry/) which
-    // are embedded debug info from compiled Rust binaries
-    let anomalous_hidden: Vec<_> = paths
-        .iter()
-        .filter(|p| {
-            p.category == PathCategory::Hidden
-                && (p.path.starts_with("/var/") || p.path.starts_with("/usr/"))
-                && !p.path.contains("/../")
-                && !p.path.contains("/./")
-                && !p.path.contains("/cargo/registry/")
-                && !p.path.contains("/rustc-")
-        })
-        .collect();
-
-    for path in anomalous_hidden {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "persistence/hidden_file".to_string(),
-            desc: format!("Hidden file in system directory: {}", path.path),
-            conf: 0.8,
-            crit: Criticality::Hostile,
-            mbc: None,
-            attack: Some("T1564.001".to_string()), // Hide Artifacts: Hidden Files
-            evidence: vec![Evidence {
-                method: "path_anomaly".to_string(),
-                source: path.source.clone(),
-                value: path.path.clone(),
-                location: None,
-            }],
-            source_file: None,
-        });
-    }
-
-    traits
+/// NOTE: Hidden file detection moved to YAML:
+/// - traits/objectives/persistence/hidden-files/system-dir.yaml (uses unless: for exclusions)
+fn detect_anomalous_paths(_paths: &[PathInfo]) -> Vec<Finding> {
+    Vec::new()
 }
 
 /// Detect privilege requirements from paths
-fn detect_privilege_requirements(paths: &[PathInfo]) -> Vec<Finding> {
-    let mut traits = Vec::new();
-
-    // Root-only paths
-    // NOTE: /sys/kernel/ is too broad - Go runtime reads /sys/kernel/mm/transparent_hugepage/
-    // for memory optimization. Only flag specific sensitive paths.
-    let root_paths = [
-        "/etc/shadow",
-        "/proc/*/mem",
-        "/dev/kmem",
-        "/boot/vmlinuz",
-        "/boot/initrd",
-        "/sys/kernel/debug/",
-        "/sys/kernel/security/",
-    ];
-
-    let requires_root: Vec<_> = paths
-        .iter()
-        .filter(|p| root_paths.iter().any(|rp| p.path.starts_with(rp)))
-        .collect();
-
-    if !requires_root.is_empty() {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "os/privilege/root-access".to_string(),
-            desc: "Accesses paths that typically require root privileges".to_string(),
-            conf: 1.0,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: None,
-            evidence: requires_root
-                .iter()
-                .map(|p| Evidence {
-                    method: "path_privilege".to_string(),
-                    source: p.source.clone(),
-                    value: p.path.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    traits
+/// NOTE: Root-only path detection moved to YAML:
+/// - traits/micro-behaviors/os/privilege/paths/root-only.yaml
+fn detect_privilege_requirements(_paths: &[PathInfo]) -> Vec<Finding> {
+    Vec::new()
 }
 
 /// Generate traits from directory patterns
-#[must_use] 
-pub(crate) fn generate_traits_from_directories(directories: &[DirectoryAccess]) -> Vec<Finding> {
-    let mut traits = Vec::new();
-
-    for dir in directories {
-        // Credential file access patterns
-        if dir.directory.contains("Config") || dir.directory.contains("/etc/") {
-            let cred_files: Vec<_> = dir
-                .files
-                .iter()
-                .filter(|f| {
-                    f.to_lowercase().contains("account")
-                        || f.to_lowercase().contains("passwd")
-                        || f.to_lowercase().contains("password")
-                        || f.to_lowercase().contains("credential")
-                })
-                .collect();
-
-            if cred_files.len() >= 2 {
-                traits.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "credential/backdoor/config_directory".to_string(),
-                    desc: format!(
-                        "Systematically accesses {} credential files in {}",
-                        cred_files.len(),
-                        dir.directory
-                    ),
-                    conf: 0.95,
-                    crit: Criticality::Hostile,
-                    mbc: None,
-                    attack: Some("T1552".to_string()), // Unsecured Credentials
-                    evidence: vec![Evidence {
-                        method: "directory_pattern".to_string(),
-                        source: "path_mapper".to_string(),
-                        value: format!(
-                            "{} credential files in {}",
-                            cred_files.len(),
-                            dir.directory
-                        ),
-                        location: None,
-                    }],
-                    source_file: None,
-                });
-            }
-        }
-
-        // Log file access - notable for awareness, not suspicious on its own
-        // Many legitimate tools access log files (sessreg, logrotate, logging daemons)
-        if dir.categories.contains(&PathCategory::Log) && dir.file_count >= 2 {
-            traits.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: "micro-behaviors/fs/path/log/multiple-access".to_string(),
-                desc: format!("Accesses {} log files in {}", dir.file_count, dir.directory),
-                conf: 0.7,
-                crit: Criticality::Notable,
-                mbc: None,
-                attack: None, // No ATT&CK - access alone isn't an attack technique
-                evidence: vec![Evidence {
-                    method: "directory_pattern".to_string(),
-                    source: "path_mapper".to_string(),
-                    value: format!("{} log files accessed", dir.file_count),
-                    location: Some(dir.directory.clone()),
-                }],
-                source_file: None,
-            });
-        }
-    }
-
-    traits
+/// NOTE: The following detections moved to YAML with count_min:
+/// - Credential file enumeration: traits/objectives/credential-access/files/config-directory.yaml
+/// - Log file access: traits/micro-behaviors/fs/path/log/multiple-access.yaml
+#[must_use]
+pub(crate) fn generate_traits_from_directories(_directories: &[DirectoryAccess]) -> Vec<Finding> {
+    Vec::new()
 }
 
 /// Main entry point: analyze paths and link to traits

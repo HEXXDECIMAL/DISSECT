@@ -1,28 +1,24 @@
 defaults:
   for:
-  - all
+  - php
+  crit: inert
+  attack: T1083
 traits:
 - id: php-dir-traverse-fn
-  description: Iterate directory contents via functions in PHP
-  crit: notable
-  attack: T1083
+  desc: Iterate directory contents via functions in PHP
   if:
     type: raw
     case_insensitive: true
     regex: (?:open|read|scan)dir\s*\(|glob\s*\(
 - id: php-dir-traverse-iterator
-  description: Iterate directory contents via iterators in PHP
-  crit: notable
-  attack: T1083
+  desc: Iterate directory contents via iterators in PHP
   if:
     type: raw
     case_insensitive: true
     regex: (?:Directory|Filesystem|RecursiveDirectory)Iterator
 composite_rules:
 - id: php-dir-traverse
-  description: Iterate directory contents in PHP
-  crit: notable
-  attack: T1083
+  desc: Iterate directory contents in PHP (micro-behavior, not suspicious alone)
   any:
   - id: php-dir-traverse-fn
   - id: php-dir-traverse-iterator

@@ -31,7 +31,7 @@ composite_rules:
     conf: 1.0
     any:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::setup-py-file
-      - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::py-basename
+      - id: metadata/format/extension::py
 
   # Main Rule
   - id: windows-target-dropper

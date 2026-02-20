@@ -8,6 +8,30 @@ use crate::types::Criticality;
 
 use super::super::parsing::parse_file_types;
 
+/// Extract tier prefix from a trait/rule ID
+///
+/// Returns the top-level tier: "micro-behaviors", "objectives", "well-known", "metadata", etc.
+///
+/// Examples:
+/// - "micro-behaviors/fs/file/delete::unlink" → Some("micro-behaviors")
+/// - "objectives/collection/metadata::home-env" → Some("objectives")
+/// - "invalid-id" → None
+#[must_use]
+pub(crate) fn extract_tier(id: &str) -> Option<&str> {
+    if let Some(idx) = id.find("::") {
+        let prefix = &id[..idx];
+        if let Some(slash_idx) = prefix.find('/') {
+            Some(&prefix[..slash_idx])
+        } else {
+            Some(prefix)
+        }
+    } else if let Some(slash_idx) = id.find('/') {
+        Some(&id[..slash_idx])
+    } else {
+        None
+    }
+}
+
 /// Find the line number of a search string in a file.
 ///
 /// Returns `Some(line_number)` if found (1-indexed), or `None` if not found or file can't be read.

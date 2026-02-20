@@ -121,14 +121,7 @@ traits:
       case_insensitive: true
 
   # Removed ld-preload duplicate - use micro-behaviors/os/linker/env::ld-preload
-
-  - id: dyld-insert
-    desc: macOS DYLD_INSERT_LIBRARIES injection
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      word: "DYLD_INSERT_LIBRARIES"
+  # Removed dyld-insert duplicate - use objectives/evasion/library-injection/env::dyld-insert-libraries-string
 
   # === IAT/GOT hooking (atomic) ===
   - id: import-descriptor

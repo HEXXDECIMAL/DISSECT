@@ -17,6 +17,7 @@ use dashmap::DashMap;
 use regex::Regex;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::hash::Hash;
 use std::sync::OnceLock;
 
 // Re-export all evaluator modules
@@ -52,6 +53,29 @@ mod symbol_string_tests;
 // Shared Utilities
 // =============================================================================
 
+/// Cached compiled regex - either string-based or bytes-based for performance.
+/// ASCII-only patterns use bytes::Regex to avoid UTF-8 conversion overhead.
+#[derive(Clone)]
+pub(crate) enum CachedRegex {
+    /// String-based regex for Unicode patterns
+    String(Regex),
+    /// Bytes-based regex for ASCII-only patterns (much faster, no UTF-8 conversion)
+    Bytes(regex::bytes::Regex),
+}
+
+impl CachedRegex {
+    /// Check if this regex matches using the appropriate variant
+    pub fn is_match(&self, data: &[u8]) -> bool {
+        match self {
+            CachedRegex::Bytes(re) => re.is_match(data),
+            CachedRegex::String(re) => {
+                let s = String::from_utf8_lossy(data);
+                re.is_match(&s)
+            }
+        }
+    }
+}
+
 /// Global cache for compiled regex patterns to avoid repeated compilation.
 /// Key is (pattern, case_insensitive), value is compiled Regex.
 static REGEX_CACHE: OnceLock<DashMap<(String, bool), Regex>> = OnceLock::new();
@@ -59,6 +83,35 @@ static REGEX_CACHE: OnceLock<DashMap<(String, bool), Regex>> = OnceLock::new();
 /// Access the global regex cache, initializing it on first call
 pub(crate) fn regex_cache() -> &'static DashMap<(String, bool), Regex> {
     REGEX_CACHE.get_or_init(DashMap::new)
+}
+
+/// V2 cache for optimized regex (supports both string and bytes variants)
+static REGEX_CACHE_V2: OnceLock<DashMap<(String, bool), CachedRegex>> = OnceLock::new();
+
+/// Access the V2 regex cache (supports both string and bytes regex)
+pub(crate) fn regex_cache_v2() -> &'static DashMap<(String, bool), CachedRegex> {
+    REGEX_CACHE_V2.get_or_init(DashMap::new)
+}
+
+/// Compile regex choosing optimal variant (bytes for ASCII, string for Unicode).
+/// This is a critical optimization: ASCII patterns can use bytes::Regex which operates
+/// directly on bytes without UTF-8 validation, providing massive speedup.
+pub(crate) fn compile_regex_optimal(
+    pattern: &str,
+    case_insensitive: bool,
+) -> Result<CachedRegex, regex::Error> {
+    // Check if pattern is ASCII-only and doesn't use Unicode features
+    if pattern.is_ascii() && !pattern.contains("\\u") && !pattern.contains("\\p") && !pattern.contains("\\P") {
+        // ASCII-only pattern - use bytes regex for performance
+        let mut builder = regex::bytes::RegexBuilder::new(pattern);
+        builder.case_insensitive(case_insensitive);
+        Ok(CachedRegex::Bytes(builder.build()?))
+    } else {
+        // Unicode pattern - use string regex
+        let mut builder = regex::RegexBuilder::new(pattern);
+        builder.case_insensitive(case_insensitive);
+        Ok(CachedRegex::String(builder.build()?))
+    }
 }
 
 // Thread-local cache for YARA Scanners to avoid expensive Scanner::new() calls.
@@ -100,6 +153,65 @@ pub(crate) fn get_or_create_scanner<'a>(rules: &'a yara_x::Rules) -> &'a mut yar
         unsafe {
             std::mem::transmute::<&mut yara_x::Scanner<'static>, &mut yara_x::Scanner<'a>>(scanner)
         }
+    })
+}
+
+// Thread-local cache for UTF-8 conversions to avoid repeated String::from_utf8_lossy calls.
+// This is the #1 performance bottleneck - eval_raw was spending 92% of time on UTF-8 validation.
+// Cache size: 32 entries provides good hit rate without excessive memory (max ~480MB for 15MB files).
+thread_local! {
+    /// Thread-local UTF-8 conversion cache with LRU eviction
+    static UTF8_CACHE: RefCell<lru::LruCache<Utf8CacheKey, std::sync::Arc<str>>> = {
+        use std::num::NonZeroUsize;
+        RefCell::new(lru::LruCache::new(
+            NonZeroUsize::new(std::env::var("DISSECT_UTF8_CACHE_SIZE")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(32)
+            ).expect("Cache size must be > 0")
+        ))
+    };
+}
+
+/// Cache key for UTF-8 conversion results.
+/// Uses file identity (pointer + length) and range to uniquely identify cached conversions.
+#[derive(Hash, Eq, PartialEq, Clone)]
+struct Utf8CacheKey {
+    /// Identifies the file (pointer address + length combo is unique per analysis)
+    file_id: (usize, usize), // (ptr address, length)
+    /// Range within the file (start, end)
+    range: (usize, usize),
+}
+
+/// Get cached UTF-8 conversion or perform and cache it.
+/// This function is the key optimization for eval_raw performance.
+///
+/// # Arguments
+/// * `binary_data` - The full binary data slice
+/// * `range` - The (start, end) range to convert
+///
+/// # Returns
+/// Arc<str> containing the UTF-8 lossy conversion (reference counted for cheap cloning)
+#[must_use]
+pub(crate) fn get_utf8_cached(binary_data: &[u8], range: (usize, usize)) -> std::sync::Arc<str> {
+    let key = Utf8CacheKey {
+        file_id: (binary_data.as_ptr() as usize, binary_data.len()),
+        range,
+    };
+
+    UTF8_CACHE.with(|cache| {
+        let mut cache = cache.borrow_mut();
+
+        // Check if already in cache
+        if let Some(cached) = cache.get(&key) {
+            return std::sync::Arc::clone(cached);
+        }
+
+        // Not in cache - perform conversion
+        let slice = &binary_data[range.0..range.1];
+        let converted: std::sync::Arc<str> = String::from_utf8_lossy(slice).to_string().into();
+        cache.put(key, std::sync::Arc::clone(&converted));
+        converted
     })
 }
 

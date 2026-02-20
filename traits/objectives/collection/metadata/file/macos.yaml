@@ -61,17 +61,8 @@ traits:
       type: string
       regex: "/Documents\\b|~/Documents"
 
-  # === Environment variable access ===
-  - id: home-env
-    desc: "HOME environment variable"
-    crit: notable
-    conf: 0.5
-    attack: "T1083"
-    if:
-      type: string
-      exact: "HOME"
-
   # NOTE: getenv removed - use micro-behaviors/os/env/vars/getenv instead
+  # NOTE: HOME env var - use micro-behaviors/os/env/vars/user-info::home-var instead
   # getenv is a capability, not a collection objective
 
 composite_rules:
@@ -87,7 +78,7 @@ composite_rules:
       - id: library-dir
       - id: downloads-dir
       - id: documents-dir
-      - id: home-env
+      - id: micro-behaviors/os/env/vars/user-info::home-var
 
   # Metadata filtering pattern
   - id: metadata-collection

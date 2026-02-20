@@ -57,15 +57,6 @@ traits:
       - type: raw
         substr: "import "
 
-  - id: py-basename
-    desc: Python file extension
-    crit: notable
-    conf: 1.0
-    for: [all]
-    if:
-      type: basename
-      regex: "\\.py$"
-
   - id: empty-file
     desc: Empty file (0 bytes)
     crit: notable
@@ -229,7 +220,7 @@ composite_rules:
     for: [all]
     attack: "T1195.002"
     all:
-      - id: py-basename
+      - id: metadata/format/extension::py
       - id: empty-file
 
   # === Empty __init__.py stub module ===
@@ -245,7 +236,7 @@ composite_rules:
     attack: "T1195.002"
     all:
       - id: init-py-file
-      - id: py-basename
+      - id: metadata/format/extension::py
       - id: empty-file
 
   # === Empty __init__.py (shell package) ===

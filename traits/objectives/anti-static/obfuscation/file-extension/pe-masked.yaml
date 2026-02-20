@@ -60,48 +60,6 @@ traits:
       type: basename
       substr: ".webp."
 
-  - id: exec-ext-exe
-    desc: Executable extension .exe
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.exe$"
-
-  - id: exec-ext-scr
-    desc: Executable extension .scr
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.scr$"
-
-  - id: exec-ext-dll
-    desc: Executable extension .dll
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.dll$"
-
-  - id: exec-ext-com
-    desc: Executable extension .com
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.com$"
-
-  - id: exec-ext-bat
-    desc: Executable extension .bat
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.bat$"
-
-  - id: exec-ext-cmd
-    desc: Executable extension .cmd
-    crit: suspicious
-    if:
-      type: basename
-      regex: "\\.cmd$"
-
 composite_rules:
   - id: image-double-extension-prefix
     desc: Filename contains image extension before final extension
@@ -116,20 +74,9 @@ composite_rules:
       - id: image-dot-svg
       - id: image-dot-webp
 
-  - id: executable-final-extension
-    desc: Filename ends with executable extension
-    crit: suspicious
-    any:
-      - id: exec-ext-exe
-      - id: exec-ext-scr
-      - id: exec-ext-dll
-      - id: exec-ext-com
-      - id: exec-ext-bat
-      - id: exec-ext-cmd
-
   - id: pe-masked-as-image
     desc: PE file disguised with an image extension
     all:
       - id: metadata/format/magic::pe-dos-stub
       - id: image-double-extension-prefix
-      - id: executable-final-extension
+      - id: metadata/format/extension::windows-executable

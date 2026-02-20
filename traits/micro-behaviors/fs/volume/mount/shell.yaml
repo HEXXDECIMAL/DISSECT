@@ -3,15 +3,15 @@
 # ATT&CK: T1222
 
 defaults:
-  for: [all]
+  for: [shell]
+  mbc: E1222
+  attack: T1222
 
 traits:
   - id: mount-keyword
-    desc: mount command keyword
-    crit: notable
+    desc: Mount command keyword
+    crit: inert
     conf: 0.6
-    mbc: E1222
-    attack: T1222
     if:
       type: string
       word: "mount"

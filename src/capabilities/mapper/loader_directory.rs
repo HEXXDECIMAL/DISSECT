@@ -9,7 +9,9 @@ use crate::capabilities::indexes::{RawContentRegexIndex, StringMatchIndex, Trait
 use crate::capabilities::models::{TraitInfo, TraitMappings};
 use crate::capabilities::parsing::{apply_composite_defaults, apply_trait_defaults};
 use crate::capabilities::validation::{
-    autoprefix_trait_refs, check_overlapping_regex_patterns, check_regex_or_overlapping_exact,
+    autoprefix_trait_refs, check_case_insensitive_overlaps, check_exact_contained_by_substr,
+    check_overlapping_regex_patterns, check_regex_alternative_subsets,
+    check_regex_contains_literal, check_regex_or_overlapping_exact,
     check_regex_should_be_exact, check_same_string_different_types,
     collect_trait_refs_from_rule, find_alternation_merge_candidates,
     find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
@@ -685,6 +687,30 @@ impl super::CapabilityMapper {
             tracing::debug!("Step 1h/15: Detecting potentially slow regex patterns");
             find_slow_regex_patterns(&trait_definitions, &mut warnings);
             tracing::debug!("Step 1h completed in {:?}", step_start.elapsed());
+
+            // Check for exact patterns contained by substr patterns (redundancy)
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1i/15: Checking for exact ⊂ substr containment");
+            check_exact_contained_by_substr(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1i completed in {:?}", step_start.elapsed());
+
+            // Check for case-insensitive overlaps and subsumption
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1j/15: Checking for case-insensitive overlaps");
+            check_case_insensitive_overlaps(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1j completed in {:?}", step_start.elapsed());
+
+            // Check for regex vs literal overlaps (cross-type and containment)
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1k/15: Checking for regex vs literal overlaps");
+            check_regex_contains_literal(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1k completed in {:?}", step_start.elapsed());
+
+            // Check for regex alternative subsets and case-insensitive regex overlaps
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1l/15: Checking for regex alternative subsets");
+            check_regex_alternative_subsets(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1l completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }

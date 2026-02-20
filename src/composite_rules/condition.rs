@@ -372,6 +372,15 @@ enum ConditionTagged {
         /// Maximum section entropy (0.0-8.0)
         #[serde(skip_serializing_if = "Option::is_none")]
         entropy_max: Option<f64>,
+        /// Require section to have read permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        readable: Option<bool>,
+        /// Require section to have write permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        writable: Option<bool>,
+        /// Require section to have execute permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        executable: Option<bool>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)
@@ -636,6 +645,9 @@ impl From<ConditionDeser> for Condition {
                     length_max,
                     entropy_min,
                     entropy_max,
+                    readable,
+                    writable,
+                    executable,
                 } => Condition::Section {
                     exact,
                     substr,
@@ -646,6 +658,9 @@ impl From<ConditionDeser> for Condition {
                     length_max,
                     entropy_min,
                     entropy_max,
+                    readable,
+                    writable,
+                    executable,
                 },
                 ConditionTagged::Encoded {
                     encoding,
@@ -1076,6 +1091,15 @@ pub(crate) enum Condition {
         /// Maximum section entropy (0.0-8.0)
         #[serde(skip_serializing_if = "Option::is_none")]
         entropy_max: Option<f64>,
+        /// Require section to have read permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        readable: Option<bool>,
+        /// Require section to have write permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        writable: Option<bool>,
+        /// Require section to have execute permission (works across PE/ELF/Mach-O)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        executable: Option<bool>,
     },
 
     /// Match patterns in encoded/decoded strings (unified replacement for base64/xor)

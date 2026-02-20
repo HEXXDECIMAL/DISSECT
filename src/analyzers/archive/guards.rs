@@ -155,6 +155,47 @@ pub(crate) fn sanitize_entry_path(entry_name: &str, dest_dir: &Path) -> Option<P
     Some(result)
 }
 
+/// Check if a symlink target would escape the extraction directory
+///
+/// Returns true if the symlink target points outside dest_dir when resolved
+/// from the symlink's location.
+pub(crate) fn symlink_escapes(
+    symlink_path: &Path,
+    target: &str,
+    dest_dir: &Path,
+) -> bool {
+    let target_path = Path::new(target);
+
+    // Absolute targets always escape
+    if target_path.is_absolute() {
+        return true;
+    }
+
+    // Resolve target relative to symlink's parent directory
+    let symlink_parent = symlink_path.parent().unwrap_or(dest_dir);
+    let mut resolved = symlink_parent.to_path_buf();
+
+    // Walk through target components, handling .. and .
+    for component in target_path.components() {
+        match component {
+            Component::Normal(c) => resolved.push(c),
+            Component::CurDir => {}, // "." doesn't change path
+            Component::ParentDir => {
+                // ".." moves up one level
+                resolved.pop();
+            }
+            Component::Prefix(_) | Component::RootDir => {
+                // These make it absolute, which escapes
+                return true;
+            }
+        }
+    }
+
+    // Check if resolved path is still under dest_dir
+    // We need to canonicalize the comparison to handle . and .. properly
+    !resolved.starts_with(dest_dir)
+}
+
 /// Size-limited reader that stops after a maximum number of bytes
 pub(crate) struct LimitedReader<R> {
     inner: R,

@@ -21,38 +21,6 @@ pub(crate) fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVar
     env_vars
 }
 
-/// Extract environment variables from function calls (getenv, setenv, etc.)
-#[must_use] 
-pub(crate) fn extract_envvars_from_imports(imports: &[Import]) -> Vec<(String, EnvVarAccessType)> {
-    let mut env_api_calls = Vec::new();
-
-    for import in imports {
-        let symbol = import.symbol.as_str();
-
-        // Unix/Linux API calls
-        if symbol.contains("getenv") || symbol == "getenv" {
-            env_api_calls.push(("getenv".to_string(), EnvVarAccessType::Read));
-        } else if symbol.contains("setenv") || symbol == "setenv" {
-            env_api_calls.push(("setenv".to_string(), EnvVarAccessType::Write));
-        } else if symbol.contains("putenv") || symbol == "putenv" {
-            env_api_calls.push(("putenv".to_string(), EnvVarAccessType::Write));
-        } else if symbol.contains("unsetenv") || symbol == "unsetenv" {
-            env_api_calls.push(("unsetenv".to_string(), EnvVarAccessType::Delete));
-        }
-        // Windows API calls
-        else if symbol.contains("GetEnvironmentVariable") {
-            env_api_calls.push(("GetEnvironmentVariable".to_string(), EnvVarAccessType::Read));
-        } else if symbol.contains("SetEnvironmentVariable") {
-            env_api_calls.push((
-                "SetEnvironmentVariable".to_string(),
-                EnvVarAccessType::Write,
-            ));
-        }
-    }
-
-    env_api_calls
-}
-
 /// Check if string looks like an environment variable name
 fn is_env_var_name(s: &str) -> bool {
     // Must be uppercase letters, numbers, and underscores
@@ -311,268 +279,18 @@ fn classify_env_var_category(name: &str) -> EnvVarCategory {
     EnvVarCategory::Other
 }
 
-/// Generate traits from environment variable patterns
-#[must_use] 
-pub(crate) fn generate_traits_from_env_vars(env_vars: &[EnvVarInfo]) -> Vec<Finding> {
-    let mut traits = Vec::new();
-
-    // Credential access detection
-    // Only consider credentials that are actually being read (not just strings present in binary)
-    // String-only matches are too noisy - libraries often have protocol constants like DB_KEY
-    let credential_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| {
-            e.category == EnvVarCategory::Credential && e.access_type == EnvVarAccessType::Read
-            // Must be actually read via getenv etc
-        })
-        .collect();
-
-    if !credential_vars.is_empty() {
-        // Only suspicious if multiple credential vars accessed (pattern of credential harvesting)
-        // Single credential var access is common in legitimate tooling
-        let crit = if credential_vars.len() >= 3 {
-            Criticality::Suspicious
-        } else {
-            Criticality::Notable
-        };
-
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "credential/env/access".to_string(),
-            desc: format!(
-                "Reads {} credential environment variables via getenv",
-                credential_vars.len()
-            ),
-            conf: 0.85,
-            crit,
-            mbc: None,
-            attack: Some("T1552.001".to_string()), // Unsecured Credentials
-            evidence: credential_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // LD_PRELOAD injection detection
-    let injection_vars: Vec<_> =
-        env_vars.iter().filter(|e| e.category == EnvVarCategory::Injection).collect();
-
-    for var in injection_vars {
-        let (trait_id, description, attack_id) = match var.name.as_str() {
-            "LD_PRELOAD" => (
-                "evasion/library/preload",
-                "Uses LD_PRELOAD for library injection",
-                "T1574.006", // Hijack Execution Flow: LD_PRELOAD
-            ),
-            "DYLD_INSERT_LIBRARIES" => (
-                "evasion/library/dyld_inject",
-                "Uses DYLD_INSERT_LIBRARIES for library injection on macOS",
-                "T1574.006",
-            ),
-            _ => (
-                "evasion/library/injection",
-                "Library injection via environment variable",
-                "T1574.006",
-            ),
-        };
-
-        // NOTE: Suspicious not hostile - system utilities legitimately reference these
-        // Real library injection requires additional context (actual preload code)
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: trait_id.to_string(),
-            desc: description.to_string(),
-            conf: 0.75,
-            crit: Criticality::Suspicious,
-            mbc: None,
-            attack: Some(attack_id.to_string()),
-            evidence: vec![Evidence {
-                method: "env_var".to_string(),
-                source: var.source.clone(),
-                value: var.name.clone(),
-                location: None,
-            }],
-            source_file: None,
-        });
-    }
-
-    // User discovery
-    let user_vars: Vec<_> =
-        env_vars.iter().filter(|e| e.category == EnvVarCategory::User).collect();
-
-    if user_vars.len() >= 2 {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "discovery/env/user".to_string(),
-            desc: "Discovers user information via environment variables".to_string(),
-            conf: 0.8,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: Some("T1033".to_string()), // System Owner/User Discovery
-            evidence: user_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // System discovery
-    let system_vars: Vec<_> =
-        env_vars.iter().filter(|e| e.category == EnvVarCategory::System).collect();
-
-    if system_vars.len() >= 2 {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "discovery/env/system".to_string(),
-            desc: "Discovers system information via environment variables".to_string(),
-            conf: 0.8,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: Some("T1082".to_string()), // System Information Discovery
-            evidence: system_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // PATH manipulation (if write access)
-    let path_write: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.name == "PATH" && e.access_type == EnvVarAccessType::Write)
-        .collect();
-
-    if !path_write.is_empty() {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "persistence/env/path_manipulation".to_string(),
-            desc: "Modifies PATH environment variable for persistence/hijacking".to_string(),
-            conf: 0.9,
-            crit: Criticality::Hostile,
-            mbc: None,
-            attack: Some("T1574.007".to_string()), // Hijack Execution Flow: Path Interception
-            evidence: path_write
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // Platform detection
-    let android_vars: Vec<_> = env_vars.iter().filter(|e| e.name.starts_with("ANDROID_")).collect();
-
-    if !android_vars.is_empty() {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "platform/mobile/android_env".to_string(),
-            desc: "Android platform detected via environment variables".to_string(),
-            conf: 0.9,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: None,
-            evidence: android_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // Display check - NOTE: DISPLAY and WAYLAND_DISPLAY are essential for GUI applications
-    // and X11/Wayland libraries. Only potentially suspicious for CLI tools or scripts that
-    // shouldn't need display access. Since we can't easily distinguish at this level,
-    // we mark this as inert (informational only) rather than notable.
-    let display_vars: Vec<_> = env_vars
-        .iter()
-        .filter(|e| e.name == "DISPLAY" || e.name == "WAYLAND_DISPLAY")
-        .collect();
-
-    if !display_vars.is_empty() {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "micro-behaviors/os/env/display".to_string(),
-            desc: "Accesses display environment variable (X11/Wayland)".to_string(),
-            conf: 0.9,
-            crit: Criticality::Inert, // Normal for GUI apps and X11 libs
-            mbc: None,
-            attack: None,
-            evidence: display_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    // SSH check (remote session detection)
-    let ssh_vars: Vec<_> = env_vars.iter().filter(|e| e.name.starts_with("SSH_")).collect();
-
-    if !ssh_vars.is_empty() {
-        traits.push(Finding {
-            kind: FindingKind::Capability,
-            trait_refs: vec![],
-            id: "anti-analysis/env/ssh_check".to_string(),
-            desc: "Checks SSH variables (remote session detection)".to_string(),
-            conf: 0.7,
-            crit: Criticality::Notable,
-            mbc: None,
-            attack: Some("T1497".to_string()), // Virtualization/Sandbox Evasion
-            evidence: ssh_vars
-                .iter()
-                .map(|e| Evidence {
-                    method: "env_var".to_string(),
-                    source: e.source.clone(),
-                    value: e.name.clone(),
-                    location: None,
-                })
-                .collect(),
-            source_file: None,
-        });
-    }
-
-    traits
+/// NOTE: All detections moved to YAML with composite rules + count_min:
+/// - Credential harvesting: traits/objectives/credential-access/env/harvesting.yaml
+/// - LD_PRELOAD/DYLD_INSERT_LIBRARIES: traits/objectives/evasion/library-injection/env/preload.yaml
+/// - User discovery (>= 2 user vars): traits/objectives/discovery/env/user-discovery.yaml
+/// - System discovery (>= 2 system vars): traits/objectives/discovery/env/system-discovery.yaml
+/// - PATH manipulation: traits/objectives/persistence/env/path-manipulation.yaml
+/// - Android platform: traits/objectives/discovery/platform/android-env.yaml
+/// - Display check: traits/objectives/discovery/env/display-check.yaml
+/// - SSH check: traits/objectives/anti-analysis/env/ssh-detection.yaml
+#[must_use]
+pub(crate) fn generate_traits_from_env_vars(_env_vars: &[EnvVarInfo]) -> Vec<Finding> {
+    Vec::new()
 }
 
 /// Main entry point: analyze environment variables and link to traits
@@ -582,43 +300,12 @@ pub(crate) fn analyze_and_link_env_vars(report: &mut AnalysisReport) {
     let mut env_vars = report.env_vars.clone();
     env_vars.extend(extract_envvars_from_strings(&report.strings));
 
-    // Step 2: Check for API calls
-    let env_api_calls = extract_envvars_from_imports(&report.imports);
-
-    // Add traits for API usage even if we don't know which specific vars are accessed
-    for (api_name, access_type) in env_api_calls {
-        let trait_id = match access_type {
-            EnvVarAccessType::Read => "env/api/getenv",
-            EnvVarAccessType::Write => "env/api/setenv",
-            EnvVarAccessType::Delete => "env/api/unsetenv",
-            _ => "env/api/access",
-        };
-
-        if !report.findings.iter().any(|t| t.id == trait_id) {
-            report.findings.push(Finding {
-                kind: FindingKind::Capability,
-                trait_refs: vec![],
-                id: trait_id.to_string(),
-                desc: format!("Uses {} to access environment variables", api_name),
-                conf: 1.0,
-                crit: Criticality::Inert,
-                mbc: None,
-                attack: None,
-                evidence: vec![Evidence {
-                    method: "symbol".to_string(),
-                    source: "imports".to_string(),
-                    value: api_name,
-                    location: None,
-                }],
-                source_file: None,
-            });
-        }
-    }
-
-    // Step 3: Generate behavioral traits from patterns
+    // Step 2: Generate behavioral traits from patterns
+    // NOTE: Basic env API detection (getenv, setenv, etc.) is now handled by YAML traits
+    // in traits/micro-behaviors/os/env/vars/traits.yaml via symbol matching
     let new_traits = generate_traits_from_env_vars(&env_vars);
 
-    // Step 4: Add back-references
+    // Step 3: Add back-references
     for trait_obj in &new_traits {
         // Mark env vars that contributed to this trait
         for env_var in &mut env_vars {

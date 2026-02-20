@@ -414,7 +414,7 @@ impl PEAnalyzer {
                 0.0
             };
 
-            let entropy_level = if entropy > 7.2 {
+            let _entropy_level = if entropy > 7.2 {
                 EntropyLevel::High
             } else if entropy > 6.0 {
                 EntropyLevel::Elevated
@@ -432,50 +432,10 @@ impl PEAnalyzer {
                 permissions: Some(permissions.clone()),
             });
 
-            if matches!(entropy_level, EntropyLevel::High) && is_executable {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "anti-analysis/packing".to_string(),
-                    desc: format!(
-                        "High entropy ({:.2}) in executable section '{}' (possible packing)",
-                        entropy, name
-                    ),
-                    conf: 0.85,
-                    crit: Criticality::Suspicious,
-                    mbc: None,
-                    attack: None,
-                    evidence: vec![Evidence {
-                        method: "entropy".to_string(),
-                        source: "section_analysis".to_string(),
-                        value: format!("{:.2}", entropy),
-                        location: Some(name.clone()),
-                    }],
-
-                    source_file: None,
-                });
-            }
-
-            if is_writable && is_executable {
-                report.findings.push(Finding {
-                    kind: FindingKind::Capability,
-                    trait_refs: vec![],
-                    id: "execution/memory/wx".to_string(),
-                    desc: format!("Writable+executable section '{}'", name),
-                    conf: 1.0,
-                    crit: Criticality::Suspicious,
-                    mbc: None,
-                    attack: None,
-                    evidence: vec![Evidence {
-                        method: "section_flags".to_string(),
-                        source: "goblin".to_string(),
-                        value: permissions,
-                        location: Some(name),
-                    }],
-
-                    source_file: None,
-                });
-            }
+            // NOTE: High entropy executable detection moved to YAML:
+            // - traits/objectives/anti-analysis/packing/high-entropy-executable.yaml
+            // NOTE: W^X section detection moved to YAML:
+            // - traits/objectives/anti-static/hardening/memory/wx-sections.yaml
         }
 
     }

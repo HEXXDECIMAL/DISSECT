@@ -32,7 +32,7 @@ composite_rules:
     conf: 0.9
     attack: "T1003.008"
     any:
-      - id: micro-behaviors/fs/path/config/accounts::etc-shadow
+      - id: micro-behaviors/os/privilege/paths::etc-shadow
       - id: micro-behaviors/fs/path/config/groups::etc-gshadow
 
   - id: shadow-extraction

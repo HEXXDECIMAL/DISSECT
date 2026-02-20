@@ -9,7 +9,8 @@
 //! - Standalone compression (.gz, .xz, .bz2)
 
 use super::guards::{
-    sanitize_entry_path, ExtractionGuard, HostileArchiveReason, LimitedReader, MAX_FILE_SIZE,
+    sanitize_entry_path, symlink_escapes, ExtractionGuard, HostileArchiveReason, LimitedReader,
+    MAX_FILE_SIZE,
 };
 use super::tar::extract_tar_entries_safe;
 use super::zip::extract_zip_safe;
@@ -195,13 +196,16 @@ pub(crate) fn extract_pkg_safe(
             }
         }
 
-        // Skip symlinks and hardlinks
+        // Check symlinks and hardlinks
         use apple_xar::table_of_contents::FileType as XarFileType;
         if matches!(
             file_entry.file_type,
             XarFileType::Link | XarFileType::HardLink
         ) {
+            // For XAR files, we conservatively flag all symlinks as potentially escaping
+            // TODO: Extract link target from XAR metadata if apple_xar exposes it
             guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(path.clone()));
+            // Skip symlinks regardless (we don't extract them)
             continue;
         }
 
@@ -478,10 +482,25 @@ fn extract_cpio<R: Read>(mut reader: R, dest_dir: &Path, guard: &ExtractionGuard
                 anyhow::bail!("Exceeded maximum total extraction size");
             }
         } else if mode & 0o170000 == 0o120000 {
-            // Symlink - skip with hostile flag
-            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(clean_name.to_string()));
-            let mut sink = std::io::sink();
-            std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            // Symlink - target is stored as file data
+            let mut target_buf = Vec::new();
+            if file_size > 0 && file_size < 4096 {
+                // Reasonable symlink path length
+                let mut limited = LimitedReader::new(entry_reader, file_size.min(4096));
+                if limited.read_to_end(&mut target_buf).is_ok() {
+                    if let Ok(target_str) = String::from_utf8(target_buf) {
+                        if symlink_escapes(&out_path, &target_str, dest_dir) {
+                            guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
+                                format!("{} -> {}", clean_name, target_str),
+                            ));
+                        }
+                    }
+                }
+            } else {
+                // Consume the entry data
+                let mut sink = std::io::sink();
+                std::io::copy(&mut { entry_reader }, &mut sink).ok();
+            }
         } else {
             // Skip other types (devices, etc.)
             let mut sink = std::io::sink();

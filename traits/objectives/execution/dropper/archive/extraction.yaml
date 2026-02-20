@@ -70,27 +70,6 @@ traits:
   if:
     type: string
     regex: (tempdir|gettempdir).{0,15}extract|extract.{0,15}tempdir
-- id: extract-then-execute-arch
-  desc: Extract then execute pattern (archive)
-  crit: notable
-  conf: 0.9
-  if:
-    type: string
-    regex: (?:extract|unzip|tar).{0,80}
-- id: extract-then-execute-run-1
-  desc: Extract then execute pattern (exec/run/sub)
-  crit: notable
-  conf: 0.9
-  if:
-    type: string
-    regex: (?:exec|run|subprocess)
-- id: extract-then-execute-run-2
-  desc: Extract then execute pattern (shell/python)
-  crit: notable
-  conf: 0.9
-  if:
-    type: string
-    regex: \b(?:bash|python|sh\b)
 composite_rules:
 - id: tar-extract
   desc: tar archive extraction
@@ -99,15 +78,6 @@ composite_rules:
   any:
   - id: tar-extract-x
   - id: tar-extract-word
-- id: extract-then-execute
-  desc: Extract then execute pattern
-  crit: suspicious
-  conf: 0.9
-  all:
-  - id: extract-then-execute-arch
-  any:
-  - id: extract-then-execute-run-1
-  - id: extract-then-execute-run-2
 - id: archive-extraction
   desc: Archive extraction capability
   crit: notable
@@ -135,17 +105,16 @@ composite_rules:
   all:
   - id: archive-extraction
 - id: extract-and-execute
-  desc: Extract and execute payload
+  desc: Extract and execute payload (tar extract then exec)
   crit: suspicious
-  conf: 0.95
+  conf: 0.9
   attack: T1204
   mbc: E1105
   platforms:
   - all
-  needs: 2
   all:
   - id: archive-extraction
-  - id: extract-then-execute
+  - id: tar-execute
 - id: extract-and-chmod
   desc: Extract archive and make executable
   crit: suspicious

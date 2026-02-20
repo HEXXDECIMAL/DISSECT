@@ -1204,6 +1204,9 @@ impl TraitDefinition {
                 length_max,
                 entropy_min,
                 entropy_max,
+                readable,
+                writable,
+                executable,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
@@ -1214,6 +1217,9 @@ impl TraitDefinition {
                 *length_max,
                 *entropy_min,
                 *entropy_max,
+                *readable,
+                *writable,
+                *executable,
                 ctx,
             ),
             Condition::Encoded {
@@ -2158,6 +2164,9 @@ impl CompositeTrait {
                 length_max,
                 entropy_min,
                 entropy_max,
+                readable,
+                writable,
+                executable,
             } => eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
@@ -2168,6 +2177,9 @@ impl CompositeTrait {
                 *length_max,
                 *entropy_min,
                 *entropy_max,
+                *readable,
+                *writable,
+                *executable,
                 ctx,
             ),
             Condition::Encoded {

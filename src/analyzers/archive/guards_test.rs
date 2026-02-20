@@ -425,3 +425,89 @@ fn test_extraction_guard_concurrent_safety() {
     let reasons = guard.take_reasons();
     assert_eq!(reasons.len(), 0);
 }
+
+// =============================================================================
+// Symlink Escape Detection Tests
+// =============================================================================
+
+#[test]
+fn test_symlink_escapes_absolute_target() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("link");
+
+    // Absolute paths always escape
+    assert!(symlink_escapes(&symlink_path, "/etc/passwd", dest));
+    assert!(symlink_escapes(&symlink_path, "/tmp/other", dest));
+}
+
+#[test]
+fn test_symlink_escapes_parent_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("foo/bar/link");
+
+    // "../../../etc" would escape from foo/bar/link
+    assert!(symlink_escapes(&symlink_path, "../../../etc", dest));
+
+    // "../../../../etc" definitely escapes
+    assert!(symlink_escapes(&symlink_path, "../../../../etc", dest));
+}
+
+#[test]
+fn test_symlink_stays_within_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("foo/bar/link");
+
+    // "../baz" from foo/bar/link points to foo/baz - OK
+    assert!(!symlink_escapes(&symlink_path, "../baz", dest));
+
+    // "../../other" from foo/bar/link points to other - OK
+    assert!(!symlink_escapes(&symlink_path, "../../other", dest));
+
+    // "target" from foo/bar/link points to foo/bar/target - OK
+    assert!(!symlink_escapes(&symlink_path, "target", dest));
+}
+
+#[test]
+fn test_symlink_current_directory() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("link");
+
+    // "./file" stays in dest - OK
+    assert!(!symlink_escapes(&symlink_path, "./file", dest));
+
+    // "././file" stays in dest - OK
+    assert!(!symlink_escapes(&symlink_path, "././file", dest));
+}
+
+#[test]
+fn test_symlink_complex_relative_path() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("a/b/c/link");
+
+    // "../../d/e" from a/b/c/link points to a/d/e - OK
+    assert!(!symlink_escapes(&symlink_path, "../../d/e", dest));
+
+    // "../../../x" from a/b/c/link points to x in dest - OK
+    assert!(!symlink_escapes(&symlink_path, "../../../x", dest));
+
+    // "../../../../escape" would go above dest - ESCAPES
+    assert!(symlink_escapes(&symlink_path, "../../../../escape", dest));
+}
+
+#[test]
+fn test_symlink_at_root_level() {
+    let temp_dir = TempDir::new().unwrap();
+    let dest = temp_dir.path();
+    let symlink_path = dest.join("link");
+
+    // "file" stays in dest - OK
+    assert!(!symlink_escapes(&symlink_path, "file", dest));
+
+    // "../escape" goes above dest - ESCAPES
+    assert!(symlink_escapes(&symlink_path, "../escape", dest));
+}
