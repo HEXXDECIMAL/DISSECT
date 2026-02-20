@@ -3278,15 +3278,19 @@ impl CapabilityMapper {
 }
 
 /// Validate trait and composite conditions for problematic patterns.
-/// Warns about combinations that are unlikely to be helpful.
+/// Returns true if errors were found.
 fn validate_conditions(
     trait_definitions: &[TraitDefinition],
     composite_rules: &[CompositeTrait],
     path: &Path,
-) {
+) -> bool {
+    let mut has_errors = false;
+
     // Check trait definitions
     for trait_def in trait_definitions {
-        check_condition(&trait_def.r#if.condition, &trait_def.id, path);
+        if check_condition(&trait_def.r#if.condition, &trait_def.id, path) {
+            has_errors = true;
+        }
     }
 
     // Check composite rules
@@ -3294,25 +3298,35 @@ fn validate_conditions(
         // Check all conditions in the rule
         if let Some(all_conditions) = &rule.all {
             for cond in all_conditions {
-                check_condition(cond, &rule.id, path);
+                if check_condition(cond, &rule.id, path) {
+                    has_errors = true;
+                }
             }
         }
         if let Some(any_conditions) = &rule.any {
             for cond in any_conditions {
-                check_condition(cond, &rule.id, path);
+                if check_condition(cond, &rule.id, path) {
+                    has_errors = true;
+                }
             }
         }
         if let Some(none_conditions) = &rule.none {
             for cond in none_conditions {
-                check_condition(cond, &rule.id, path);
+                if check_condition(cond, &rule.id, path) {
+                    has_errors = true;
+                }
             }
         }
         if let Some(unless_conditions) = &rule.unless {
             for cond in unless_conditions {
-                check_condition(cond, &rule.id, path);
+                if check_condition(cond, &rule.id, path) {
+                    has_errors = true;
+                }
             }
         }
     }
+
+    has_errors
 }
 
 /// Check raw YAML content for meaningless patterns before parsing.
@@ -3388,12 +3402,13 @@ fn check_yaml_patterns(content: &str, path: &Path) -> Vec<String> {
     warnings
 }
 
-/// Check a single condition for problematic patterns
+/// Check a single condition for problematic patterns.
+/// Returns true if an error was found.
 fn check_condition(
     condition: &crate::composite_rules::condition::Condition,
     trait_id: &str,
     path: &Path,
-) {
+) -> bool {
     use crate::composite_rules::condition::Condition;
 
     if let Condition::Raw { exact: Some(_), .. } = condition {
@@ -3404,7 +3419,10 @@ fn check_condition(
             trait_id,
             path.display()
         );
+        return true;
     }
+
+    false
 }
 
 /// Collect all metric field references from a trait definition
