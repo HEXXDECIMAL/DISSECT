@@ -44,22 +44,21 @@ For each hostile or suspicious finding:
 
 ### Step 3: Fix Strategy (choose one)
 
-**A. Downgrade criticality** (preferred - preserves detection):
+**A. Improve the trait** (preferred - improves precision):
+- Find ways to address the inaccuracy by improving how it's matched
+- Consider adding constraits like `near`, `count_min`, `size_min`, `for` - see RULES.md for details!
+- Upgrade pattern type to a more specific matcher: raw → string → symbol → ast
+- Perfect already but in a misleading subdirectory? Move the trait to more neutral directory in taxonomy within micro-behaviors/ or metadata/
+
+**B. Downgrade criticality** (if the finding is perfect, but contextually not suspicious):
 ```yaml
 downgrade:
   - id: path/to/trait::specific-trait-id
     to: notable
     reason: "legitimate use in system administration tools"
 ```
-Use when detection is accurate but severity is wrong.
 
-**B. Tighten the trait** (improves precision):
-- Add constraints: `near`, `count_min`, `size_min`, `for`
-- Upgrade pattern type: raw → string → symbol → ast
-- Move trait to more neutral directory in taxonomy
-Use when trait needs better precision or semantic placement.
-
-**C. Suppress with unless** (use sparingly - hides detection):
+**C. Suppress with unless** (use sparingly - workaround):
 ```yaml
 unless:
   - id: some-exclusion-pattern
