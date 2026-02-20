@@ -94,30 +94,13 @@ traits:
     type: string
     regex: '@Component\(|useEffect\(|useState\('
 composite_rules:
-- id: has-stream-classes-a
-  desc: Code uses Node.js stream classes
-  crit: notable
-  conf: 0.75
-  any:
-    - id: metadata/library/web-frameworks/npm::stream-readable
-    - id: metadata/library/web-frameworks/npm::stream-writable
-    - id: metadata/library/web-frameworks/npm::stream-transform
-- id: uses-web-framework-a
-  desc: Code uses established web framework (Set A)
-  crit: notable
-  conf: 0.85
-  any:
-    - id: metadata/library/web-frameworks/npm::uses-express
-    - id: metadata/library/web-frameworks/npm::uses-koa
-    - id: metadata/library/web-frameworks/npm::uses-fastify
-    - id: metadata/library/web-frameworks/npm::uses-hapi
 - id: has-stream
   desc: Code uses Node.js streams
   crit: notable
   conf: 0.75
   any:
   - id: has-stream-require
-  - id: has-stream-classes-a
+  - id: metadata/library/web-frameworks::stream-classes
   - id: has-stream-classes-b
 - id: has-routes
   desc: Code defines HTTP routes
@@ -140,7 +123,7 @@ composite_rules:
   crit: notable
   conf: 0.85
   any:
-    - id: uses-web-framework-a
+    - id: metadata/library/web-frameworks::uses-web-framework
     - id: uses-web-framework-b
 - id: has-frontend-framework
   desc: Code uses frontend framework patterns

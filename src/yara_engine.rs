@@ -621,7 +621,7 @@ impl YaraEngine {
         file_type_filter: Option<&[&str]>,
     ) -> Option<YaraMatch> {
         let mut description = String::new();
-        let mut severity = "none".to_string();
+        let mut crit = "inert".to_string();
         let mut capability_flag = false;
         let mut mbc_code: Option<String> = None;
         let mut attack_code: Option<String> = None;
@@ -629,15 +629,15 @@ impl YaraEngine {
         let mut os_meta: Option<String> = None;
 
         for tag_name in tags {
-            if matches!(tag_name.as_str(), "none" | "low" | "medium" | "high") {
-                severity = tag_name.clone();
+            if matches!(tag_name.as_str(), "inert" | "notable" | "suspicious" | "hostile") {
+                crit = tag_name.clone();
                 break;
             }
         }
 
         let is_third_party = namespace.starts_with("3p.");
         if is_third_party {
-            severity = "medium".to_string();
+            crit = "suspicious".to_string();
         }
 
         for (key, value_str) in metadata {
@@ -651,7 +651,7 @@ impl YaraEngine {
                 "description" => description = value_str,
                 "risk" => {
                     if !is_third_party {
-                        severity = value_str;
+                        crit = value_str;
                     }
                 },
                 "capability" => {
@@ -721,10 +721,20 @@ impl YaraEngine {
             None
         };
 
+        // Apply config-based criticality for third-party rules
+        if is_third_party {
+            if let Some(config_crit) = crate::third_party_config::third_party_criticality(
+                &namespace,
+                trait_id.as_deref(),
+            ) {
+                crit = config_crit;
+            }
+        }
+
         Some(YaraMatch {
             rule: rule_name,
             namespace,
-            severity,
+            crit,
             desc: description,
             matched_strings,
             is_capability,
@@ -818,7 +828,7 @@ impl YaraEngine {
 
         for yara_match in &matches {
             // Skip filtered matches
-            if yara_match.severity == "filtered" {
+            if yara_match.crit == "filtered" {
                 continue;
             }
 
@@ -831,10 +841,10 @@ impl YaraEngine {
             if let Some(cap_id) = finding_id {
                 let evidence = self.yara_match_to_evidence(yara_match);
 
-                let criticality = match yara_match.severity.as_str() {
-                    "high" => Criticality::Hostile,
-                    "medium" => Criticality::Suspicious,
-                    "low" => Criticality::Notable,
+                let criticality = match yara_match.crit.as_str() {
+                    "hostile" => Criticality::Hostile,
+                    "suspicious" => Criticality::Suspicious,
+                    "notable" => Criticality::Notable,
                     _ => Criticality::Inert,
                 };
 
@@ -942,7 +952,7 @@ mod tests {
 rule test_rule {
     meta:
         description = "Test rule"
-        risk = "low"
+        risk = "notable"
     strings:
         $test = "TESTPATTERN"
     condition:
@@ -1041,7 +1051,7 @@ rule test_rule {
 rule test_rule {
     meta:
         description = "Test description"
-        risk = "high"
+        risk = "hostile"
         capability = "true"
         mbc = "B0001"
         attack = "T1059"
@@ -1060,7 +1070,7 @@ rule test_rule {
 
         assert_eq!(matches.len(), 1);
         assert_eq!(matches[0].desc, "Test description");
-        assert_eq!(matches[0].severity, "high");
+        assert_eq!(matches[0].crit, "hostile");
         assert!(matches[0].is_capability);
         assert_eq!(matches[0].mbc, Some("B0001".to_string()));
         assert_eq!(matches[0].attack, Some("T1059".to_string()));
@@ -1069,7 +1079,7 @@ rule test_rule {
     #[test]
     fn test_rule_with_tags() {
         let rule = r#"
-rule test_rule : medium {
+rule test_rule : suspicious {
     strings:
         $test = "TAGGED"
     condition:
@@ -1084,7 +1094,7 @@ rule test_rule : medium {
         let matches = engine.scan_bytes(test_data).unwrap();
 
         assert_eq!(matches.len(), 1);
-        assert_eq!(matches[0].severity, "medium");
+        assert_eq!(matches[0].crit, "suspicious");
     }
 
     #[test]
@@ -1094,7 +1104,7 @@ rule test_rule : medium {
         let yara_match = YaraMatch {
             rule: "test_rule".to_string(),
             namespace: "test.namespace".to_string(),
-            severity: "high".to_string(),
+            crit: "hostile".to_string(),
             desc: "Test".to_string(),
             matched_strings: vec![MatchedString {
                 identifier: "$pattern".to_string(),
@@ -1123,7 +1133,7 @@ rule test_rule : medium {
         let yara_match = YaraMatch {
             rule: "test_rule".to_string(),
             namespace: "test.namespace".to_string(),
-            severity: "high".to_string(),
+            crit: "hostile".to_string(),
             desc: "Test".to_string(),
             matched_strings: vec![],
             is_capability: false,

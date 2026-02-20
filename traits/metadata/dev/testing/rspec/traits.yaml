@@ -39,15 +39,6 @@ traits:
       type: string
       substr: "context "
 
-  - id: rspec-expect
-    desc: "expect() function"
-    crit: inert
-    conf: 0.6
-    for: [ruby, rust, javascript, typescript]
-    if:
-      type: string
-      substr: "expect("
-
 composite_rules:
   # RSpec BDD patterns helper
   - id: rspec-bdd-patterns
@@ -59,7 +50,7 @@ composite_rules:
     any:
       - { id: rspec-describe }
       - { id: rspec-context }
-      - { id: rspec-expect }
+      - { id: metadata/quality/testing::jest-expect-call }
 
   # RSpec (Ruby)
   - id: rspec

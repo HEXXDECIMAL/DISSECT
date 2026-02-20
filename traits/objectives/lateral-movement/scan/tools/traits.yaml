@@ -83,12 +83,16 @@ traits:
 
   - id: docker-api-port-scanner
     desc: Docker API port (2375) with scanner keywords
+    crit: notable
+    conf: 0.8
     if:
       type: string
       regex: '(scan|masscan|zgrab|nmap).{0,64}2375'
 
   - id: docker-api-port-direct
     desc: Docker API port (2375) with docker keyword
+    crit: notable
+    conf: 0.8
     if:
       type: string
       regex: '2375.{0,32}docker|docker.{0,32}2375'

@@ -158,28 +158,32 @@ traits:
       regex: \bport\s*[:=]?\s*22\b
   - id: scanner-keyword-1
     desc: scanner keyword (port/network/ssh)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: \b(port|network|ssh)[_-]?scanner\b
       case_insensitive: true
   - id: scanner-keyword-2
     desc: scanner keyword (thread/target/port)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: \bscanner[_-]?(thread|target|port)\b
       case_insensitive: true
   - id: scanning-keyword-1
     desc: scanning keyword (port/network)
-    crit: inert
-    conf: 0.5
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: \b(port|network)[_-]?scanning\b
       case_insensitive: true
   - id: scanning-keyword-2
     desc: scanning keyword (port/target/thread)
-    crit: inert
-    conf: 0.5
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: \bscanning[_-]?(port|target|thread)\b
@@ -211,6 +215,8 @@ composite_rules:
     crit: notable
   - id: ssh-port-refs
     desc: SSH port 22 references
+    crit: notable
+    conf: 0.6
     any:
       - id: ssh-port-colon
       - id: ssh-port-string-lower

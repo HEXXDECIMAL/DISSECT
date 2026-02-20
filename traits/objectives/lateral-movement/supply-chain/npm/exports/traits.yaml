@@ -85,16 +85,16 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: metadata/lang/javascript-features/esm::export-default-const-func-class
-      - id: metadata/lang/javascript-features/esm::export-async-let-var-brace
+      - id: metadata/lang/javascript-features::export-default-const-func-class
+      - id: metadata/lang/javascript-features::export-async-let-var-brace
 
   - id: esm-export-pattern
     desc: ES module export keyword pattern
     crit: notable
     conf: 0.6
     any:
-      - id: metadata/lang/javascript-features/esm::export-const-func-class
-      - id: metadata/lang/javascript-features/esm::export-let-var-async
+      - id: metadata/lang/javascript-features::export-const-func-class
+      - id: metadata/lang/javascript-features::export-let-var-async
 
   - id: has-multiple-exports
     desc: Code has multiple named exports

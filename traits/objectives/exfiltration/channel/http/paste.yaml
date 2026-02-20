@@ -4,7 +4,8 @@ defaults:
 composite_rules:
 - id: crypto-capability
   desc: Helper for crypto/encoding capabilities
-  crit: inert
+  crit: notable
+  conf: 0.6
   any:
   - id: micro-behaviors/crypto/cipher/library
   - id: micro-behaviors/data/encode

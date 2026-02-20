@@ -96,23 +96,6 @@ pub(crate) fn is_base64_candidate(s: &str) -> bool {
     true
 }
 
-/// Check if data is hex-encoded (all characters are hex digits, length is even)
-#[must_use]
-pub fn is_hex_encoded(data: &[u8]) -> bool {
-    // Must be valid UTF-8 first
-    let Ok(s) = std::str::from_utf8(data) else {
-        return false;
-    };
-
-    // Must be even length and at least 48 chars (24 bytes when decoded)
-    if s.len() < 48 || !s.len().is_multiple_of(2) {
-        return false;
-    }
-
-    // All characters must be hex digits
-    s.chars().all(|c| c.is_ascii_hexdigit())
-}
-
 /// Check if a string is hex-encoded (for nested detection)
 fn is_hex_string(s: &str) -> bool {
     // Must be at least 48 chars (24 bytes when decoded) and all hex digits
@@ -136,13 +119,6 @@ fn decode_hex_string(s: &str) -> Option<Vec<u8>> {
     }
 
     Some(decoded)
-}
-
-/// Decode hex-encoded bytes to raw bytes
-#[must_use]
-pub fn decode_hex(data: &[u8]) -> Option<Vec<u8>> {
-    let s = std::str::from_utf8(data).ok()?;
-    decode_hex_string(s)
 }
 
 /// Maximum size for decompressed payloads to prevent decompression bombs

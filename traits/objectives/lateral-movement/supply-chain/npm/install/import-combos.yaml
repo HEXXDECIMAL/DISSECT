@@ -155,7 +155,7 @@ traits:
     regex: \b(curl|wget)\b
 - id: scripts-preinstall-shell-2
   desc: preinstall runs shell command (interpreters)
-  crit: inert
+  crit: notable
   conf: 0.6
   if:
     type: kv
@@ -171,7 +171,7 @@ traits:
     regex: \b(curl|wget)\b
 - id: scripts-postinstall-shell-2
   desc: postinstall runs shell command (interpreters)
-  crit: inert
+  crit: notable
   conf: 0.5
   if:
     type: kv

@@ -42,6 +42,7 @@ pub mod env_mapper;
 pub mod output;
 pub mod path_mapper;
 pub mod third_party_yara;
+pub mod third_party_config;
 pub mod types;
 pub mod yara_engine;
 

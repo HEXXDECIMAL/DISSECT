@@ -87,32 +87,3 @@ traits:
       type: string
       regex: 'fixtures/|testdata/|__fixtures__/'
 
-composite_rules:
-  # Reference metadata for test detection
-  - id: jest-test-file
-    desc: Jest test file
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    all:
-      - id: metadata/quality/testing/npm::jest-expect-call
-      - id: metadata/quality/testing/npm::test-filename-pattern
-
-  - id: mocha-test-file
-    desc: Mocha test file
-    crit: notable
-    conf: 0.9
-    for: [javascript, typescript]
-    all:
-      - id: metadata/quality/testing/npm::mocha-describe-call
-      - id: metadata/quality/testing/npm::test-filename-pattern
-
-  - id: wpt-test-file
-    desc: Web Platform Test (WPT) file
-    crit: notable
-    conf: 0.95
-    for: [javascript, html]
-    any:
-      - id: metadata/quality/testing/npm::wpt-test-title
-      - id: metadata/lang/javascript-features::promise-test-call
-      - id: metadata/lang/javascript-features::async-test-call

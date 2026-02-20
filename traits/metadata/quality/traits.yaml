@@ -23,7 +23,7 @@ composite_rules:
     any:
       - { id: metadata/quality/error-handling::rust-result-type }
       - { id: metadata/quality/error-handling::rust-unwrap-or }
-      - { id: metadata/dev/testing/rspec::rspec-expect }
+      - { id: metadata/quality/testing::jest-expect-call }
 
   # Generic try/catch helper
   - id: try-catch-handling

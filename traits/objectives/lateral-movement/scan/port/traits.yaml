@@ -326,11 +326,15 @@ traits:
     regex: (?i)(?:http|port|web|connect).{0,20}[:\s]80\b
 - id: port-number-https-1
   desc: HTTPS port (443) variants (https/port/ssl)
+  crit: notable
+  conf: 0.6
   if:
     type: string
     regex: (?i)(?:https|port|ssl).{0,20}[:\s]443\b
 - id: port-number-https-2
   desc: HTTPS port (443) variants (tls/connect)
+  crit: notable
+  conf: 0.6
   if:
     type: string
     regex: (?i)(?:tls|connect).{0,20}[:\s]443\b
@@ -354,18 +358,24 @@ traits:
     regex: ^_?pmap_(getmaps|clnt_call|getport)$
 - id: probe-word-core-prefix
   desc: Generic probe keyword (network probe)
+  crit: notable
+  conf: 0.6
   if:
     type: string
     regex: \bnetwork[_\-\s]?probe\b
     case_insensitive: true
 - id: probe-word-core-suffix-1
   desc: Generic probe keyword (probe port/host/target)
+  crit: notable
+  conf: 0.6
   if:
     type: string
     regex: \bprobe[_\-\s]?(port|host|target)\b
     case_insensitive: true
 - id: probe-word-core-suffix-2
   desc: Generic probe keyword (probe scan/packet)
+  crit: notable
+  conf: 0.6
   if:
     type: string
     regex: \bprobe[_\-\s]?(scan|packet)\b

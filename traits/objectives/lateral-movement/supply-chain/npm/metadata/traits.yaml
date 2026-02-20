@@ -186,6 +186,8 @@ traits:
 
   - id: desc-simple
     desc: Description contains "simple"
+    crit: notable
+    conf: 0.5
     if:
       type: kv
       path: "description"
@@ -194,6 +196,8 @@ traits:
 
   - id: desc-easy
     desc: Description contains "easy"
+    crit: notable
+    conf: 0.5
     if:
       type: kv
       path: "description"

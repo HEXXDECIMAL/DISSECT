@@ -1,12 +1,21 @@
 traits:
-  - id: js-eval-assignment
+  - id: js-eval-assignment-keyword
+    desc: Variable declaration with 'eval' (var/const/let)
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    if:
+      type: raw
+      regex: '\b(var|const|let)\s+\w*\s*=\s*eval\b'
+
+  - id: js-eval-assignment-return
     desc: Assignment or return of 'eval' function reference
     crit: suspicious
     conf: 0.8
     for: [javascript]
     if:
       type: raw
-      regex: '\b(return|var|const|let|=)\s*eval\b'
+      regex: '\b(return|=)\s*eval\b'
 
   - id: new-function-iife
     desc: Immediate invocation of new Function (dynamic execution)
@@ -31,3 +40,12 @@ traits:
           ]
           (#eq? @name "Function")
         )
+composite_rules:
+  - id: js-eval-assignment
+    desc: Assignment or return of 'eval' function reference
+    crit: suspicious
+    conf: 0.8
+    for: [javascript]
+    any:
+      - id: js-eval-assignment-keyword
+      - id: js-eval-assignment-return

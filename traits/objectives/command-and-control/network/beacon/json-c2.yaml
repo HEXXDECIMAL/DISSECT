@@ -63,14 +63,14 @@ traits:
     regex: response\.json|json\(response
 - id: inline__json-exfiltration__unless_requests
   desc: Raw editor token 'requests' seen
-  crit: inert
+  crit: notable
   conf: 0.4
   if:
     type: raw
     word: requests
 - id: inline__json-exfiltration__unless_test
   desc: Raw editor token 'test' seen
-  crit: inert
+  crit: notable
   conf: 0.4
   if:
     type: raw

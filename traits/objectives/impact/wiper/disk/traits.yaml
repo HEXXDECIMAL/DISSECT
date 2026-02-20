@@ -170,17 +170,23 @@ traits:
     regex: fs\.readdirSync|os\.walk|find\s+\\.
 - id: mass-delete-action-node-py
   desc: Mass deletion action (Node.js/Python)
+  crit: notable
+  conf: 0.85
   if:
     type: raw
     regex: unlinkSync|os\.(?:remove|unlink)
 - id: mass-delete-action-shell-base
   desc: Mass deletion action (Shell -delete)
+  crit: notable
+  conf: 0.85
   if:
     type: raw
     regex: -delete
 composite_rules:
 - id: mass-delete-action-shell
   desc: Mass deletion action (Shell)
+  crit: notable
+  conf: 0.85
   any:
     - id: mass-delete-action-shell-base
     - id: objectives/impact/system/directory::rm-rf-cmd

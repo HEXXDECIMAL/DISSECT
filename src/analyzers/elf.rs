@@ -1221,7 +1221,7 @@ mod tests {
         packed.yara_matches.push(YaraMatch {
             rule: "suspicious_strings".to_string(),
             namespace: "malware".to_string(),
-            severity: "high".to_string(),
+            crit: "hostile".to_string(),
             desc: "Suspicious strings detected".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -1233,7 +1233,7 @@ mod tests {
         unpacked.yara_matches.push(YaraMatch {
             rule: "suspicious_strings".to_string(),
             namespace: "malware".to_string(),
-            severity: "high".to_string(),
+            crit: "hostile".to_string(),
             desc: "Suspicious strings detected".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -1245,7 +1245,7 @@ mod tests {
         unpacked.yara_matches.push(YaraMatch {
             rule: "crypto_constants".to_string(),
             namespace: "crypto".to_string(),
-            severity: "medium".to_string(),
+            crit: "suspicious".to_string(),
             desc: "Crypto constants found".to_string(),
             matched_strings: vec![],
             is_capability: false,

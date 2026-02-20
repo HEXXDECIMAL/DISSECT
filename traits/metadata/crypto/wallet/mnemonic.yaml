@@ -1,0 +1,29 @@
+# Cryptocurrency Wallet Mnemonic Metadata
+# Detects numeric values associated with BIP-39 mnemonic phrase word counts
+
+defaults:
+  for: [all]
+  crit: inert
+  conf: 0.5
+
+traits:
+  - id: word-count-12-15-18
+    desc: Mnemonic word count values (12/15/18)
+    if:
+      type: string
+      regex: \b(?:12|15|18)\b
+
+  - id: word-count-21-24
+    desc: Mnemonic word count values (21/24)
+    if:
+      type: string
+      regex: \b(?:21|24)\b
+
+composite_rules:
+  - id: bip39-word-counts
+    desc: Standard BIP-39 mnemonic word counts
+    crit: notable
+    conf: 0.7
+    any:
+      - id: word-count-12-15-18
+      - id: word-count-21-24

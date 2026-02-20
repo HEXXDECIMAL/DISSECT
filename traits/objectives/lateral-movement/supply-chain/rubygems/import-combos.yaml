@@ -203,12 +203,16 @@ traits:
   # === File operations ===
   - id: file-read-write-1
     desc: File read/write
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: "File\\.(read|write)"
 
   - id: file-read-write-2
     desc: File open/delete
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: "File\\.(open|delete)"

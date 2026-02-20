@@ -117,16 +117,22 @@ traits:
     regex: \$\{(EXTENSION|NOTE_FILE_NAME|ACCESS_KEY)\}
 - id: vm-kill-config-1
   desc: enable_esxi_vm_kill config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: enable_esxi_vm_kill
 - id: vm-kill-config-2
   desc: enable_esxi_vm_snapshot_kill config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: enable_esxi_vm_snapshot_kill
 - id: vm-kill-config-3
   desc: esxi_vm_kill_exclude config field
+  crit: notable
+  conf: 0.75
   if:
     type: string
     substr: esxi_vm_kill_exclude
@@ -180,27 +186,6 @@ traits:
   if:
     type: string
     regex: EVP_(Encrypt|Cipher)Init_ex|AES_set_encrypt_key|AES_cbc_encrypt
-- id: crypto-openssl-asymmetric-1
-  desc: ECDH_compute_key function
-  crit: inert
-  conf: 0.7
-  if:
-    type: string
-    substr: ECDH_compute_key
-- id: crypto-openssl-asymmetric-2
-  desc: EC_KEY_generate_key function
-  crit: inert
-  conf: 0.7
-  if:
-    type: string
-    substr: EC_KEY_generate_key
-- id: crypto-openssl-asymmetric-3
-  desc: RSA_public_encrypt function
-  crit: inert
-  conf: 0.7
-  if:
-    type: string
-    substr: RSA_public_encrypt
 - id: file-locked-message
   desc: File locked status message
   crit: suspicious
@@ -363,14 +348,6 @@ composite_rules:
   any:
     - id: ransom-extension-1
     - id: ransom-extension-2
-- id: crypto-openssl-asymmetric
-  desc: OpenSSL asymmetric key operations
-  crit: notable
-  conf: 0.9
-  any:
-    - id: crypto-openssl-asymmetric-1
-    - id: crypto-openssl-asymmetric-2
-    - id: crypto-openssl-asymmetric-3
 - id: payment-status-check
   desc: Ransomware payment verification
   crit: suspicious
@@ -424,7 +401,7 @@ composite_rules:
   - id: ransom-extension
   any:
   - id: crypto-openssl-encrypt
-  - id: crypto-openssl-asymmetric
+  - id: micro-behaviors/crypto/asymmetric/rsa::rsa-public-encrypt
   - id: crypted-counter
 - id: ransomware-locker
   desc: Rust-based ransomware locker

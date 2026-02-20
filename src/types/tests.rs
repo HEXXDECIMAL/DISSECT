@@ -360,7 +360,7 @@ fn test_yara_match_creation() {
     let yara_match = YaraMatch {
         rule: "malware_rule".to_string(),
         namespace: "malware".to_string(),
-        severity: "high".to_string(),
+        crit: "hostile".to_string(),
         desc: "Malware detected".to_string(),
         matched_strings: vec![],
         is_capability: false,
@@ -371,7 +371,7 @@ fn test_yara_match_creation() {
 
     assert_eq!(yara_match.rule, "malware_rule");
     assert_eq!(yara_match.namespace, "malware");
-    assert_eq!(yara_match.severity, "high");
+    assert_eq!(yara_match.crit, "hostile");
 }
 
 #[test]

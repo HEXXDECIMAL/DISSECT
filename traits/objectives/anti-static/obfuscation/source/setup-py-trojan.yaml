@@ -47,17 +47,9 @@ traits:
   if:
     type: raw
     regex: sdist.{0,40}argv|(?:os\.name|name)\s*==\s*['\"]nt['\"]
-- id: conditional-exec-exec
-  desc: exec execution primitive
-  crit: inert
-  conf: 0.85
-  if:
-    type: ast
-    kind: call
-    exact: exec
 - id: conditional-exec-eval
   desc: eval execution primitive
-  crit: inert
+  crit: notable
   conf: 0.85
   if:
     type: ast
@@ -65,7 +57,7 @@ traits:
     exact: eval
 - id: conditional-exec-compile
   desc: compile execution primitive
-  crit: inert
+  crit: notable
   conf: 0.85
   if:
     type: ast
@@ -73,7 +65,7 @@ traits:
     exact: compile
 - id: conditional-exec-import
   desc: __import__ execution primitive
-  crit: inert
+  crit: notable
   conf: 0.85
   if:
     type: ast
@@ -127,7 +119,7 @@ composite_rules:
   crit: suspicious
   conf: 0.85
   any:
-  - id: conditional-exec-exec
+  - id: micro-behaviors/process/create/shell/lang::exec-call
   - id: conditional-exec-eval
   - id: conditional-exec-compile
   - id: conditional-exec-import

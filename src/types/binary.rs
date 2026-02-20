@@ -290,8 +290,8 @@ pub struct YaraMatch {
     pub rule: String,
     /// YARA namespace (typically the rule file name)
     pub namespace: String,
-    /// Severity level from rule metadata
-    pub severity: String,
+    /// Criticality level from rule metadata
+    pub crit: String,
     /// Human-readable description from rule metadata
     pub desc: String,
     /// Specific string patterns that triggered the match
@@ -714,7 +714,7 @@ mod tests {
         let yara = YaraMatch {
             rule: "malware_generic".to_string(),
             namespace: "malware".to_string(),
-            severity: "high".to_string(),
+            crit: "hostile".to_string(),
             desc: "Generic malware signature".to_string(),
             matched_strings: vec![],
             is_capability: false,
@@ -731,7 +731,7 @@ mod tests {
         let yara = YaraMatch {
             rule: "network_communication".to_string(),
             namespace: "capabilities".to_string(),
-            severity: "medium".to_string(),
+            crit: "suspicious".to_string(),
             desc: "Network communication capability".to_string(),
             matched_strings: vec![],
             is_capability: true,

@@ -20,10 +20,11 @@ traits:
 
   # Process execution functions
   - id: exec-call
-    desc: Node.js child_process exec
+    desc: exec() function call (Python/JavaScript)
     crit: notable
     conf: 0.85
     mbc: "C0017"
+    for: [python, javascript, typescript]
     if:
       type: ast
       kind: call

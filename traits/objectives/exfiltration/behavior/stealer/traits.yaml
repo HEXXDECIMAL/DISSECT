@@ -63,10 +63,10 @@ composite_rules:
       - id: micro-behaviors/communications/http/headers::bot-headers
       - id: micro-behaviors/communications/http/client
     none:
-      - id: objectives/lateral-movement/supply-chain/npm/testing::wpt-test-file
-      - id: objectives/lateral-movement/supply-chain/npm/testing::jest-test-file
-      - id: objectives/lateral-movement/supply-chain/npm/testing::mocha-test-file
-      - id: objectives/lateral-movement/supply-chain/npm/testing::test-filename-pattern
+      - id: metadata/quality/testing::wpt-test-file
+      - id: metadata/quality/testing::jest-test-file
+      - id: metadata/quality/testing::mocha-test-file
+      - id: metadata/quality/testing::test-filename-pattern
       - id: objectives/lateral-movement/supply-chain/npm/testing::test-fixtures
 
   # Full exfiltration pattern: must have POST with custom headers or C2 indicators

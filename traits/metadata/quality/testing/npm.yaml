@@ -6,9 +6,10 @@ defaults:
 
 traits:
   - id: jest-expect-call
-    desc: Jest expect() call
+    desc: expect() function call (Jest/RSpec/Rust)
     crit: inert
     conf: 0.6
+    for: [ruby, rust, javascript, typescript, package.json]
     if:
       type: string
       substr: "expect("

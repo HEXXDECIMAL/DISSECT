@@ -42,18 +42,6 @@ traits:
       type: kv
       path: permissions
       exact: 'tabs'
-  - id: permission-web-request-base
-    desc: webRequest permission
-    if:
-      type: kv
-      path: permissions
-      exact: 'webRequest'
-  - id: permission-web-request-blocking
-    desc: webRequestBlocking permission
-    if:
-      type: kv
-      path: permissions
-      exact: 'webRequestBlocking'
   - id: permission-cookies
     desc: Extension requests cookies permission
     crit: suspicious
@@ -126,18 +114,6 @@ traits:
       type: kv
       path: permissions
       exact: 'proxy'
-  - id: permission-dnr-base
-    desc: declarativeNetRequest permission
-    if:
-      type: kv
-      path: permissions
-      exact: 'declarativeNetRequest'
-  - id: permission-dnr-host
-    desc: declarativeNetRequestWithHostAccess permission
-    if:
-      type: kv
-      path: permissions
-      exact: 'declarativeNetRequestWithHostAccess'
   - id: permission-scripting
     desc: Extension requests scripting permission (MV3)
     crit: notable
@@ -202,243 +178,6 @@ traits:
       type: kv
       path: 'content_scripts[*].matches'
       regex: 'amazon\.|ebay\.|walmart\.|aliexpress\.'
-  - id: content-script-api-target-user
-    desc: Content script targets /user/ pages
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      substr: '/user/'
-  - id: content-script-api-target-account
-    desc: Content script targets /account/ pages
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      substr: '/account/'
-  - id: content-script-api-target-settings
-    desc: Content script targets /settings/ pages
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      substr: '/settings/'
-  - id: content-script-api-target-profile
-    desc: Content script targets /profile/ pages
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      substr: '/profile/'
-  - id: content-script-api-target-my
-    desc: Content script targets /my/ pages
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      substr: '/my/'
-  - id: description-crypto-finance-word-crypto
-    desc: Description word crypto
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'crypto'
-      case_insensitive: true
-  - id: description-crypto-finance-word-wallet
-    desc: Description word wallet
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'wallet'
-      case_insensitive: true
-  - id: description-crypto-finance-word-blockchain
-    desc: Description word blockchain
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'blockchain'
-      case_insensitive: true
-  - id: description-crypto-finance-word-defi
-    desc: Description word defi
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'defi'
-      case_insensitive: true
-  - id: description-crypto-finance-word-token
-    desc: Description word token
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'token'
-      case_insensitive: true
-  - id: description-crypto-finance-word-trading
-    desc: Description word trading
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'trading'
-      case_insensitive: true
-  - id: description-crypto-finance-word-swap
-    desc: Description word swap
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'swap'
-      case_insensitive: true
-  - id: description-crypto-finance-word-nft
-    desc: Description word nft
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'nft'
-      case_insensitive: true
-  - id: description-crypto-finance-word-ethereum
-    desc: Description word ethereum
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'ethereum'
-      case_insensitive: true
-  - id: description-crypto-finance-word-solana
-    desc: Description word solana
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'solana'
-      case_insensitive: true
-  - id: description-crypto-finance-word-bitcoin
-    desc: Description word bitcoin
-    crit: inert
-    conf: 0.5
-    if:
-      type: kv
-      path: 'description'
-      substr: 'bitcoin'
-      case_insensitive: true
-  - id: name-crypto-finance-word-crypto
-    desc: Name word crypto
-    if:
-      type: kv
-      path: 'name'
-      substr: 'crypto'
-      case_insensitive: true
-  - id: name-crypto-finance-word-wallet
-    desc: Name word wallet
-    if:
-      type: kv
-      path: 'name'
-      substr: 'wallet'
-      case_insensitive: true
-  - id: name-crypto-finance-word-blockchain
-    desc: Name word blockchain
-    if:
-      type: kv
-      path: 'name'
-      substr: 'blockchain'
-      case_insensitive: true
-  - id: name-crypto-finance-word-defi
-    desc: Name word defi
-    if:
-      type: kv
-      path: 'name'
-      substr: 'defi'
-      case_insensitive: true
-  - id: name-crypto-finance-word-token
-    desc: Name word token
-    if:
-      type: kv
-      path: 'name'
-      substr: 'token'
-      case_insensitive: true
-  - id: name-crypto-finance-word-swap
-    desc: Name word swap
-    if:
-      type: kv
-      path: 'name'
-      substr: 'swap'
-      case_insensitive: true
-  - id: name-crypto-finance-word-nft
-    desc: Name word nft
-    if:
-      type: kv
-      path: 'name'
-      substr: 'nft'
-      case_insensitive: true
-  - id: name-crypto-finance-word-ethereum
-    desc: Name word ethereum
-    if:
-      type: kv
-      path: 'name'
-      substr: 'ethereum'
-      case_insensitive: true
-  - id: name-crypto-finance-word-solana
-    desc: Name word solana
-    if:
-      type: kv
-      path: 'name'
-      substr: 'solana'
-      case_insensitive: true
-  - id: name-crypto-finance-word-bitcoin
-    desc: Name word bitcoin
-    if:
-      type: kv
-      path: 'name'
-      substr: 'bitcoin'
-      case_insensitive: true
-  - id: name-adblocker-1
-    desc: Name ad blocker (1)
-    if:
-      type: kv
-      path: 'name'
-      regex: 'ad\s*block|block\s*ads|remove\s*ads'
-      case_insensitive: true
-  - id: name-adblocker-2
-    desc: Name ad blocker (2)
-    if:
-      type: kv
-      path: 'name'
-      regex: 'no\s*ads|ads\s*cleaner|sponsored'
-      case_insensitive: true
-  - id: description-adblocker-1
-    desc: Description ad blocker (1)
-    if:
-      type: kv
-      path: 'description'
-      regex: 'ad\s*block|block\s*ads|remove\s*ads'
-      case_insensitive: true
-  - id: description-adblocker-2
-    desc: Description ad blocker (2)
-    if:
-      type: kv
-      path: 'description'
-      regex: 'no\s*ads|ads\s*cleaner|sponsored'
-      case_insensitive: true
   - id: background-persistent
     desc: Extension uses persistent background page
     crit: notable
@@ -514,134 +253,7 @@ traits:
       type: kv
       path: 'content_scripts[*].matches'
       regex: 'linkedin\.com|reddit\.com|tiktok\.com'
-  - id: content-script-crypto-exchange-a1
-    desc: Content script targets crypto exchanges (set A1)
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      regex: 'binance\.com|coinbase\.com|kraken\.com'
-  - id: content-script-crypto-exchange-a2
-    desc: Content script targets crypto exchanges (set A2)
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      regex: 'bybit\.com|okx\.com'
-  - id: content-script-crypto-exchange-b1
-    desc: Content script targets crypto exchanges (set B1)
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      regex: 'kucoin\.com|mexc\.com|gate\.io'
-  - id: content-script-crypto-exchange-b2
-    desc: Content script targets crypto exchanges (set B2)
-    if:
-      type: kv
-      path: 'content_scripts[*].matches'
-      regex: 'crypto\.com|bitfinex\.com'
 composite_rules:
-- id: content-script-crypto-exchange-a
-  desc: Content script targets crypto exchanges (set A)
-  crit: notable
-  conf: 0.9
-  any:
-    - id: content-script-crypto-exchange-a1
-    - id: content-script-crypto-exchange-a2
-- id: content-script-crypto-exchange-b
-  desc: Content script targets crypto exchanges (set B)
-  crit: notable
-  conf: 0.9
-  any:
-    - id: content-script-crypto-exchange-b1
-    - id: content-script-crypto-exchange-b2
-- id: permission-web-request
-  desc: Extension requests webRequest permission
-  crit: suspicious
-  conf: 0.95
-  any:
-    - id: permission-web-request-base
-    - id: permission-web-request-blocking
-- id: permission-declarative-net-request
-  desc: Extension uses declarativeNetRequest
-  crit: notable
-  conf: 0.85
-  any:
-    - id: permission-dnr-base
-    - id: permission-dnr-host
-- id: content-script-api-target
-  desc: Content script targets API/Key management pages
-  crit: suspicious
-  conf: 0.9
-  any:
-    - id: content-script-api-target-user
-    - id: content-script-api-target-account
-    - id: content-script-api-target-settings
-    - id: content-script-api-target-profile
-    - id: content-script-api-target-my
-- id: description-crypto-finance-a
-  desc: Extension description crypto/finance family A
-  crit: notable
-  conf: 0.85
-  any:
-    - id: description-crypto-finance-word-crypto
-    - id: description-crypto-finance-word-wallet
-    - id: description-crypto-finance-word-blockchain
-    - id: description-crypto-finance-word-defi
-- id: description-crypto-finance-b
-  desc: Extension description crypto/finance family B
-  crit: notable
-  conf: 0.85
-  any:
-    - id: description-crypto-finance-word-token
-    - id: description-crypto-finance-word-trading
-    - id: description-crypto-finance-word-swap
-    - id: description-crypto-finance-word-nft
-- id: description-crypto-finance-c
-  desc: Extension description crypto/finance family C
-  crit: notable
-  conf: 0.85
-  any:
-    - id: description-crypto-finance-word-ethereum
-    - id: description-crypto-finance-word-solana
-    - id: description-crypto-finance-word-bitcoin
-- id: name-crypto-finance-a
-  desc: Extension name crypto/finance family A
-  crit: notable
-  conf: 0.85
-  any:
-    - id: name-crypto-finance-word-crypto
-    - id: name-crypto-finance-word-wallet
-    - id: name-crypto-finance-word-blockchain
-    - id: name-crypto-finance-word-defi
-- id: name-crypto-finance-b
-  desc: Extension name crypto/finance family B
-  crit: notable
-  conf: 0.85
-  any:
-    - id: name-crypto-finance-word-token
-    - id: name-crypto-finance-word-swap
-    - id: name-crypto-finance-word-nft
-    - id: name-crypto-finance-word-ethereum
-- id: name-crypto-finance-c
-  desc: Extension name crypto/finance family C
-  crit: notable
-  conf: 0.85
-  any:
-    - id: name-crypto-finance-word-solana
-    - id: name-crypto-finance-word-bitcoin
-- id: name-adblocker
-  desc: Extension name mentions ad blocking
-  crit: notable
-  conf: 0.85
-  any:
-    - id: name-adblocker-1
-    - id: name-adblocker-2
-- id: description-adblocker
-  desc: Extension description mentions ad blocking
-  crit: notable
-  conf: 0.85
-  any:
-    - id: description-adblocker-1
-    - id: description-adblocker-2
 - id: content-script-social-media
   desc: Content script targets social media sites
   crit: notable
@@ -649,29 +261,6 @@ composite_rules:
   any:
   - id: content-script-social-media-a
   - id: content-script-social-media-b
-- id: content-script-crypto-exchange
-  desc: Content script targets crypto exchange sites
-  crit: notable
-  conf: 0.9
-  any:
-  - id: content-script-crypto-exchange-a
-  - id: content-script-crypto-exchange-b
-- id: description-crypto-finance
-  desc: Extension description mentions crypto/finance
-  crit: notable
-  conf: 0.85
-  any:
-  - id: description-crypto-finance-a
-  - id: description-crypto-finance-b
-  - id: description-crypto-finance-c
-- id: name-crypto-finance
-  desc: Extension name mentions crypto/finance
-  crit: notable
-  conf: 0.85
-  any:
-  - id: name-crypto-finance-a
-  - id: name-crypto-finance-b
-  - id: name-crypto-finance-c
 - id: overprivileged
   desc: Extension requests excessive permissions
   crit: suspicious
@@ -680,7 +269,7 @@ composite_rules:
   any:
   - id: permission-all-urls
   - id: host-all-urls
-  - id: permission-web-request
+  - id: micro-behaviors/communications/browser-extension/permissions::network-request-modification
   - id: permission-cookies
   - id: permission-history
   - id: permission-clipboard-read
@@ -719,7 +308,7 @@ composite_rules:
   - id: permission-cookies
   - id: permission-history
   - id: permission-clipboard-read
-  - id: permission-web-request
+  - id: micro-behaviors/communications/browser-extension/permissions::network-request-modification
 - id: deprecated-with-dangerous
   desc: MV2 extension with dangerous permissions
   crit: suspicious
@@ -729,7 +318,7 @@ composite_rules:
   any:
   - id: permission-all-urls
   - id: host-all-urls
-  - id: permission-web-request
+  - id: micro-behaviors/communications/browser-extension/permissions::network-request-modification
   - id: permission-debugger
 - id: update-url-external
   desc: Non-Google update URL
@@ -746,8 +335,8 @@ composite_rules:
   all:
   - id: content-script-social-media
   any:
-  - id: name-crypto-finance
-  - id: description-crypto-finance
+  - id: metadata/quality/chrome-extension::crypto-finance-name
+  - id: metadata/quality/chrome-extension::crypto-finance-description
 - id: fake-adblocker-mv3
   desc: MV3 Ad Blocker using content scripts without declarativeNetRequest
   crit: suspicious
@@ -756,18 +345,18 @@ composite_rules:
   - id: manifest-v3
   - id: ecommerce-targeting
   any:
-  - id: name-adblocker
-  - id: description-adblocker
+  - id: metadata/quality/chrome-extension::adblocker-name
+  - id: metadata/quality/chrome-extension::adblocker-description
   none:
-  - id: permission-declarative-net-request
+  - id: micro-behaviors/communications/browser-extension/permissions::network-filtering
 - id: crypto-api-theft-target
   desc: Extension targets crypto exchange API key pages
   crit: hostile
   conf: 0.95
   all:
-  - id: content-script-crypto-exchange
-  - id: content-script-api-target
+  - id: micro-behaviors/communications/browser-extension/content-scripts::crypto-exchange-sites
+  - id: micro-behaviors/communications/browser-extension/content-scripts::api-key-pages
   any:
   - id: permission-scripting
   - id: permission-active-tab
-  - id: permission-web-request
+  - id: micro-behaviors/communications/browser-extension/permissions::network-request-modification

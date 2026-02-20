@@ -96,20 +96,6 @@ traits:
   if:
     type: string
     regex: \bwords?\b.{0,40}\b(?:split|len|count)\b
-- id: word-count-check-values-1
-  desc: Mnemonic word count validation (values 12/15/18)
-  conf: 0.85
-  crit: inert
-  if:
-    type: string
-    regex: \b(?:12|15|18)\b
-- id: word-count-check-values-2
-  desc: Mnemonic word count validation (values 21/24)
-  conf: 0.85
-  crit: inert
-  if:
-    type: string
-    regex: \b(?:21|24)\b
 - id: bip39-wordlist
   desc: BIP-39 wordlist reference
   conf: 0.85
@@ -183,8 +169,8 @@ composite_rules:
   all:
   - id: word-count-check-prefix
   any:
-  - id: word-count-check-values-1
-  - id: word-count-check-values-2
+  - id: metadata/crypto/wallet::word-count-12-15-18
+  - id: metadata/crypto/wallet::word-count-21-24
 - id: bitcoin-wif
   desc: Bitcoin WIF private key format
   conf: 0.85

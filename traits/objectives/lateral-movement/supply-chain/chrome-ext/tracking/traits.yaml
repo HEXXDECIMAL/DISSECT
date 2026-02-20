@@ -16,22 +16,6 @@ traits:
       regex: "\\b\\d*x?profit\\.(?:io|com|net|org)\\b"
       case_insensitive: true
 
-  - id: tracking-utm-params-1
-    desc: UTM tracking (source/medium/campaign)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "utm_(source|medium|campaign)="
-
-  - id: tracking-utm-params-2
-    desc: UTM tracking (content/term)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: "utm_(content|term)="
-
   - id: affiliate-domain-pattern-1
     desc: Affiliate domain (affiliate/partner/track/click)
     crit: suspicious
@@ -57,8 +41,8 @@ composite_rules:
     conf: 0.7
     for: [javascript]
     any:
-      - id: tracking-utm-params-1
-      - id: tracking-utm-params-2
+      - id: metadata/analytics::utm-source-medium-campaign
+      - id: metadata/analytics::utm-content-term
 
   - id: affiliate-domain-pattern
     desc: Affiliate tracking domain

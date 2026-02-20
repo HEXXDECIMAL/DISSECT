@@ -173,11 +173,15 @@ traits:
 
 - id: surveillance-deps-install-1
   desc: Surveillance library (screens/input)
+  crit: notable
+  conf: 0.8
   if:
     type: string
     regex: pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput)
 - id: surveillance-deps-install-2
   desc: Surveillance library (clip/key)
+  crit: notable
+  conf: 0.8
   if:
     type: string
     regex: pip install.{0,200}(?:pyperclip|keyring)
@@ -247,11 +251,15 @@ traits:
 
 - id: python-release-impersonation-url-1
   desc: Fake Python release (exe/scr/msi)
+  crit: notable
+  conf: 0.85
   if:
     type: string
     regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(exe|scr|msi)
 - id: python-release-impersonation-url-2
   desc: Fake Python release (bat/cmd)
+  crit: notable
+  conf: 0.85
   if:
     type: string
     regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(bat|cmd)
@@ -286,18 +294,24 @@ traits:
 
 - id: admin-install-social-engineering-1a
   desc: Admin install SE (root/admin/sudo)
+  crit: notable
+  conf: 0.75
   if:
     type: string
     regex: (?:admin|root|sudo)
     case_insensitive: true
 - id: admin-install-social-engineering-1b
   desc: Admin install SE (permission/privilege/right)
+  crit: notable
+  conf: 0.75
   if:
     type: string
     regex: (?:permission|privilege|right)
     case_insensitive: true
 - id: admin-install-social-engineering-2
   desc: Admin install SE (install/run)
+  crit: notable
+  conf: 0.75
   if:
     type: string
     regex: (?:install|run)
@@ -306,6 +320,8 @@ traits:
 composite_rules:
 - id: admin-install-social-engineering-1
   desc: Admin install SE (privileged terminology)
+  crit: notable
+  conf: 0.75
   all:
     - id: admin-install-social-engineering-1a
     - id: admin-install-social-engineering-1b

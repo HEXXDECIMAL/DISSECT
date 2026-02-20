@@ -49,6 +49,8 @@ traits:
 
   - id: encrypt-decryptor-msg-1
     desc: References decryptor (your/run/download)
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: "\\b(your|run|download)\\s+decryptor"
@@ -56,6 +58,8 @@ traits:
 
   - id: encrypt-decryptor-msg-2
     desc: References decryptor (get/free)
+    crit: notable
+    conf: 0.7
     if:
       type: string
       regex: "\\b(get|free)\\s+decryptor"
@@ -63,6 +67,8 @@ traits:
 
   - id: encrypt-decryptor-file
     desc: References decryptor file (exe/bin/bat)
+    crit: notable
+    conf: 0.75
     if:
       type: string
       regex: "decryptor\\.(exe|bin|bat)"

@@ -80,31 +80,6 @@ traits:
       type: string
       regex: "vscode\\."
 
-  # Persistence location references
-  - id: persistence-location-startup
-    desc: References Startup location
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      word: "Startup"
-
-  - id: persistence-location-crontab
-    desc: References crontab location
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      word: "crontab"
-
-  - id: persistence-location-launchd
-    desc: References launchd location
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      word: "launchd"
-
   # File write operations
   - id: file-write-ops
     desc: File write or copy operations
@@ -194,9 +169,9 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: persistence-location-startup
-      - id: persistence-location-crontab
-      - id: persistence-location-launchd
+      - id: micro-behaviors/persist/locations/keywords::startup-keyword
+      - id: micro-behaviors/persist/locations/keywords::crontab-keyword
+      - id: micro-behaviors/persist/locations/keywords::launchd-keyword
       - id: objectives/persist/systemd/service::systemd-keyword
 
   # Extension Persistence via well-known hooks
