@@ -162,15 +162,6 @@ composite_rules:
   any:
   - id: word-count-check-prefix-mnemonic
   - id: word-count-check-prefix-words
-- id: word-count-check
-  desc: Mnemonic word count validation (12/15/18/21/24)
-  conf: 0.85
-  crit: suspicious
-  all:
-  - id: word-count-check-prefix
-  any:
-  - id: metadata/crypto/wallet::word-count-12-15-18
-  - id: metadata/crypto/wallet::word-count-21-24
 - id: bitcoin-wif
   desc: Bitcoin WIF private key format
   conf: 0.85

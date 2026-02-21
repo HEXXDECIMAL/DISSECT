@@ -10,7 +10,7 @@ composite_rules:
     for: [javascript]
     platforms: [windows]
     all:
-      - id: objectives/execution/activex/com::activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: objectives/execution/activex/com::activex-filesystem
       - id: objectives/execution/interpreter/script/wsh::execution-policy-bypass
 
@@ -33,7 +33,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/source/string::char-expansion-obfuscation
       - id: objectives/anti-static/obfuscation/source/string::base64-function-keyword
     any:
-      - id: objectives/execution/activex/com::activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: objectives/execution/interpreter/script/embedded::powershell-cmdlet-patterns
 
   - id: public-folder-dropper
@@ -58,7 +58,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/source/string::base64-function-keyword
       - id: objectives/anti-static/obfuscation/source/string::char-expansion-obfuscation
     any:
-      - id: objectives/execution/activex/com::activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: objectives/execution/interpreter/script/embedded::powershell-vars-in-javascript
 
   - id: wsh-js-downloader

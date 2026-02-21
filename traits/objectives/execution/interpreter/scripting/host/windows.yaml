@@ -201,7 +201,7 @@ composite_rules:
     attack: "T1112"
     for: [javascript, typescript]
     all:
-      - id: objectives/execution/activex/com::activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: registry-methods
       - id: registry-hives
 
@@ -233,7 +233,7 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: objectives/execution/activex/com::activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: filesystem-object-string
 
   # Windows Script Host dropper

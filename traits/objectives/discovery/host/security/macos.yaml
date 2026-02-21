@@ -85,4 +85,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: little-snitch-name
-      - id: objectives/discovery/host/process::ps-ef-cmd
+      - id: micro-behaviors/process/enumerate/shell::ps-ef

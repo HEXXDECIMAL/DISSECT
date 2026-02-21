@@ -367,10 +367,7 @@ composite_rules:
     all:
       - id: ebpf-indicator
     any:
-      - id: metadata/intent::magic
-      - id: metadata/intent::trigger
-      - id: metadata/intent::backdoor
-      - id: metadata/intent::secret
+      - id: objectives/anti-analysis/naming/intent/posix/
   - id: ebpf-indicator
     desc: eBPF-related markers
     crit: notable

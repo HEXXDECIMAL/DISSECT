@@ -103,9 +103,9 @@ composite_rules:
     desc: "HTTP request via requests or"
     conf: 0.8
     any:
-      - id: micro-behaviors/communications/http/lib/requests/python::requests-get
-      - id: micro-behaviors/communications/http/lib/requests/python::requests-post
-      - id: micro-behaviors/communications/http/lib/urllib/python::urllib-urlopen
+      - id: micro-behaviors/communications/http/lib/requests::requests-get
+      - id: micro-behaviors/communications/http/lib/requests::requests-post
+      - id: micro-behaviors/communications/http/lib/urllib::urllib-urlopen
 
   - id: python-binary-write-pattern
     desc: "Binary file write pattern"

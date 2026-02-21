@@ -7,11 +7,6 @@ defaults:
 
 traits:
   # === Memory protection (atomic) ===
-  # Removed mprotect-unix duplicate - use micro-behaviors/mem/protect/modify::mprotect (system calls should use symbol type)
-
-  # Removed virtualprotect-win duplicate - use micro-behaviors/mem/protect/modify::virtual-protect (symbol is more precise)
-  # Removed virtualprotectex-win duplicate - use micro-behaviors/mem/protect/modify::virtual-protect-ex (symbol is more precise)
-
   - id: prot-write
     desc: PROT_WRITE memory protection constant
     crit: notable
@@ -20,10 +15,8 @@ traits:
       type: string
       word: "PROT_WRITE"
 
-  # Removed prot-exec duplicate - use micro-behaviors/mem/allocate/executable::prot-exec-const
-
-  - id: page-rwx
-    desc: PAGE_EXECUTE_READWRITE constant
+  - id: page-rwx-literal
+    desc: PAGE_EXECUTE_READWRITE constant literal
     crit: notable
     conf: 0.8
     if:
@@ -38,12 +31,6 @@ traits:
     if:
       type: string
       substr: /proc/self/mem
-
-  # Removed proc-self-maps duplicate - use micro-behaviors/fs/proc/info/linux::process-self-maps
-  # Note: proc-self-maps is commonly used by legitimate software (Go/Rust runtimes,
-  # crash reporters, profilers) so it's no longer used in self-modify detection.
-
-  # Removed duplicate - use objectives/defense-evasion/process/injection/runtime::write-process-memory
 
   - id: self-patch-ref
     desc: Self-patch terminology
@@ -84,14 +71,6 @@ traits:
       - id: metadata/language/go
 
   # === Hook installation (atomic) ===
-  - id: setwindowshook
-    desc: Windows SetWindowsHookEx API
-    crit: notable
-    conf: 0.7
-    if:
-      type: symbol
-      exact: "SetWindowsHookEx"
-
   - id: inline-hook-ref
     desc: Inline hook terminology
     crit: suspicious
@@ -110,7 +89,6 @@ traits:
       substr: detour
       case_insensitive: true
 
-  # NOTE: Go runtime uses trampolines legitimately for function calls
   - id: trampoline-ref
     desc: Trampoline hook terminology
     crit: notable
@@ -119,9 +97,6 @@ traits:
       type: string
       substr: trampoline
       case_insensitive: true
-
-  # Removed ld-preload duplicate - use micro-behaviors/os/linker/env::ld-preload
-  # Removed dyld-insert duplicate - use objectives/evasion/library-injection/env::dyld-insert-libraries-string
 
   # === IAT/GOT hooking (atomic) ===
   - id: import-descriptor
@@ -157,11 +132,6 @@ traits:
       word: "GOT"
 
   # === Polymorphic/metamorphic (atomic) ===
-  # NOTE: "polymorphic" has legitimate uses in:
-  # - Debuggers (CPU polymorphism, instruction variants)
-  # - Compilers (polymorphic type systems, generics)
-  # - Security tools analyzing polymorphic malware
-  # Only flag as suspicious in malware-specific context
   - id: polymorphic-ref
     desc: Polymorphic code terminology
     crit: notable
@@ -190,9 +160,6 @@ traits:
       substr: "self-modifying"
       case_insensitive: true
 
-  # NOTE: XOR loop patterns are common in legitimate software (crypto, compression,
-  # RNG, games). Only meaningful as an indicator when combined with other self-modify
-  # indicators in the polymorphic composite.
   - id: xor-loop-pattern
     desc: XOR decryption loop byte pattern
     crit: notable
@@ -204,7 +171,7 @@ traits:
 composite_rules:
   # Memory protection changes
   - id: mprotect
-    desc: Memory protection modification (mprotect/VirtualProtect)
+    desc: Memory protection modification
     crit: notable
     conf: 0.85
     any:
@@ -213,19 +180,13 @@ composite_rules:
       - id: micro-behaviors/mem/protect/modify::virtual-protect-ex
       - id: prot-write
       - id: micro-behaviors/mem/allocate/executable::prot-exec-const
-      - id: page-rwx
-    # mprotect is common in graphics libraries for memory-mapped video access
-    # and in system libraries for dynamic memory management
+      - id: page-rwx-literal
     downgrade:
       any:
         - id: micro-behaviors/dylib/load/x11-dga-marker
         - id: micro-behaviors/dylib/library::graphics-lib-marker
         - id: micro-behaviors/dylib/library::system-lib-marker
 
-  # Self-overwriting code
-  # Note: Removed proc-self-maps since it's commonly used by legitimate software
-  # (Go/Rust runtimes, crash reporters, profilers). proc-self-mem is more specific
-  # to actual memory modification.
   - id: self-overwrite
     desc: Self-overwriting code patterns
     crit: suspicious
@@ -238,7 +199,6 @@ composite_rules:
       any:
         - id: metadata/vendor/valve/valve-corp-binary
 
-  # Code cave or slack space
   - id: code-cave
     desc: Code cave or slack space
     crit: suspicious
@@ -252,22 +212,18 @@ composite_rules:
       any:
         - id: metadata/vendor/valve/valve-corp-binary
 
-  # Hook installation
-  # NOTE: Removed trampoline-ref since Go runtime uses trampolines legitimately
   - id: hook-install
     desc: Dynamic interposition hook patterns
     crit: notable
     conf: 0.7
     any:
-      - id: setwindowshook
+      - id: micro-behaviors/mem/protect/modify::setwindowshook
       - id: inline-hook-ref
       - id: detour-ref
     downgrade:
       any:
         - id: metadata/vendor/valve/valve-corp-binary
 
-  # IAT/GOT hooking - require 2+ indicators to avoid false positives
-  # from standard ELF sections like .got.plt
   - id: iat-hook
     desc: Import Address Table hooking
     crit: notable
@@ -280,9 +236,6 @@ composite_rules:
       - id: metadata/lang/security::got-plt-section
       - id: got-ref
 
-  # Polymorphic/metamorphic indicators
-  # NOTE: Require 2+ indicators to avoid FPs on debuggers, security tools, and
-  # academic software that analyze/discuss polymorphic techniques
   - id: polymorphic
     desc: Polymorphic or metamorphic code indicators
     crit: suspicious
@@ -294,7 +247,6 @@ composite_rules:
       - id: self-modifying-ref
       - id: xor-loop-pattern
 
-  # Active self-modification
   - id: active
     desc: Active self-modification behavior
     crit: notable
@@ -304,5 +256,5 @@ composite_rules:
     any:
       - id: self-overwrite
       - id: self-modifying-ref
-      - id: codecave-ref
+      - id: code-cave
       - id: xor-loop-pattern

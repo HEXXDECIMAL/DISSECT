@@ -436,7 +436,7 @@ composite_rules:
     all:
       - id: medusa-name
     any:
-      - id: objectives/anti-analysis/self-modify/runtime::polymorphic-ref
+      - id: objectives/anti-analysis/self-modify/runtime::polymorphic
       - id: mutate-keyword
       - id: rsa-keyword
 

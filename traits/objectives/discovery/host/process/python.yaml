@@ -13,16 +13,6 @@ traits:
       type: string
       regex: 'psutil\.process_iter\('
 
-  # === Shell process enumeration (atomic) ===
-  - id: tasklist-cmd
-    desc: Windows tasklist command
-    crit: notable
-    conf: 0.5
-    for: [python, javascript, shell]
-    if:
-      type: string
-      word: "tasklist"
-
   - id: pgrep-cmd
     desc: pgrep command for process grep
     crit: notable
@@ -30,15 +20,6 @@ traits:
     if:
       type: string
       substr: "pgrep"
-
-  - id: ps-ef-cmd
-    desc: ps -ef command for process
-    crit: notable
-    conf: 0.5
-    for: [python, javascript, shell]
-    if:
-      type: string
-      substr: "ps -ef"
 
   # === Analysis tool process names (atomic) ===
   - id: wireshark-proc
@@ -74,9 +55,9 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: tasklist-cmd
+      - id: micro-behaviors/process/enumerate/shell::tasklist
       - id: pgrep-cmd
-      - id: ps-ef-cmd
+      - id: micro-behaviors/process/enumerate/shell::ps-ef
 
   # Analysis tool detection
   - id: analysis-tool-names

@@ -147,7 +147,7 @@ composite_rules:
       - windows
     needs: 2
     any:
-      - id: micro-behaviors/communications/ipc/win32com/python::import-win32com
+      - id: micro-behaviors/communications/ipc/win32com::import-win32com
       - id: admin-check-ctypes
       - id: ctypes-windll-usage
   - id: obfuscated-setup-py-trojan
@@ -161,4 +161,4 @@ composite_rules:
     all:
       - id: advanced-python-obfuscation
       - id: state-machine-obfuscation
-      - id: micro-behaviors/communications/ipc/win32com/python::import-win32com
+      - id: micro-behaviors/communications/ipc/win32com::import-win32com

@@ -15,7 +15,7 @@ composite_rules:
     conf: 0.95
     all:
       - id: objectives/lateral-movement/supply-chain/pypi/install-patterns::robust-setup-py
-      - id: objectives/anti-static/obfuscation/source::com-dispatch-usage
+      - id: micro-behaviors/communications/ipc/win32com::dispatch-call
     any:
       - id: objectives/persist/startup/registry::shortcut-arguments
       - id: objectives/persist/startup/registry::shortcut-target-path

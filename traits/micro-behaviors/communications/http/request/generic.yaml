@@ -140,9 +140,9 @@ composite_rules:
     crit: inert
     conf: 0.7
     any:
-      - id: micro-behaviors/communications/http/lib/requests/python::requests-post
-      - id: micro-behaviors/communications/http/lib/requests/python::requests-get
+      - id: micro-behaviors/communications/http/lib/requests::requests-post
+      - id: micro-behaviors/communications/http/lib/requests::requests-get
       - id: micro-behaviors/communications/http/lib/urllib::urllib-word
       - id: socket-dot
-      - id: micro-behaviors/communications/http/request/javascript::fetch-string
+      - id: micro-behaviors/communications/http/request::fetch-string
       - id: xmlhttprequest-word

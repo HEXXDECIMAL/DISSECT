@@ -648,7 +648,7 @@ composite_rules:
       - id: oast-me-domain
       - id: objectives/exfiltration/channel/oob::webhook-site
       - id: pipedream-domain
-      - id: objectives/exfiltration/channel/webhook::discord-webhook
+      - id: objectives/exfiltration/channel/webhook::discord-exfiltration
   - id: placeholder-author-no-repo
     desc: Package with placeholder author and no repository URL
     crit: suspicious

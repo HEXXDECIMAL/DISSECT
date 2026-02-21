@@ -272,15 +272,6 @@ composite_rules:
   - id: http-client-imports
   - id: dynamic-eval-imports
   - id: child-process-imports
-- id: webhook-exfil-pattern
-  desc: Webhook with file system access
-  crit: suspicious
-  conf: 0.85
-  all:
-  - id: fs-imports
-  any:
-  - id: objectives/exfiltration/channel/webhook::discord-webhook
-  - id: telegram-bot-api
 - id: browser-data-access
   desc: Accesses browser data directories
   crit: suspicious

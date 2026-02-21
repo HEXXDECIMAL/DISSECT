@@ -457,7 +457,7 @@ composite_rules:
   for:
   - javascript
   any:
-  - id: objectives/execution/activex/com::activex-wshell
+  - id: micro-behaviors/os/com/object::wscript-shell-literal
   - id: micro-behaviors/os/com/object::clsid-xmlhttp-generic
   downgrade:
     any:
@@ -501,7 +501,7 @@ composite_rules:
   any:
   - id: objectives/execution/dropper/binary-files
 - id: fetch-write-execute
-  desc: Complete dropper lifecycle (Fetch +
+  desc: Complete dropper lifecycle (Fetch + Write + Execute)
   crit: hostile
   conf: 0.98
   mbc: B0024
@@ -513,7 +513,7 @@ composite_rules:
   - id: micro-behaviors/fs/file/write/
   - id: python-exec-call
 - id: full-stager
-  desc: Complete interpreter-based stager (download interpreter
+  desc: Complete interpreter-based stager (download interpreter + stdin exec)
   crit: hostile
   conf: 0.95
   attack: T1059
@@ -629,7 +629,7 @@ composite_rules:
   any:
   - id: micro-behaviors/process/create/shell
   - id: micro-behaviors/process/create/direct
-  - id: objectives/execution/activex/com::activex-wshell
+  - id: micro-behaviors/os/com/object::wscript-shell-literal
 - id: wsh-creation-mechanism
   desc: WScript/ActiveX creation
   crit: notable

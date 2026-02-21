@@ -915,16 +915,13 @@ impl YaraEngine {
 
     /// Load compiled YARA rules from cache
     fn load_from_cache(&mut self, cache_path: &Path) -> Result<(usize, usize)> {
-        let _t_read = std::time::Instant::now();
         let data = fs::read(cache_path).context("Failed to read cache file")?;
 
-        let _t_bincode = std::time::Instant::now();
         let (cache_data, _): (CacheData, usize) =
             bincode::serde::decode_from_slice(&data, bincode::config::standard())
                 .context("Failed to decode cache data")?;
 
         // Deserialize the YARA rules
-        let _t_yara = std::time::Instant::now();
         let rules = yara_x::Rules::deserialize(&cache_data.rules_data)
             .context("Failed to deserialize YARA rules")?;
 

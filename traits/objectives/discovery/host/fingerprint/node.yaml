@@ -225,18 +225,6 @@ traits:
   if:
     type: string
     substr: Object.entries
-- id: ps-aux-cmd
-  desc: ps aux command
-  crit: notable
-  conf: 0.7
-  mbc: E1592
-  attack: T1057
-  for:
-  - javascript
-  - typescript
-  if:
-    type: string
-    substr: ps aux
 - id: get-process-cmd
   desc: PowerShell Get-Process
   crit: notable
@@ -414,9 +402,9 @@ composite_rules:
   - javascript
   - typescript
   any:
-  - id: objectives/discovery/host/process::tasklist-cmd
-  - id: ps-aux-cmd
-  - id: objectives/discovery/host/process::ps-ef-cmd
+  - id: micro-behaviors/process/enumerate/shell::tasklist
+  - id: micro-behaviors/process/enumerate/shell::ps-aux
+  - id: micro-behaviors/process/enumerate/shell::ps-ef
   - id: get-process-cmd
   unless:
   - id: metadata/library/syntaxhighlighter::syntaxhighlighter-brush

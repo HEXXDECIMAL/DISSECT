@@ -15,7 +15,7 @@ composite_rules:
     conf: 0.7
     needs: 2
     any:
-      - id: micro-behaviors/process/user/query
+      - id: micro-behaviors/process/user/query/
       - id: micro-behaviors/process/env/access::getenv-user
       - id: micro-behaviors/process/env/access::getenv-home
       - id: micro-behaviors/fs/path/config/accounts::etc-passwd

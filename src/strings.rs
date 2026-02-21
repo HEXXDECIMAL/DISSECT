@@ -151,23 +151,52 @@ impl StringExtractor {
 
     /// Extract all strings from binary data
     /// Extract strings using language-aware analysis with optional pre-extracted r2 strings.
+    /// When r2_strings are provided (from cache), use them directly to avoid redundant extraction.
     pub(crate) fn extract_smart(
         &self,
         data: &[u8],
         r2_strings: Option<Vec<R2String>>,
     ) -> Vec<StringInfo> {
-        let stng_r2 = r2_strings.map(|r2s| r2_to_stng(r2s, self.min_length));
-        let mut opts =
-            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
-        if let Some(r2) = stng_r2 {
-            opts = opts.with_r2_strings(r2);
+        // Fast path: if we have r2_strings from cache, use them directly
+        // This avoids a redundant stng extraction (~300ms savings)
+        if let Some(r2s) = r2_strings {
+            return r2s
+                .into_iter()
+                .filter(|s| s.string.len() >= self.min_length)
+                .map(|s| self.convert_r2_string(s))
+                .collect();
         }
+
+        // Slow path: no r2 strings, do full stng extraction
+        let opts =
+            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
         let lang_strings = stng::extract_strings_with_options(data, &opts);
         let mut strings = Vec::with_capacity(lang_strings.len());
         for es in lang_strings {
             strings.push(self.convert_extracted_string(es));
         }
         strings
+    }
+
+    /// Convert an R2String directly to StringInfo (fast path when using cached r2 strings)
+    fn convert_r2_string(&self, r2: R2String) -> StringInfo {
+        let normalized = Self::normalize_symbol(&r2.string);
+        let string_type = if let Some((override_type, _)) = self.symbol_map.get(normalized.as_ref()) {
+            *override_type
+        } else {
+            // Classify based on content
+            self.classify_string_type(&r2.string)
+        };
+
+        StringInfo {
+            value: r2.string,
+            offset: Some(r2.vaddr),
+            encoding: r2.string_type, // "utf8", "ascii", etc.
+            string_type,
+            section: None, // R2String doesn't have section info
+            encoding_chain: Vec::new(),
+            fragments: None,
+        }
     }
 
     /// Convert an ExtractedString from stng to StringInfo

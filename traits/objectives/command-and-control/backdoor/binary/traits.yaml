@@ -394,8 +394,8 @@ composite_rules:
       - id: metadata/library/compression::compression-lib
       - id: micro-behaviors/data/embedded/payload::multiple-compressed-payloads
     any:
-      - id: objectives/anti-analysis/geofencing/location::russian-system-check
-      - id: objectives/anti-analysis/geofencing/location::cis-timezone-checks
+      - id: objectives/anti-analysis/naming/intent/
+      - id: objectives/anti-analysis/geofencing/location::cis-timezone
 
   # === Compression library with embedded executable ===
   # A compression library embedding ELF/PE binaries is highly suspicious
@@ -420,7 +420,7 @@ composite_rules:
     for: [elf]
     all:
       - id: micro-behaviors/data/embedded/payload::multiple-compressed-payloads
-      - id: objectives/anti-analysis/geofencing/location::cis-country-codes
+      - id: objectives/anti-analysis/geofencing/location::cis-geofencing
 
   # === Compression library with suspicious CPUID feature selection ===
   # A compression library with:

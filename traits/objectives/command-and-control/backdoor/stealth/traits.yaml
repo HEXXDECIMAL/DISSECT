@@ -17,4 +17,4 @@ composite_rules:
       # Plus string obfuscation (indicates intent to hide)
       - id: objectives/anti-static/obfuscation/strings/
       # Plus memory protection manipulation (indicates self-modification)
-      - id: objectives/anti-analysis/self-modify/runtime::mprotect
+      - id: micro-behaviors/mem/protect/modify::mprotect-symbol

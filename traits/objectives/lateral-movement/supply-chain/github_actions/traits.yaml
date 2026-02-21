@@ -52,7 +52,7 @@ composite_rules:
   - id: github-actions-secret-marker-helper
     desc: Helper for secret or memory access
     any:
-      - id: metadata/intent::secret
+      - id: objectives/anti-analysis/naming/intent/posix::secret
       - id: micro-behaviors/fs/proc/info::process-pid-mem
       - id: github-actions-targeting-shell
     crit: notable

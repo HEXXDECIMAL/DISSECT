@@ -83,8 +83,8 @@ composite_rules:
       - id: write-read-binary
       - id: read-write-binary
       - id: read-binary
-      - id: micro-behaviors/fs/file/read/unix::read
-      - id: micro-behaviors/fs/file/write/unix::write
+      - id: micro-behaviors/fs/file/read::read
+      - id: micro-behaviors/fs/file/write::write
 
 
   # File manipulation with seeking
@@ -96,6 +96,6 @@ composite_rules:
     all:
       - id: fseek-func
     any:
-      - id: micro-behaviors/fs/file/read/unix::read
-      - id: micro-behaviors/fs/file/write/unix::write
+      - id: micro-behaviors/fs/file/read::read
+      - id: micro-behaviors/fs/file/write::write
       - id: binary-read-write-ops

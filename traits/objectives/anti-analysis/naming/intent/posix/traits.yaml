@@ -19,14 +19,14 @@ traits:
   # === Magic value markers ===
   - id: magic-a
     desc: Magic value naming pattern family A
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
       regex: "\\bmagic_?(key|value|number|bytes)\\w*\\b"
   - id: magic-b
     desc: Magic value naming pattern family B
-    crit: inert
+    crit: notable
     conf: 0.5
     if:
       type: string
@@ -63,7 +63,7 @@ traits:
 composite_rules:
   - id: magic
     desc: Magic value naming pattern
-    crit: inert
+    crit: notable
     conf: 0.5
     any:
       - id: magic-a
