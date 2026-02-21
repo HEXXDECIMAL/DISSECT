@@ -73,7 +73,7 @@ traits:
 
   # Obfuscation in specific sections
   - id: high-entropy-rodata
-    desc: High entropy content in read-only data
+    desc: High entropy content in rodata
     crit: notable
     conf: 0.75
     for: [elf, macho, pe]
@@ -82,7 +82,7 @@ traits:
       exact: ".rodata"
       entropy_min: 7.0
   - id: base64-in-rodata
-    desc: Base64-encoded data in read-only section (bulk encoding, not single values)
+    desc: Base64 data in rodata
     crit: inert
     conf: 0.8
     for: [elf, macho, pe]
@@ -93,10 +93,12 @@ traits:
       count_min: 10
 
   - id: hex-strings-in-rodata
-    desc: Dense hex string patterns in rodata (bulk data, not tokens)
+    desc: Dense hex strings in rodata
     crit: notable
     conf: 0.75
     for: [elf, macho, pe]
+    unless:
+      - id: micro-behaviors/data/hex::long-hex-string
     if:
       type: string
       regex: "^[0-9A-Fa-f]{64,}$"

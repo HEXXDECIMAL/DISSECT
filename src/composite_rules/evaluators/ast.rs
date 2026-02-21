@@ -61,6 +61,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -92,6 +93,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -101,6 +103,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -111,6 +114,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -167,6 +171,7 @@ pub(crate) fn eval_ast<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+                matched_trait_ids: Vec::new(),
             }
         },
     };
@@ -178,6 +183,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -187,6 +193,7 @@ pub(crate) fn eval_ast<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -216,6 +223,7 @@ fn eval_ast_pattern_multi(
             evidence: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -229,6 +237,7 @@ fn eval_ast_pattern_multi(
                     evidence: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
+                    matched_trait_ids: Vec::new(),
                 };
             },
         },
@@ -288,6 +297,7 @@ fn eval_ast_pattern_multi(
         evidence,
         warnings,
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -332,6 +342,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -363,6 +374,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+                matched_trait_ids: Vec::new(),
             };
         },
     };
@@ -374,6 +386,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -383,6 +396,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -393,6 +407,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -403,6 +418,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     };
 
@@ -473,5 +489,6 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
         evidence,
         warnings: Vec::new(),
         precision: 2.0, // Tree-sitter queries are complex and specific
+        matched_trait_ids: Vec::new(),
     }
 }

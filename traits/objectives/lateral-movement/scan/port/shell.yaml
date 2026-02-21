@@ -56,7 +56,7 @@ traits:
   conf: 0.7
   if:
     type: raw
-    regex: '(?:-p|port\s+)2(?:1|2|3|5)\b'
+    regex: '(?:-p|port\s+)2[1235]\b'
 - id: script-probes-port-web
   desc: Probes web ports (53/80/443)
   crit: notable

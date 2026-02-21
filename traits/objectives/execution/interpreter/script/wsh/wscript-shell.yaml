@@ -3,16 +3,16 @@ traits:
     desc: WScript.Shell generic marker
     crit: notable
     conf: 0.1
+    for: [all]
     if:
       type: string
       exact: "WScript.Shell"
 
-composite_rules:
   - id: wscript-shell
     desc: Creates a WScript.Shell object
     crit: notable
     conf: 0.8
     for: [javascript]
-    any:
-      - id: micro-behaviors/os/com/object::wscript-shell-literal
-      - id: wscript-shell-generic
+    if:
+      type: trait
+      id: micro-behaviors/os/com/object::wscript-shell-literal

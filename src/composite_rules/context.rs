@@ -157,6 +157,8 @@ pub(crate) struct ConditionResult {
     pub warnings: Vec<AnalysisWarning>,
     /// Precision points contributed by this condition (higher = more specific)
     pub precision: f32,
+    /// IDs of traits that matched (for populating Finding::trait_refs)
+    pub matched_trait_ids: Vec<String>,
 }
 
 impl Default for ConditionResult {
@@ -166,6 +168,7 @@ impl Default for ConditionResult {
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         }
     }
 }
@@ -179,6 +182,7 @@ impl ConditionResult {
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         }
     }
 
@@ -190,6 +194,7 @@ impl ConditionResult {
             evidence,
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         }
     }
 }

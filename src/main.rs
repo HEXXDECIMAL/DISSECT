@@ -48,6 +48,7 @@ mod output;
 mod path_mapper;
 mod radare2;
 mod rtf;
+mod map;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
 mod test_rules;
@@ -381,17 +382,38 @@ fn main() -> Result<()> {
             args.min_hostile_precision,
             args.min_suspicious_precision,
         )?,
-        Some(cli::Command::Graph {
+        Some(cli::Command::Map {
             depth,
             output,
             min_refs,
             namespaces,
-        }) => dissect::graph::generate_trait_graph(
-            depth,
-            output.as_deref(),
-            min_refs,
-            namespaces.as_deref(),
-        )?,
+            from_findings,
+            format,
+            min_crit,
+            show_low_value,
+        }) => {
+            if let Some(input) = from_findings {
+                // Findings mode
+                map::generate_findings_map(
+                    &input,
+                    depth,
+                    output.as_deref(),
+                    min_refs,
+                    namespaces.as_deref(),
+                    format,
+                    &min_crit,
+                    show_low_value,
+                )?
+            } else {
+                // Definition mode (existing behavior)
+                map::generate_trait_map(
+                    depth,
+                    output.as_deref(),
+                    min_refs,
+                    namespaces.as_deref(),
+                )?
+            }
+        },
         Some(cli::Command::YaraProfile { target, min_ms }) => {
             return profile_command(Path::new(&target), min_ms);
         },

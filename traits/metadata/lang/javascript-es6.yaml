@@ -63,7 +63,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "[\\[{,]\\s*\\.\\.\\.\\w+|function\\s*\\([^)]*\\.\\.\\.\\w+"
+      regex: "[\\[{,]\\s*\\.\\.\\.\\w+|function\\s*\\([^)]{0,100}\\.\\.\\.\\w+"
 
 composite_rules:
   # Detect if code uses modern JavaScript

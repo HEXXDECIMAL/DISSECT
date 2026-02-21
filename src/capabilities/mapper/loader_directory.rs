@@ -1011,18 +1011,9 @@ impl super::CapabilityMapper {
             }
         }
 
-        // Pre-compile all regexes for performance (parallelized)
-        tracing::debug!("Step 9/15: Pre-compiling regexes in parallel");
-        let regex_errors: Vec<String> = trait_definitions
-            .par_iter_mut()
-            .filter_map(|trait_def| {
-                trait_def
-                    .precompile_regexes()
-                    .err()
-                    .map(|e| format!("Regex compilation error: {:#}", e))
-            })
-            .collect();
-        parse_errors.extend(regex_errors);
+        // Skip regex precompilation - regexes will be compiled on demand during evaluation
+        // This saves ~150ms at startup
+        tracing::debug!("Step 9/15: Skipping regex precompilation (lazy mode)");
 
         // Validate exact trait ID references
         // Build set of all valid trait IDs (both atomic traits and composite rules)

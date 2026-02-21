@@ -32,6 +32,7 @@ pub(crate) fn eval_metrics<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
     }
@@ -42,6 +43,7 @@ pub(crate) fn eval_metrics<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
     }
@@ -52,6 +54,7 @@ pub(crate) fn eval_metrics<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     };
 
@@ -297,6 +300,7 @@ pub(crate) fn eval_metrics<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     };
 
@@ -333,5 +337,6 @@ pub(crate) fn eval_metrics<'a>(
         },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }

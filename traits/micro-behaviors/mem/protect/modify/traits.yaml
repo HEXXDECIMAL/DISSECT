@@ -56,4 +56,12 @@ traits:
       type: symbol
       exact: "VirtualFree"
 
+  - id: setwindowshook
+    desc: Windows SetWindowsHookEx API
+    crit: notable
+    conf: 0.7
+    if:
+      type: symbol
+      exact: "SetWindowsHookEx"
+
   # virtual-query: use micro-behaviors/mem/query/info::virtualquery (canonical namespace)

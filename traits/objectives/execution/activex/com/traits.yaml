@@ -71,3 +71,4 @@ composite_rules:
       - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: activex-shell-app
       - id: activex-wmi
+      - id: objectives/execution/interpreter/script/wsh::wscript-shell

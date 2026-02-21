@@ -15,14 +15,6 @@ traits:
       type: string
       word: "PROT_WRITE"
 
-  - id: page-rwx-literal
-    desc: PAGE_EXECUTE_READWRITE constant literal
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: PAGE_EXECUTE_READWRITE
-
   # === Self-overwriting (atomic) ===
   - id: proc-self-mem
     desc: /proc/self/mem access for self-modification
@@ -152,7 +144,7 @@ traits:
       case_insensitive: true
 
   - id: self-modifying-ref
-    desc: Self-modifying code terminology
+    desc: Self-modifying code terms
     crit: suspicious
     conf: 0.8
     if:
@@ -169,6 +161,14 @@ traits:
       pattern: "30 ?? 4? 83 ?? ?? 7?"
 
 composite_rules:
+  - id: page-rwx-literal
+    desc: PAGE_EXECUTE_READWRITE constant literal
+    crit: notable
+    conf: 0.8
+    any:
+      - id: micro-behaviors/mem/allocate/executable::page-execute-readwrite
+      - id: prot-write
+
   # Memory protection changes
   - id: mprotect
     desc: Memory protection modification
@@ -258,3 +258,11 @@ composite_rules:
       - id: self-modifying-ref
       - id: code-cave
       - id: xor-loop-pattern
+
+  - id: setwindowshook
+    desc: Windows SetWindowsHookEx API reference
+    crit: notable
+    conf: 0.7
+    any:
+      - id: micro-behaviors/mem/protect/modify::setwindowshook
+      - id: inline-hook-ref

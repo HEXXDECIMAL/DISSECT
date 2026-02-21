@@ -20,14 +20,14 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.(exe|dll|bat|ps1)\b
+    regex: discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/.{1,80}\.(exe|dll|bat|ps1)\b
 - id: discord-cdn-archive-url
   desc: Discord CDN URL with archive extension
   crit: notable
   conf: 0.85
   if:
     type: string
-    regex: cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.(zip|7z|rar)\b
+    regex: discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/.{1,80}\.(zip|7z|rar)\b
 composite_rules:
 - id: discord-cdn-download-url-any
   desc: Discord CDN download URL with suspicious extension

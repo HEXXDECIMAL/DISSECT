@@ -445,8 +445,8 @@ pub(crate) enum Command {
         min_ms: u64,
     },
 
-    /// Generate a graph visualization of trait relationships
-    Graph {
+    /// Generate a map visualization of trait relationships
+    Map {
         /// Directory depth level (2 = micro-behaviors/comm, 3 = micro-behaviors/communications/socket, etc.)
         #[arg(short, long, default_value = "3")]
         depth: usize,
@@ -459,9 +459,25 @@ pub(crate) enum Command {
         #[arg(short, long, default_value = "1")]
         min_refs: usize,
 
-        /// Show only these top-level namespaces (comma-separated: cap,obj,known,meta)
+        /// Show only these top-level namespaces (comma-separated: objectives,micro-behaviors,well-known,metadata)
         #[arg(long)]
         namespaces: Option<String>,
+
+        /// Build map from JSONL findings (file path or "-" for stdin)
+        #[arg(long, value_name = "PATH")]
+        from_findings: Option<String>,
+
+        /// Output format: dot (default), ascii
+        #[arg(short = 'f', long, default_value = "dot")]
+        format: MapFormat,
+
+        /// Minimum criticality to include (inert, notable, suspicious, hostile)
+        #[arg(long, default_value = "inert")]
+        min_crit: String,
+
+        /// Show low-value composite rules (any with needs<=1)
+        #[arg(long)]
+        show_low_value: bool,
     },
 }
 
@@ -550,6 +566,16 @@ pub(crate) enum OutputFormat {
     Jsonl,
     /// Human-readable terminal output
     Terminal,
+}
+
+/// Output format for map visualization
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
+pub enum MapFormat {
+    /// Graphviz DOT format
+    #[default]
+    Dot,
+    /// ASCII terminal art
+    Ascii,
 }
 
 #[cfg(test)]

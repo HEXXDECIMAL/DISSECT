@@ -13,11 +13,4 @@ traits:
   # NOTE: chmod +x and chmod 755 moved to fs/file/executable/shell.yaml
   # as that's the more canonical location for executable-making operations
 
-composite_rules:
-  - id: chmod-exec
-    crit: notable
-    attack: T1222
-    desc: "Detects chmod making file executable"
-    any:
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
-      - id: micro-behaviors/fs/file/executable::chmod-755
+composite_rules: []

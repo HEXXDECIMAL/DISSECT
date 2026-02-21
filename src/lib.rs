@@ -22,7 +22,7 @@ pub mod decoders;
 mod entropy;
 pub mod extractors;
 pub mod file_io;
-pub mod graph;
+pub mod map;
 pub mod ip_validator;
 pub mod memory_tracker;
 mod radare2;

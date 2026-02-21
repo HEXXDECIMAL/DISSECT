@@ -50,6 +50,7 @@ pub(crate) fn eval_exports_count<'a>(
         },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -68,6 +69,7 @@ pub(crate) fn eval_section_ratio<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     };
 
@@ -87,6 +89,7 @@ pub(crate) fn eval_section_ratio<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -100,6 +103,7 @@ pub(crate) fn eval_section_ratio<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         };
         ctx.report
@@ -116,6 +120,7 @@ pub(crate) fn eval_section_ratio<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -155,6 +160,7 @@ pub(crate) fn eval_section_ratio<'a>(
         },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -345,6 +351,7 @@ pub(crate) fn eval_section<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -371,6 +378,7 @@ pub(crate) fn eval_import_combination<'a>(
                     evidence: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
+                matched_trait_ids: Vec::new(),
                 };
             }
             evidence.push(Evidence {
@@ -409,6 +417,7 @@ pub(crate) fn eval_import_combination<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
     }
@@ -421,6 +430,7 @@ pub(crate) fn eval_import_combination<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
         evidence.push(Evidence {
@@ -445,6 +455,7 @@ pub(crate) fn eval_import_combination<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -500,5 +511,6 @@ pub(crate) fn eval_syscall<'a>(
         evidence: if matched { evidence } else { Vec::new() },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }

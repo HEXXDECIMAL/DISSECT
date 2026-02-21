@@ -55,6 +55,7 @@ pub(crate) fn eval_symbol<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
     }
@@ -137,6 +138,7 @@ pub(crate) fn eval_symbol<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -392,6 +394,7 @@ pub(crate) fn eval_string<'a, 'b>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -811,6 +814,7 @@ pub(crate) fn eval_raw<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -986,6 +990,7 @@ pub(crate) fn eval_encoded<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -1042,6 +1047,7 @@ pub(crate) fn eval_string_count<'a>(
         },
         warnings: Vec::new(),
         precision: 0.0,
+    matched_trait_ids: Vec::new(),
     }
 }
 

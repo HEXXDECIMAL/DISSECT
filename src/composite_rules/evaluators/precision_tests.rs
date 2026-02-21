@@ -18,6 +18,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -29,6 +31,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -40,6 +44,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -51,6 +57,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -62,6 +70,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -73,6 +83,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -84,6 +96,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.5);
     }
@@ -95,6 +109,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -106,6 +122,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 0.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 0.5);
     }
@@ -117,6 +135,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.25,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.25);
     }
@@ -132,6 +152,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -143,6 +165,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -154,6 +178,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -169,6 +195,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -180,6 +208,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 0.75,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 0.75);
     }
@@ -195,6 +225,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -206,6 +238,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -217,6 +251,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -228,6 +264,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -239,6 +277,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -254,6 +294,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -265,6 +307,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -276,6 +320,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.5);
     }
@@ -287,6 +333,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.5);
     }
@@ -298,6 +346,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.0);
     }
@@ -309,6 +359,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -320,6 +372,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -331,6 +385,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.5);
     }
@@ -342,6 +398,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -353,6 +411,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.5);
     }
@@ -364,6 +424,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 1.0,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 1.0);
     }
@@ -375,6 +437,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 2.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 2.5);
     }
@@ -412,6 +476,8 @@ mod tests {
             matched: true,
             evidence: vec![],
             precision: 0.5,
+            warnings: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
         assert_eq!(result.precision, 0.5);
     }

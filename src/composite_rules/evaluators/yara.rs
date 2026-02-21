@@ -74,6 +74,7 @@ pub(crate) fn eval_yara_inline<'a>(
             evidence,
             warnings: Vec::new(),
             precision: 1.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -96,6 +97,7 @@ pub(crate) fn eval_yara_inline<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         }
         let rules = compiler.build();
@@ -123,6 +125,7 @@ pub(crate) fn eval_yara_inline<'a>(
         evidence,
         warnings: Vec::new(),
         precision: 1.0,
+    matched_trait_ids: Vec::new(),
     }
 }
 
@@ -305,6 +308,7 @@ pub(crate) fn eval_hex<'a>(
                 }],
                 warnings: Vec::new(),
                 precision: 0.0,
+            matched_trait_ids: Vec::new(),
             };
         },
     };
@@ -315,6 +319,7 @@ pub(crate) fn eval_hex<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+        matched_trait_ids: Vec::new(),
         };
     }
 
@@ -443,6 +448,7 @@ pub(crate) fn eval_hex<'a>(
         },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 

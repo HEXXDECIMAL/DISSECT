@@ -46,6 +46,7 @@ pub(crate) fn eval_structure<'a>(
         evidence,
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -58,7 +59,7 @@ pub(crate) fn eval_structure<'a>(
 ///   e.g., "terminate" matches "execution/process::terminate"
 /// - Directory paths (contains `/` but no `::`): matches ANY trait within that directory
 ///   e.g., "anti-static/obfuscation" matches "anti-static/obfuscation::python-hex"
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Check if this is a specific trait reference (contains ::)
     let is_specific = id.contains("::");
@@ -79,6 +80,7 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
             evidence,
             warnings: Vec::new(),
             precision: 1.0,
+            matched_trait_ids: vec![id.to_string()],
         };
     }
 
@@ -89,6 +91,7 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -109,12 +112,14 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
 
         if !matching.is_empty() {
             let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+            let matched_ids: Vec<String> = matching.iter().map(|f| f.id.clone()).collect();
 
             return ConditionResult {
                 matched: true,
                 evidence,
                 warnings: Vec::new(),
                 precision: 1.0,
+                matched_trait_ids: matched_ids,
             };
         }
     } else {
@@ -134,12 +139,14 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
 
         if !matching.is_empty() {
             let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+            let matched_ids: Vec<String> = matching.iter().map(|f| f.id.clone()).collect();
 
             return ConditionResult {
                 matched: true,
                 evidence,
                 warnings: Vec::new(),
                 precision: 1.0,
+                matched_trait_ids: matched_ids,
             };
         }
     }
@@ -149,6 +156,7 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
         evidence: Vec::new(),
         warnings: Vec::new(),
         precision: 0.0,
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -220,6 +228,7 @@ pub(crate) fn eval_basename<'a>(
         },
         warnings: Vec::new(),
         precision,
+        matched_trait_ids: Vec::new(),
     }
 }
 
