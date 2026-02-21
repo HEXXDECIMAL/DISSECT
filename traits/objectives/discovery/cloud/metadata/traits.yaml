@@ -21,7 +21,7 @@ traits:
     for: [all]
     if:
       type: string
-      substr: "169.254.169.254"
+      regex: '169\.254\.169\.254/(latest/meta-data|metadata/instance)'
     downgrade:
       any:
         - id: metadata/library::aws-sdk-ruby
@@ -127,15 +127,6 @@ traits:
       type: string
       substr: "/metadata/identity/oauth2/token"
 
-  - id: python-requests-get
-    desc: Python requests.get method
-    crit: notable
-    conf: 0.3
-    for: [all]
-    if:
-      type: string
-      substr: "requests.get"
-
 composite_rules:
   - id: metadata-harvesting
     desc: Cloud metadata harvesting
@@ -153,4 +144,3 @@ composite_rules:
         - id: metadata/library::aws-sdk-ruby
         - id: metadata/library::aws-sdk-ruby-constants
         - id: metadata/library::botocore-lib
-

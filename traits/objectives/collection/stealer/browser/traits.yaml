@@ -8,22 +8,6 @@ defaults:
 
 traits:
   # === Browser credential harvesting ===
-  - id: chrome-string
-    desc: Chrome browser string
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "Chrome"
-
-  - id: firefox-string
-    desc: Firefox browser string
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: "Firefox"
-
   - id: go-sqlite3
     desc: go-sqlite3 library import
     crit: notable
@@ -50,28 +34,14 @@ traits:
       type: symbol
       exact: "os.Getenv"
 
-  - id: aws-access-string
-    desc: AWS_ACCESS environment variable
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "AWS_ACCESS"
-
-  - id: aws-secret-string
-    desc: AWS_SECRET environment variable
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "AWS_SECRET"
+  # Removed: aws-access-string (use credential-access/environment/secret-access::aws-access-key)
 
 composite_rules:
   - id: browser-strings
     desc: Browser name strings
     any:
-      - { id: chrome-string }
-      - { id: firefox-string }
+      - { id: micro-behaviors/process/enumerate/apps::browser-apps-chrome-firefox }
+      - { id: micro-behaviors/process/enumerate/apps::browser-apps-firefox }
       - { id: micro-behaviors/fs/path/sensitive/browser::login-data }
       - { id: objectives/credential-access/browser/firefox::cookies }
     crit: notable
@@ -79,8 +49,8 @@ composite_rules:
   - id: aws-env-vars
     desc: AWS environment variable names
     any:
-      - { id: aws-access-string }
-      - { id: aws-secret-string }
+      - { id: objectives/credential-access/environment/secret-access::aws-access-key }
+      - { id: objectives/credential-access/environment/secret-access::aws-secret }
     crit: notable
 
   - id: browser-cred-harvest

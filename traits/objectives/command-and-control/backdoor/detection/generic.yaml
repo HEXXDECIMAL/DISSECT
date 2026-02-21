@@ -9,17 +9,7 @@ defaults:
 traits:
   # === Atomic: Reverse Shell Indicators ===
 
-  - id: reverse-shell-ref
-    desc: Reverse shell terminology reference
-    crit: suspicious
-    conf: 0.9
-    attack: "T1059"
-    platforms: [all]
-    if:
-      type: string
-      # revshell: use objectives/command-and-control/reverse-shell/detection/traits.yaml::revshell-string (canonical)
-      regex: "reverse[_\\s]?shell|r[e3]v[e3]rs[e3][_\\s]*sh[e3]ll"
-      case_insensitive: true
+  # reverse-shell-ref removed - use micro-behaviors/data/text/malware/backdoor::generic-term-reverse-shell instead
 
   - id: webshell-ref
     desc: Web shell terminology reference

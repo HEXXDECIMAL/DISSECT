@@ -22,7 +22,7 @@ traits:
   conf: 0.6
   if:
     type: string
-    regex: (?i)discord
+    regex: (?i)discord\.(?:gg|discordapp\.com|discord\.com)
 - id: discord-cdn-url
   desc: Discord CDN attachment URL
   crit: notable

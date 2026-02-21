@@ -62,14 +62,6 @@ traits:
       type: string
       regex: "(?i)master boot record"
 
-  - id: physicaldrive
-    desc: PhysicalDrive reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "(?i)PhysicalDrive"
-
 composite_rules:
   - id: disk-terms
     desc: Disk wiper terminology
@@ -87,4 +79,3 @@ composite_rules:
       - id: boot-sector
       - id: master-boot-record
       - id: micro-behaviors/fs/path/device/storage
-      - id: physicaldrive

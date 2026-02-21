@@ -20,7 +20,7 @@ composite_rules:
     conf: 0.95
     for: [javascript, typescript]
     all:
-      - id: objectives/anti-static/obfuscation/source/names::duplicate-function-names
+      - id: objectives/anti-static/obfuscation/source/names::random-identifier-chains
     any:
       - id: objectives/anti-static/obfuscation/source/string::char-expansion-obfuscation
       - id: objectives/anti-static/obfuscation/source/string::cyrillic-junk-padding

@@ -42,8 +42,8 @@ traits:
     conf: 0.7
     for: [macho, dylib]
     if:
-      type: string
-      exact: "POST"
+      type: raw
+      regex: '(setHTTPMethod|HTTPMethod).{0,24}"POST"'
 
   - id: content-type-json
     desc: Content-Type JSON header

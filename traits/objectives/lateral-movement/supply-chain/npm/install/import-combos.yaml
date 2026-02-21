@@ -92,7 +92,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: Login Data|cookies\.sqlite|logins\.json
+    regex: cookies\.sqlite|logins\.json
 - id: scripts-preinstall-pipe-1
   desc: preinstall pipe (curl/wget with |/;/&&)
   crit: suspicious
@@ -279,7 +279,7 @@ composite_rules:
   all:
   - id: fs-imports
   any:
-  - id: objectives/lateral-movement/supply-chain/npm/behavior::discord-webhook
+  - id: objectives/exfiltration/channel/webhook::discord-webhook
   - id: telegram-bot-api
 - id: browser-data-access
   desc: Accesses browser data directories

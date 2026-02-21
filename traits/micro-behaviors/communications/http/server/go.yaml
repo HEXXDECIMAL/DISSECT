@@ -13,5 +13,5 @@ traits:
     mbc: "C0002"
     attack: "T1071.001"
     if:
-      type: string
-      substr: ListenAndServe
+      type: symbol
+      exact: "net/http.ListenAndServe"

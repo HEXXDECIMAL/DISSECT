@@ -42,16 +42,7 @@ traits:
   if:
     type: string
     substr: /tmp/
-- id: spawn-paren
-  desc: spawn() call
-  crit: notable
-  conf: 0.5
-  for:
-  - javascript
-  - typescript
-  if:
-    type: string
-    regex: spawn\(
+# spawn-paren removed - use micro-behaviors/process/create/shell/lang::spawn-call instead
 - id: execfile-paren
   desc: execFile() call
   crit: notable
@@ -286,13 +277,7 @@ traits:
   if:
     type: string
     regex: ActiveXObject\s*\(
-- id: adodb-stream
-  desc: ADODB.Stream for binary file operations
-  crit: suspicious
-  conf: 0.9
-  if:
-    type: string
-    substr: ADODB.Stream
+# adodb-stream removed - use micro-behaviors/fs/write/file::adodb-stream instead
 - id: shell-namespace
   desc: Shell.Application namespace for ZIP operations
   crit: suspicious
@@ -438,7 +423,7 @@ composite_rules:
   - javascript
   - typescript
   any:
-  - id: spawn-paren
+  - id: micro-behaviors/process/create/shell/lang::spawn-call
   - id: objectives/execution/interpreter/eval/invoke::exec-call-shell
   - id: execfile-paren
 - id: extract-execute
@@ -472,9 +457,8 @@ composite_rules:
   for:
   - javascript
   any:
-  - id: objectives/execution/interpreter/scripting/host::wscript-shell-string
-  - id: objectives/execution/activex/com::activex-xmlhttp-msxml2
-  - id: objectives/execution/interpreter/scripting/host::microsoft-xmlhttp-string
+  - id: objectives/execution/activex/com::activex-wshell
+  - id: micro-behaviors/os/com/object::clsid-xmlhttp-generic
   downgrade:
     any:
     - id: metadata/library/jquery::library
@@ -604,7 +588,7 @@ composite_rules:
   - javascript
   all:
   - id: activex-object
-  - id: adodb-stream
+  - id: micro-behaviors/fs/write/file::adodb-stream
   - id: wscript-xmlhttp
 - id: activex-modern-context
   desc: ActiveXObject in modern JavaScript (obsolete
@@ -645,7 +629,7 @@ composite_rules:
   any:
   - id: micro-behaviors/process/create/shell
   - id: micro-behaviors/process/create/direct
-  - id: objectives/execution/interpreter/scripting/host::wscript-shell-string
+  - id: objectives/execution/activex/com::activex-wshell
 - id: wsh-creation-mechanism
   desc: WScript/ActiveX creation
   crit: notable
@@ -663,7 +647,7 @@ composite_rules:
   - javascript
   any:
   - id: objectives/execution/interpreter/script/wsh::wsh-response-body
-  - id: adodb-stream
+  - id: micro-behaviors/fs/write/file::adodb-stream
   - id: objectives/execution/interpreter/script/wsh::wsh-adodb-stream-binary
 - id: js-obfuscation-indicators
   desc: JavaScript obfuscation indicators

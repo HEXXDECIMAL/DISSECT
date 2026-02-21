@@ -14,15 +14,6 @@ traits:
       type: symbol
       regex: "\\bfork\\b"
 
-  - id: daemon-symbol
-    desc: daemon function symbol
-    crit: notable
-    conf: 0.4
-    for: [elf, macho]
-    platforms: [linux, macos]
-    if:
-      type: symbol
-      regex: "\\bdaemon\\b"
 
   # NOTE: setsid is commonly used by legitimate system tools, shells, and
   # terminal multiplexers. Alone it's just process group management.
@@ -64,17 +55,8 @@ traits:
       type: symbol
       regex: "\\bchdir\\b"
 
-  # NOTE: Go runtime uses /proc/self legitimately for memory management
-  # and process introspection. Downgraded to inert.
-  - id: daemon-proc-self
-    desc: "Reads /proc/self (process introspection)"
-    crit: notable
-    conf: 0.3
-    for: [elf]
-    platforms: [linux]
-    if:
-      type: string
-      regex: "/proc/self(/|$)"
+  # daemon-proc-self removed - use micro-behaviors/fs/proc/info composite instead
+  # (process-self-exe-path, process-self-status, process-self-cmdline)
 
   # NOTE: Signal ignore patterns are common in many legitimate binaries
   # that need robust signal handling (shells, daemons, servers).
@@ -141,7 +123,7 @@ composite_rules:
     platforms: [linux, macos]
     any:
       - id: fork-symbol
-      - id: daemon-symbol
+      - id: micro-behaviors/process/fork/clone::daemon
 
   # Signal function composite - references micro-behaviors/ instead of duplicating
   # NOTE: signal/sigaction are universal in C programs, not persistence indicators alone
@@ -209,8 +191,7 @@ composite_rules:
       - id: daemon-fork
       - id: daemon-setsid
 
-  # NOTE: Since daemon-proc-self is now inert (Go uses /proc/self legitimately),
-  # this composite needs additional indicators to be meaningful.
+  # Stealthy daemon with process introspection
   - id: stealth-daemon
     desc: "Stealthy daemon (daemon + proc"
     crit: notable
@@ -220,7 +201,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     all:
-      - id: daemon-proc-self
+      - id: micro-behaviors/fs/proc/info::process-self-exe-path
     any:
       - id: daemon-fork
       - id: daemon-setsid

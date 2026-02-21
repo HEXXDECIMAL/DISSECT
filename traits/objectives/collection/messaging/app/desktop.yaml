@@ -57,23 +57,7 @@ traits:
       type: string
       regex: "/map[0-9]{1,2}"
 
-  # === Discord Desktop atomic indicators ===
-
-  - id: discord-leveldb-lower
-    desc: Discord LevelDB storage (lowercase)
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "discord/Local Storage/leveldb"
-
-  - id: discord-leveldb-upper
-    desc: Discord LevelDB storage (capitalized)
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "Discord/Local Storage/leveldb"
+  # === LevelDB/IndexedDB indicators (app-agnostic) ===
 
   - id: discord-ldb-ext
     desc: LDB database extension
@@ -84,7 +68,7 @@ traits:
       regex: "\\.ldb$"
 
   # Removed: discord-log-ext was too generic (.log matches any log file)
-  # LevelDB log files are specifically named (e.g., 000003.log) and detected by discord-leveldb paths
+  # Discord-specific paths moved to objectives/credential-access/discord/token/
 
   # === Signal Desktop atomic indicators ===
 
@@ -162,14 +146,8 @@ composite_rules:
       - id: telegram-map-hash
       - id: telegram-map-numbered
 
-  # Discord leveldb composite
-  - id: discord-leveldb
-    desc: Discord LevelDB storage
-    crit: suspicious
-    conf: 0.85
-    any:
-      - id: discord-leveldb-lower
-      - id: discord-leveldb-upper
+  # Discord leveldb composite (use credential-access/discord/)
+  # REMOVED - use objectives/credential-access/discord/token::localstorage-path instead
 
   # Signal config composite
   - id: signal-config
@@ -208,7 +186,7 @@ composite_rules:
     needs: 2
     any:
       - id: telegram-tdata
-      - id: discord-leveldb
+      - id: objectives/credential-access/discord/token::localstorage-path
       - id: signal-config
       - id: slack-storage
       - id: whatsapp-storage

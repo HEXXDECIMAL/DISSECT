@@ -77,6 +77,11 @@ impl super::CapabilityMapper {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
         }
 
+        // NOTE: Capability mapper caching is disabled because Condition types
+        // have asymmetric serde (from = ConditionDeser) that doesn't round-trip.
+        // TODO: Add #[serde(into = "ConditionSer")] to enable caching.
+        // Current loading time: ~360ms (acceptable, YARA cache provides bigger wins)
+
         // First, collect all YAML file paths
         tracing::debug!("Scanning directory for YAML files");
         let mut yaml_files: Vec<_> = walkdir::WalkDir::new(dir_path)
@@ -262,151 +267,154 @@ impl super::CapabilityMapper {
                             trait_def.id, path
                         )
                     })?;
-                // Check for greedy regex patterns
-                if let Some(warning) = trait_def.r#if.check_greedy_patterns(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
-                // Check for word boundary regex patterns that should use type: word
-                if let Some(warning) = trait_def.r#if.check_word_boundary_regex(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                // Per-trait validation checks - skip when validation is disabled
+                if enable_full_validation {
+                    // Check for greedy regex patterns
+                    if let Some(warning) = trait_def.r#if.check_greedy_patterns(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
+                    // Check for word boundary regex patterns that should use type: word
+                    if let Some(warning) = trait_def.r#if.check_word_boundary_regex(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for short case-insensitive patterns (high collision risk)
-                if let Some(warning) =
-                    trait_def.r#if.check_short_case_insensitive(trait_def.r#for.len())
-                {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for short case-insensitive patterns (high collision risk)
+                    if let Some(warning) =
+                        trait_def.r#if.check_short_case_insensitive(trait_def.r#for.len())
+                    {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for improper use of not: field
-                if let Some(warning) = trait_def.check_not_field_usage() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for improper use of not: field
+                    if let Some(warning) = trait_def.check_not_field_usage() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for invalid criticality level
-                if let Some(warning) = trait_def.check_criticality() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for invalid criticality level
+                    if let Some(warning) = trait_def.check_criticality() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for invalid confidence value
-                if let Some(warning) = trait_def.check_confidence() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for invalid confidence value
+                    if let Some(warning) = trait_def.check_confidence() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for invalid size constraints
-                if let Some(warning) = trait_def.check_size_constraints() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for invalid size constraints
+                    if let Some(warning) = trait_def.check_size_constraints() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for invalid count constraints in condition
-                if let Some(warning) = trait_def.r#if.check_count_constraints(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for invalid count constraints in condition
+                    if let Some(warning) = trait_def.r#if.check_count_constraints(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for invalid density constraints in condition
-                if let Some(warning) = trait_def.r#if.check_density_constraints(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for invalid density constraints in condition
+                    if let Some(warning) = trait_def.r#if.check_density_constraints(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for mutually exclusive match types in condition
-                if let Some(warning) = trait_def.r#if.check_match_exclusivity(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for mutually exclusive match types in condition
+                    if let Some(warning) = trait_def.r#if.check_match_exclusivity(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for empty patterns
-                if let Some(warning) = trait_def.r#if.check_empty_patterns(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for empty patterns
+                    if let Some(warning) = trait_def.r#if.check_empty_patterns(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for overly short patterns
-                if let Some(warning) = trait_def.r#if.check_short_patterns(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for overly short patterns
+                    if let Some(warning) = trait_def.r#if.check_short_patterns(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for literal strings used as regex
-                if let Some(warning) = trait_def.r#if.check_literal_regex(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for literal strings used as regex
+                    if let Some(warning) = trait_def.r#if.check_literal_regex(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for useless case_insensitive
-                if let Some(warning) =
-                    trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id)
-                {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for useless case_insensitive
+                    if let Some(warning) =
+                        trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id)
+                    {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for count_min: 0
-                if let Some(warning) = trait_def.r#if.check_count_min_value(&trait_def.id) {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for count_min: 0
+                    if let Some(warning) = trait_def.r#if.check_count_min_value(&trait_def.id) {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for description quality
-                if let Some(warning) = trait_def.check_description_quality() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for description quality
+                    if let Some(warning) = trait_def.check_description_quality() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for empty not: array
-                if let Some(warning) = trait_def.check_empty_not_array() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
-                }
+                    // Check for empty not: array
+                    if let Some(warning) = trait_def.check_empty_not_array() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
 
-                // Check for empty unless: array
-                if let Some(warning) = trait_def.check_empty_unless_array() {
-                    warnings.push(format!(
-                        "trait '{}' in {:?}: {}",
-                        trait_def.id, path, warning
-                    ));
+                    // Check for empty unless: array
+                    if let Some(warning) = trait_def.check_empty_unless_array() {
+                        warnings.push(format!(
+                            "trait '{}' in {:?}: {}",
+                            trait_def.id, path, warning
+                        ));
+                    }
                 }
 
                 // Check for ID conflicts with previously loaded traits (cross-file duplicates)
@@ -758,10 +766,12 @@ impl super::CapabilityMapper {
             known_prefixes.len()
         );
 
+        // Steps 3-7: Taxonomy and naming validation (skip when validation disabled)
+        let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
+        if enable_full_validation {
         // Check for taxonomy violations: platform/language names as directories
         // According to TAXONOMY.md, languages should be YAML filenames, not directories
         tracing::debug!("Step 3/15: Checking for platform-named directories");
-        let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
         let platform_dir_violations = find_platform_named_directories(&dir_list);
         if !platform_dir_violations.is_empty() {
             eprintln!(
@@ -927,6 +937,7 @@ impl super::CapabilityMapper {
                 invalid_ids.len()
             ));
         }
+        } // End of enable_full_validation block for steps 3-7
 
         tracing::debug!("Step 8/15: Validating trait references in composite rules");
         let mut invalid_refs = Vec::new();
@@ -1039,6 +1050,8 @@ impl super::CapabilityMapper {
             }
         }
 
+        // Steps 11-15: Additional validation checks (skip when validation disabled)
+        if enable_full_validation {
         // Validate that composite rules don't reference metadata/internal/ paths
         // Internal paths are for ML usage only and must not be used in composite rules
         tracing::debug!("Step 11/15: Checking for internal path references");
@@ -1963,6 +1976,7 @@ impl super::CapabilityMapper {
             eprintln!();
             has_fatal_errors = true;
         }
+        } // End of enable_full_validation block for steps 11-15 and post-step validations
 
         tracing::debug!("Validation complete");
 
@@ -2015,6 +2029,8 @@ impl super::CapabilityMapper {
             eprintln!("\n==> Fix all validation errors before continuing.\n");
             std::process::exit(1);
         }
+
+        // NOTE: Capability mapper caching disabled - see comment above
 
         Ok(Self {
             symbol_map,

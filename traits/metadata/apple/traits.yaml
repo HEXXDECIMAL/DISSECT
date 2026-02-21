@@ -11,12 +11,15 @@ traits:
   # === Bundle Identifiers ===
 
   - id: bundle-id
-    desc: Apple bundle identifier (com.apple.{0,50})
+    desc: Apple bundle identifier (com.apple.* with minimum length)
     crit: inert
     conf: 0.95
     if:
       type: string
-      regex: "com\\.apple\\.[a-z][a-z0-9.-]+"
+      regex: "com\\.apple\\.[a-z][a-z0-9.-]{3,}"
+      # Note: Minimum 3 chars after com.apple. to avoid matching behavioral patterns
+      # like bare "com.apple.mail" in targeting or "com.apple.quarantine" in xattr removal
+      # For behavioral detection of app targeting, use objectives/ or micro-behaviors/ traits
 
   - id: system-daemon
     desc: Apple system daemon (libexec)
@@ -162,13 +165,6 @@ traits:
       type: symbol
       regex: "dispatch_source_create"
 
-  - id: system-bin-path
-    desc: Standard macOS system binary path
-    crit: inert
-    conf: 0.8
-    if:
-      type: string
-      regex: "/usr/bin/|/bin/|known-good/Darwin-25.3.0/bin/"
 
 composite_rules:
   - id: ad-framework
@@ -257,7 +253,6 @@ composite_rules:
       - id: bundle-and-project
       - id: bundle-and-framework
       - id: project-and-framework
-      - id: system-bin-path
       - id: project-marker
 
   # Main composite: Requires structure AND platform signature

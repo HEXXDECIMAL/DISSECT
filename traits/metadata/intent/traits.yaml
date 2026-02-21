@@ -1,74 +1,20 @@
-# Intent Markers
-# Detects suspicious naming patterns that may indicate malicious intent
-# These are weak signals used in composite rules for additional context
+# Intent Markers - DEPRECATED
+# This file has been moved to objectives/anti-analysis/naming/intent.yaml
+#
+# Rationale: Intent inference is objective-level analysis (attacker goal),
+# not metadata (file property). Naming patterns like "backdoor", "rootkit"
+# suggest malicious intent and should be in the objectives/ tier.
+#
+# Migration: All rules moved to objectives/anti-analysis/naming/intent.yaml
+# This file kept as stub for backward compatibility during transition.
 
 defaults:
   crit: inert
-  conf: 0.5
-  for: [c, elf, macho, pe, shell, python, javascript, go, rust]
+  conf: 0.1
+  for: [all]
 
-traits:
-  # === Backdoor intent markers ===
-  - id: backdoor
-    desc: Backdoor naming pattern
-    if:
-      type: string
-      regex: "\\b(back_?door|bkdr|bd_handler|rootkit)\\w*\\b"
-      case_insensitive: true
+traits: []
+  # All traits moved to objectives/anti-analysis/naming/intent.yaml
 
-  # === Magic value markers ===
-  - id: magic-a
-    desc: Magic value naming pattern family A
-    if:
-      type: string
-      regex: "\\bmagic_?(key|value|number|bytes)\\w*\\b"
-  - id: magic-b
-    desc: Magic value naming pattern family B
-    if:
-      type: string
-      regex: "\\b(magic_?header|MAGIC_)\\w*\\b"
-
-  # === Trigger markers ===
-  - id: trigger-a
-    desc: Trigger naming pattern family A
-    if:
-      type: string
-      regex: "\\btrigger_?(func|handler|condition|event)\\b"
-      case_insensitive: true
-  - id: trigger-b
-    desc: Trigger naming pattern family B
-    if:
-      type: string
-      word: on_trigger
-      case_insensitive: true
-
-  # === Secret markers ===
-  - id: secret-a
-    desc: Secret naming pattern family A
-    if:
-      type: string
-      regex: "\\bsecret_?(key|data|payload|cmd)\\w*\\b"
-      case_insensitive: true
-  - id: secret-b
-    desc: Secret naming pattern family B
-    if:
-      type: string
-      regex: "\\b(hidden_cmd|covert_)\\w*\\b"
-      case_insensitive: true
-
-composite_rules:
-  - id: magic
-    desc: Magic value naming pattern
-    any:
-      - id: magic-a
-      - id: magic-b
-  - id: trigger
-    desc: Trigger naming pattern
-    any:
-      - id: trigger-a
-      - id: trigger-b
-  - id: secret
-    desc: Secret naming pattern
-    any:
-      - id: secret-a
-      - id: secret-b
+composite_rules: []
+  # All composites moved to objectives/anti-analysis/naming/intent.yaml

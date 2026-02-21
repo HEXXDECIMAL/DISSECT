@@ -6,17 +6,6 @@ defaults:
   for: [all]
 
 traits:
-  - id: crontab-command
-    desc: crontab command (schedule/view cron jobs)
-    crit: notable
-    conf: 0.7
-    mbc: B0028
-    attack: T1053.003
-    for: [elf, macho, pe, so, dylib, dll, shell]
-    if:
-      type: string
-      word: "crontab"
-
   - id: etc-cron-path
     desc: /etc/cron directory path (system cron
     crit: notable
@@ -55,7 +44,7 @@ composite_rules:
     mbc: B0028
     attack: T1053.003
     any:
-      - id: crontab-command
+      - id: micro-behaviors/persist/cron/keywords::crontab-keyword
       - id: etc-cron-path
       - id: var-spool-cron-path
       - id: cron-d-path

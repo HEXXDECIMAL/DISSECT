@@ -40,16 +40,9 @@ traits:
       exact: "vprintf"
 
   # === Raw I/O ===
-  # Removed fwrite duplicate - use micro-behaviors/fs/file/binary::fwrite-func (symbol works across all platforms)
-  # Removed fread duplicate - use micro-behaviors/fs/file/binary::fread-func (symbol works across all platforms)
-
-  - id: fopen
-    desc: Open file for stdio
-    crit: inert
-    conf: 0.90
-    if:
-      type: symbol
-      exact: "fopen"
+  # NOTE: fwrite moved to fs/file/write/unix.yaml
+  # NOTE: fread moved to fs/file/read/unix.yaml
+  # NOTE: fopen moved to fs/file/open/unix.yaml (more canonical location)
 
   - id: fclose
     desc: Close stdio file

@@ -23,8 +23,8 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "Mozilla/5\\.0"
-      count_min: 10
+      regex: "Mozilla/5\\.0\\s*\\(|python-requests/[0-9]|curl/[0-9]|Wget/[0-9]"
+      count_min: 12
   # === DDoS Terminology ===
   - id: attack-metrics-a
     desc: Performance metrics typical of DDoS
@@ -60,7 +60,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "[uU][dD][pP][_-]?flood"
+      regex: "[uU][dD][pP][_-]?[fF]lood"
 
   - id: http-flood
     desc: HTTP flood terminology

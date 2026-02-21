@@ -58,23 +58,8 @@ traits:
       regex: "fcopyfile"
 
   # === Binary file I/O ===
-  - id: fread-func
-    desc: "Reads binary data from file"
-    crit: inert
-    conf: 0.5
-    for: [elf, macho, pe]
-    if:
-      type: symbol
-      regex: "fread"
-
-  - id: fwrite-func
-    desc: "Writes binary data to file"
-    crit: inert
-    conf: 0.5
-    for: [elf, macho, pe]
-    if:
-      type: symbol
-      regex: "fwrite"
+  # NOTE: fread/fwrite symbols are now detected in fs/file/read/unix.yaml and fs/file/write/unix.yaml
+  # These traits focus on binary mode usage patterns in strings
 
   - id: fseek-func
     desc: "Seeks to position in file"
@@ -98,8 +83,8 @@ composite_rules:
       - id: write-read-binary
       - id: read-write-binary
       - id: read-binary
-      - id: fread-func
-      - id: fwrite-func
+      - id: micro-behaviors/fs/file/read/unix::read
+      - id: micro-behaviors/fs/file/write/unix::write
 
 
   # File manipulation with seeking
@@ -111,6 +96,6 @@ composite_rules:
     all:
       - id: fseek-func
     any:
-      - id: fread-func
-      - id: fwrite-func
+      - id: micro-behaviors/fs/file/read/unix::read
+      - id: micro-behaviors/fs/file/write/unix::write
       - id: binary-read-write-ops

@@ -3,18 +3,6 @@
 # ATT&CK: T1027
 
 traits:
-  # fromCharCode obfuscation
-  - id: fromcharcode
-    desc: String obfuscation via fromCharCode
-    crit: notable
-    conf: 0.66
-    mbc: "B0032"
-    attack: "T1027"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "fromCharCode"
-
   # Unicode escape sequences used to hide strings
   - id: js-unicode-escape
     desc: Unicode escape sequences in string
@@ -401,7 +389,7 @@ composite_rules:
       - id: js-dynamic-exec
     any:
       - id: js-string-deobfuscation
-      - id: fromcharcode
+      - id: micro-behaviors/data/source/syntax/keyword::js-keyword-fromcharcode
       - id: js-unicode-escape
       - id: js-hex-escape
       - id: micro-behaviors/data/encode/base64::buffer-from-base64

@@ -15,12 +15,12 @@ traits:
       regex: "/usr/bin/[\\w\\-]+"
 
   - id: binary-usr-sbin
-    desc: Reference to /usr/sbin binaries
+    desc: Reference to key /usr/sbin daemon binaries
     crit: notable
     conf: 0.66
     if:
       type: string
-      regex: "/usr/sbin/[\\w\\-]+"
+      regex: "/usr/sbin/(sshd|httpd|dropbear)\\b"
 
   - id: binary-usr-local
     desc: Reference to /usr/local binaries

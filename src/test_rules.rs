@@ -242,6 +242,8 @@ impl<'a> RuleDebugger<'a> {
             debug_collector,
             section_map: Some(self.section_map.clone()),
             inline_yara_results: None,
+            cached_kv_format: std::sync::OnceLock::new(),
+            cached_kv_parsed: std::sync::OnceLock::new(),
         }
     }
 
@@ -555,6 +557,8 @@ impl<'a> RuleDebugger<'a> {
             debug_collector: None,
             section_map: Some(self.section_map.clone()),
             inline_yara_results: None,
+            cached_kv_format: std::sync::OnceLock::new(),
+            cached_kv_parsed: std::sync::OnceLock::new(),
         };
 
         match condition {
@@ -1399,6 +1403,8 @@ impl<'a> RuleDebugger<'a> {
             debug_collector: None,
             section_map: None,
             inline_yara_results: None,
+            cached_kv_format: std::sync::OnceLock::new(),
+            cached_kv_parsed: std::sync::OnceLock::new(),
         };
 
         // Actually evaluate the inline YARA rule
@@ -1634,7 +1640,6 @@ impl<'a> RuleDebugger<'a> {
         let desc = format!("kv: path=\"{}\" {}", path, pattern_desc);
 
         // Use the actual kv evaluator
-        let file_path = std::path::Path::new(&self.report.target.path);
         let condition = Condition::Kv {
             path: path.to_string(),
             exact: exact.clone(),
@@ -1644,8 +1649,18 @@ impl<'a> RuleDebugger<'a> {
             compiled_regex: regex.as_ref().and_then(|r| regex::Regex::new(r).ok()),
         };
 
+        // Create evaluation context
+        let ctx = EvaluationContext::new(
+            self.report,
+            self.binary_data,
+            self.file_type,
+            self.platforms.clone(),
+            None,
+            None,
+        );
+
         if let Some(evidence) =
-            crate::composite_rules::evaluators::evaluate_kv(&condition, self.binary_data, file_path)
+            crate::composite_rules::evaluators::evaluate_kv(&condition, &ctx)
         {
             let mut result = ConditionDebugResult::new(desc, true);
             result.details.push(format!("Matched: {}", evidence.value));
@@ -1730,6 +1745,8 @@ impl<'a> RuleDebugger<'a> {
             debug_collector: None,
             section_map: None,
             inline_yara_results: None,
+            cached_kv_format: std::sync::OnceLock::new(),
+            cached_kv_parsed: std::sync::OnceLock::new(),
         };
 
         let eval_result = crate::composite_rules::evaluators::eval_ast(
@@ -1800,6 +1817,8 @@ impl<'a> RuleDebugger<'a> {
             debug_collector: None,
             section_map: Some(self.section_map.clone()),
             inline_yara_results: None,
+            cached_kv_format: std::sync::OnceLock::new(),
+            cached_kv_parsed: std::sync::OnceLock::new(),
         };
 
         let eval_result = eval_hex(

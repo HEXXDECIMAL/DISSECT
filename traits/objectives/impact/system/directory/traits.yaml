@@ -70,13 +70,6 @@ traits:
   if:
     type: string
     substr: rmtree
-- id: rm-rf-cmd
-  desc: rm -rf command
-  crit: notable
-  conf: 0.6
-  if:
-    type: raw
-    regex: rm\s+-rf
 - id: rmdir-recursive
   desc: rmdir recursive command
   crit: notable
@@ -152,7 +145,7 @@ composite_rules:
   conf: 0.8
   any:
   - id: rmtree-call
-  - id: rm-rf-cmd
+  - id: micro-behaviors/fs/directory/traverse::rm-rf-cmd
   - id: rmdir-recursive
 - id: system-dir-reference
   desc: Reference to critical system directories

@@ -56,23 +56,7 @@ traits:
   if:
     type: string
     substr: LISA-PC
-- id: sleep-accel
-  desc: Sleep acceleration detection (sandbox evasion)
-  crit: notable
-  mbc: B0007
-  attack: T1497.003
-  conf: 0.5
-  for:
-  - elf
-  - macho
-  - so
-  - dylib
-  - pe
-  - dll
-  - c
-  if:
-    type: symbol
-    regex: ^_?(sleep|Sleep|usleep|nanosleep)$
+# sleep-accel removed - use composite of micro-behaviors/os/time/query and micro-behaviors/time/timing/delay instead
 - id: path-c-analysis
   desc: C:\analysis sandbox path
   crit: suspicious

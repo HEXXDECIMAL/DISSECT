@@ -25,7 +25,7 @@ traits:
     mbc: "C0027"
     if:
       type: symbol
-      regex: "(?:rc4_ksa|key_schedule|[a-z]+_key)"
+      regex: "(?:rc4_ksa|key_schedule|expand_key)"
 
   # NOTE: "arc4" matches arc4random which is a legitimate OS function
   # Removed arc4 from pattern to avoid false positives

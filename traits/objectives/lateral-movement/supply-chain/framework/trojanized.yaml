@@ -281,7 +281,7 @@ composite_rules:
     for: [macho, dylib, elf, so]
     all:
       - id: trojanized-framework-networked
-      - id: objectives/command-and-control/infrastructure/domain::hardcoded-domain-com
+      - id: objectives/command-and-control/infrastructure/domain::http-url-binary
 
   # nanopb in wallet app with iOS code injection framework
   - id: nanopb-with-ios-injection

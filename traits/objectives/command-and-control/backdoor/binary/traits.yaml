@@ -20,14 +20,6 @@ traits:
       min: 20
 
   # === Symbol interposition patterns ===
-  - id: rtld-next-ref
-    desc: RTLD_NEXT macro reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "RTLD_NEXT"
-
   # === Massive Code Injection Indicators ===
   - id: massive-code-blob
     desc: Extremely large average function size
@@ -157,7 +149,7 @@ composite_rules:
     all:
       - id: micro-behaviors/dylib/lookup::dlsym-symbol
     any:
-      - id: rtld-next-ref
+      - id: objectives/anti-analysis/kernel-hide/userspace::rtld-next-ref
       - id: metadata/format/elf::rtld-default-ref
 
   # === XZ CRC patterns ===
@@ -402,8 +394,8 @@ composite_rules:
       - id: metadata/library/compression::compression-lib
       - id: micro-behaviors/data/embedded/payload::multiple-compressed-payloads
     any:
-      - id: objectives/anti-forensics/geofencing/location::russian-system-check
-      - id: objectives/anti-forensics/geofencing/location::cis-timezone-checks
+      - id: objectives/anti-analysis/geofencing/location::russian-system-check
+      - id: objectives/anti-analysis/geofencing/location::cis-timezone-checks
 
   # === Compression library with embedded executable ===
   # A compression library embedding ELF/PE binaries is highly suspicious
@@ -428,7 +420,7 @@ composite_rules:
     for: [elf]
     all:
       - id: micro-behaviors/data/embedded/payload::multiple-compressed-payloads
-      - id: objectives/anti-forensics/geofencing/location::cis-country-codes
+      - id: objectives/anti-analysis/geofencing/location::cis-country-codes
 
   # === Compression library with suspicious CPUID feature selection ===
   # A compression library with:

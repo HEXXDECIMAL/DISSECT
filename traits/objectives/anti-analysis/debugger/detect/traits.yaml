@@ -47,50 +47,6 @@ traits:
   # combinations in composite rules elevate to suspicious
   # Removed win-isdebuggerpresent duplicate - use objectives/execution/native/runtime::debugger-detect-api
 
-  - id: win-checkremotedebugger
-    desc: Windows CheckRemoteDebuggerPresent API
-    crit: suspicious
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.9
-    if:
-      type: string
-      substr: "CheckRemoteDebuggerPresent"
-    platforms: [windows]
-
-  - id: win-ntqueryinfo
-    desc: NtQueryInformationProcess for debugger detection
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.85
-    if:
-      type: string
-      substr: "NtQueryInformationProcess"
-    platforms: [windows]
-
-  - id: win-unhandledexception
-    desc: UnhandledExceptionFilter for anti-debugging
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.7
-    if:
-      type: string
-      substr: "UnhandledExceptionFilter"
-    platforms: [windows]
-
-  - id: win-queryperformance
-    desc: QueryPerformanceCounter timing check
-    crit: notable
-    mbc: "B0001"
-    attack: "T1622"
-    conf: 0.6
-    if:
-      type: string
-      substr: "QueryPerformanceCounter"
-    platforms: [windows]
-
   # Removed: duplicate of micro-behaviors/os/sysinfo/sysctl::sysctlbyname
   # Just checking for sysctlbyname symbol doesn't prove debugger detection
   # Real debugger detection would need P_TRACED string or kern.proc checks
@@ -133,8 +89,8 @@ composite_rules:
     platforms: [windows]
     any:
       - id: objectives/execution/native/runtime::debugger-detect-api
-      - id: win-checkremotedebugger
-      - id: win-ntqueryinfo
+      - id: objectives/anti-analysis/debugger/detect::check-remote-debugger
+      - id: objectives/anti-analysis/debugger/detect::nt-query-information-process
     downgrade:
       any:
         - id: metadata/quality/versioned

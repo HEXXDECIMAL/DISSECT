@@ -9,4 +9,4 @@ composite_rules:
     any:
       - id: objectives/anti-static/obfuscation/source/syntax::nemucod-wsh-fragments
         count_min: 3
-      - id: objectives/anti-static/obfuscation/source/syntax::js-many-tiny-strings
+      - id: objectives/anti-static/obfuscation/source/syntax::js-fragmented-property-access

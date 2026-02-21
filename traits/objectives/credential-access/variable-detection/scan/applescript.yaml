@@ -47,25 +47,16 @@ traits:
       regex: "(?i)^credentials?$"
 
   - id: var-auth
-    desc: "Variable contains 'auth'"
+    desc: "Authentication-related variable name"
     crit: notable
     conf: 0.7
     if:
       type: symbol
-      regex: "(?i)auth"
+      regex: "(?i)^(auth|auth_token|authkey|authorization)$"
 
   # ============================================
   # Token/Key Variables
   # ============================================
-  - id: var-token
-    desc: "Variable named 'token'"
-    crit: suspicious
-    conf: 0.8
-    attack: "T1528"
-    if:
-      type: symbol
-      regex: "(?i)^token$"
-
   - id: var-apikey
     desc: "Variable named 'apikey'"
     crit: suspicious
@@ -220,7 +211,6 @@ composite_rules:
     conf: 0.85
     for: [applescript]
     any:
-      - { id: var-token }
       - { id: var-apikey }
       - { id: var-secret }
       - { id: var-private-key }

@@ -126,20 +126,7 @@ traits:
     if:
       type: string
       substr: api.telegram.org
-  - id: brave-browser
-    desc: Brave browser profile path
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: (?i)Brave[/\\](?:Software|User Data|Profile)|BraveSoftware[/\\]
-  - id: edge-browser
-    desc: Edge browser profile path
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: (?i)Microsoft[/\\]Edge[/\\]User Data|Edge[/\\](?:Default|Profile)[/\\]
+  # Removed: brave-browser, edge-browser (dead code, use discovery/host/browser/ instead)
   - id: ldb-extension
     desc: LevelDB file extension
     crit: notable
@@ -153,7 +140,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      substr: AppData
+      regex: '(?i)AppData[/\\](?:Roaming|Local)[/\\](?:Discord|discordcanary|discordptb)'
   - id: extract-tokens-fn
     desc: Token extraction function
     crit: suspicious
@@ -203,20 +190,7 @@ traits:
     if:
       type: string
       substr: ls/data.sqlite
-  - id: chrome-browser
-    desc: Chrome browser profile path
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: (?i)(?:Chrome[/\\](?:Default|Profile|User Data)|/\.config/google-chrome/)
-  - id: opera-browser
-    desc: Opera browser profile path
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: (?i)Opera[/\\](?:Stable|Profile|Software|GX Stable)
+  # Removed: chrome-browser, opera-browser (dead code, use discovery/host/browser/ instead)
 composite_rules:
   - id: stealer-detected
     desc: Discord token stealer detected

@@ -94,15 +94,6 @@ traits:
       - id: metadata/dev/testing/benchmark::benchmark
 
   # Function constructor patterns
-  - id: new-function-call
-    desc: new Function constructor call
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "new Function("
-
   - id: function-constructor-access
     desc: Function.constructor access
     crit: notable
@@ -149,36 +140,6 @@ traits:
     if:
       type: string
       substr: "Buffer.from"
-
-  # Long base64-like string (32+ chars)
-  - id: base64-long-string
-    desc: Long base64-like string pattern
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: '[a-zA-Z0-9+/=]{32,}'
-
-  # HTTP/HTTPS protocol patterns
-  - id: http-protocol-string
-    desc: HTTP or HTTPS protocol string
-    crit: notable
-    conf: 0.3
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'https?://'
-
-  # Environment key patterns
-  - id: env-key-pattern
-    desc: Environment key name pattern
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'DEV_.{0,50}_KEY|API_.{0,50}KEY|SECRET'
 
   # Base64-encoded URL detector using decoded strings
   - id: base64-url
@@ -233,7 +194,7 @@ composite_rules:
     conf: 0.6
     for: [javascript, typescript]
     any:
-      - id: new-function-call
+      - id: objectives/anti-static/obfuscation/require::function-constructor
       - id: function-constructor-access
       - id: function-direct-call
       - id: objectives/execution/interpreter/eval/dynamic::function-constructor-from-typeof

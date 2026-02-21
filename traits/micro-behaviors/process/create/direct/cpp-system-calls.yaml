@@ -54,7 +54,7 @@ composite_rules:
     all:
       - id: cpp-stdlib
     any:
-      - id: micro-behaviors/process/create/shell::c-system
+      - id: micro-behaviors/process/create/shell::system-fn
       - id: micro-behaviors/process/create/shell::c-popen
 
   # C++ with shell commands in compact binary (more suspicious)
@@ -67,7 +67,7 @@ composite_rules:
     all:
       - id: cpp-stdlib
     any:
-      - id: micro-behaviors/process/create/shell::c-system
+      - id: micro-behaviors/process/create/shell::system-fn
       - id: micro-behaviors/process/create/shell::c-popen
 
   # C++ with popen (command output capture)

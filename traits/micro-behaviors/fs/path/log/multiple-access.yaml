@@ -11,8 +11,8 @@ traits:
     desc: Accesses multiple log files
     if:
       type: string
-      # Match /var/log/* paths or .log files
-      regex: '(/var/log/|\.log$)'
+      # Match sensitive auth/system logs; require multiple hits for signal
+      regex: '/var/log/(wtmp|btmp)'
       count_min: 2
     # Many legitimate tools access log files:
     # - sessreg, logrotate, logging daemons

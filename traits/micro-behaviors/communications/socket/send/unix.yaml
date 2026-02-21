@@ -56,6 +56,16 @@ traits:
       type: symbol
       exact: _send
 
+  - id: sendfile-symbol
+    desc: Uses sendfile socket call
+    crit: inert
+    conf: 0.66
+    mbc: "C0001"
+    attack: "T1071"
+    if:
+      type: symbol
+      exact: sendfile
+
 composite_rules:
   - id: send
     desc: Send a message to a socket
@@ -69,3 +79,4 @@ composite_rules:
       - id: sendto-symbol
       - id: sendmmsg-symbol
       - id: _send-symbol
+      - id: sendfile-symbol

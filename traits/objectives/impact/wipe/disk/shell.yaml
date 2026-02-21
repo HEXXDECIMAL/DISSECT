@@ -51,15 +51,6 @@ traits:
 
   # Removed proc-mounts-content duplicate - use micro-behaviors/fs/proc/mounts/linux::mounts (string type works for file paths)
 
-  - id: dd-devzero-content
-    desc: dd with /dev/zero
-    crit: suspicious
-    conf: 0.85
-    for: [shell]
-    if:
-      type: raw
-      regex: 'dd\s+if=/dev/zero.{0,50}of=/dev/'
-
   # YARA-based patterns for content that isn't extracted by AST
   - id: dd-dev-zero
     desc: dd with /dev/zero source

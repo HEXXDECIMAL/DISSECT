@@ -8,7 +8,7 @@ composite_rules:
     attack: "T1059"
     conf: 0.9
     any:
-      - id: c-system
+      - id: system-fn
       - id: c-popen
       - id: python-os-system
       - id: go-os-exec

@@ -105,13 +105,7 @@ traits:
       type: string
       substr: ".clipboard_get()"
 
-  - id: clipboard-clear-method
-    desc: .clipboard_clear() method
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: ".clipboard_clear()"
+  # clipboard-clear-method removed - use micro-behaviors/hardware/clipboard/access::tkinter-clipboard-clear-method instead
 
   # === Windows clipboard chain atomic ===
   - id: set-clipboard-viewer
@@ -286,7 +280,7 @@ composite_rules:
     crit: notable
     any:
       - id: clipboard-get-method
-      - id: clipboard-clear-method
+      - id: micro-behaviors/hardware/clipboard/access::tkinter-clipboard-clear-method
 
 
   # Clipboard change notification composite

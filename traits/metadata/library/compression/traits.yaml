@@ -19,28 +19,22 @@ traits:
     desc: XZ Utils marker
     if:
       type: string
-      regex: "\\bxz_(crc32|crc64)\\b|liblzma"
+      regex: "\\bxz_(crc32|crc64)\\b"
 
   # === zlib markers ===
-  - id: zlib-marker
-    desc: zlib library marker
-    if:
-      type: string
-      regex: "\\b(inflate|deflate)(Init|End)?\\b|\\bzlib\\b"
+  # NOTE: Removed - compression function usage is a capability (micro-behavior), not metadata
+  # See: micro-behaviors/data/compression/library/traits.yaml
 
   # === bzip2 markers ===
   - id: bzip2-marker
     desc: bzip2 library marker
     if:
       type: string
-      regex: "\\bBZ2_(bz|compress|decompress)\\b|libbz2"
+      regex: "\\bBZ2_(bz|compress|decompress)\\b"
 
   # === zstd markers ===
-  - id: zstd-marker
-    desc: Zstandard library marker
-    if:
-      type: string
-      regex: "\\bZSTD_(compress|decompress|createCCtx)\\b|libzstd"
+  # NOTE: Removed - compression function usage is a capability (micro-behavior), not metadata
+  # See: micro-behaviors/data/compression/library/traits.yaml
 
 composite_rules:
   - id: compression-lib
@@ -50,6 +44,5 @@ composite_rules:
     any:
       - id: lzma-marker
       - id: xz-marker
-      - id: zlib-marker
       - id: bzip2-marker
-      - id: zstd-marker
+      # Note: zlib and zstd removed - use micro-behaviors/data/compression/library instead

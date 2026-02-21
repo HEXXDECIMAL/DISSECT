@@ -49,7 +49,9 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b(?:lscpu|lsmem|lsblk)\b
+    regex: \b(?:lsmem)\b
+  # NOTE: lscpu moved to os/sysinfo/hardware/linux.yaml
+  # NOTE: lsblk moved to fs/disk/paths/linux.yaml
 - id: logs-command
   desc: Log analysis utilities
   crit: inert
@@ -63,7 +65,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: /var/log/(?:syslog|messages|auth\.log)
+    regex: /var/log/(?:syslog|auth\.log)
 composite_rules:
 - id: monitoring
   desc: System monitoring utilities

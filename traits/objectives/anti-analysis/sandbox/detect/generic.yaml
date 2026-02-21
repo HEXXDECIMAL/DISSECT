@@ -58,16 +58,6 @@ traits:
       case_insensitive: true
 
   # === Analysis tools ===
-  - id: wireshark
-    desc: Wireshark network analyzer
-    crit: notable
-    conf: 0.5
-    for: [elf, macho, pe, shell, python]
-    if:
-      type: string
-      word: "wireshark"
-      case_insensitive: true
-
   - id: fiddler
     desc: Fiddler proxy tool
     crit: notable
@@ -298,7 +288,7 @@ composite_rules:
       - id: any-run
       - id: hybrid-analysis
       - id: virustotal
-      - id: wireshark
+      - id: micro-behaviors/communications/capture/wireshark::wireshark
       - id: fiddler
       - id: procmon
       - id: process-hacker

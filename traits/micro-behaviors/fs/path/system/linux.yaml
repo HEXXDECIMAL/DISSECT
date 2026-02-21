@@ -14,14 +14,6 @@ traits:
       type: string
       regex: "/boot/[\\%\\w\\.\\-/]{4,32}"
 
-  - id: system-var
-    desc: Reference to /var
-    crit: inert
-    conf: 0.66
-    if:
-      type: string
-      regex: "/var/[\\w\\.\\-/]+"
-
   - id: system-lib64
     desc: Reference to /lib64
     crit: inert
@@ -70,28 +62,3 @@ traits:
     if:
       type: string
       exact: /usr
-
-  - id: unix-system-paths-a
-    desc: Common system path reference (usr/proc)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '/usr/lib(32|64|exec)?|/usr/s?bin'
-
-  - id: unix-system-paths-b
-    desc: Common system path reference (proc/dev/sys)
-    crit: inert
-    conf: 0.5
-    if:
-      type: string
-      regex: '/proc|/dev|/sys'
-
-composite_rules:
-  - id: unix-system-paths
-    desc: Common system path reference
-    crit: inert
-    conf: 0.5
-    any:
-      - id: unix-system-paths-a
-      - id: unix-system-paths-b

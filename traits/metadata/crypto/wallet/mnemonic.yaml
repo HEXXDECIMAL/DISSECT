@@ -1,29 +1,22 @@
 # Cryptocurrency Wallet Mnemonic Metadata
-# Detects numeric values associated with BIP-39 mnemonic phrase word counts
+# NOTE: This file is disabled - the original patterns were too broad
+# Pattern '\b(?:12|15|18)\b' matches ANY occurrence of these numbers (MAC addresses, versions, etc.)
+#
+# Proper mnemonic detection requires:
+# 1. Context analysis (word list validation, entropy checks)
+# 2. Phrase structure (12-24 space-separated words from BIP-39 wordlist)
+# 3. Should be in objectives/credential-access/wallet/seed-phrase/ (behavioral intent)
+#
+# DO NOT re-enable these traits without complete rewrite
 
 defaults:
   for: [all]
   crit: inert
   conf: 0.5
 
-traits:
-  - id: word-count-12-15-18
-    desc: Mnemonic word count values (12/15/18)
-    if:
-      type: string
-      regex: \b(?:12|15|18)\b
+traits: []
+  # Removed: word-count-12-15-18 (catastrophically broad - matches version numbers, MAC addresses)
+  # Removed: word-count-21-24 (equally broken)
 
-  - id: word-count-21-24
-    desc: Mnemonic word count values (21/24)
-    if:
-      type: string
-      regex: \b(?:21|24)\b
-
-composite_rules:
-  - id: bip39-word-counts
-    desc: Standard BIP-39 mnemonic word counts
-    crit: notable
-    conf: 0.7
-    any:
-      - id: word-count-12-15-18
-      - id: word-count-21-24
+composite_rules: []
+  # Removed: bip39-word-counts (components deleted)

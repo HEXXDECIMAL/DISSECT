@@ -34,7 +34,7 @@ composite_rules:
     all:
       - id: objectives/anti-analysis/security-bypass/platform::defender-exclusion
       - id: objectives/execution/dropper/script::download-file-ps
-      - id: objectives/execution/dropper/script::start-cmd
+      - id: objectives/execution/dropper/script::exec-cmd
 
   # PowerShell download cradle in batch with security bypass
   # Complexity: all(3) + file_types(1) = 4 -> hostile

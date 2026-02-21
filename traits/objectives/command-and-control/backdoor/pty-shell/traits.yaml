@@ -82,14 +82,6 @@ traits:
       type: string
       regex: "^vt10[02]$"
 
-  - id: terminal-type-xterm
-    desc: Terminal type xterm identifier
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      exact: "xterm"
-
   - id: terminal-type-ansi
     desc: Terminal type ansi identifier
     crit: notable
@@ -148,7 +140,7 @@ composite_rules:
     conf: 0.8
     any:
       - id: terminal-type-vt102
-      - id: terminal-type-xterm
+      - id: micro-behaviors/process/terminal/tty::xterm-ref
       - id: terminal-type-ansi
       - id: terminal-type-linux
       - id: terminal-type-dumb

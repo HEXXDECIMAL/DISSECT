@@ -57,13 +57,13 @@ traits:
       regex: "(const|let|var)\\s*\\{[^}]{1,120}\\}\\s*="
 
   - id: spread-operator
-    desc: ES6 spread operator
+    desc: ES6 spread operator (in array/object context)
     crit: inert
     conf: 0.9
     for: [javascript, typescript]
     if:
       type: string
-      regex: "\\.\\.\\.\\w+"
+      regex: "[\\[{,]\\s*\\.\\.\\.\\w+|function\\s*\\([^)]*\\.\\.\\.\\w+"
 
 composite_rules:
   # Detect if code uses modern JavaScript

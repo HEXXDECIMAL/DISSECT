@@ -27,6 +27,7 @@
 //! ```
 
 use crate::composite_rules::condition::Condition;
+use crate::composite_rules::context::EvaluationContext;
 use crate::types::Evidence;
 use regex::Regex;
 use serde_json::Value;
@@ -195,29 +196,34 @@ pub(crate) fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
     }
 
     // Limited content sniffing for special cases only
-    // We don't detect random JSON/YAML/TOML files - only process known filenames
-    let content_str = String::from_utf8_lossy(content);
-    let trimmed = content_str.trim_start();
+    // Check binary magic bytes BEFORE UTF-8 conversion for performance
 
-    // Check for PKG-INFO/METADATA format (RFC 822 headers)
-    // These files start with "Metadata-Version:" header
-    if trimmed.starts_with("Metadata-Version:") {
-        return StructuredFormat::PkgInfo;
-    }
-
-    // Check for Binary Plist
+    // Check for Binary Plist (binary format)
     if content.starts_with(b"bplist") {
         return StructuredFormat::Plist;
     }
 
-    // Check for XML Plist
-    if trimmed.starts_with("<?xml")
-        && (trimmed.contains("<plist") || trimmed.contains("<!DOCTYPE plist"))
-    {
+    // Check for XML Plist (text format)
+    if content.starts_with(b"<?xml") {
+        // Only convert minimal bytes needed to check for plist
+        let preview = &content[..content.len().min(200)];
+        let preview_str = String::from_utf8_lossy(preview);
+        if preview_str.contains("<plist") || preview_str.contains("<!DOCTYPE plist") {
+            return StructuredFormat::Plist;
+        }
+    }
+    if content.starts_with(b"<plist") {
         return StructuredFormat::Plist;
     }
-    if trimmed.starts_with("<plist") {
-        return StructuredFormat::Plist;
+
+    // Check for PKG-INFO/METADATA format (RFC 822 headers)
+    // Only convert first 200 bytes for header check
+    let preview = &content[..content.len().min(200)];
+    let preview_str = String::from_utf8_lossy(preview);
+    let trimmed = preview_str.trim_start();
+
+    if trimmed.starts_with("Metadata-Version:") {
+        return StructuredFormat::PkgInfo;
     }
 
     // No other content sniffing - only process known filenames
@@ -402,11 +408,11 @@ fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: &str, val
     }
 }
 
-/// Evaluate a kv condition against file content.
+/// Evaluate a kv condition against file content using cached format detection and parsing.
 ///
 /// Returns Some(Evidence) if the condition matches, None otherwise.
-#[must_use] 
-pub(crate) fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Path) -> Option<Evidence> {
+#[must_use]
+pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) -> Option<Evidence> {
     let Condition::Kv {
         path,
         exact,
@@ -419,23 +425,46 @@ pub(crate) fn evaluate_kv(condition: &Condition, content: &[u8], file_path: &Pat
         return None;
     };
 
-    // Detect format and parse
-    let format = detect_format(file_path, content);
-    let parsed: Value = match format {
-        StructuredFormat::Json => serde_json::from_slice(content).ok()?,
-        StructuredFormat::Yaml => serde_yaml::from_slice(content).ok()?,
-        StructuredFormat::Toml => {
-            let s = std::str::from_utf8(content).ok()?;
-            toml::from_str(s).ok()?
-        },
-        StructuredFormat::Plist => plist::from_bytes(content).ok()?,
-        StructuredFormat::PkgInfo => parse_pkginfo(content)?,
-        StructuredFormat::Unknown => return None, // Don't parse unknown formats
-    };
+    let file_path = std::path::Path::new(&ctx.report.target.path);
+    let content = ctx.binary_data;
+
+    // Check cached format, detect if not cached
+    let format = ctx.cached_kv_format.get_or_init(|| {
+        detect_format(file_path, content)
+    });
+
+    // If format is unknown, no need to parse
+    if *format == StructuredFormat::Unknown {
+        return None;
+    }
+
+    // Check cached parsed data, parse if not cached
+    let parsed = ctx.cached_kv_parsed.get_or_init(|| {
+        let parsed_value: Option<Value> = match format {
+            StructuredFormat::Json => serde_json::from_slice(content).ok(),
+            StructuredFormat::Yaml => serde_yaml::from_slice(content).ok(),
+            StructuredFormat::Toml => {
+                std::str::from_utf8(content)
+                    .ok()
+                    .and_then(|s| toml::from_str(s).ok())
+            },
+            StructuredFormat::Plist => plist::from_bytes(content).ok(),
+            StructuredFormat::PkgInfo => parse_pkginfo(content),
+            StructuredFormat::Unknown => None,
+        };
+
+        // Box the value for caching (or use a sentinel null value if parsing failed)
+        Box::new(parsed_value.unwrap_or(Value::Null))
+    });
+
+    // If parsing failed (stored as Null sentinel), return None
+    if parsed.is_null() {
+        return None;
+    }
 
     // Navigate path
     let segments = parse_path(path).ok()?;
-    let values = navigate(&parsed, &segments);
+    let values = navigate(parsed, &segments);
 
     if values.is_empty() {
         return None; // Path not found

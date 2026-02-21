@@ -178,7 +178,7 @@ composite_rules:
     needs: 4
     any:
       # Credential access
-      - id: objectives/credential-access/extract/keylogger::keylogger-string
+      - id: micro-behaviors/hardware/input/keyboard::keylogger-string
       # C2 commands
       - id: remote-cmd-string
       - id: power-shell-string
@@ -197,7 +197,7 @@ composite_rules:
     attack: "T1056.001"
     conf: 0.95
     any:
-      - id: objectives/credential-access/extract/keylogger::keylogger-string
+      - id: micro-behaviors/hardware/input/keyboard::keylogger-string
       - id: objectives/credential-access/extract/keylogger::o-keylogger-string
 
   # Java remote access

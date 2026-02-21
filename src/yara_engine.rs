@@ -302,21 +302,21 @@ impl YaraEngine {
 
         drop(scan_results);
 
-        // Warn on slow rules
-        const SLOW_RULE_THRESHOLD: Duration = Duration::from_millis(500);
-        for profiling_data in scanner.slowest_rules(20) {
-            let total = profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
-            if total >= SLOW_RULE_THRESHOLD {
-                tracing::warn!(
-                    namespace = %profiling_data.namespace,
-                    rule = %profiling_data.rule,
-                    total_ms = total.as_millis(),
-                    "Slow YARA rule ({}ms): {}::{} — consider disabling",
+        // Report top 20 slowest rules
+        let slowest = scanner.slowest_rules(20);
+        if !slowest.is_empty() {
+            eprintln!("\n⏱️  Top 20 slowest YARA rules:");
+            for (i, profiling_data) in slowest.iter().enumerate() {
+                let total = profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
+                eprintln!(
+                    "  {}. {:>6}ms  {}::{}",
+                    i + 1,
                     total.as_millis(),
                     profiling_data.namespace,
-                    profiling_data.rule,
+                    profiling_data.rule
                 );
             }
+            eprintln!();
         }
 
         let mut yara_matches = Vec::new();

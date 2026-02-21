@@ -13,20 +13,3 @@ traits:
     if:
       type: symbol
       exact: "rmdir"
-
-  - id: unlinkat-dir
-    desc: Remove directories
-    crit: inert
-    conf: 0.66
-    if:
-      type: symbol
-      exact: "unlinkat"
-
-composite_rules:
-  - id: rmdir
-    desc: Remove directories
-    crit: inert
-    conf: 0.66
-    any:
-      - id: rmdir-base
-      - id: unlinkat-dir

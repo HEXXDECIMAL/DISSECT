@@ -5,4 +5,4 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: 'module\.exports|exports\.'
+      regex: 'module\.exports\s*='

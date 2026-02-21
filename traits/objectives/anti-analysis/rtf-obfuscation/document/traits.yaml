@@ -49,12 +49,6 @@ traits:
     regex: \\objdata\s+[0-9A-Fa-f]{1000,}
   conf: 0.8
   crit: suspicious
-- id: rtf-control-replacement
-  desc: RTF with replacement control codes
-  if:
-    type: string
-    regex: \\?\(|\\?\)|\\?\{|\\?\}
-  conf: 0.65
 - id: rtf-malformed-nesting
   desc: Malformed brace nesting pattern
   if:
@@ -163,7 +157,7 @@ traits:
   conf: 0.92
   if:
     type: string
-    regex: D(?:\s*[0-9A-F]){15}
+    regex: D\s*0\s*C\s*F\s*1\s*1\s*E\s*0\s*A\s*1\s*B\s*1\s*1\s*A\s*E\s*1
 composite_rules:
 - id: rtf-font-embedding-reference
   desc: Font embedding references

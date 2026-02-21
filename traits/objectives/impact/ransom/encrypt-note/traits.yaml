@@ -14,22 +14,6 @@ traits:
       type: string
       substr: "Encryption complete. Your files have been encrypted."
 
-  - id: files-encrypted
-    desc: "Your files have been encrypted"
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "Your files have been encrypted"
-
-  - id: restore-files
-    desc: "restore your files"
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "restore your files"
-
   - id: contact-us
     desc: "contact us"
     crit: notable
@@ -52,7 +36,7 @@ composite_rules:
     crit: notable
     conf: 0.6
     any:
-      - id: files-encrypted
-      - id: restore-files
+      - id: objectives/impact/ransomware/behavior::files-encrypted-msg
+      - id: objectives/impact/ransomware/behavior::restore-files-msg
       - id: contact-us
       - id: pay-ransom

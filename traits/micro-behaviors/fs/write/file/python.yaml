@@ -85,37 +85,9 @@ traits:
       substr: "tempfile.mkdtemp"
 
   # === HTTP request atomic indicators ===
-  - id: python-requests-get
-    desc: "requests.get call"
-    conf: 0.7
-    crit: inert
-    if:
-      type: string
-      regex: "requests\\.get\\("
-
-  - id: python-requests-post
-    desc: "requests.post call"
-    conf: 0.7
-    crit: inert
-    if:
-      type: string
-      regex: "requests\\.post\\("
-
-  - id: python-urllib-urlopen
-    desc: "urllib.request.urlopen call"
-    conf: 0.7
-    crit: inert
-    if:
-      type: string
-      regex: "urllib\\.request\\.urlopen"
-
-  - id: python-urllib-urlretrieve
-    desc: "urllib.request.urlretrieve call"
-    conf: 0.7
-    crit: inert
-    if:
-      type: string
-      regex: "urllib\\.request\\.urlretrieve"
+  # NOTE: requests.get/post moved to communications/http/lib/requests/python.yaml
+  # NOTE: urllib.request.urlopen moved to communications/http/lib/urllib/python.yaml
+  # NOTE: urllib.request.urlretrieve is download-specific, keeping here
 
 composite_rules:
   - id: python-tempfile
@@ -131,10 +103,9 @@ composite_rules:
     desc: "HTTP request via requests or"
     conf: 0.8
     any:
-      - id: python-requests-get
-      - id: python-requests-post
-      - id: python-urllib-urlopen
-      - id: python-urllib-urlretrieve
+      - id: micro-behaviors/communications/http/lib/requests/python::requests-get
+      - id: micro-behaviors/communications/http/lib/requests/python::requests-post
+      - id: micro-behaviors/communications/http/lib/urllib/python::urllib-urlopen
 
   - id: python-binary-write-pattern
     desc: "Binary file write pattern"

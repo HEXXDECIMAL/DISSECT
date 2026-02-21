@@ -2,21 +2,10 @@ defaults:
   for: [all]
 
 traits:
-  - id: binary-file-ops-open
-    desc: Binary file open operations
-    crit: inert
-    conf: 0.8
-    if:
-      type: symbol
-      regex: "^(fopen|open|read|write)$"
-
-  - id: binary-file-ops-io
-    desc: Binary file read/write operations
-    crit: inert
-    conf: 0.8
-    if:
-      type: symbol
-      regex: "^(fread|fwrite)$"
+  # NOTE: fread/fwrite moved to fs/file/read/unix.yaml and fs/file/write/unix.yaml
+  # NOTE: read/write moved to fs/file/read/unix.yaml and fs/file/write/unix.yaml
+  # NOTE: open/fopen moved to fs/file/open/unix.yaml
+  # This file now focuses on composite operations
 
   - id: file-create-win
     desc: Windows file creation API
@@ -26,19 +15,13 @@ traits:
       type: symbol
       exact: "CreateFileW"
 
-  - id: dir-create-win
-    desc: Windows directory creation API
-    crit: inert
-    conf: 0.9
-    if:
-      type: symbol
-      exact: "CreateDirectoryW"
-
 composite_rules:
   - id: binary-file-ops
     desc: Binary file operations
     crit: inert
     conf: 0.8
     any:
-      - id: binary-file-ops-open
-      - id: binary-file-ops-io
+      - id: micro-behaviors/fs/file/open::fopen
+      - id: micro-behaviors/fs/file/open::open-base
+      - id: micro-behaviors/fs/file/read::read
+      - id: micro-behaviors/fs/file/write::write

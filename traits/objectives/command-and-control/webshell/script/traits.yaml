@@ -19,14 +19,7 @@ traits:
       substr: "<?php"
       case_insensitive: true
 
-  - id: php-system
-    desc: PHP system() function call
-    crit: notable
-    conf: 0.7
-    for: [php]
-    if:
-      type: string
-      substr: "system("
+  # php-system removed - use micro-behaviors/process/create/shell::system-call-word instead
 
   - id: php-exec
     desc: PHP exec() function call
@@ -216,7 +209,7 @@ composite_rules:
     all:
       - id: php-tag
     any:
-      - id: php-system
+      - id: micro-behaviors/process/create/shell::system-call-word
       - id: php-exec
       - id: php-shell-exec
       - id: php-get

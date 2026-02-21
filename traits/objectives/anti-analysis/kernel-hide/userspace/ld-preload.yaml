@@ -32,15 +32,6 @@ traits:
     if:
       type: string
       substr: skullseclabs
-  - id: dnscat-string
-    desc: DNSCAT C2 string
-    crit: suspicious
-    conf: 0.95
-    for:
-      - elf
-    if:
-      type: string
-      substr: DNSCAT
   - id: hooked-string
     desc: Hooked function indicator
     crit: notable
@@ -159,17 +150,7 @@ traits:
     if:
       type: string
       regex: chattr\s+[-][ia]+\s+/etc/ld\.so\.preload
-  - id: libc-dlopen-mode
-    desc: Uses __libc_dlopen_mode (internal glibc loader)
-    crit: suspicious
-    conf: 0.8
-    mbc: F0015
-    attack: T1574.006
-    for:
-      - elf
-    if:
-      type: string
-      substr: __libc_dlopen_mode
+  # libc-dlopen-mode removed - use micro-behaviors/dylib/library::libc-internal-functions-a instead
   - id: original-prefix-a
     desc: original_ prefix core hook set
     crit: notable
@@ -314,7 +295,7 @@ composite_rules:
       - elf
     any:
       - id: skullseclabs-string
-      - id: dnscat-string
+      - id: objectives/command-and-control/dns-tunnel/exfil::dnscat-name
       - id: hook-prefixes
     all:
       - id: hooked-string
@@ -386,5 +367,5 @@ composite_rules:
       - id: ld-so-preload-file
     any:
       - id: ld-backup-pattern
-      - id: libc-dlopen-mode
+      - id: micro-behaviors/dylib/library::libc-internal-functions-a
       - id: dlsym-rtld-next

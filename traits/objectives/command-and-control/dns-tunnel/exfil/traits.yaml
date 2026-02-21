@@ -95,13 +95,7 @@ traits:
       type: string
       regex: '[a-z0-9]{30,}\.[a-z]+\.(com|net|org|io)'
 
-  - id: txt-record
-    desc: TXT record reference (DNS exfil)
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "TXT record"
+  # txt-record removed - use micro-behaviors/communications/dns/lookup/txt::txt-record-string instead
 
   - id: dns-beacon
     desc: DNS beacon terminology
@@ -194,7 +188,7 @@ composite_rules:
       - id: dns-exfil
       - id: dns-c2
       - id: subdomain-encode
-      - id: txt-record
+      - id: micro-behaviors/communications/dns/lookup/txt::txt-record-string
       - id: dns-beacon
 
   # DNS over HTTPS for C2

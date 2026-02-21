@@ -170,7 +170,7 @@ composite_rules:
     for: [javascript, typescript]
     any:
       - id: micro-behaviors/persist/locations/keywords::startup-keyword
-      - id: micro-behaviors/persist/locations/keywords::crontab-keyword
+      - id: micro-behaviors/persist/cron/keywords::crontab-keyword
       - id: micro-behaviors/persist/locations/keywords::launchd-keyword
       - id: objectives/persist/systemd/service::systemd-keyword
 

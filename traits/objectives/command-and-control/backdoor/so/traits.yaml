@@ -25,7 +25,7 @@ composite_rules:
       - id: micro-behaviors/communications/socket/bind::bind
       - id: micro-behaviors/communications/socket/listen::accept-sym
       - id: micro-behaviors/process/create/shell::c-popen
-      - id: micro-behaviors/process/create/shell::c-system
+      - id: micro-behaviors/process/create/shell::system-fn
     # Exclude system network libraries
     none:
       - id: micro-behaviors/dylib/library::network-lib-marker

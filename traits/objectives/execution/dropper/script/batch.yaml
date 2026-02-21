@@ -14,7 +14,7 @@ traits:
     for: [shell, batch]
     if:
       type: raw
-      regex: "%TEMP%|%TMP%|\\\\Temp\\\\"
+      regex: "(?i)(curl|wget).{0,120}(\\\\Temp\\\\|%TMP%)"
 
   - id: powershell-download
     desc: PowerShell download cradle in batch
@@ -61,32 +61,9 @@ traits:
       type: raw
       regex: "start\\s+[\"']?[\"']?\\s*/[Bb]"
 
-  - id: temp-var-percent-temp
-    desc: TEMP environment variable
-    crit: notable
-    conf: 0.5
-    for: [shell, batch]
-    if:
-      type: raw
-      substr: "%TEMP%"
+  # exe-extension removed - too broad, matches benign strings across tiers
 
-  - id: exe-extension
-    desc: .exe file reference
-    crit: notable
-    conf: 0.5
-    for: [shell, batch]
-    if:
-      type: raw
-      regex: "(?i)\\.exe\\b"
-
-  - id: start-cmd
-    desc: start command
-    crit: notable
-    conf: 0.5
-    for: [batch]
-    if:
-      type: raw
-      regex: "(?i)\\bstart\\b"
+  # start-cmd removed - too broad, use start-hidden or run-from-temp instead
 
   - id: run-from-temp
     desc: Execute binary from TEMP directory
@@ -142,19 +119,12 @@ traits:
     desc: curl command
     crit: notable
     conf: 0.5
-    for: [shell, batch]
+    for: [batch]
     if:
       type: raw
       regex: "(?i)\\bcurl\\b"
 
-  - id: wget-cmd
-    desc: wget command
-    crit: notable
-    conf: 0.5
-    for: [shell, batch]
-    if:
-      type: raw
-      regex: "(?i)\\bwget\\b"
+  # wget-cmd removed - use micro-behaviors/communications/download/curl::wget-path instead
 
   - id: download-file-ps
     desc: PowerShell DownloadFile
@@ -219,7 +189,7 @@ traits:
     desc: Output flag -o
     crit: notable
     conf: 0.4
-    for: [shell, batch]
+    for: [batch]
     if:
       type: raw
       regex: "(?i)-o\\b"
@@ -320,7 +290,7 @@ composite_rules:
     for: [shell, batch]
     any:
       - id: curl-cmd
-      - id: wget-cmd
+      - id: micro-behaviors/communications/download/curl::wget-path
       - id: download-file-ps
       - id: certutil-cmd
       - id: bitsadmin-cmd
@@ -332,8 +302,8 @@ composite_rules:
     conf: 0.6
     for: [shell, batch]
     any:
-      - id: start-cmd
-      - id: exe-extension
+      - id: start-hidden
+      - id: run-from-temp
       - id: call-cmd
 
   # Download + Execute Combo (Batch-specific)

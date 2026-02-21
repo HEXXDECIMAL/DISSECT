@@ -25,14 +25,6 @@ traits:
       type: string
       regex: "ether\\s+[0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}[:-][0-9a-fA-F]{2}"
 
-  - id: getifaddrs-func
-    desc: getifaddrs function
-    crit: notable
-    conf: 0.6
-    if:
-      type: symbol
-      regex: "getifaddrs"
-
   - id: siocgifhwaddr
     desc: SIOCGIFHWADDR ioctl
     crit: notable
@@ -51,7 +43,7 @@ composite_rules:
       - id: micro-behaviors/os/network/interface::sys-class-net
       - id: hwaddr
       - id: ether-prefix
-      - id: getifaddrs-func
+      - id: micro-behaviors/communications/interface/enum::getifaddrs-symbol
       - id: siocgifhwaddr
       - id: micro-behaviors/os/network/interface::ip-link
       - id: micro-behaviors/os/network/interface::ifconfig

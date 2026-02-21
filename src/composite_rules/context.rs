@@ -1,12 +1,15 @@
 //! Evaluation context and result types for composite rules.
 
 use super::debug::DebugCollector;
+use super::evaluators::kv::StructuredFormat;
 use super::section_map::SectionMap;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Evidence, Finding};
 use rustc_hash::{FxHashSet, FxHasher};
+use serde_json::Value;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
+use std::sync::OnceLock;
 
 /// Compute a fast hash of a string for deduplication.
 #[inline]
@@ -43,6 +46,10 @@ pub(crate) struct EvaluationContext<'a> {
     /// (`"inline.{trait_id}"`). When present, YARA condition evaluation uses this
     /// map instead of re-scanning with per-condition compiled rules.
     pub inline_yara_results: Option<&'a HashMap<String, Vec<Evidence>>>,
+    /// Cached detected format for KV evaluations (detect once per file)
+    pub cached_kv_format: OnceLock<StructuredFormat>,
+    /// Cached parsed KV data (parse once per file, reuse for all KV conditions)
+    pub cached_kv_parsed: OnceLock<Box<Value>>,
 }
 
 impl<'a> EvaluationContext<'a> {
@@ -79,6 +86,8 @@ impl<'a> EvaluationContext<'a> {
             debug_collector: None,
             section_map: None,
             inline_yara_results: None,
+            cached_kv_format: OnceLock::new(),
+            cached_kv_parsed: OnceLock::new(),
         }
     }
 

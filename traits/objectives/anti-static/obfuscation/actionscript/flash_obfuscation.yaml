@@ -1,13 +1,4 @@
 composite_rules:
-  - id: flash-obfuscation-high
-    desc: Heavily obfuscated Flash/ActionScript component
-    crit: hostile
-    conf: 0.95
-    any:
-      - id: micro-behaviors/data/source/syntax/actionscript::obfuscated-identifier-section
-    unless:
-      - id: metadata/lang::is-c-file
-
   - id: flash-xor-decryption-loop
     desc: Flash/ActionScript XOR decryption loop
     crit: suspicious

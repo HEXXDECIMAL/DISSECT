@@ -22,7 +22,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: string
-      regex: 'Out-File|Get-Content|Invoke-Expression|Start-Process'
+      regex: 'Out-File|Get-Content|Invoke-Expression'
       count_min: 1
 
 composite_rules:

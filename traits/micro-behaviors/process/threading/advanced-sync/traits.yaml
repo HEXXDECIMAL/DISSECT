@@ -59,20 +59,19 @@ traits:
       type: symbol
       regex: (^WakeConditionVariable$|^WakeAllConditionVariable$)
     attack: T1129
-  # Removed duplicate - use micro-behaviors/mem/sync/mutex::initialize-slist-head
+composite_rules:
+  # Combined slist operations
   - id: slist-operations
-    desc: Interlocked SList ops
+    desc: Interlocked SList operations
     crit: notable
     conf: 0.65
-    platforms:
-      - windows
-    for:
-      - pe
-    if:
-      type: symbol
-      regex: (InterlockedPushEntrySList|InterlockedPopEntrySList|InterlockedFlushSList)
+    platforms: [windows]
+    for: [pe]
+    any:
+      - id: micro-behaviors/mem/sync/mutex::interlocked-flush-slist
+      - id: micro-behaviors/mem/sync/mutex::interlocked-push-entry-slist
+      - id: micro-behaviors/mem/sync/mutex::interlocked-pop-entry-slist
     attack: T1129
-composite_rules:
   - id: srw-lock-ops
     desc: SRW lock operations
     crit: suspicious

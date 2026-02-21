@@ -14,7 +14,7 @@ traits:
     attack: T1222
     if:
       type: string
-      substr: "chmod +x"
+      regex: "chmod\\s+(\\+x|u\\+x|a\\+x)"
 
   - id: chmod-755
     desc: chmod 755 command (rwxr-xr-x permissions)
@@ -24,17 +24,7 @@ traits:
     attack: T1222
     if:
       type: string
-      substr: "chmod 755"
-
-  - id: chmod-0755
-    desc: chmod 0755 command (rwxr-xr-x permissions,
-    crit: notable
-    conf: 0.7
-    mbc: E1222
-    attack: T1222
-    if:
-      type: string
-      substr: "chmod 0755"
+      regex: "chmod\\s+(755|0755)"
 
 composite_rules:
   - id: executable
@@ -46,4 +36,3 @@ composite_rules:
     any:
       - id: chmod-plus-x
       - id: chmod-755
-      - id: chmod-0755

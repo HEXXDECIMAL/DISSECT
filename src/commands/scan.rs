@@ -127,10 +127,10 @@ pub(crate) fn run(
     );
 
     // Join YARA thread now that the mapper is ready.
+    // NOTE: set_capability_mapper removed - field is unused in YaraEngine
     let shared_yara_engine: Option<Arc<YaraEngine>> = if let Some(handle) = yara_handle {
-        let (mut engine, builtin, third_party) =
+        let (engine, builtin, third_party) =
             handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
-        engine.set_capability_mapper((*capability_mapper).clone());
         if builtin + third_party > 0 { Some(Arc::new(engine)) } else { None }
     } else {
         None

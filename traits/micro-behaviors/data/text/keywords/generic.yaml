@@ -58,7 +58,8 @@ traits:
     desc: token keyword
     if:
       type: string
-      regex: "(?i)token"
+      word: "token"
+      case_insensitive: true
 
   - id: password
     desc: password keyword
@@ -141,24 +142,6 @@ traits:
 
   # === Network Terms ===
   # Removed socket duplicate - use objectives/command-and-control/reverse-shell/pty::python-socket or micro-behaviors/communications/socket patterns
-
-  - id: connect
-    desc: connect keyword
-    if:
-      type: string
-      substr: "connect"
-
-  - id: send
-    desc: send keyword
-    if:
-      type: string
-      exact: "send"
-
-  - id: recv
-    desc: recv keyword
-    if:
-      type: string
-      exact: "recv"
 
   # === Security/Evasion Terms ===
   - id: bypass

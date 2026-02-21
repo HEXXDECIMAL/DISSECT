@@ -13,6 +13,12 @@ traits:
       type: string
       substr: netstat
 
+  - id: netstat-an
+    desc: netstat -an command
+    if:
+      type: string
+      substr: "netstat -an"
+
   - id: ss
     desc: ss socket statistics
     if:

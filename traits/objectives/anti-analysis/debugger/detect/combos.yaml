@@ -11,7 +11,7 @@ composite_rules:
     for: [pe, dll]
     any:
       - id: objectives/execution/native/runtime::debugger-detect-api
-      - id: win-unhandledexception
+      - id: micro-behaviors/os/error-handling/exceptions::unhandled-exception-filter
     downgrade:
       any:
         - id: metadata/quality/versioned
@@ -27,8 +27,8 @@ composite_rules:
     needs: 2
     any:
       - id: objectives/execution/native/runtime::debugger-detect-api
-      - id: win-unhandledexception
-      - id: win-queryperformance
+      - id: micro-behaviors/os/error-handling/exceptions::unhandled-exception-filter
+      - id: micro-behaviors/time/timing/delay::query-performance-counter
     downgrade:
       any:
         - id: metadata/quality/versioned

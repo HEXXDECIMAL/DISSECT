@@ -193,6 +193,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     let mapper_arc = Arc::new(capability_mapper.clone());
 
     // Load YARA rules if not disabled
+    // NOTE: set_capability_mapper removed - field is unused in YaraEngine
     let mut yara_engine = if options.disable_yara {
         None
     } else {
@@ -200,7 +201,6 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         let mut engine = yara_engine::YaraEngine::new_with_mapper(empty_mapper);
         let (builtin_count, third_party_count) =
             engine.load_all_rules(options.enable_third_party_yara);
-        engine.set_capability_mapper((*mapper_arc).clone());
         if builtin_count + third_party_count > 0 {
             Some(engine)
         } else {

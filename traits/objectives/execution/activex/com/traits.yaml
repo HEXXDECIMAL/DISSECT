@@ -17,30 +17,11 @@ traits:
       type: string
       substr: "Scripting.FileSystemObject"
 
-  - id: activex-wshell
-    desc: WScript.Shell COM
-    for: [all]  # Used in both JavaScript and VBScript
-    if:
-      type: string
-      substr: "WScript.Shell"
-
   - id: activex-shell-app
     desc: Shell.Application COM
     if:
       type: string
       substr: "Shell.Application"
-
-  - id: activex-xmlhttp-msxml2
-    desc: MSXML2.XMLHTTP COM
-    if:
-      type: string
-      substr: "MSXML2.XMLHTTP"
-
-  - id: activex-xmlhttp-msxml
-    desc: MSXML.XMLHTTP COM
-    if:
-      type: string
-      substr: "MSXML.XMLHTTP"
 
   - id: activex-winhttp
     desc: WinHTTP request object
@@ -64,25 +45,13 @@ traits:
     attack: "T1202"
 
 composite_rules:
-  - id: activex-xmlhttp
-    desc: MSXML2.XMLHTTP or MSXML.XMLHTTP COM
-    crit: notable
-    conf: 0.8
-    platforms: [windows]
-    for: [javascript]
-    attack: "T1059.005"
-    mbc: "E1243"
-    any:
-      - id: activex-xmlhttp-msxml2
-      - id: activex-xmlhttp-msxml
-
   - id: activex-network-access
     desc: ActiveX network capability
     conf: 0.8
     attack: "T1071"
     mbc: "C0005"
     any:
-      - id: activex-xmlhttp
+      - id: micro-behaviors/os/com/object::clsid-xmlhttp-generic
       - id: activex-winhttp
 
   - id: activex-file-network
@@ -99,7 +68,6 @@ composite_rules:
     crit: notable
     conf: 0.85
     any:
-      - id: activex-wshell
+      - id: micro-behaviors/os/com/object::wscript-shell-literal
       - id: activex-shell-app
       - id: activex-wmi
-

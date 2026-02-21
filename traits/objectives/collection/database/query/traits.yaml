@@ -15,7 +15,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "\\bsqlite3?\\b"
+      regex: "\\bsqlite3?_(open|exec|prepare|step)\\b"
 
   # === Atomic: MySQL ===
 

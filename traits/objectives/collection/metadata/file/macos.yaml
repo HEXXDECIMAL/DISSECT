@@ -43,7 +43,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "/Library\\b|~/Library"
+      substr: "~/Library"
 
   - id: downloads-dir
     desc: "~/Downloads directory reference"

@@ -148,14 +148,6 @@ traits:
       type: string
       word: "IAT"
 
-  - id: got-plt-section
-    desc: ELF .got.plt section reference
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: .got.plt
-
   - id: got-ref
     desc: GOT abbreviation reference
     crit: notable
@@ -285,7 +277,7 @@ composite_rules:
       - id: import-descriptor
       - id: import-address-table
       - id: iat-ref
-      - id: got-plt-section
+      - id: metadata/lang/security::got-plt-section
       - id: got-ref
 
   # Polymorphic/metamorphic indicators

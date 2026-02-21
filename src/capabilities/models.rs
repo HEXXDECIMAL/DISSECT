@@ -7,10 +7,10 @@
 //! - Raw composite rules (before default application)
 //! - Simple symbol mappings
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Internal trait information for symbol lookups
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct TraitInfo {
     pub(crate) id: String,
     pub(crate) desc: String,

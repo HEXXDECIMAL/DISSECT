@@ -104,12 +104,12 @@ traits:
   desc: Code uses logging APIs (info/warn)
   if:
     type: string
-    regex: logger\.|log\.(info|warn)
+    regex: (logger\.\w+|log\.(info|warn)\()
 - id: has-logging-usage-2
   desc: Code uses logging APIs (error/debug)
   if:
     type: string
-    regex: log\.(error|debug)
+    regex: log\.(error|debug)\(
 - id: has-database-import-1
   desc: Code imports database (mongoose/sequelize/knex)
   if:

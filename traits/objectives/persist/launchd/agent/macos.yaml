@@ -204,8 +204,8 @@ traits:
     mbc: B0028
     attack: T1543.004
     if:
-      type: raw
-      substr: "SockServiceName"
+      type: kv
+      path: "SockServiceName"
 
   - id: inetd-compat
     desc: inetdCompatibility key (socket handoff)
@@ -464,7 +464,9 @@ composite_rules:
     all:
       - id: sock-service-name
       - id: inetd-compat
+    any:
       - id: shell-program
+      - id: micro-behaviors/process/create/shell::bin-sh-interactive
 
   - id: embedded-plist-bind-shell
     desc: Embedded plist bind-shell template in binary

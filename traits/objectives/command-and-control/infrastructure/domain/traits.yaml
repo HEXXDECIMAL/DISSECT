@@ -44,60 +44,6 @@ traits:
   if:
     type: string
     substr: anti-theft-web.herokuapp.com
-- id: hardcoded-domain-com
-  desc: Hardcoded .com/.org/.net domain (excluding known vendors)
-  crit: notable
-  conf: 0.7
-  if:
-    type: string
-    regex: \b[a-zA-Z0-9][-a-zA-Z0-9]{0,62}\.(com|org|net)\b
-  not:
-  - substr: apple.com
-  - substr: microsoft.com
-  - substr: visualstudio.com
-  - substr: azure.com
-  - substr: live.com
-  - substr: outlook.com
-  - substr: office.com
-  - substr: google.com
-  - substr: googleapis.com
-  - substr: gstatic.com
-  - substr: youtube.com
-  - substr: amazon.com
-  - substr: amazonaws.com
-  - substr: aws.amazon.com
-  - substr: github.com
-  - substr: gitlab.com
-  - substr: bitbucket.org
-  - substr: npmjs.com
-  - substr: npmjs.org
-  - substr: yarnpkg.com
-  - substr: pypi.org
-  - substr: python.org
-  - substr: rust-lang.org
-  - substr: crates.io
-  - substr: llvm.org
-  - substr: kernel.org
-  - substr: gnu.org
-  - substr: w3.org
-  - substr: mozilla.org
-  - substr: nodejs.org
-  - substr: sourceforge.net
-  - substr: freedesktop.org
-  - substr: proxy.com
-  - substr: example.com
-  - substr: example.org
-  - substr: xiph.org
-  - substr: translationproject.org
-  - substr: sourceware.org
-  - substr: sage.com
-  - substr: cloudflare.com
-  - substr: fastly.com
-  - substr: akamai.com
-  - substr: jquery.com
-  - substr: jsdelivr.net
-  - substr: unpkg.com
-  - substr: cdnjs.com
 - id: short-domain-url-pattern
   desc: Very short domain in URL
   crit: notable
@@ -659,22 +605,6 @@ traits:
   if:
     type: string
     regex: '[a-z0-9-]+\.trycloudflare\.com'
-- id: chisel-client
-  desc: Chisel client command
-  crit: notable
-  conf: 0.7
-  attack: T1572
-  if:
-    type: string
-    regex: chisel\s+client
-- id: chisel-server
-  desc: Chisel server command
-  crit: notable
-  conf: 0.7
-  attack: T1572
-  if:
-    type: string
-    regex: chisel\s+server
 - id: hardcoded-domain-suspicious-pattern
   desc: Hardcoded suspicious TLD domain pattern
   crit: suspicious
@@ -820,6 +750,6 @@ composite_rules:
   conf: 0.95
   attack: T1572
   any:
-  - id: chisel-client
-  - id: chisel-server
+  - id: objectives/command-and-control/tunnel/proxy::chisel-client
+  - id: objectives/command-and-control/tunnel/proxy::chisel-server
   - id: well-known/tools/offensive::chisel-ref

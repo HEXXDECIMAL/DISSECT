@@ -17,16 +17,6 @@ traits:
       type: string
       regex: 'chmod\s+(?:\-[a-zA-Z]{1,8}\s+){0,3}\+x\s+[/\.\$\w\{]'
 
-  # chmod +x in non-shell context (more suspicious)
-  - id: shell-plus-x-embedded
-    desc: chmod +x in non-shell file (suspicious)
-    crit: suspicious
-    conf: 0.85
-    for: [python, javascript, ruby, go, rust, c, cpp, pe, elf, macho]
-    if:
-      type: string
-      regex: 'chmod\s+(?:\-[a-zA-Z]{1,8}\s+){0,3}\+x\s+[/\.\$\w\{]'
-
   # Python os.chmod with executable bit (0o7xx pattern)
   - id: python-executable
     desc: Python os.chmod making file executable
@@ -70,7 +60,6 @@ composite_rules:
     conf: 0.75
     any:
       - id: shell-plus-x
-      - id: shell-plus-x-embedded
       - id: python-executable
       - id: python-0755
       - id: ruby-executable

@@ -2479,33 +2479,33 @@ fn test_parse_file_types_groups_and_exclusions() {
     assert_eq!(all, vec![RuleFileType::All]);
 
     // Test exclusions
-    // !php means All - Php.
-    let not_php = parsing::parse_file_types(&["!php".to_string()], &mut warnings);
+    // -php means All - Php.
+    let not_php = parsing::parse_file_types(&["-php".to_string()], &mut warnings);
     assert!(!not_php.contains(&RuleFileType::Php));
     assert!(not_php.contains(&RuleFileType::Python));
     assert!(not_php.contains(&RuleFileType::Elf));
     assert!(!not_php.contains(&RuleFileType::All)); // Should be expanded
 
-    // Test group + exclusion: scripts,!php
+    // Test group + exclusion: scripts,-php
     let scripts_no_php =
-        parsing::parse_file_types(&["scripts".to_string(), "!php".to_string()], &mut warnings);
+        parsing::parse_file_types(&["scripts".to_string(), "-php".to_string()], &mut warnings);
     assert!(scripts_no_php.contains(&RuleFileType::Python));
     assert!(scripts_no_php.contains(&RuleFileType::Shell));
     assert!(!scripts_no_php.contains(&RuleFileType::Php));
     assert!(!scripts_no_php.contains(&RuleFileType::Elf));
 
     // Test single string comma separation
-    let comma_sep = parsing::parse_file_types(&["scripts,!php".to_string()], &mut warnings);
+    let comma_sep = parsing::parse_file_types(&["scripts,-php".to_string()], &mut warnings);
     assert!(comma_sep.contains(&RuleFileType::Python));
     assert!(!comma_sep.contains(&RuleFileType::Php));
 
-    // Test '!binaries' exclusion
-    let not_binaries = parsing::parse_file_types(&["!binaries".to_string()], &mut warnings);
+    // Test '-binaries' exclusion
+    let not_binaries = parsing::parse_file_types(&["-binaries".to_string()], &mut warnings);
     assert!(!not_binaries.contains(&RuleFileType::Elf));
     assert!(not_binaries.contains(&RuleFileType::Python));
 
-    // Test '!scripts' exclusion
-    let not_scripts = parsing::parse_file_types(&["!scripts".to_string()], &mut warnings);
+    // Test '-scripts' exclusion
+    let not_scripts = parsing::parse_file_types(&["-scripts".to_string()], &mut warnings);
     assert!(!not_scripts.contains(&RuleFileType::Python));
     assert!(not_scripts.contains(&RuleFileType::Elf));
 }

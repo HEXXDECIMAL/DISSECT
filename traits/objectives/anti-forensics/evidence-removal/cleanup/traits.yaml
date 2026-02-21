@@ -31,7 +31,7 @@ traits:
   attack: T1070.003
   if:
     type: string
-    regex: grep\s+deleted
+    regex: grep\s+deleted.{0,80}/proc
 - id: pkill-signal-9
   desc: pkill with kill -9 signal
   crit: notable
@@ -41,7 +41,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (pkill -9|killall -9|kill\s+-9)
+    regex: (killall -9|kill\s+-9)
   attack: T1070.003
 - id: find-delete-pattern
   desc: find with delete operation
@@ -111,7 +111,7 @@ traits:
   attack: T1070.003
   if:
     type: string
-    regex: rm -f ~/\.bash_history|cat /dev/null > ~/\.bash_history|history -c
+    regex: rm -f ~/\.bash_history|cat /dev/null > ~/\.bash_history
 composite_rules:
 - id: history-cleanup
   desc: Shell history cleanup

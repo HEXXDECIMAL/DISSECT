@@ -8,7 +8,7 @@ traits:
       type: string
       # Detects a pattern indicating usage of SaveToFile method of ADODB.Stream object
       # or highly fragmented versions often used in Nemucod
-      regex: 'ADODB\.Stream|S\\x61veFile|ToF\\x69le'
+      regex: 'S\\x61veFile|ToF\\x69le'
 
   - id: adodb-fragment-adod
     desc: Obfuscated ADODB fragment "ADOD"

@@ -2,15 +2,6 @@
 # Detects patterns where a class or engine executes remotely-delivered scripts or actions.
 
 traits:
-  - id: action-event-script
-    desc: Action event defined as execute script
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: 'ActionEvents\.executeScript|execute\.script'
-
   - id: execute-script-class
     desc: Class designed to execute script actions
     crit: suspicious
@@ -28,5 +19,5 @@ composite_rules:
     all:
       - id: objectives/execution/interpreter/eval/dynamic::Function-constructor
     any:
-      - id: action-event-script
+      - id: objectives/execution/interpreter/script/action-engine::action-events-exec
       - id: execute-script-class

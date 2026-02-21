@@ -33,25 +33,9 @@ traits:
   size_max: 100000
   if:
     type: string
-    regex: (User-Agent|POST\s+|GET\s+|HTTP/1\.)
-    count_min: 5
-    per_kb_min: 0.5
-- id: compact-beacon-b
-  desc: Dense C2 patterns in compact binary
-  crit: suspicious
-  conf: 0.88
-  mbc: B0030
-  attack: T1071.001
-  for:
-  - elf
-  - macho
-  - pe
-  size_max: 100000
-  if:
-    type: string
-    regex: Content-Type
-    count_min: 5
-    per_kb_min: 0.5
+    regex: '(User-Agent:\s|Host:\s|Content-Type:\s|HTTP/1\.[01])'
+    count_min: 3
+    per_kb_min: 0.3
 - id: user-agent-header-multiple
   desc: Multiple User-Agent header entries
   crit: notable
@@ -134,7 +118,7 @@ traits:
   attack: T1071.001
   if:
     type: string
-    regex: githab\.|githyb\.|github\.[a-z]{2,}
+    regex: githab\.|githyb\.|githup\.|gitbub\.
   not:
   - substr: github.com
   - substr: github.io
@@ -260,7 +244,7 @@ composite_rules:
   - pe
   any:
   - id: compact-beacon-a
-  - id: compact-beacon-b
+  - id: micro-behaviors/communications/http/lib/nsurlsession::content-type-json
 - id: typosquat-domain-pattern
   desc: Typosquat domain pattern
   crit: suspicious

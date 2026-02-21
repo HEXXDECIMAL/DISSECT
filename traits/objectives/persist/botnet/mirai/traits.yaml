@@ -11,7 +11,7 @@ traits:
     regex: /usr/lib/systemd/systemd
   attack: T1547
 - id: mirai-backdoor-daemons
-  desc: Backdoor daemon processes
+  desc: Backdoor daemon launch commands
   crit: suspicious
   conf: 0.85
   for:
@@ -19,7 +19,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (telnetd|sshd|dropbear|httpd)
+    regex: (busybox\s+telnetd|dropbear\s+-p\s*[0-9]{2,5}|/usr/sbin/(sshd|httpd))
   attack: T1021.004
 - id: mirai-process-monitoring
   desc: Process monitoring

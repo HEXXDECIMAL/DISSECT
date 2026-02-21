@@ -105,16 +105,6 @@ traits:
       type: string
       regex: "find\\([^)]{0,120}\\.cmd"
 
-  # === Exe file reference atomics ===
-  - id: exe-ext
-    desc: .exe extension
-    crit: notable
-    conf: 0.4
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "\\.exe\\b"
-
   - id: exepath-var
     desc: exePath variable
     crit: notable

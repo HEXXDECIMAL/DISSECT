@@ -186,16 +186,6 @@ traits:
   if:
     type: string
     substr: Admin123
-- id: weak-pass-admin123-lower
-  desc: Weak password admin123
-  crit: notable
-  conf: 0.5
-  attack: T1110.001
-  platforms:
-  - all
-  if:
-    type: string
-    substr: admin123
 - id: weak-pass-passw0rd
   desc: Weak password Passw0rd
   crit: suspicious
@@ -246,24 +236,8 @@ traits:
   if:
     type: string
     regex: r00t[^a-zA-Z]
-- id: sym-gethostbyname
-  desc: gethostbyname function symbol
-  crit: notable
-  conf: 0.4
-  platforms:
-  - all
-  if:
-    type: symbol
-    regex: ^_?gethostbyname$
-- id: sym-getaddrinfo
-  desc: getaddrinfo function symbol
-  crit: notable
-  conf: 0.4
-  platforms:
-  - all
-  if:
-    type: symbol
-    regex: ^_?getaddrinfo$
+# sym-gethostbyname removed - use micro-behaviors/communications/ip/resolve::resolve-gethostbyname instead
+# sym-getaddrinfo removed - use micro-behaviors/communications/ip/resolve::resolve-getaddrinfo instead
 - id: sym-socket
   desc: socket function symbol
   crit: notable
@@ -475,7 +449,7 @@ composite_rules:
   - all
   any:
   - id: weak-pass-admin123-upper
-  - id: weak-pass-admin123-lower
+  - id: objectives/lateral-movement/brute-force/password::admin123
 - id: weak-pass-qwerty-variants
   desc: Weak password qwerty variants
   crit: notable
@@ -507,8 +481,8 @@ composite_rules:
   platforms:
   - all
   any:
-  - id: sym-gethostbyname
-  - id: sym-getaddrinfo
+  - id: micro-behaviors/communications/ip/resolve::resolve-gethostbyname
+  - id: micro-behaviors/communications/ip/resolve::resolve-getaddrinfo
 - id: sym-socket-connect
   desc: Socket connection function symbols
   crit: notable

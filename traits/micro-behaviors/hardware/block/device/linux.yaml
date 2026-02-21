@@ -5,6 +5,8 @@ defaults:
   for: [all]
 
 traits:
+  # NOTE: /sys/block/ moved to fs/disk/paths/linux.yaml
+  # keeping this broader pattern for /sys/dev/block only
   - id: sys-block
     desc: Access block device info via
     crit: suspicious
@@ -13,7 +15,7 @@ traits:
     platforms: [linux]
     if:
       type: string
-      regex: "/sys/(dev/)?block"
+      regex: "/sys/dev/block"
 
   - id: dev-sd
     desc: Access raw SCSI/SATA block devices

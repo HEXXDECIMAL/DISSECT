@@ -117,7 +117,7 @@ composite_rules:
   - id: cron-keywords
     desc: Cron-related keywords
     any:
-      - id: objectives/persist/cron/job::crontab-command
+      - id: micro-behaviors/persist/cron/keywords::crontab-keyword
       - id: objectives/persist/cron/job::etc-cron-path
     crit: notable
 

@@ -19,6 +19,12 @@ traits:
       type: string
       substr: "ip addr"
 
+  - id: ip-a
+    desc: ip a command
+    if:
+      type: string
+      substr: "ip a"
+
   - id: ip-link
     desc: ip link command
     if:

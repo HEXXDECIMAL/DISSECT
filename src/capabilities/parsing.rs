@@ -196,6 +196,9 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
 
             let (is_exclusion, name) = if let Some(stripped) = part.strip_prefix('!') {
                 (true, stripped)
+            } else if let Some(stripped) = part.strip_prefix('-') {
+                // Support YAML-safe exclusion syntax: -python, -c, etc.
+                (true, stripped)
             } else {
                 (false, part)
             };
@@ -866,7 +869,7 @@ mod tests {
     #[test]
     fn test_parse_file_types_exclusion() {
         let mut warnings = Vec::new();
-        let result = parse_file_types(&["all".to_string(), "!python".to_string()], &mut warnings);
+        let result = parse_file_types(&["all".to_string(), "-python".to_string()], &mut warnings);
         assert!(!result.contains(&RuleFileType::Python));
         assert!(result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Shell));
@@ -926,13 +929,22 @@ mod tests {
         // When only exclusions are provided, start with all and remove
         let mut warnings = Vec::new();
         let result = parse_file_types(
-            &["!python".to_string(), "!javascript".to_string()],
+            &["-python".to_string(), "-javascript".to_string()],
             &mut warnings,
         );
         assert!(!result.contains(&RuleFileType::Python));
         assert!(!result.contains(&RuleFileType::JavaScript));
         assert!(result.contains(&RuleFileType::Shell));
         assert!(result.contains(&RuleFileType::Ruby));
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_parse_file_types_bang_exclusion_backcompat() {
+        let mut warnings = Vec::new();
+        let result = parse_file_types(&["all".to_string(), "!python".to_string()], &mut warnings);
+        assert!(!result.contains(&RuleFileType::Python));
+        assert!(result.contains(&RuleFileType::JavaScript));
         assert!(warnings.is_empty());
     }
 

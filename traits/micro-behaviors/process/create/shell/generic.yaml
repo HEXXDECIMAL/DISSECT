@@ -7,19 +7,6 @@ defaults:
 
 traits:
   # C/C++ - Unix
-  - id: c-system
-    desc: Executes shell commands via C
-    crit: notable
-    mbc: "E1059.004"
-    attack: "T1059.004"
-    conf: 0.9
-    if:
-      type: symbol
-      # Match only the actual system() function, not std::filesystem or other symbols
-      exact: "system"
-    platforms: [unix, linux, macos]
-    for: [binaries]
-
   - id: c-popen
     desc: Executes command and captures output
     crit: notable

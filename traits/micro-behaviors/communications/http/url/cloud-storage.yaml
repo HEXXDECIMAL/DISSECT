@@ -8,29 +8,31 @@ traits:
   desc: Dropbox direct download URL
   if:
     type: string
-    regex: https?://(dl\.dropbox\.com|dl\.dropboxusercontent\.com)/s/[a-zA-Z0-9]{10,}
+    regex: (dl\.dropbox\.com|dl\.dropboxusercontent\.com)/s/[a-zA-Z0-9]{10,}
 - id: discord-cdn-download-url
   desc: Discord CDN download URL
   if:
     type: string
-    regex: https?://cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.
-- id: discord-cdn-suspicious-extension-a
-  desc: Suspicious executable extension in URL
+    regex: cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}
+- id: discord-cdn-executable-url
+  desc: Discord CDN URL with executable extension
+  crit: suspicious
+  conf: 0.9
   if:
     type: string
-    regex: \.(exe|dll|bat|ps1)\b
-- id: discord-cdn-suspicious-extension-b
-  desc: Suspicious archive extension in URL
+    regex: cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.(exe|dll|bat|ps1)\b
+- id: discord-cdn-archive-url
+  desc: Discord CDN URL with archive extension
+  crit: notable
+  conf: 0.85
   if:
     type: string
-    regex: \.(zip|7z|rar)\b
+    regex: cdn\.discordapp\.com/attachments/[0-9]{15,}/[0-9]{15,}/[^\s/]{1,80}\.(zip|7z|rar)\b
 composite_rules:
 - id: discord-cdn-download-url-any
-  desc: Discord CDN download URL
-  crit: notable
+  desc: Discord CDN download URL with suspicious extension
+  crit: suspicious
   conf: 0.9
-  all:
-  - id: discord-cdn-download-url
   any:
-  - id: discord-cdn-suspicious-extension-a
-  - id: discord-cdn-suspicious-extension-b
+  - id: discord-cdn-executable-url
+  - id: discord-cdn-archive-url

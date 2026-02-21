@@ -149,15 +149,6 @@ traits:
       type: string
       word: "ipAddress"
 
-  - id: ip-address-snake
-    desc: ip_address field (snake_case)
-    crit: notable
-    conf: 0.4
-    attack: "T1016"
-    if:
-      type: string
-      word: "ip_address"
-
   - id: ip-json-field
     desc: '"ip" JSON field'
     crit: notable
@@ -254,7 +245,7 @@ composite_rules:
     attack: "T1016"
     any:
       - id: ip-address-camel
-      - id: ip-address-snake
+      - id: micro-behaviors/os/network/interface::socket-ip-address-single
       - id: ip-json-field
 
   # Geo API composite (any one of these APIs)

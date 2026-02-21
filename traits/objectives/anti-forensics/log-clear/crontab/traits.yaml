@@ -1,15 +1,4 @@
 traits:
-- id: var-spool-cron-target
-  desc: Target /var/spool/cron crontab directory
-  crit: suspicious
-  conf: 0.85
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: /var/spool/cron
-  attack: T1070.004
 - id: etc-crontab-target
   desc: Target /etc/crontab system crontab
   crit: suspicious
@@ -20,17 +9,6 @@ traits:
   if:
     type: string
     substr: /etc/crontab
-  attack: T1070.004
-- id: etc-cron-d-target
-  desc: Target /etc/cron.d cron job directory
-  crit: suspicious
-  conf: 0.85
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: /etc/cron.d
   attack: T1070.004
 - id: cron-frequent-targets
   desc: Target frequent cron directories
@@ -106,11 +84,11 @@ composite_rules:
   - elf
   - shell
   any:
-  - id: var-spool-cron-target
+  - id: objectives/persist/cron/job::var-spool-cron-path
     crit: notable
   - id: etc-crontab-target
     crit: notable
-  - id: etc-cron-d-target
+  - id: objectives/persist/cron/job::cron-d-path
     crit: notable
 - id: cron-removal-methods
   desc: Methods for removing cron evidence
@@ -158,7 +136,7 @@ composite_rules:
   all:
   - id: rm-cron-files
     crit: notable
-  - id: var-spool-cron-target
+  - id: objectives/persist/cron/job::var-spool-cron-path
     crit: notable
   - id: sed-deleted-pattern-cron
     crit: notable

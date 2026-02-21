@@ -152,18 +152,6 @@ traits:
       type: symbol
       regex: "pid_getattr"
 
-  # === Syscall Table Manipulation ===
-  - id: sys-call-table
-    desc: sys_call_table reference
-    crit: suspicious
-    conf: 0.9
-    mbc: "F0015"
-    attack: "T1014"
-    for: [elf, c]
-    if:
-      type: symbol
-      regex: "sys_call_table"
-
   - id: sys-getpriority
     desc: sys_getpriority syscall
     crit: notable
@@ -735,7 +723,7 @@ composite_rules:
     conf: 0.9
     for: [elf, c]
     all:
-      - id: sys-call-table
+      - id: micro-behaviors/os/kernel/hook::syscall-table-ref
       - id: syscall-targets
 
   # Module format markers helper

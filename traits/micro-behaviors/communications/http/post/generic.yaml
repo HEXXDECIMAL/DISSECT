@@ -18,15 +18,6 @@ traits:
       word: "POST"
       case_insensitive: false
 
-  # === Compatibility trait for legacy references ===
-  - id: post-method
-    desc: POST HTTP method (legacy)
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      word: "POST"
-
   # === HTTP POST atomic indicators ===
   - id: http-post-call
     desc: http.post call
@@ -37,14 +28,6 @@ traits:
       substr: "http.post"
 
   # ... (rest of the file remains the same)
-  - id: requests-post-call
-    desc: requests.post call
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "requests.post"
-
   # === HTTP form data atomic indicators ===
   - id: multipart-form
     desc: multipart/form-data content type
@@ -88,7 +71,6 @@ composite_rules:
     any:
       - id: post
       - id: http-post-call
-      - id: requests-post-call
 
   - id: post-form
     desc: HTTP form data upload

@@ -8,4 +8,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "PowerShell|AddCommand|Invoke|Interaction\\.Shell"
+      regex: "PowerShell|Invoke|Interaction\\.Shell"

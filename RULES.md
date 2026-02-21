@@ -67,7 +67,7 @@ traits:
 **File types:** `elf`, `macho`, `pe`, `dll`, `so`, `dylib`, `shell`, `python`, `javascript`, `typescript`, `rust`, `java`, `class`, `ruby`, `c`, `go`, `csharp`, `php`, `packagejson`, `chrome-manifest`, `cargo-toml`, `pyproject-toml`, `github-actions`, `composer-json`, `all`.
 
 **Groups:** `binaries` (or `binary`), `scripts` (or `script`, `scripting`).
-**Exclusions:** Prefix with `!` (e.g., `!php`, `scripts,!python`).
+**Exclusions:** Prefix with `-` (e.g., `-php`, `scripts,-python`).
 
 ## Condition Types
 

@@ -44,17 +44,6 @@ traits:
   if:
     type: string
     substr: /etc/hostname
-- id: hostname-env
-  desc: HOSTNAME env variable
-  conf: 0.4
-  platforms:
-  - linux
-  - unix
-  - windows
-  - macos
-  if:
-    type: string
-    substr: HOSTNAME
 - id: fingerprint-prefix-a
   desc: hardware/device fingerprint string
   conf: 0.4

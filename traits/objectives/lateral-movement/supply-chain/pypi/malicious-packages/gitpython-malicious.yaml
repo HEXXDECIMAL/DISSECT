@@ -70,7 +70,7 @@ traits:
     desc: Obfuscated repository name suffix (logger)
     crit: notable
     conf: 0.7
-    if: { type: string, substr: 'logger' }
+    if: { type: raw, regex: '(?i)(github\.com|gitlab\.com).{0,80}logger' }
 
   - id: obfuscated-repo-suffix-stealer
     desc: Obfuscated repository name suffix (stealer)

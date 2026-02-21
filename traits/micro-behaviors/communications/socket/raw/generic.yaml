@@ -12,9 +12,10 @@ traits:
     desc: Raw socket terminology
     crit: notable
     conf: 0.7
+    for: [c, go, rust, python, shell, elf, macho]
     if:
       type: string
-      substr: "raw socket"
+      regex: "raw.?socket"
       case_insensitive: true
 
   # Removed proc-net-raw duplicate - use micro-behaviors/fs/proc/info::proc-net-raw

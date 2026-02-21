@@ -259,7 +259,7 @@ traits:
   attack: T1059.001
   if:
     type: string
-    regex: 'https?://|\$env:'
+    regex: '\$env:'
     case_insensitive: true
 
 composite_rules:

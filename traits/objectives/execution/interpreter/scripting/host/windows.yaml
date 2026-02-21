@@ -3,16 +3,6 @@
 # Detects WScript, ActiveX, and COM object abuse
 
 traits:
-  # WScript.Shell execution
-  - id: wscript-shell-string
-    desc: WScript.Shell string reference
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "WScript.Shell"
-
   # Scripting.FileSystemObject
   - id: filesystem-object-string
     desc: FileSystemObject string reference
@@ -26,15 +16,7 @@ traits:
   # Removed shell-application-string duplicate - use objectives/execution/activex/com::activex-shell-app
 
   # Removed msxml2-xmlhttp-string duplicate - use objectives/execution/activex/com::activex-xmlhttp-msxml2
-
-  - id: microsoft-xmlhttp-string
-    desc: Microsoft.XMLHTTP string reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "Microsoft.XMLHTTP"
+  # Removed microsoft-xmlhttp-string duplicate - use micro-behaviors/os/com/object::clsid-xmlhttp-generic
 
   - id: msxml2-serverxmlhttp-string
     desc: Msxml2.ServerXMLHTTP string reference
@@ -56,16 +38,6 @@ traits:
       substr: "winmgmts:"
 
   # Removed wbemscripting-locator-string duplicate - use objectives/execution/activex/com::activex-wmi
-
-  # ADODB stream (file operations)
-  - id: adodb-stream-string
-    desc: ADODB.Stream string reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "ADODB.Stream"
 
   # Schedule.Service (task scheduler)
   - id: schedule-service-string
@@ -174,8 +146,7 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: objectives/execution/activex/com::activex-xmlhttp-msxml2
-      - id: microsoft-xmlhttp-string
+      - id: micro-behaviors/os/com/object::clsid-xmlhttp-generic
       - id: msxml2-serverxmlhttp-string
 
 
@@ -230,7 +201,7 @@ composite_rules:
     attack: "T1112"
     for: [javascript, typescript]
     all:
-      - id: wscript-shell-string
+      - id: objectives/execution/activex/com::activex-wshell
       - id: registry-methods
       - id: registry-hives
 
@@ -262,7 +233,7 @@ composite_rules:
     conf: 0.7
     for: [javascript, typescript]
     any:
-      - id: wscript-shell-string
+      - id: objectives/execution/activex/com::activex-wshell
       - id: filesystem-object-string
 
   # Windows Script Host dropper

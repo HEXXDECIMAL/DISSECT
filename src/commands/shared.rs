@@ -250,24 +250,67 @@ pub(crate) fn analyze_file_with_shared_mapper(
     // All other analyzers get YARA scanning applied universally after analysis
     let mut report = match file_type {
         FileType::MachO => {
-            // YARA handled by post-analysis block below
-            analyzers::macho::MachOAnalyzer::new()
-                .with_capability_mapper_arc(capability_mapper.clone())
-                .analyze(path)?
+            // Run YARA scan in parallel with structural analysis to get inline results
+            let analyzer = analyzers::macho::MachOAnalyzer::new()
+                .with_capability_mapper_arc(capability_mapper.clone());
+            let range = analyzer.preferred_arch_range(file_data);
+            let arch_data = &file_data[range];
+            let engine = shared_yara_engine.as_ref();
+            let file_types: &[&str] = &["macho", "dylib", "kext"];
+            let (struct_result, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, arch_data),
+                || engine.filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(arch_data, Some(file_types))
+                }),
+            );
+            let mut report = struct_result?;
+            // Apply fat binary metadata
+            analyzer.apply_fat_metadata(&mut report, file_data);
+            // Process YARA results and evaluate with inline YARA
+            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(&mut report, arch_data, None, Some(&inline_yara));
+            report
         },
         FileType::Elf => {
-            // YARA handled by post-analysis block below
-            analyzers::elf::ElfAnalyzer::new()
-                .with_capability_mapper_arc(capability_mapper.clone())
-                .analyze(path)?
+            // Run YARA scan in parallel with structural analysis to get inline results
+            let analyzer = analyzers::elf::ElfAnalyzer::new()
+                .with_capability_mapper_arc(capability_mapper.clone());
+            let engine = shared_yara_engine.as_ref();
+            let file_types: &[&str] = &["elf", "so", "ko"];
+            let (mut report, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, file_data),
+                || engine.filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(file_data, Some(file_types))
+                }),
+            );
+            // Process YARA results and evaluate with inline YARA
+            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(&mut report, file_data, None, Some(&inline_yara));
+            crate::path_mapper::analyze_and_link_paths(&mut report);
+            crate::env_mapper::analyze_and_link_env_vars(&mut report);
+            report
         },
         FileType::Pe => {
-            let mut analyzer =
-                analyzers::pe::PEAnalyzer::new().with_capability_mapper_arc(capability_mapper.clone());
+            // Run YARA scan in parallel with structural analysis to get inline results
+            let mut analyzer = analyzers::pe::PEAnalyzer::new()
+                .with_capability_mapper_arc(capability_mapper.clone());
+            // PE analyzer needs YARA engine for overlay/embedded payload analysis
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());
             }
-            analyzer.analyze(path)?
+            let engine = shared_yara_engine.as_ref();
+            let file_types: &[&str] = &["pe", "exe", "dll", "bat", "ps1"];
+            let (struct_result, yara_result) = rayon::join(
+                || analyzer.analyze_structural(path, file_data),
+                || engine.filter(|e| e.is_loaded()).map(|e| {
+                    e.scan_bytes_with_inline(file_data, Some(file_types))
+                }),
+            );
+            let mut report = struct_result?;
+            // Process YARA results and evaluate with inline YARA
+            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(&mut report, file_data, None, Some(&inline_yara));
+            report
         },
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()

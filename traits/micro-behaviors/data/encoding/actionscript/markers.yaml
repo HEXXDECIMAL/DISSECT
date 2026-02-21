@@ -5,7 +5,7 @@ traits:
     conf: 0.9
     attack: T1189
     mbc: C0015
-    for: ["!c"]
+    for: ["-c"]
     if:
       type: raw
       regex: "\\b(4369|0x1111)\\b"
@@ -15,7 +15,7 @@ traits:
     conf: 0.9
     attack: T1189
     mbc: C0015
-    for: ["!c"]
+    for: ["-c"]
     if:
       type: raw
       regex: "\\b(8738|0x2222)\\b"
@@ -25,7 +25,7 @@ traits:
     conf: 0.9
     attack: T1189
     mbc: C0015
-    for: ["!c"]
+    for: ["-c"]
     if:
       type: raw
       regex: "\\b(13107|0x3333)\\b"
@@ -35,7 +35,7 @@ traits:
     conf: 0.9
     attack: T1189
     mbc: C0015
-    for: ["!c"]
+    for: ["-c"]
     if:
       type: raw
       regex: "\\b(17476|0x4444)\\b"
@@ -46,7 +46,7 @@ composite_rules:
     conf: 0.8
     attack: T1189
     mbc: C0015
-    for: ["!c"]
+    for: ["-c"]
     any:
       - id: marker-0x1111
       - id: marker-0x2222

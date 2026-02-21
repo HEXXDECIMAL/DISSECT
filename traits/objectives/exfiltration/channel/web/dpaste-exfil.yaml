@@ -17,7 +17,7 @@ composite_rules:
   conf: 0.8
   any:
     - id: micro-behaviors/communications/http/post::post
-    - id: micro-behaviors/communications/http/post::post-method
+    - id: micro-behaviors/communications/http/post::post
 
 - id: dpaste-api-exfil-auth
   desc: Helper

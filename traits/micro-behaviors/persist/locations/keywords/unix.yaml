@@ -13,12 +13,6 @@ traits:
       type: string
       word: "Startup"
 
-  - id: crontab-keyword
-    desc: crontab keyword
-    if:
-      type: string
-      word: "crontab"
-
   - id: launchd-keyword
     desc: launchd keyword
     if:
@@ -32,5 +26,4 @@ composite_rules:
     conf: 0.7
     any:
       - id: startup-keyword
-      - id: crontab-keyword
       - id: launchd-keyword

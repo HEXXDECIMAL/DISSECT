@@ -1,15 +1,5 @@
 traits:
-- id: ifconfig-command
-  desc: ifconfig network interface listing
-  crit: notable
-  conf: 0.75
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    regex: (ifconfig|ifconfig -a)
-  attack: T1016
+# ifconfig-command removed - use micro-behaviors/os/network/interface::ifconfig instead
 - id: ip-addr-show
   desc: ip addr show interface enumeration
   crit: notable
@@ -98,17 +88,7 @@ traits:
     type: string
     substr: "-p 22"
   attack: T1046
-- id: ssh-port-check-nc
-  desc: SSH port availability check (nc -z)
-  crit: suspicious
-  conf: 0.8
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    substr: "nc -z"
-  attack: T1046
+# ssh-port-check-nc removed - use micro-behaviors/communications/socket/netcat::nc + netcat-port-scan composite instead
 - id: ssh-port-check-nmap
   desc: SSH port availability check (nmap)
   crit: suspicious
@@ -138,7 +118,7 @@ composite_rules:
   conf: 0.8
   any:
   - id: ssh-port-check-p22
-  - id: ssh-port-check-nc
+  - id: netcat-port-scan
   - id: ssh-port-check-nmap
 - id: network-enumeration
   desc: Local network enumeration
@@ -150,7 +130,7 @@ composite_rules:
   attack: T1016
   needs: 2
   any:
-  - id: ifconfig-command
+  - id: micro-behaviors/os/network/interface::ifconfig
   - id: ip-addr-show
   - id: ip-route-show
   - id: arp-discovery

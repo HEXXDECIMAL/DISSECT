@@ -14,7 +14,7 @@ traits:
     desc: Base64 string decoding
     crit: notable
     conf: 0.75
-    for: [all]
+    for: [pe, dll, csharp]
     if:
       type: string
       substr: "FromBase64String"

@@ -20,10 +20,5 @@ traits:
       type: symbol
       regex: "GetWindowsDirectory[AW]?$"
 
-  - id: get-temp-path
-    desc: Get temporary files directory
-    crit: inert
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "GetTempPath[AW]?$"
+  # NOTE: GetTempPath moved to fs/temp/directory/windows.yaml
+  # as that's the more canonical location for temp directory operations

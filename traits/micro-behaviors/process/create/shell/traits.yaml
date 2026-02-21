@@ -26,10 +26,13 @@ traits:
       type: string
       regex: "system\\s*[(\"']"
 
+  # NOTE: system() symbol detection for ruby moved to process/create/shell/lang/ruby.yaml
+  # This trait now focuses on generic system() for C/binaries
   - id: system-fn
     desc: system() function call
     crit: notable
     conf: 0.9
+    for: [elf, macho, pe, dll, so, dylib, c]
     if:
       type: symbol
       exact: "system"

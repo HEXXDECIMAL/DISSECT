@@ -57,14 +57,6 @@ traits:
       type: string
       exact: "vbox"
 
-  - id: vmware-proc
-    desc: VMware process name
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "vmware"
-
   - id: charles-proc
     desc: Charles proxy process name
     crit: notable
@@ -94,7 +86,7 @@ composite_rules:
     any:
       - id: wireshark-proc
       - id: vbox-proc
-      - id: vmware-proc
+      - id: objectives/anti-analysis/vm/detect::vendor-vmware
       - id: charles-proc
       - id: objectives/anti-analysis/sandbox/detect::fiddler
 

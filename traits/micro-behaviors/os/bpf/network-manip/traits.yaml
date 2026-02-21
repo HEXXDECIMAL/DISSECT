@@ -28,13 +28,8 @@ traits:
       type: raw
       substr: "ETH_ALEN"
 
-  - id: ntohs-bswap-a
-    desc: Network byte order conversion
-    crit: inert
-    conf: 0.5
-    if:
-      type: raw
-      regex: "(?:ntohs|htons|ntohl|htonl)"
+  # NOTE: ntohs/htons/ntohl/htonl moved to communications/ip/parse/unix.yaml
+  # as that's the more canonical location for network byte order functions
 
   - id: ntohs-bswap-b
     desc: Network byte order conversion
@@ -51,7 +46,7 @@ composite_rules:
     crit: inert
     conf: 0.5
     any:
-      - { id: ntohs-bswap-a }
+      - id: micro-behaviors/communications/ip/parse/
       - { id: ntohs-bswap-b }
 
   - id: has-packet-manip

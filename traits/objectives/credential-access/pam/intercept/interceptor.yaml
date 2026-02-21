@@ -18,17 +18,6 @@ traits:
       regex: "libpam\\.so\\.\\d+"
 
   # === Token access functions (symbols) ===
-  # pam_get_item symbol - use micro-behaviors/os/pam/auth::pam-get-item-symbol
-
-  - id: pam-get-item-string
-    desc: pam_get_item function reference (string)
-    crit: notable
-    conf: 0.7
-    for: [elf, so]
-    if:
-      type: string
-      regex: "pam_get_item"
-
   - id: pam-set-item
     desc: pam_set_item function
     crit: notable
@@ -57,15 +46,6 @@ traits:
       substr: "PAM_AUTHTOK"
 
   # === Authentication functions (symbols) ===
-  - id: pam-authenticate-string
-    desc: pam_authenticate function reference (string)
-    crit: notable
-    conf: 0.65
-    for: [elf, so]
-    if:
-      type: string
-      regex: "pam_authenticate"
-
   - id: pam-open-session
     desc: pam_open_session function
     crit: notable
@@ -74,26 +54,6 @@ traits:
     if:
       type: symbol
       exact: "pam_open_session"
-
-  # pam_acct_mgmt symbol - use micro-behaviors/os/pam/auth::pam-acct-mgmt-symbol
-
-  - id: pam-acct-mgmt-string
-    desc: pam_acct_mgmt function reference (string)
-    crit: notable
-    conf: 0.65
-    for: [elf, so]
-    if:
-      type: string
-      regex: "pam_acct_mgmt"
-
-  - id: pam-setcred
-    desc: pam_setcred function
-    crit: notable
-    conf: 0.7
-    for: [elf, so]
-    if:
-      type: symbol
-      exact: "pam_setcred"
 
 composite_rules:
   # Helper composites
@@ -110,7 +70,6 @@ composite_rules:
     for: [c, cpp, elf, so]
     any:
       - { id: micro-behaviors/os/pam/auth::pam-get-item-symbol }
-      - { id: pam-get-item-string }
       - { id: pam-set-item }
       - { id: pam-get-authtok }
       - { id: pam-authtok-constant }
@@ -121,11 +80,9 @@ composite_rules:
     for: [c, cpp, elf, so]
     any:
       - { id: micro-behaviors/os/pam/auth::pam-authenticate-symbol }
-      - { id: pam-authenticate-string }
       - { id: pam-open-session }
       - { id: micro-behaviors/os/pam/auth::pam-acct-mgmt-symbol }
-      - { id: pam-acct-mgmt-string }
-      - { id: pam-setcred }
+      - { id: micro-behaviors/os/pam/auth::pam-setcred-symbol }
     crit: notable
 
   # Migrated from YARA

@@ -17,4 +17,4 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '(?i)(WScript\.Shell|WScript\.Network)'
+      regex: '(?i)WScript\.Network'

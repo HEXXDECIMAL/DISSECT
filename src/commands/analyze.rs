@@ -174,13 +174,13 @@ pub(crate) fn run(
         eprintln!("[INFO] YARA scanning disabled");
         None
     } else if let Some(handle) = yara_handle {
-        let (mut engine, builtin_count, third_party_count) =
+        let (engine, builtin_count, third_party_count) =
             handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
         tracing::info!(
             "YARA engine loaded with {} rules",
             builtin_count + third_party_count
         );
-        engine.set_capability_mapper(capability_mapper.clone());
+        // NOTE: set_capability_mapper removed - field is unused in YaraEngine
         if builtin_count + third_party_count > 0 {
             Some(engine)
         } else {

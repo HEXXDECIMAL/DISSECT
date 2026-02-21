@@ -3,16 +3,6 @@ defaults:
   for: [all]
 
 traits:
-  - id: dlsym-string
-    desc: dlsym function reference
-    crit: inert
-    conf: 0.85
-    attack: "T1574.006"
-    for: [elf, macho]
-    if:
-      type: string
-      substr: "dlsym"
-
   - id: dlsym-symbol
     desc: dlsym function symbol
     crit: inert

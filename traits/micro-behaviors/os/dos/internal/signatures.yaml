@@ -30,19 +30,10 @@ traits:
     desc: Check for COMMAND.COM execution (COMM)
     crit: notable
     conf: 0.8
-    for: ["!javascript", "!typescript", "!python", "!ruby", "!shell", "!php", "!go", "!rust", "!java", "!scala"]
+    for: ["-javascript", "-typescript", "-python", "-ruby", "-shell", "-php", "-go", "-rust", "-java", "-scala"]
     if:
       type: string
       regex: '(?i)\bCOMMAND\.COM\b'
-
-  - id: check-com-extension
-    desc: Check for .COM file extension
-    crit: notable
-    conf: 0.8
-    for: ["!javascript", "!typescript", "!python", "!ruby", "!shell", "!php", "!go", "!rust", "!java", "!scala"]
-    if:
-      type: string
-      regex: '(?i)^(\*|[a-z0-9]{1,8})\.com$'
 
   - id: darth-vader-string
     desc: Darth Vader signature string

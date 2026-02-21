@@ -4,7 +4,7 @@
 # ATT&CK: T1033 (System Owner/User Discovery)
 
 defaults:
-  for: [elf, macho, so, dylib, c]
+  for: [all]
   platforms: [unix, linux, macos]
   crit: inert
   mbc: "E1033"
@@ -28,7 +28,6 @@ traits:
   - id: whoami-cmd
     desc: whoami command
     conf: 0.5
-    for: [elf, macho, shell]
     if:
       type: string
       substr: "whoami"
@@ -36,7 +35,14 @@ traits:
   - id: id-u-cmd
     desc: id -u command
     conf: 0.5
-    for: [elf, macho, shell]
     if:
       type: string
       substr: "id -u"
+
+  - id: id-cmd
+    desc: id command
+    conf: 0.5
+    if:
+      type: string
+      # Match id as a command invocation
+      regex: '(?:^|[\s;|])id(?:$|[\s;|])'

@@ -222,8 +222,8 @@ composite_rules:
     attack: "T1110.001"
     for: [elf]
     any:
-      - id: objectives/command-and-control/botnet/iot::busybox-wget
-      - id: objectives/command-and-control/botnet/iot::busybox-tftp
+      - id: micro-behaviors/communications/download/busybox::wget
+      - id: micro-behaviors/communications/download/busybox::tftp
 
   # Mirai default credentials - requires 3+ credential strings
   - id: mirai-credential-access

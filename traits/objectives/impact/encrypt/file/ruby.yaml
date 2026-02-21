@@ -66,7 +66,7 @@ traits:
     attack: "T1491"
     if:
       type: string
-      regex: 'Readme\.txt|ransom|hackend.{0,50}encrypted'
+      regex: 'Readme\.txt|hackend.{0,50}encrypted'
 
   - id: ransom-note-create-extra
     desc: Ransom note file creation (extra markers)
@@ -85,27 +85,10 @@ traits:
     attack: "T1491"
     if:
       type: string
-      regex: '████|卐|hackend'
+      regex: '████'
 
   # === System Clear Screen ===
   # Removed clear-screen duplicate - use objectives/execution/interactive/terminal/ruby::cli-clear-screen
-
-  # === Interactive Menu ===
-  - id: interactive-menu
-    desc: Interactive menu interface
-    crit: notable
-    conf: 0.60
-    if:
-      type: string
-      regex: 'Choose.{0,50}option|case out|Exit'
-
-  - id: interactive-menu-branch
-    desc: Interactive menu encrypt/decrypt branch
-    crit: notable
-    conf: 0.60
-    if:
-      type: string
-      regex: 'when.{0,50}Encrypt|when.{0,50}Decrypt'
 
   # === Recursive Directory Access ===
   - id: recursive-dir-access

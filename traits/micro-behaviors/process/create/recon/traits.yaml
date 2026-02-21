@@ -10,53 +10,27 @@ traits:
   if:
     type: raw
     regex: npm config list
+
+composite_rules:
 - id: network-discovery
   desc: Shell command performs network discovery
   conf: 0.6
   crit: notable
   attack: T1016
-  if:
-    type: raw
-    regex: \b(ip a|ifconfig|netstat -an)\b
+  any:
+    - id: micro-behaviors/os/network/interface::ip-a
+    - id: micro-behaviors/os/network/interface::ifconfig
+    - id: micro-behaviors/os/network/status::netstat-an
+
 - id: network-discovery-extra
   desc: Shell command performs network discovery (extra)
   conf: 0.6
   crit: notable
   attack: T1016
-  if:
-    type: raw
-    regex: \b(arp -a|route print)\b
-- id: process-discovery
-  desc: Shell command performs process discovery
-  conf: 0.6
-  crit: notable
-  attack: T1057
-  if:
-    type: raw
-    regex: \b(ps aux|ps -ef|tasklist)\b
-- id: sys-info-discovery__any_1
-  desc: Helper raw condition
-  if:
-    type: raw
-    regex: \b(whoami|uname -a|ip a|ifconfig)\b
-- id: sys-info-discovery__any_1b
-  desc: Helper raw condition
-  if:
-    type: raw
-    regex: \b(ps aux|ps -ef|printenv)\b
-- id: sys-info-discovery__any_2
-  desc: Helper raw condition (id command)
-  for: [scripts]
-  if:
-    type: raw
-    regex: (?:^|[\s;|])id(?:$|[\s;|])
-- id: sys-info-discovery__any_3
-  desc: Helper raw condition (env command)
-  for: [scripts]
-  if:
-    type: raw
-    regex: (?:^|[\s;|])env(?:$|[\s;|])
-composite_rules:
+  any:
+    - id: micro-behaviors/os/network/interface::ip-link # Wait, ip link is in interface
+    - id: micro-behaviors/os/network/status::ss # ss is in status
+
 - id: network-discovery-any
   desc: Shell command performs network discovery
   conf: 0.6
@@ -65,6 +39,17 @@ composite_rules:
   any:
   - id: network-discovery
   - id: network-discovery-extra
+
+- id: process-discovery
+  desc: Shell command performs process discovery
+  conf: 0.6
+  crit: notable
+  attack: T1057
+  any:
+  - id: micro-behaviors/process/enumerate/shell::ps-aux
+  - id: micro-behaviors/process/enumerate/shell::ps-ef
+  - id: micro-behaviors/process/enumerate/shell::tasklist
+
 - id: sys-info-discovery
   desc: Shell command performs system information discovery
   conf: 0.6
@@ -73,7 +58,10 @@ composite_rules:
   unless:
   - id: metadata/dev/testing::is-test
   any:
-  - id: sys-info-discovery__any_1
-  - id: sys-info-discovery__any_1b
-  - id: sys-info-discovery__any_2
-  - id: sys-info-discovery__any_3
+  - id: micro-behaviors/process/user/query::whoami-cmd
+  - id: micro-behaviors/fs/path/os::uname-a-cmd
+  - id: network-discovery
+  - id: process-discovery
+  - id: micro-behaviors/os/env/vars::printenv
+  - id: micro-behaviors/process/user/query::id-cmd
+  - id: micro-behaviors/os/env/vars::env-cmd

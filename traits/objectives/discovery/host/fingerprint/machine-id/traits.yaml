@@ -116,5 +116,5 @@ composite_rules:
     any:
       - id: micro-behaviors/os/sysinfo/system-info::gethostname
       - id: micro-behaviors/os/system/machine-id::etc-hostname
-      - id: micro-behaviors/os/system/machine-id::hostname-env
+      - id: micro-behaviors/os/env/vars/system-info::hostname-var
       - id: micro-behaviors/os/sysinfo/system-info::getfqdn

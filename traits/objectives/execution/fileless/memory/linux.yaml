@@ -51,14 +51,7 @@ traits:
       type: string
       substr: "libc.syscall"
 
-  - id: syscall-paren
-    desc: syscall( invocation
-    crit: notable
-    conf: 0.4
-    for: [python, c, shell]
-    if:
-      type: string
-      substr: "syscall("
+  # syscall-paren removed - use micro-behaviors/os/syscall/invoke::syscall-fn instead
 
   # === proc/self/fd indicators (atomic) ===
   - id: proc-self-fd

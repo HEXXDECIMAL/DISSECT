@@ -8,41 +8,10 @@ defaults:
   mbc: "B0032"
 
 traits:
-  - id: cpp-exception-throw
-    desc: C++ exception throwing (__cxa_throw)
-    crit: notable
-    conf: 0.3
-    if:
-      type: symbol
-      regex: "__cxa_throw"
-
-  - id: cpp-exception-catch
-    desc: C++ exception catching (__cxa_begin_catch)
-    crit: notable
-    conf: 0.3
-    if:
-      type: symbol
-      regex: "__cxa_begin_catch"
-
-  - id: cpp-personality
-    desc: C++ exception personality routine
-    crit: notable
-    conf: 0.3
-    if:
-      type: symbol
-      regex: "__gxx_personality_v0"
+  # cpp-exception-throw, cpp-exception-catch, cpp-personality removed
+  # Use micro-behaviors/dylib/library/abi-graphics::cxx-abi-symbols-a instead
 
 composite_rules:
-  - id: cpp-exception-control-flow
-    desc: "C++ exception-based control flow (potential anti-analysis)"
-    crit: notable
-    conf: 0.6
-    needs: 2
-    any:
-      - id: cpp-exception-throw
-      - id: cpp-exception-catch
-      - id: cpp-personality
-
   - id: suspicious-cpp-exception-exec
     desc: "Small C++ binary with exception-obfuscated execution"
     crit: suspicious
@@ -50,7 +19,7 @@ composite_rules:
     # High-confidence: Small binary using exceptions AND system() calls
     size_max: 500000
     all:
-      - id: cpp-exception-control-flow
+      - id: micro-behaviors/dylib/library/abi-graphics::cxx-abi-symbols-a
       - id: micro-behaviors/process/create/shell::system-fn
     none:
       - id: metadata/signed/platform::apple

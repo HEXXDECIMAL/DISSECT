@@ -202,17 +202,7 @@ traits:
     if:
       type: string
       substr: 'pipedream.net'
-  - id: discord-webhook
-    desc: Discord webhook exfil endpoint
-    crit: suspicious
-    conf: 0.9
-    for:
-      - javascript
-      - typescript
-      - package.json
-    if:
-      type: string
-      substr: 'discord.com/api/webhooks'
+  # Removed: discord-webhook (use objectives/exfiltration/channel/webhook/ instead)
   - id: placeholder-author-your-name
     desc: Author field is "Your Name"
     crit: suspicious
@@ -658,7 +648,7 @@ composite_rules:
       - id: oast-me-domain
       - id: objectives/exfiltration/channel/oob::webhook-site
       - id: pipedream-domain
-      - id: discord-webhook
+      - id: objectives/exfiltration/channel/webhook::discord-webhook
   - id: placeholder-author-no-repo
     desc: Package with placeholder author and no repository URL
     crit: suspicious

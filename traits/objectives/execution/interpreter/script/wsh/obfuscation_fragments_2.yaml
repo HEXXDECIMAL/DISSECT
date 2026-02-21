@@ -38,13 +38,6 @@ traits:
       type: raw
       regex: 'romChar|CharCode|ode\('
 
-  # MSXML fragments
-  - id: msxml-fragment-tiny
-    desc: MSXML2.XMLHTTP string fragment (2.XML/LHTT/ironme)
-    if:
-      type: raw
-      regex: '2\.XML|LHTT|ironme'
-
   - id: msxml-fragment-msxml
     desc: MSXML2.XMLHTTP string fragment (MSXML)
     if:
@@ -101,7 +94,6 @@ composite_rules:
   - id: msxml-fragment
     desc: MSXML2.XMLHTTP string fragment
     any:
-      - id: msxml-fragment-tiny
       - id: msxml-fragment-short
       - id: micro-behaviors/net/http/client::http-client-xml2-fragment
 

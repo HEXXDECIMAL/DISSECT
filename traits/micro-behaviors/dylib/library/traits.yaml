@@ -182,14 +182,14 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: (?i)\b(llvm|clang)
+      regex: (?i)\b(libllvm|libclang|llvm-[0-9]{1,2}|clang-[0-9]{1,2})\b
   - id: llvm-project-ref-b
     desc: Compiler/project context token
     crit: inert
     conf: 0.8
     if:
       type: string
-      regex: (?i)\b(version|compiler|project|IR)
+      regex: (?i)\b(llvm project|clang version|llvm version|intermediate representation)\b
   - id: gcc-project-ref
     desc: GCC project reference
     crit: inert

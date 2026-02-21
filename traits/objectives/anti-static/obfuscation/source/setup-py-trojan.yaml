@@ -98,7 +98,7 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: tempfile\.(NamedTemporaryFile|mkstemp).{0,80}write.{0,80}(exec|exe)|gettempdir
+    regex: tempfile\.(NamedTemporaryFile|mkstemp).{0,80}write.{0,80}(exec|exe)
 composite_rules:
 - id: conditional-exec-check
   desc: Conditional execution check (argv, environ)

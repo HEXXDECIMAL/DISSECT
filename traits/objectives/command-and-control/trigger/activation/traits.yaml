@@ -2,15 +2,7 @@ defaults:
   for:
   - all
 traits:
-- id: icmp-hdr-struct
-  desc: ICMP header structure (C)
-  crit: notable
-  conf: 0.6
-  for:
-  - c
-  if:
-    type: string
-    substr: struct icmphdr
+# icmp-hdr-struct removed - use micro-behaviors/os/bpf/program/icmp::icmphdr-struct instead
 - id: icmp-rcv
   desc: ICMP receive handler
   crit: notable
@@ -134,7 +126,7 @@ composite_rules:
 - id: icmp-context
   desc: ICMP packet handling context
   any:
-  - id: icmp-hdr-struct
+  - id: micro-behaviors/os/bpf/program/icmp::icmphdr-struct
   - id: icmp-rcv
   crit: notable
 - id: magic-values

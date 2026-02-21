@@ -95,12 +95,12 @@ traits:
       regex: "except[^:]{0,120}:"
 
   - id: import-statement
-    desc: import statement
+    desc: import statement for installer-related modules
     crit: notable
     conf: 0.4
     if:
       type: string
-      regex: "import\\s+\\w+"
+      regex: "import\\s+(pip|importlib|setuptools|pkg_resources)\\b"
 
   - id: pip-install-pattern
     desc: pip install pattern

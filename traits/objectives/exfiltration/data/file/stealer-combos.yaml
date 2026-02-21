@@ -105,7 +105,7 @@ composite_rules:
     attack: "T1555.003"
     mbc: "B0028"
     all:
-      - id: objectives/credential-access/browser/chromium::cookies-path
+      - id: objectives/credential-access/browser/chromium::cookies
       - id: micro-behaviors/communications/http/upload::curl-upload-file
 
   # Combination 8: CookieMiner dropper script
@@ -118,6 +118,6 @@ composite_rules:
     for: [shell]
     all:
       - id: objectives/execution/dropper/script::curl-download
-      - id: objectives/credential-access/browser/chromium::cookies-path
+      - id: objectives/credential-access/browser/chromium::cookies
       - id: objectives/execution/dropper/payload::cp-execute
       - id: micro-behaviors/communications/http/upload::curl-upload-file

@@ -9,7 +9,7 @@ traits:
       - pe
     if:
       type: symbol
-      regex: (^GetConsoleMode$|^GetConsoleOutputCP$|^GetConsoleScreenBufferInfo$)
+      regex: (^GetConsoleMode$|^GetConsoleScreenBufferInfo$)
     attack: T1497
     mbc: B0001
   - id: getenv-api

@@ -7,9 +7,9 @@ defaults:
 
 traits:
   - id: log-var
-    desc: Reference to /var/log
+    desc: Reference to sensitive Linux log files
     crit: notable
     conf: 0.66
     if:
       type: string
-      regex: "/var/log/[\\w\\.\\-/]+"
+      regex: "/var/log/(auth\\.log|secure|messages)"

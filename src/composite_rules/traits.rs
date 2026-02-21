@@ -13,11 +13,80 @@ use super::evaluators::{
 use super::types::{default_file_types, default_platforms, FileType, Platform};
 use crate::types::{Criticality, Evidence, Finding, FindingKind};
 use anyhow::Context;
+use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::OnceLock;
 use std::time::{Duration, Instant};
+
+/// Global concurrent statistics for condition evaluation timing
+static CONDITION_STATS: OnceLock<DashMap<&'static str, (AtomicU64, AtomicU64)>> = OnceLock::new();
+
+fn stats_map() -> &'static DashMap<&'static str, (AtomicU64, AtomicU64)> {
+    CONDITION_STATS.get_or_init(DashMap::new)
+}
+
+/// Print condition evaluation statistics
+pub(crate) fn print_condition_stats() {
+    let stats = stats_map();
+    if stats.is_empty() {
+        return;
+    }
+
+    let mut sorted: Vec<_> = stats
+        .iter()
+        .map(|entry| {
+            let name = *entry.key();
+            let (count, total_nanos) = entry.value();
+            let count_val = count.load(Ordering::Relaxed);
+            let duration = Duration::from_nanos(total_nanos.load(Ordering::Relaxed));
+            (name, count_val, duration)
+        })
+        .collect();
+    sorted.sort_by_key(|(_, _, duration)| std::cmp::Reverse(*duration));
+
+    eprintln!("\n⏱️  Condition Evaluation Statistics:");
+    eprintln!("  {:20} {:>10} {:>12} {:>10}", "Type", "Count", "Total (ms)", "Avg (µs)");
+    eprintln!("  {}", "-".repeat(54));
+
+    for (name, count, duration) in sorted.iter().take(20) {
+        let avg_micros = duration.as_micros() / (*count as u128).max(1);
+        eprintln!(
+            "  {:20} {:>10} {:>12} {:>10}",
+            name,
+            count,
+            duration.as_millis(),
+            avg_micros
+        );
+    }
+    eprintln!();
+}
+
+/// Reset condition statistics (for testing)
+pub(crate) fn reset_condition_stats() {
+    stats_map().clear();
+}
 
 /// Maximum time allowed for a single rule evaluation (2 seconds)
 const MAX_RULE_EVAL_DURATION: Duration = Duration::from_secs(2);
+
+/// Macro to time condition evaluation
+macro_rules! timed_eval {
+    ($name:expr, $eval:expr) => {{
+        let _start = std::time::Instant::now();
+        let result = $eval;
+        let _elapsed = _start.elapsed();
+
+        let stats = stats_map();
+        let entry = stats.entry($name).or_insert_with(|| {
+            (AtomicU64::new(0), AtomicU64::new(0))
+        });
+        entry.0.fetch_add(1, Ordering::Relaxed);
+        entry.1.fetch_add(_elapsed.as_nanos() as u64, Ordering::Relaxed);
+
+        result
+    }};
+}
 
 fn default_confidence() -> f32 {
     1.0
@@ -184,7 +253,7 @@ pub(crate) struct DowngradeConditions {
 }
 
 /// Definition of an atomic observable trait
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct TraitDefinition {
     /// Unique identifier for this trait (e.g., "net/socket", "execution/eval")
@@ -1028,7 +1097,7 @@ impl TraitDefinition {
                 regex,
                 platforms,
                 compiled_regex,
-            } => eval_symbol(
+            } => timed_eval!("symbol", eval_symbol(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
@@ -1036,7 +1105,7 @@ impl TraitDefinition {
                 compiled_regex.as_ref(),
                 self.not.as_ref(),
                 ctx,
-            ),
+            )),
             Condition::String {
                 exact,
                 substr,
@@ -1069,14 +1138,14 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_string(&params, self.not.as_ref(), ctx)
+                timed_eval!("string", eval_string(&params, self.not.as_ref(), ctx))
             },
             Condition::Structure {
                 feature,
                 min_sections,
-            } => eval_structure(feature, *min_sections, ctx),
-            Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
-            Condition::Trait { id } => eval_trait(id, ctx),
+            } => timed_eval!("structure", eval_structure(feature, *min_sections, ctx)),
+            Condition::ExportsCount { min, max } => timed_eval!("exports_count", eval_exports_count(*min, *max, ctx)),
+            Condition::Trait { id } => timed_eval!("trait", eval_trait(id, ctx)),
             Condition::Ast {
                 kind,
                 node,
@@ -1086,7 +1155,7 @@ impl TraitDefinition {
                 query,
                 case_insensitive,
                 ..
-            } => eval_ast(
+            } => timed_eval!("ast", eval_ast(
                 kind.as_deref(),
                 node.as_deref(),
                 exact.as_deref(),
@@ -1095,52 +1164,52 @@ impl TraitDefinition {
                 query.as_deref(),
                 *case_insensitive,
                 ctx,
-            ),
+            )),
             Condition::Yara { source, namespace, compiled } => {
-                eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
+                timed_eval!("yara", eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx))
             },
             Condition::Syscall { name, number, arch } => {
-                eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+                timed_eval!("syscall", eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx))
             },
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
-            } => eval_section_ratio(section, compare_to, *min, *max, ctx),
+            } => timed_eval!("section_ratio", eval_section_ratio(section, compare_to, *min, *max, ctx)),
             Condition::ImportCombination {
                 required,
                 suspicious,
                 min_suspicious,
                 max_total,
-            } => eval_import_combination(
+            } => timed_eval!("import_combo", eval_import_combination(
                 required.as_ref(),
                 suspicious.as_ref(),
                 *min_suspicious,
                 *max_total,
                 ctx,
-            ),
+            )),
             Condition::StringCount {
                 min,
                 max,
                 min_length,
                 regex,
                 compiled_regex,
-            } => eval_string_count(
+            } => timed_eval!("string_count", eval_string_count(
                 *min,
                 *max,
                 *min_length,
                 regex.as_ref(),
                 compiled_regex.as_ref(),
                 ctx,
-            ),
+            )),
             Condition::Metrics {
                 field,
                 min,
                 max,
                 min_size,
                 max_size,
-            } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
+            } => timed_eval!("metrics", eval_metrics(field, *min, *max, *min_size, *max_size, ctx)),
             Condition::Hex {
                 pattern,
                 offset,
@@ -1148,7 +1217,7 @@ impl TraitDefinition {
                 section,
                 section_offset,
                 section_offset_range,
-            } => eval_hex(
+            } => timed_eval!("hex", eval_hex(
                 pattern,
                 &ContentLocationParams {
                     section: section.clone(),
@@ -1158,7 +1227,7 @@ impl TraitDefinition {
                     section_offset_range: *section_offset_range,
                 },
                 ctx,
-            ),
+            )),
             Condition::Raw {
                 exact,
                 substr,
@@ -1181,7 +1250,7 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_raw(
+                timed_eval!("raw", eval_raw(
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
@@ -1192,7 +1261,7 @@ impl TraitDefinition {
                     self.not.as_ref(),
                     &location,
                     ctx,
-                )
+                ))
             },
             Condition::Section {
                 exact,
@@ -1207,7 +1276,7 @@ impl TraitDefinition {
                 readable,
                 writable,
                 executable,
-            } => eval_section(
+            } => timed_eval!("section", eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
@@ -1221,7 +1290,7 @@ impl TraitDefinition {
                 *writable,
                 *executable,
                 ctx,
-            ),
+            )),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -1244,7 +1313,7 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_encoded(
+                timed_eval!("encoded", eval_encoded(
                     encoding.as_ref(),
                     exact.as_ref(),
                     substr.as_ref(),
@@ -1254,37 +1323,36 @@ impl TraitDefinition {
                     compiled_regex.as_ref(),
                     &location,
                     ctx,
-                )
+                ))
             },
             Condition::Basename {
                 exact,
                 substr,
                 regex,
                 case_insensitive,
-            } => eval_basename(
+            } => timed_eval!("basename", eval_basename(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 ctx,
-            ),
+            )),
             Condition::Kv { .. } => {
-                // Delegate to kv evaluator
-                let file_path = std::path::Path::new(&ctx.report.target.path);
-                if let Some(evidence) =
-                    super::evaluators::evaluate_kv(condition, ctx.binary_data, file_path)
-                {
-                    ConditionResult::matched_with(vec![evidence])
-                } else {
-                    ConditionResult::no_match()
-                }
+                timed_eval!("kv", {
+                    // Delegate to kv evaluator with caching
+                    if let Some(evidence) = super::evaluators::evaluate_kv(condition, ctx) {
+                        ConditionResult::matched_with(vec![evidence])
+                    } else {
+                        ConditionResult::no_match()
+                    }
+                })
             },
         }
     }
 }
 
 /// Boolean logic for combining conditions/traits
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct CompositeTrait {
     /// Unique identifier for this composite rule
@@ -2046,7 +2114,7 @@ impl CompositeTrait {
                 query,
                 case_insensitive,
                 ..
-            } => eval_ast(
+            } => timed_eval!("ast", eval_ast(
                 kind.as_deref(),
                 node.as_deref(),
                 exact.as_deref(),
@@ -2055,52 +2123,52 @@ impl CompositeTrait {
                 query.as_deref(),
                 *case_insensitive,
                 ctx,
-            ),
+            )),
             Condition::Yara { source, namespace, compiled } => {
-                eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
+                timed_eval!("yara", eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx))
             },
             Condition::Syscall { name, number, arch } => {
-                eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+                timed_eval!("syscall", eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx))
             },
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
-            } => eval_section_ratio(section, compare_to, *min, *max, ctx),
+            } => timed_eval!("section_ratio", eval_section_ratio(section, compare_to, *min, *max, ctx)),
             Condition::ImportCombination {
                 required,
                 suspicious,
                 min_suspicious,
                 max_total,
-            } => eval_import_combination(
+            } => timed_eval!("import_combo", eval_import_combination(
                 required.as_ref(),
                 suspicious.as_ref(),
                 *min_suspicious,
                 *max_total,
                 ctx,
-            ),
+            )),
             Condition::StringCount {
                 min,
                 max,
                 min_length,
                 regex,
                 compiled_regex,
-            } => eval_string_count(
+            } => timed_eval!("string_count", eval_string_count(
                 *min,
                 *max,
                 *min_length,
                 regex.as_ref(),
                 compiled_regex.as_ref(),
                 ctx,
-            ),
+            )),
             Condition::Metrics {
                 field,
                 min,
                 max,
                 min_size,
                 max_size,
-            } => eval_metrics(field, *min, *max, *min_size, *max_size, ctx),
+            } => timed_eval!("metrics", eval_metrics(field, *min, *max, *min_size, *max_size, ctx)),
             Condition::Hex {
                 pattern,
                 offset,
@@ -2108,7 +2176,7 @@ impl CompositeTrait {
                 section,
                 section_offset,
                 section_offset_range,
-            } => eval_hex(
+            } => timed_eval!("hex", eval_hex(
                 pattern,
                 &ContentLocationParams {
                     section: section.clone(),
@@ -2118,7 +2186,7 @@ impl CompositeTrait {
                     section_offset_range: *section_offset_range,
                 },
                 ctx,
-            ),
+            )),
             Condition::Raw {
                 exact,
                 substr,
@@ -2141,7 +2209,7 @@ impl CompositeTrait {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_raw(
+                timed_eval!("raw", eval_raw(
                     exact.as_ref(),
                     substr.as_ref(),
                     regex.as_ref(),
@@ -2152,7 +2220,7 @@ impl CompositeTrait {
                     self.not.as_ref(),
                     &location,
                     ctx,
-                )
+                ))
             },
             Condition::Section {
                 exact,
@@ -2167,7 +2235,7 @@ impl CompositeTrait {
                 readable,
                 writable,
                 executable,
-            } => eval_section(
+            } => timed_eval!("section", eval_section(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
@@ -2181,7 +2249,7 @@ impl CompositeTrait {
                 *writable,
                 *executable,
                 ctx,
-            ),
+            )),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -2204,7 +2272,7 @@ impl CompositeTrait {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                eval_encoded(
+                timed_eval!("encoded", eval_encoded(
                     encoding.as_ref(),
                     exact.as_ref(),
                     substr.as_ref(),
@@ -2214,30 +2282,29 @@ impl CompositeTrait {
                     compiled_regex.as_ref(),
                     &location,
                     ctx,
-                )
+                ))
             },
             Condition::Basename {
                 exact,
                 substr,
                 regex,
                 case_insensitive,
-            } => eval_basename(
+            } => timed_eval!("basename", eval_basename(
                 exact.as_ref(),
                 substr.as_ref(),
                 regex.as_ref(),
                 *case_insensitive,
                 ctx,
-            ),
+            )),
             Condition::Kv { .. } => {
-                // Delegate to kv evaluator
-                let file_path = std::path::Path::new(&ctx.report.target.path);
-                if let Some(evidence) =
-                    super::evaluators::evaluate_kv(condition, ctx.binary_data, file_path)
-                {
-                    ConditionResult::matched_with(vec![evidence])
-                } else {
-                    ConditionResult::no_match()
-                }
+                timed_eval!("kv", {
+                    // Delegate to kv evaluator with caching
+                    if let Some(evidence) = super::evaluators::evaluate_kv(condition, ctx) {
+                        ConditionResult::matched_with(vec![evidence])
+                    } else {
+                        ConditionResult::no_match()
+                    }
+                })
             },
         }
     }

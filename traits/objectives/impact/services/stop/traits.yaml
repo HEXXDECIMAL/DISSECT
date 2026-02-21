@@ -7,14 +7,6 @@ defaults:
   for: ["*"]
 
 traits:
-  - id: esxcli
-    desc: VMware ESXi CLI usage
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      substr: "esxcli"
-
   - id: systemctl-stop
     desc: Systemd service stop
     crit: suspicious
@@ -199,15 +191,6 @@ traits:
       substr: bitcoin
       case_insensitive: true
 
-  - id: word-victim
-    desc: Victim keyword
-    crit: notable
-    conf: 0.4
-    if:
-      type: string
-      substr: victim
-      case_insensitive: true
-
   - id: word-company
     desc: Company keyword
     crit: notable
@@ -285,7 +268,7 @@ composite_rules:
     mbc: "B0040"
     for: [elf]
     all:
-      - id: esxcli
+      - id: micro-behaviors/vm/detect/vmware::esxcli-tool
       - id: onion-domain
     any:
       - id: word-encrypted

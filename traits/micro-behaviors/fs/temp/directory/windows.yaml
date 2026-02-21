@@ -10,32 +10,6 @@ traits:
     for: [pe, dll, c]
     if:
       type: symbol
-      exact: "GetTempPath"
+      regex: "GetTempPath[AW]?$"
 
-  - id: get-temp-path-a
-    desc: Look up temp directory via GetTempPathA
-    crit: inert
-    conf: 0.66
-    for: [pe, dll, c]
-    if:
-      type: symbol
-      exact: "GetTempPathA"
-
-  - id: get-temp-path-w
-    desc: Look up temp directory via
-    crit: inert
-    conf: 0.66
-    for: [pe, dll, c]
-    if:
-      type: symbol
-      exact: "GetTempPathW"
-
-composite_rules:
-  - id: directory-windows
-    desc: Look up temp directory via GetTempPath
-    crit: inert
-    conf: 0.66
-    any:
-      - id: get-temp-path
-      - id: get-temp-path-a
-      - id: get-temp-path-w
+# composite rule 'directory-windows' removed - was redundant single-trait wrapper

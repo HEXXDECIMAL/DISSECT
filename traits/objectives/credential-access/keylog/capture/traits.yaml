@@ -258,8 +258,8 @@ traits:
     conf: 0.7
     for: [all]
     if:
-      type: string
-      substr: "System Events"
+      type: raw
+      regex: '(?i)tell\s+application\s+"System Events"'
 
   - id: system-events-upper
     desc: SYSTEM EVENTS phrase (uppercase)

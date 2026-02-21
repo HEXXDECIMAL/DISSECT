@@ -6,14 +6,6 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  - id: mmap-fn
-    desc: Map files or devices into
-    crit: inert
-    conf: 0.66
-    if:
-      type: symbol
-      exact: "mmap"
-
   - id: mmap64-fn
     desc: Map files or devices into
     crit: inert
@@ -36,5 +28,5 @@ composite_rules:
     crit: inert
     conf: 0.66
     any:
-      - id: mmap-fn
+      - id: micro-behaviors/mem/allocate/executable::mmap-symbol
       - id: mmap64-fn

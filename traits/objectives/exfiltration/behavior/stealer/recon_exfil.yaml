@@ -10,5 +10,5 @@ composite_rules:
       - id: objectives/discovery/host/fingerprint::process-list
       - id: objectives/command-and-control/infrastructure/ip::hardcoded-ipv4-script
     any:
-      - id: micro-behaviors/data/text/keywords::connect
+      - id: micro-behaviors/communications/socket/connect
       - id: objectives/command-and-control/network/beacon::direct-http-c2

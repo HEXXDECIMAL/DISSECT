@@ -4,7 +4,7 @@
 # ATT&CK: T1059.004 (Command and Scripting Interpreter: Unix Shell)
 
 defaults:
-  for: [all]
+  for: [scripts]
 
 traits:
   - id: embedded-shebang-sh

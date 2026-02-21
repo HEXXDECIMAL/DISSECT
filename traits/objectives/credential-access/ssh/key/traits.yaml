@@ -101,13 +101,6 @@ traits:
   if:
     type: string
     regex: sshd_?proc
-- id: ptrace-tracer-ptrace
-  desc: Process tracing reference (ptrace)
-  crit: notable
-  conf: 0.3
-  if:
-    type: symbol
-    substr: ptrace
 - id: ptrace-tracer-tracer
   desc: Process tracing reference (tracer)
   crit: notable
@@ -382,13 +375,6 @@ traits:
     type: string
     regex: (?:steal|dump)[_-]?passw(?:or)?d
 composite_rules:
-- id: ptrace-tracer
-  desc: Process tracing reference
-  crit: notable
-  conf: 0.3
-  any:
-  - id: ptrace-tracer-ptrace
-  - id: ptrace-tracer-tracer
 - id: password-pattern
   desc: Password pattern reference
   crit: notable
@@ -506,7 +492,7 @@ composite_rules:
   platforms:
   - linux
   all:
-  - id: ptrace-tracer
+  - id: ptrace-tracer-tracer
   - id: password-pattern
   - id: micro-behaviors/os/service/remote::sshd-ref
 - id: credential-theft

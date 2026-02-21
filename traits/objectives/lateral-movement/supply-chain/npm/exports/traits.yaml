@@ -5,23 +5,6 @@ defaults:
   for: [package.json, javascript, typescript]
 
 traits:
-  - id: has-cjs-export
-    desc: Code exports functionality via CommonJS
-    crit: notable
-    conf: 0.85
-    for: [javascript]
-    if:
-      type: string
-      regex: "module\\.exports\\s*=|exports\\.[a-zA-Z]"
-
-  - id: imports-dependencies
-    desc: Code imports from external packages
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      regex: "require\\(['\"][^./][^'\"]{1,120}['\"]\\)|from\\s+['\"][^./][^'\"]{1,120}['\"]"
-
   - id: has-default-export
     desc: Code has default export
     crit: notable

@@ -71,21 +71,8 @@ traits:
       substr: "HTTP/1."
 
   # === Network exfiltration atomic indicators ===
-  - id: requests-post
-    desc: Python requests.post call
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      regex: "requests\\.post"
-
-  - id: requests-get
-    desc: Python requests.get call
-    crit: inert
-    conf: 0.4
-    if:
-      type: string
-      regex: "requests\\.get"
+  # NOTE: requests.get/post moved to communications/http/lib/requests/python.yaml
+  # as they are library-specific implementations
 
   - id: socket-dot
     desc: socket module usage
@@ -96,18 +83,10 @@ traits:
     for: [python, ruby, javascript, typescript]
     if:
       type: string
-      regex: "socket\\."
+      regex: "socket\\.(socket|connect|gethostbyname|create_connection)\\("
 
-  - id: fetch-call
-    desc: JavaScript fetch call
-    crit: notable
-    conf: 0.4
-    # Restrict to JavaScript/TypeScript - "fetch(" as a string is too generic
-    # for binaries where it matches C++ method names like llvm::Fetcher::fetch()
-    for: [javascript, typescript]
-    if:
-      type: string
-      regex: "fetch\\("
+  # NOTE: fetch() moved to communications/http/request/javascript.yaml
+  # as it's JavaScript-specific
 
   - id: xmlhttprequest-word
     desc: XMLHttpRequest reference
@@ -161,9 +140,9 @@ composite_rules:
     crit: inert
     conf: 0.7
     any:
-      - id: requests-post
-      - id: requests-get
+      - id: micro-behaviors/communications/http/lib/requests/python::requests-post
+      - id: micro-behaviors/communications/http/lib/requests/python::requests-get
       - id: micro-behaviors/communications/http/lib/urllib::urllib-word
       - id: socket-dot
-      - id: fetch-call
+      - id: micro-behaviors/communications/http/request/javascript::fetch-string
       - id: xmlhttprequest-word

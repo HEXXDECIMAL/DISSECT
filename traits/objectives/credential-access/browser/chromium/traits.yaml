@@ -3,13 +3,13 @@ defaults:
   - all
 traits:
 - id: chrome-path
-  desc: Chrome browser profile path
+  desc: Chrome browser profile path (credential access context)
   crit: suspicious
   conf: 0.7
   attack: T1555.003
   if:
     type: string
-    regex: (?i)Google/Chrome
+    regex: (?i)Google/Chrome.{0,80}(Login Data|Cookies|Web Data|History|Bookmarks)
 - id: brave-path
   desc: Brave browser profile path
   crit: suspicious
@@ -82,20 +82,6 @@ traits:
   if:
     type: string
     substr: Coccoc
-- id: cookies-path
-  desc: Chromium Cookies file path
-  crit: notable
-  conf: 0.75
-  attack: T1555.003
-  for:
-  - python
-  - javascript
-  - shell
-  - elf
-  - pe
-  if:
-    type: raw
-    regex: '[/''"\\]Cookies[''"\\]?'
 - id: encrypted-key
   desc: Chromium encrypted_key field
   crit: suspicious
@@ -200,7 +186,7 @@ composite_rules:
   attack: T1555.003
   all:
   - id: chrome-path
-  - id: cookies-path
+  - id: objectives/credential-access/browser/chromium::cookies
 - id: shell-cookie-theft
   desc: Chrome cookie theft via shell
   crit: suspicious
@@ -210,7 +196,7 @@ composite_rules:
   - shell
   all:
   - id: chrome-path
-  - id: cookies-path
+  - id: objectives/credential-access/browser/chromium::cookies
   any:
   - id: objectives/execution/dropper/payload::cp-execute
   - id: objectives/execution/dropper/script::curl-cmd

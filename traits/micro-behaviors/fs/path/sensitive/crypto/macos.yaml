@@ -3,9 +3,9 @@ defaults:
 
 traits:
   - id: crypto-wallets
-    desc: Reference to cryptocurrency wallet data
+    desc: Reference to macOS cryptocurrency wallet paths
     crit: suspicious
     conf: 0.8
     if:
       type: string
-      regex: "(\\.wallet|wallet\\.dat)"
+      regex: "/Library/Application Support/(?:Bitcoin|Electrum|Exodus)"

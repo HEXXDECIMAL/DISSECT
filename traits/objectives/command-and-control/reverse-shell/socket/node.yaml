@@ -151,24 +151,6 @@ traits:
       exact: "writeFileSync"
 
   # === Ngrok atomic indicators ===
-  - id: ngrok-io
-    desc: ngrok.io domain
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "ngrok.io"
-
-  - id: ngrok-com
-    desc: ngrok.com domain
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "ngrok.com"
-
   - id: tcp-ngrok
     desc: tcp.ngrok endpoint
     crit: notable
@@ -369,8 +351,8 @@ composite_rules:
     attack: "T1572"
     for: [javascript, typescript]
     any:
-      - id: ngrok-io
-      - id: ngrok-com
+      - id: objectives/command-and-control/tunnel/proxy::ngrok-io
+      - id: objectives/command-and-control/tunnel/proxy::ngrok-com
       - id: tcp-ngrok
 
   - id: tunnel-service

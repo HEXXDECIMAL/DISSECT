@@ -8,7 +8,12 @@ traits:
   conf: 0.4
   attack: T1217
   for:
-  - all
+  - javascript
+  - typescript
+  - python
+  - shell
+  - ruby
+  - php
   if:
     type: string
     substr: Chrome
@@ -18,7 +23,12 @@ traits:
   conf: 0.4
   attack: T1217
   for:
-  - all
+  - javascript
+  - typescript
+  - python
+  - shell
+  - ruby
+  - php
   if:
     type: string
     substr: Firefox
@@ -28,7 +38,12 @@ traits:
   conf: 0.4
   attack: T1217
   for:
-  - all
+  - javascript
+  - typescript
+  - python
+  - shell
+  - ruby
+  - php
   if:
     type: string
     substr: Safari
@@ -43,7 +58,7 @@ traits:
     type: string
     regex: Edge[/\\]
 - id: edge-name-ms
-  desc: Edge browser name (Microsoft Edge)
+  desc: Edge browser name (MicrosoftEdge)
   crit: notable
   conf: 0.4
   attack: T1217
@@ -51,7 +66,7 @@ traits:
   - all
   if:
     type: string
-    regex: Microsoft\s*Edge|MicrosoftEdge
+    substr: MicrosoftEdge
 - id: edge-name-other
   desc: Edge browser name (Browser/Chromium)
   crit: notable
@@ -73,7 +88,7 @@ traits:
     type: string
     regex: Opera[/\\]
 - id: opera-name-other
-  desc: Opera browser name (GX/Stable/Software/Browser)
+  desc: Opera browser name (GX/Stable/Browser)
   crit: notable
   conf: 0.4
   attack: T1217
@@ -81,7 +96,7 @@ traits:
   - all
   if:
     type: string
-    regex: Opera\s+(?:GX|Stable|Software|Browser)
+    regex: Opera\s+(?:GX|Stable|Browser)
 - id: brave-name
   desc: Brave browser name
   crit: notable
@@ -206,7 +221,7 @@ traits:
   - all
   if:
     type: string
-    regex: Brave.{0,30}Software
+    substr: BraveSoftware
 - id: cookies-file
   desc: Cookies file reference
   crit: notable

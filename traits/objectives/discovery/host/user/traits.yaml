@@ -56,37 +56,6 @@ traits:
   if:
     type: string
     substr: LOCALAPPDATA
-- id: userprofile
-  desc: Windows USERPROFILE lookup
-  crit: notable
-  conf: 0.75
-  attack: T1033
-  for:
-  - pe
-  - python
-  - javascript
-  if:
-    type: string
-    substr: USERPROFILE
-- id: user-var
-  desc: USER environment variable
-  crit: notable
-  conf: 0.5
-  for:
-  - shell
-  - elf
-  - macho
-  - pe
-  - python
-  - ruby
-  - javascript
-  if:
-    type: string
-    word: USER
-  not:
-  - regex: ^\s*USER\s+(user|fwuser)(@|$)
-  - regex: USERNAME|USERPROFILE|USERID
-  - regex: '[|,]USER[|,]'
 - id: getpwnam
   desc: Get password entry by name
   crit: notable
@@ -210,7 +179,7 @@ composite_rules:
   - all
   any:
   - id: micro-behaviors/os/env/vars/user-info::username-var
-  - id: user-var
+  - id: micro-behaviors/os/env/vars/user-info::user-var
   - id: micro-behaviors/os/env/vars/user-info::logname-var
 - id: active-enum-cmds
   desc: Active user enumeration commands
@@ -262,4 +231,5 @@ composite_rules:
   - id: username-env
   - id: home-env
   unless:
-  - id: objectives/discovery/host/user::inline__enumeration-detected__unless_1
+  - id: metadata/dev/testing/pytest::pytest
+  - id: metadata/quality/testing::unittest-module

@@ -14,14 +14,6 @@ traits:
       type: symbol
       regex: mkdtemp
 
-  - id: tmpdir-env-var
-    desc: TMPDIR environment variable name
-    crit: inert
-    conf: 0.7
-    if:
-      type: string
-      word: "TMPDIR"
-
 composite_rules:
   - id: directory-env
     desc: Read temp directory from TMPDIR
@@ -31,5 +23,5 @@ composite_rules:
     mbc: E1083
     attack: T1083
     all:
-      - id: tmpdir-env-var
+      - id: micro-behaviors/os/env/vars::tmpdir-var
       - id: micro-behaviors/os/env/vars::getenv

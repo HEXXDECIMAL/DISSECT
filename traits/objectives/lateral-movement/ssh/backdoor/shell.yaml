@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: "(?:cat|grep|awk)\\s+[^\\n]{0,50}/\\.ssh/known_hosts|known_hosts"
+      regex: "(?:cat|grep|awk)\\s+[^\\n]{0,50}/\\.ssh/known_hosts"
 
   - id: known-hosts-ip-extract
     desc: Extracts IPs from known_hosts

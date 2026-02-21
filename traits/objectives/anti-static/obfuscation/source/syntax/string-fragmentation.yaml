@@ -1,14 +1,4 @@
 traits:
-- id: js-many-tiny-strings
-  desc: Many tiny strings (1-3 chars)
-  crit: notable
-  for:
-  - javascript
-  if:
-    type: string
-    regex: ^.{1,3}$
-    count_min: 50
-
 - id: js-fragmented-prop-single
   desc: Computed property access using concatenation (single quotes)
   crit: notable

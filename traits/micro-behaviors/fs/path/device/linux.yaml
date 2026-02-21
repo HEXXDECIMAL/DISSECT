@@ -11,14 +11,14 @@ defaults:
 
 traits:
   - id: dev-path-pattern
-    desc: /dev/ device path pattern
+    desc: Sensitive /dev/ device path pattern
     crit: inert
     conf: 0.7
     mbc: E1083
     attack: T1083
     if:
       type: string
-      regex: '/dev/[\w.\-/]{1,16}'
+      regex: '/dev/(kmem|dri/card[0-9]+|dri/renderD[0-9]+|input/event[0-9]+)'
 
   - id: dev-null
     desc: /dev/null (legitimate discard device)

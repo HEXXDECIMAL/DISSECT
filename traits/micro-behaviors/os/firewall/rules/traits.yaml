@@ -3,16 +3,6 @@
 # Indicators of sophisticated backdoor installation
 
 traits:
-  - id: firewall-cmd-tool
-    desc: firewall-cmd tool invocation detected
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "firewall-cmd"
-    attack: "T1562.004"
-
   - id: firewall-cmd-add-port-flag
     desc: --add-port flag
     crit: suspicious
@@ -101,16 +91,6 @@ traits:
     if:
       type: string
       substr: "systemctl restart firewalld"
-    attack: "T1562.004"
-
-  - id: ufw-command
-    desc: ufw command
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "ufw "
     attack: "T1562.004"
 
   - id: ufw-allow-command
@@ -219,16 +199,6 @@ traits:
       type: string
       substr: "which iptables"
 
-  - id: iptables-tool
-    desc: iptables firewall tool
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    if:
-      type: string
-      substr: "iptables"
-    attack: "T1562.004"
-
   - id: firewalld-enable
     desc: systemctl enable firewalld
     crit: suspicious
@@ -314,16 +284,6 @@ composite_rules:
       - id: firewall-cmd-complete-reload
       - id: firewalld-restart
 
-  - id: ufw-tool
-    desc: ufw firewall management tool
-    crit: notable
-    conf: 0.75
-    for: [elf, shell]
-    attack: "T1562.004"
-    any:
-      - id: ufw-command
-      - id: ufw-allow-command
-
   - id: ufw-allow-ssh
     desc: ufw allowing SSH port access
     crit: suspicious
@@ -387,7 +347,7 @@ composite_rules:
     for: [elf, shell]
     attack: "T1562.004"
     all:
-      - id: firewall-cmd-tool
+      - id: micro-behaviors/os/firewall/firewalld::firewall-cmd
       - id: port-22-ssh-rule
 
   - id: firewall-persistence-setup
@@ -399,4 +359,3 @@ composite_rules:
     all:
       - id: firewall-cmd-permanent
       - id: firewall-cmd-reload
-

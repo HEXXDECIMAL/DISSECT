@@ -717,8 +717,33 @@ pub(crate) fn run(
                 compiled_regex,
             };
 
-            // Use the actual kv evaluator
-            let evidence = composite_rules::evaluators::evaluate_kv(&condition, &binary_data, path);
+            // Create minimal context for kv evaluation
+            let internal_file_type = match file_type {
+                FileType::Pe => composite_rules::FileType::Pe,
+                FileType::Elf => composite_rules::FileType::Elf,
+                FileType::MachO => composite_rules::FileType::Macho,
+                FileType::JavaScript => composite_rules::FileType::JavaScript,
+                FileType::Python => composite_rules::FileType::Python,
+                FileType::Java => composite_rules::FileType::Java,
+                FileType::Go => composite_rules::FileType::Go,
+                FileType::Rust => composite_rules::FileType::Rust,
+                FileType::Ruby => composite_rules::FileType::Ruby,
+                FileType::Shell => composite_rules::FileType::Shell,
+                FileType::PowerShell => composite_rules::FileType::PowerShell,
+                FileType::Php => composite_rules::FileType::Php,
+                _ => composite_rules::FileType::All,
+            };
+            let eval_ctx = composite_rules::EvaluationContext::new(
+                &report,
+                &binary_data,
+                internal_file_type,
+                platforms.clone(),
+                None,
+                None,
+            );
+
+            // Use the actual kv evaluator with caching
+            let evidence = composite_rules::evaluators::evaluate_kv(&condition, &eval_ctx);
             let _matched = evidence.is_some();
 
             let mut out = String::new();

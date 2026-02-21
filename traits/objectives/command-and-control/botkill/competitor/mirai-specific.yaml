@@ -8,15 +8,6 @@ defaults:
   platforms: [linux]
 
 traits:
-  # Daemon paths that Mirai targets for termination
-  - id: kill-target-sshd
-    desc: SSH daemon path reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/usr/sbin/sshd"
-
   # kill-target-crond: use objectives/anti-analysis/masquerade/process::fake-crond-path (canonical path ref)
 
   - id: kill-target-telnetd
@@ -100,7 +91,7 @@ composite_rules:
     attack: "T1562.001"
     needs: 4  # At least 4 different kill targets
     any:
-      - id: kill-target-sshd
+      - id: micro-behaviors/os/service/remote::sshd-path
       - id: objectives/anti-analysis/masquerade/process::fake-crond-path
       - id: kill-target-telnetd
       - id: kill-target-httpd

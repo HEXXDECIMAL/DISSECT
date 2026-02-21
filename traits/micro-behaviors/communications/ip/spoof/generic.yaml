@@ -54,14 +54,8 @@ traits:
       type: string
       substr: "SOCK_RAW"
 
-  - id: raw-socket-keyword
-    desc: raw socket keyword
-    crit: inert
-    conf: 0.65
-    for: [c, go, rust, python, shell, elf, macho]
-    if:
-      type: string
-      regex: "raw.?socket"
+  # NOTE: raw socket keyword moved to communications/socket/raw/generic.yaml
+  # as that's the more canonical location for raw socket detection
 
   # === SYN cookie atomic indicators ===
   - id: syncookie-word

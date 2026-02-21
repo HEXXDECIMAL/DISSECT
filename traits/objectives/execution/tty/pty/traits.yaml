@@ -77,17 +77,6 @@ traits:
       type: symbol
       regex: ptsname_r
 
-  # === Ttyname atomic indicators ===
-  - id: ttyname-symbol
-    desc: ttyname symbol
-    crit: notable
-    conf: 0.6
-    attack: "T1059"
-    for: [elf, macho]
-    if:
-      type: symbol
-      regex: ttyname
-
   - id: ttyname-r-symbol
     desc: ttyname_r symbol
     crit: notable
@@ -217,7 +206,7 @@ composite_rules:
     attack: "T1059"
     for: [elf, macho]
     any:
-      - id: ttyname-symbol
+      - id: micro-behaviors/process/terminal/tty::ttyname
       - id: ttyname-r-symbol
 
   # Python PTY composite
