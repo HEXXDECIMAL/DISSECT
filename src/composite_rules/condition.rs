@@ -5,12 +5,13 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-/// Custom deserializer for offset ranges that accepts ergonomic formats:
+/// Custom serde for offset ranges that accepts/produces ergonomic formats:
 /// - `[start, end]` - closed range from start to end
 /// - `[start,]` or `[start, null]` or `[start, ~]` - from start to end of file (open-ended end)
 /// - `[null, end]` or `[~, end]` - from beginning of file to end (open-ended start, treated as offset 0)
-mod offset_range_deser {
+mod offset_range_serde {
     use serde::de::{self, Deserializer, SeqAccess};
+    use serde::ser::Serializer;
 
     pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Option<(i64, Option<i64>)>, D::Error>
     where
@@ -62,6 +63,25 @@ mod offset_range_deser {
         }
 
         deserializer.deserialize_any(OffsetRangeVisitor)
+    }
+
+    pub(crate) fn serialize<S>(
+        value: &Option<(i64, Option<i64>)>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match value {
+            None => serializer.serialize_none(),
+            Some((start, end)) => {
+                use serde::ser::SerializeSeq;
+                let mut seq = serializer.serialize_seq(Some(2))?;
+                seq.serialize_element(start)?;
+                seq.serialize_element(end)?;
+                seq.end()
+            },
+        }
     }
 }
 
@@ -137,8 +157,8 @@ enum ConditionDeser {
     Tagged(Box<ConditionTagged>),
 }
 
-/// Internal tagged enum for deserializing conditions with explicit `type` field
-#[derive(Debug, Clone, Deserialize)]
+/// Internal tagged enum for serializing/deserializing conditions with explicit `type` field
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 enum ConditionTagged {
     Symbol {
@@ -181,13 +201,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
     Structure {
@@ -291,7 +311,7 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(default)]
@@ -300,7 +320,7 @@ enum ConditionTagged {
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -330,13 +350,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -414,13 +434,13 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_deser::deserialize")]
+        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -718,13 +738,265 @@ impl From<ConditionDeser> for Condition {
     }
 }
 
+impl From<Condition> for ConditionTagged {
+    fn from(cond: Condition) -> Self {
+        match cond {
+            Condition::Symbol {
+                exact,
+                substr,
+                regex,
+                platforms,
+                compiled_regex: _,
+            } => ConditionTagged::Symbol {
+                exact,
+                substr,
+                regex,
+                platforms,
+            },
+            Condition::String {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                exclude_patterns,
+                external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                compiled_regex: _,
+                compiled_excludes: _,
+            } => ConditionTagged::String {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                exclude_patterns,
+                external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            },
+            Condition::Structure {
+                feature,
+                min_sections,
+            } => ConditionTagged::Structure {
+                feature,
+                min_sections,
+            },
+            Condition::ExportsCount { min, max } => ConditionTagged::ExportsCount { min, max },
+            Condition::Trait { id } => ConditionTagged::Trait { id },
+            Condition::Ast {
+                kind,
+                node,
+                exact,
+                substr,
+                regex,
+                query,
+                language,
+                case_insensitive,
+            } => ConditionTagged::Ast {
+                kind,
+                node,
+                exact,
+                substr,
+                regex,
+                query,
+                language,
+                case_insensitive,
+            },
+            Condition::Yara {
+                source,
+                compiled: _,
+                namespace: _,
+            } => ConditionTagged::Yara { source },
+            Condition::Syscall { name, number, arch } => ConditionTagged::Syscall {
+                name,
+                number,
+                arch,
+            },
+            Condition::SectionRatio {
+                section,
+                compare_to,
+                min,
+                max,
+            } => ConditionTagged::SectionRatio {
+                section,
+                compare_to,
+                min,
+                max,
+            },
+            Condition::ImportCombination {
+                required,
+                suspicious,
+                min_suspicious,
+                max_total,
+            } => ConditionTagged::ImportCombination {
+                required,
+                suspicious,
+                min_suspicious,
+                max_total,
+            },
+            Condition::StringCount {
+                min,
+                max,
+                min_length,
+                regex,
+                compiled_regex: _,
+            } => ConditionTagged::StringCount {
+                min,
+                max,
+                min_length,
+                regex,
+            },
+            Condition::Metrics {
+                field,
+                min,
+                max,
+                min_size,
+                max_size,
+            } => ConditionTagged::Metrics {
+                field,
+                min,
+                max,
+                min_size,
+                max_size,
+            },
+            Condition::Hex {
+                pattern,
+                offset,
+                offset_range,
+                section,
+                section_offset,
+                section_offset_range,
+            } => ConditionTagged::Hex {
+                pattern,
+                offset,
+                offset_range,
+                section,
+                section_offset,
+                section_offset_range,
+            },
+            Condition::Raw {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                compiled_regex: _,
+            } => ConditionTagged::Raw {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                external_ip,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            },
+            Condition::Section {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                length_min,
+                length_max,
+                entropy_min,
+                entropy_max,
+                readable,
+                writable,
+                executable,
+            } => ConditionTagged::Section {
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                length_min,
+                length_max,
+                entropy_min,
+                entropy_max,
+                readable,
+                writable,
+                executable,
+            },
+            Condition::Encoded {
+                encoding,
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+                compiled_regex: _,
+            } => ConditionTagged::Encoded {
+                encoding,
+                exact,
+                substr,
+                regex,
+                word,
+                case_insensitive,
+                section,
+                offset,
+                offset_range,
+                section_offset,
+                section_offset_range,
+            },
+            Condition::Basename {
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+            } => ConditionTagged::Basename {
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+            },
+            Condition::Kv {
+                path,
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+                compiled_regex: _,
+            } => ConditionTagged::Kv {
+                path,
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+            },
+        }
+    }
+}
+
 /// Condition type in composite rules.
 ///
 /// Supports two YAML formats:
 /// 1. Tagged: `{ type: string, exact: "foo" }` - explicit type field
 /// 2. Shorthand: `{ id: my-trait }` - defaults to Trait when only `id` is present
 #[derive(Debug, Clone, Deserialize, Serialize)]
-#[serde(from = "ConditionDeser")]
+#[serde(from = "ConditionDeser", into = "ConditionTagged")]
 pub(crate) enum Condition {
     /// Match a symbol (import/export)
     Symbol {
@@ -777,7 +1049,7 @@ pub(crate) enum Condition {
         /// Absolute offset range: [start, end) (negative values resolved from file end)
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
@@ -786,7 +1058,7 @@ pub(crate) enum Condition {
         /// Section-relative offset range: [start, end) within section bounds
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
@@ -1042,7 +1314,7 @@ pub(crate) enum Condition {
         /// Absolute offset range: [start, end) (negative values resolved from file end)
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
@@ -1051,7 +1323,7 @@ pub(crate) enum Condition {
         /// Section-relative offset range: [start, end) within section bounds
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
@@ -1135,7 +1407,7 @@ pub(crate) enum Condition {
         /// Absolute offset range: [start, end) (negative values resolved from file end)
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
@@ -1144,7 +1416,7 @@ pub(crate) enum Condition {
         /// Section-relative offset range: [start, end) within section bounds
         #[serde(
             skip_serializing_if = "Option::is_none",
-            deserialize_with = "offset_range_deser::deserialize"
+            deserialize_with = "offset_range_serde::deserialize"
         )]
         section_offset_range: Option<(i64, Option<i64>)>,
         /// Pre-compiled regex (populated after deserialization, not serialized)
@@ -2402,7 +2674,7 @@ mod location_constraint_tests {
         // Test [start,] format - open-ended to end of file
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2418,7 +2690,7 @@ mod location_constraint_tests {
         // Test [~, end] format - open-ended from beginning (YAML null syntax)
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2437,7 +2709,7 @@ mod location_constraint_tests {
         // Test [start, null] format - compatibility with explicit null
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2453,7 +2725,7 @@ mod location_constraint_tests {
         // Test [start, ~] format - YAML null syntax (most ergonomic)
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2469,7 +2741,7 @@ mod location_constraint_tests {
         // Test [null, end] format - compatibility with explicit null
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2485,7 +2757,7 @@ mod location_constraint_tests {
         // Test negative offsets (from end of file)
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             offset_range: Option<(i64, Option<i64>)>,
         }
 
@@ -2501,7 +2773,7 @@ mod location_constraint_tests {
         // Test section_offset_range with same formats
         #[derive(Debug, serde::Deserialize, PartialEq)]
         struct TestStruct {
-            #[serde(deserialize_with = "offset_range_deser::deserialize")]
+            #[serde(deserialize_with = "offset_range_serde::deserialize")]
             section_offset_range: Option<(i64, Option<i64>)>,
         }
 

@@ -151,6 +151,26 @@ pub(crate) fn yara_cache_path(third_party_enabled: bool) -> Result<PathBuf> {
     Ok(cache_dir()?.join(cache_key))
 }
 
+/// Generate a cache key for the capability mapper
+pub(crate) fn mapper_cache_key() -> Result<String> {
+    let mtime = cache_timestamp()?;
+    let timestamp = mtime
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .context("Invalid cache timestamp")?
+        .as_secs();
+
+    let mode = if is_developer_mode() { "dev" } else { "prod" };
+
+    // v1: initial mapper cache format
+    Ok(format!("capability-mapper-v1-{}-{}.bin", mode, timestamp))
+}
+
+/// Get the path to the capability mapper cache file
+pub(crate) fn mapper_cache_path() -> Result<PathBuf> {
+    let cache_key = mapper_cache_key()?;
+    Ok(cache_dir()?.join(cache_key))
+}
+
 /// Get the reverse engineering tool analysis cache directory
 /// Returns: {cache_dir}/re/
 pub(crate) fn re_cache_dir() -> Result<PathBuf> {

@@ -35,9 +35,20 @@ use crate::types::Criticality;
 use anyhow::{Context, Result};
 use rayon::prelude::*;
 use rustc_hash::{FxHashMap, FxHashSet};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+/// Serializable cache data for the capability mapper.
+/// Contains only the data that round-trips through serde.
+/// Indexes (TraitIndex, StringMatchIndex, RawContentRegexIndex) are rebuilt after load.
+#[derive(Serialize, Deserialize)]
+struct MapperCacheData {
+    symbol_map: HashMap<String, TraitInfo>,
+    trait_definitions: Vec<TraitDefinition>,
+    composite_rules: Vec<CompositeTrait>,
+}
 
 impl super::CapabilityMapper {
     /// Load capability mappings from directory of YAML files (recursively)
@@ -77,10 +88,54 @@ impl super::CapabilityMapper {
             eprintln!("🔍 Loading capabilities from: {}", dir_path.display());
         }
 
-        // NOTE: Capability mapper caching is disabled because Condition types
-        // have asymmetric serde (from = ConditionDeser) that doesn't round-trip.
-        // TODO: Add #[serde(into = "ConditionSer")] to enable caching.
-        // Current loading time: ~360ms (acceptable, YARA cache provides bigger wins)
+        // Try to load from cache (skip validation when loading from cache)
+        if !enable_full_validation {
+            if let Ok(cache_path) = crate::cache::mapper_cache_path() {
+                if cache_path.exists() {
+                    tracing::debug!("Attempting to load mapper from cache: {:?}", cache_path);
+                    match fs::read(&cache_path) {
+                        Ok(bytes) => {
+                            match serde_json::from_slice::<MapperCacheData>(&bytes) {
+                                Ok(cache_data) => {
+                                    tracing::info!(
+                                        "Loaded mapper from cache ({} traits, {} composites)",
+                                        cache_data.trait_definitions.len(),
+                                        cache_data.composite_rules.len()
+                                    );
+
+                                    // Rebuild indexes from cached trait definitions
+                                    let trait_index =
+                                        TraitIndex::build(&cache_data.trait_definitions);
+                                    let string_match_index =
+                                        StringMatchIndex::build(&cache_data.trait_definitions);
+                                    let raw_content_regex_index =
+                                        RawContentRegexIndex::build(&cache_data.trait_definitions)
+                                            .map_err(|errs| {
+                                                anyhow::anyhow!("Regex errors: {:?}", errs)
+                                            })?;
+
+                                    return Ok(Self {
+                                        symbol_map: cache_data.symbol_map,
+                                        trait_definitions: cache_data.trait_definitions,
+                                        composite_rules: cache_data.composite_rules,
+                                        trait_index,
+                                        string_match_index,
+                                        raw_content_regex_index,
+                                        platforms: vec![Platform::All],
+                                    });
+                                },
+                                Err(e) => {
+                                    tracing::warn!("Failed to deserialize mapper cache: {}", e);
+                                },
+                            }
+                        },
+                        Err(e) => {
+                            tracing::warn!("Failed to read mapper cache: {}", e);
+                        },
+                    }
+                }
+            }
+        }
 
         // First, collect all YAML file paths
         tracing::debug!("Scanning directory for YAML files");
@@ -2021,7 +2076,32 @@ impl super::CapabilityMapper {
             std::process::exit(1);
         }
 
-        // NOTE: Capability mapper caching disabled - see comment above
+        // Save to cache for future runs (only if not in validation mode)
+        if !enable_full_validation {
+            if let Ok(cache_path) = crate::cache::mapper_cache_path() {
+                let cache_data = MapperCacheData {
+                    symbol_map: symbol_map.clone(),
+                    trait_definitions: trait_definitions.clone(),
+                    composite_rules: composite_rules.clone(),
+                };
+                match serde_json::to_vec(&cache_data) {
+                    Ok(json) => {
+                        if let Err(e) = fs::write(&cache_path, &json) {
+                            tracing::warn!("Failed to write mapper cache: {}", e);
+                        } else {
+                            tracing::info!(
+                                "Saved mapper cache ({} bytes): {:?}",
+                                json.len(),
+                                cache_path
+                            );
+                        }
+                    },
+                    Err(e) => {
+                        tracing::warn!("Failed to serialize mapper cache: {}", e);
+                    },
+                }
+            }
+        }
 
         Ok(Self {
             symbol_map,
