@@ -609,7 +609,7 @@ impl<'a> RuleDebugger<'a> {
                 section_offset,
                 section_offset_range,
                 ..
-            } => self.debug_content_condition(
+            } => self.debug_raw_condition(
                 exact,
                 substr,
                 regex,
@@ -1093,7 +1093,7 @@ impl<'a> RuleDebugger<'a> {
                 false
             };
             if content_matched {
-                result.details.push("💡 Found in content - try `content:` instead".to_string());
+                result.details.push("💡 Found in raw bytes - try `type: raw` instead".to_string());
             }
         }
 
@@ -1273,7 +1273,7 @@ impl<'a> RuleDebugger<'a> {
                 false
             };
             if content_matched {
-                result.details.push("💡 Found in content - try `content:` instead".to_string());
+                result.details.push("💡 Found in raw bytes - try `type: raw` instead".to_string());
             }
         }
 
@@ -1411,7 +1411,7 @@ impl<'a> RuleDebugger<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn debug_content_condition(
+    fn debug_raw_condition(
         &self,
         exact: &Option<String>,
         substr: &Option<String>,
@@ -1461,7 +1461,7 @@ impl<'a> RuleDebugger<'a> {
             format!(" @{{{}}}", location_parts.join(", "))
         };
 
-        let desc = format!("content: {}{}", pattern_desc, location_desc);
+        let desc = format!("raw: {}{}", pattern_desc, location_desc);
 
         // Resolve the effective search range
         let file_size = self.binary_data.len();
@@ -2088,15 +2088,15 @@ fn describe_condition(condition: &Condition) -> String {
                 *section_offset_range,
             );
             if exact.is_some() {
-                format!("content[exact]{}", loc)
+                format!("raw[exact]{}", loc)
             } else if substr.is_some() {
-                format!("content[substr]{}", loc)
+                format!("raw[substr]{}", loc)
             } else if regex.is_some() {
-                format!("content[regex]{}", loc)
+                format!("raw[regex]{}", loc)
             } else if word.is_some() {
-                format!("content[word]{}", loc)
+                format!("raw[word]{}", loc)
             } else {
-                format!("content[?]{}", loc)
+                format!("raw[?]{}", loc)
             }
         },
         Condition::Kv {

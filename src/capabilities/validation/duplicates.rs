@@ -7,7 +7,7 @@
 //! - **String pattern duplicates**: Same normalized pattern appearing in multiple files with overlapping file types
 //! - **Regex overlaps**: Regex patterns with shared alternatives or substring matches overlapping with exact patterns
 //! - **Type conflicts**: Same pattern appearing as different condition types (string vs symbol vs raw)
-//! - **String/content collisions**: Pattern appearing as both string and raw conditions with same criticality
+//! - **String/raw collisions**: Pattern appearing as both string and raw conditions with same criticality
 //! - **For-only duplicates**: Traits identical except for the `for:` field, indicating mergeable rules
 //! - **Alternation merge candidates**: Regex patterns differing only in first token case that could be combined
 
@@ -2273,7 +2273,7 @@ pub(crate) fn find_alternation_merge_candidates(
     candidates
 }
 
-/// Extract matching signature from a Condition (for string/content collision detection)
+/// Extract matching signature from a Condition (for string/raw collision detection)
 fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignature)> {
     match condition {
         Condition::String {

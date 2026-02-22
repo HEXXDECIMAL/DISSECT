@@ -58,7 +58,7 @@ pub(super) mod shared {
         pub(super) criticality: crate::types::Criticality,
     }
 
-    /// Signature for string/content matching conditions (for collision detection)
+    /// Signature for string/raw matching conditions (for collision detection)
     /// Note: count/density fields excluded - they're at trait level now and don't affect matching logic
     #[derive(Debug, Clone, PartialEq, Eq, Hash)]
     pub(super) struct MatchSignature {

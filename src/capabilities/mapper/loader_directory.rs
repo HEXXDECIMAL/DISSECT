@@ -1405,29 +1405,29 @@ impl super::CapabilityMapper {
             has_fatal_errors = true;
         }
 
-        // Validate: string vs content type collisions (same pattern at same criticality)
-        // These should be merged to just `content` (which is broader)
+        // Validate: string vs raw type collisions (same pattern at same criticality)
+        // These should be merged to just `raw` (which is broader)
         let collisions = find_string_content_collisions(&trait_definitions);
         if !collisions.is_empty() {
             eprintln!(
-                "\n❌ ERROR: {} trait pairs have string/content type collisions",
+                "\n❌ ERROR: {} trait pairs have string/raw type collisions",
                 collisions.len()
             );
             eprintln!("   When both `type: string` and `type: raw` exist for the same pattern,");
             eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
-            for (string_id, content_id, pattern) in &collisions {
+            for (string_id, raw_id, pattern) in &collisions {
                 let string_source =
                     rule_source_files.get(string_id).map(std::string::String::as_str).unwrap_or("unknown");
                 let line_hint = find_line_number(string_source, string_id);
                 if let Some(line) = line_hint {
                     eprintln!(
-                        "   {}:{}: string trait '{}' duplicates content trait '{}'",
-                        string_source, line, string_id, content_id
+                        "   {}:{}: string trait '{}' duplicates raw trait '{}'",
+                        string_source, line, string_id, raw_id
                     );
                 } else {
                     eprintln!(
-                        "   {}: string trait '{}' duplicates content trait '{}'",
-                        string_source, string_id, content_id
+                        "   {}: string trait '{}' duplicates raw trait '{}'",
+                        string_source, string_id, raw_id
                     );
                 }
                 eprintln!("      Pattern: {}", pattern);
