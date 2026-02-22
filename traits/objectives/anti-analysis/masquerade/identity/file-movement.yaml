@@ -11,8 +11,7 @@ traits:
   crit: notable
   conf: 0.7
   if:
-    type: string
-    regex: os\.rename
+    id: micro-behaviors/fs/file/rename/unix::rename
 - id: shutil-move-call
   desc: shutil.move file movement
   crit: notable

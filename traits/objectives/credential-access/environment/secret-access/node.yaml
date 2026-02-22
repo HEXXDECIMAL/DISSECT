@@ -12,8 +12,7 @@ traits:
     crit: notable
     conf: 0.6
     if:
-      type: string
-      substr: ".ssh/id_rsa"
+      id: objectives/credential-access/ssh/key::id-rsa
 
   # Removed aws-credentials-file duplicate - use micro-behaviors/fs/path/sensitive/cloud::aws-credentials
 

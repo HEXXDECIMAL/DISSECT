@@ -15,7 +15,7 @@ traits:
     attack: "T1070.003"
     if:
       type: raw
-      regex: 'history\s+-c\b|>\s*/root/\.bash_history|echo\s*>\s*[^\n]{0,30}\.bash_history'
+      regex: '>\s*/root/\.bash_history|echo\s*>\s*[^\n]{0,30}\.bash_history'
 
   - id: wtmp-clear
     desc: Clears wtmp/utmp logs
