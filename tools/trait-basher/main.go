@@ -204,7 +204,7 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 	defer rc.wg.Done()
 
 	for job := range rc.jobs {
-		path := rc.jobPath(job)
+		path := jobPath(job)
 
 		// Create a per-job config copy to avoid race conditions on cfg.provider
 		jobCfg := *rc.cfg
@@ -265,7 +265,7 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 	}
 }
 
-func (*reviewCoordinator) jobPath(job reviewJob) string {
+func jobPath(job reviewJob) string {
 	if job.archive != nil {
 		return job.archive.ArchivePath
 	}
@@ -657,48 +657,6 @@ func (f *flushingWriter) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
-// multiHandler writes to multiple slog.Handler instances (for dual console+file logging).
-type multiHandler struct {
-	handlers []slog.Handler
-}
-
-func (m *multiHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	for _, h := range m.handlers {
-		if h.Enabled(ctx, level) {
-			return true
-		}
-	}
-	return false
-}
-
-func (m *multiHandler) Handle(ctx context.Context, record slog.Record) error {
-	for _, h := range m.handlers {
-		// Only handle if this handler accepts this level
-		if !h.Enabled(ctx, record.Level) {
-			continue
-		}
-		if err := h.Handle(ctx, record.Clone()); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (m *multiHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	newHandlers := make([]slog.Handler, len(m.handlers))
-	for i, h := range m.handlers {
-		newHandlers[i] = h.WithAttrs(attrs)
-	}
-	return &multiHandler{handlers: newHandlers}
-}
-
-func (m *multiHandler) WithGroup(name string) slog.Handler {
-	newHandlers := make([]slog.Handler, len(m.handlers))
-	for i, h := range m.handlers {
-		newHandlers[i] = h.WithGroup(name)
-	}
-	return &multiHandler{handlers: newHandlers}
-}
 
 // streamState tracks the current processing state as we stream files.
 type streamState struct {
@@ -800,21 +758,9 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	// Wrap log file with flushing writer to ensure logs survive OOM kills
 	flushingFile := &flushingWriter{w: logFile}
 
-	// File handler always logs at Info level for debugging
+	// File-only logger for structured debugging (console output is handled directly by fmt)
 	fileHandler := slog.NewJSONHandler(flushingFile, &slog.HandlerOptions{Level: slog.LevelInfo})
-
-	// Console handler: Warn by default, Info when --verbose
-	consoleLevel := slog.LevelWarn
-	if cfg.verbose {
-		consoleLevel = slog.LevelInfo
-	}
-	consoleHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: consoleLevel})
-
-	// Multi-handler that writes to both
-	baseLogger := slog.New(&multiHandler{handlers: []slog.Handler{fileHandler, consoleHandler}})
-
-	// Add session_id and pid to all log entries by default (for parallel session disambiguation)
-	logger := baseLogger.With(
+	logger := slog.New(fileHandler).With(
 		"session_id", sessionID,
 		"pid", pid,
 	)
@@ -864,7 +810,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	go func() {
 		defer close(resultsDone)
 		for result := range coordinator.results {
-			path := coordinator.jobPath(result.job)
+			path := jobPath(result.job)
 			if result.err != nil {
 				logger.Error("review_failed",
 					"path", path,

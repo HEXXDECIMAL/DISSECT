@@ -19,38 +19,36 @@ func retryDelay() time.Duration {
 	return baseDelay + randomDelay
 }
 
-// formatProvidersForDisplay collapses gemini:model entries into a single "gemini (4 models)"
+// formatProvidersForDisplay collapses gemini:model entries into a single "gemini (N models)"
 // for cleaner display while showing the full fallback chain.
 func formatProvidersForDisplay(providers []string) string {
 	var result []string
 	geminiCount := 0
 
-	for _, p := range providers {
-		if strings.HasPrefix(p, "gemini:") {
-			geminiCount++
-		} else if p == "gemini" {
-			result = append(result, "gemini")
-		} else {
-			// Flush any accumulated gemini models before adding next provider
-			if geminiCount > 0 {
-				if geminiCount == 1 {
-					result = append(result, "gemini")
-				} else {
-					result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
-				}
-				geminiCount = 0
-			}
-			result = append(result, p)
+	flushGemini := func() {
+		if geminiCount == 0 {
+			return
 		}
-	}
-	// Flush remaining gemini models
-	if geminiCount > 0 {
 		if geminiCount == 1 {
 			result = append(result, "gemini")
 		} else {
 			result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
 		}
+		geminiCount = 0
 	}
+
+	for _, p := range providers {
+		switch {
+		case strings.HasPrefix(p, "gemini:"):
+			geminiCount++
+		case p == "gemini":
+			result = append(result, "gemini")
+		default:
+			flushGemini()
+			result = append(result, p)
+		}
+	}
+	flushGemini()
 	return strings.Join(result, " → ")
 }
 
@@ -119,11 +117,7 @@ func getDissectLogFilePath(sessionID string) (string, error) {
 // generateSessionID returns a UUID v4 for session tracking.
 func generateSessionID() string {
 	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		ts := time.Now().UnixNano()
-		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
-			ts>>32, (ts>>16)&0xffff, ts&0xffff, 0x4000, ts&0xffffffffffff)
-	}
+	_, _ = rand.Read(b) // crypto/rand.Read never fails on supported platforms
 	b[6] = (b[6] & 0x0f) | 0x40 // Version 4
 	b[8] = (b[8] & 0x3f) | 0x80 // Variant
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
