@@ -18,7 +18,7 @@ traits:
             (_) @dynamic_url_arg
             (_) @async_arg
           )
-          (#match? @open_method "open")
+          (#eq? @open_method "open")
           (#match? @method "GET|POST")
           (#match? @xmlhttp_object "dSta")
         )

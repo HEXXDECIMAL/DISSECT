@@ -137,7 +137,7 @@ traits:
             (identifier) @dest
             (identifier) @src
             (identifier) @len))
-         (#match? @copy_fn "copy_to_user"))
+         (#eq? @copy_fn "copy_to_user"))
 
 composite_rules:
   - id: singularity-keyword

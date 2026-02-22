@@ -35,8 +35,8 @@ traits:
                )
             )
           )
-          (#match? @ord_func "ord")
-          (#match? @chr_func "chr")
+          (#eq? @ord_func "ord")
+          (#eq? @chr_func "chr")
         )
 
   - id: simple-shift-cipher

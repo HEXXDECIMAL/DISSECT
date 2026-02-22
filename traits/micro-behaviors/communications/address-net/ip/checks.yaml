@@ -16,7 +16,7 @@ traits:
           )
           arguments: (arguments . (string (string_fragment) @range))
         )
-        (#match? @starts "startsWith")
+        (#eq? @starts "startsWith")
         (#not-match? @ip "^console$")
         (#match? @range "^(10\.|172\.|192\.168|127\.|fe80::)")
     downgrade:

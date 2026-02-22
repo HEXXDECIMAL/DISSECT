@@ -40,7 +40,7 @@ traits:
           arguments: (arguments
             (string) @enc
           )
-          (#match? @tostring "toString")
+          (#eq? @tostring "toString")
           (#match? @enc "hex")
         )
 

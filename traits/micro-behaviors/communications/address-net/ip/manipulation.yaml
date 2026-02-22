@@ -20,7 +20,7 @@ traits:
             (string (string_fragment) @repl)
           )
         )
-        (#match? @prop "replace")
+        (#eq? @prop "replace")
         (#match? @pat "\\.")
         (#match? @repl "-")
     unless:
@@ -50,7 +50,7 @@ traits:
             (string (string_fragment) @repl)
           )
         )
-        (#match? @prop "replace")
+        (#eq? @prop "replace")
         (#match? @pat ":")
         (#match? @repl "-")
     unless:

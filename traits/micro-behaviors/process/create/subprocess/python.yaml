@@ -88,7 +88,7 @@ traits:
             attribute: (identifier) @meth)
           arguments: (argument_list
             (string) @cmd))
-         (#match? @mod "^subprocess$")
+         (#eq? @mod "subprocess")
          (#match? @meth "^(Popen|run|call|check_output|check_call)$"))
 
   # === Content-based fallback ===

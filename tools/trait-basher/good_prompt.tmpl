@@ -50,6 +50,7 @@ Prefer improving poorly-written traits for better signal than deleting them.
 - Some traits are poorly written or incomplete - find ways to address the inaccuracy by improving how it matches programs
 - Consider adding constraits like `near`, `count_min`, `size_min`, `for` - see RULES.md for details!
 - Upgrade pattern type to a more specific matcher: raw → string → symbol → ast (symbol & AST are the most specific matchers)
+- Prefer multiple reusable atomic traits over complex regular expressions (prefer 3 traits over a|b|c regexes).
 - Perfect already but in a misleading subdirectory? Move the trait to more neutral directory in taxonomy within micro-behaviors/ or metadata/
 
 **B. Downgrade criticality** (if the finding is perfect, but contextually not suspicious):

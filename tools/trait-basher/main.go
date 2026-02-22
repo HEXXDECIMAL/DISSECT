@@ -185,10 +185,176 @@ type config struct { //nolint:govet // field alignment optimized for readability
 	timeout     time.Duration
 	idleTimeout time.Duration // Kill LLM if no output for this duration
 	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
+	concurrency int           // Number of concurrent LLM review sessions
 	knownGood   bool
 	knownBad    bool
 	useCargo    bool
 	flush       bool
+}
+
+// reviewJob represents a file or archive to be reviewed by an LLM.
+type reviewJob struct {
+	archive *ArchiveAnalysis  // non-nil for archive reviews
+	file    *RealFileAnalysis // non-nil for standalone file reviews
+}
+
+// reviewResult contains the outcome of a review job.
+type reviewResult struct {
+	job      reviewJob
+	err      error
+	duration time.Duration
+	provider string
+}
+
+// reviewCoordinator manages concurrent LLM review sessions.
+type reviewCoordinator struct {
+	jobs    chan reviewJob
+	results chan reviewResult
+	wg      sync.WaitGroup
+	cfg     *config
+	logger  *slog.Logger
+
+	// Active review tracking (for progress display)
+	mu            sync.Mutex
+	activeReviews map[string]time.Time // path -> start time
+}
+
+// newReviewCoordinator creates a coordinator with N worker goroutines.
+func newReviewCoordinator(ctx context.Context, cfg *config, logger *slog.Logger) *reviewCoordinator {
+	rc := &reviewCoordinator{
+		jobs:          make(chan reviewJob, cfg.concurrency*2), // buffer for scan-ahead
+		results:       make(chan reviewResult, cfg.concurrency*2),
+		cfg:           cfg,
+		logger:        logger,
+		activeReviews: make(map[string]time.Time),
+	}
+
+	// Start worker goroutines
+	for i := range cfg.concurrency {
+		rc.wg.Add(1)
+		go rc.worker(ctx, i)
+	}
+
+	return rc
+}
+
+// submit sends a job for review. Blocks if buffer is full (backpressure).
+func (rc *reviewCoordinator) submit(job reviewJob) {
+	rc.jobs <- job
+}
+
+// close signals no more jobs and waits for all workers to finish.
+func (rc *reviewCoordinator) close() {
+	close(rc.jobs)
+	rc.wg.Wait()
+	close(rc.results)
+}
+
+// activeCount returns the number of reviews currently in progress.
+func (rc *reviewCoordinator) activeCount() int {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	return len(rc.activeReviews)
+}
+
+// activeList returns paths of files currently being reviewed with durations.
+func (rc *reviewCoordinator) activeList() []string {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	paths := make([]string, 0, len(rc.activeReviews))
+	for p, start := range rc.activeReviews {
+		dur := time.Since(start).Round(time.Second)
+		paths = append(paths, fmt.Sprintf("%s (%v)", filepath.Base(p), dur))
+	}
+	return paths
+}
+
+func (rc *reviewCoordinator) worker(ctx context.Context, _ int) {
+	defer rc.wg.Done()
+
+	for job := range rc.jobs {
+		path := rc.jobPath(job)
+
+		// Track active review
+		rc.mu.Lock()
+		rc.activeReviews[path] = time.Now()
+		rc.mu.Unlock()
+
+		// Create a per-job config copy to avoid race conditions on cfg.provider
+		// (the invoke functions mutate cfg.provider as they iterate through providers)
+		jobCfg := *rc.cfg
+		jobCfg.provider = rc.cfg.providers[0]
+
+		start := time.Now()
+		var err error
+
+		// Retry loop with exponential backoff
+		const maxRetries = 10
+		for attempt := 1; attempt <= maxRetries; attempt++ {
+			if job.archive != nil {
+				err = invokeAIArchive(ctx, &jobCfg, job.archive, generateSessionID())
+			} else if job.file != nil {
+				err = rc.reviewFile(ctx, &jobCfg, job.file)
+			}
+
+			if err == nil {
+				break // Success
+			}
+
+			if attempt == maxRetries {
+				break // Give up after max retries
+			}
+
+			// Log retry and backoff
+			delay := retryDelay()
+			if rc.logger != nil {
+				rc.logger.Warn("review_retry",
+					"path", path,
+					"attempt", attempt,
+					"error", err.Error(),
+					"delay", delay,
+				)
+			}
+			fmt.Fprintf(os.Stderr, "\n⚠️  Review failed for %s: %v (attempt %d/%d, retrying in %v)\n",
+				filepath.Base(path), err, attempt, maxRetries, delay.Round(time.Second))
+			time.Sleep(delay)
+		}
+
+		// Remove from active
+		rc.mu.Lock()
+		delete(rc.activeReviews, path)
+		rc.mu.Unlock()
+
+		rc.results <- reviewResult{
+			job:      job,
+			err:      err,
+			duration: time.Since(start),
+			provider: jobCfg.provider,
+		}
+	}
+}
+
+func (*reviewCoordinator) jobPath(job reviewJob) string {
+	if job.archive != nil {
+		return job.archive.ArchivePath
+	}
+	if job.file != nil {
+		return job.file.RealPath
+	}
+	return ""
+}
+
+func (*reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis) error {
+	// Aggregate findings from root and all fragments
+	agg := file.Root
+	if agg.Path == "" {
+		agg.Path = file.RealPath
+	}
+	for _, frag := range file.Fragments {
+		agg.Findings = append(agg.Findings, frag.Findings...)
+	}
+
+	return invokeAI(ctx, cfg, agg, generateSessionID())
 }
 
 const maxYAMLAutoFixAttempts = 3
@@ -308,8 +474,13 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	idleTimeout := flag.Duration("idle-timeout", 8*time.Minute, "Kill LLM if no output for this duration")
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
 	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
+	concurrency := flag.Int("concurrency", 2, "Number of concurrent LLM review sessions")
 
 	flag.Parse()
+
+	if *concurrency < 1 {
+		log.Fatal("--concurrency must be at least 1")
+	}
 
 	dirs := flag.Args()
 	if len(dirs) == 0 {
@@ -433,6 +604,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		db:          db,
 		extractDir:  extractDir,
 		rescanAfter: *rescanAfter,
+		concurrency: *concurrency,
 	}
 
 	ctx := context.Background()
@@ -501,6 +673,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
 	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
 	fmt.Fprintf(os.Stderr, "LLM timeout: %v (session max), %v (idle)\n", cfg.timeout, cfg.idleTimeout)
+	fmt.Fprintf(os.Stderr, "Concurrency: %d parallel LLM sessions\n", cfg.concurrency)
 	fmt.Fprintf(os.Stderr, "Streaming analysis of %v...\n\n", cfg.dirs)
 
 	// Database mode (good/bad, not known-good/known-bad).
@@ -583,6 +756,8 @@ type streamStats struct {
 	// Progress tracking
 	estimatedTotal int       // Estimated total files (from pre-count)
 	scanStartTime  time.Time // When scanning started (for rate calculation)
+	// Concurrency tracking (mutex protects stats updated from result collector goroutine)
+	mu sync.Mutex
 }
 
 // flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills.
@@ -658,7 +833,7 @@ type streamState struct {
 	logger             *slog.Logger
 	archiveStartTime   time.Time // Track when current archive started processing
 	currentScanPath    string    // Current file being scanned (for progress display)
-	reviewingPath      string    // Current file being reviewed by LLM (for progress display)
+	coordinator        *reviewCoordinator
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
@@ -681,7 +856,6 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		"--format", "jsonl",
 		"--extract-dir", cfg.extractDir,
 		"--max-file-mem", "0",
-		"--verbose",
 		"--log-file", dissectLogPath,
 	}
 	args = append(args, cfg.dirs...)
@@ -785,6 +959,9 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	estimatedTotal := countFiles(cfg.dirs)
 	fmt.Fprintf(os.Stderr, " %d files found\n", estimatedTotal)
 
+	// Create review coordinator for concurrent LLM sessions
+	coordinator := newReviewCoordinator(ctx, cfg, logger)
+
 	state := &streamState{
 		cfg:    cfg,
 		dbMode: dbMode,
@@ -792,8 +969,62 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			estimatedTotal: estimatedTotal,
 			scanStartTime:  time.Now(),
 		},
-		logger: logger,
+		logger:      logger,
+		coordinator: coordinator,
 	}
+
+	// Result collector goroutine - processes review outcomes
+	resultsDone := make(chan struct{})
+	go func() {
+		defer close(resultsDone)
+		for result := range coordinator.results {
+			path := coordinator.jobPath(result.job)
+			if result.err != nil {
+				logger.Error("review_failed",
+					"path", path,
+					"error", result.err.Error(),
+					"duration", result.duration,
+					"provider", result.provider,
+				)
+				continue
+			}
+
+			// Update stats
+			state.stats.mu.Lock()
+			state.stats.reviewTimeTotal += result.duration
+			if result.job.archive != nil {
+				state.stats.archivesReviewed++
+				// Mark as analyzed in cache
+				archiveHash := hashString(result.job.archive.ArchivePath)
+				if err := markAnalyzed(ctx, cfg.db, archiveHash, dbMode); err != nil {
+					logger.Warn("failed to mark analyzed", "path", path, "error", err)
+				}
+			} else {
+				state.stats.standaloneReviewed++
+				// Mark as analyzed in cache
+				h, err := hashFile(result.job.file.RealPath)
+				if err != nil {
+					h = hashString(result.job.file.RealPath)
+				}
+				if err := markAnalyzed(ctx, cfg.db, h, dbMode); err != nil {
+					logger.Warn("failed to mark analyzed", "path", path, "error", err)
+				}
+			}
+			state.filesReviewedCount++
+
+			// Check rescan threshold
+			if cfg.rescanAfter > 0 && state.filesReviewedCount >= cfg.rescanAfter {
+				state.stats.shouldRestart = true
+			}
+			state.stats.mu.Unlock()
+
+			logger.Info("review_completed",
+				"path", path,
+				"duration", result.duration,
+				"provider", result.provider,
+			)
+		}
+	}()
 
 	// Log session end with final statistics
 	defer func() {
@@ -857,15 +1088,25 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			// Calculate detection rate (correct classifications)
 			// For --bad: skippedNoReview = detected (TP), reviewed = missed (FN)
 			// For --good: skippedNoReview = clean (TN), reviewed = false alarm (FP)
+			state.stats.mu.Lock()
 			totalProcessed := state.stats.skippedNoReview + state.stats.archivesReviewed + state.stats.standaloneReviewed
+			state.stats.mu.Unlock()
 			detectionRate := 0.0
 			if totalProcessed > 0 {
 				detectionRate = float64(state.stats.skippedNoReview) / float64(totalProcessed) * 100
 			}
 
+			// Get active review info
+			activeCount := coordinator.activeCount()
+			activeInfo := ""
+			if activeCount > 0 {
+				activeList := coordinator.activeList()
+				activeInfo = fmt.Sprintf(" | 🔄 %d: %s", activeCount, strings.Join(activeList, ", "))
+			}
+
 			progress := formatProgress(n, state.stats.estimatedTotal, detectionRate, filesPerSec, entry.Path, cfg.knownGood)
-			// Clear line and print progress (allow long paths)
-			fmt.Fprintf(os.Stderr, "\r\033[K%s", progress)
+			// Clear line and print progress with active reviews
+			fmt.Fprintf(os.Stderr, "\r\033[K%s%s", progress, activeInfo)
 			last = time.Now()
 		}
 
@@ -893,6 +1134,14 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		processCompletedArchive(ctx, state)
 	}
 
+	// Close coordinator and wait for all reviews to complete
+	clearProgressLine()
+	if activeCount := coordinator.activeCount(); activeCount > 0 {
+		fmt.Fprintf(os.Stderr, "Scan complete. Waiting for %d active review(s) to finish...\n", activeCount)
+	}
+	coordinator.close()
+	<-resultsDone
+
 	if err := scanner.Err(); err != nil {
 		delay := retryDelay()
 		fmt.Fprintf(os.Stderr, "\n⚠️  Error reading dissect output: %v\n", err)
@@ -916,7 +1165,11 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	if elapsed > 0 {
 		filesPerSec = float64(n) / elapsed
 	}
+	state.stats.mu.Lock()
 	totalProcessed := state.stats.skippedNoReview + state.stats.archivesReviewed + state.stats.standaloneReviewed
+	reviewed := state.stats.archivesReviewed + state.stats.standaloneReviewed
+	skipped := state.stats.skippedNoReview + state.stats.skippedCached
+	state.stats.mu.Unlock()
 	detectionRate := 0.0
 	if totalProcessed > 0 {
 		detectionRate = float64(state.stats.skippedNoReview) / float64(totalProcessed) * 100
@@ -926,9 +1179,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		rateLabel = "Clean"
 	}
 	fmt.Fprintf(os.Stderr, "Scanned %d files in %.1fs (%.0f/s) | %s:%.0f%% | Reviewed:%d Skipped:%d\n",
-		n, elapsed, filesPerSec, rateLabel, detectionRate,
-		state.stats.archivesReviewed+state.stats.standaloneReviewed,
-		state.stats.skippedNoReview+state.stats.skippedCached)
+		n, elapsed, filesPerSec, rateLabel, detectionRate, reviewed, skipped)
 	return state.stats, nil
 }
 
@@ -1183,51 +1434,19 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
-	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
+	activeCount := st.coordinator.activeCount()
+	fmt.Fprintf(os.Stderr, "   [queue] Submitting to review queue (%d active): %s\n", activeCount, reason)
 
-	// Retry LLM invocations on failure with exponential backoff
-	reviewStartTime := time.Now()
-	for attempt := 1; ; attempt++ {
-		sid := generateSessionID()
-		if err := invokeAIArchive(ctx, st.cfg, archive, sid); err != nil {
-			delay := retryDelay()
-			fmt.Fprintf(os.Stderr, "\n⚠️  All LLM providers failed for %s: %v\n", archive.ArchivePath, err)
-			fmt.Fprintf(os.Stderr, "   Retrying (attempt %d) in %v...\n", attempt, delay.Round(time.Second))
-			logCompletion("review_failed",
-				"error", err.Error(),
-				"provider", st.cfg.provider,
-				"session_id", sid,
-				"files_with_concerns", len(filesWithFindings),
-				"attempt", attempt,
-			)
-			time.Sleep(delay)
-			continue
-		}
-		// Success
-		reviewDuration := time.Since(reviewStartTime)
-		st.stats.reviewTimeTotal += reviewDuration
-		fmt.Fprintf(os.Stderr, "   ✓ Review completed in %v\n", reviewDuration.Round(time.Second))
-
-		if err := markAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", archive.ArchivePath, err)
-		}
-		st.stats.archivesReviewed++
-		st.filesReviewedCount++
-
-		// After reviewing N files, signal restart to pick up trait changes
-		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
-			st.stats.shouldRestart = true
-		}
-
-		logCompletion("reviewed",
-			"provider", st.cfg.provider,
-			"session_id", sid,
-			"files_with_concerns", len(filesWithFindings),
-			"total_archives_reviewed", st.stats.archivesReviewed,
-			"review_duration_seconds", reviewDuration.Seconds(),
-		)
-		break
+	// Submit to coordinator for concurrent review (non-blocking unless buffer full)
+	// Make a copy of the archive since st.currentArchive will be reused
+	archiveCopy := &ArchiveAnalysis{
+		ArchivePath:     archive.ArchivePath,
+		Members:         append([]FileAnalysis(nil), archive.Members...),
+		SummaryRisk:     archive.SummaryRisk,
+		SummaryFindings: append([]Finding(nil), archive.SummaryFindings...),
 	}
+	st.coordinator.submit(reviewJob{archive: archiveCopy})
+	logCompletion("queued_for_review", "files_with_concerns", len(filesWithFindings))
 }
 
 func processRealFile(ctx context.Context, st *streamState) {
@@ -1289,36 +1508,17 @@ func processRealFile(ctx context.Context, st *streamState) {
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
-	fmt.Fprintf(os.Stderr, "   [review] Submitting to %s: %s\n", st.cfg.provider, reason)
+	activeCount := st.coordinator.activeCount()
+	fmt.Fprintf(os.Stderr, "   [queue] Submitting to review queue (%d active): %s\n", activeCount, reason)
 
-	// Retry LLM invocations on failure with exponential backoff
-	reviewStartTime := time.Now()
-	for attempt := 1; ; attempt++ {
-		sid := generateSessionID()
-		if err := invokeAI(ctx, st.cfg, agg, sid); err != nil {
-			delay := retryDelay()
-			fmt.Fprintf(os.Stderr, "\n⚠️  All LLM providers failed for %s: %v\n", rf.RealPath, err)
-			fmt.Fprintf(os.Stderr, "   Retrying (attempt %d) in %v...\n", attempt, delay.Round(time.Second))
-			time.Sleep(delay)
-			continue
-		}
-		// Success
-		reviewDuration := time.Since(reviewStartTime)
-		st.stats.reviewTimeTotal += reviewDuration
-		fmt.Fprintf(os.Stderr, "   ✓ Review completed in %v\n", reviewDuration.Round(time.Second))
-
-		if err := markAnalyzed(ctx, st.cfg.db, h, st.dbMode); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: could not record analysis for %s: %v\n", rf.RealPath, err)
-		}
-		st.stats.standaloneReviewed++
-		st.filesReviewedCount++
-
-		// After reviewing N files, signal restart to pick up trait changes
-		if st.cfg.rescanAfter > 0 && st.filesReviewedCount >= st.cfg.rescanAfter {
-			st.stats.shouldRestart = true
-		}
-		break
+	// Submit to coordinator for concurrent review (non-blocking unless buffer full)
+	// Make a copy of the file since st.currentRealFile will be reused
+	fileCopy := &RealFileAnalysis{
+		RealPath:  rf.RealPath,
+		Root:      rf.Root,
+		Fragments: append([]FileAnalysis(nil), rf.Fragments...),
 	}
+	st.coordinator.submit(reviewJob{file: fileCopy})
 }
 
 // needsReview determines if a file needs AI review based on mode.

@@ -40,6 +40,6 @@ traits:
             argument: (identifier)
             value: (number) @increment
             (#eq? @increment "3")
-            (#match? @from-char-code "fromCharCode")
+            (#eq? @from-char-code "fromCharCode")
           )
         )

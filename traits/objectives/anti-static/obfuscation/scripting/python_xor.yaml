@@ -35,7 +35,7 @@ traits:
           (integer) @min
           (identifier)
           (integer) @max
-          (#match? @min "^32$")
+          (#eq? @min "32")
           (#match? @max "^12[67]$")
         )
 

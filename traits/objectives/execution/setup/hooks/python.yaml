@@ -86,7 +86,7 @@ traits:
       type: ast
       query: |
         (class_definition
-          superclasses: (argument_list (identifier) @parent (#match? @parent "^install$"))
+          superclasses: (argument_list (identifier) @parent (#eq? @parent "install"))
           body: (block
             (function_definition
               name: (identifier) @func (#eq? @func "run")

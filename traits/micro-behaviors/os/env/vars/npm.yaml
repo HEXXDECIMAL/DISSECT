@@ -15,7 +15,7 @@ traits:
             (#eq? @process "process")
             (#eq? @env "env"))
           property: (property_identifier) @prop
-          (#match? @prop "^npm_lifecycle_event$")
+          (#eq? @prop "npm_lifecycle_event")
         )
         (subscript_expression
           object: (member_expression
@@ -43,7 +43,7 @@ traits:
             (#eq? @process "process")
             (#eq? @env "env"))
           property: (property_identifier) @prop
-          (#match? @prop "^npm_config_user_agent$")
+          (#eq? @prop "npm_config_user_agent")
         )
         (subscript_expression
           object: (member_expression
