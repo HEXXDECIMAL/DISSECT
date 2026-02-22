@@ -7,6 +7,51 @@ defaults:
   for: [package.json]
 
 traits:
+  # === Hook Existence Detection ===
+  # GuardDog: Detect the existence of install hooks
+
+  - id: has-preinstall
+    desc: Has preinstall script hook
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    if:
+      type: kv
+      path: "scripts.preinstall"
+    not:
+      - exact: "npx patch-package"
+      - exact: "nuxt prepare"
+      - exact: "npx only-allow pnpm"
+      - exact: "prisma generate"
+      - exact: "ibmtelemetry --config=telemetry.yml"
+      - exact: "husky install"
+      - substr: "tsc || exit 0"
+      - exact: "patch-package"
+      - exact: "husky"
+
+  - id: has-postinstall
+    desc: Has postinstall script hook
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    if:
+      type: kv
+      path: "scripts.postinstall"
+    not:
+      - exact: "npx patch-package"
+      - exact: "husky install"
+      - exact: "patch-package"
+      - exact: "husky"
+
+  - id: has-install
+    desc: Has install script hook
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    if:
+      type: kv
+      path: "scripts.install"
+
   # === Script Content Patterns ===
   # Detect dangerous commands in install scripts
 
@@ -230,3 +275,14 @@ composite_rules:
     any:
       - id: script-eval
       - id: script-base64
+
+  # GuardDog: Install hook existence (supply chain risk)
+  - id: install-hook-exists
+    desc: Package has install-time script hooks
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    any:
+      - id: has-preinstall
+      - id: has-postinstall
+      - id: has-install

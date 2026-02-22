@@ -1,0 +1,142 @@
+# Package Keywords - Count Analysis
+# Detects suspicious keyword patterns based on count
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+#
+# REQUIRES: size_min/size_max KV feature (see KV_ENHANCEMENT_IMPLEMENTATION_PLAN.md)
+
+defaults:
+  crit: notable
+  conf: 0.60
+  attack: "T1195.002"
+
+traits:
+  # === npm package.json ===
+
+  # No keywords (low discoverability, possibly malicious)
+  - id: npm-no-keywords
+    desc: npm package has no keywords
+    crit: notable
+    conf: 0.60
+    for: [package.json]
+    if:
+      type: kv
+      path: "keywords"
+      size_max: 0
+
+  # Single keyword (minimal metadata)
+  - id: npm-single-keyword
+    desc: npm package has only one keyword
+    crit: notable
+    conf: 0.55
+    for: [package.json]
+    if:
+      type: kv
+      path: "keywords"
+      size_min: 1
+      size_max: 1
+
+  # Few keywords (2-3)
+  - id: npm-few-keywords
+    desc: npm package has few keywords (2-3)
+    crit: notable
+    conf: 0.45
+    for: [package.json]
+    if:
+      type: kv
+      path: "keywords"
+      size_min: 2
+      size_max: 3
+
+  # Excessive keywords (SEO spam, suspicious)
+  - id: npm-keyword-stuffing
+    desc: npm package keyword stuffing (30+)
+    crit: suspicious
+    conf: 0.80
+    for: [package.json]
+    if:
+      type: kv
+      path: "keywords"
+      size_min: 30
+
+  # Many keywords (20+)
+  - id: npm-many-keywords
+    desc: npm package has many keywords (20+)
+    crit: notable
+    conf: 0.60
+    for: [package.json]
+    if:
+      type: kv
+      path: "keywords"
+      size_min: 20
+
+  # === PyPI - keywords in pyproject.toml ===
+
+  - id: pypi-no-keywords
+    desc: PyPI package has no keywords
+    crit: notable
+    conf: 0.55
+    for: [pyproject.toml]
+    if:
+      type: kv
+      path: "project.keywords"
+      size_max: 0
+
+  - id: pypi-keyword-stuffing
+    desc: PyPI package has excessive keywords (30+)
+    crit: suspicious
+    conf: 0.80
+    for: [pyproject.toml]
+    if:
+      type: kv
+      path: "project.keywords"
+      size_min: 30
+
+composite_rules:
+  # === Suspicious: Zero deps + keyword stuffing ===
+  - id: npm-zero-deps-keyword-spam
+    desc: No dependencies but excessive keywords
+    crit: suspicious
+    conf: 0.85
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: metadata/quality/dependencies::npm-zero-dependencies
+      - id: npm-keyword-stuffing
+
+  # === Suspicious: No keywords + no description ===
+  - id: npm-no-discoverability
+    desc: No keywords and no description
+    crit: suspicious
+    conf: 0.75
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-no-keywords
+      - id: metadata/quality/package-info::npm-empty-description-any
+
+  # === High-Risk: Keyword stuffing + install hooks ===
+  - id: npm-keyword-spam-with-hooks
+    desc: Keyword stuffing with install hooks
+    crit: hostile
+    conf: 0.92
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-keyword-stuffing
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
+
+  # === High-Risk: No keywords + install hooks + quality issues ===
+  - id: npm-no-keywords-suspicious
+    desc: No keywords with install hooks and quality issues
+    crit: hostile
+    conf: 0.88
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-no-keywords
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
+    any:
+      - id: metadata/quality/package-info::npm-empty-description-any
+      - id: metadata/quality/versioning::release-zero
+      - id: metadata/quality/author::npm-generic-author-name
+    needs: 1

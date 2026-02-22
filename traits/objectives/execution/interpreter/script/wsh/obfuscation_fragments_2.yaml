@@ -95,7 +95,7 @@ composite_rules:
     desc: MSXML2.XMLHTTP string fragment
     any:
       - id: msxml-fragment-short
-      - id: micro-behaviors/net/http/client::http-client-xml2-fragment
+      - id: micro-behaviors/communications/http/client::http-client-xml2-fragment
 
   - id: wscript-shell-fragment-short
     desc: WScript.Shell string fragment (short)

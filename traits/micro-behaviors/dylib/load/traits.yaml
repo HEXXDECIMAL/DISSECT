@@ -137,8 +137,7 @@ traits:
     attack: "T1574.006"
     for: [macho]
     if:
-      type: string
-      substr: "com.apple.iChat"
+      id: metadata/apple/bundle-id::ichat
 
   - id: messaging-app-mail
     desc: Apple Mail bundle identifier
@@ -147,8 +146,7 @@ traits:
     attack: "T1574.006"
     for: [macho]
     if:
-      type: string
-      substr: "com.apple.mail"
+      id: metadata/apple/bundle-id::mail
 
   - id: messaging-app-messages
     desc: Apple Messages bundle identifier
@@ -157,8 +155,7 @@ traits:
     attack: "T1574.006"
     for: [macho]
     if:
-      type: string
-      substr: "com.apple.Messages"
+      id: metadata/apple/bundle-id::messages
 
   - id: ctypes-windll
     desc: Python ctypes Windows DLL

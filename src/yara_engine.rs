@@ -20,7 +20,6 @@ use walkdir::WalkDir;
 #[derive(Debug)]
 pub(crate) struct YaraEngine {
     rules: Option<yara_x::Rules>,
-    capability_mapper: CapabilityMapper,
     /// Namespaces compiled into the combined engine from inline trait YARA conditions.
     /// Used to split scan results: inline matches (keyed here) go to trait evaluation;
     /// all other matches are returned as regular YARA findings.
@@ -31,33 +30,20 @@ impl YaraEngine {
     /// Create a new YARA engine without rules loaded
     #[must_use]
     pub(crate) fn new() -> Self {
-        Self {
-            rules: None,
-            capability_mapper: CapabilityMapper::new(),
-            compiled_inline_namespaces: Vec::new(),
-        }
+        Self { rules: None, compiled_inline_namespaces: Vec::new() }
     }
 
     /// Create a new YARA engine with a pre-existing capability mapper (avoids duplicate loading)
     #[must_use]
-    pub(crate) fn new_with_mapper(capability_mapper: CapabilityMapper) -> Self {
-        Self { rules: None, capability_mapper, compiled_inline_namespaces: Vec::new() }
+    pub(crate) fn new_with_mapper(_capability_mapper: CapabilityMapper) -> Self {
+        Self { rules: None, compiled_inline_namespaces: Vec::new() }
     }
 
     /// Create a new YARA engine for testing (without validation)
     #[cfg(test)]
     #[must_use]
     pub(crate) fn new_for_test() -> Self {
-        Self {
-            rules: None,
-            capability_mapper: CapabilityMapper::new_without_validation(),
-            compiled_inline_namespaces: Vec::new(),
-        }
-    }
-
-    /// Set the capability mapper (useful for injecting after parallel loading)
-    pub(crate) fn set_capability_mapper(&mut self, capability_mapper: CapabilityMapper) {
-        self.capability_mapper = capability_mapper;
+        Self { rules: None, compiled_inline_namespaces: Vec::new() }
     }
 
     /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/)
@@ -432,66 +418,65 @@ impl YaraEngine {
         Ok(count)
     }
 
-    /// Load third-party YARA rules with per-vendor namespaces (3p.{vendor}[.{subdir}])
+    /// Load third-party YARA rules with per-file namespaces (3p.{vendor}.{subdir}.{filename})
     fn load_third_party_rules<'a>(
         &mut self,
         compiler: &mut yara_x::Compiler<'a>,
         dir: &Path,
     ) -> usize {
-        // Collect all YARA files grouped by their directory (namespace boundary)
-        let mut files_by_dir: std::collections::BTreeMap<PathBuf, Vec<PathBuf>> =
-            std::collections::BTreeMap::new();
+        // Collect all YARA files
+        let rule_files: Vec<PathBuf> = WalkDir::new(dir)
+            .follow_links(false)
+            .into_iter()
+            .filter_map(std::result::Result::ok)
+            .filter(|entry| {
+                let path = entry.path();
+                path.is_file()
+                    && path.extension().map(|e| e == "yar" || e == "yara").unwrap_or(false)
+            })
+            .map(|entry| entry.path().to_path_buf())
+            .collect();
 
-        for entry in WalkDir::new(dir).follow_links(false).into_iter().filter_map(std::result::Result::ok) {
-            let path = entry.path();
-            if path.is_file()
-                && path.extension().map(|e| e == "yar" || e == "yara").unwrap_or(false)
-            {
-                let dir_path = path.parent().unwrap_or(path).to_path_buf();
-                files_by_dir.entry(dir_path).or_default().push(path.to_path_buf());
-            }
-        }
+        let total_files = rule_files.len();
+        tracing::debug!("Found {} third-party YARA files", total_files);
 
-        let namespace_count = files_by_dir.len();
-        let total_files: usize = files_by_dir.values().map(Vec::len).sum();
-        tracing::debug!(
-            "Found {} third-party YARA files across {} namespaces",
-            total_files,
-            namespace_count
-        );
+        // Read all files in parallel
+        let sources: Vec<_> = rule_files
+            .par_iter()
+            .filter_map(|path| fs::read(path).ok().map(|b| (path.clone(), b)))
+            .collect();
 
         let mut total = 0;
         let mut failed = 0;
-        for (dir_path, rule_files) in &files_by_dir {
-            // Derive namespace from directory path relative to third_party/
-            let namespace = dir_path
+
+        for (path, bytes) in sources {
+            // Create unique namespace per file: 3p.{vendor}.{subdir}.{filename}
+            let namespace = path
                 .strip_prefix(dir)
                 .ok()
                 .and_then(|rel| rel.to_str())
                 .map(|s| {
                     let parts: Vec<&str> =
                         s.split(std::path::MAIN_SEPARATOR).filter(|p| !p.is_empty()).collect();
-                    format!("3p.{}", parts.join("."))
+                    // Include filename (without extension) in namespace
+                    let mut ns_parts = parts.to_vec();
+                    if let Some(last) = ns_parts.last_mut() {
+                        // Remove .yar/.yara extension
+                        *last = last.trim_end_matches(".yar").trim_end_matches(".yara");
+                    }
+                    format!("3p.{}", ns_parts.join("."))
                 })
                 .unwrap_or_else(|| "3p".to_string());
 
             compiler.new_namespace(&namespace);
 
-            // Read files in parallel
-            let sources: Vec<_> = rule_files
-                .par_iter()
-                .filter_map(|path| fs::read(path).ok().map(|b| (path.clone(), b)))
-                .collect();
-
-            for (path, bytes) in sources {
-                let source = String::from_utf8_lossy(&bytes);
-                match compiler.add_source(source.as_bytes()) {
-                    Ok(_) => total += 1,
-                    Err(e) => {
-                        failed += 1;
-                        tracing::warn!("{}: {}", path.display(), e);
-                    },
-                }
+            let source = String::from_utf8_lossy(&bytes);
+            match compiler.add_source(source.as_bytes()) {
+                Ok(_) => total += 1,
+                Err(e) => {
+                    failed += 1;
+                    tracing::warn!("{}: {}", path.display(), e);
+                },
             }
         }
 
@@ -885,63 +870,123 @@ impl YaraEngine {
         Ok((matches, findings))
     }
 
-    /// Save compiled YARA rules to cache
+    /// Save compiled YARA rules to cache using zero-copy format
     fn save_to_cache(
         &self,
         cache_path: &Path,
         builtin_count: usize,
         third_party_count: usize,
     ) -> Result<()> {
+        use std::io::Write;
+
         let rules = self.rules.as_ref().context("No rules to cache")?;
 
         // Serialize the rules using the YARA-X serialization
-        let serialized = rules.serialize().context("Failed to serialize YARA rules")?;
+        let rules_data = rules.serialize().context("Failed to serialize YARA rules")?;
 
-        let cache_data = CacheData {
-            builtin_count,
-            third_party_count,
-            rules_data: serialized,
-            inline_namespaces: self.compiled_inline_namespaces.clone(),
-        };
+        // Serialize namespaces as JSON (small, simple)
+        let namespaces_data =
+            serde_json::to_vec(&self.compiled_inline_namespaces).unwrap_or_default();
 
-        // Serialize to file
-        let encoded = bincode::serde::encode_to_vec(&cache_data, bincode::config::standard())
-            .context("Failed to encode cache data")?;
+        // Calculate rules offset (header + namespaces + padding to 8-byte alignment)
+        let unpadded_offset = CACHE_HEADER_SIZE + namespaces_data.len();
+        let rules_offset = (unpadded_offset + 7) & !7; // Align to 8 bytes
+        let padding_len = rules_offset - unpadded_offset;
 
-        fs::write(cache_path, encoded).context("Failed to write cache file")?;
+        // Build the cache file
+        let mut file = fs::File::create(cache_path).context("Failed to create cache file")?;
+
+        // Write header
+        file.write_all(CACHE_MAGIC)?;
+        file.write_all(&CACHE_VERSION.to_le_bytes())?;
+        file.write_all(&(builtin_count as u64).to_le_bytes())?;
+        file.write_all(&(third_party_count as u64).to_le_bytes())?;
+        file.write_all(&(namespaces_data.len() as u64).to_le_bytes())?;
+        file.write_all(&(rules_offset as u64).to_le_bytes())?;
+        file.write_all(&(rules_data.len() as u64).to_le_bytes())?;
+
+        // Write namespaces
+        file.write_all(&namespaces_data)?;
+
+        // Write padding
+        if padding_len > 0 {
+            file.write_all(&vec![0u8; padding_len])?;
+        }
+
+        // Write rules data
+        file.write_all(&rules_data)?;
 
         Ok(())
     }
 
-    /// Load compiled YARA rules from cache
+    /// Load compiled YARA rules from cache using zero-copy memory-mapped I/O
     fn load_from_cache(&mut self, cache_path: &Path) -> Result<(usize, usize)> {
-        let data = fs::read(cache_path).context("Failed to read cache file")?;
+        let t0 = std::time::Instant::now();
 
-        let (cache_data, _): (CacheData, usize) =
-            bincode::serde::decode_from_slice(&data, bincode::config::standard())
-                .context("Failed to decode cache data")?;
+        // Memory-map the cache file for zero-copy access
+        let file = fs::File::open(cache_path).context("Failed to open cache file")?;
+        let mmap = unsafe { memmap2::Mmap::map(&file) }.context("Failed to mmap cache file")?;
 
-        // Deserialize the YARA rules
-        let rules = yara_x::Rules::deserialize(&cache_data.rules_data)
+        // Check minimum size and magic
+        if mmap.len() < CACHE_HEADER_SIZE {
+            anyhow::bail!("Cache file too small");
+        }
+        if &mmap[0..4] != CACHE_MAGIC {
+            anyhow::bail!("Invalid cache magic");
+        }
+
+        // Parse header
+        let version = u32::from_le_bytes(mmap[4..8].try_into().unwrap());
+        if version != CACHE_VERSION {
+            anyhow::bail!("Cache version mismatch: expected {}, got {}", CACHE_VERSION, version);
+        }
+
+        let builtin_count = u64::from_le_bytes(mmap[8..16].try_into().unwrap()) as usize;
+        let third_party_count = u64::from_le_bytes(mmap[16..24].try_into().unwrap()) as usize;
+        let namespaces_len = u64::from_le_bytes(mmap[24..32].try_into().unwrap()) as usize;
+        let rules_offset = u64::from_le_bytes(mmap[32..40].try_into().unwrap()) as usize;
+        let rules_len = u64::from_le_bytes(mmap[40..48].try_into().unwrap()) as usize;
+
+        let t1 = std::time::Instant::now();
+
+        // Parse namespaces (small JSON)
+        let namespaces_end = CACHE_HEADER_SIZE + namespaces_len;
+        let inline_namespaces: Vec<String> = if namespaces_len > 0 {
+            serde_json::from_slice(&mmap[CACHE_HEADER_SIZE..namespaces_end]).unwrap_or_default()
+        } else {
+            Vec::new()
+        };
+
+        let t2 = std::time::Instant::now();
+
+        // Zero-copy access to rules data - pass slice directly to deserialize
+        let rules_end = rules_offset + rules_len;
+        if rules_end > mmap.len() {
+            anyhow::bail!("Cache file truncated");
+        }
+        let rules = yara_x::Rules::deserialize(&mmap[rules_offset..rules_end])
             .context("Failed to deserialize YARA rules")?;
 
+        let t3 = std::time::Instant::now();
+
+        tracing::debug!(
+            "YARA cache load timing: mmap+header={:?}, namespaces={:?}, yara_deserialize={:?}",
+            t1.duration_since(t0),
+            t2.duration_since(t1),
+            t3.duration_since(t2)
+        );
+
         self.rules = Some(rules);
-        self.compiled_inline_namespaces = cache_data.inline_namespaces;
-        Ok((cache_data.builtin_count, cache_data.third_party_count))
+        self.compiled_inline_namespaces = inline_namespaces;
+        Ok((builtin_count, third_party_count))
     }
 }
 
-/// Cache data structure
-#[derive(serde::Serialize, serde::Deserialize)]
-struct CacheData {
-    builtin_count: usize,
-    third_party_count: usize,
-    rules_data: Vec<u8>,
-    /// Inline YARA namespaces compiled from trait YAML files.
-    /// Stored so the engine can split scan results correctly on cache load.
-    #[serde(default)]
-    inline_namespaces: Vec<String>,
-}
+/// Zero-copy cache format header (v4 - per-file namespaces)
+/// Layout: MAGIC(4) + VERSION(4) + builtin(8) + third_party(8) + namespaces_len(8) + rules_offset(8) + rules_len(8) + namespaces_data + padding + rules_data
+const CACHE_MAGIC: &[u8; 4] = b"YARC";
+const CACHE_VERSION: u32 = 4;
+const CACHE_HEADER_SIZE: usize = 4 + 4 + 8 + 8 + 8 + 8 + 8; // 48 bytes
 
 impl Default for YaraEngine {
     fn default() -> Self {

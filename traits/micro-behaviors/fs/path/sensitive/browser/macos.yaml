@@ -11,13 +11,3 @@ traits:
     if:
       type: string
       substr: "Login Data"
-
-  - id: cookies
-    desc: Reference to browser cookies
-    crit: notable
-    conf: 0.7
-    mbc: T1539
-    attack: T1539
-    if:
-      type: string
-      substr: "Cookies"

@@ -16,5 +16,5 @@ composite_rules:
     all:
       - id: metadata/sign/apple::adhoc
     any:
-      - id: objectives/persist/launchd/agent::fake-apple-label
-      - id: objectives/persist/launchd/agent::fake-homebrew-label
+      - id: objectives/persistence/launchd/agent::fake-apple-label
+      - id: objectives/persistence/launchd/agent::fake-homebrew-label

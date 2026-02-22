@@ -147,7 +147,6 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
             "regex",
             "word",
             "case_insensitive",
-            "exclude_patterns",
             "count_min",
             "count_max",
             "per_kb_min",
@@ -247,9 +246,6 @@ fn detect_invalid_field_in_context(context: &str) -> Option<String> {
             // Check if this field is invalid for the condition type
             if !valid_fields.contains(&field_name) {
                 return Some(match field_name {
-                    "exclude_patterns" if condition_type != "string" => {
-                        "exclude_patterns".to_string()
-                    },
                     "min_ratio" if condition_type == "section_ratio" => "min_ratio".to_string(),
                     "max_ratio" if condition_type == "section_ratio" => "max_ratio".to_string(),
                     "needs" => "needs".to_string(),
@@ -452,17 +448,6 @@ fn provide_error_guidance(
 
             // Provide specific guidance based on field and condition type
             match (field.as_str(), condition_type) {
-                ("exclude_patterns", Some("raw")) => {
-                    guidance.push_str(&format!(
-                        "\n   Field '{}' is not valid for 'type: raw'.\n",
-                        field
-                    ));
-                    guidance.push_str(
-                        "   💡 The 'exclude_patterns' field only works with 'type: string'.\n",
-                    );
-                    guidance.push_str("   💡 Use 'type: string' instead of 'type: raw' if you need to exclude patterns.\n");
-                    found_hallucination = true;
-                },
                 ("min_ratio" | "max_ratio", Some("section_ratio")) => {
                     guidance.push_str(&format!(
                         "\n   Field '{}' is not valid for 'type: section_ratio'.\n",

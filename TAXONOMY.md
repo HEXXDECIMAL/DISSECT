@@ -175,14 +175,7 @@ objectives/
 │   ├── sandbox-detect/ # Sandbox detection                B0007
 │   ├── debugger-detect/# Debugger detection               B0001
 │   ├── timing/         # Timing-based evasion             B0025
-│   ├── kernel-hide/    # Kernel-level hiding (rootkit techniques)
-│   └── security-bypass/# SELinux, AppArmor, AMSI bypass
-│
-├── anti-forensics/     # Cover tracks                   → MBC: Defense Evasion (partial)
-│   ├── log-clear/      # Clear logs                       T1070
-│   ├── timestomp/      # Modify timestamps                T1070.006
-│   ├── self-delete/    # Remove self after execution
-│   └── artifact-clean/ # Clean up artifacts
+│   └── kernel-hide/    # Kernel-level hiding (rootkit techniques)
 │
 ├── anti-static/        # Evade static analysis          → MBC: Anti-Static Analysis
 │   ├── obfuscate/      # Code obfuscation                 B0032
@@ -191,6 +184,26 @@ objectives/
 │   │   ├── dead-code/
 │   │   └── virtualize/   # Code virtualization            B0008
 │   └── pack/           # Packing/compression
+│
+├── evasion/            # General evasion techniques     → MBC: Defense Evasion (extended)
+│   ├── anti-av/        # AV/EDR bypass (not termination)
+│   │   ├── amsi/       # AMSI bypass techniques
+│   │   ├── defender/   # Windows Defender bypass
+│   │   ├── heuristic/  # Static heuristic evasion (TBAV)
+│   │   └── platform/   # Platform-specific bypasses
+│   ├── log-clear/      # Clear logs                       T1070
+│   ├── timestomp/      # Modify timestamps                T1070.006
+│   ├── self-delete/    # Remove self after execution      F0007
+│   ├── evidence-removal/ # Clean up artifacts
+│   ├── masquerade/     # File/process masquerading        T1036
+│   ├── decoy/          # Decoy documents/files
+│   ├── process/        # Process manipulation
+│   │   └── injection/  # Process injection                E1055
+│   └── hijack-execution-flow/ # Execution flow hijacking  F0015
+│   # Note: evasion/ = stealth ("don't see me")
+│   # vs impact/degrade/edr/ = aggression ("I'll stop you")
+│   # evasion/anti-av/ = bypass, exclusions, heuristic avoidance
+│   # impact/degrade/edr/ = kill processes, stop services
 │
 ├── command-and-control/                 # Command & control              → MBC: Command and Control
 │   ├── beacon/         # Check-in patterns                B0030
@@ -234,7 +247,13 @@ objectives/
 │   ├── user/           # User information                 T1033
 │   └── software/       # Installed software               T1518
 │
-├── exfiltration/              # Data exfiltration              → MBC: Exfiltration
+├── execution/          # Code execution                 → MBC: Execution
+│   ├── interpreter/    # Script/code interpreters         E1059
+│   ├── dropper/        # Payload droppers
+│   ├── background/     # Background execution
+│   └── compile/        # Runtime compilation
+│
+├── exfiltration/       # Data exfiltration              → MBC: Exfiltration
 │   ├── http/           # HTTP-based exfil                 T1041
 │   ├── dns/            # DNS-based exfil                  T1048
 │   ├── email/          # SMTP-based exfil                 T1048
@@ -247,6 +266,7 @@ objectives/
 │   ├── dos/            # Denial of service                B0033
 │   ├── deface/         # Defacement                       T1491
 │   └── degrade/        # Degrade system capabilities
+│       ├── edr/        # EDR/AV termination (aggressive)  T1562.001
 │       └── firewall/   # Firewall manipulation/abuse
 │
 ├── lateral-movement/            # Lateral movement               → MBC: Lateral Movement
@@ -258,28 +278,35 @@ objectives/
 │   └── supply-chain/   # Supply chain attacks
 │       └── dropper/    # Supply chain dropper patterns
 │
-├── persist/            # Persistence mechanisms         → MBC: Persistence
+├── persistence/        # Persistence mechanisms         → MBC: Persistence
 │   ├── startup/        # Startup entries                  T1547
 │   ├── service/        # Service installation             T1543
-│   ├── scheduled/      # Scheduled tasks                  T1053
+│   ├── cron/           # Scheduled tasks (cron)           T1053
+│   ├── systemd/        # Systemd service persistence
+│   ├── launchd/        # macOS LaunchDaemons/Agents
+│   ├── registry/       # Windows registry persistence
+│   ├── shell/          # Shell configuration files
 │   ├── implant/        # Code implants
-│   │   └── hidden-staging/ # Hidden staging directories
-│   └── bootkit/        # Boot-level persistence           T1542
+│   ├── backdoor/       # Backdoor persistence
+│   └── boot/           # Boot-level persistence           T1542
 │
-└── privilege-escalation/            # Privilege escalation           → MBC: Privilege Escalation
-    ├── exploit/        # Local exploitation               T1068
-    ├── uac-bypass/     # Windows UAC bypass               T1548.002
-    └── abuse/          # Privilege abuse
+├── privilege-escalation/            # Privilege escalation           → MBC: Privilege Escalation
+│   ├── exploit/        # Local exploitation               T1068
+│   ├── uac-bypass/     # Windows UAC bypass               T1548.002
+│   └── abuse/          # Privilege abuse
+│
+└── false-positives/    # Meta: Downgrade rules to reduce false positives
+    └── downgrades/     # Criticality downgrades for common patterns
 ```
 
-## Tier 3: Known Entities (`known/`)
+## Tier 3: Known Entities (`well-known/`)
 
 Specific identification of malware families and tools. Similar to MBC's [malware corpus](https://github.com/MBCProject/mbc-markdown/tree/master/xample-malware) but structured as detection rules.
 
 ### Directory Structure
 
 ```
-known/malware/          # Malware family signatures
+well-known/malware/          # Malware family signatures
 ├── apt/                # APT/nation-state groups
 ├── backdoor/
 ├── botnet/
@@ -295,7 +322,7 @@ known/malware/          # Malware family signatures
 ├── virus/
 └── worm/
 
-known/tools/            # Legitimate tools often abused
+well-known/tools/            # Legitimate tools often abused
 ├── offensive/          # Pentesting tools (Cobalt Strike, Metasploit)
 ├── sysadmin/           # Admin tools (PsExec, WMI)
 └── dual-use/           # Dual-use utilities
@@ -359,7 +386,7 @@ directory/path::trait-name
 
 ```
 Is it a specific malware/tool signature?
-  └─→ known/malware/ or known/tools/
+  └─→ well-known/malware/ or well-known/tools/
 
 Can you infer attacker intent from capability combinations?
   └─→ objectives/ (use composite rules)
@@ -397,7 +424,7 @@ composite_rules:
 | Screenshot API | Capability | `micro-behaviors/hardware/display/screenshot` | notable |
 | Screenshot + timer + upload | Objective | `objectives/collection/screenshot` | suspicious |
 | Reverse shell pattern | Objective | `objectives/command-and-control/reverse-shell` | hostile |
-| Cobalt Strike beacon | Known | `known/malware/rat/cobalt-strike` | hostile |
+| Cobalt Strike beacon | Known | `well-known/malware/rat/cobalt-strike` | hostile |
 
 ## MBC Identifier Reference
 

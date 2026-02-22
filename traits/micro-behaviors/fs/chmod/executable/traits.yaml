@@ -52,6 +52,15 @@ traits:
       type: string
       regex: 'chmod\s+[\-\w]*\s*0?7[0-7][0-7]\s'
 
+  # GuardDog: Python stat.S_IEXEC
+  - id: python-stat-iexec
+    desc: Python os.chmod with stat.S_IEXEC
+    conf: 0.90
+    for: [python]
+    if:
+      type: raw
+      regex: 'os\.chmod\([^)]{0,120}stat\.S_IEXEC'
+
 composite_rules:
   # Any executable chmod
   - id: any
@@ -62,5 +71,6 @@ composite_rules:
       - id: shell-plus-x
       - id: python-executable
       - id: python-0755
+      - id: python-stat-iexec
       - id: ruby-executable
       - id: shell-7xx

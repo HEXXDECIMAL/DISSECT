@@ -73,7 +73,7 @@ composite_rules:
     conf: 1.0
     all:
       - id: objectives/lateral-movement/supply-chain/npm/behavior::dangerous-requires
-      - id: objectives/recon/evasion/detection::evasion-checks
+      - id: objectives/anti-analysis/evasion/detection::evasion-checks
     any:
       - id: objectives/lateral-movement/supply-chain/npm/behavior::npm-data-exfil
       - id: objectives/command-and-control/dns/tunneling::js-dns-tunneling-exfil

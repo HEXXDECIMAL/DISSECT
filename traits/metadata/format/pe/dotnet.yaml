@@ -5,19 +5,26 @@ defaults:
   for: [pe]
 
 traits:
-  - id: dotnet-assembly
-    desc: .NET Assembly (mscoree.dll)
-    crit: inert
-    conf: 1.0
+  - id: mscoree-name
+    desc: "mscoree name reference"
     if:
       type: string
-      substr: "mscoree.dll"
+      substr: "mscoree"
 
   - id: dotnet-runtime
-    desc: .NET Runtime Reference
+    desc: ".NET Runtime Reference"
     crit: inert
     conf: 1.0
     if:
       type: string
       # _CorExeMain or _CorDllMain
       regex: "_Cor(Exe|Dll)Main"
+
+composite_rules:
+  - id: dotnet-assembly
+    desc: ".NET Assembly (mscoree.dll)"
+    crit: inert
+    conf: 1.0
+    all:
+      - id: micro-behaviors/fs/path/extension::dll
+      - id: mscoree-name

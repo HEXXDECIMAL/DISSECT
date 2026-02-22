@@ -3,7 +3,7 @@ composite_rules:
     desc: Usage of Interactsh domain combined with suspicious capabilities
     crit: hostile
     all:
-      - id: objectives/exfiltration/channel/oob::interactsh-domain
+      - id: objectives/exfiltration/channel/callback::interact-sh
     any:
       - id: objectives/discovery/host/system/hardware-fingerprint::js-sysinfo-multi
       - id: objectives/command-and-control/dns/tunneling::js-dns-tunneling-construction

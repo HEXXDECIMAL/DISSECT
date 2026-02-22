@@ -12,7 +12,7 @@ composite_rules:
     attack: "T1027.002"
     all:
       - id: micro-behaviors/process/create/launch::windows-startfile-exec
-      - id: objectives/anti-static/obfuscation/source::b64decode-exec
+      - id: objectives/anti-static/obfuscation/logic::b64decode-exec
     any:
       - id: objectives/anti-static/obfuscation/payload::exec-decode-pattern
       - id: micro-behaviors/fs/path/temp

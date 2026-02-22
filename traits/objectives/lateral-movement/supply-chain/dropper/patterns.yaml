@@ -40,8 +40,7 @@ traits:
   - javascript
   - typescript
   if:
-    type: string
-    substr: /tmp/
+    id: micro-behaviors/fs/path/temp::unix-temp
 # spawn-paren removed - use micro-behaviors/process/create/shell/lang::spawn-call instead
 - id: execfile-paren
   desc: execFile() call
@@ -61,8 +60,7 @@ traits:
   for:
   - python
   if:
-    type: string
-    regex: os\.system\(
+    id: micro-behaviors/process/create/shell::python-os-system
 - id: py-subprocess
   desc: subprocess module
   crit: notable
@@ -71,8 +69,7 @@ traits:
   for:
   - python
   if:
-    type: string
-    regex: subprocess\.
+    id: micro-behaviors/process/create/subprocess::methods
 - id: python-standalone
   desc: Downloads python-build-standalone (interpreter dropper pattern)
   crit: suspicious

@@ -19,8 +19,8 @@ composite_rules:
       - id: micro-behaviors/data/manipulation/buffer::offset-write
     needs: 2
     any:
-      - id: micro-behaviors/net/protocol/http::hex-command-regex
-      - id: micro-behaviors/net/protocol/http::header-stringify-scan
+      - id: micro-behaviors/communications/protocol/http::hex-command-regex
+      - id: micro-behaviors/communications/protocol/http::header-stringify-scan
       - id: objectives/execution/vm/sandbox::vm-runInThisContext
       - id: objectives/anti-static/obfuscation/encoding/indicators::encoded-node-require
       - id: objectives/anti-static/obfuscation/encoding/indicators::encoded-node-vm

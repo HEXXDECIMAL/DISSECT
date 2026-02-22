@@ -67,28 +67,10 @@ traits:
     type: string
     substr: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.7 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7
   attack: T1036.005
-- id: user-agent-library-marker
-  desc: User-Agent library indicator
-  crit: suspicious
-  conf: 0.85
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    regex: AppleWebKit/537\.|AppleWebKit/601\.7\.|KHTML, like Gecko
-  attack: T1036.005
-- id: multi-os-targeting-pattern
-  desc: Multi-OS targeting pattern
-  crit: suspicious
-  conf: 0.8
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    regex: (Windows NT 6\.1|Windows NT 6\.3|Windows NT 10\.0|Macintosh; Intel Mac OS X)
-  attack: T1036.005
+# Removed user-agent-library-marker and multi-os-targeting-pattern -
+# these regexes matched all the specific user-agent literals above (duplicate evidence).
+# The specific literals are more precise and used in meaningful composites below.
+
 composite_rules:
 - id: user-agent-old-browser
   desc: Outdated browser user-agent (MSIE8 or old Chrome)
@@ -119,15 +101,5 @@ composite_rules:
   - id: user-agent-windows7-chrome-xor
   - id: user-agent-windows81-firefox-xor
   - id: user-agent-macos-safari-xor
-- id: user-agent-library-detection
-  desc: User-Agent library detection
-  crit: suspicious
-  conf: 0.9
-  for:
-  - elf
-  - shell
-  attack: T1036.005
-  mbc: E1014
-  all:
-  - id: user-agent-library-marker
-  - id: multi-os-targeting-pattern
+# Removed user-agent-library-detection composite - it referenced the removed
+# regex patterns and would have matched all specific user-agents anyway

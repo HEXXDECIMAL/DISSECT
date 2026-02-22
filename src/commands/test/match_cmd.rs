@@ -60,6 +60,9 @@ pub(crate) fn run(
     method: cli::MatchMethod,
     pattern: Option<&str>,
     kv_path: Option<&str>,
+    kv_exists: Option<bool>,
+    kv_size_min: Option<usize>,
+    kv_size_max: Option<usize>,
     file_type_override: Option<cli::DetectFileType>,
     count_min: usize,
     count_max: Option<usize>,
@@ -714,6 +717,9 @@ pub(crate) fn run(
                 substr: substr.clone(),
                 regex: regex_str.clone(),
                 case_insensitive,
+                exists: kv_exists,
+                size_min: kv_size_min,
+                size_max: kv_size_max,
                 compiled_regex,
             };
 

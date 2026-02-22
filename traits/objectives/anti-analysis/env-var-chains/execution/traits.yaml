@@ -40,8 +40,7 @@ traits:
   - elf
   - shell
   if:
-    type: string
-    regex: (HISTSIZE=0|export HISTSIZE=0|export\s+HISTSIZE=0)
+    id: objectives/evasion/history/clear::histsize-zero
   attack: T1562.003
 - id: histcontrol-ignorealltps
   desc: HISTCONTROL ignoring all history

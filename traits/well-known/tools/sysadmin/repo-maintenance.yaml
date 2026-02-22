@@ -76,7 +76,7 @@ composite_rules:
     desc: GitHub issue maintenance script
     crit: notable
     all:
-      - id: micro-behaviors/net/service/github::gh-issue-mgmt
+      - id: micro-behaviors/communications/service/github::gh-issue-mgmt
     any:
       - id: jq-processing
       - id: sed-processing

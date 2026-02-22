@@ -98,14 +98,6 @@ traits:
   if:
     type: string
     substr: os_crypt
-- id: credit-cards-table
-  desc: Chromium credit_cards table
-  crit: suspicious
-  conf: 0.8
-  attack: T1555.003
-  if:
-    type: string
-    substr: credit_cards
 - id: logins-table
   desc: Chromium logins table reference
   crit: notable
@@ -230,7 +222,7 @@ composite_rules:
   all:
   - id: chrome-path
   - id: objectives/credential-access/browser/chromium::web-data
-  - id: credit-cards-table
+  - id: micro-behaviors/fs/path/sensitive/browser::browser-credit-cards
 - id: multi-browser
   desc: Multiple Chromium browsers targeted (stealer
   crit: hostile

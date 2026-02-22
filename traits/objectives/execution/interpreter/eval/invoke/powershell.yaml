@@ -44,15 +44,6 @@ traits:
       type: raw
       regex: "(?i)Add-Type\\s+-TypeDefinition"
 
-  # Start-Process for spawning
-  - id: start-process
-    desc: Start-Process cmdlet
-    crit: notable
-    conf: 0.6
-    if:
-      type: raw
-      regex: "(?i)Start-Process|\\bsaps\\b"
-
   # Call operator (&)
   - id: call-operator
     desc: PowerShell call operator

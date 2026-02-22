@@ -21,6 +21,8 @@ pub(crate) struct ElfAnalyzer {
     capability_mapper: Arc<CapabilityMapper>,
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
+    /// Pre-extracted strings from stng (avoids redundant extraction)
+    preextracted_strings: Option<Vec<StringInfo>>,
 }
 
 impl ElfAnalyzer {
@@ -31,20 +33,29 @@ impl ElfAnalyzer {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
+            preextracted_strings: None,
         }
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
+        self
+    }
+
+    /// Set pre-extracted strings (avoids redundant stng/radare2 extraction)
+    #[must_use]
+    #[allow(dead_code)] // Used by binary target, not visible to library
+    pub(crate) fn with_preextracted_strings(mut self, strings: Vec<StringInfo>) -> Self {
+        self.preextracted_strings = Some(strings);
         self
     }
 
@@ -119,7 +130,7 @@ impl ElfAnalyzer {
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
-                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched, data.len() as u64);
 
                 // Override code_size with goblin-based calculation (more accurate)
                 // In ELF, only sections with SHF_EXECINSTR flag contain executable code
@@ -174,7 +185,12 @@ impl ElfAnalyzer {
                 report.functions = batched.functions.into_iter().map(Function::from).collect();
 
                 // Use strings from batched data (no extra r2 spawn)
-                Some(batched.strings)
+                // Return None if empty so extract_smart falls back to stng extraction
+                if batched.strings.is_empty() {
+                    None
+                } else {
+                    Some(batched.strings)
+                }
             } else {
                 None
             }
@@ -182,9 +198,14 @@ impl ElfAnalyzer {
             None
         };
 
-        // Extract strings using language-aware extraction (Go/Rust) with pre-parsed ELF if available
+        // Use pre-extracted strings if available, otherwise extract with stng/r2
         let _t_stng = std::time::Instant::now();
-        report.strings = self.string_extractor.extract_smart(data, r2_strings);
+        if let Some(ref strings) = self.preextracted_strings {
+            report.strings = strings.clone();
+        } else {
+            // Extract strings using language-aware extraction (Go/Rust)
+            report.strings = self.string_extractor.extract_smart(data, r2_strings);
+        }
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings

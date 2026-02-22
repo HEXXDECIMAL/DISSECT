@@ -14,7 +14,7 @@ composite_rules:
     for: [shell]
     all:
       - id: micro-behaviors/process/create/shell::gcc-invocation
-      - id: objectives/anti-forensics/self-delete/file::rm-install-artifacts
+      - id: objectives/evasion/self-delete/file::rm-install-artifacts
 
   - id: installer-multipart-compile
     desc: Installer with compilation and cleanup pattern

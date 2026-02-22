@@ -196,7 +196,7 @@ composite_rules:
   - id: high-entropy-const
   - id: tiny-cstring
   any:
-  - id: objectives/persist/daemon/init::macos-double-fork-daemon
+  - id: objectives/persistence/daemon/init::macos-double-fork-daemon
   - id: micro-behaviors/process/create/shell::shell-execution
 - id: obfuscated-elf-daemon-dropper
   desc: Obfuscated ELF daemon dropper (embedded payload
@@ -211,7 +211,7 @@ composite_rules:
   size_max: 2097152
   all:
   - id: micro-behaviors/data/embedded/payload::lzma-magic
-  - id: objectives/persist/daemon/init::daemon-fork
+  - id: objectives/persistence/daemon/init::daemon-fork
   any:
   - id: micro-behaviors/process/create/shell::shell-execution
   - id: micro-behaviors/process/create/shell::shell-execution-indicators

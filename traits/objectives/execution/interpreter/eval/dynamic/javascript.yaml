@@ -58,8 +58,7 @@ traits:
   for:
   - javascript
   if:
-    type: string
-    regex: (?:^|[^a-zA-Z0-9_\[])Function\s*\(
+    id: objectives/anti-static/obfuscation/require::function-constructor
 - id: constructor-property-access
   desc: Constructor property access
   crit: suspicious

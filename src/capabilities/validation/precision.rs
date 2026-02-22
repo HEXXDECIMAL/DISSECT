@@ -73,7 +73,6 @@ fn score_condition(condition: &Condition) -> f32 {
             regex,
             word,
             case_insensitive,
-            exclude_patterns,
             external_ip,
             section,
             offset,
@@ -86,11 +85,6 @@ fn score_condition(condition: &Condition) -> f32 {
             score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
             score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
             score += word.as_deref().map(score_word_value).unwrap_or(0.0);
-            if let Some(exclusions) = exclude_patterns {
-                for exclusion in exclusions {
-                    score += score_regex_value(exclusion);
-                }
-            }
             // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
             if *external_ip {
                 score += PARAM_UNIT;

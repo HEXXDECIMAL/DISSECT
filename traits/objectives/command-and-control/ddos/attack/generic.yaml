@@ -16,18 +16,9 @@ traits:
   # indicators of DDoS - they're used legitimately by compilers, build tools, etc.
   # DDoS detection now requires additional context via composite rules.
 
-  # === User-Agent Rotation ===
-  - id: ua-list-large
-    desc: Large list of browser User-Agents
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      regex: "Mozilla/5\\.0\\s*\\(|python-requests/[0-9]|curl/[0-9]|Wget/[0-9]"
-      count_min: 12
   # === DDoS Terminology ===
   - id: attack-metrics-a
-    desc: Performance metrics typical of DDoS
+    desc: "Performance metrics typical of DDoS"
     crit: notable
     conf: 0.7
     if:
@@ -38,7 +29,7 @@ traits:
       case_insensitive: true
 
   - id: attack-metrics-b
-    desc: Performance metrics typical of DDoS
+    desc: "Performance metrics typical of DDoS"
     crit: notable
     conf: 0.7
     if:
@@ -47,7 +38,7 @@ traits:
       case_insensitive: true
 
   - id: syn-flood
-    desc: SYN flood terminology
+    desc: "SYN flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -55,7 +46,7 @@ traits:
       regex: "[sS][yY][nN][_-]?flood"
 
   - id: udp-flood
-    desc: UDP flood terminology
+    desc: "UDP flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -63,7 +54,7 @@ traits:
       regex: "[uU][dD][pP][_-]?[fF]lood"
 
   - id: http-flood
-    desc: HTTP flood terminology
+    desc: "HTTP flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -71,7 +62,7 @@ traits:
       regex: "[hH][tT][tT][pP][_-]?flood"
 
   - id: icmp-flood
-    desc: ICMP flood terminology
+    desc: "ICMP flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -79,7 +70,7 @@ traits:
       regex: "[iI][cC][mM][pP][_-]?flood"
 
   - id: slowloris-flood
-    desc: Slowloris flood terminology
+    desc: "Slowloris flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -87,7 +78,7 @@ traits:
       regex: "(?i)slowloris[_-]?flood"
 
   - id: post-flood
-    desc: POST flood terminology
+    desc: "POST flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -95,7 +86,7 @@ traits:
       regex: "(?i)post[_-]?flood"
 
   - id: get-flood
-    desc: GET flood terminology
+    desc: "GET flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -103,7 +94,7 @@ traits:
       regex: "(?i)get[_-]?flood"
 
   - id: dns-flood
-    desc: DNS flood terminology
+    desc: "DNS flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -111,7 +102,7 @@ traits:
       regex: "(?i)dns[_-]?flood"
 
   - id: memcached-flood
-    desc: Memcached flood terminology
+    desc: "Memcached flood terminology"
     crit: notable
     conf: 0.8
     if:
@@ -119,7 +110,7 @@ traits:
       regex: "(?i)memcached[_-]?flood"
 
   - id: ddos-attack-ddos
-    desc: DDOS attack terminology
+    desc: "DDOS attack terminology"
     crit: notable
     conf: 0.7
     if:
@@ -127,7 +118,7 @@ traits:
       regex: "(?i)ddos[_-]?attack"
 
   - id: ddos-attack-syn
-    desc: SYN attack terminology
+    desc: "SYN attack terminology"
     crit: notable
     conf: 0.7
     if:
@@ -135,7 +126,7 @@ traits:
       regex: "(?i)syn[_-]?attack"
 
   - id: ddos-attack-target-mode-type
-    desc: Attack target/mode/type terminology
+    desc: "Attack target/mode/type terminology"
     crit: notable
     conf: 0.7
     if:
@@ -144,7 +135,7 @@ traits:
 
   # === Telemetry ===
   - id: attack-telemetry-a1
-    desc: Telemetry counters for attack progress
+    desc: "Telemetry counters for attack progress"
     crit: notable
     conf: 0.7
     if:
@@ -153,7 +144,7 @@ traits:
       case_insensitive: true
 
   - id: attack-telemetry-a2
-    desc: Telemetry counters for attack progress
+    desc: "Telemetry counters for attack progress"
     crit: notable
     conf: 0.7
     if:
@@ -162,7 +153,7 @@ traits:
       case_insensitive: true
 
   - id: attack-telemetry-b1
-    desc: Telemetry counters for attack progress
+    desc: "Telemetry counters for attack progress"
     crit: notable
     conf: 0.7
     if:
@@ -171,7 +162,7 @@ traits:
       case_insensitive: true
 
   - id: attack-telemetry-b2
-    desc: Telemetry counters for attack progress
+    desc: "Telemetry counters for attack progress"
     crit: notable
     conf: 0.7
     if:
@@ -180,8 +171,16 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  # === User-Agent Rotation ===
+  - id: ua-list-large
+    desc: "Large list of browser User-Agents"
+    crit: notable
+    conf: 0.8
+    any:
+      - id: micro-behaviors/communications/http/user-agent/
+
   - id: attack-metrics
-    desc: Performance metrics typical of DDoS
+    desc: "Performance metrics typical of DDoS"
     crit: notable
     conf: 0.7
     any:
@@ -189,7 +188,7 @@ composite_rules:
       - id: attack-metrics-b
 
   - id: flood-types
-    desc: Specific flood attack types
+    desc: "Specific flood attack types"
     crit: notable
     conf: 0.8
     any:
@@ -204,7 +203,7 @@ composite_rules:
       - id: memcached-flood
 
   - id: attack-telemetry
-    desc: Telemetry counters for attack progress
+    desc: "Telemetry counters for attack progress"
     crit: notable
     conf: 0.7
     any:
@@ -214,7 +213,7 @@ composite_rules:
       - id: attack-telemetry-b2
 
   - id: ddos-attack-terminology
-    desc: Additional DDoS attack terminology
+    desc: "Additional DDoS attack terminology"
     crit: notable
     conf: 0.7
     any:
@@ -249,7 +248,7 @@ composite_rules:
 
   # High-confidence DDoS capability
   - id: ddos-capability
-    desc: "Probable DDoS attack tool (Attack"
+    desc: "Probable DDoS attack tool"
     crit: suspicious
     conf: 0.9
     all:

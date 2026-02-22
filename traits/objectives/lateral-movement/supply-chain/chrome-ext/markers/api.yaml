@@ -245,20 +245,6 @@ traits:
   if:
     type: string
     regex: https?://[a-zA-Z0-9][-a-zA-Z0-9]*\.io/
-- id: chrome-namespace-core-1
-  desc: Uses core chrome.* APIs (runtime/tabs/storage)
-  crit: notable
-  conf: 0.95
-  if:
-    type: string
-    regex: chrome\.(runtime|tabs|storage)
-- id: chrome-namespace-core-2
-  desc: Uses core chrome.* APIs (webRequest/cookies)
-  crit: notable
-  conf: 0.95
-  if:
-    type: string
-    regex: chrome\.(webRequest|cookies)
 - id: chrome-namespace-extra
   desc: Uses extended chrome.* namespace APIs
   crit: notable
@@ -310,8 +296,11 @@ composite_rules:
   - javascript
   - typescript
   any:
-    - id: chrome-namespace-core-1
-    - id: chrome-namespace-core-2
+    - id: objectives/lateral-movement/supply-chain/chrome-ext/markers::chrome-runtime
+    - id: objectives/lateral-movement/supply-chain/chrome-ext/markers::chrome-tabs
+    - id: objectives/lateral-movement/supply-chain/chrome-ext/markers::chrome-storage
+    - id: objectives/lateral-movement/supply-chain/chrome-ext/markers::chrome-webRequest
+    - id: objectives/lateral-movement/supply-chain/chrome-ext/permissions::chrome-cookies
 - id: chrome-namespace
   desc: Uses chrome.* namespace
   crit: notable

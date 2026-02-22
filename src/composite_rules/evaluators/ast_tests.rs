@@ -4,6 +4,7 @@ use super::*;
 use crate::composite_rules::context::EvaluationContext;
 use crate::composite_rules::types::{FileType, Platform};
 use crate::types::{AnalysisReport, TargetInfo};
+use std::sync::OnceLock;
 
 fn create_test_report(path: &str) -> AnalysisReport {
     let target = TargetInfo {
@@ -32,6 +33,8 @@ fn create_test_context<'a>(
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 

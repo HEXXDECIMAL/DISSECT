@@ -199,7 +199,8 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: "(?i)\\bransom\\b"
+      word: ransom
+      case_insensitive: true
 
   # === File rename (atomic) ===
   - id: rename-sync

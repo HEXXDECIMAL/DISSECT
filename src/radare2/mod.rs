@@ -279,11 +279,12 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics from pre-extracted batched analysis
     /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
-    pub(crate) fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis) -> BinaryMetrics {
+    pub(crate) fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis, file_size: u64) -> BinaryMetrics {
         use parsing::calculate_char_entropy;
 
         let mut metrics = BinaryMetrics {
             section_count: batched.sections.len() as u32,
+            file_size, // Use actual file size from caller
             ..Default::default()
         };
         let mut entropies: Vec<f32> = Vec::new();
@@ -356,8 +357,7 @@ impl Radare2Analyzer {
             metrics.largest_section_ratio = largest_size as f32 / total_size as f32;
         }
 
-        // Size metrics
-        metrics.file_size = total_size;
+        // Size metrics (file_size already set from parameter)
         metrics.code_size = code_size;
         if total_size > 0 {
             let data_size = total_size.saturating_sub(code_size);
@@ -546,12 +546,13 @@ mod tests {
             strings: vec![],
         };
 
-        let metrics = analyzer.compute_metrics_from_batched(&batched);
+        let file_size = 1800u64;
+        let metrics = analyzer.compute_metrics_from_batched(&batched, file_size);
 
-        // file_size should be the sum of all section sizes
+        // file_size should match what was passed in
         assert_eq!(
-            metrics.file_size, 1800,
-            "file_size should equal sum of section sizes"
+            metrics.file_size, file_size,
+            "file_size should equal the passed parameter"
         );
 
         // code_size should be the size of executable sections only

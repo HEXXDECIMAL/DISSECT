@@ -5,8 +5,7 @@ traits:
     conf: 0.1
     for: [all]
     if:
-      type: string
-      exact: "WScript.Shell"
+      id: micro-behaviors/process/create/shell/lang::wscript-shell
 
 composite_rules:
   - id: wscript-shell

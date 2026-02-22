@@ -2,7 +2,7 @@ defaults:
   for: [all]
 
 traits:
-  - id: scr
+  - id: scr-extension
     desc: Detects .scr (Windows Screensaver Executable) extension
     crit: suspicious
     if:

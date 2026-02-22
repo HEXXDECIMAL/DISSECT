@@ -10,14 +10,6 @@ defaults:
   platforms: [windows]
 
 traits:
-  # CREATE_NO_WINDOW flag - hides console window
-  - id: create-no-window
-    desc: "Process creation with hidden window"
-    conf: 0.9
-    if:
-      type: raw
-      regex: "CREATE_NO_WINDOW"
-
   # CREATE_NEW_PROCESS_GROUP - detaches from parent
   - id: create-new-process-group
     desc: "Process creation detached from parent"
@@ -25,23 +17,6 @@ traits:
     if:
       type: raw
       regex: "CREATE_NEW_PROCESS_GROUP"
-
-  # DETACHED_PROCESS - runs without console
-  - id: detached-process
-    desc: "Detached process creation (DETACHED_PROCESS)"
-    conf: 0.85
-    crit: notable
-    if:
-      type: raw
-      regex: "DETACHED_PROCESS"
-
-  # SW_HIDE - hidden window via startupinfo
-  - id: sw-hide
-    desc: "Hidden window via STARTUPINFO (SW_HIDE)"
-    conf: 0.9
-    if:
-      type: raw
-      regex: "SW_HIDE"
 
   # creationflags parameter in subprocess
   - id: creationflags
@@ -76,8 +51,9 @@ composite_rules:
     conf: 0.85
     crit: notable
     any:
-      - id: create-no-window
-      - id: detached-process
+      - id: micro-behaviors/process/create/flags::create-no-window
+      - id: micro-behaviors/process/create/flags::detached-process
+      - id: micro-behaviors/process/create/flags::sw-hide
 
   # Combined: CREATE_NO_WINDOW + CREATE_NEW_PROCESS_GROUP
   - id: stealth-subprocess

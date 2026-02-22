@@ -18,15 +18,6 @@ traits:
   # Removed msxml2-xmlhttp-string duplicate - use objectives/execution/activex/com::activex-xmlhttp-msxml2
   # Removed microsoft-xmlhttp-string duplicate - use micro-behaviors/os/com/object::clsid-xmlhttp-generic
 
-  - id: msxml2-serverxmlhttp-string
-    desc: Msxml2.ServerXMLHTTP string reference
-    crit: notable
-    conf: 0.6
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "Msxml2.ServerXMLHTTP"
-
   # WMI scripting
   - id: winmgmts-string
     desc: winmgmts WMI moniker string
@@ -147,7 +138,7 @@ composite_rules:
     for: [javascript, typescript]
     any:
       - id: micro-behaviors/os/com/object::clsid-xmlhttp-generic
-      - id: msxml2-serverxmlhttp-string
+      - id: micro-behaviors/communications/http/client::http-client-any
 
 
   # WMI scripting variants

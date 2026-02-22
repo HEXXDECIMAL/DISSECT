@@ -6,6 +6,7 @@ use crate::composite_rules::types::{FileType, Platform};
 use crate::types::scores::Metrics;
 use crate::types::text_metrics::{FunctionMetrics, IdentifierMetrics, TextMetrics};
 use crate::types::{AnalysisReport, TargetInfo};
+use std::sync::OnceLock;
 
 fn create_test_report() -> AnalysisReport {
     let target = TargetInfo {
@@ -30,6 +31,8 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 

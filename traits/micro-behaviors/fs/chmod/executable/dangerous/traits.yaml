@@ -12,6 +12,13 @@ defaults:
   crit: suspicious
 
 traits:
+  # Generic shell chmod suspicious values
+  - id: generic-shell-chmod
+    desc: Dangerous chmod values (world-writable)
+    if:
+      type: string
+      regex: "chmod\\s+(0?777|0?666|0?775|0?888)"
+
   # Shell chmod 777
   - id: shell-777
     desc: chmod 777 (world-writable+executable)

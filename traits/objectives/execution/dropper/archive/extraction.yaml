@@ -124,7 +124,7 @@ composite_rules:
   for:
   - shell
   all:
-  - id: objectives/execution/dropper/script::chmod-plus-x-cmd
+  - id: micro-behaviors/fs/file/executable::chmod-plus-x
   any:
   - id: unzip-command
   - id: tar-extract

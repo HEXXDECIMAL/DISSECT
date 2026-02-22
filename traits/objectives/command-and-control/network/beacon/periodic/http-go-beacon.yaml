@@ -38,13 +38,6 @@ traits:
     type: string
     regex: \*net\.dialer|net\.DialTCP|net\.Dial
 # go-listen-string removed - use micro-behaviors/communications/socket/listen/go composite instead
-- id: go-http-client
-  desc: Go HTTP client pattern
-  crit: notable
-  conf: 0.85
-  if:
-    type: string
-    regex: http\.Client|http\.Do|http\.Get|http\.Post
 - id: domain-keyword
   desc: Domain configuration keyword
   crit: suspicious
@@ -89,7 +82,23 @@ traits:
   if:
     type: string
     regex: (?i)\b(c2Handler|c2Server|c2Beacon)\b|c2\s*=\s*https?://
+
+- id: go-http-do
+  desc: "Go http.Do call"
+  if:
+    type: string
+    substr: "http.Do"
+
 composite_rules:
+- id: go-http-client
+  desc: Go HTTP client pattern
+  crit: notable
+  conf: 0.85
+  any:
+    - id: micro-behaviors/communications/http/get::http-get
+    - id: micro-behaviors/communications/http/post::http-post
+    - id: objectives/command-and-control/beacon/markers::http-client
+    - id: go-http-do
 - id: http-methods
   desc: HTTP methods (GET, POST, HEAD)
   crit: notable

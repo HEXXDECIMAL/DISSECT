@@ -15,11 +15,13 @@ traits:
     crit: inert
     conf: 0.95
     if:
-      type: string
-      regex: "com\\.apple\\.[a-z][a-z0-9.-]{3,}"
-      # Note: Minimum 3 chars after com.apple. to avoid matching behavioral patterns
-      # like bare "com.apple.mail" in targeting or "com.apple.quarantine" in xattr removal
-      # For behavioral detection of app targeting, use objectives/ or micro-behaviors/ traits
+      id: metadata/apple/bundle-id::generic-apple
+    not:
+      - id: metadata/apple/bundle-id::mail
+      - id: metadata/apple/bundle-id::ichat
+      - id: metadata/apple/bundle-id::messages
+      - id: metadata/apple/bundle-id::dt-runtime
+      - id: metadata/apple/bundle-id::quarantine
 
   - id: system-daemon
     desc: Apple system daemon (libexec)
@@ -89,6 +91,7 @@ traits:
       type: string
       substr: "/AppTrackingTransparency.framework/"
 
+  # === Privacycontentprediction framework ===
   - id: privacycontentprediction-framework
     desc: PrivacyContentPrediction.framework usage
     crit: inert
@@ -224,7 +227,7 @@ composite_rules:
   - id: bundle-and-framework
     desc: Apple bundle identifier with framework
     crit: inert
-    conf: 0.9
+    conf: 0.95
     platforms: [macos]
     for: [macho]
     all:
@@ -235,7 +238,7 @@ composite_rules:
   - id: project-and-framework
     desc: Apple project marker with framework
     crit: inert
-    conf: 0.9
+    conf: 0.95
     platforms: [macos]
     for: [macho]
     all:

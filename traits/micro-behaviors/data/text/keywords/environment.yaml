@@ -7,4 +7,5 @@ traits:
     crit: inert
     if:
       type: string
-      regex: "(?i)environment"
+      word: environment
+      case_insensitive: true

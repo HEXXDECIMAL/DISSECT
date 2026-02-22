@@ -26,9 +26,25 @@ mod duplicate_tests {
         for_types: Vec<FileType>,
         file_path: &str,
     ) -> TraitDefinition {
+        create_test_trait_with_conf_crit(id, condition, for_types, file_path, 1.0, crate::types::Criticality::Notable)
+    }
+
+    /// Create a trait definition with specific confidence and criticality
+    fn create_test_trait_with_conf_crit(
+        id: &str,
+        condition: Condition,
+        for_types: Vec<FileType>,
+        file_path: &str,
+        conf: f32,
+        crit: crate::types::Criticality,
+    ) -> TraitDefinition {
         TraitDefinition {
             id: id.to_string(),
             desc: "test trait".to_string(),
+            conf,
+            crit,
+            mbc: None,
+            attack: None,
             r#if: ConditionWithFilters {
                 condition,
                 size_min: None,
@@ -42,6 +58,7 @@ mod duplicate_tests {
             platforms: vec![Platform::All],
             not: None,
             unless: None,
+            downgrade: None,
             defined_in: PathBuf::from(file_path),
             precision: None,
         }
@@ -63,7 +80,6 @@ mod duplicate_tests {
                 regex: None,
                 word: None,
                 case_insensitive,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -71,7 +87,6 @@ mod duplicate_tests {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             for_types,
             file_path,
@@ -94,7 +109,6 @@ mod duplicate_tests {
                 regex: None,
                 word: None,
                 case_insensitive,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -102,7 +116,6 @@ mod duplicate_tests {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             for_types,
             file_path,
@@ -125,7 +138,6 @@ mod duplicate_tests {
                 regex: Some(pattern.to_string()),
                 word: None,
                 case_insensitive,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -133,7 +145,6 @@ mod duplicate_tests {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             for_types,
             file_path,
@@ -254,25 +265,26 @@ mod duplicate_tests {
 
     #[test]
     fn test_hex_escape_real_example() {
-        // Real pattern from codebase: [\"\x27] vs [\"']
-        let trait1 = create_string_regex(
+        // Hex escape vs literal - exact patterns that normalize the same
+        let trait1 = create_string_exact(
             "test::a",
-            "[\\\"\\x27]",
+            "\\x27",  // \x27 is hex for single quote '
             false,
-            vec![FileType::Python],
+            vec![FileType::All],
             "file1.yaml",
         );
-        let trait2 = create_string_regex(
+        let trait2 = create_string_exact(
             "test::b",
-            "[\\\"\\'']",
+            "'",  // Literal single quote
             false,
-            vec![FileType::Python],
+            vec![FileType::All],
             "file2.yaml",
         );
 
         let mut warnings = Vec::new();
         find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
 
+        // Should detect as duplicate - \x27 normalizes to '
         assert_eq!(warnings.len(), 1);
         assert!(warnings[0].contains("Duplicate"));
     }
@@ -638,6 +650,501 @@ mod duplicate_tests {
     }
 
     // ========================================================================
+    // Carveout Exception Tests (>2 char diff + conf/crit differs)
+    // ========================================================================
+
+    #[test]
+    fn test_decode_hex_for_carveout() {
+        // Verify hex decoding works as expected
+        assert_eq!(decode_hex_escapes("AB"), "AB");
+        assert_eq!(decode_hex_escapes("\\x41B"), "AB");
+        assert_eq!(decode_hex_escapes("test"), "test");
+        assert_eq!(decode_hex_escapes("\\x74est"), "test");
+    }
+
+    #[test]
+    fn test_simple_duplicate_without_carveout() {
+        // Same exact pattern without any carveout -> should warn
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("duplicate".to_string()),
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("duplicate".to_string()),
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9,
+            crate::types::Criticality::Notable,
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should warn - exact duplicate, carveout doesn't apply (len diff = 0)
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate"));
+    }
+
+    #[test]
+    fn test_hex_duplicate_without_carveout() {
+        // Hex-encoded duplicate with same conf/crit -> should warn
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("AB".to_string()),
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x41B".to_string()), // Normalizes to "AB"
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should warn - normalizes to same pattern, carveout doesn't apply (same conf/crit)
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate"));
+    }
+
+    #[test]
+    fn test_carveout_large_pattern_diff_with_conf_diff() {
+        // Same normalized pattern "test", but original values differ by >2 chars AND confidence differs by >=0.2 -> NO warning
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("test".to_string()), // 4 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.5, // conf = 0.5
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x74\\x65\\x73\\x74".to_string()), // 16 chars hex-encoded "test" (diff = 12 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9, // conf = 0.9 (diff = 0.4 >= 0.2)
+            crate::types::Criticality::Notable,
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should NOT warn - carveout applies (same normalized "test", but original differs by >2 and conf differs)
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_carveout_large_pattern_diff_with_crit_diff() {
+        // Same normalized "data", but original differs by >2 chars AND criticality differs -> NO warning
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("data".to_string()), // 4 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x64ata".to_string()), // 7 chars hex-encoded first char (diff = 3 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.8,
+            crate::types::Criticality::Hostile, // Different criticality
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should NOT warn - carveout applies
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_carveout_fails_small_pattern_diff() {
+        // Identical patterns (0-char diff) with different conf/crit -> should warn
+        // Carveout requires BOTH >2 char diff AND conf/crit difference
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("pattern".to_string()), // 7 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.5,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("pattern".to_string()), // 7 chars (diff = 0, not >2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9, // conf diff = 0.4 >= 0.2 (but pattern diff = 0, so carveout doesn't apply)
+            crate::types::Criticality::Notable,
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should WARN - carveout does NOT apply (pattern diff = 0, not >2)
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate"));
+    }
+
+    #[test]
+    fn test_carveout_fails_small_conf_diff() {
+        // Same normalized "value", original differs by >2 chars BUT confidence diff <0.2 and crit same -> should warn
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("value".to_string()), // 5 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x76\\x61lue".to_string()), // 11 chars, first 2 chars hex-encoded (diff = 6 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9, // conf diff = 0.1 < 0.2
+            crate::types::Criticality::Notable, // Same criticality
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
+
+        // Should WARN - carveout does NOT apply (conf diff <0.2 AND crit same)
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate"));
+    }
+
+    #[test]
+    fn test_carveout_multiple_pairs_all_pass() {
+        // Three traits, all normalize to "name", all pairs meet carveout criteria -> NO warnings
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("name".to_string()), // 4 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.5,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x6e\\x61me".to_string()), // 11 chars (diff from trait1 = 7 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9, // conf diff from trait1 = 0.4 >= 0.2
+            crate::types::Criticality::Notable,
+        );
+
+        let trait3 = create_test_trait_with_conf_crit(
+            "test::c",
+            Condition::String {
+                exact: Some("\\x6e\\x61\\x6d\\x65".to_string()), // 16 chars, all hex-encoded (diff from trait1 = 12, from trait2 = 5 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file3.yaml",
+            0.5,
+            crate::types::Criticality::Hostile, // Different from traits 1 and 2
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2, trait3], &mut warnings);
+
+        // Should NOT warn - all pairs meet carveout criteria
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_carveout_multiple_pairs_one_fails() {
+        // Three traits, all normalize to "code", one pair doesn't meet carveout -> should warn
+        let trait1 = create_test_trait_with_conf_crit(
+            "test::a",
+            Condition::String {
+                exact: Some("code".to_string()), // 4 chars
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+            0.8,
+            crate::types::Criticality::Notable,
+        );
+
+        let trait2 = create_test_trait_with_conf_crit(
+            "test::b",
+            Condition::String {
+                exact: Some("\\x63\\x6fde".to_string()), // 11 chars (diff = 7 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file2.yaml",
+            0.9, // conf diff from trait1 = 0.1 < 0.2
+            crate::types::Criticality::Notable, // Same as trait1 - FAILS carveout
+        );
+
+        let trait3 = create_test_trait_with_conf_crit(
+            "test::c",
+            Condition::String {
+                exact: Some("\\x63\\x6f\\x64\\x65".to_string()), // 16 chars (diff from trait1 = 12 > 2)
+                substr: None,
+                regex: None,
+                word: None,
+                case_insensitive: false,
+                external_ip: false,
+                section: None,
+                offset: None,
+                offset_range: None,
+                section_offset: None,
+                section_offset_range: None,
+                compiled_regex: None,
+            },
+            vec![FileType::All],
+            "file3.yaml",
+            0.5,
+            crate::types::Criticality::Hostile, // Different from trait1 - PASSES carveout with trait1
+        );
+
+        let mut warnings = Vec::new();
+        find_string_pattern_duplicates(&[trait1, trait2, trait3], &mut warnings);
+
+        // Should WARN - trait1 and trait2 don't meet carveout criteria (conf diff <0.2 and same crit)
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate"));
+    }
+
+    // ========================================================================
     // Helper Function Tests
     // ========================================================================
 
@@ -651,6 +1158,499 @@ mod duplicate_tests {
         // Invalid formats
         assert_eq!(extract_tier("invalid-id"), None);
         assert_eq!(extract_tier(""), None);
+    }
+
+    // ========================================================================
+    // Basename Pattern Duplicate Tests
+    // ========================================================================
+
+    #[test]
+    fn test_basename_exact_duplicate() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: Some("setup.py".to_string()),
+                    substr: None,
+                    regex: None,
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Basename {
+                    exact: Some("setup.py".to_string()),
+                    substr: None,
+                    regex: None,
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate basename exact pattern 'setup.py'"));
+        assert!(warnings[0].contains("test1"));
+        assert!(warnings[0].contains("test2"));
+    }
+
+    #[test]
+    fn test_basename_substr_duplicate() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: Some("chrome".to_string()),
+                    regex: None,
+                    case_insensitive: false,
+                },
+                vec![FileType::All],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Basename {
+                    exact: None,
+                    substr: Some("chrome".to_string()),
+                    regex: None,
+                    case_insensitive: false,
+                },
+                vec![FileType::All],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate basename substr pattern 'chrome'"));
+    }
+
+    #[test]
+    fn test_basename_regex_duplicate() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("\\.pyc$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("\\.pyc$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Duplicate basename regex pattern '\\.pyc$'"));
+    }
+
+    #[test]
+    fn test_basename_regex_should_be_exact() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("^Makefile$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::All],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("^setup\\.py$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 2);
+        assert!(warnings[0].contains("is just ^literal$ and should use exact: 'Makefile'"));
+        assert!(warnings[1].contains("is just ^literal$ and should use exact: 'setup.py'"));
+    }
+
+    #[test]
+    fn test_basename_regex_should_be_exact_case_insensitive() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("(?i)^setup\\.py$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file1.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("should use exact: 'setup.py', case_insensitive: true"));
+    }
+
+    #[test]
+    fn test_basename_regex_with_metacharacters_not_flagged() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some("^(setup|install)\\.py$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Python],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some(".*\\.exe$".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        // Should not flag these as "should be exact" because they have regex metacharacters
+        for warning in &warnings {
+            assert!(!warning.contains("should use exact"));
+        }
+    }
+
+    #[test]
+    fn test_basename_empty_pattern_skipped() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: None,
+                    case_insensitive: false,
+                },
+                vec![FileType::All],
+                "file1.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        // Empty basename pattern should be skipped
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_basename_bogus_dot_pattern_skipped() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some(".".to_string()),
+                    case_insensitive: false,
+                },
+                vec![FileType::All],
+                "file1.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        // Bogus "." pattern should be skipped
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_basename_non_basename_conditions_ignored() {
+        let traits = vec![
+            create_test_trait(
+                "test1",
+                Condition::String {
+                    exact: Some("setup.py".to_string()),
+                    substr: None,
+                    word: None,
+                    regex: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                vec![FileType::Python],
+                "file1.yaml",
+            ),
+            create_test_trait(
+                "test2",
+                Condition::Symbol {
+                    exact: Some("setup".to_string()),
+                    substr: None,
+                    regex: None,
+                    platforms: None,
+                    compiled_regex: None,
+                },
+                vec![FileType::Python],
+                "file2.yaml",
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        check_basename_pattern_duplicates(&traits, &mut warnings);
+
+        // Non-basename conditions should be ignored
+        assert_eq!(warnings.len(), 0);
+    }
+
+    // ========================================================================
+    // Regex Overlap Tests
+    // ========================================================================
+
+    #[test]
+    fn test_regex_literal_overlap_same_length_blocked() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            create_string_exact("exact_trait", "chrome.exe", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_trait", "chrome\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Same length patterns should trigger warning
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_regex_literal_overlap_33_percent_diff_allowed() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            // ".exe" = 4 chars, "7z.exe" = 6 chars
+            // Diff: 2/6 = 33.33% -> should be allowed
+            create_string_substr("substr_trait", ".exe", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_trait", "7z\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // 33% or more difference should be allowed
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_regex_literal_overlap_with_alternation_blocked() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            // Even with length difference, alternation should block the exemption
+            create_string_exact("exact_trait", "chrome.exe", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_trait", "(chrome\\.exe|firefox\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Alternation present means no exemption
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_regex_literal_overlap_prefix_blocked() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            // "foo" (3 chars) vs "foo.*" (5 chars) = 40% difference
+            // BUT "foo" is a prefix of "foo.*", so should still be blocked
+            create_string_exact("exact_trait", "foo", false, vec![FileType::All], "file1.yaml"),
+            create_string_regex("regex_trait", "foo.*", false, vec![FileType::All], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Prefix match should be blocked even with >33% length difference
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_regex_literal_overlap_suffix_blocked() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            // ".exe" is a suffix of ".*\.exe", should be blocked
+            create_string_substr("substr_trait", ".exe", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_trait", ".*\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Suffix match should be blocked
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Ambiguous regex overlap"));
+    }
+
+    #[test]
+    fn test_regex_literal_overlap_different_criticality_allowed() {
+        use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
+
+        let traits = vec![
+            create_test_trait_with_conf_crit(
+                "exact_notable",
+                Condition::String {
+                    exact: Some("malware.exe".to_string()),
+                    substr: None,
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                vec![FileType::Pe],
+                "file1.yaml",
+                1.0,
+                crate::types::Criticality::Notable,
+            ),
+            create_test_trait_with_conf_crit(
+                "regex_hostile",
+                Condition::String {
+                    exact: None,
+                    substr: None,
+                    regex: Some("malware\\.exe".to_string()),
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                vec![FileType::Pe],
+                "file2.yaml",
+                1.0,
+                crate::types::Criticality::Hostile,
+            ),
+        ];
+
+        let mut warnings = Vec::new();
+        validate_regex_overlap_with_literal(&traits, &mut warnings);
+
+        // Different criticality should be allowed
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_regex_regex_overlap_with_length_diff_allowed() {
+        use crate::capabilities::validation::duplicates::check_overlapping_regex_patterns;
+
+        let traits = vec![
+            // Both regexes, >33% length difference, one has no alternation
+            create_string_regex("regex_short", "\\.exe$", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_long", "7z\\.exe$", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        // Should be allowed due to length difference and no alternation
+        assert_eq!(warnings.len(), 0);
+    }
+
+    #[test]
+    fn test_regex_regex_overlap_both_alternation_checked() {
+        use crate::capabilities::validation::duplicates::check_overlapping_regex_patterns;
+
+        let traits = vec![
+            // Both have alternation and share alternatives
+            create_string_regex("regex_a", "(chrome\\.exe|firefox\\.exe)", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_b", "(firefox\\.exe|safari\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        // Should warn about shared alternative "firefox.exe"
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("Overlapping regex patterns"));
+    }
+
+    #[test]
+    fn test_regex_regex_one_alternation_length_diff_allowed() {
+        use crate::capabilities::validation::duplicates::check_overlapping_regex_patterns;
+
+        let traits = vec![
+            // One has alternation, but >33% length difference
+            create_string_regex("regex_simple", "\\.exe", false, vec![FileType::Pe], "file1.yaml"),
+            create_string_regex("regex_alternation", "(chrome\\.exe|firefox\\.exe|safari\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+        ];
+
+        let mut warnings = Vec::new();
+        check_overlapping_regex_patterns(&traits, &mut warnings);
+
+        // Should be allowed: >33% diff and one has no alternation
+        assert_eq!(warnings.len(), 0);
     }
 }
 

@@ -75,7 +75,7 @@ traits:
     conf: 0.50
     if:
       type: string
-      regex: "while\\s+True:"
+      exact: "while True:"
 
   - id: infinite-while-one
     desc: Infinite while 1 loop

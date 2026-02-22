@@ -1,0 +1,197 @@
+# Package Dependencies - Count Analysis
+# Detects suspicious dependency patterns based on count
+# ATT&CK: T1195.002 (Compromise Software Supply Chain)
+#
+# REQUIRES: size_min/size_max KV feature (see KV_ENHANCEMENT_IMPLEMENTATION_PLAN.md)
+
+defaults:
+  crit: notable
+  conf: 0.60
+  attack: "T1195.002"
+
+traits:
+  # === npm package.json - dependencies object ===
+
+  # Zero runtime dependencies (suspicious for utility packages)
+  - id: npm-zero-dependencies
+    desc: npm package has zero runtime dependencies
+    crit: notable
+    conf: 0.55
+    for: [package.json]
+    if:
+      type: kv
+      path: "dependencies"
+      size_max: 0
+
+  # Single dependency (common pattern in malicious packages)
+  - id: npm-single-dependency
+    desc: npm package depends on exactly one package
+    crit: notable
+    conf: 0.60
+    for: [package.json]
+    if:
+      type: kv
+      path: "dependencies"
+      size_min: 1
+      size_max: 1
+
+  # Two dependencies
+  - id: npm-two-dependencies
+    desc: npm package depends on exactly two packages
+    crit: notable
+    conf: 0.55
+    for: [package.json]
+    if:
+      type: kv
+      path: "dependencies"
+      size_min: 2
+      size_max: 2
+
+  # Excessive dependencies (bloat or dependency confusion vector)
+  - id: npm-excessive-dependencies
+    desc: npm package has excessive dependencies (100+)
+    crit: notable
+    conf: 0.65
+    for: [package.json]
+    if:
+      type: kv
+      path: "dependencies"
+      size_min: 100
+
+  # Very many dependencies (50+)
+  - id: npm-many-dependencies
+    desc: npm package has many dependencies (50+)
+    crit: notable
+    conf: 0.50
+    for: [package.json]
+    if:
+      type: kv
+      path: "dependencies"
+      size_min: 50
+
+  # === npm devDependencies ===
+
+  - id: npm-zero-devdependencies
+    desc: npm package has zero devDependencies
+    crit: notable
+    conf: 0.45
+    for: [package.json]
+    if:
+      type: kv
+      path: "devDependencies"
+      size_max: 0
+
+  - id: npm-excessive-devdependencies
+    desc: npm package has excessive devDependencies (100+)
+    crit: notable
+    conf: 0.55
+    for: [package.json]
+    if:
+      type: kv
+      path: "devDependencies"
+      size_min: 100
+
+  # === npm scripts ===
+
+  - id: npm-no-scripts
+    desc: npm package has no scripts defined
+    crit: notable
+    conf: 0.50
+    for: [package.json]
+    if:
+      type: kv
+      path: "scripts"
+      size_max: 0
+
+  - id: npm-minimal-scripts
+    desc: npm package has minimal scripts (1-2)
+    crit: notable
+    conf: 0.45
+    for: [package.json]
+    if:
+      type: kv
+      path: "scripts"
+      size_min: 1
+      size_max: 2
+
+  - id: npm-many-scripts
+    desc: npm package has many scripts (20+)
+    crit: notable
+    conf: 0.50
+    for: [package.json]
+    if:
+      type: kv
+      path: "scripts"
+      size_min: 20
+
+  # === PyPI - dependencies in pyproject.toml ===
+
+  - id: pypi-zero-dependencies
+    desc: PyPI package has zero dependencies
+    crit: notable
+    conf: 0.55
+    for: [pyproject.toml]
+    if:
+      type: kv
+      path: "project.dependencies"
+      size_max: 0
+
+  - id: pypi-single-dependency
+    desc: PyPI package has single dependency
+    crit: notable
+    conf: 0.60
+    for: [pyproject.toml]
+    if:
+      type: kv
+      path: "project.dependencies"
+      size_min: 1
+      size_max: 1
+
+composite_rules:
+  # === High-Risk: Single dependency + install hooks ===
+  - id: npm-single-dep-with-hooks
+    desc: Single dependency with install hooks
+    crit: hostile
+    conf: 0.93
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-single-dependency
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
+
+  # === High-Risk: Zero dependencies + install hooks ===
+  - id: npm-zero-deps-with-hooks
+    desc: Zero dependencies with install hooks
+    crit: hostile
+    conf: 0.94
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-zero-dependencies
+      - id: objectives/lateral-movement/supply-chain/npm/metadata::install-hooks
+
+  # === Suspicious: Few deps + many scripts ===
+  - id: npm-few-deps-many-scripts
+    desc: Few dependencies but many scripts
+    crit: suspicious
+    conf: 0.75
+    attack: "T1195.002"
+    for: [package.json]
+    all:
+      - id: npm-many-scripts
+    any:
+      - id: npm-zero-dependencies
+      - id: npm-single-dependency
+      - id: npm-two-dependencies
+    needs: 1
+
+  # === PyPI High-Risk ===
+  - id: pypi-single-dep-with-hooks
+    desc: PyPI single dependency with install hooks
+    crit: hostile
+    conf: 0.93
+    attack: "T1195.002"
+    for: [pyproject.toml, python]
+    all:
+      - id: pypi-single-dependency
+      - id: metadata/quality/dependencies::pypi-install-hooks-any

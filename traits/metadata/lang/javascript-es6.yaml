@@ -27,7 +27,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "\\bclass\\s+[A-Z]"
+      regex: "\\bclass\\s+[A-Z][a-zA-Z0-9_]*\\s*(extends\\s+[A-Z][a-zA-Z0-9_]*\\s*)?\\{"
 
   - id: template-literal
     desc: ES6 template literal syntax

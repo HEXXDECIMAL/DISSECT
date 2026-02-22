@@ -47,8 +47,7 @@ traits:
     desc: "Direct pip.main() installation"
     conf: 0.9
     if:
-      type: string
-      regex: "pip\\.main\\(\\[.{0,50}install"
+      id: micro-behaviors/os/package-manager/install::pip-main-install
 
   # pip.main() call via content (catches obfuscated arguments)
   - id: main-call-content
@@ -74,8 +73,7 @@ traits:
     conf: 0.8
     crit: notable
     if:
-      type: string
-      regex: "ensurepip"
+      id: micro-behaviors/os/package-manager/install::ensurepip-bootstrap
 
   # === Try/except block atomic indicators ===
   - id: try-colon
@@ -107,8 +105,7 @@ traits:
     crit: notable
     conf: 0.6
     if:
-      type: string
-      regex: "pip.{0,50}install"
+      id: micro-behaviors/os/package-manager/install::pip-install
 
   # === Content-based try/except indicators ===
   # Catches obfuscated samples where string extraction fails

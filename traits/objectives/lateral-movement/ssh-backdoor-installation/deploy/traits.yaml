@@ -83,7 +83,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (Port\s+[0-9]+|Port 22)
+    regex: Port\s+[0-9]+
 composite_rules:
 - id: ssh-config-modification
   desc: SSH daemon configuration modification

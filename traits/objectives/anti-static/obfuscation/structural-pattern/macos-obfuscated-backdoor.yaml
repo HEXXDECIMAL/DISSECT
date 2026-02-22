@@ -24,8 +24,8 @@ composite_rules:
       # Command execution capability
       - id: micro-behaviors/process/create/shell
       # Persistence mechanism
-      - id: objectives/persist/daemon/init::daemon-fork
-      - id: objectives/persist/daemon/init::daemon-setsid
+      - id: objectives/persistence/daemon/init::daemon-fork
+      - id: objectives/persistence/daemon/init::daemon-setsid
     # Additional obfuscation or execution indicators
     any:
       - id: micro-behaviors/process/create/shell::excessive-popen
@@ -91,7 +91,7 @@ composite_rules:
       - id: metadata/binary/structure::structural-anomaly-pattern
       - id: micro-behaviors/process/create/shell
     any:
-      - id: objectives/persist/daemon/init::unix-daemon-persistence
+      - id: objectives/persistence/daemon/init::unix-daemon-persistence
       - id: objectives/lateral-movement/social-engineering/masquerading::suspicious-generic-naming
       - id: objectives/command-and-control/backdoor/binary::unexpected-process-ops
     none:
@@ -111,7 +111,7 @@ composite_rules:
       # Execution
       - id: micro-behaviors/process/create/shell::excessive-popen
       # Persistence
-      - id: objectives/persist/daemon/init::unix-daemon-persistence
+      - id: objectives/persistence/daemon/init::unix-daemon-persistence
       # Masquerading
       - id: objectives/lateral-movement/social-engineering/masquerading::suspicious-generic-naming
     # Additional obfuscation

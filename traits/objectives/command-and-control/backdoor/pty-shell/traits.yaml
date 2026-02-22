@@ -9,24 +9,8 @@ defaults:
   attack: "T1059.004"
 
 traits:
-  # PTY allocation functions - used to create interactive shell
-  - id: pty-alloc-group-1
-    desc: PTY allocation symbols (grantpt/ptsname/unlockpt)
-    crit: notable
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "^(grantpt|ptsname|unlockpt)$"
-
-  - id: pty-alloc-group-2
-    desc: PTY allocation symbols (posix_openpt/openpty/forkpty)
-    crit: notable
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "^(posix_openpt|openpty|forkpty)$"
-
-  # vhangup - use canonical micro-behaviors/ trait
+  # NOTE: PTY allocation functions are defined in objectives/execution/tty/pty/
+  # This file defines only backdoor-specific traits and composites
 
   # Terminal attribute control - for PTY configuration
   - id: termios-cfmakeraw
@@ -116,12 +100,11 @@ traits:
 
 composite_rules:
   - id: pty-alloc-symbols
-    desc: PTY allocation symbol set (legacy wrapper)
+    desc: PTY allocation symbol set
     crit: notable
     conf: 0.9
     any:
-      - id: pty-alloc-group-1
-      - id: pty-alloc-group-2
+      - id: objectives/execution/tty/pty
 
   - id: termios-symbols
     desc: Terminal attribute control symbols

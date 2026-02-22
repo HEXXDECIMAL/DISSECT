@@ -245,7 +245,6 @@ pub(crate) fn eval_string<'a, 'b>(
 
     // Use pre-compiled regex from trait definition (compiled at startup)
     let compiled_regex = params.compiled_regex;
-    let compiled_excludes = params.compiled_excludes;
 
     // Helper to check if a value matches and add to evidence
     let check_and_add_evidence = |value: &str,
@@ -290,14 +289,13 @@ pub(crate) fn eval_string<'a, 'b>(
         }
 
         if matched {
-            let excluded_by_pattern = compiled_excludes.iter().any(|re| re.is_match(value));
             let excluded_by_not = trait_not
                 .map(|exceptions| exceptions.iter().any(|exc| exc.matches(&match_value)))
                 .unwrap_or(false);
             // When external_ip is set, require match to contain a valid external IP
             let excluded_by_ip = params.external_ip && !contains_external_ip(&match_value);
 
-            if !excluded_by_pattern && !excluded_by_not && !excluded_by_ip {
+            if !excluded_by_not && !excluded_by_ip {
                 evidence.push(Evidence {
                     method: method.to_string(),
                     source: source.to_string(),
@@ -364,9 +362,6 @@ pub(crate) fn eval_string<'a, 'b>(
     }
 
     // Modifiers (additive)
-    if !params.exclude_patterns.unwrap_or(&Vec::new()).is_empty() {
-        precision += 0.5; // Exclusion patterns add precision
-    }
     // count/density constraints are now scored at trait level
     // Location constraints add precision (section/offset filtering is very specific)
     if params.section.is_some() {
@@ -465,6 +460,7 @@ pub(crate) fn eval_raw<'a>(
                 .map_err(|e| anyhow::anyhow!("Regex error: {}", e))
                 .ok();
 
+            #[allow(clippy::redundant_closure_for_method_calls)]
             if let Some(super::CachedRegex::Bytes(bytes_re)) = bytes_re.as_ref().map(|r| r.value()) {
                 let mut first_match = None;
                 for (idx, mat) in bytes_re.find_iter(search_data).enumerate() {

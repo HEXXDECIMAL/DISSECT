@@ -2,88 +2,7 @@
 # ATT&CK: T1048 (Exfiltration Over Alternative Protocol)
 
 traits:
-  # === OOB domain atomic indicators ===
-  - id: interactsh-domain
-    desc: Interactsh OOB domain
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9]{8,64}\\.interactsh"
-
-  - id: burpcollaborator-domain
-    desc: Burp Collaborator OOB domain
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9]{8,32}\\.burpcollaborator\\.net"
-
-  - id: oastify-domain
-    desc: Oastify OOB domain
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9]{8,32}\\.oastify\\.com"
-
-  - id: oast-fun-domain
-    desc: OAST.fun OOB domain
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9]{8,32}\\.oast\\.fun"
-
-  - id: pipedream-domain
-    desc: Pipedream OOB domain
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9]{8,32}\\.m\\.pipedream\\.net"
-
-  # === Ngrok atomic indicators ===
-  - id: ngrok-tcp
-    desc: Ngrok TCP tunnel
-    crit: notable
-    conf: 0.7
-    attack: "T1572"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9-]+\\.tcp\\.[a-z]+\\.ngrok\\.io"
-
-  - id: ngrok-http
-    desc: Ngrok HTTP tunnel
-    crit: notable
-    conf: 0.7
-    attack: "T1572"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9-]+\\.http\\.[a-z]+\\.ngrok\\.io"
-
-  - id: ngrok-https
-    desc: Ngrok HTTPS tunnel
-    crit: notable
-    conf: 0.7
-    attack: "T1572"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9-]+\\.https\\.[a-z]+\\.ngrok\\.io"
-
+  # === Workers and DAST (often used for gathering) ===
   - id: bytedance-dast
     desc: Exfiltrates data to Bytedance DAST
     crit: suspicious
@@ -95,7 +14,7 @@ traits:
       regex: "[a-z0-9-]+\\.byted-dast\\.com"
 
   - id: workers-dev
-    desc: Communication with Cloudflare Workers (common
+    desc: Communication with Cloudflare Workers
     crit: notable
     conf: 0.7
     attack: "T1071"
@@ -104,57 +23,7 @@ traits:
       type: string
       regex: "[a-z0-9-]+\\.workers\\.dev"
 
-  # === Requestbin atomic indicators ===
-  - id: requestbin-com
-    desc: RequestBin.com OOB endpoint
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      substr: "requestbin.com"
-
-  - id: requestbin-net
-    desc: RequestBin.net OOB endpoint
-    crit: notable
-    conf: 0.7
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      substr: "requestbin.net"
-
-  - id: webhook-site
-    desc: Exfiltrates data to Webhook.site OOB
-    crit: suspicious
-    conf: 0.9
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      substr: "webhook.site"
-
-  - id: dnslog-cn
-    desc: Exfiltrates data to DNSLog.cn OOB
-    crit: suspicious
-    conf: 0.95
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      substr: "dnslog.cn"
-
-  - id: canarytokens
-    desc: Accesses Canarytokens OOB domain (potential
-    crit: suspicious
-    conf: 0.9
-    attack: "T1048"
-    for: [all]
-    if:
-      type: string
-      substr: "canarytokens.com"
-
+  # === Base64 Encoded Indicators ===
   - id: oastify-b64
     desc: Base64-encoded Oastify OOB domain indicator
     crit: suspicious
@@ -191,10 +60,6 @@ traits:
       type: string
       substr: "aHR0cHM6Ly"
 
-  # NOTE: Discord webhook traits are defined in communications/messaging/discord/
-  # NOTE: Telegram bot traits are defined in communications/messaging/telegram/
-  # Use those directory references in composite rules
-
   # Slack webhook exfiltration
   - id: slack-webhook
     desc: Slack webhook exfiltration endpoint
@@ -206,53 +71,17 @@ traits:
       type: string
       regex: "hooks\\.slack\\.com/services/T[A-Z0-9]+/B[A-Z0-9]+/[A-Za-z0-9]+"
 
-  # Ngrok free tunnel detection
-  - id: ngrok-free
-    desc: Ngrok free tunnel endpoint
-    crit: suspicious
-    conf: 0.9
-    attack: "T1572"
-    for: [all]
-    if:
-      type: string
-      regex: "[a-z0-9-]+\\.ngrok-free\\.app"
-
-  # === NPM preinstall atomic indicators ===
-  # Moved to objectives/execution/package-manager/npm.yaml
-
 composite_rules:
   # Helper composite for all OOB domain patterns
   - id: oob-domains
     desc: Any OOB domain pattern
     for: [all]
     any:
-      - { id: interactsh-domain }
-      - { id: burpcollaborator-domain }
-      - { id: oastify-domain }
-      - { id: oast-fun-domain }
-      - { id: pipedream-domain }
+      - id: objectives/exfiltration/channel/callback/
+      - id: objectives/discovery/network/ip-tracker/
+      - id: bytedance-dast
+      - id: workers-dev
     crit: notable
-
-  # Helper composite for all ngrok tunnels
-  - id: ngrok-tunnels
-    desc: Ngrok tunnel patterns
-    for: [all]
-    any:
-      - { id: ngrok-tcp }
-      - { id: ngrok-http }
-      - { id: ngrok-https }
-      - { id: ngrok-free }
-    crit: notable
-
-  # Helper composite for requestbin endpoints
-  - id: requestbin-endpoints
-    desc: RequestBin OOB endpoints
-    for: [all]
-    any:
-      - { id: requestbin-com }
-      - { id: requestbin-net }
-    crit: notable
-
 
   # Migrated from YARA
   - id: preinstall-exfil
@@ -263,8 +92,8 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: objectives/execution/interpreter/script/npm::npm-preinstall-script }
-      - { id: oob-domains }
+      - id: objectives/execution/interpreter/script/npm::npm-preinstall-script
+      - id: oob-domains
 
   # Migrated from YARA
   - id: crypto-exfil
@@ -275,21 +104,16 @@ composite_rules:
     mbc: "B0030"
     for: [javascript]
     all:
-      - { id: micro-behaviors/crypto/symmetric/aes::crypto-require-call }
-      - { id: oob-domains }
-
-  - id: multiple-encoded-indicators
-    desc: "Multiple encoded indicators"
-    crit: notable
-    conf: 0.85
+      - id: micro-behaviors/crypto/symmetric/aes::crypto-require-call
+      - id: oob-domains
 
   # Helper composite for encoded OOB indicators
   - id: encoded-oob-indicators
     desc: Base64-encoded OOB domain indicators
     for: [python, javascript]
     any:
-      - { id: oastify-b64 }
-      - { id: oast-fun-b64 }
+      - id: oastify-b64
+      - id: oast-fun-b64
     crit: notable
 
   - id: encoded-oob-exfil
@@ -300,5 +124,5 @@ composite_rules:
     mbc: "B0030"
     for: [python, javascript]
     all:
-      - { id: micro-behaviors/communications/http/request }
-      - { id: encoded-oob-indicators }
+      - id: micro-behaviors/communications/http/request
+      - id: encoded-oob-indicators

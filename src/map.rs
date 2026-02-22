@@ -185,11 +185,10 @@ pub fn generate_findings_map(
 fn parse_criticality(s: &str) -> Criticality {
     match s.to_lowercase().as_str() {
         "filtered" => Criticality::Filtered,
-        "inert" => Criticality::Inert,
         "notable" => Criticality::Notable,
         "suspicious" => Criticality::Suspicious,
         "hostile" | "malicious" => Criticality::Hostile,
-        _ => Criticality::Inert,
+        _ => Criticality::Inert, // includes "inert" and any unknown value
     }
 }
 
@@ -225,16 +224,14 @@ fn build_graph_from_findings<R: BufRead>(
         }
 
         // Extract findings array
-        let findings = match json.get("findings").and_then(|f| f.as_array()) {
-            Some(f) => f,
-            None => continue,
+        let Some(findings) = json.get("findings").and_then(|f| f.as_array()) else {
+            continue;
         };
 
         for finding in findings {
             // Get finding ID
-            let id = match finding.get("id").and_then(|v| v.as_str()) {
-                Some(id) => id,
-                None => continue,
+            let Some(id) = finding.get("id").and_then(|v| v.as_str()) else {
+                continue;
             };
 
             // Get criticality

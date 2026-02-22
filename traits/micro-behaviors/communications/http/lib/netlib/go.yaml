@@ -39,15 +39,6 @@ traits:
       exact: 'Header.Set("Authorization"'
 
   # String-based detection (compiled binaries)
-  - id: go-http-newrequest-string
-    desc: http.NewRequest string in binary
-    crit: notable
-    conf: 0.7
-    for: [elf, macho, pe]
-    if:
-      type: string
-      substr: "http.NewRequest"
-
   - id: go-http-client-do-string
     desc: net/http.(*Client).Do string in binary
     crit: notable

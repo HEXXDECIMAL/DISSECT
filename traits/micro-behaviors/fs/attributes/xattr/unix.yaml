@@ -6,7 +6,7 @@ defaults:
   for: [elf, macho, so, dylib, c]
 
 traits:
-  # setxattr/fsetxattr/lsetxattr for elf: use objectives/anti-analysis/security-bypass/platform::setxattr-symbol etc. (canonical)
+  # setxattr/fsetxattr/lsetxattr for elf: use objectives/evasion/anti-av/platform::setxattr-symbol etc. (canonical)
   - id: setxattr-func
     desc: Set extended attribute
     crit: notable

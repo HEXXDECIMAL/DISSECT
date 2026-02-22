@@ -126,7 +126,7 @@ composite_rules:
     for: [pe, dll]
     all:
       - id: dotnet-vbs-dropper
-      - id: objectives/anti-forensics/self-delete/file::vbs-file-delete
+      - id: objectives/evasion/self-delete/file::vbs-file-delete
     any:
       - id: objectives/execution/reflective-load/memory::sma-namespace
       - id: objectives/execution/reflective-load/memory::runspace-factory

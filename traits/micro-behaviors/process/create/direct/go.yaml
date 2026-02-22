@@ -29,3 +29,13 @@ traits:
     if:
       type: symbol
       exact: "syscall.ForkExec"
+
+  - id: start-process
+    desc: "Direct execution via os.StartProcess"
+    crit: notable
+    conf: 0.95
+    attack: "T1106"
+    for: [go]
+    if:
+      type: symbol
+      exact: "os.StartProcess"

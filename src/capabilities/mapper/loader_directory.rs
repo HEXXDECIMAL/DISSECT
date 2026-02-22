@@ -9,18 +9,18 @@ use crate::capabilities::indexes::{RawContentRegexIndex, StringMatchIndex, Trait
 use crate::capabilities::models::{TraitInfo, TraitMappings};
 use crate::capabilities::parsing::{apply_composite_defaults, apply_trait_defaults};
 use crate::capabilities::validation::{
-    autoprefix_trait_refs, check_case_insensitive_overlaps, check_exact_contained_by_substr,
-    check_overlapping_regex_patterns, check_regex_alternative_subsets,
-    check_regex_contains_literal, check_regex_or_overlapping_exact,
-    check_regex_should_be_exact, check_same_string_different_types,
-    collect_trait_refs_from_rule, find_alternation_merge_candidates,
-    find_banned_directory_segments, find_cap_obj_violations, find_depth_violations,
-    find_duplicate_second_level_directories, find_duplicate_traits_and_composites,
-    find_empty_condition_clauses, find_for_only_duplicates, find_hostile_cap_rules,
-    find_impossible_count_constraints, find_impossible_needs,
-    find_impossible_size_constraints, find_inert_obj_rules, find_invalid_trait_ids,
-    find_line_number, find_malware_subcategory_violations, find_missing_search_patterns,
-    find_oversized_trait_directories, find_overlapping_conditions,
+    autoprefix_trait_refs, check_basename_pattern_duplicates, check_case_insensitive_overlaps,
+    check_exact_contained_by_substr, check_overlapping_regex_patterns,
+    check_regex_alternative_subsets, check_regex_contains_literal,
+    check_regex_or_overlapping_exact, check_regex_should_be_exact,
+    check_same_string_different_types, collect_trait_refs_from_rule,
+    find_alternation_merge_candidates, find_banned_directory_segments, find_cap_obj_violations,
+    find_depth_violations, find_duplicate_second_level_directories,
+    find_duplicate_traits_and_composites, find_empty_condition_clauses,
+    find_for_only_duplicates, find_hostile_cap_rules, find_impossible_count_constraints,
+    find_impossible_needs, find_impossible_size_constraints, find_inert_obj_rules,
+    find_invalid_trait_ids, find_line_number, find_malware_subcategory_violations,
+    find_missing_search_patterns, find_oversized_trait_directories, find_overlapping_conditions,
     find_parent_duplicate_segments, find_platform_named_directories, find_redundant_any_refs,
     find_redundant_needs_one, find_short_pattern_warnings, find_single_item_clauses,
     find_slow_regex_patterns, find_string_content_collisions, find_string_pattern_duplicates,
@@ -94,8 +94,8 @@ impl super::CapabilityMapper {
                 if cache_path.exists() {
                     tracing::debug!("Attempting to load mapper from cache: {:?}", cache_path);
                     match fs::read(&cache_path) {
-                        Ok(bytes) => {
-                            match serde_json::from_slice::<MapperCacheData>(&bytes) {
+                        Ok(mut bytes) => {
+                            match simd_json::from_slice::<MapperCacheData>(&mut bytes) {
                                 Ok(cache_data) => {
                                     tracing::info!(
                                         "Loaded mapper from cache ({} traits, {} composites)",
@@ -103,16 +103,20 @@ impl super::CapabilityMapper {
                                         cache_data.composite_rules.len()
                                     );
 
-                                    // Rebuild indexes from cached trait definitions
-                                    let trait_index =
-                                        TraitIndex::build(&cache_data.trait_definitions);
-                                    let string_match_index =
-                                        StringMatchIndex::build(&cache_data.trait_definitions);
-                                    let raw_content_regex_index =
-                                        RawContentRegexIndex::build(&cache_data.trait_definitions)
-                                            .map_err(|errs| {
-                                                anyhow::anyhow!("Regex errors: {:?}", errs)
-                                            })?;
+                                    // Rebuild indexes from cached trait definitions (in parallel)
+                                    let ((trait_index, string_match_index), raw_regex_result) =
+                                        rayon::join(
+                                            || {
+                                                rayon::join(
+                                                    || TraitIndex::build(&cache_data.trait_definitions),
+                                                    || StringMatchIndex::build(&cache_data.trait_definitions),
+                                                )
+                                            },
+                                            || RawContentRegexIndex::build(&cache_data.trait_definitions),
+                                        );
+                                    let raw_content_regex_index = raw_regex_result.map_err(|errs| {
+                                        anyhow::anyhow!("Regex errors: {:?}", errs)
+                                    })?;
 
                                     return Ok(Self {
                                         symbol_map: cache_data.symbol_map,
@@ -774,6 +778,12 @@ impl super::CapabilityMapper {
             tracing::debug!("Step 1l/15: Checking for regex alternative subsets");
             check_regex_alternative_subsets(&trait_definitions, &mut warnings);
             tracing::debug!("Step 1l completed in {:?}", step_start.elapsed());
+
+            // Check for basename pattern duplicates
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1m/15: Checking for basename pattern duplicates");
+            check_basename_pattern_duplicates(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1m completed in {:?}", step_start.elapsed());
         } else {
             tracing::debug!("Step 1/15: Skipping precision validation (use --validate to enable)");
         }
@@ -2026,24 +2036,24 @@ impl super::CapabilityMapper {
 
         tracing::debug!("Validation complete");
 
-        // Build trait index for fast lookup by file type
-        tracing::debug!("Building trait indexes");
-        let trait_index = TraitIndex::build(&trait_definitions);
-
-        // Build string match index for batched AC matching
-        let _t_string_index = std::time::Instant::now();
-        tracing::debug!("Building Aho-Corasick string index");
-        let string_match_index = StringMatchIndex::build(&trait_definitions);
-        tracing::debug!("Indexes built successfully");
-
-        // Build raw content regex index for batched regex matching
-        let _t_raw_regex_index = std::time::Instant::now();
-        let raw_content_regex_index = match RawContentRegexIndex::build(&trait_definitions) {
+        // Build all indexes in parallel for better performance
+        tracing::debug!("Building trait indexes (parallel)");
+        let ((trait_index, string_match_index), raw_regex_result) = rayon::join(
+            || {
+                rayon::join(
+                    || TraitIndex::build(&trait_definitions),
+                    || StringMatchIndex::build(&trait_definitions),
+                )
+            },
+            || RawContentRegexIndex::build(&trait_definitions),
+        );
+        let raw_content_regex_index = match raw_regex_result {
             Ok(index) => index,
             Err(errors) => {
                 return Err(anyhow::anyhow!(errors.join("\n")));
             },
         };
+        tracing::debug!("Indexes built successfully");
 
         // Parse errors are fatal - print all and exit if any exist
         if !parse_errors.is_empty() {
@@ -2085,13 +2095,13 @@ impl super::CapabilityMapper {
                     composite_rules: composite_rules.clone(),
                 };
                 match serde_json::to_vec(&cache_data) {
-                    Ok(json) => {
-                        if let Err(e) = fs::write(&cache_path, &json) {
+                    Ok(bytes) => {
+                        if let Err(e) = fs::write(&cache_path, &bytes) {
                             tracing::warn!("Failed to write mapper cache: {}", e);
                         } else {
                             tracing::info!(
                                 "Saved mapper cache ({} bytes): {:?}",
-                                json.len(),
+                                bytes.len(),
                                 cache_path
                             );
                         }

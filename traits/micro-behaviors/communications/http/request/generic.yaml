@@ -70,6 +70,14 @@ traits:
       type: string
       substr: "HTTP/1."
 
+  - id: http-response
+    desc: HTTP response reference
+    crit: inert
+    conf: 0.5
+    if:
+      type: string
+      regex: '(?i)http_response|response_body'
+
   # === Network exfiltration atomic indicators ===
   # NOTE: requests.get/post moved to communications/http/lib/requests/python.yaml
   # as they are library-specific implementations

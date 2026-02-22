@@ -29,3 +29,14 @@ traits:
     if:
       type: string
       substr: "urllib.urlopen"
+
+  # GuardDog: urlretrieve for downloading files
+  - id: urllib-urlretrieve
+    desc: urllib.request.urlretrieve call
+    crit: notable
+    conf: 0.80
+    mbc: "C0002"
+    attack: "T1105"
+    if:
+      type: symbol
+      regex: 'urllib\.(?:request\.)?urlretrieve'

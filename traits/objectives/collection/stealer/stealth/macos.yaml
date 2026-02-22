@@ -14,7 +14,7 @@ composite_rules:
     conf: 0.98
     # High-confidence: Binaries that wipe TCC permissions AND phish for passwords
     all:
-      - id: objectives/anti-forensics/tcc-manipulation/bypass::tcc-bypass
+      - id: objectives/evasion/tcc-manipulation/bypass::tcc-bypass
       - id: objectives/credential-access/phishing/lure::password-phishing
 
   - id: adhoc-browser-data-stealer

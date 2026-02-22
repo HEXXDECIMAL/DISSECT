@@ -14,43 +14,49 @@ traits:
     desc: .exe executable file extension reference
     conf: 0.4
     if:
-      type: string
-      exact: ".exe"
+      id: micro-behaviors/fs/path/extension::exe
 
   - id: bat-extension
     desc: .bat batch script file extension reference
     conf: 0.4
     if:
-      type: string
-      exact: ".bat"
+      id: micro-behaviors/fs/path/extension::bat
 
   - id: ps1-extension
     desc: .ps1 PowerShell script file extension reference
     if:
-      type: string
-      exact: ".ps1"
+      id: micro-behaviors/fs/path/extension::ps1
 
   - id: vbs-extension
     desc: .vbs VBScript file extension reference
     if:
-      type: string
-      exact: ".vbs"
+      id: micro-behaviors/fs/path/extension::vbs
 
   # === Command References ===
+  - id: cmd-name
+    desc: cmd command name
+    if:
+      id: micro-behaviors/process/create/shell::cmd-name
+
+  - id: powershell-name
+    desc: powershell command name
+    if:
+      id: micro-behaviors/process/create/shell/lang::powershell-keyword
+
+composite_rules:
   - id: cmd-exe
     desc: cmd.exe Windows command shell reference
     conf: 0.4
-    if:
-      type: string
-      substr: "cmd.exe"
+    all:
+      - id: micro-behaviors/fs/path/extension::exe
+      - id: cmd-name
 
   - id: powershell-exe
     desc: powershell.exe executable reference
-    if:
-      type: string
-      substr: "powershell.exe"
+    all:
+      - id: micro-behaviors/fs/path/extension::exe
+      - id: powershell-name
 
-composite_rules:
   # Composite for any Windows executable file type reference
   - id: windows-executable-ref
     desc: Windows executable or script file type reference
@@ -62,5 +68,5 @@ composite_rules:
       - id: bat-extension
       - id: ps1-extension
       - id: vbs-extension
-      - id: micro-behaviors/data/text/keywords::powershell
+      - id: powershell-name
       - id: cmd-exe

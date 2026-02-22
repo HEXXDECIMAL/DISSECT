@@ -61,15 +61,25 @@ traits:
       regex: "curl.{0,50}business.{0,50}kpi|curl.{0,50}install.{0,50}track"
 
   # === Pipedream Webhook ===
+  - id: recon-command-ref
+    desc: Reconnaissance command reference
+    crit: notable
+    conf: 0.5
+    any:
+      - type: raw
+        word: "hostname"
+      - type: raw
+        word: "whoami"
+
+composite_rules:
   - id: pipedream-recon-webhook
     desc: Pipedream reconnaissance webhook
     crit: suspicious
     conf: 0.95
-    if:
-      type: raw
-      regex: "pipedream.{0,50}hostname|pipedream.{0,50}whoami"
+    all:
+      - id: objectives/exfiltration/channel/callback/pipedream
+      - id: recon-command-ref
 
-composite_rules:
   # === System Reconnaissance Exfiltration ===
   - id: system-recon-exfiltration
     desc: System recon via curl

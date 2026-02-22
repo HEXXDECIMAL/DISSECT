@@ -30,8 +30,8 @@ traits:
     type: string
     regex: post.{0,50}json|json.{0,50}post
   unless:
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_requests
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_test
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_requests
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_test
 - id: json-data-post
   desc: JSON data POST exfiltration
   crit: suspicious
@@ -41,8 +41,8 @@ traits:
     type: string
     regex: requests\.post.{0,50}data.{0,50}json|post.{0,50}data=.{0,50}b64
   unless:
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_requests
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_test
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_requests
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_test
 - id: base64-json-payload
   desc: Base64 in JSON payload
   crit: suspicious
@@ -52,8 +52,8 @@ traits:
     type: string
     regex: json.{0,50}b64encode|b64encode.{0,50}data
   unless:
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_requests
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_test
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_requests
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_test
 - id: json-response-parse
   desc: JSON response parsing
   crit: notable
@@ -111,8 +111,8 @@ composite_rules:
   all:
   - id: micro-behaviors/communications/http/request::application-json
   unless:
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_requests
-  - id: objectives/command-and-control/network/beacon/json-c2::inline__json-exfiltration__unless_test
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_requests
+  - id: objectives/command-and-control/network/beacon::inline__json-exfiltration__unless_test
 - id: json-c2-protocol
   desc: JSON C2 communication protocol
   crit: suspicious

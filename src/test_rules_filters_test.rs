@@ -5,7 +5,7 @@ use crate::composite_rules::debug::{EvaluationDebug, RuleType};
 use crate::composite_rules::traits::{CompositeTrait, ConditionWithFilters, TraitDefinition};
 use crate::composite_rules::{EvaluationContext, FileType as RuleFileType, Platform};
 use crate::types::{AnalysisReport, TargetInfo};
-use std::sync::RwLock;
+use std::sync::{OnceLock, RwLock};
 
 /// Helper to create a minimal report for testing
 fn create_test_report(file_size: usize) -> AnalysisReport {
@@ -74,6 +74,8 @@ fn test_count_min_filter_matches_debug_and_eval() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let eval_result = trait_def.evaluate(&ctx);
@@ -95,6 +97,8 @@ fn test_count_min_filter_matches_debug_and_eval() {
         debug_collector: Some(&debug),
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let debug_result = trait_def.evaluate(&debug_ctx);
@@ -183,6 +187,8 @@ fn test_per_kb_min_filter_matches_debug_and_eval() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let eval_result = trait_def.evaluate(&ctx);
@@ -204,6 +210,8 @@ fn test_per_kb_min_filter_matches_debug_and_eval() {
         debug_collector: Some(&debug),
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let debug_result = trait_def.evaluate(&debug_ctx);
@@ -284,6 +292,8 @@ fn test_size_min_filter_matches_debug_and_eval() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let eval_result = trait_def.evaluate(&ctx);
@@ -305,6 +315,8 @@ fn test_size_min_filter_matches_debug_and_eval() {
         debug_collector: Some(&debug),
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let debug_result = trait_def.evaluate(&debug_ctx);
@@ -383,6 +395,8 @@ fn test_composite_size_constraints_match_debug_and_eval() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let eval_result = composite.evaluate(&ctx);
@@ -404,6 +418,8 @@ fn test_composite_size_constraints_match_debug_and_eval() {
         debug_collector: Some(&debug),
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let debug_result = composite.evaluate(&debug_ctx);
@@ -485,6 +501,8 @@ fn test_all_filters_match_when_satisfied() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let eval_result = trait_def.evaluate(&ctx);
@@ -506,6 +524,8 @@ fn test_all_filters_match_when_satisfied() {
         debug_collector: Some(&debug),
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let debug_result = trait_def.evaluate(&debug_ctx);

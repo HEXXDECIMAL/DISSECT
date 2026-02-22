@@ -12,7 +12,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "^class\\s+[A-Z][a-zA-Z0-9]*|export\\s+class\\s+[A-Z]"
+      regex: "(^|\\n)(export\\s+)?class\\s+[A-Z][a-zA-Z0-9_]*\\s*(extends\\s+[A-Z][a-zA-Z0-9_]*\\s*)?\\{"
 
   # Has JSDoc comments
   - id: has-async-await

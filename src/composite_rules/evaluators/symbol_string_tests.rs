@@ -5,6 +5,7 @@ use crate::composite_rules::condition::NotException;
 use crate::composite_rules::context::{EvaluationContext, StringParams};
 use crate::composite_rules::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Export, Function, Import, StringInfo, StringType, TargetInfo};
+use std::sync::OnceLock;
 
 fn create_test_report() -> AnalysisReport {
     let target = TargetInfo {
@@ -29,6 +30,8 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 
@@ -310,10 +313,8 @@ fn test_eval_string_exact_match() {
         regex: None,
         word: None,
         case_insensitive: false,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: None,
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,
@@ -348,10 +349,8 @@ fn test_eval_string_substr_match() {
         regex: None,
         word: None,
         case_insensitive: false,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: None,
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,
@@ -387,10 +386,8 @@ fn test_eval_string_regex_match() {
         regex: Some(&pattern),
         word: None,
         case_insensitive: false,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: Some(&re),
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,
@@ -424,10 +421,8 @@ fn test_eval_string_case_insensitive() {
         regex: None,
         word: None,
         case_insensitive: true,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: None,
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,
@@ -438,45 +433,6 @@ fn test_eval_string_case_insensitive() {
     let result = eval_string(&params, None, &ctx);
 
     assert!(result.matched);
-}
-
-#[test]
-fn test_eval_string_exclude_patterns() {
-    let mut report = create_test_report();
-    report.strings.push(StringInfo {
-        value: "test_function".to_string(),
-        offset: Some(0x1000),
-        encoding: "utf8".to_string(),
-        string_type: StringType::Const,
-        section: None,
-        encoding_chain: Vec::new(),
-        fragments: None,
-    });
-    let data = vec![];
-    let ctx = create_test_context(&report, &data);
-
-    let exclude_re = regex::Regex::new("test_").unwrap();
-    let params = StringParams {
-        exact: None,
-        substr: Some(&"function".to_string()),
-        regex: None,
-        word: None,
-        case_insensitive: false,
-        exclude_patterns: None,
-        external_ip: false,
-        compiled_regex: None,
-        compiled_excludes: &[exclude_re],
-        section: None,
-        offset: None,
-        offset_range: None,
-        section_offset: None,
-        section_offset_range: None,
-    };
-
-    let result = eval_string(&params, None, &ctx);
-
-    // Should not match due to exclude pattern
-    assert!(!result.matched);
 }
 
 #[test]
@@ -523,10 +479,8 @@ fn test_eval_string_not_exception() {
         regex: None,
         word: None,
         case_insensitive: false,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: None,
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,
@@ -557,10 +511,8 @@ fn test_eval_string_in_imports() {
         regex: None,
         word: None,
         case_insensitive: false,
-        exclude_patterns: None,
         external_ip: false,
         compiled_regex: None,
-        compiled_excludes: &[],
         section: None,
         offset: None,
         offset_range: None,

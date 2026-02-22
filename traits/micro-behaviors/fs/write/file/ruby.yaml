@@ -38,8 +38,7 @@ traits:
     crit: inert
     conf: 0.7
     if:
-      type: string
-      regex: "^/tmp/"
+      id: micro-behaviors/fs/path/temp/linux::temp-tmp
 
   - id: file-open-tmp-string
     desc: File.open to /tmp/ path

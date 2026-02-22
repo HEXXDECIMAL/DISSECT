@@ -57,23 +57,11 @@ mod symbol_string_tests;
 /// ASCII-only patterns use bytes::Regex to avoid UTF-8 conversion overhead.
 #[derive(Clone)]
 pub(crate) enum CachedRegex {
-    /// String-based regex for Unicode patterns
+    /// String-based regex for Unicode patterns (fallback for non-ASCII patterns)
+    #[allow(dead_code)]
     String(Regex),
     /// Bytes-based regex for ASCII-only patterns (much faster, no UTF-8 conversion)
     Bytes(regex::bytes::Regex),
-}
-
-impl CachedRegex {
-    /// Check if this regex matches using the appropriate variant
-    pub fn is_match(&self, data: &[u8]) -> bool {
-        match self {
-            CachedRegex::Bytes(re) => re.is_match(data),
-            CachedRegex::String(re) => {
-                let s = String::from_utf8_lossy(data);
-                re.is_match(&s)
-            }
-        }
-    }
 }
 
 /// Global cache for compiled regex patterns to avoid repeated compilation.

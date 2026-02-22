@@ -11,7 +11,7 @@ composite_rules:
       - id: micro-behaviors/data/control-flow/analysis::iteration-loop-pattern
     any:
       - id: micro-behaviors/fs/path/sensitive/browser::login-data
-      - id: micro-behaviors/fs/path/sensitive/browser::cookies
+      - id: micro-behaviors/fs/path/sensitive/browser::chrome-cookies
       - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
       - id: micro-behaviors/fs/path/sensitive/crypto::crypto-wallets
       - id: micro-behaviors/fs/path/sensitive/ssh::keys

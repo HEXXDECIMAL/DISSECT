@@ -46,8 +46,8 @@ composite_rules:
     needs: 2
     any:
       - id: gtfobins-ruby-marker
-      - id: objectives/privesc/setuid/abuse::ruby-setuid
-      - id: objectives/privesc/setuid/abuse::ruby-root-shell
+      - id: objectives/privilege-escalation/setuid/abuse::ruby-setuid
+      - id: objectives/privilege-escalation/setuid/abuse::ruby-root-shell
   - id: gtfobins-ruby-file-ops
     desc: GTFOBins file operations via Ruby
     crit: suspicious

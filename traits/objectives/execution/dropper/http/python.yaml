@@ -49,8 +49,7 @@ traits:
     crit: notable
     conf: 0.5
     if:
-      type: string
-      regex: "subprocess\\.(Popen|run|call)\\("
+      id: micro-behaviors/process/create/subprocess::methods
 
 composite_rules:
   # HTTP library composite

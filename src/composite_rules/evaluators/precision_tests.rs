@@ -64,8 +64,8 @@ mod tests {
     }
 
     #[test]
-    fn test_string_precision_substr_with_exclude_patterns() {
-        // substr: 1.0 + exclude_patterns: 0.5 = 1.5
+    fn test_string_precision_substr() {
+        // substr: 1.0 = 1.5
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
@@ -91,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_string_precision_regex_with_both_modifiers() {
-        // regex: 1.5 + exclude_patterns: 0.5 + min_count: 0.5 = 2.5
+        // regex: 1.5 + min_count: 0.5 = 2.5
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn test_string_precision_regex_with_all_modifiers_and_penalty() {
-        // (regex: 1.5 + exclude_patterns: 0.5 + min_count: 0.5) * 0.5 (case_insensitive) = 1.25
+        // (regex: 1.5 + min_count: 0.5) * 0.5 (case_insensitive) = 1.25
         let result = ConditionResult {
             matched: true,
             evidence: vec![],
@@ -580,7 +580,7 @@ mod tests {
     #[test]
     fn test_extreme_case_high_precision() {
         // Maximum realistic precision: exact match with all constraints
-        // exact: 2.0 + exclude_patterns: 0.5 + min_count: 0.5 + not: 0.5 + file_type: 1.0 = 4.5
+        // exact: 2.0 + min_count: 0.5 + not: 0.5 + file_type: 1.0 = 4.5
         let max_precision = 2.0 + 0.5 + 0.5 + 0.5 + 1.0;
         assert_eq!(max_precision, 4.5);
     }
@@ -614,9 +614,9 @@ mod tests {
 
     #[test]
     fn test_combined_modifiers_accumulate() {
-        // All modifiers stack: pattern + exclude_patterns + min_count
+        // All modifiers stack: pattern + min_count
         // exact: 2.0
-        // + exclude_patterns: 0.5
+        //
         // + min_count: 0.5
         // = 3.0
         let combined = 2.0 + 0.5 + 0.5;
@@ -626,7 +626,7 @@ mod tests {
     #[test]
     fn test_case_insensitive_multiplier_effect() {
         // case_insensitive multiplies the entire base (not individual modifiers)
-        // (exact: 2.0 + exclude_patterns: 0.5) * 0.5 = 1.25
+        // (exact: 2.0) * 0.5 = 1.25
         let base_with_modifiers = 2.0 + 0.5;
         let with_penalty = base_with_modifiers * 0.5;
         assert_eq!(with_penalty, 1.25);

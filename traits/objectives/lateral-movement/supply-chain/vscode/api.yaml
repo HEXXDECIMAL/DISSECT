@@ -36,8 +36,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "globalState"
+      id: micro-behaviors/process/create/shell/host::global-state
 
   # === Extension Activation atomic indicators ===
   - id: function-activate
@@ -46,8 +45,7 @@ traits:
     conf: 0.9
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "function activate"
+      id: micro-behaviors/process/create/shell/lang::activate-function
 
   - id: async-function-activate
     desc: async function activate definition
@@ -87,6 +85,8 @@ traits:
       regex: "export.{0,30}deactivate"
 
   # === VSCode context atomic indicators ===
+  # Use specific patterns instead of combining namespace regex + generic word
+  # to avoid duplicate detection with micro-behaviors/process/create/shell::namespace
   - id: vscode-commands
     desc: vscode.commands reference
     crit: notable

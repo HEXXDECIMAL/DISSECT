@@ -114,4 +114,4 @@ composite_rules:
       - id: mirai-competitor-kill-list
     any:
       - id: objectives/discovery/network/scan::scanner
-      - id: objectives/persist/botnet/mirai::mirai-backdoor-daemons
+      - id: objectives/persistence/botnet/mirai::mirai-backdoor-daemons

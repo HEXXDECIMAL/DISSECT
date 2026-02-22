@@ -3,7 +3,7 @@ composite_rules:
     desc: Multiple evasion checks (generic + specific) in a single context
     crit: hostile
     all:
-      - id: objectives/recon/evasion/detection::evasion-checks
+      - id: objectives/anti-analysis/evasion/detection::evasion-checks
     any:
       - id: objectives/anti-analysis/sandbox/detect::check-path-node
       - id: objectives/anti-analysis/sandbox/detect::hex-hostname-regex

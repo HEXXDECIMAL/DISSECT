@@ -63,6 +63,7 @@ pub(crate) fn print_condition_stats() {
 }
 
 /// Reset condition statistics (for testing)
+#[cfg(test)]
 pub(crate) fn reset_condition_stats() {
     stats_map().clear();
 }
@@ -1112,7 +1113,6 @@ impl TraitDefinition {
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 external_ip,
                 section,
                 offset,
@@ -1120,7 +1120,6 @@ impl TraitDefinition {
                 section_offset,
                 section_offset_range,
                 compiled_regex,
-                compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
@@ -1128,10 +1127,8 @@ impl TraitDefinition {
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
-                    exclude_patterns: exclude_patterns.as_ref(),
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
-                    compiled_excludes,
                     section: section.as_ref(),
                     offset: *offset,
                     offset_range: *offset_range,
@@ -2088,7 +2085,6 @@ impl CompositeTrait {
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 external_ip,
                 section,
                 offset,
@@ -2096,7 +2092,6 @@ impl CompositeTrait {
                 section_offset,
                 section_offset_range,
                 compiled_regex,
-                compiled_excludes,
             } => {
                 let params = StringParams {
                     exact: exact.as_ref(),
@@ -2104,10 +2099,8 @@ impl CompositeTrait {
                     regex: regex.as_ref(),
                     word: word.as_ref(),
                     case_insensitive: *case_insensitive,
-                    exclude_patterns: exclude_patterns.as_ref(),
                     external_ip: *external_ip,
                     compiled_regex: compiled_regex.as_ref(),
-                    compiled_excludes,
                     section: section.as_ref(),
                     offset: *offset,
                     offset_range: *offset_range,

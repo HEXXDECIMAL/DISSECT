@@ -53,35 +53,8 @@ traits:
   if:
     type: string
     exact: monero
-- id: miner-stratum
-  desc: Stratum mining protocol
-  crit: suspicious
-  conf: 0.66
-  if:
-    type: string
-    regex: stratum\+tcp://
-- id: pool-url-inline
-  desc: URL containing pool marker
-  crit: notable
-  conf: 0.7
-  if:
-    type: string
-    regex: (?:stratum\+(?:tcp|ssl)://|https?://)[^\s]{1,120}pool[^\s]{0,120}
-- id: pool-url-domain
-  desc: Domain with pool subdomain
-  crit: notable
-  conf: 0.7
-  if:
-    type: string
-    regex: pool\.[a-z0-9-]+\.(?:com|net|org|io)
+
 composite_rules:
-- id: pool-url
-  desc: Mining pool URL pattern
-  crit: notable
-  conf: 0.7
-  any:
-  - id: pool-url-inline
-  - id: pool-url-domain
 - id: miner
   desc: Cryptocurrency mining patterns
   crit: suspicious
@@ -91,11 +64,11 @@ composite_rules:
   needs: 2
   any:
   - id: stratum-tcp
-  - id: pool-url
+  - id: micro-behaviors/communications/http/miner-pool::mining-pool-url
   - id: miner-word
   - id: well-known/malware/miner/xmrig::xmrig-name
-  - id: objectives/impact/cryptojacking/miner::monero-lower
+  - id: monero-lower
   - id: hashrate-str
-  - id: objectives/impact/cryptojacking/miner::wallet-ref
+  - id: wallet-ref
   - id: coinhive-str
   - id: cryptonight-str

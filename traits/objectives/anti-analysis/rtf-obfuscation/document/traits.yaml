@@ -40,7 +40,7 @@ traits:
   desc: Mixed case RTF control words
   if:
     type: string
-    regex: \\[A-Z][a-z]+|\\[a-z]+[A-Z]
+    regex: '\\\\[A-Z][a-z]+[0-9\s\\\\]|\\\\[a-z]+[A-Z][a-z]*[0-9\s\\\\]'
   conf: 0.65
 - id: rtf-suspicious-hex-stream
   desc: Large hex data stream

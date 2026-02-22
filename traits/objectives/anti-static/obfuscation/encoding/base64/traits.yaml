@@ -91,6 +91,10 @@ traits:
       per_kb_min: 0.3
     not:
       - "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+      - "RgA1ADAANwA4AEYAMwA1AC0AQwA1ADUAMQAtADEAMQBEADMALQA4ADkAQgA5AC0AMAAwADAAMABGADgAMQBGAEUAMgAyADEA"
+      - "nuwmopywnwcjmihwauaevgkbimtnfaiuweikwggjdlupvcnvypcuymxgzsvgudarkidgrkrwvmnqqcoqsigP"
+      - "6879706572766563746f722e6d652e6476656465762e7275"
+      - "bb1131f893f91f1bf5461285b26c0b622d21a37e"
     attack: "T1027.001"
 
 composite_rules:

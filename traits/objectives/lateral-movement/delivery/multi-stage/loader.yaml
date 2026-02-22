@@ -60,8 +60,8 @@ composite_rules:
     for: [pe]
     needs: 2
     any:
-      - id: objectives/defense-evasion/process/injection
-      - id: objectives/defense-evasion/process/injection/atom-bombing::atom-bombing-capable
+      - id: objectives/evasion/process/injection
+      - id: objectives/evasion/process/injection/atom-bombing::atom-bombing-capable
     downgrade:
       any:
         - id: metadata/vendor/valve/valve-corp-binary

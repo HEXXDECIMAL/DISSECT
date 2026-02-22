@@ -14,8 +14,7 @@ traits:
     conf: 0.6
     for: [shell, elf, macho]
     if:
-      type: string
-      word: "httpd"
+      id: micro-behaviors/os/admin/daemon::httpd
 
   - id: apache2-keyword
     desc: apache2 web server
@@ -23,8 +22,7 @@ traits:
     conf: 0.6
     for: [shell, elf, macho]
     if:
-      type: string
-      word: "apache2"
+      id: micro-behaviors/os/admin/daemon::apache2
 
   - id: nginx-keyword
     desc: nginx web server

@@ -243,6 +243,10 @@ pub(crate) fn analyze_file_with_shared_mapper(
     // Check for encoded payloads (hex, base64, etc.) using the stng results
     let encoded_payloads = crate::extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
 
+    // Convert stng strings to StringInfo for reuse by binary analyzers (avoids redundant extraction)
+    let string_extractor = crate::strings::StringExtractor::new();
+    let preextracted_strings = string_extractor.convert_stng_strings(&stng_strings);
+
     let _t_analyze = std::time::Instant::now();
 
     // Route to appropriate analyzer
@@ -252,7 +256,8 @@ pub(crate) fn analyze_file_with_shared_mapper(
         FileType::MachO => {
             // Run YARA scan in parallel with structural analysis to get inline results
             let analyzer = analyzers::macho::MachOAnalyzer::new()
-                .with_capability_mapper_arc(capability_mapper.clone());
+                .with_capability_mapper_arc(capability_mapper.clone())
+                .with_preextracted_strings(preextracted_strings.clone());
             let range = analyzer.preferred_arch_range(file_data);
             let arch_data = &file_data[range];
             let engine = shared_yara_engine.as_ref();
@@ -274,7 +279,8 @@ pub(crate) fn analyze_file_with_shared_mapper(
         FileType::Elf => {
             // Run YARA scan in parallel with structural analysis to get inline results
             let analyzer = analyzers::elf::ElfAnalyzer::new()
-                .with_capability_mapper_arc(capability_mapper.clone());
+                .with_capability_mapper_arc(capability_mapper.clone())
+                .with_preextracted_strings(preextracted_strings.clone());
             let engine = shared_yara_engine.as_ref();
             let file_types: &[&str] = &["elf", "so", "ko"];
             let (mut report, yara_result) = rayon::join(
@@ -293,7 +299,8 @@ pub(crate) fn analyze_file_with_shared_mapper(
         FileType::Pe => {
             // Run YARA scan in parallel with structural analysis to get inline results
             let mut analyzer = analyzers::pe::PEAnalyzer::new()
-                .with_capability_mapper_arc(capability_mapper.clone());
+                .with_capability_mapper_arc(capability_mapper.clone())
+                .with_preextracted_strings(preextracted_strings.clone());
             // PE analyzer needs YARA engine for overlay/embedded payload analysis
             if let Some(engine) = shared_yara_engine {
                 analyzer = analyzer.with_yara_arc(engine.clone());

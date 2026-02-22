@@ -72,33 +72,83 @@ pub(crate) struct KvMatcher {
     pub regex: Option<Regex>,
     /// If true, perform case-insensitive matching
     pub case_insensitive: bool,
+    /// Explicit existence check (Some(true) = must exist, Some(false) = must not exist)
+    /// Note: exists check is handled in evaluate_kv before matches() is called
+    #[allow(dead_code)]
+    pub exists: Option<bool>,
+    /// Minimum collection size (array elements or object keys)
+    pub size_min: Option<usize>,
+    /// Maximum collection size (array elements or object keys)
+    pub size_max: Option<usize>,
 }
 
 impl KvMatcher {
     /// Create a new matcher from condition parameters.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new(
         exact: Option<&String>,
         substr: Option<&String>,
         regex: Option<&Regex>,
         case_insensitive: bool,
+        exists: Option<bool>,
+        size_min: Option<usize>,
+        size_max: Option<usize>,
     ) -> Self {
         Self {
             exact: exact.cloned(),
             substr: substr.cloned(),
             regex: regex.cloned(),
             case_insensitive,
+            exists,
+            size_min,
+            size_max,
         }
     }
 
     /// Check if a value matches this matcher.
     ///
-    /// For arrays, returns true if any element matches.
+    /// For arrays, returns true if any element matches (for string matchers).
     /// For scalars, checks the value directly.
     /// If no matcher is specified (existence check), returns true.
-    #[must_use] 
+    /// Also checks size constraints for collections.
+    #[must_use]
     pub(crate) fn matches(&self, value: &Value) -> bool {
-        // If no matcher specified, just check existence (path resolved)
+        // Check size constraints FIRST (applies to arrays and objects)
+        match value {
+            Value::Array(arr) => {
+                if let Some(min) = self.size_min {
+                    if arr.len() < min {
+                        return false;
+                    }
+                }
+                if let Some(max) = self.size_max {
+                    if arr.len() > max {
+                        return false;
+                    }
+                }
+            }
+            Value::Object(obj) => {
+                if let Some(min) = self.size_min {
+                    if obj.len() < min {
+                        return false;
+                    }
+                }
+                if let Some(max) = self.size_max {
+                    if obj.len() > max {
+                        return false;
+                    }
+                }
+            }
+            _ => {
+                // Scalars - size constraints don't apply
+                // If size constraints are specified on a scalar, fail the match
+                if self.size_min.is_some() || self.size_max.is_some() {
+                    return false;
+                }
+            }
+        }
+
+        // If no string matcher specified, just check existence (path resolved)
         if self.exact.is_none() && self.substr.is_none() && self.regex.is_none() {
             return true;
         }
@@ -107,7 +157,7 @@ impl KvMatcher {
             Value::Array(arr) => {
                 // For arrays, check if any element matches
                 arr.iter().any(|v| self.scalar_matches(v))
-            },
+            }
             _ => self.scalar_matches(value),
         }
     }
@@ -419,6 +469,9 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
         substr,
         regex: _,
         case_insensitive,
+        exists,
+        size_min,
+        size_max,
         compiled_regex,
     } = condition
     else {
@@ -429,9 +482,7 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
     let content = ctx.binary_data;
 
     // Check cached format, detect if not cached
-    let format = ctx.cached_kv_format.get_or_init(|| {
-        detect_format(file_path, content)
-    });
+    let format = ctx.cached_kv_format.get_or_init(|| detect_format(file_path, content));
 
     // If format is unknown, no need to parse
     if *format == StructuredFormat::Unknown {
@@ -447,7 +498,7 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
                 std::str::from_utf8(content)
                     .ok()
                     .and_then(|s| toml::from_str(s).ok())
-            },
+            }
             StructuredFormat::Plist => plist::from_bytes(content).ok(),
             StructuredFormat::PkgInfo => parse_pkginfo(content),
             StructuredFormat::Unknown => None,
@@ -466,6 +517,28 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
     let segments = parse_path(path).ok()?;
     let values = navigate(parsed, &segments);
 
+    // Handle exists check
+    let path_found = !values.is_empty();
+    if let Some(should_exist) = exists {
+        if *should_exist && !path_found {
+            // exists: true but path not found - no match
+            return None;
+        }
+        if !*should_exist && path_found {
+            // exists: false but path found - no match
+            return None;
+        }
+        if !*should_exist && !path_found {
+            // exists: false and path not found - match!
+            return Some(Evidence {
+                method: "kv".to_string(),
+                source: file_path.display().to_string(),
+                value: format!("field '{}' does not exist", path),
+                location: Some(path.clone()),
+            });
+        }
+    }
+
     if values.is_empty() {
         return None; // Path not found
     }
@@ -476,12 +549,15 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
         substr.as_ref(),
         compiled_regex.as_ref(),
         *case_insensitive,
+        *exists,
+        *size_min,
+        *size_max,
     );
 
     // Check if any value matches
     for value in &values {
         if matcher.matches(value) {
-            let matched_value = format_evidence_value(value);
+            let matched_value = format_evidence_value_with_size(value, *size_min, *size_max);
             return Some(Evidence {
                 method: "kv".to_string(),
                 source: file_path.display().to_string(),
@@ -494,30 +570,94 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
     None
 }
 
-/// Format a value for evidence display (truncated if necessary).
-fn format_evidence_value(value: &Value) -> String {
+/// Format a value for evidence display with optional size information.
+fn format_evidence_value_with_size(
+    value: &Value,
+    size_min: Option<usize>,
+    size_max: Option<usize>,
+) -> String {
+    // If size constraints were used, include size info in the output
+    let size_info = if size_min.is_some() || size_max.is_some() {
+        match value {
+            Value::Array(arr) => Some(format!("size: {} (array)", arr.len())),
+            Value::Object(obj) => Some(format!("size: {} (object)", obj.len())),
+            _ => None,
+        }
+    } else {
+        None
+    };
+
     let s = match value {
         Value::String(s) => s.clone(),
         Value::Array(arr) => {
             // Format array elements
             let items: Vec<String> = arr.iter().map(value_to_string).collect();
             format!("[{}]", items.join(", "))
-        },
+        }
         _ => value_to_string(value),
     };
 
     // Truncate if too long
-    if s.len() > 200 {
+    let truncated = if s.len() > 200 {
         format!("{}...", &s[..197])
     } else {
         s
+    };
+
+    // Append size info if present
+    match size_info {
+        Some(info) => format!("{} ({})", truncated, info),
+        None => truncated,
     }
+}
+
+/// Format a value for evidence display (truncated if necessary).
+#[allow(dead_code)]
+fn format_evidence_value(value: &Value) -> String {
+    format_evidence_value_with_size(value, None, None)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
+    use crate::composite_rules::context::EvaluationContext;
+    use crate::composite_rules::types::{FileType, Platform};
+    use crate::types::{AnalysisReport, TargetInfo};
+    use std::sync::OnceLock;
+
+    /// Helper to create evaluation context for testing
+    fn create_test_ctx<'a>(binary_data: &'a [u8], path: &'a std::path::Path) -> EvaluationContext<'a> {
+        // Create minimal report with the path we need
+        let report = Box::leak(Box::new(AnalysisReport::new(TargetInfo {
+            path: path.display().to_string(),
+            file_type: "test".to_string(),
+            size_bytes: binary_data.len() as u64,
+            sha256: "test".to_string(),
+            architectures: None,
+        })));
+
+        EvaluationContext {
+            report,
+            binary_data,
+            file_type: FileType::All,
+            platforms: vec![Platform::All],
+            additional_findings: None,
+            cached_ast: None,
+            finding_id_index: None,
+            debug_collector: None,
+            section_map: None,
+            inline_yara_results: None,
+            cached_kv_format: OnceLock::new(),
+            cached_kv_parsed: OnceLock::new(),
+        }
+    }
+
+    /// Test wrapper for evaluate_kv that creates context automatically
+    fn evaluate_kv_test(condition: &Condition, data: &[u8], path: &std::path::Path) -> Option<Evidence> {
+        let ctx = create_test_ctx(data, path);
+        evaluate_kv(condition, &ctx)
+    }
 
     // ==========================================================================
     // Path Parsing Tests
@@ -796,6 +936,307 @@ mod tests {
     }
 
     // ==========================================================================
+    // Size Constraint Tests
+    // ==========================================================================
+
+    #[test]
+    fn test_array_size_min() {
+        let matcher = KvMatcher {
+            size_min: Some(2),
+            ..Default::default()
+        };
+        // Array with 3 elements should pass size_min: 2
+        assert!(matcher.matches(&json!(["a", "b", "c"])));
+        // Array with 1 element should fail size_min: 2
+        assert!(!matcher.matches(&json!(["a"])));
+        // Empty array should fail size_min: 2
+        assert!(!matcher.matches(&json!([])));
+    }
+
+    #[test]
+    fn test_array_size_max() {
+        let matcher = KvMatcher {
+            size_max: Some(2),
+            ..Default::default()
+        };
+        // Array with 1 element should pass size_max: 2
+        assert!(matcher.matches(&json!(["a"])));
+        // Array with 2 elements should pass size_max: 2
+        assert!(matcher.matches(&json!(["a", "b"])));
+        // Array with 3 elements should fail size_max: 2
+        assert!(!matcher.matches(&json!(["a", "b", "c"])));
+    }
+
+    #[test]
+    fn test_array_size_exact() {
+        let matcher = KvMatcher {
+            size_min: Some(1),
+            size_max: Some(1),
+            ..Default::default()
+        };
+        // Exactly 1 element should pass
+        assert!(matcher.matches(&json!(["single"])));
+        // 0 elements should fail
+        assert!(!matcher.matches(&json!([])));
+        // 2 elements should fail
+        assert!(!matcher.matches(&json!(["a", "b"])));
+    }
+
+    #[test]
+    fn test_array_size_empty() {
+        let matcher = KvMatcher {
+            size_min: Some(0),
+            size_max: Some(0),
+            ..Default::default()
+        };
+        // Empty array should pass
+        assert!(matcher.matches(&json!([])));
+        // Non-empty array should fail
+        assert!(!matcher.matches(&json!(["a"])));
+    }
+
+    #[test]
+    fn test_object_size_min() {
+        let matcher = KvMatcher {
+            size_min: Some(2),
+            ..Default::default()
+        };
+        // Object with 3 keys should pass size_min: 2
+        assert!(matcher.matches(&json!({"a": 1, "b": 2, "c": 3})));
+        // Object with 1 key should fail size_min: 2
+        assert!(!matcher.matches(&json!({"a": 1})));
+        // Empty object should fail size_min: 2
+        assert!(!matcher.matches(&json!({})));
+    }
+
+    #[test]
+    fn test_object_size_max() {
+        let matcher = KvMatcher {
+            size_max: Some(2),
+            ..Default::default()
+        };
+        // Object with 1 key should pass size_max: 2
+        assert!(matcher.matches(&json!({"a": 1})));
+        // Object with 2 keys should pass size_max: 2
+        assert!(matcher.matches(&json!({"a": 1, "b": 2})));
+        // Object with 3 keys should fail size_max: 2
+        assert!(!matcher.matches(&json!({"a": 1, "b": 2, "c": 3})));
+    }
+
+    #[test]
+    fn test_object_size_empty() {
+        let matcher = KvMatcher {
+            size_max: Some(0),
+            ..Default::default()
+        };
+        // Empty object should pass
+        assert!(matcher.matches(&json!({})));
+        // Non-empty object should fail
+        assert!(!matcher.matches(&json!({"a": 1})));
+    }
+
+    #[test]
+    fn test_size_on_scalar_fails() {
+        let matcher = KvMatcher {
+            size_min: Some(1),
+            ..Default::default()
+        };
+        // Scalars should fail size constraints
+        assert!(!matcher.matches(&json!("string")));
+        assert!(!matcher.matches(&json!(123)));
+        assert!(!matcher.matches(&json!(true)));
+        assert!(!matcher.matches(&json!(null)));
+    }
+
+    #[test]
+    fn test_size_with_string_matcher() {
+        // Size constraint + string matching should both apply
+        let matcher = KvMatcher {
+            substr: Some("alice".to_string()),
+            size_min: Some(1),
+            size_max: Some(2),
+            ..Default::default()
+        };
+        // Array with 1 element containing "alice" should pass
+        assert!(matcher.matches(&json!(["alice@example.com"])));
+        // Array with 2 elements containing "alice" should pass
+        assert!(matcher.matches(&json!(["bob@example.com", "alice@example.com"])));
+        // Array with 3 elements should fail (exceeds size_max)
+        assert!(!matcher.matches(&json!(["alice@example.com", "bob@example.com", "charlie@example.com"])));
+        // Array with 1 element NOT containing "alice" should fail (string match fails)
+        assert!(!matcher.matches(&json!(["bob@example.com"])));
+    }
+
+    // ==========================================================================
+    // Exists Check Tests (via evaluate_kv)
+    // ==========================================================================
+
+    #[test]
+    fn test_exists_false_match() {
+        // exists: false should match when path does NOT exist
+        let package_json = br#"{"name": "test", "version": "1.0.0"}"#;
+        let path = Path::new("package.json");
+
+        let cond = Condition::Kv {
+            path: "description".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: Some(false),
+            size_min: None,
+            size_max: None,
+            compiled_regex: None,
+        };
+
+        // "description" doesn't exist, so exists: false should match
+        assert!(evaluate_kv_test(&cond, package_json, path).is_some());
+    }
+
+    #[test]
+    fn test_exists_false_no_match() {
+        // exists: false should NOT match when path exists
+        let package_json = br#"{"name": "test", "description": "A test"}"#;
+        let path = Path::new("package.json");
+
+        let cond = Condition::Kv {
+            path: "description".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: Some(false),
+            size_min: None,
+            size_max: None,
+            compiled_regex: None,
+        };
+
+        // "description" exists, so exists: false should NOT match
+        assert!(evaluate_kv_test(&cond, package_json, path).is_none());
+    }
+
+    #[test]
+    fn test_exists_true_match() {
+        // exists: true should match when path exists
+        let package_json = br#"{"name": "test", "description": "A test"}"#;
+        let path = Path::new("package.json");
+
+        let cond = Condition::Kv {
+            path: "description".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: Some(true),
+            size_min: None,
+            size_max: None,
+            compiled_regex: None,
+        };
+
+        // "description" exists, so exists: true should match
+        assert!(evaluate_kv_test(&cond, package_json, path).is_some());
+    }
+
+    #[test]
+    fn test_exists_true_no_match() {
+        // exists: true should NOT match when path doesn't exist
+        let package_json = br#"{"name": "test", "version": "1.0.0"}"#;
+        let path = Path::new("package.json");
+
+        let cond = Condition::Kv {
+            path: "description".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: Some(true),
+            size_min: None,
+            size_max: None,
+            compiled_regex: None,
+        };
+
+        // "description" doesn't exist, so exists: true should NOT match
+        assert!(evaluate_kv_test(&cond, package_json, path).is_none());
+    }
+
+    // ==========================================================================
+    // Integration Tests for Size Constraints
+    // ==========================================================================
+
+    #[test]
+    fn test_single_maintainer_detection() {
+        let package_json = br#"{
+            "name": "suspicious-package",
+            "maintainers": [{"name": "single-author", "email": "author@gmail.com"}]
+        }"#;
+        let path = Path::new("package.json");
+
+        // Exactly 1 maintainer
+        let cond = Condition::Kv {
+            path: "maintainers".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: None,
+            size_min: Some(1),
+            size_max: Some(1),
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv_test(&cond, package_json, path).is_some());
+    }
+
+    #[test]
+    fn test_no_dependencies_detection() {
+        let package_json = br#"{
+            "name": "empty-package",
+            "dependencies": {}
+        }"#;
+        let path = Path::new("package.json");
+
+        // Empty dependencies object
+        let cond = Condition::Kv {
+            path: "dependencies".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: Some(0),
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv_test(&cond, package_json, path).is_some());
+    }
+
+    #[test]
+    fn test_excessive_keywords_detection() {
+        let keywords: Vec<String> = (0..35).map(|i| format!("keyword{}", i)).collect();
+        let package_json = format!(r#"{{
+            "name": "seo-spam-package",
+            "keywords": {:?}
+        }}"#, keywords);
+        let path = Path::new("package.json");
+
+        // 30+ keywords (SEO spam)
+        let cond = Condition::Kv {
+            path: "keywords".to_string(),
+            exact: None,
+            substr: None,
+            regex: None,
+            case_insensitive: false,
+            exists: None,
+            size_min: Some(30),
+            size_max: None,
+            compiled_regex: None,
+        };
+
+        assert!(evaluate_kv_test(&cond, package_json.as_bytes(), path).is_some());
+    }
+
+    // ==========================================================================
     // Format Detection Tests
     // ==========================================================================
 
@@ -915,11 +1356,14 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, json_content, Path::new("random.json")).is_none());
-        assert!(evaluate_kv(&cond, json_content, Path::new("config.json")).is_none());
+        assert!(evaluate_kv_test(&cond, json_content, Path::new("random.json")).is_none());
+        assert!(evaluate_kv_test(&cond, json_content, Path::new("config.json")).is_none());
     }
 
     #[test]
@@ -948,10 +1392,13 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, yaml_content, Path::new("config.yaml")).is_none());
+        assert!(evaluate_kv_test(&cond, yaml_content, Path::new("config.yaml")).is_none());
     }
 
     #[test]
@@ -980,10 +1427,13 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, toml_content, Path::new("config.toml")).is_none());
+        assert!(evaluate_kv_test(&cond, toml_content, Path::new("config.toml")).is_none());
     }
 
     #[test]
@@ -1014,10 +1464,13 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, package_json, Path::new("package.json")).is_some());
+        assert!(evaluate_kv_test(&cond, package_json, Path::new("package.json")).is_some());
     }
 
     #[test]
@@ -1043,10 +1496,13 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, cargo_toml, Path::new("Cargo.toml")).is_some());
+        assert!(evaluate_kv_test(&cond, cargo_toml, Path::new("Cargo.toml")).is_some());
     }
 
     #[test]
@@ -1081,11 +1537,14 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, workflow, Path::new(".github/workflows/ci.yml")).is_some());
-        assert!(evaluate_kv(&cond, workflow, Path::new("ci.yml")).is_none());
+        assert!(evaluate_kv_test(&cond, workflow, Path::new(".github/workflows/ci.yml")).is_some());
+        assert!(evaluate_kv_test(&cond, workflow, Path::new("ci.yml")).is_none());
     }
 
     #[test]
@@ -1109,10 +1568,13 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
 
-        assert!(evaluate_kv(&cond, valid_json, Path::new("database.json")).is_none());
+        assert!(evaluate_kv_test(&cond, valid_json, Path::new("database.json")).is_none());
     }
 
     #[test]
@@ -1166,9 +1628,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_some());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_some());
 
         // Test non-matching exact
         let cond = Condition::Kv {
@@ -1177,9 +1642,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_none());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_none());
 
         // Test manifest_version
         let cond = Condition::Kv {
@@ -1188,9 +1656,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_some());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_some());
     }
 
     #[test]
@@ -1218,9 +1689,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_some());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_some());
 
         // Test wildcard path with substr
         let cond = Condition::Kv {
@@ -1229,9 +1703,12 @@ mod tests {
             substr: Some("amazon".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_some());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_some());
 
         // Test run_at
         let cond = Condition::Kv {
@@ -1240,9 +1717,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, manifest, path).is_some());
+        assert!(evaluate_kv_test(&cond, manifest, path).is_some());
     }
 
     #[test]
@@ -1268,9 +1748,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, package, path).is_some());
+        assert!(evaluate_kv_test(&cond, package, path).is_some());
 
         // Test substr
         let cond = Condition::Kv {
@@ -1279,9 +1762,12 @@ mod tests {
             substr: Some("curl".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, package, path).is_some());
+        assert!(evaluate_kv_test(&cond, package, path).is_some());
 
         // Test regex
         let cond = Condition::Kv {
@@ -1290,9 +1776,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: Some(Regex::new(r"curl.*\|.*sh").unwrap()),
         };
-        assert!(evaluate_kv(&cond, package, path).is_some());
+        assert!(evaluate_kv_test(&cond, package, path).is_some());
 
         // Test non-existent key
         let cond = Condition::Kv {
@@ -1301,9 +1790,12 @@ mod tests {
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, package, path).is_none());
+        assert!(evaluate_kv_test(&cond, package, path).is_none());
     }
 
     #[test]
@@ -1323,9 +1815,12 @@ name: test
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, yaml, path).is_some());
+        assert!(evaluate_kv_test(&cond, yaml, path).is_some());
     }
 
     #[test]
@@ -1349,9 +1844,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, toml, path).is_some());
+        assert!(evaluate_kv_test(&cond, toml, path).is_some());
 
         // Test non-existent
         let cond = Condition::Kv {
@@ -1360,9 +1858,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, toml, path).is_none());
+        assert!(evaluate_kv_test(&cond, toml, path).is_none());
 
         // Test exact value
         let cond = Condition::Kv {
@@ -1371,9 +1872,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, toml, path).is_some());
+        assert!(evaluate_kv_test(&cond, toml, path).is_some());
     }
 
     // ==========================================================================
@@ -1392,9 +1896,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_some());
+        assert!(evaluate_kv_test(&cond, json, path).is_some());
 
         // But contains nothing
         let cond = Condition::Kv {
@@ -1403,9 +1910,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_none());
+        assert!(evaluate_kv_test(&cond, json, path).is_none());
     }
 
     #[test]
@@ -1420,9 +1930,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_some());
+        assert!(evaluate_kv_test(&cond, json, path).is_some());
 
         // exact: "null" matches
         let cond = Condition::Kv {
@@ -1431,9 +1944,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_some());
+        assert!(evaluate_kv_test(&cond, json, path).is_some());
     }
 
     #[test]
@@ -1447,9 +1963,12 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_some());
+        assert!(evaluate_kv_test(&cond, json, path).is_some());
     }
 
     #[test]
@@ -1463,9 +1982,12 @@ openssl = "0.10"
             substr: Some("日本語".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, json, path).is_some());
+        assert!(evaluate_kv_test(&cond, json, path).is_some());
     }
 
     #[test]
@@ -1479,10 +2001,13 @@ openssl = "0.10"
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
         // Should not panic, just return no match
-        assert!(evaluate_kv(&cond, bad, path).is_none());
+        assert!(evaluate_kv_test(&cond, bad, path).is_none());
     }
 
     // ==========================================================================
@@ -1528,9 +2053,12 @@ Author: attacker@evil.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
 
         // Test version
         let cond = Condition::Kv {
@@ -1539,9 +2067,12 @@ Author: attacker@evil.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
 
         // Test author contains suspicious domain
         let cond = Condition::Kv {
@@ -1550,9 +2081,12 @@ Author: attacker@evil.com
             substr: Some("evil.com".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
 
         // Test existence
         let cond = Condition::Kv {
@@ -1561,9 +2095,12 @@ Author: attacker@evil.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
 
         // Test non-existent
         let cond = Condition::Kv {
@@ -1572,9 +2109,12 @@ Author: attacker@evil.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_none());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_none());
     }
 
     #[test]
@@ -1595,9 +2135,12 @@ Classifier: Programming Language :: Python :: 3
             substr: Some("MIT License".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
 
         // Check Python classifier
         let cond = Condition::Kv {
@@ -1606,9 +2149,12 @@ Classifier: Programming Language :: Python :: 3
             substr: Some("Python".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
     }
 
     #[test]
@@ -1629,9 +2175,12 @@ Version: 1.0.0
             substr: Some("multi-line".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
     }
 
     #[test]
@@ -1650,9 +2199,12 @@ Author-Email: test@example.com
             substr: Some("example.com".to_string()),
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, pkginfo, path).is_some());
+        assert!(evaluate_kv_test(&cond, pkginfo, path).is_some());
     }
 
     // ==========================================================================
@@ -1711,9 +2263,12 @@ Author-Email: test@example.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, plist, path).is_some());
+        assert!(evaluate_kv_test(&cond, plist, path).is_some());
 
         // Test match in array
         let cond = Condition::Kv {
@@ -1722,9 +2277,12 @@ Author-Email: test@example.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, plist, path).is_some());
+        assert!(evaluate_kv_test(&cond, plist, path).is_some());
 
         // Test non-matching
         let cond = Condition::Kv {
@@ -1733,9 +2291,12 @@ Author-Email: test@example.com
             substr: None,
             regex: None,
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: None,
         };
-        assert!(evaluate_kv(&cond, plist, path).is_none());
+        assert!(evaluate_kv_test(&cond, plist, path).is_none());
     }
 
     #[test]
@@ -1761,9 +2322,12 @@ Author-Email: test@example.com
             substr: None,
             regex: Some(r"^com\.apple\.".to_string()),
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: Some(Regex::new(r"^com\.apple\.").unwrap()),
         };
-        assert!(evaluate_kv(&cond_label, plist, path).is_some());
+        assert!(evaluate_kv_test(&cond_label, plist, path).is_some());
 
         // Test Program is in /tmp/
         let cond_program = Condition::Kv {
@@ -1772,8 +2336,11 @@ Author-Email: test@example.com
             substr: None,
             regex: Some(r"^/tmp/".to_string()),
             case_insensitive: false,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: Some(Regex::new(r"^/tmp/").unwrap()),
         };
-        assert!(evaluate_kv(&cond_program, plist, path).is_some());
+        assert!(evaluate_kv_test(&cond_program, plist, path).is_some());
     }
 }

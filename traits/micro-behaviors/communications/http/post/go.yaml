@@ -15,3 +15,32 @@ traits:
     if:
       type: symbol
       exact: "http.Post"
+
+  # GuardDog: http.NewRequest
+  - id: http-new-request
+    desc: Go http.NewRequest call
+    crit: notable
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "http.NewRequest"
+
+  # GuardDog: http.PostForm
+  - id: http-post-form
+    desc: Go http.PostForm call
+    crit: notable
+    conf: 0.85
+    if:
+      type: symbol
+      exact: "http.PostForm"
+
+composite_rules:
+  # HTTP POST capability
+  - id: http-post-methods
+    desc: Go HTTP POST methods
+    crit: notable
+    conf: 0.85
+    any:
+      - id: http-post
+      - id: http-new-request
+      - id: http-post-form

@@ -12,6 +12,7 @@
 //! - **Alternation merge candidates**: Regex patterns differing only in first token case that could be combined
 
 use crate::composite_rules::{CompositeTrait, Condition, FileType as RuleFileType, TraitDefinition};
+use crate::types::Criticality;
 use std::collections::{HashMap, HashSet};
 use super::shared::{PatternLocation, MatchSignature};
 use std::sync::OnceLock;
@@ -190,11 +191,53 @@ pub(crate) fn find_duplicate_traits_and_composites(
 /// This avoids false positives from patterns like `(?:foo|bar)baz` being split into
 /// `(?:foo` and `bar)baz`.
 fn split_top_level_alternation(pattern: &str) -> Vec<&str> {
+    // Check if the entire pattern is wrapped in a single group like (a|b|c)
+    // If so, unwrap it first
+    let unwrapped = if pattern.starts_with('(') && pattern.ends_with(')') {
+        // Check if the opening paren matches the closing paren
+        let mut depth = 0;
+        let mut in_char_class = false;
+        let bytes = pattern.as_bytes();
+        let mut matches_at_end = false;
+
+        for i in 0..bytes.len() {
+            if i > 0 && bytes[i - 1] == b'\\' {
+                continue; // escaped character
+            }
+            match bytes[i] {
+                b'[' if !in_char_class => in_char_class = true,
+                b']' if in_char_class => in_char_class = false,
+                b'(' if !in_char_class => {
+                    depth += 1;
+                    if i == 0 {
+                        // This is the opening paren
+                        continue;
+                    }
+                }
+                b')' if !in_char_class => {
+                    depth -= 1;
+                    if depth == 0 && i == bytes.len() - 1 {
+                        matches_at_end = true;
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        if matches_at_end {
+            &pattern[1..pattern.len()-1]
+        } else {
+            pattern
+        }
+    } else {
+        pattern
+    };
+
     let mut depth = 0i32;
     let mut in_char_class = false;
     let mut last = 0;
     let mut result = Vec::new();
-    let bytes = pattern.as_bytes();
+    let bytes = unwrapped.as_bytes();
     let mut i = 0;
     while i < bytes.len() {
         match bytes[i] {
@@ -215,14 +258,14 @@ fn split_top_level_alternation(pattern: &str) -> Vec<&str> {
                 depth -= 1;
             }
             b'|' if !in_char_class && depth == 0 => {
-                result.push(&pattern[last..i]);
+                result.push(&unwrapped[last..i]);
                 last = i + 1;
             }
             _ => {}
         }
         i += 1;
     }
-    result.push(&pattern[last..]);
+    result.push(&unwrapped[last..]);
     result
 }
 
@@ -316,6 +359,8 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
                 count_max: trait_def.r#if.count_max,
                 per_kb_min: trait_def.r#if.per_kb_min,
                 per_kb_max: trait_def.r#if.per_kb_max,
+                confidence: trait_def.conf,
+                criticality: trait_def.crit,
             },
         ));
     };
@@ -470,6 +515,76 @@ pub(crate) fn find_string_pattern_duplicates(
         }
 
         if !has_overlap {
+            continue;
+        }
+
+        // Check carveout: if all pairs differ by >2 chars AND (conf differs by >=0.2 OR crit differs)
+        let mut all_pairs_meet_carveout = true;
+        let mut checked_any_pair = false;
+        'carveout_check: for i in 0..locations.len() {
+            for j in (i + 1)..locations.len() {
+                let loc_a = &locations[i];
+                let loc_b = &locations[j];
+
+                // Skip same file (already filtered above, but double-check)
+                if loc_a.file_path == loc_b.file_path {
+                    continue;
+                }
+
+                checked_any_pair = true;
+
+                // Check if patterns differ by >2 characters
+                let len_diff = (loc_a.original_value.len() as i32 - loc_b.original_value.len() as i32).abs();
+                let patterns_differ = len_diff > 2;
+
+                // Check if confidence differs by >=0.2 OR criticality differs
+                let conf_diff = (loc_a.confidence - loc_b.confidence).abs();
+                let conf_or_crit_differs = conf_diff >= 0.2 || loc_a.criticality != loc_b.criticality;
+
+                // If this pair doesn't meet carveout criteria, bail out
+                if !(patterns_differ && conf_or_crit_differs) {
+                    all_pairs_meet_carveout = false;
+                    break 'carveout_check;
+                }
+            }
+        }
+
+        // If we didn't check any pairs (shouldn't happen), don't apply carveout
+        if !checked_any_pair {
+            all_pairs_meet_carveout = false;
+        }
+
+        // If all pairs meet carveout criteria, log at INFO and skip warning
+        if all_pairs_meet_carveout {
+            let location_details: Vec<String> = locations
+                .iter()
+                .map(|l| {
+                    let for_str = if l.for_types.is_empty() {
+                        "all types".to_string()
+                    } else {
+                        let mut types: Vec<_> = l.for_types.iter().cloned().collect();
+                        types.sort();
+                        format!("[{}]", types.join(", "))
+                    };
+                    format!(
+                        "   {}: {} ({} {}: '{}', for: {}, conf: {:.2}, crit: {:?})",
+                        l.file_path,
+                        l.trait_id,
+                        l.condition_type,
+                        l.match_type,
+                        l.original_value,
+                        for_str,
+                        l.confidence,
+                        l.criticality
+                    )
+                })
+                .collect();
+
+            tracing::info!(
+                "Duplicate pattern '{}' allowed due to carveout (>2 char diff + conf/crit differs):\n{}",
+                normalized_pattern,
+                location_details.join("\n")
+            );
             continue;
         }
 
@@ -679,6 +794,23 @@ pub(crate) fn check_overlapping_regex_patterns(
 
             let shared = shared_top_level_regex_alternatives(&a.original_value, &b.original_value);
             if shared.is_empty() {
+                continue;
+            }
+
+            // Allow overlaps when patterns differ significantly in length (>33%)
+            // AND at least one regex has no alternation (|). This permits different
+            // specificity levels like "\.exe$" vs "7z\.exe" while catching duplicates.
+            let max_len = a.original_value.len().max(b.original_value.len());
+            let len_diff_pct = if max_len > 0 {
+                (a.original_value.len() as f32 - b.original_value.len() as f32).abs() / max_len as f32
+            } else {
+                0.0
+            };
+            let has_alternation_a = a.original_value.contains('|');
+            let has_alternation_b = b.original_value.contains('|');
+
+            // Skip if significantly different length and at least one has no alternation
+            if len_diff_pct > 0.33 && (!has_alternation_a || !has_alternation_b) {
                 continue;
             }
 
@@ -1280,6 +1412,7 @@ pub(crate) fn check_regex_contains_literal(
         trait_id: String,
         file_path: String,
         for_types: HashSet<String>,
+        crit: Criticality,
     }
 
     // Helper structure for literal patterns
@@ -1292,6 +1425,7 @@ pub(crate) fn check_regex_contains_literal(
         trait_id: String,
         file_path: String,
         for_types: HashSet<String>,
+        crit: Criticality,
     }
 
     // Collect all regex patterns (ANY regex, not just those with |)
@@ -1315,6 +1449,7 @@ pub(crate) fn check_regex_contains_literal(
                     trait_id: trait_def.id.clone(),
                     file_path: file_path.clone(),
                     for_types: for_types.clone(),
+                    crit: trait_def.crit,
                 });
             };
 
@@ -1348,6 +1483,7 @@ pub(crate) fn check_regex_contains_literal(
                     trait_id: trait_def.id.clone(),
                     file_path: file_path.clone(),
                     for_types: for_types.clone(),
+                    crit: trait_def.crit,
                 });
             };
 
@@ -1399,12 +1535,16 @@ pub(crate) fn check_regex_contains_literal(
     // Check each regex against literals
     for regex_pat in &regex_patterns {
         // Try to compile regex to test matches
-        let re = match regex::Regex::new(&regex_pat.pattern) {
-            Ok(r) => r,
-            Err(_) => continue, // Skip invalid regexes (will be caught by other validation)
+        let Ok(re) = regex::Regex::new(&regex_pat.pattern) else {
+            continue; // Skip invalid regexes (will be caught by other validation)
         };
 
         for literal_pat in &literal_patterns {
+            // Skip if criticalities are different (intentional layering)
+            if regex_pat.crit != literal_pat.crit {
+                continue;
+            }
+
             // Skip same file
             if literal_pat.file_path == regex_pat.file_path {
                 continue;
@@ -1417,6 +1557,50 @@ pub(crate) fn check_regex_contains_literal(
 
             // Check if regex matches the literal
             if !re.is_match(&literal_pat.normalized) {
+                continue;
+            }
+
+            // Allow overlaps when patterns differ significantly in length (>33%)
+            // AND regex has no alternation (|) AND literal is not a prefix/suffix
+            // of the regex. This permits different specificity levels like ".exe"
+            // vs "mimikatz.exe" while catching true duplicates like "foo" vs "foo.*".
+            let max_len = regex_pat.pattern.len().max(literal_pat.pattern.len());
+            let len_diff_pct = if max_len > 0 {
+                (regex_pat.pattern.len() as f32 - literal_pat.pattern.len() as f32).abs() / max_len as f32
+            } else {
+                0.0
+            };
+            let has_alternation = regex_pat.pattern.contains('|');
+
+            // Check if literal appears in the regex with only metacharacters as prefix/suffix
+            // "foo" vs "foo.*" -> block (literal + metacharacters)
+            // ".exe" vs ".*\.exe" -> block (metacharacters + escaped literal)
+            // ".exe" vs "7z\.exe" -> allow (actual content + escaped literal)
+            let escaped_literal = regex::escape(&literal_pat.pattern);
+            let is_trivial_extension = if regex_pat.pattern.starts_with(&escaped_literal) {
+                // Literal is a prefix - check if remainder is just metacharacters/anchors
+                let remainder = &regex_pat.pattern[escaped_literal.len()..];
+                remainder.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+            } else if regex_pat.pattern.ends_with(&escaped_literal) {
+                // Literal is a suffix - check if prefix is just metacharacters/anchors
+                let prefix = &regex_pat.pattern[..regex_pat.pattern.len() - escaped_literal.len()];
+                prefix.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+            } else if regex_pat.pattern.contains(&escaped_literal) {
+                // Literal appears in the middle - check if surrounding chars are metacharacters
+                if let Some(idx) = regex_pat.pattern.find(&escaped_literal) {
+                    let before = &regex_pat.pattern[..idx];
+                    let after = &regex_pat.pattern[idx + escaped_literal.len()..];
+                    before.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\')) &&
+                    after.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                } else {
+                    false
+                }
+            } else {
+                false
+            };
+
+            // Skip if significantly different length, no alternation, AND not a trivial extension
+            if len_diff_pct > 0.33 && !has_alternation && !is_trivial_extension {
                 continue;
             }
 
@@ -1810,6 +1994,50 @@ pub(crate) fn validate_regex_overlap_with_literal(
 
                 // Check if regex could match the literal
                 if regex_could_match_literal(regex, literal) {
+                    // Allow overlaps when patterns differ significantly in length (>33%)
+                    // AND regex has no alternation (|) AND literal is not a prefix/suffix
+                    // of the regex. This permits different specificity levels like ".exe"
+                    // vs "7z.exe" while catching true duplicates like "foo" vs "foo.*".
+                    let max_len = regex.len().max(literal.len());
+                    let len_diff_pct = if max_len > 0 {
+                        (regex.len() as f32 - literal.len() as f32).abs() / max_len as f32
+                    } else {
+                        0.0
+                    };
+                    let has_alternation = regex.contains('|');
+
+                    // Check if literal appears in the regex with only metacharacters as prefix/suffix
+                    // "foo" vs "foo.*" -> block (literal + metacharacters)
+                    // ".exe" vs ".*\.exe" -> block (metacharacters + escaped literal)
+                    // ".exe" vs "7z\.exe" -> allow (actual content + escaped literal)
+                    let escaped_literal = regex::escape(literal);
+                    let is_trivial_extension = if regex.starts_with(&escaped_literal) {
+                        // Literal is a prefix - check if remainder is just metacharacters/anchors
+                        let remainder = &regex[escaped_literal.len()..];
+                        remainder.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                    } else if regex.ends_with(&escaped_literal) {
+                        // Literal is a suffix - check if prefix is just metacharacters/anchors
+                        let prefix = &regex[..regex.len() - escaped_literal.len()];
+                        prefix.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                    } else if regex.contains(&escaped_literal) {
+                        // Literal appears in the middle - check if surrounding chars are metacharacters
+                        if let Some(idx) = regex.find(&escaped_literal) {
+                            let before = &regex[..idx];
+                            let after = &regex[idx + escaped_literal.len()..];
+                            before.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\')) &&
+                            after.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                        } else {
+                            false
+                        }
+                    } else {
+                        false
+                    };
+
+                    // Skip if significantly different length, no alternation, AND not a trivial extension
+                    if len_diff_pct > 0.33 && !has_alternation && !is_trivial_extension {
+                        continue;
+                    }
+
                     warnings.push(format!(
                         "Ambiguous regex overlap: trait '{}' (regex: '{}') could match same pattern as '{}' ({}: '{}'). Consider removing one.",
                         t.id, regex, literal_id, match_type, literal
@@ -2109,4 +2337,210 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
 fn prefix_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
     RE.get_or_init(|| regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex"))
+}
+
+/// Check for duplicate basename patterns in atomic traits
+///
+/// Detects:
+/// - Duplicate exact patterns (same value, same case_insensitive)
+/// - Duplicate substr patterns (same value, same case_insensitive)
+/// - Duplicate regex patterns (same pattern)
+/// - Regex patterns that should be exact (^literal$ with no metacharacters)
+pub(crate) fn check_basename_pattern_duplicates(
+    trait_definitions: &[TraitDefinition],
+    warnings: &mut Vec<String>,
+) {
+    let start = std::time::Instant::now();
+    let initial_warning_count = warnings.len();
+
+    // Helper structure for basename patterns
+    #[derive(Debug)]
+    struct BasenamePattern {
+        trait_id: String,
+        file_path: String,
+        exact: Option<String>,
+        substr: Option<String>,
+        regex: Option<String>,
+        case_insensitive: bool,
+    }
+
+    // Extract all basename patterns from atomic traits
+    let mut basename_patterns: Vec<BasenamePattern> = Vec::new();
+
+    for trait_def in trait_definitions {
+        match &trait_def.r#if.condition {
+            Condition::Basename {
+                exact,
+                substr,
+                regex,
+                case_insensitive,
+            } => {
+                // Skip basename conditions that don't actually have any patterns
+                // (These can occur when a trait only has size constraints)
+                if exact.is_none() && substr.is_none() && regex.is_none() {
+                    continue;
+                }
+
+                // Skip bogus regex patterns that are likely deserialization artifacts
+                // A regex of just "." is meaningless (matches any basename with 1+ chars)
+                if exact.is_none() && substr.is_none() && regex.as_deref() == Some(".") {
+                    continue;
+                }
+
+                basename_patterns.push(BasenamePattern {
+                    trait_id: trait_def.id.clone(),
+                    file_path: trait_def.defined_in.to_string_lossy().to_string(),
+                    exact: exact.clone(),
+                    substr: substr.clone(),
+                    regex: regex.clone(),
+                    case_insensitive: *case_insensitive,
+                });
+            }
+            _ => {} // Skip non-basename conditions
+        }
+    }
+
+    if basename_patterns.is_empty() {
+        return;
+    }
+
+    // Group by match type and pattern
+    let mut exact_groups: HashMap<(String, bool), Vec<&BasenamePattern>> = HashMap::new();
+    let mut substr_groups: HashMap<(String, bool), Vec<&BasenamePattern>> = HashMap::new();
+    let mut regex_groups: HashMap<String, Vec<&BasenamePattern>> = HashMap::new();
+
+    for pattern in &basename_patterns {
+        if let Some(exact) = &pattern.exact {
+            let key = (exact.clone(), pattern.case_insensitive);
+            exact_groups.entry(key).or_default().push(pattern);
+        }
+        if let Some(substr) = &pattern.substr {
+            let key = (substr.clone(), pattern.case_insensitive);
+            substr_groups.entry(key).or_default().push(pattern);
+        }
+        if let Some(regex) = &pattern.regex {
+            regex_groups.entry(regex.clone()).or_default().push(pattern);
+        }
+    }
+
+    // Check for exact duplicates
+    for ((pattern, case_insensitive), patterns) in exact_groups {
+        if patterns.len() > 1 {
+            let trait_details: Vec<String> = patterns
+                .iter()
+                .map(|p| format!("   {}: {}", p.file_path, p.trait_id))
+                .collect();
+
+            warnings.push(format!(
+                "Duplicate basename exact pattern '{}' (case_insensitive: {}) appears in {} traits:\n{}",
+                pattern,
+                case_insensitive,
+                patterns.len(),
+                trait_details.join("\n")
+            ));
+        }
+    }
+
+    // Check for substr duplicates
+    for ((pattern, case_insensitive), patterns) in substr_groups {
+        if patterns.len() > 1 {
+            let trait_details: Vec<String> = patterns
+                .iter()
+                .map(|p| format!("   {}: {}", p.file_path, p.trait_id))
+                .collect();
+
+            warnings.push(format!(
+                "Duplicate basename substr pattern '{}' (case_insensitive: {}) appears in {} traits:\n{}",
+                pattern,
+                case_insensitive,
+                patterns.len(),
+                trait_details.join("\n")
+            ));
+        }
+    }
+
+    // Check for regex duplicates
+    for (pattern, patterns) in regex_groups {
+        if patterns.len() > 1 {
+            let trait_details: Vec<String> = patterns
+                .iter()
+                .map(|p| format!("   {}: {}", p.file_path, p.trait_id))
+                .collect();
+
+            warnings.push(format!(
+                "Duplicate basename regex pattern '{}' appears in {} traits:\n{}",
+                pattern,
+                patterns.len(),
+                trait_details.join("\n")
+            ));
+        }
+    }
+
+    // Check for regex patterns that should be exact
+    for pattern in &basename_patterns {
+        if let Some(regex) = &pattern.regex {
+            // Handle case-insensitive prefix
+            let mut pattern_to_check = regex.as_str();
+            let has_case_insensitive_flag = pattern_to_check.starts_with("(?i)");
+            if has_case_insensitive_flag {
+                pattern_to_check = &pattern_to_check[4..];
+            }
+
+            // Check if it's anchored on both sides: ^literal$
+            if pattern_to_check.starts_with('^') && pattern_to_check.ends_with('$') {
+                let pattern_body = &pattern_to_check[1..pattern_to_check.len() - 1];
+
+                // Check if the pattern body has any regex metacharacters
+                // We'll consider it simple if it only has escaped characters
+                let mut test_pattern = pattern_body.to_string();
+                // Remove escaped characters that are just literal representations
+                test_pattern = test_pattern.replace("\\.", "X");
+                test_pattern = test_pattern.replace("\\\\", "X");
+                test_pattern = test_pattern.replace("\\/", "X");
+                test_pattern = test_pattern.replace("\\-", "X");
+                test_pattern = test_pattern.replace("\\_", "X");
+
+                // Check for actual regex metacharacters
+                let has_alternation = test_pattern.contains('|');
+                let has_char_class = test_pattern.contains('[') || test_pattern.contains(']');
+                let has_quantifiers = test_pattern.contains('*')
+                    || test_pattern.contains('+')
+                    || test_pattern.contains('?')
+                    || test_pattern.contains('{');
+                let has_groups = test_pattern.contains('(');
+                let has_wildcards = test_pattern.contains('.');
+
+                let is_simple =
+                    !has_alternation && !has_char_class && !has_quantifiers && !has_groups && !has_wildcards;
+
+                if is_simple {
+                    // Suggest converting to exact
+                    let suggested = pattern_body
+                        .replace("\\.", ".")
+                        .replace("\\\\", "\\")
+                        .replace("\\/", "/")
+                        .replace("\\-", "-")
+                        .replace("\\_", "_");
+
+                    let case_note = if has_case_insensitive_flag || pattern.case_insensitive {
+                        ", case_insensitive: true"
+                    } else {
+                        ""
+                    };
+
+                    warnings.push(format!(
+                        "Basename regex pattern '{}' is just ^literal$ and should use exact: '{}'{} ({}::{})",
+                        regex, suggested, case_note, pattern.file_path, pattern.trait_id
+                    ));
+                }
+            }
+        }
+    }
+
+    let duplicates_found = warnings.len() - initial_warning_count;
+    tracing::debug!(
+        "Basename pattern duplicate detection completed in {:?} ({} duplicates found)",
+        start.elapsed(),
+        duplicates_found
+    );
 }

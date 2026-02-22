@@ -204,7 +204,7 @@ composite_rules:
     attack: "T1016"
     any:
       - id: api-ipify
-      - id: objectives/discovery/network/scan::ipify
+      - id: objectives/discovery/network/scan::ipify-org
 
   # MaxMind API composite
   - id: maxmind-api
@@ -256,7 +256,7 @@ composite_rules:
     attack: "T1016"
     any:
       - id: db-ip-api
-      - id: objectives/discovery/network/scan::ipinfo
+      - id: objectives/discovery/network/scan::ipinfo-io
       - id: ipapi-api
       - id: ipapi-co
       - id: ipgeolocation-api

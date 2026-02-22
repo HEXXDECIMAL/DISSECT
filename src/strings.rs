@@ -11,7 +11,7 @@ use regex::Regex;
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::sync::OnceLock;
-use stng::{ExtractOptions, ExtractedString, StringKind, StringMethod};
+use stng::{ExtractOptions, ExtractedString, StringMethod};
 
 /// Convert stng StringMethod to a string for encoding_chain tracking
 /// Only tracks actual string construction/encoding methods, not extraction sources
@@ -176,6 +176,12 @@ impl StringExtractor {
             strings.push(self.convert_extracted_string(es));
         }
         strings
+    }
+
+    /// Convert pre-extracted stng strings to StringInfo (public API for reuse)
+    #[allow(dead_code)] // Used by binary target, not visible to library
+    pub(crate) fn convert_stng_strings(&self, stng_strings: &[ExtractedString]) -> Vec<StringInfo> {
+        stng_strings.iter().map(|es| self.convert_extracted_string(es.clone())).collect()
     }
 
     /// Convert an R2String directly to StringInfo (fast path when using cached r2 strings)
@@ -395,28 +401,6 @@ impl Default for StringExtractor {
     fn default() -> Self {
         Self::new()
     }
-}
-
-/// Convert radare2 strings to stng format
-fn r2_to_stng(r2_strings: Vec<R2String>, min_length: usize) -> Vec<ExtractedString> {
-    r2_strings
-        .into_iter()
-        .filter(|s| s.string.len() >= min_length)
-        .map(|s| ExtractedString {
-            value: s.string,
-            data_offset: s.paddr,
-            section: None,
-            method: StringMethod::R2String,
-            kind: StringKind::Const,
-            library: None,
-            fragments: None,
-            architecture: None,
-            function_meta: None,
-            section_executable: None,
-            section_writable: None,
-            section_size: None,
-        })
-        .collect()
 }
 
 #[cfg(test)]

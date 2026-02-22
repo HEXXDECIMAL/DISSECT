@@ -42,6 +42,16 @@ traits:
       # Matches: f.write(response.content) or write(r.content)
       regex: "\\.write\\(.{0,220}\\.content\\)"
 
+  # GuardDog: Write to .exe file
+  - id: write-exe
+    desc: "Write to .exe file"
+    conf: 0.90
+    crit: suspicious
+    attack: "T1105"
+    if:
+      type: raw
+      regex: 'open\([^)]{0,120}\.exe[''"][^)]{0,30}[''"]w'
+
   # shutil.copyfileobj - streaming copy
   - id: python-shutil-copy
     desc: "Copy file object (shutil.copyfileobj)"

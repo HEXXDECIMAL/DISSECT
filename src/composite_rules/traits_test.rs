@@ -14,6 +14,7 @@ use super::context::EvaluationContext;
 use super::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Criticality, Import, TargetInfo};
 use std::path::PathBuf;
+use std::sync::OnceLock;
 
 /// Helper: Create minimal trait definition
 fn create_test_trait(id: &str, condition: Condition) -> TraitDefinition {
@@ -70,6 +71,9 @@ fn create_test_context(
         finding_id_index: None,
         debug_collector: None,
         section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 

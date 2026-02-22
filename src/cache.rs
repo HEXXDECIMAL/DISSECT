@@ -141,8 +141,8 @@ pub(crate) fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
     };
     let mode = if is_developer_mode() { "dev" } else { "prod" };
 
-    // v2: native-code-serialization enabled (wasmtime precompiled, no Cranelift on load)
-    Ok(format!("yara-rules-v2-{}-{}-{}.bin", mode, timestamp, suffix))
+    // v3: zero-copy cache format (mmap + direct slice access)
+    Ok(format!("yara-rules-v3-{}-{}-{}.bin", mode, timestamp, suffix))
 }
 
 /// Get the path to the YARA rules cache file
@@ -161,8 +161,8 @@ pub(crate) fn mapper_cache_key() -> Result<String> {
 
     let mode = if is_developer_mode() { "dev" } else { "prod" };
 
-    // v1: initial mapper cache format
-    Ok(format!("capability-mapper-v1-{}-{}.bin", mode, timestamp))
+    // v5: parallel index building
+    Ok(format!("capability-mapper-v5-{}-{}.bin", mode, timestamp))
 }
 
 /// Get the path to the capability mapper cache file

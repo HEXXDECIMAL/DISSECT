@@ -16,7 +16,7 @@ composite_rules:
     all:
       - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
       - id: objectives/execution/dropper/script::curl-download
-      - id: objectives/execution/dropper/script::chmod-plus-x-cmd
+      - id: micro-behaviors/fs/file/executable::chmod-plus-x
 
   # Download from raw IP + Gatekeeper bypass + execute
   # Complexity: all(4) = 4 -> hostile
@@ -45,7 +45,7 @@ composite_rules:
     all:
       - id: tmpdir-variable
       - id: objectives/execution/dropper/script::curl-download
-      - id: objectives/execution/dropper/script::chmod-plus-x-cmd
+      - id: micro-behaviors/fs/file/executable::chmod-plus-x
       - id: objectives/execution/dropper/script::execute-dot-slash
 
   # Download from external URL + chmod + execute
@@ -60,7 +60,7 @@ composite_rules:
     all:
       - id: objectives/command-and-control/infrastructure/domain::http-url-script
       - id: objectives/execution/dropper/script::curl-download-file
-      - id: objectives/execution/dropper/script::chmod-plus-x-cmd
+      - id: micro-behaviors/fs/file/executable::chmod-plus-x
       - id: objectives/execution/dropper/script::execute-dot-slash
 
   # Download file + make executable + detached execution
@@ -77,8 +77,8 @@ composite_rules:
       - id: objectives/execution/dropper/script::execute-dot-slash
       - id: objectives/execution/background/daemon::nohup-command
     any:
-      - id: objectives/execution/dropper/script::chmod-plus-x-cmd
-      - id: objectives/execution/dropper/script::chmod-7xx-cmd
+      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/fs/file/executable::chmod-755
 
 traits:
   - id: tmpdir-variable

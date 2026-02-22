@@ -70,6 +70,34 @@ traits:
       type: symbol
       regex: 'pyperclip\.paste'
 
+  # === GuardDog: pandas clipboard access ===
+
+  - id: pandas-read-clipboard
+    desc: pandas read_clipboard function
+    crit: notable
+    conf: 0.9
+    if:
+      type: ast
+      query: |
+        (call
+          function: (attribute
+            object: (identifier) @obj
+            attribute: (identifier) @method)
+          (#eq? @obj "pandas")
+          (#eq? @method "read_clipboard"))
+
+  - id: pandas-to-clipboard
+    desc: pandas DataFrame to_clipboard method
+    crit: notable
+    conf: 0.9
+    if:
+      type: ast
+      query: |
+        (call
+          function: (attribute
+            attribute: (identifier) @method)
+          (#eq? @method "to_clipboard"))
+
 composite_rules:
   # Composite rules for Tkinter clipboard operations
   - id: tkinter-clipboard-append

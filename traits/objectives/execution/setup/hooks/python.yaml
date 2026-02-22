@@ -93,3 +93,27 @@ traits:
             )
           )
         )
+
+composite_rules:
+  # GuardDog: Code execution in setup.py
+  - id: setup-code-execution
+    desc: Code execution during installation
+    crit: hostile
+    conf: 0.95
+    attack: "T1195.002"
+    mbc: "E1059.006"
+    for: [python]
+    any:
+      # Direct execution
+      - id: objectives/execution/interpreter/eval/invoke::exec-call-python
+      - id: objectives/execution/interpreter/eval/invoke::eval-call-python
+      - id: objectives/execution/interpreter/eval/invoke::compile-call-python
+      # Process creation
+      - id: micro-behaviors/process/create/subprocess::process-execution
+      # Obfuscated execution
+      - id: objectives/anti-static/obfuscation/scripting::builtins-obfuscation
+    downgrade:
+      # Legitimate setup.py may check versions with eval
+      any:
+        - id: metadata/quality::has-tests
+        - id: metadata/signed/platform

@@ -569,7 +569,6 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 section,
                 offset,
                 offset_range,
@@ -582,7 +581,6 @@ impl<'a> RuleDebugger<'a> {
                 regex,
                 word,
                 *case_insensitive,
-                exclude_patterns.as_ref(),
                 section.as_ref(),
                 *offset,
                 *offset_range,
@@ -825,7 +823,6 @@ impl<'a> RuleDebugger<'a> {
         regex: &Option<String>,
         word: &Option<String>,
         case_insensitive: bool,
-        exclude_patterns: Option<&Vec<String>>,
         section_constraint: Option<&String>,
         offset: Option<i64>,
         offset_range: Option<(i64, Option<i64>)>,
@@ -967,40 +964,6 @@ impl<'a> RuleDebugger<'a> {
                     location: None,
                 })
                 .collect();
-
-            // Warn about exclude patterns that may filter matches in production
-            if let Some(excludes) = exclude_patterns {
-                if !excludes.is_empty() {
-                    result.details.push(format!(
-                        "⚠️  {} exclude pattern(s) may filter matches in production:",
-                        excludes.len()
-                    ));
-                    for pattern in excludes.iter().take(5) {
-                        result.details.push(format!("     exclude: /{}/", pattern));
-                    }
-                    if excludes.len() > 5 {
-                        result.details.push(format!("     ... and {} more", excludes.len() - 5));
-                    }
-                    // Check which matches would be excluded
-                    let compiled_excludes: Vec<_> =
-                        excludes.iter().filter_map(|p| regex::Regex::new(p).ok()).collect();
-                    let excluded: Vec<_> = matched_strings
-                        .iter()
-                        .filter(|s| compiled_excludes.iter().any(|re| re.is_match(s)))
-                        .take(5)
-                        .collect();
-                    if !excluded.is_empty() {
-                        result.details.push(format!(
-                            "     Would exclude {} of {} matches:",
-                            excluded.len(),
-                            matched_strings.len()
-                        ));
-                        for s in &excluded {
-                            result.details.push(format!("       - \"{}\"", truncate_string(s, 60)));
-                        }
-                    }
-                }
-            }
 
             // Suggest better match types
             if let Some(s) = substr {
@@ -1646,6 +1609,9 @@ impl<'a> RuleDebugger<'a> {
             substr: substr.clone(),
             regex: regex.clone(),
             case_insensitive,
+            exists: None,
+            size_min: None,
+            size_max: None,
             compiled_regex: regex.as_ref().and_then(|r| regex::Regex::new(r).ok()),
         };
 

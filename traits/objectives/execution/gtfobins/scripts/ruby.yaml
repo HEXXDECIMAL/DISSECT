@@ -24,8 +24,8 @@ composite_rules:
     conf: 0.95
     attack: "T1068"
     any:
-      - id: objectives/privesc/setuid/abuse::ruby-setuid
-      - id: objectives/privesc/setuid/abuse::setuid-capability
+      - id: objectives/privilege-escalation/setuid/abuse::ruby-setuid
+      - id: objectives/privilege-escalation/setuid/abuse::setuid-capability
 
   - id: root-shell-exec
     desc: Root shell execution attempt
@@ -33,7 +33,7 @@ composite_rules:
     conf: 0.9
     attack: "T1068"
     all:
-      - id: objectives/privesc/setuid/abuse::ruby-root-shell
+      - id: objectives/privilege-escalation/setuid/abuse::ruby-root-shell
       - id: gtfobins-ruby-indicator
 
   - id: ruby-file-read

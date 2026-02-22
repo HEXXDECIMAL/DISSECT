@@ -13,8 +13,7 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: string
-      regex: "chmod\\s+(\\+x|u\\+x|a\\+x)"
+      id: micro-behaviors/fs/chmod/executable::shell-plus-x
 
   - id: chmod-755
     desc: chmod 755 command (rwxr-xr-x permissions)
@@ -23,8 +22,7 @@ traits:
     mbc: E1222
     attack: T1222
     if:
-      type: string
-      regex: "chmod\\s+(755|0755)"
+      id: micro-behaviors/fs/chmod/executable::shell-7xx
 
 composite_rules:
   - id: executable

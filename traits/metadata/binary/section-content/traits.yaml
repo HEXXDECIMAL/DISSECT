@@ -7,26 +7,6 @@
 # - Obfuscated content in specific locations
 
 traits:
-  # Suspicious strings in executable section
-  # NOTE: URL and shell command detection removed from metadata tier
-  # These patterns match behavioral evidence (C2 infrastructure, process creation)
-  # and belong in micro-behaviors/ or objectives/ tiers, not metadata/
-  # See: micro-behaviors/communications/http/*, micro-behaviors/process/create/shell/*
-
-  # Strings in read-only data (normal location)
-  # NOTE: This is metadata-only (informational file property).
-  # Behavioral URL detection (C2, exfil) should use objectives/command-and-control/infrastructure/domain
-  # or micro-behaviors/communications/http/* with behavioral context.
-  - id: config-url-in-rodata
-    desc: Configuration URL in read-only data (informational only)
-    crit: inert
-    conf: 0.9
-    for: [elf, macho, pe]
-    if:
-      type: string
-      regex: "https?://[a-zA-Z0-9.-]+\\.(com|org|net|io)"
-      section: rodata
-
   # Suspicious patterns in data sections
   - id: executable-pattern-in-data
     desc: x86 function prologue in data section
@@ -81,27 +61,14 @@ traits:
       type: section
       exact: ".rodata"
       entropy_min: 7.0
+
   - id: base64-in-rodata
     desc: Base64 data in rodata
     crit: inert
     conf: 0.8
     for: [elf, macho, pe]
     if:
-      type: string
-      regex: "^[A-Za-z0-9+/]{80,}={0,2}$"
-      section: rodata
-      count_min: 10
-
-  - id: hex-strings-in-rodata
-    desc: Dense hex strings in rodata
-    crit: notable
-    conf: 0.75
-    for: [elf, macho, pe]
-    unless:
-      - id: micro-behaviors/data/hex::long-hex-string
-    if:
-      type: string
-      regex: "^[0-9A-Fa-f]{64,}$"
+      id: objectives/anti-static/obfuscation/encoding/base64::dense-base64-encoding
       section: rodata
       count_min: 10
 
@@ -137,5 +104,3 @@ traits:
       regex: "(RPATH|RUNPATH)"
       section: ".dynamic"
 
-composite_rules: []
-  # NOTE: Composite shell-command-in-text removed - components deleted (behavioral, not metadata)

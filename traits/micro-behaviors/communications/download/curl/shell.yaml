@@ -14,7 +14,15 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "curl\\s"
+      regex: "\\bcurl\\s"
+
+  - id: curl-output-file
+    desc: curl download to file
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: 'curl\s+.*?\s+(-o|--output|-O)\b'
 
   - id: curlopt-ref
     desc: CURLOPT constant
@@ -31,7 +39,15 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "wget\\s"
+      regex: "\\bwget\\s"
+
+  - id: wget-output-file
+    desc: wget download to file
+    crit: notable
+    conf: 0.7
+    if:
+      type: string
+      regex: 'wget\s+.*?\s+(-O|--output-document)\b'
 
   - id: wget-path
     desc: wget binary path

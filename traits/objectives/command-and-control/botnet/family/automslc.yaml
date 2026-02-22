@@ -14,5 +14,5 @@ composite_rules:
     conf: 0.95
     attack: "T1071.001"
     all:
-      - id: well-known/malware/botnet/automslc::automslc-c2-ip
+      - id: well-known/malware/botnet/automslc::automslc-token-source
       - id: micro-behaviors/communications/http/request::request-python

@@ -31,8 +31,7 @@ traits:
     crit: notable
     conf: 0.5
     if:
-      type: symbol
-      exact: "os.Getenv"
+      id: micro-behaviors/os/env/access::os-getenv
 
   # Removed: aws-access-string (use credential-access/environment/secret-access::aws-access-key)
 

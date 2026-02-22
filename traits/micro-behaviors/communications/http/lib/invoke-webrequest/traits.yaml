@@ -11,22 +11,42 @@ traits:
   # === PowerShell HTTP cmdlets ===
   # NOTE: Use type: raw because string extractor only captures string literals,
   # not cmdlet/identifier names from PowerShell AST
-  - id: invoke-webrequest
-    desc: Invoke-WebRequest cmdlet (iwr/wget/curl alias)
-    crit: notable
-    conf: 0.8
+  - id: iwr-name
+    desc: Invoke-WebRequest command name
     if:
       type: raw
-      regex: "Invoke-WebRequest|\\biwr\\b|\\bwget\\b|\\bcurl\\b"
+      substr: "Invoke-WebRequest"
+
+  - id: iwr-alias
+    desc: iwr alias for Invoke-WebRequest
+    if:
+      type: raw
+      word: "iwr"
+
+  - id: irm-name
+    desc: Invoke-RestMethod command name
+    if:
+      type: raw
+      substr: "Invoke-RestMethod"
+
+  - id: irm-alias
+    desc: irm alias for Invoke-RestMethod
+    if:
+      type: raw
+      word: "irm"
+
+  - id: wget-alias
+    desc: wget alias in PowerShell
+    if:
+      type: raw
+      word: "wget"
       case_insensitive: true
 
-  - id: invoke-restmethod
-    desc: Invoke-RestMethod cmdlet (irm alias)
-    crit: notable
-    conf: 0.8
+  - id: curl-alias
+    desc: curl alias in PowerShell
     if:
       type: raw
-      regex: "Invoke-RestMethod|\\birm\\b"
+      word: "curl"
       case_insensitive: true
 
   - id: webclient-download
@@ -93,6 +113,26 @@ traits:
       regex: "https?://[a-zA-Z0-9][-a-zA-Z0-9]*\\.[a-zA-Z]{2,}"
 
 composite_rules:
+  # Main Invoke-WebRequest composite
+  - id: invoke-webrequest
+    desc: Invoke-WebRequest cmdlet (iwr/wget/curl alias)
+    crit: notable
+    conf: 0.8
+    any:
+      - id: iwr-name
+      - id: iwr-alias
+      - id: wget-alias
+      - id: curl-alias
+
+  # Invoke-RestMethod composite
+  - id: invoke-restmethod
+    desc: Invoke-RestMethod cmdlet (irm alias)
+    crit: notable
+    conf: 0.8
+    any:
+      - id: irm-name
+      - id: irm-alias
+
   # HTTP request composite
   - id: request-powershell
     desc: "Performs HTTP request"

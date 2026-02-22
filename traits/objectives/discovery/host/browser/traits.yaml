@@ -232,6 +232,8 @@ traits:
   if:
     type: string
     regex: 'Cookies(\.sqlite|\.binarycookies|\.db)?$|browser.{0,30}cookies'
+  unless:
+    - id: objectives/credential-access/browser/safari::cookies-path
 composite_rules:
 - id: edge-name
   desc: Edge browser name

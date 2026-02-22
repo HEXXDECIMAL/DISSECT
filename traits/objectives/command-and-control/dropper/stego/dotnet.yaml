@@ -10,4 +10,4 @@ composite_rules:
       - id: micro-behaviors/crypto/symmetric/aes::dotnet-rijndael
       - id: objectives/command-and-control/dropper/embedded-payload::frombase64string
     any:
-      - id: micro-behaviors/net/http/client
+      - id: micro-behaviors/communications/http/client

@@ -6,6 +6,7 @@ use crate::composite_rules::traits::DowngradeConditions;
 use crate::types::{
     AnalysisReport, Criticality, Finding, FindingKind, Import, StringInfo, TargetInfo,
 };
+use std::sync::OnceLock;
 
 fn create_test_context() -> (AnalysisReport, Vec<u8>) {
     let target = TargetInfo {
@@ -59,6 +60,8 @@ fn test_symbol_condition() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -114,6 +117,8 @@ fn test_all() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -141,7 +146,6 @@ fn test_all() {
                 regex: None,
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -149,7 +153,6 @@ fn test_all() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
         ]),
         any: None,
@@ -183,6 +186,8 @@ fn test_count() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -249,6 +254,8 @@ fn test_string_exact_condition() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -268,7 +275,6 @@ fn test_string_exact_condition() {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -276,7 +282,6 @@ fn test_string_exact_condition() {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: Vec::new(),
         }]),
         any: None,
 
@@ -309,6 +314,8 @@ fn test_any() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -394,6 +401,8 @@ fn test_not_directive_shorthand() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -412,7 +421,6 @@ fn test_not_directive_shorthand() {
                 regex: Some(r"[a-z]+\.com".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -420,7 +428,6 @@ fn test_not_directive_shorthand() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -479,6 +486,8 @@ fn test_not_directive_exact() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -497,7 +506,6 @@ fn test_not_directive_exact() {
                 regex: Some(r"[a-z]+\.com".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -505,7 +513,6 @@ fn test_not_directive_exact() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -568,6 +575,8 @@ fn test_not_directive_regex() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -586,7 +595,6 @@ fn test_not_directive_regex() {
                 regex: Some(r"\d+\.\d+\.\d+\.\d+".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -594,7 +602,6 @@ fn test_not_directive_regex() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -652,6 +659,8 @@ fn test_unless_directive_skips_trait() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -707,6 +716,8 @@ fn test_unless_directive_allows_trait() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -776,6 +787,8 @@ fn test_downgrade_to_notable() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -794,7 +807,6 @@ fn test_downgrade_to_notable() {
                 regex: None,
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -802,7 +814,6 @@ fn test_downgrade_to_notable() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -861,6 +872,8 @@ fn test_downgrade_one_level() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -924,6 +937,8 @@ fn test_downgrade_no_match_keeps_original() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -1001,6 +1016,8 @@ fn test_downgrade_from_hostile() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -1098,6 +1115,8 @@ fn test_all_three_directives_combined() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -1116,7 +1135,6 @@ fn test_all_three_directives_combined() {
                 regex: Some(r"[a-z]+\.com".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1124,7 +1142,6 @@ fn test_all_three_directives_combined() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1195,6 +1212,8 @@ fn test_string_exact_match_requires_full_equality() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: "hello" should match only "hello", not "hello world"
@@ -1214,7 +1233,6 @@ fn test_string_exact_match_requires_full_equality() {
                 regex: None,
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1222,7 +1240,6 @@ fn test_string_exact_match_requires_full_equality() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1281,6 +1298,8 @@ fn test_string_substr_matches_substrings() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // substr: "hello" should match both "hello" and "hello world"
@@ -1300,7 +1319,6 @@ fn test_string_substr_matches_substrings() {
                 regex: None,
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1308,7 +1326,6 @@ fn test_string_substr_matches_substrings() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1358,6 +1375,8 @@ fn test_symbol_exact_vs_substr() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: "read" should match only "read", not "readlink"
@@ -1461,6 +1480,8 @@ fn test_string_case_insensitive_exact() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // Case-insensitive exact match
@@ -1480,7 +1501,6 @@ fn test_string_case_insensitive_exact() {
                 regex: None,
                 word: None,
                 case_insensitive: true,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1488,7 +1508,6 @@ fn test_string_case_insensitive_exact() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1542,6 +1561,8 @@ fn test_string_word_boundary_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // word: "cat" should match "the cat sat" but not "category"
@@ -1561,7 +1582,6 @@ fn test_string_word_boundary_match() {
                 regex: None,
                 word: Some("cat".to_string()),
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1569,7 +1589,6 @@ fn test_string_word_boundary_match() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: Some(regex::Regex::new(r"\bcat\b").unwrap()),
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1636,6 +1655,8 @@ fn test_string_regex_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // regex for IP addresses
@@ -1655,7 +1676,6 @@ fn test_string_regex_match() {
                 regex: Some(r"\d+\.\d+\.\d+\.\d+".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -1663,7 +1683,6 @@ fn test_string_regex_match() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: Some(regex::Regex::new(r"\d+\.\d+\.\d+\.\d+").unwrap()),
-                compiled_excludes: Vec::new(),
             },
             size_min: None,
             size_max: None,
@@ -1703,6 +1722,8 @@ fn test_content_exact_vs_substr() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: should match only if entire content equals the pattern (won't match)
@@ -1770,6 +1791,8 @@ fn test_basename_exact_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: "__init__.py" should match
@@ -1794,6 +1817,8 @@ fn test_basename_exact_no_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: "__init__.py" should not match "main.py"
@@ -1817,6 +1842,8 @@ fn test_basename_substr_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // substr: "setup" should match "setup_tools.py"
@@ -1840,6 +1867,8 @@ fn test_basename_regex_match() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // regex: "^test_" should match files starting with "test_"
@@ -1863,6 +1892,8 @@ fn test_basename_case_insensitive() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // exact: "readme.md" should match "README.md" with case_insensitive
@@ -1891,6 +1922,8 @@ fn test_basename_in_trait_definition() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let trait_def = TraitDefinition {
@@ -1944,6 +1977,8 @@ fn test_basename_in_composite_rule() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -2012,6 +2047,8 @@ fn test_composite_unless_skips_rule() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     // Composite rule with unless condition
@@ -2070,6 +2107,8 @@ fn test_composite_unless_allows_rule() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -2128,6 +2167,8 @@ fn test_composite_unless_with_basename() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -2200,6 +2241,8 @@ fn test_composite_unless_multiple_conditions_any_matches() {
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     };
 
     let rule = CompositeTrait {
@@ -2236,7 +2279,6 @@ fn test_composite_unless_multiple_conditions_any_matches() {
                 regex: Some(r"X\.Org".to_string()),
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -2244,7 +2286,6 @@ fn test_composite_unless_multiple_conditions_any_matches() {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: Vec::new(),
             },
         ]),
         not: None,

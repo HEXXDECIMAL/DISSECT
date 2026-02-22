@@ -64,8 +64,7 @@ traits:
     crit: notable
     conf: 0.5
     if:
-      type: string
-      regex: "\\.ldb$"
+      id: objectives/credential-access/discord/token::ldb-extension
 
   # Removed: discord-log-ext was too generic (.log matches any log file)
   # Discord-specific paths moved to objectives/credential-access/discord/token/

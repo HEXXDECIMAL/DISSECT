@@ -18,7 +18,7 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::bypass
+      - id: objectives/evasion/anti-av/platform::bypass
       - id: objectives/execution/dropper/script::download-tool
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -32,7 +32,7 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell, powershell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::defender-exclusion
+      - id: objectives/evasion/anti-av/platform::defender-exclusion
       - id: objectives/execution/dropper/script::download-file-ps
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -46,7 +46,7 @@ composite_rules:
     attack: "T1059.001"
     for: [batch, shell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::bypass
+      - id: objectives/evasion/anti-av/platform::bypass
       - id: objectives/execution/dropper/script::powershell-download
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -60,7 +60,7 @@ composite_rules:
     attack: "T1548.002"
     for: [batch, shell, powershell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::start-process-runas
+      - id: objectives/evasion/anti-av/platform::start-process-runas
       - id: objectives/execution/dropper/script::download-tool
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -75,8 +75,8 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::tasklist-av-check
-      - id: objectives/anti-analysis/security-bypass/platform::bypass
+      - id: objectives/evasion/anti-av/platform::tasklist-av-check
+      - id: objectives/evasion/anti-av/platform::bypass
       - id: objectives/execution/dropper/script::download-tool
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -90,7 +90,7 @@ composite_rules:
     attack: "T1562.001"
     for: [batch, shell]
     all:
-      - id: objectives/anti-analysis/security-bypass/platform::malwarebytes-stop-service
+      - id: objectives/evasion/anti-av/platform::malwarebytes-stop-service
       - id: objectives/execution/dropper/script::download-tool
       - id: objectives/execution/dropper/script::exec-cmd
 
@@ -120,4 +120,4 @@ composite_rules:
     all:
       - id: objectives/anti-static/obfuscation/strings/concatenation::batch-heavy-obfuscation
       - id: objectives/execution/dropper/script::powershell-exe
-      - id: objectives/anti-forensics/evidence-removal/cleanup::motw-removal-stream
+      - id: objectives/evasion/evidence-removal/cleanup::motw-removal-stream

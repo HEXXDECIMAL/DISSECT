@@ -4,6 +4,7 @@ use super::*;
 use crate::composite_rules::context::EvaluationContext;
 use crate::composite_rules::types::{FileType, Platform};
 use crate::types::{AnalysisReport, Export, Import, Section, SyscallInfo, TargetInfo};
+use std::sync::OnceLock;
 
 fn create_test_report() -> AnalysisReport {
     let target = TargetInfo {
@@ -28,6 +29,8 @@ fn create_test_context<'a>(report: &'a AnalysisReport, data: &'a [u8]) -> Evalua
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 
@@ -239,6 +242,9 @@ fn test_eval_section_regex() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -269,6 +275,9 @@ fn test_eval_section_contains() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -298,6 +307,9 @@ fn test_eval_section_no_match() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(!result.matched);
@@ -334,6 +346,9 @@ fn test_eval_section_multiple_matches() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -371,6 +386,9 @@ fn test_eval_section_exact() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -401,6 +419,9 @@ fn test_eval_section_case_insensitive() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -703,6 +724,9 @@ fn test_eval_section_entropy_min() {
         None,
         Some(7.0),
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -742,6 +766,9 @@ fn test_eval_section_entropy_max() {
         None,
         None,
         Some(4.0),
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -788,6 +815,9 @@ fn test_eval_section_combined_constraints() {
         None,
         Some(7.5),
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert!(result.matched);
@@ -822,6 +852,9 @@ fn test_eval_section_precision_scoring() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert_eq!(result1.precision, 2.0);
@@ -838,6 +871,9 @@ fn test_eval_section_precision_scoring() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert_eq!(result2.precision, 1.5);
@@ -854,6 +890,9 @@ fn test_eval_section_precision_scoring() {
         None,
         None,
         None,
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert_eq!(result3.precision, 1.0);
@@ -869,6 +908,9 @@ fn test_eval_section_precision_scoring() {
         None,
         Some(6.0),
         Some(7.0),
+        None, // readable
+        None, // writable
+        None, // executable
         &ctx,
     );
     assert_eq!(result4.precision, 2.0); // 1.0 (substr) + 0.5 (entropy_min) + 0.5 (entropy_max)

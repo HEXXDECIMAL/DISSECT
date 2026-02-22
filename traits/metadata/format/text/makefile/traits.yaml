@@ -8,5 +8,4 @@ traits:
     conf: 1.0
     if:
       type: basename
-      regex: '^Makefile$'
-
+      exact: Makefile

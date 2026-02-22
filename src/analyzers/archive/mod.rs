@@ -1181,7 +1181,8 @@ mod tests {
         let mut zip = zip::ZipWriter::new(file);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
-            .with_deprecated_encryption(b"secret");
+            .with_deprecated_encryption(b"secret")
+            .unwrap();
         zip.start_file("test.txt", options).unwrap();
         zip.write_all(b"hello world").unwrap();
         zip.finish().unwrap();
@@ -1205,7 +1206,8 @@ mod tests {
         let mut zip = zip::ZipWriter::new(file);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
-            .with_deprecated_encryption(b"secret");
+            .with_deprecated_encryption(b"secret")
+            .unwrap();
         zip.start_file("test.txt", options).unwrap();
         zip.write_all(b"hello world").unwrap();
         zip.finish().unwrap();
@@ -1230,7 +1232,8 @@ mod tests {
         let mut zip = zip::ZipWriter::new(file);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
-            .with_deprecated_encryption(b"secret");
+            .with_deprecated_encryption(b"secret")
+            .unwrap();
         zip.start_file("test.txt", options).unwrap();
         zip.write_all(b"hello world").unwrap();
         zip.finish().unwrap();
@@ -1254,7 +1257,8 @@ mod tests {
         let mut zip = zip::ZipWriter::new(file);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
-            .with_deprecated_encryption(b"correct");
+            .with_deprecated_encryption(b"correct")
+            .unwrap();
         zip.start_file("test.txt", options).unwrap();
         zip.write_all(b"hello world").unwrap();
         zip.finish().unwrap();
@@ -1313,7 +1317,8 @@ mod tests {
         let mut zip = zip::ZipWriter::new(file);
         let options = SimpleFileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
-            .with_deprecated_encryption(b"testpass");
+            .with_deprecated_encryption(b"testpass")
+            .unwrap();
         zip.start_file("data.txt", options).unwrap();
         zip.write_all(b"secret data").unwrap();
         zip.finish().unwrap();

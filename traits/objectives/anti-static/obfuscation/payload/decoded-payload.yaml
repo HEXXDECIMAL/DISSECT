@@ -7,12 +7,12 @@ defaults:
   crit: suspicious
   attack: "T1027"
   mbc: "E1014"
-  for: [python, shell, binaries]
+  for: [python, shell, elf, macho, pe]
 
 traits:
   # === Shell Commands in Decoded Payload ===
   - id: decoded-shell-command
-    desc: Shell command in decoded payload
+    desc: "Shell command in decoded payload"
     crit: suspicious
     conf: 0.90
     if:
@@ -21,7 +21,7 @@ traits:
       regex: "os\\.system|subprocess\\.call|exec\\("
 
   - id: decoded-file-creation-a
-    desc: Decoded payload creates text or exe
+    desc: "Decoded payload creates text or exe"
     crit: suspicious
     conf: 0.85
     if:
@@ -30,7 +30,7 @@ traits:
       regex: ">.{0,50}\\.(txt|exe|dll)"
 
   - id: decoded-file-creation-b
-    desc: Decoded payload creates script files
+    desc: "Decoded payload creates script files"
     crit: suspicious
     conf: 0.85
     if:
@@ -39,7 +39,7 @@ traits:
       regex: ">.{0,50}\\.(bat|ps1)"
 
   - id: decoded-windows-command
-    desc: Windows command in decoded payload
+    desc: "Windows command in decoded payload"
     crit: suspicious
     conf: 0.80
     if:
@@ -49,7 +49,7 @@ traits:
 
   # === Network in Decoded Payload ===
   - id: decoded-http-url
-    desc: HTTP URL in decoded payload
+    desc: "HTTP URL in decoded payload"
     crit: notable
     conf: 0.90
     if:
@@ -68,17 +68,8 @@ traits:
     unless:
       - id: metadata/signed/platform::apple
 
-  - id: decoded-curl-wget
-    desc: Download command in decoded payload
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: encoded
-      encoding: base64
-      regex: "curl.{0,50}-o|wget.{0,50}-O|Invoke-WebRequest|curl\\s+-[a-zA-Z]*s[a-zA-Z]*\\b"
-
   - id: decoded-ip-address
-    desc: IP address in decoded payload
+    desc: "IP address in decoded payload"
     crit: suspicious
     conf: 0.85
     if:
@@ -87,7 +78,7 @@ traits:
       regex: "http://[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}"
 
   - id: decoded-pipe-to-shell-a
-    desc: Decoded payload pipes to shell
+    desc: "Decoded payload pipes to shell"
     crit: suspicious
     conf: 0.95
     if:
@@ -96,7 +87,7 @@ traits:
       regex: "\\|\\s*(bash|sh|zsh)\\b"
 
   - id: decoded-pipe-to-shell-b
-    desc: Decoded payload pipes to interpreter
+    desc: "Decoded payload pipes to interpreter"
     crit: suspicious
     conf: 0.95
     if:
@@ -106,7 +97,7 @@ traits:
 
   # === Malicious Code Patterns ===
   - id: decoded-python-import-a
-    desc: Python imports os sys subprocess
+    desc: "Python imports os sys subprocess"
     crit: suspicious
     conf: 0.85
     if:
@@ -115,7 +106,7 @@ traits:
       regex: "import\\s+(os|sys|subprocess)"
 
   - id: decoded-python-import-b
-    desc: Python imports socket requests
+    desc: "Python imports socket requests"
     crit: suspicious
     conf: 0.85
     if:
@@ -124,7 +115,7 @@ traits:
       regex: "import\\s+(socket|requests)"
 
   - id: decoded-eval-exec
-    desc: Code execution in decoded payload
+    desc: "Code execution in decoded payload"
     crit: suspicious
     conf: 0.95
     if:
@@ -133,8 +124,17 @@ traits:
       regex: "eval\\(|exec\\(|compile\\("
 
 composite_rules:
+  - id: decoded-curl-wget
+    desc: "Download command in decoded payload"
+    crit: suspicious
+    conf: 0.95
+    any:
+      - id: micro-behaviors/communications/download/curl::curl
+      - id: micro-behaviors/communications/download/curl::wget
+      - id: micro-behaviors/communications/http/lib/invoke-webrequest::invoke-webrequest
+
   - id: decoded-file-creation
-    desc: File creation in decoded payload
+    desc: "File creation in decoded payload"
     crit: suspicious
     conf: 0.85
     any:
@@ -142,7 +142,7 @@ composite_rules:
       - id: decoded-file-creation-b
 
   - id: decoded-pipe-to-shell
-    desc: Piped execution in decoded payload
+    desc: "Piped execution in decoded payload"
     crit: suspicious
     conf: 0.95
     any:
@@ -150,7 +150,7 @@ composite_rules:
       - id: decoded-pipe-to-shell-b
 
   - id: decoded-python-import
-    desc: Python imports in decoded payload
+    desc: "Python imports in decoded payload"
     crit: suspicious
     conf: 0.85
     any:
@@ -159,7 +159,7 @@ composite_rules:
 
   # === Decoded Malicious Payload ===
   - id: decoded-malicious-shell
-    desc: Malicious shell command decoded
+    desc: "Malicious shell command decoded"
     crit: suspicious
     conf: 0.92
     attack: "T1059"
@@ -171,7 +171,7 @@ composite_rules:
       - id: decoded-pipe-to-shell
 
   - id: decoded-c2-payload
-    desc: C2 payload decoded from base64
+    desc: "C2 payload decoded from base64"
     crit: hostile
     conf: 0.96
     attack: "T1071"

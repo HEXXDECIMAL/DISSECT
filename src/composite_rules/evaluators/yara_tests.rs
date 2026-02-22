@@ -12,7 +12,7 @@ use crate::composite_rules::context::EvaluationContext;
 use crate::composite_rules::evaluators::ContentLocationParams;
 use crate::composite_rules::types::{FileType, Platform};
 use crate::types::{AnalysisReport, TargetInfo};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 /// Helper: Create minimal evaluation context
 fn create_test_context(
@@ -30,6 +30,8 @@ fn create_test_context(
         debug_collector: None,
         section_map: None,
         inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
     }
 }
 

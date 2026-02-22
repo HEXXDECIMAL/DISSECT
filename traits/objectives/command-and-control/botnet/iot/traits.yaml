@@ -27,6 +27,14 @@ traits:
       type: string
       regex: "telnetadmin|:23[^0-9]"
 
+  - id: http-prefix
+    desc: "http:// protocol prefix"
+    crit: notable
+    for: [elf]
+    if:
+      id: micro-behaviors/communications/http/protocol::http-prefix
+
+composite_rules:
   - id: curl-http-download
     desc: "Curl HTTP payload download"
     crit: suspicious
@@ -34,11 +42,10 @@ traits:
     attack: "T1105"
     for: [elf]
     platforms: [linux]
-    if:
-      type: string
-      substr: "curl http://"
+    all:
+      - id: micro-behaviors/communications/download/curl::curl-cmd
+      - id: http-prefix
 
-composite_rules:
   # Helper: curl or wget download command
   - id: download-cmd
     desc: "curl or wget download command"
@@ -47,8 +54,7 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     any:
-      - id: micro-behaviors/communications/download/curl::curl-cmd
-      - id: micro-behaviors/communications/download/curl::wget-cmd
+      - id: micro-behaviors/communications/download/curl
 
   # Helper: pipe to sh or bash
   - id: pipe-sh-or-bash
@@ -95,14 +101,10 @@ composite_rules:
     for: [elf]
     platforms: [linux]
     any:
-      - id: micro-behaviors/communications/socket/send::send-symbol
-      - id: micro-behaviors/communications/socket/send::sendto-symbol
-      - id: micro-behaviors/communications/socket/send::sendfile-symbol
+      - id: micro-behaviors/communications/socket/send/
       - id: micro-behaviors/communications/download/tftp::command
-      - id: micro-behaviors/communications/download/curl::wget-cmd
-      - id: micro-behaviors/communications/download/curl::curl-cmd
+      - id: micro-behaviors/communications/download/curl
 
-  # Self-propagate composite (migrated from YARA)
   - id: self-propagate
     desc: "Read own executable for propagation"
     crit: suspicious

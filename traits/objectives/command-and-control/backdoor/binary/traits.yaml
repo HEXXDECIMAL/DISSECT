@@ -273,7 +273,7 @@ composite_rules:
       - id: metadata/lang::go-runtime-marker
       - id: micro-behaviors/dylib/library::shell-interpreter
       - id: micro-behaviors/dylib/library::system-lib-marker
-      - id: objectives/persist/shell/config::tcsh-keyword
+      - id: objectives/persistence/shell/config::tcsh-keyword
       # Compiler tools legitimately spawn processes for compilation
       - id: micro-behaviors/dylib/library::llvm-project-ref
       - id: metadata/lang/compiler::libllvm

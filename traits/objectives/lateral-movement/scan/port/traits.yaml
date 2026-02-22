@@ -166,16 +166,6 @@ traits:
   if:
     type: string
     regex: '[Bb]rute[_\-\s]?[Ff]orce'
-- id: weak-pass-root123
-  desc: Weak password root123
-  crit: suspicious
-  conf: 0.7
-  attack: T1110.001
-  platforms:
-  - all
-  if:
-    type: string
-    substr: root123
 - id: weak-pass-admin123-upper
   desc: Weak password Admin123
   crit: notable

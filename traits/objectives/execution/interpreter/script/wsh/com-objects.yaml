@@ -11,8 +11,7 @@ traits:
     for: [javascript]
     platforms: [windows]
     if:
-      type: string
-      substr: "wscript.exe"
+      id: micro-behaviors/process/create/shell/lang::wscript-exe
 
   - id: execution-policy-bypass
     desc: "PowerShell execution policy bypass"

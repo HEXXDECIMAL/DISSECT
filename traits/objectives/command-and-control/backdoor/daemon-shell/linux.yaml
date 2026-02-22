@@ -21,8 +21,8 @@ composite_rules:
     mbc: "B0009,F0006"
     all:
       # Daemon persistence
-      - id: objectives/persist/daemon/init::daemon-fork
-      - id: objectives/persist/daemon/init::daemon-setsid
+      - id: objectives/persistence/daemon/init::daemon-fork
+      - id: objectives/persistence/daemon/init::daemon-setsid
       # Shell command execution
       - id: micro-behaviors/process/create/shell
     # Obfuscation or frequency indicators
@@ -38,8 +38,8 @@ composite_rules:
     conf: 0.98
     attack: "T1027,T1059,T1543"
     all:
-      - id: objectives/persist/daemon/init::daemon-fork
-      - id: objectives/persist/daemon/init::daemon-setsid
+      - id: objectives/persistence/daemon/init::daemon-fork
+      - id: objectives/persistence/daemon/init::daemon-setsid
       - id: micro-behaviors/process/create/shell
 
   # Extreme case: high-volume command execution

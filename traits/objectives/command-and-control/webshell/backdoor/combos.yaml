@@ -13,7 +13,7 @@ composite_rules:
     attack: "T1505.003"
     for: [php]
     all:
-      - id: objectives/persist/session
+      - id: objectives/persistence/session
       - id: micro-behaviors/data/user-input/
     any:
       - id: objectives/anti-static/obfuscation/
@@ -44,7 +44,7 @@ composite_rules:
     attack: "T1070.004"
     for: [php]
     all:
-      - id: objectives/anti-forensics/self-destruct/script::script-self-delete
+      - id: objectives/evasion/self-destruct/script::script-self-delete
       - id: micro-behaviors/data/user-input/
 
   # SSRF/Proxy webshell
@@ -74,7 +74,7 @@ composite_rules:
     attack: "T1070.006"
     for: [php]
     all:
-      - id: objectives/anti-forensics/timestomp/modify::timestomp
+      - id: objectives/evasion/timestomp/modify::timestomp
       - id: micro-behaviors/fs/write/
 
   # Hardcoded authentication backdoor
@@ -138,7 +138,7 @@ composite_rules:
     all:
       - id: objectives/command-and-control/webshell/backdoor::password-form
     any:
-      - id: objectives/persist/session
+      - id: objectives/persistence/session
       - id: micro-behaviors/data/user-input/
 
   # Google scraping webshell (SEO spam tool)
@@ -283,7 +283,7 @@ composite_rules:
     any:
       - id: micro-behaviors/process/create/shell
       - id: micro-behaviors/fs/write/
-      - id: objectives/persist/session
+      - id: objectives/persistence/session
 
   # Hostile: WSO webshell family with command execution
   - id: wso-webshell
@@ -299,7 +299,7 @@ composite_rules:
     any:
       - id: micro-behaviors/data/user-input/request
       - id: micro-behaviors/fs/write/
-      - id: objectives/persist/session
+      - id: objectives/persistence/session
 
   # Hostile: Full-featured webshell (multiple indicators)
   # File manager + shell execution + user input + multiple exec methods

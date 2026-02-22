@@ -314,7 +314,7 @@ composite_rules:
     all:
       - id: extconf-file
       - id: http-client-imports
-      - id: objectives/discovery/network/scan::plaintext-ip-services
+      - id: objectives/discovery/network/scan::tracking-service-lookup
 
   - id: network-eval-exec-chain
     desc: Network fetch with eval and exec

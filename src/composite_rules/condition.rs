@@ -189,8 +189,6 @@ enum ConditionTagged {
         word: Option<String>,
         #[serde(default)]
         case_insensitive: bool,
-        #[serde(default)]
-        exclude_patterns: Option<Vec<String>>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -467,6 +465,7 @@ enum ConditionTagged {
     /// Example: { type: kv, path: "permissions", exact: "debugger" }
     /// Example: { type: kv, path: "scripts.postinstall", substr: "curl" }
     /// Example: { type: kv, path: "content_scripts[*].matches", exact: "<all_urls>" }
+    /// Example: { type: kv, path: "maintainers", size_min: 1, size_max: 1 }
     Kv {
         /// Path to navigate using dot notation, [n] for indices, [*] for wildcards
         path: String,
@@ -482,6 +481,15 @@ enum ConditionTagged {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
+        /// Explicit existence check (true = must exist, false = must not exist)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exists: Option<bool>,
+        /// Minimum collection size (array elements or object keys)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        size_min: Option<usize>,
+        /// Maximum collection size (array elements or object keys)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        size_max: Option<usize>,
     },
 }
 
@@ -508,7 +516,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    exclude_patterns,
                     external_ip,
                     section,
                     offset,
@@ -521,7 +528,6 @@ impl From<ConditionDeser> for Condition {
                     regex,
                     word,
                     case_insensitive,
-                    exclude_patterns,
                     external_ip,
                     section,
                     offset,
@@ -529,7 +535,6 @@ impl From<ConditionDeser> for Condition {
                     section_offset,
                     section_offset_range,
                     compiled_regex: None,
-                    compiled_excludes: Vec::new(),
                 },
                 ConditionTagged::Structure {
                     feature,
@@ -725,12 +730,18 @@ impl From<ConditionDeser> for Condition {
                     substr,
                     regex,
                     case_insensitive,
+                    exists,
+                    size_min,
+                    size_max,
                 } => Condition::Kv {
                     path,
                     exact,
                     substr,
                     regex,
                     case_insensitive,
+                    exists,
+                    size_min,
+                    size_max,
                     compiled_regex: None,
                 },
             },
@@ -759,7 +770,6 @@ impl From<Condition> for ConditionTagged {
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 external_ip,
                 section,
                 offset,
@@ -767,14 +777,12 @@ impl From<Condition> for ConditionTagged {
                 section_offset,
                 section_offset_range,
                 compiled_regex: _,
-                compiled_excludes: _,
             } => ConditionTagged::String {
                 exact,
                 substr,
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 external_ip,
                 section,
                 offset,
@@ -978,6 +986,9 @@ impl From<Condition> for ConditionTagged {
                 substr,
                 regex,
                 case_insensitive,
+                exists,
+                size_min,
+                size_max,
                 compiled_regex: _,
             } => ConditionTagged::Kv {
                 path,
@@ -985,6 +996,9 @@ impl From<Condition> for ConditionTagged {
                 substr,
                 regex,
                 case_insensitive,
+                exists,
+                size_min,
+                size_max,
             },
         }
     }
@@ -1034,9 +1048,6 @@ pub(crate) enum Condition {
         /// If true, matching is case-insensitive
         #[serde(default)]
         case_insensitive: bool,
-        /// Patterns that disqualify a match if they appear in the string
-        #[serde(skip_serializing_if = "Option::is_none")]
-        exclude_patterns: Option<Vec<String>>,
         /// Require match to contain a valid external IP address (not private/loopback/reserved)
         #[serde(default)]
         external_ip: bool,
@@ -1064,9 +1075,6 @@ pub(crate) enum Condition {
         /// Pre-compiled regex (populated after deserialization, not serialized)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
-        /// Pre-compiled exclude regexes (populated after deserialization, not serialized)
-        #[serde(skip)]
-        compiled_excludes: Vec<regex::Regex>,
     },
 
     /// Match a structural feature
@@ -1448,6 +1456,7 @@ pub(crate) enum Condition {
     /// Example: { type: kv, path: "permissions", exact: "debugger" }
     /// Example: { type: kv, path: "scripts.postinstall", substr: "curl" }
     /// Example: { type: kv, path: "content_scripts[*].matches", exact: "<all_urls>" }
+    /// Example: { type: kv, path: "maintainers", size_min: 1, size_max: 1 }
     Kv {
         /// Path to navigate using dot notation, [n] for indices, [*] for wildcards
         path: String,
@@ -1463,6 +1472,15 @@ pub(crate) enum Condition {
         /// Case insensitive matching (default: false)
         #[serde(default)]
         case_insensitive: bool,
+        /// Explicit existence check (true = must exist, false = must not exist)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exists: Option<bool>,
+        /// Minimum collection size (array elements or object keys)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        size_min: Option<usize>,
+        /// Maximum collection size (array elements or object keys)
+        #[serde(skip_serializing_if = "Option::is_none")]
+        size_max: Option<usize>,
         /// Pre-compiled regex (populated after deserialization)
         #[serde(skip)]
         compiled_regex: Option<regex::Regex>,
@@ -2115,9 +2133,7 @@ impl Condition {
                 regex,
                 word,
                 case_insensitive,
-                exclude_patterns,
                 compiled_regex,
-                compiled_excludes,
                 ..
             } => {
                 // Compile main regex or word pattern
@@ -2158,22 +2174,6 @@ impl Condition {
                             )
                         })?
                     });
-                }
-
-                // Compile exclude patterns
-                if let Some(excludes) = exclude_patterns {
-                    *compiled_excludes = Vec::new();
-                    for (idx, pattern) in excludes.iter().enumerate() {
-                        let compiled = regex::Regex::new(pattern).map_err(|e| {
-                            anyhow::anyhow!(
-                                "Failed to compile exclude pattern #{} '{}': {}",
-                                idx + 1,
-                                pattern,
-                                e
-                            )
-                        })?;
-                        compiled_excludes.push(compiled);
-                    }
                 }
             },
             Condition::Raw {
@@ -2627,7 +2627,6 @@ mod location_constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: Some(0x100),
@@ -2635,7 +2634,6 @@ mod location_constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: Vec::new(),
         };
         assert!(condition.validate(true).is_err());
     }

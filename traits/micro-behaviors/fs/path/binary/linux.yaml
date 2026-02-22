@@ -20,7 +20,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: "/usr/sbin/(sshd|httpd|dropbear)\\b"
+      regex: "/usr/sbin/(httpd|dropbear)\\b"
 
   - id: binary-usr-local
     desc: Reference to /usr/local binaries
@@ -29,6 +29,8 @@ traits:
     if:
       type: string
       regex: "/usr/local/[\\w\\-/]+"
+    not:
+      - exact: "/usr/local/lib/"
 
   - id: binary-bin-su
     desc: Reference to /bin/su

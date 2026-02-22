@@ -159,12 +159,7 @@ traits:
       case_insensitive: true
 
   # === Script Engine Terms ===
-  - id: powershell
-    desc: powershell keyword
-    if:
-      type: string
-      substr: "powershell"
-      case_insensitive: true
+  # Removed powershell duplicate - use micro-behaviors/process/create/shell/lang::powershell-keyword
 
   # Removed cmd duplicate - use objectives/command-and-control/reverse-shell/socket/go::cmd-plain or specific patterns
 

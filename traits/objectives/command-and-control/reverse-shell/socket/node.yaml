@@ -160,43 +160,6 @@ traits:
       type: string
       substr: "tcp.ngrok"
 
-  # === Tunnel service atomic indicators ===
-  - id: serveo-net
-    desc: serveo.net tunnel service
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "serveo.net"
-
-  - id: localtunnel-me
-    desc: localtunnel.me tunnel service
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "localtunnel.me"
-
-  - id: localhost-run
-    desc: localhost.run tunnel service
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "localhost.run"
-
-  - id: pinggy-io
-    desc: pinggy.io tunnel service
-    crit: notable
-    conf: 0.8
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "pinggy.io"
-
   # === HTTP exclusion patterns (to avoid FPs) ===
   - id: res-on-data
     desc: res.on('data' HTTP response pattern
@@ -351,8 +314,8 @@ composite_rules:
     attack: "T1572"
     for: [javascript, typescript]
     any:
-      - id: objectives/command-and-control/tunnel/proxy::ngrok-io
-      - id: objectives/command-and-control/tunnel/proxy::ngrok-com
+      - id: objectives/command-and-control/infrastructure/domain::ngrok-io-endpoint
+      - id: objectives/command-and-control/infrastructure/domain::ngrok-free-app-endpoint
       - id: tcp-ngrok
 
   - id: tunnel-service
@@ -362,7 +325,4 @@ composite_rules:
     attack: "T1572"
     for: [javascript, typescript]
     any:
-      - id: serveo-net
-      - id: localtunnel-me
-      - id: localhost-run
-      - id: pinggy-io
+      - id: objectives/command-and-control/infrastructure/domain/tunnel/

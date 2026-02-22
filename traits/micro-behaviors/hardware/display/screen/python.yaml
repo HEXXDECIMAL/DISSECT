@@ -52,6 +52,45 @@ traits:
       type: raw
       regex: 'pyautogui\.screenshot|pyautogui\.locateOnScreen'
 
+  # === GuardDog: Additional screenshot libraries ===
+
+  - id: pyscreenshot-grab
+    desc: pyscreenshot.grab screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: symbol
+      regex: 'pyscreenshot\.grab'
+
+  - id: d3dshot-screenshot
+    desc: d3dshot screenshot (DirectX)
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: symbol
+      regex: 'd3dshot\.'
+
+  - id: mss-grab
+    desc: mss screen capture
+    crit: notable
+    conf: 0.95
+    mbc: "B0002"
+    attack: "T1113"
+    for: [python]
+    if:
+      type: ast
+      query: |
+        (call
+          function: (attribute
+            attribute: (identifier) @method)
+          (#eq? @method "grab"))
+
   # === Generic screenshot method ===
   - id: screenshot-method
     desc: screenshot method call

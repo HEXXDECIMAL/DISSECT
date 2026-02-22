@@ -168,7 +168,7 @@ traits:
     attack: "T1071"
     if:
       type: symbol
-      regex: "(?i)^c2"
+      exact: c2
 
   - id: var-beacon
     desc: "Variable named 'beacon'"

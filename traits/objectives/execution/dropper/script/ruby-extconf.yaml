@@ -11,5 +11,5 @@ traits:
     desc: File is named extconf.rb
     if:
       type: basename
-      regex: ^extconf\.rb$
+      exact: extconf.rb
       case_insensitive: true

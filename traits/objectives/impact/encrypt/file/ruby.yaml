@@ -26,7 +26,7 @@ traits:
     attack: "T1486"
     if:
       type: string
-      regex: 'Encrypt.rb|encrypt|Enc.new|dec\.cry'
+      regex: 'Encrypt\.rb|Enc\.new|dec\.cry'
 
   # === Decrypt Module ===
   - id: decrypt-module

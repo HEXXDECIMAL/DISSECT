@@ -119,7 +119,7 @@ composite_rules:
     any:
       - id: micro-behaviors/process/create/shell::c-popen
       - id: micro-behaviors/process/create/shell::system-fn
-      - id: objectives/persist/daemon/init::daemon-fork
+      - id: objectives/persistence/daemon/init::daemon-fork
     none:
       - id: metadata/signed/platform::apple
 

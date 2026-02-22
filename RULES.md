@@ -75,7 +75,7 @@ traits:
 
 | Type | Purpose | Matchers | Modifiers |
 |------|---------|----------|-----------|
-| `string` | Extracted strings | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `exclude_patterns`, `external_ip` |
+| `string` | Extracted strings | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
 | `raw` | Raw file bytes | `exact`, `substr`, `regex`, `word` | count, density, location, `case_insensitive`, `external_ip` |
 | `symbol` | Imports/exports | `exact`, `substr`, `regex` | `platforms` |
 | `hex` | Byte patterns (wildcards always extracted) | pattern string | count, density, `offset`, `offset_range` |
@@ -412,7 +412,86 @@ path: "scripts.postinstall"    # npm scripts
 path: "permissions"            # Chrome extension
 ```
 
+### Value Matching
+
 Path-only (no matcher) = existence check.
+
+```yaml
+# Existence check (field must exist)
+type: kv
+path: "description"
+
+# Explicit existence check
+type: kv
+path: "description"
+exists: true              # Field must exist
+
+# Non-existence check
+type: kv
+path: "description"
+exists: false             # Field must NOT exist
+
+# String matching
+type: kv
+path: "scripts.postinstall"
+substr: "curl"            # Contains substring
+
+# Exact match
+type: kv
+path: "license"
+exact: "MIT"              # Exact string match
+
+# Regex match
+type: kv
+path: "version"
+regex: "^0\\.0\\.0$"      # Version is 0.0.0
+```
+
+### Collection Size Constraints
+
+Constrain collection size (array elements or object keys):
+
+```yaml
+# Exactly one maintainer
+type: kv
+path: "maintainers"
+size_min: 1
+size_max: 1
+
+# At least 3 dependencies
+type: kv
+path: "bundledDependencies"
+size_min: 3
+
+# No more than 10 keywords
+type: kv
+path: "keywords"
+size_max: 10
+
+# Empty array/object
+type: kv
+path: "contributors"
+size_max: 0
+```
+
+**For objects:**
+
+```yaml
+# At least 5 dependencies
+type: kv
+path: "dependencies"
+size_min: 5
+
+# No dependencies
+type: kv
+path: "dependencies"
+size_max: 0
+```
+
+**Constraint Validation:**
+- `size_min`/`size_max` apply to arrays (element count) and objects (key count)
+- Scalars (strings, numbers, booleans) will fail size constraints
+- Evidence output includes `size: N (array)` or `size: N (object)`
 
 ## CLI Reference
 

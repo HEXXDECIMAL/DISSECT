@@ -158,50 +158,7 @@ traits:
     for:
       - package.json
     size_max: 2048
-  - id: oast-fun-domain
-    desc: oast.fun exfil domain
-    crit: suspicious
-    conf: 0.9
-    for:
-      - javascript
-      - typescript
-      - package.json
-    if:
-      type: string
-      substr: 'oast.fun'
-  - id: oastify-domain
-    desc: oastify.com exfil domain
-    crit: suspicious
-    conf: 0.9
-    for:
-      - javascript
-      - typescript
-      - package.json
-    if:
-      type: string
-      substr: 'oastify.com'
-  - id: oast-me-domain
-    desc: oast.me exfil domain
-    crit: suspicious
-    conf: 0.9
-    for:
-      - javascript
-      - typescript
-      - package.json
-    if:
-      type: string
-      substr: 'oast.me'
-  - id: pipedream-domain
-    desc: pipedream.net exfil domain
-    crit: suspicious
-    conf: 0.9
-    for:
-      - javascript
-      - typescript
-      - package.json
-    if:
-      type: string
-      substr: 'pipedream.net'
+  # Removed: atomic domain indicators - use directory references in composites
   # Removed: discord-webhook (use objectives/exfiltration/channel/webhook/ instead)
   - id: placeholder-author-your-name
     desc: Author field is "Your Name"
@@ -643,11 +600,9 @@ composite_rules:
       - package.json
     needs: 2
     any:
-      - id: oast-fun-domain
-      - id: oastify-domain
-      - id: oast-me-domain
-      - id: objectives/exfiltration/channel/oob::webhook-site
-      - id: pipedream-domain
+      - id: objectives/exfiltration/channel/callback/
+      - id: objectives/discovery/network/ip-tracker/
+      - id: objectives/exfiltration/channel/oob/shortener/
       - id: objectives/exfiltration/channel/webhook::discord-exfiltration
   - id: placeholder-author-no-repo
     desc: Package with placeholder author and no repository URL

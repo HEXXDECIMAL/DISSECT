@@ -20,17 +20,20 @@ pub struct PEAnalyzer {
     radare2: Radare2Analyzer,
     string_extractor: StringExtractor,
     yara_engine: Option<Arc<YaraEngine>>,
+    /// Pre-extracted strings from stng (avoids redundant extraction)
+    preextracted_strings: Option<Vec<StringInfo>>,
 }
 
 impl PEAnalyzer {
     /// Creates a new PE analyzer with default configuration
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
             radare2: Radare2Analyzer::new(),
             string_extractor: StringExtractor::new(),
             yara_engine: None,
+            preextracted_strings: None,
         }
     }
 
@@ -43,16 +46,24 @@ impl PEAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = capability_mapper;
+        self
+    }
+
+    /// Set pre-extracted strings (avoids redundant stng/radare2 extraction)
+    #[must_use]
+    #[allow(dead_code)] // Used by binary target, not visible to library
+    pub(crate) fn with_preextracted_strings(mut self, strings: Vec<StringInfo>) -> Self {
+        self.preextracted_strings = Some(strings);
         self
     }
 
@@ -105,7 +116,7 @@ impl PEAnalyzer {
             let has_symbols = !pe.imports.is_empty();
             if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
-                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched);
+                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched, data.len() as u64);
 
                 // Override code_size with goblin-based calculation (more accurate)
                 // In PE, only sections with IMAGE_SCN_MEM_EXECUTE characteristic contain executable code
@@ -163,9 +174,13 @@ impl PEAnalyzer {
             None
         };
 
-        // Extract strings using language-aware extraction (Go/Rust)
-        // Use extract_smart_with_r2 for comprehensive string extraction including StackStrings
-        report.strings = self.string_extractor.extract_smart(data, r2_strings);
+        // Use pre-extracted strings if available, otherwise extract with stng/r2
+        if let Some(ref strings) = self.preextracted_strings {
+            report.strings = strings.clone();
+        } else {
+            // Extract strings using language-aware extraction (Go/Rust)
+            report.strings = self.string_extractor.extract_smart(data, r2_strings);
+        }
         tools_used.push("stng".to_string());
 
         // Analyze embedded code in strings

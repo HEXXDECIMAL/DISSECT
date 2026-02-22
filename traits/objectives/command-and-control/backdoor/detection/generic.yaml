@@ -200,7 +200,7 @@ composite_rules:
       - id: micro-behaviors/process/create/shell::bin-bash
       - id: micro-behaviors/process/create/shell::bin-sh
     all:
-      - id: objectives/command-and-control/reverse-shell/socket::exec-cmd-run
+      - id: micro-behaviors/process/create/shell/lang::exec-cmd-run
       - id: go-child-stdin
       - id: micro-behaviors/communications/socket/connect::dial-tcp
 

@@ -51,5 +51,5 @@ composite_rules:
   all:
   - id: evasion-aware-malware
   any:
-  - id: objectives/anti-forensics/log-clear
-  - id: objectives/anti-forensics/self-delete
+  - id: objectives/evasion/log-clear
+  - id: objectives/evasion/self-delete

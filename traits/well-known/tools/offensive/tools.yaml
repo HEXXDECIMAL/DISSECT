@@ -258,7 +258,7 @@ composite_rules:
   any:
   - id: execve-symbol
   - id: system-symbol
-  - id: objectives/command-and-control/reverse-shell/socket::exec-cmd-run
+  - id: micro-behaviors/process/create/shell/lang::exec-cmd-run
 - id: metasploit-payload
   desc: Metasploit payload detected
   crit: suspicious

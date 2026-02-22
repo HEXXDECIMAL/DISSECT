@@ -3,52 +3,61 @@ defaults:
   - all
 
 traits:
-- id: cxx-abi-symbols-a
-  desc: C++ ABI symbols cluster A
-  crit: inert
-  conf: 0.8
-  if:
-    type: symbol
-    regex: ^(__cxa_|__gxx_)
 - id: cxx-abi-symbols-b
-  desc: C++ ABI symbols cluster B
+  desc: "C++ ABI symbols cluster B"
   crit: inert
   conf: 0.8
   if:
     type: symbol
-    regex: ^(_ZN[A-Z]|_ZSt|_ZNSt|_ZNK[A-Z])
+    regex: '^(_ZN[A-Z]|_ZSt|_ZNSt|_ZNK[A-Z])'
+
+- id: gxx-symbols
+  desc: "__gxx_ symbols"
+  if:
+    type: symbol
+    regex: "^__gxx_"
+
 - id: mesa-ref-a
-  desc: Mesa 3D graphics reference cluster A
+  desc: "Mesa 3D graphics reference cluster A"
   crit: inert
   conf: 0.5
   if:
     type: string
-    regex: (?i)(?:mesa|gallium|libGL|libEGL)
+    regex: '(?i)(?:mesa|gallium|libGL|libEGL)'
 - id: mesa-ref-b
-  desc: Mesa 3D graphics reference cluster B
+  desc: "Mesa 3D graphics reference cluster B"
   crit: inert
   conf: 0.5
   if:
     type: string
-    regex: (?i)(?:libGLX|dri_|swrast|pipe_loader)
+    regex: '(?i)(?:libGLX|dri_|swrast|pipe_loader)'
 - id: mesa-ref-c
-  desc: Mesa 3D graphics reference marker
+  desc: "Mesa 3D graphics reference marker"
   crit: inert
   conf: 0.5
   if:
     type: string
-    regex: (?i)_mesa_
+    regex: '(?i)_mesa_'
 - id: opengl-ref-a
-  desc: OpenGL graphics reference cluster A
+  desc: "OpenGL graphics reference cluster A"
   crit: inert
   conf: 0.5
   if:
     type: string
-    regex: (?i)(?:opengl|glx|\begl\b|vulkan)
+    regex: '(?i)(?:opengl|glx|\begl\b|vulkan)'
 - id: opengl-ref-b
-  desc: OpenGL graphics reference cluster B
+  desc: "OpenGL graphics reference cluster B"
   crit: inert
   conf: 0.5
   if:
     type: string
-    regex: (?i)(?:GL_VERSION|GL_RENDERER|glX[A-Z])
+    regex: '(?i)(?:GL_VERSION|GL_RENDERER|glX[A-Z])'
+
+composite_rules:
+- id: cxx-abi-symbols-a
+  desc: "C++ ABI symbols cluster A"
+  crit: inert
+  conf: 0.8
+  any:
+    - id: micro-behaviors/dylib/library::libc-internal-functions-b
+    - id: gxx-symbols

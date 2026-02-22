@@ -14,17 +14,7 @@ traits:
     conf: 1.0
     for: [javascript, typescript]
     if:
-      type: yara
-      source: |
-        rule vscode_api_usage {
-          strings:
-            $require = /require\(['"]vscode['"]\)/ ascii
-            $import = /from\s+['"]vscode['"]/ ascii
-            $namespace = "vscode." ascii
-          condition:
-            // activate is too common to be a standalone extension marker
-            any of them
-        }
+      id: micro-behaviors/process/create/shell/host::vscode-extension-marker
 
   # === Atomic indicators for post-install-exec ===
   - id: activate-word
@@ -33,8 +23,7 @@ traits:
     conf: 0.7
     for: [javascript, typescript]
     if:
-      type: string
-      substr: "activate"
+      id: micro-behaviors/process/create/shell/lang::activate-function
 
   - id: postInstall-word
     desc: postInstall keyword
@@ -77,18 +66,17 @@ traits:
     conf: 1.0
     for: [javascript, typescript]
     if:
-      type: string
-      regex: "vscode\\."
+      id: micro-behaviors/process/create/shell/host::namespace
 
-  # File write operations
-  - id: file-write-ops
-    desc: File write or copy operations
+  # File copy operations
+  - id: file-copy-ops
+    desc: File copy operations
     crit: notable
     conf: 1.0
     for: [javascript, typescript]
     if:
       type: string
-      regex: "write(File|FileSync)|copy(File|FileSync)"
+      regex: "copy(File|FileSync)"
 
 composite_rules:
   # State helpers
@@ -169,10 +157,10 @@ composite_rules:
     conf: 0.8
     for: [javascript, typescript]
     any:
-      - id: micro-behaviors/persist/locations/keywords::startup-keyword
-      - id: micro-behaviors/persist/cron/keywords::crontab-keyword
-      - id: micro-behaviors/persist/locations/keywords::launchd-keyword
-      - id: objectives/persist/systemd/service::systemd-keyword
+      - id: micro-behaviors/fs/path/persistence-locations/keywords::startup-keyword
+      - id: micro-behaviors/os/schedule/cron/keywords::crontab-keyword
+      - id: micro-behaviors/fs/path/persistence-locations/keywords::launchd-keyword
+      - id: objectives/persistence/systemd/service::systemd-keyword
 
   # Extension Persistence via well-known hooks
   - id: persistence
@@ -185,4 +173,13 @@ composite_rules:
     all:
       - id: api-usage
       - id: persistence-locations
-      - id: file-write-ops
+      - id: micro-behaviors/fs/write/file::js-file-write
+
+  - id: file-write-ops
+    desc: File write or copy operations
+    crit: notable
+    conf: 1.0
+    for: [javascript, typescript]
+    any:
+      - id: micro-behaviors/fs/write/file::js-file-write
+      - id: file-copy-ops

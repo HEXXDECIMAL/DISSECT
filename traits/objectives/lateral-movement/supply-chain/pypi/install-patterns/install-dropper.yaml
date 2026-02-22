@@ -42,13 +42,15 @@ traits:
   crit: notable
   conf: 0.9
   if:
-    type: string
-    regex: \.exe\b
+    id: micro-behaviors/fs/path/extension::exe
   not:
   - python.exe
   - pip.exe
+  - mimikatz.exe
+  - calc.exe
   - regex: \bwhich\b.{0,100}\.exe
   - regex: \bfind\b.{0,100}\.exe
+
 - id: scr-file-extension
   desc: .scr file extension (screensaver/executable)
   crit: notable
@@ -209,8 +211,7 @@ traits:
   crit: notable
   conf: 0.7
   if:
-    type: string
-    regex: pip.{0,20}install
+    id: micro-behaviors/os/package-manager/install::pip-install
 - id: pip-module-string
   desc: pip module reference string
   crit: notable
@@ -234,15 +235,6 @@ traits:
     type: string
     regex: https?://[a-z0-9-]*python[a-z0-9-]*\.[a-z]+/[^\s]{0,50}\.(bat|cmd)
 
-- id: powershell-download-cmd-a
-  desc: PowerShell download command in string
-  crit: suspicious
-  conf: 0.9
-  attack: T1059.001
-  if:
-    type: string
-    regex: (?:Invoke-WebRequest|IWR|DownloadFile|DownloadString).{0,100}
-    case_insensitive: true
 - id: powershell-download-cmd-b
   desc: PowerShell download command in string
   crit: suspicious
@@ -263,6 +255,14 @@ traits:
     case_insensitive: true
 
 composite_rules:
+- id: powershell-download-cmd-a
+  desc: PowerShell download command in string
+  crit: suspicious
+  conf: 0.9
+  attack: T1059.001
+  any:
+    - id: micro-behaviors/communications/http/lib/invoke-webrequest::invoke-webrequest
+    - id: micro-behaviors/communications/http/lib/invoke-webrequest::webclient-download
 - id: surveillance-deps-install
   desc: Surveillance library mass installation
   crit: suspicious
@@ -421,8 +421,8 @@ composite_rules:
   all:
   - id: robust-setup-py
   - id: objectives/execution/autoinstall/pip::main-call-content
-  - id: objectives/persist/startup/registry::windows-shortcut-argument-injection
-  - id: objectives/anti-static/obfuscation/source::advanced-python-obfuscation
+  - id: objectives/persistence/startup/registry::windows-shortcut-argument-injection
+  - id: objectives/anti-static/obfuscation/scripting::advanced-python-obfuscation
 - id: pypi-shortcut-hijack-dropper
   desc: PyPI package enumerates and hijacks browser shortcuts
   crit: hostile
@@ -432,7 +432,7 @@ composite_rules:
   all:
   - id: robust-setup-py
   - id: objectives/execution/autoinstall/pip::main-call-content
-  - id: objectives/persist/startup/registry::windows-shortcut-walk-modify
+  - id: objectives/persistence/startup/registry::windows-shortcut-walk-modify
   - id: micro-behaviors/fs/directory/mkdir::mkdir-python
 - id: pypi-com-extension-dropper
   desc: PyPI setup.py uses COM automation to drop extension
@@ -443,7 +443,7 @@ composite_rules:
   all:
   - id: setup-py-win32com-import
   - id: setup-py-getenv
-  - id: objectives/persist/startup/registry::create-shortcut
+  - id: objectives/persistence/startup/registry::create-shortcut
 - id: shortcut-target-browser-fingerprint
   desc: Browser fingerprinting via shortcut TargetPath
   crit: suspicious
@@ -451,10 +451,10 @@ composite_rules:
   attack: T1518
   all:
   - id: setup-py-shortcut-target-fingerprint
-  - id: objectives/persist/startup/registry::shortcut-target-path
+  - id: objectives/persistence/startup/registry::shortcut-target-path
   any:
-  - id: objectives/persist/startup/registry::shortcut-arguments
-  - id: objectives/persist/startup/registry::create-shortcut
+  - id: objectives/persistence/startup/registry::shortcut-arguments
+  - id: objectives/persistence/startup/registry::create-shortcut
 - id: install-time-gated-execution
   desc: Platform-gated install-time execution in setup.py
   crit: hostile
@@ -477,7 +477,7 @@ composite_rules:
   attack: T1195.002
   all:
   - id: robust-setup-py
-  - id: objectives/anti-static/obfuscation/source::advanced-python-obfuscation
+  - id: objectives/anti-static/obfuscation/scripting::advanced-python-obfuscation
   - id: micro-behaviors/fs/directory/mkdir::mkdir-python
 - id: pypi-powershell-dropper
   desc: PyPI setup.py PowerShell download-execute chain

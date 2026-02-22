@@ -37,7 +37,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -45,7 +44,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("test".to_string())];
@@ -77,7 +75,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -85,7 +82,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
@@ -118,7 +114,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -126,7 +121,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
@@ -160,7 +154,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -168,7 +161,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Structured {
@@ -203,7 +195,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -211,7 +202,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Structured {
@@ -248,7 +238,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -256,7 +245,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Structured {
@@ -291,7 +279,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -299,7 +286,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Structured {
@@ -335,7 +321,6 @@ mod validation_tests {
             regex: None,
             word: None,
             case_insensitive: true,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -343,7 +328,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("TESTING".to_string())];
@@ -374,7 +358,6 @@ mod validation_tests {
             regex: Some("c.?rl".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -382,7 +365,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("curl".to_string())];
@@ -413,7 +395,6 @@ mod validation_tests {
             regex: Some("c.?rl".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -421,7 +402,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("hurl".to_string())];
@@ -455,7 +435,6 @@ mod validation_tests {
             regex: Some("^test$".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -463,7 +442,6 @@ mod validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let not = vec![NotException::Shorthand("testing".to_string())];
@@ -767,7 +745,6 @@ mod criticality_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -775,7 +752,6 @@ mod criticality_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -828,7 +804,6 @@ mod criticality_tests {
                 regex: None,
                 word: None,
                 case_insensitive: false,
-                exclude_patterns: None,
                 external_ip: false,
                 section: None,
                 offset: None,
@@ -836,7 +811,6 @@ mod criticality_tests {
                 section_offset: None,
                 section_offset_range: None,
                 compiled_regex: None,
-                compiled_excludes: vec![],
             };
 
             let trait_def = TraitDefinition {
@@ -883,7 +857,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -891,7 +864,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -932,7 +904,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -940,7 +911,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -981,7 +951,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -989,7 +958,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1031,7 +999,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1039,7 +1006,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1081,7 +1047,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1089,7 +1054,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1131,7 +1095,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1139,7 +1102,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_match_exclusivity();
@@ -1157,7 +1119,6 @@ mod constraint_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1165,7 +1126,6 @@ mod constraint_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         assert!(cond.check_count_constraints().is_none());
@@ -1215,7 +1175,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1223,7 +1182,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_empty_patterns();
@@ -1239,7 +1197,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1247,7 +1204,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_empty_patterns();
@@ -1263,7 +1219,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1271,7 +1226,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_short_patterns();
@@ -1287,7 +1241,6 @@ mod llm_validation_tests {
             regex: None,
             word: Some("x".to_string()),
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1295,7 +1248,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_short_patterns();
@@ -1311,7 +1263,6 @@ mod llm_validation_tests {
             regex: Some("literalstring".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1319,7 +1270,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_literal_regex();
@@ -1335,7 +1285,6 @@ mod llm_validation_tests {
             regex: Some("test.*pattern".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1343,7 +1292,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_literal_regex();
@@ -1359,7 +1307,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: true,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1367,7 +1314,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_case_insensitive_on_non_alpha();
@@ -1383,7 +1329,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: true,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1391,7 +1336,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_case_insensitive_on_non_alpha();
@@ -1406,7 +1350,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1414,7 +1357,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let cond_with_filters = ConditionWithFilters {
@@ -1443,7 +1385,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1451,7 +1392,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let warning = cond.check_count_min_value();
@@ -1466,7 +1406,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1474,7 +1413,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1517,7 +1455,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1525,7 +1462,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1568,7 +1504,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1576,7 +1511,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1617,7 +1551,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1625,7 +1558,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1665,7 +1597,6 @@ mod llm_validation_tests {
             regex: Some("test.*".to_string()),
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1673,7 +1604,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {
@@ -1714,7 +1644,6 @@ mod llm_validation_tests {
             regex: None,
             word: None,
             case_insensitive: false,
-            exclude_patterns: None,
             external_ip: false,
             section: None,
             offset: None,
@@ -1722,7 +1651,6 @@ mod llm_validation_tests {
             section_offset: None,
             section_offset_range: None,
             compiled_regex: None,
-            compiled_excludes: vec![],
         };
 
         let trait_def = TraitDefinition {

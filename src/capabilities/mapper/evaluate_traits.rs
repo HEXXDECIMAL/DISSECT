@@ -156,7 +156,6 @@ impl super::CapabilityMapper {
                         &trait_def.r#if.condition,
                         Condition::String {
                             exact: Some(_),
-                            exclude_patterns: None,
                             ..
                         }
                     )

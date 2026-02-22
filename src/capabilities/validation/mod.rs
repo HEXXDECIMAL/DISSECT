@@ -54,6 +54,8 @@ pub(super) mod shared {
         pub(super) count_max: Option<usize>,
         pub(super) per_kb_min: Option<f64>,
         pub(super) per_kb_max: Option<f64>,
+        pub(super) confidence: f32,
+        pub(super) criticality: crate::types::Criticality,
     }
 
     /// Signature for string/content matching conditions (for collision detection)
@@ -85,13 +87,13 @@ pub(crate) use precision::{
 
 // Duplicate detection
 pub(crate) use duplicates::{
-    check_case_insensitive_overlaps, check_exact_contained_by_substr,
-    check_overlapping_regex_patterns, check_regex_alternative_subsets,
-    check_regex_contains_literal, check_regex_or_overlapping_exact,
-    check_regex_should_be_exact, check_same_string_different_types,
-    find_alternation_merge_candidates, find_duplicate_traits_and_composites,
-    find_for_only_duplicates, find_string_content_collisions,
-    find_string_pattern_duplicates,
+    check_basename_pattern_duplicates, check_case_insensitive_overlaps,
+    check_exact_contained_by_substr, check_overlapping_regex_patterns,
+    check_regex_alternative_subsets, check_regex_contains_literal,
+    check_regex_or_overlapping_exact, check_regex_should_be_exact,
+    check_same_string_different_types, find_alternation_merge_candidates,
+    find_duplicate_traits_and_composites, find_for_only_duplicates,
+    find_string_content_collisions, find_string_pattern_duplicates,
 };
 
 // Composite rule validation

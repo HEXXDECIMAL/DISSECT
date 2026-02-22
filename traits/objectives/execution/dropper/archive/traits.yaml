@@ -5,7 +5,7 @@
 traits:
   # === Archive extraction methods ===
   - id: extract-full
-    desc: extractFull call
+    desc: "extractFull call"
     crit: notable
     conf: 0.5
     for: [javascript, typescript]
@@ -14,7 +14,7 @@ traits:
       substr: "extractFull"
 
   - id: extract-call
-    desc: extract() call
+    desc: "extract() call"
     crit: notable
     conf: 0.5
     for: [javascript, typescript]
@@ -23,7 +23,7 @@ traits:
       regex: "extract\\("
 
   - id: unzip-call
-    desc: unzip reference
+    desc: "unzip reference"
     crit: notable
     conf: 0.5
     for: [javascript, typescript]
@@ -32,7 +32,7 @@ traits:
       substr: "unzip"
 
   - id: 7z-ref
-    desc: 7z reference
+    desc: "7z reference"
     crit: notable
     conf: 0.5
     for: [javascript, typescript]
@@ -51,7 +51,7 @@ traits:
       substr: "password:"
 
   - id: password-equals
-    desc: password= parameter
+    desc: "password= parameter"
     crit: notable
     conf: 0.5
     for: [javascript, typescript]
@@ -60,7 +60,7 @@ traits:
       substr: "password="
 
   - id: p-flag
-    desc: -p flag
+    desc: "-p flag"
     crit: notable
     conf: 0.4
     for: [javascript, typescript]
@@ -70,7 +70,7 @@ traits:
 
   # === 7-zip atomic indicators ===
   - id: 7zip-bin-module
-    desc: 7zip-bin module
+    desc: "7zip-bin module"
     crit: notable
     conf: 0.6
     attack: "T1140"
@@ -80,7 +80,7 @@ traits:
       substr: "7zip-bin"
 
   - id: node-7z-module
-    desc: node-7z module
+    desc: "node-7z module"
     crit: notable
     conf: 0.6
     attack: "T1140"
@@ -90,7 +90,7 @@ traits:
       substr: "node-7z"
 
   - id: path7za
-    desc: path7za reference
+    desc: "path7za reference"
     crit: notable
     conf: 0.6
     attack: "T1140"
@@ -99,19 +99,9 @@ traits:
       type: string
       substr: "path7za"
 
-  - id: 7z-exe
-    desc: 7z.exe reference
-    crit: notable
-    conf: 0.6
-    attack: "T1140"
-    for: [javascript, typescript]
-    if:
-      type: string
-      substr: "7z.exe"
-
   # === Archive extension atomics ===
   - id: zip-ext
-    desc: .zip extension
+    desc: ".zip extension"
     crit: notable
     conf: 0.4
     for: [javascript, typescript]
@@ -120,7 +110,7 @@ traits:
       exact: ".zip"
 
   - id: 7z-ext
-    desc: .7z extension
+    desc: ".7z extension"
     crit: notable
     conf: 0.4
     for: [javascript, typescript]
@@ -129,7 +119,7 @@ traits:
       exact: ".7z"
 
   - id: tar-ext
-    desc: .tar extension
+    desc: ".tar extension"
     crit: notable
     conf: 0.4
     for: [javascript, typescript]
@@ -138,7 +128,7 @@ traits:
       exact: ".tar"
 
   - id: rar-ext
-    desc: .rar extension
+    desc: ".rar extension"
     crit: notable
     conf: 0.4
     for: [javascript, typescript]
@@ -148,7 +138,7 @@ traits:
 
   # === Download zip file composite pattern ===
   - id: download-zip
-    desc: Downloads zip archive from remote
+    desc: "Downloads zip archive from remote"
     crit: notable
     conf: 0.85
     attack: "T1105"
@@ -171,3 +161,14 @@ traits:
           condition:
             any of ($dl*) and any of ($zip*) and any of ($write*)
         }
+
+composite_rules:
+  - id: 7z-exe
+    desc: "7z.exe reference"
+    crit: notable
+    conf: 0.6
+    attack: "T1140"
+    for: [javascript, typescript]
+    all:
+      - id: 7z-ref
+      - id: micro-behaviors/fs/path/extension::exe

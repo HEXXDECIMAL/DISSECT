@@ -212,12 +212,8 @@ pub(crate) struct StringParams<'a> {
     pub word: Option<&'a String>,
     /// If true, perform case-insensitive matching
     pub case_insensitive: bool,
-    /// Patterns that must NOT match (exclusion list)
-    pub exclude_patterns: Option<&'a Vec<String>>,
     /// Pre-compiled regex from the `regex` field
     pub compiled_regex: Option<&'a regex::Regex>,
-    /// Pre-compiled regexes from `exclude_patterns`
-    pub compiled_excludes: &'a [regex::Regex],
     /// When true, require matched string to contain a valid external IP address
     pub external_ip: bool,
     /// Section constraint: only match strings in this section (supports fuzzy names)

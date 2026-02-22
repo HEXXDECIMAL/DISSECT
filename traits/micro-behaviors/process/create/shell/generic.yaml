@@ -8,7 +8,7 @@ defaults:
 traits:
   # C/C++ - Unix
   - id: c-popen
-    desc: Executes command and captures output
+    desc: "Executes command and captures output"
     crit: notable
     mbc: "E1059.004"
     attack: "T1059.004"
@@ -21,7 +21,7 @@ traits:
     for: [binaries]
 
   - id: c-execve
-    desc: Executes program directly via C
+    desc: "Executes program directly via C"
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -33,7 +33,7 @@ traits:
     for: [binaries]
 
   - id: c-exec-variants
-    desc: C-style exec family functions
+    desc: "C-style exec family functions"
     crit: notable
     conf: 0.8
     if:
@@ -43,13 +43,8 @@ traits:
     for: [binaries]
 
   # Windows
-  # win-createprocess: CreateProcessA -> micro-behaviors/process/create/spawn::create-process-a (canonical)
-  # win-createprocess: CreateProcessW -> micro-behaviors/process/create/spawn::create-process-w (canonical)
-  # win-shellexecute: ShellExecuteA -> micro-behaviors/process/create/methods::shell-execute-a (canonical)
-  # win-shellexecute: ShellExecuteW -> micro-behaviors/process/create/methods::shell-execute (canonical)
-  # win-shellexecute: ShellExecuteExW -> micro-behaviors/process/create/methods::shell-execute-ex (canonical)
   - id: shell-execute-ex-a
-    desc: ShellExecuteExA ANSI extended API
+    desc: "ShellExecuteExA ANSI extended API"
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
@@ -62,7 +57,7 @@ traits:
 
   # Go
   - id: go-os-exec
-    desc: Executes commands via Go os/exec
+    desc: "Executes commands via Go os/exec"
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -73,7 +68,7 @@ traits:
 
   # Python
   - id: python-os-system
-    desc: Executes shell commands via Python
+    desc: "Executes shell commands via Python"
     crit: notable
     mbc: "E1059.006"
     attack: "T1059.006"
@@ -85,7 +80,7 @@ traits:
 
   # JavaScript
   - id: js-child-process
-    desc: Executes commands via Node.js child_process
+    desc: "Executes commands via Node.js child_process"
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -96,7 +91,7 @@ traits:
 
   # Ruby
   - id: ruby-system
-    desc: Executes commands via Ruby system()
+    desc: "Executes commands via Ruby system()"
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -108,7 +103,7 @@ traits:
 
   # Rust
   - id: rust-command
-    desc: Executes process via Rust std::process::Command
+    desc: "Executes process via Rust std::process::Command"
     crit: notable
     mbc: "E1059"
     attack: "T1059"
@@ -119,7 +114,7 @@ traits:
 
   # Shell references
   - id: bin-sh
-    desc: References /bin/sh (Bourne shell)
+    desc: "References /bin/sh (Bourne shell)"
     crit: notable
     mbc: "E1059.004"
     attack: "T1059.004"
@@ -131,7 +126,7 @@ traits:
     for: [binaries]
 
   - id: bin-bash
-    desc: References /bin/bash (Bash shell)
+    desc: "References /bin/bash (Bash shell)"
     crit: notable
     mbc: "E1059.004"
     attack: "T1059.004"
@@ -142,21 +137,22 @@ traits:
     platforms: [unix, linux, macos]
     for: [binaries]
 
-  - id: cmd-exe
-    desc: References cmd.exe (Windows Command Prompt)
-    crit: notable
-    mbc: "E1059.003"
-    attack: "T1059.003"
-    conf: 0.6
+  - id: cmd-name
+    desc: "cmd command name"
     if:
       type: string
-      regex: 'cmd\.exe|cmd /c'
+      substr: "cmd"
+
+  - id: cmd-slash-c
+    desc: "cmd /c command execution"
+    if:
+      type: string
+      regex: 'cmd /c'
       case_insensitive: true
-    platforms: [windows]
 
   # Behavioral Patterns
   - id: shell-platform-check-ostype
-    desc: Checks OSTYPE variable
+    desc: "Checks OSTYPE variable"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -165,7 +161,7 @@ traits:
       regex: '\$OSTYPE'
 
   - id: shell-platform-check-linux
-    desc: Checks linux-gnu platform
+    desc: "Checks linux-gnu platform"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -174,7 +170,7 @@ traits:
       exact: "linux-gnu"
 
   - id: shell-platform-check-darwin
-    desc: Checks darwin platform
+    desc: "Checks darwin platform"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -183,7 +179,7 @@ traits:
       exact: "darwin"
 
   - id: shell-platform-check-msys
-    desc: Checks msys platform
+    desc: "Checks msys platform"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -192,7 +188,7 @@ traits:
       exact: "msys"
 
   - id: shell-platform-check-cygwin
-    desc: Checks cygwin platform
+    desc: "Checks cygwin platform"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -201,7 +197,7 @@ traits:
       exact: "cygwin"
 
   - id: curl-pipe-exec-python-bash
-    desc: Curl piped to python or bash
+    desc: "Curl piped to python or bash"
     crit: suspicious
     conf: 0.9
     for: [shell]
@@ -210,7 +206,7 @@ traits:
       regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\b(python|bash)'
 
   - id: curl-pipe-exec-sh-node
-    desc: Curl piped to sh or node
+    desc: "Curl piped to sh or node"
     crit: suspicious
     conf: 0.9
     for: [shell]
@@ -219,7 +215,7 @@ traits:
       regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\b(sh|node)'
 
   - id: curl-pipe-exec-php
-    desc: Curl piped to php
+    desc: "Curl piped to php"
     crit: suspicious
     conf: 0.9
     for: [shell]
@@ -228,7 +224,7 @@ traits:
       regex: 'curl.{0,50}\|.{0,50}(sudo\s+)?\bphp'
 
   - id: sudo-piped-exec
-    desc: Piped execution with sudo
+    desc: "Piped execution with sudo"
     crit: suspicious
     conf: 0.9
     for: [shell]
@@ -238,7 +234,7 @@ traits:
 
   # Shell sleep with format specifier followed by command - randomized execution cadence
   - id: sleep-format-exec
-    desc: Shell sleep with format command template
+    desc: "Shell sleep with format command template"
     crit: notable
     conf: 0.85
     attack: "T1029"
@@ -248,7 +244,7 @@ traits:
 
   # macOS open command to launch applications
   - id: open-a-app
-    desc: macOS open -a application launch
+    desc: "macOS open -a application launch"
     crit: notable
     conf: 0.8
     attack: "T1204.001"
@@ -258,9 +254,26 @@ traits:
       regex: 'open -a \w+'
 
 composite_rules:
+  - id: cmd-exe-file-path
+    desc: "References cmd.exe file path"
+    all:
+      - id: micro-behaviors/fs/path/extension::exe
+      - id: cmd-name
+
+  - id: cmd-exe
+    desc: "References cmd.exe (Windows Command Prompt)"
+    crit: notable
+    mbc: "E1059.003"
+    attack: "T1059.003"
+    conf: 0.6
+    platforms: [windows]
+    any:
+      - id: cmd-exe-file-path
+      - id: cmd-slash-c
+
   # win-createprocess: composite referencing canonical process creation traits
   - id: win-createprocess
-    desc: Creates new process via Windows API
+    desc: "Creates new process via Windows API"
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
@@ -273,7 +286,7 @@ composite_rules:
 
   # win-shellexecute: composite referencing canonical shell execute traits
   - id: win-shellexecute
-    desc: Executes file or program via Windows ShellExecute API
+    desc: "Executes file or program via Windows ShellExecute API"
     crit: notable
     mbc: "E1059.003"
     attack: "T1059.003"
@@ -287,7 +300,7 @@ composite_rules:
       - id: shell-execute-ex-a
 
   - id: shell-platform-check
-    desc: Checks shell platform type
+    desc: "Checks shell platform type"
     crit: notable
     conf: 0.8
     for: [shell]
@@ -299,7 +312,7 @@ composite_rules:
       - id: shell-platform-check-cygwin
 
   - id: curl-pipe-exec
-    desc: One-liner download and execute
+    desc: "One-liner download and execute"
     crit: suspicious
     conf: 0.9
     for: [shell]

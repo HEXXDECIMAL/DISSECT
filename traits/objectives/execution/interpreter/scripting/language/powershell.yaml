@@ -7,5 +7,4 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: string
-      regex: "PowerShell|Invoke|Interaction\\.Shell"
+      id: micro-behaviors/process/create/shell/lang::powershell-engine-markers

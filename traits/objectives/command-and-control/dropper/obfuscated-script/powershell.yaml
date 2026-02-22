@@ -45,7 +45,7 @@ composite_rules:
     attack: "T1070.004"
     for: [batch, shell, powershell]
     all:
-      - id: objectives/anti-forensics/self-delete/file::remove-item
+      - id: objectives/evasion/self-delete/file::remove-item
       - id: objectives/execution/dropper/script::powershell-exe
       - id: objectives/execution/interpreter/eval/invoke::iex
     any:

@@ -69,7 +69,7 @@ composite_rules:
       - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
       - id: micro-behaviors/vm/detect/vmware::vmware-extensions
       - id: micro-behaviors/vm/detect/vmware::vmfs-path
-      - id: objectives/anti-forensics/log-clear/commands::find-exec-rm-log
+      - id: objectives/evasion/log-clear/commands::find-exec-rm-log
 
   # ESXi ransomware shell with anti-forensics - complexity 6 (for:1 + all:5)
   - id: esxi-ransomware-shell-antiforensics
@@ -81,8 +81,8 @@ composite_rules:
       - id: micro-behaviors/vm/detect/vmware::esxcli-vm-kill
       - id: micro-behaviors/vm/detect/vmware::vmware-extensions
       - id: micro-behaviors/vm/detect/vmware::vmfs-path
-      - id: objectives/anti-forensics/self-delete/cleanup::rm-self-dollar-zero
-      - id: objectives/anti-forensics/timestomp/modify::touch-reference-multiple
+      - id: objectives/evasion/self-delete/cleanup::rm-self-dollar-zero
+      - id: objectives/evasion/timestomp/modify::touch-reference-multiple
 
   # ESXi ransomware with C++ VM killer - complexity 5 (for:1 + all:4)
   # Detects C++ ransomware that dynamically builds esxcli commands

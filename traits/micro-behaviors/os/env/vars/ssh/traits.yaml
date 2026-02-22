@@ -44,3 +44,6 @@ traits:
     if:
       type: string
       regex: '^SSH_[A-Z_]+'
+    unless:
+      - type: string
+        exact: SSH_PRIVATE_KEY

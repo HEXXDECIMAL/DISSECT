@@ -275,5 +275,5 @@ composite_rules:
       - shell
     attack: T1548.004
     all:
-      - id: well-known/malware/miner/kinsing-enhanced::kinsing-identifier
+      - id: well-known/malware/miner/kinsing::kinsing-names
       - id: multi-distro-sudo-deployment

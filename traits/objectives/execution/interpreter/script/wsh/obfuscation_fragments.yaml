@@ -18,6 +18,9 @@ traits:
     if:
       type: raw
       regex: 't\.Shell|t\.She|\.Shel|pt\.She'
+    not:
+      - "WScript.Shell"
+      - "Interaction.Shell"
 
   - id: adodb-fragment-1
     desc: ADODB.Stream string fragment (ADODB/ADO)

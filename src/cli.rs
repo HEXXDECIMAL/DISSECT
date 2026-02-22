@@ -344,6 +344,18 @@ pub(crate) enum Command {
         #[arg(long)]
         kv_path: Option<String>,
 
+        /// Require field to exist (true) or not exist (false) for kv searches
+        #[arg(long)]
+        exists: Option<bool>,
+
+        /// Minimum collection size for kv searches (array elements or object keys)
+        #[arg(long)]
+        size_min: Option<usize>,
+
+        /// Maximum collection size for kv searches (array elements or object keys)
+        #[arg(long)]
+        size_max: Option<usize>,
+
         /// File type to use for analysis (auto-detected if not specified)
         #[arg(short, long, value_enum)]
         file_type: Option<DetectFileType>,
