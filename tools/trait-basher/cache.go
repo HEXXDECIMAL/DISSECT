@@ -50,7 +50,7 @@ func openDB(ctx context.Context, flush bool) (*sql.DB, error) {
 		if err := os.Remove(dbPath); err != nil && !os.IsNotExist(err) {
 			return nil, fmt.Errorf("remove database: %w", err)
 		}
-		fmt.Fprintf(os.Stderr, "Flushed analysis cache: %s\n", dbPath)
+		fmt.Fprintf(os.Stderr, "%s✓%s Flushed analysis cache: %s\n", colorGreen, colorReset, dbPath)
 	}
 
 	db, err := sql.Open("sqlite3", dbPath)
@@ -147,7 +147,7 @@ func cleanupOrphanedExtractDirs() {
 
 		// Process is dead, clean up orphaned directory
 		orphanPath := filepath.Join(tmpDir, entry.Name())
-		fmt.Fprintf(os.Stderr, "Cleaning up orphaned extract directory: %s\n", orphanPath)
+		fmt.Fprintf(os.Stderr, "%s⚡%s Cleaning up orphaned extract directory: %s%s%s\n", colorYellow, colorReset, colorDim, orphanPath, colorReset)
 		os.RemoveAll(orphanPath) //nolint:errcheck // best-effort cleanup
 	}
 }

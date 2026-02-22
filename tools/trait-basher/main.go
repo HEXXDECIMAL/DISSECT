@@ -187,7 +187,7 @@ func (rc *reviewCoordinator) setWorkerIdle(workerID int) {
 	}
 }
 
-// workerPrefix returns a prefix for LLM output lines: "[1:filename] "
+// workerPrefix returns a colored prefix for LLM output lines: "[1:filename] "
 func (rc *reviewCoordinator) workerPrefix(workerID int) string {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
@@ -196,7 +196,8 @@ func (rc *reviewCoordinator) workerPrefix(workerID int) string {
 	if len(name) > 15 {
 		name = name[:12] + "..."
 	}
-	return fmt.Sprintf("[%d:%s] ", workerID+1, name)
+	pClr := providerColor(w.provider)
+	return fmt.Sprintf("%s[%d:%s]%s ", pClr, workerID+1, name, colorReset)
 }
 
 func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
@@ -247,8 +248,8 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 					"delay", delay,
 				)
 			}
-			fmt.Fprintf(os.Stderr, "\n⚠️  Review failed for %s: %v (attempt %d/%d, retrying in %v)\n",
-				filepath.Base(path), err, attempt, maxRetries, delay.Round(time.Second))
+			fmt.Fprintf(os.Stderr, "\n%s⚠️  Review failed for %s:%s %v %s(attempt %d/%d, retrying in %v)%s\n",
+				colorYellow, filepath.Base(path), colorReset, err, colorDim, attempt, maxRetries, delay.Round(time.Second), colorReset)
 			time.Sleep(delay)
 		}
 
@@ -466,7 +467,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigChan
-		fmt.Fprintf(os.Stderr, "\nInterrupted. Cleaning up %s...\n", extractDir)
+		fmt.Fprintf(os.Stderr, "\n%sInterrupted.%s Cleaning up %s...\n", colorYellow, colorReset, extractDir)
 		os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup on signal
 		db.Close()               //nolint:errcheck // best-effort cleanup on signal
 		os.Exit(1)
@@ -553,15 +554,20 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	// Display providers in a readable format (collapse gemini:model entries)
 	displayProviders := formatProvidersForDisplay(cfg.providers)
 	if cfg.model != "" {
-		fmt.Fprintf(os.Stderr, "Providers: %s (model: %s)\n", displayProviders, cfg.model)
+		fmt.Fprintf(os.Stderr, "%sProviders:%s %s%s%s (model: %s%s%s)\n",
+			colorDim, colorReset, colorCyan, displayProviders, colorReset, colorCyan, cfg.model, colorReset)
 	} else {
-		fmt.Fprintf(os.Stderr, "Providers: %s\n", displayProviders)
+		fmt.Fprintf(os.Stderr, "%sProviders:%s %s%s%s\n", colorDim, colorReset, colorCyan, displayProviders, colorReset)
 	}
-	fmt.Fprintf(os.Stderr, "Mode: %s\n", mode)
-	fmt.Fprintf(os.Stderr, "Repo root: %s\n", cfg.repoRoot)
-	fmt.Fprintf(os.Stderr, "LLM timeout: %v (session max), %v (idle)\n", cfg.timeout, cfg.idleTimeout)
-	fmt.Fprintf(os.Stderr, "Concurrency: %d parallel LLM sessions\n", cfg.concurrency)
-	fmt.Fprintf(os.Stderr, "Streaming analysis of %v...\n\n", cfg.dirs)
+	modeColor := colorRed
+	if cfg.knownGood {
+		modeColor = colorGreen
+	}
+	fmt.Fprintf(os.Stderr, "%sMode:%s %s%s%s\n", colorDim, colorReset, modeColor, mode, colorReset)
+	fmt.Fprintf(os.Stderr, "%sRepo root:%s %s\n", colorDim, colorReset, cfg.repoRoot)
+	fmt.Fprintf(os.Stderr, "%sLLM timeout:%s %v (session max), %v (idle)\n", colorDim, colorReset, cfg.timeout, cfg.idleTimeout)
+	fmt.Fprintf(os.Stderr, "%sConcurrency:%s %s%d%s parallel LLM sessions\n", colorDim, colorReset, colorCyan, cfg.concurrency, colorReset)
+	fmt.Fprintf(os.Stderr, "%sStreaming analysis of%s %v...\n\n", colorDim, colorReset, cfg.dirs)
 
 	// Database mode (good/bad, not known-good/known-bad).
 	dbMode := "bad"
@@ -667,6 +673,10 @@ func (m *multiHandler) Enabled(ctx context.Context, level slog.Level) bool {
 
 func (m *multiHandler) Handle(ctx context.Context, record slog.Record) error {
 	for _, h := range m.handlers {
+		// Only handle if this handler accepts this level
+		if !h.Enabled(ctx, record.Level) {
+			continue
+		}
 		if err := h.Handle(ctx, record.Clone()); err != nil {
 			return err
 		}
@@ -923,7 +933,8 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		// Check if we need to restart (hit review limit)
 		if state.stats.shouldRestart {
 			clearProgressLine()
-			fmt.Fprintf(os.Stderr, "⚡ Reviewed %d files - restarting scan to verify trait changes\n", state.cfg.rescanAfter)
+			fmt.Fprintf(os.Stderr, "%s⚡%s Reviewed %s%d%s files - restarting scan to verify trait changes\n",
+				colorYellow, colorReset, colorBold, state.cfg.rescanAfter, colorReset)
 			cmd.Process.Kill() //nolint:errcheck,gosec // intentional kill on restart
 			cmd.Wait()         //nolint:errcheck,gosec // reap the process
 			return state.stats, nil
@@ -1019,23 +1030,24 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	// Close coordinator and wait for all reviews to complete
 	clearProgressLine()
 	if activeCount := coordinator.activeCount(); activeCount > 0 {
-		fmt.Fprintf(os.Stderr, "Scan complete. Waiting for %d active review(s) to finish...\n", activeCount)
+		fmt.Fprintf(os.Stderr, "%s✓%s Scan complete. Waiting for %s%d%s active review(s) to finish...\n",
+			colorGreen, colorReset, colorYellow, activeCount, colorReset)
 	}
 	coordinator.close()
 	<-resultsDone
 
 	if err := scanner.Err(); err != nil {
 		delay := retryDelay()
-		fmt.Fprintf(os.Stderr, "\n⚠️  Error reading dissect output: %v\n", err)
-		fmt.Fprintf(os.Stderr, "   Retrying in %v...\n", delay.Round(time.Second))
+		fmt.Fprintf(os.Stderr, "\n%s⚠️  Error reading dissect output:%s %v\n", colorYellow, colorReset, err)
+		fmt.Fprintf(os.Stderr, "   %sRetrying in %v...%s\n", colorDim, delay.Round(time.Second), colorReset)
 		time.Sleep(delay)
 		return state.stats, fmt.Errorf("error reading dissect output: %w (will retry)", err)
 	}
 
 	if err := cmd.Wait(); err != nil {
 		delay := retryDelay()
-		fmt.Fprintf(os.Stderr, "\n⚠️  Dissect failed: %v (check dissect logs for details)\n", err)
-		fmt.Fprintf(os.Stderr, "   Retrying in %v...\n", delay.Round(time.Second))
+		fmt.Fprintf(os.Stderr, "\n%s⚠️  Dissect failed:%s %v (check dissect logs for details)\n", colorYellow, colorReset, err)
+		fmt.Fprintf(os.Stderr, "   %sRetrying in %v...%s\n", colorDim, delay.Round(time.Second), colorReset)
 		time.Sleep(delay)
 		return state.stats, fmt.Errorf("dissect failed: %w (will retry)", err)
 	}
@@ -1060,8 +1072,15 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	if cfg.knownGood {
 		rateLabel = "Clean"
 	}
-	fmt.Fprintf(os.Stderr, "Scanned %d files in %.1fs (%.0f/s) | %s:%.0f%% | Reviewed:%d Skipped:%d\n",
-		n, elapsed, filesPerSec, rateLabel, detectionRate, reviewed, skipped)
+	rateClr := rateColor(detectionRate)
+	fmt.Fprintf(os.Stderr, "%s✓%s Scanned %s%d%s files in %.1fs (%s%.0f/s%s) | %s%s:%.0f%%%s | Reviewed:%s%d%s Skipped:%s%d%s\n",
+		colorGreen, colorReset,
+		colorBold, n, colorReset,
+		elapsed,
+		colorCyan, filesPerSec, colorReset,
+		rateClr, rateLabel, detectionRate, colorReset,
+		colorYellow, reviewed, colorReset,
+		colorDim, skipped, colorReset)
 	return state.stats, nil
 }
 
@@ -1312,12 +1331,16 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		}
 	}
 
-	reason := "archive has suspicious/hostile findings"
+	reason := "has suspicious/hostile findings"
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
 	activeCount := st.coordinator.activeCount()
-	fmt.Fprintf(os.Stderr, "   [queue] Submitting to review queue (%d active): %s\n", activeCount, reason)
+	fmt.Fprintf(os.Stderr, "   %s[queue]%s %s%s%s: %s %s(%d active)%s\n",
+		colorBlue, colorReset,
+		colorBold, filepath.Base(archive.ArchivePath), colorReset,
+		reason,
+		colorDim, activeCount, colorReset)
 
 	// Submit to coordinator for concurrent review (non-blocking unless buffer full)
 	// Make a copy of the archive since st.currentArchive will be reused
@@ -1387,7 +1410,8 @@ func processRealFile(ctx context.Context, st *streamState) {
 		}
 	}
 	if maxCrit != "" {
-		fmt.Fprintf(os.Stderr, "   Risk: %s, Findings: %d\n", maxCrit, len(agg.Findings))
+		critClr := critColor(maxCrit)
+		fmt.Fprintf(os.Stderr, "   Risk: %s%s%s, Findings: %d\n", critClr, maxCrit, colorReset, len(agg.Findings))
 	}
 
 	reason := "has suspicious/hostile findings"
@@ -1395,7 +1419,11 @@ func processRealFile(ctx context.Context, st *streamState) {
 		reason = "missing detections on known-bad sample"
 	}
 	activeCount := st.coordinator.activeCount()
-	fmt.Fprintf(os.Stderr, "   [queue] Submitting to review queue (%d active): %s\n", activeCount, reason)
+	fmt.Fprintf(os.Stderr, "   %s[queue]%s %s%s%s: %s %s(%d active)%s\n",
+		colorBlue, colorReset,
+		colorBold, filepath.Base(rf.RealPath), colorReset,
+		reason,
+		colorDim, activeCount, colorReset)
 
 	// Submit to coordinator for concurrent review (non-blocking unless buffer full)
 	// Make a copy of the file since st.currentRealFile will be reused
@@ -1531,8 +1559,10 @@ When done, stop.`,
 }
 
 func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput string, attempt, maxAttempts int) error {
-	fmt.Fprintf(os.Stderr, "⚠️  YAML trait issue detected during %s (attempt %d/%d)\n", phase, attempt, maxAttempts)
-	fmt.Fprintf(os.Stderr, "   [repair] Submitting YAML-only fix task to %s\n", strings.Join(cfg.providers, " → "))
+	fmt.Fprintf(os.Stderr, "%s⚠️  YAML trait issue detected during %s%s %s(attempt %d/%d)%s\n",
+		colorYellow, phase, colorReset, colorDim, attempt, maxAttempts, colorReset)
+	fmt.Fprintf(os.Stderr, "   %s[repair]%s Submitting YAML-only fix task to %s%s%s\n",
+		colorMagenta, colorReset, colorCyan, strings.Join(cfg.providers, " → "), colorReset)
 
 	prompt := buildYAMLTraitFixPrompt(cfg, phase, failureOutput)
 	sid := generateSessionID()
@@ -1542,18 +1572,21 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 	for i, p := range cfg.providers {
 		cfg.provider = p
 		if i > 0 {
-			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+			fmt.Fprintf(os.Stderr, "%s>>>%s Trying next provider: %s%s%s\n",
+				colorCyan, colorReset, colorCyan, p, colorReset)
 		}
 
 		// Validate provider is responsive before running main task
 		if err := validateProvider(ctx, cfg); err != nil {
 			lastErr = err
-			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			fmt.Fprintf(os.Stderr, "%s<<<%s %s%s%s validation failed: %v\n",
+				colorRed, colorReset, colorRed, p, colorReset, err)
 			continue
 		}
 
 		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid, "[repair] ")
+		repairPrefix := fmt.Sprintf("%s[repair]%s ", colorMagenta, colorReset)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid, repairPrefix)
 		cancel()
 
 		if err == nil {
@@ -1561,7 +1594,8 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 		}
 
 		lastErr = err
-		fmt.Fprintf(os.Stderr, "[repair] <<< %s failed: %v\n", p, err)
+		fmt.Fprintf(os.Stderr, "%s[repair]%s <<< %s%s%s failed: %v\n",
+			colorMagenta, colorReset, colorRed, p, colorReset, err)
 
 		// Check if context was cancelled (user interrupt)
 		if ctx.Err() != nil {
@@ -2007,7 +2041,8 @@ func validateProvider(ctx context.Context, cfg *config) error {
 	}
 	validatedProvidersMu.Unlock()
 
-	fmt.Fprintf(os.Stderr, ">>> Validating provider %s (60s timeout)...\n", cfg.provider)
+	fmt.Fprintf(os.Stderr, "%s>>>%s Validating provider %s%s%s (60s timeout)...\n",
+		colorCyan, colorReset, colorCyan, cfg.provider, colorReset)
 
 	testCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
@@ -2100,7 +2135,10 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix st
 	if err != nil {
 		return fmt.Errorf("stdout pipe: %w", err)
 	}
-	cmd.Stderr = os.Stderr
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("stderr pipe: %w", err)
+	}
 
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("start %s: %w", cfg.provider, err)
@@ -2122,6 +2160,17 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix st
 		activeMu   sync.Mutex
 	)
 	done := make(chan struct{})
+
+	// Read stderr with prefix (for messages like "YOLO mode is enabled")
+	go func() {
+		sc := bufio.NewScanner(stderrPipe)
+		for sc.Scan() {
+			line := sc.Text()
+			if line != "" {
+				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, line)
+			}
+		}
+	}()
 
 	// Read stdout
 	go func() {
@@ -2191,20 +2240,21 @@ func displayStreamEvent(line, prefix string) {
 	switch ev["type"] {
 	case "thread.started":
 		if id, ok := ev["thread_id"].(string); ok && id != "" {
-			fmt.Fprintf(os.Stderr, "%s[codex] thread %s\n", prefix, id)
+			fmt.Fprintf(os.Stderr, "%s%s[codex]%s thread %s\n", prefix, colorGreen, colorReset, id)
 		}
 	case "turn.started":
-		fmt.Fprintf(os.Stderr, "%s[codex] turn started\n", prefix)
+		fmt.Fprintf(os.Stderr, "%s%s[codex]%s turn started\n", prefix, colorGreen, colorReset)
 	case "turn.completed":
 		if usage, ok := ev["usage"].(map[string]any); ok {
 			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck // type assertion ok
 			out, _ := usage["output_tokens"].(float64) //nolint:errcheck // type assertion ok
 			if in > 0 || out > 0 {
-				fmt.Fprintf(os.Stderr, "%s[codex] tokens: in=%.0f out=%.0f\n", prefix, in, out)
+				fmt.Fprintf(os.Stderr, "%s%s[codex]%s tokens: %sin=%.0f out=%.0f%s\n",
+					prefix, colorGreen, colorReset, colorDim, in, out, colorReset)
 			}
 		}
 	case "turn.failed":
-		fmt.Fprintf(os.Stderr, "%s[codex] turn failed\n", prefix)
+		fmt.Fprintf(os.Stderr, "%s%s[codex]%s %sturn failed%s\n", prefix, colorRed, colorReset, colorRed, colorReset)
 	case "item/agentMessage/delta":
 		if delta, ok := ev["delta"].(string); ok && delta != "" {
 			fmt.Fprint(os.Stderr, delta)
@@ -2247,22 +2297,22 @@ func displayStreamEvent(line, prefix string) {
 			codexDeltaOpen = false
 		case "command_execution":
 			if cmd, ok := item["command"].(string); ok && cmd != "" {
-				fmt.Fprintf(os.Stderr, "%s[tool] command: %s\n", prefix, cmd)
+				fmt.Fprintf(os.Stderr, "%s%s[tool]%s command: %s\n", prefix, colorYellow, colorReset, cmd)
 			}
 		case "file_change":
 			if path, ok := item["path"].(string); ok && path != "" {
-				fmt.Fprintf(os.Stderr, "%s[tool] file change: %s\n", prefix, path)
+				fmt.Fprintf(os.Stderr, "%s%s[tool]%s file change: %s\n", prefix, colorYellow, colorReset, path)
 			}
 		case "web_search":
 			if q, ok := item["query"].(string); ok && q != "" {
-				fmt.Fprintf(os.Stderr, "%s[tool] web search: %s\n", prefix, q)
+				fmt.Fprintf(os.Stderr, "%s%s[tool]%s web search: %s\n", prefix, colorYellow, colorReset, q)
 			}
 		case "plan_update":
-			fmt.Fprintf(os.Stderr, "%s[tool] plan update\n", prefix)
+			fmt.Fprintf(os.Stderr, "%s%s[tool]%s plan update\n", prefix, colorYellow, colorReset)
 		}
 	case "error":
 		if msg, ok := ev["message"].(string); ok && msg != "" {
-			fmt.Fprintf(os.Stderr, "%s[codex] error: %s\n", prefix, msg)
+			fmt.Fprintf(os.Stderr, "%s%s[codex] error:%s %s\n", prefix, colorRed, colorReset, msg)
 		}
 	case "assistant":
 		// Claude format: {"type":"assistant","message":{"content":[{"type":"text","text":"..."}]}}
@@ -2287,7 +2337,7 @@ func displayStreamEvent(line, prefix string) {
 				}
 				input, ok := b["input"].(map[string]any)
 				if !ok {
-					fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
+					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 					continue
 				}
 				var detail string
@@ -2301,9 +2351,9 @@ func displayStreamEvent(line, prefix string) {
 					detail = detail[:80] + "..."
 				}
 				if detail != "" {
-					fmt.Fprintf(os.Stderr, "%s[tool] %s: %s\n", prefix, name, detail)
+					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s: %s\n", prefix, colorYellow, colorReset, name, detail)
 				} else {
-					fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
+					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 				}
 			case "text":
 				if t, ok := b["text"].(string); ok && t != "" {
@@ -2323,23 +2373,23 @@ func displayStreamEvent(line, prefix string) {
 	case "tool_call":
 		// Gemini tool calls
 		if name, ok := ev["name"].(string); ok {
-			fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
+			fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 		}
 
 	case "result":
 		if r, ok := ev["result"].(string); ok && r != "" {
 			fmt.Fprintln(os.Stderr)
-			fmt.Fprintf(os.Stderr, "%s--- Result ---\n", prefix)
+			fmt.Fprintf(os.Stderr, "%s%s--- Result ---%s\n", prefix, colorGreen, colorReset)
 			fmt.Fprintf(os.Stderr, "%s%s\n", prefix, r)
 		}
 		if cost, ok := ev["total_cost_usd"].(float64); ok {
-			fmt.Fprintf(os.Stderr, "%sCost: $%.4f\n", prefix, cost)
+			fmt.Fprintf(os.Stderr, "%s%sCost: $%.4f%s\n", prefix, colorDim, cost, colorReset)
 		}
 
 	default:
 		// Log unknown event types to help debug missing output
 		if evType, ok := ev["type"].(string); ok && evType != "" {
-			fmt.Fprintf(os.Stderr, "%s[debug] unknown event type: %s\n", prefix, evType)
+			fmt.Fprintf(os.Stderr, "%s%s[debug]%s unknown event type: %s\n", prefix, colorDim, colorReset, evType)
 		}
 	}
 }
