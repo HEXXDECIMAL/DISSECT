@@ -2316,11 +2316,17 @@ func displayStreamEvent(line, prefix string) {
 			}
 		}
 
-	case "tool_call":
+	case "tool_call", "tool":
 		// Gemini tool calls
 		if name, ok := ev["name"].(string); ok {
 			fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 		}
+
+	case "tool_result":
+		// Gemini tool results - silently consume (output already shown during execution)
+
+	case "init":
+		// Gemini/Claude initialization event - silently consume
 
 	case "result":
 		if r, ok := ev["result"].(string); ok && r != "" {
