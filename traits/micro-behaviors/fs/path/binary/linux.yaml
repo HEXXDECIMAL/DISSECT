@@ -6,14 +6,6 @@ defaults:
   for: [all]
 
 traits:
-  - id: binary-usr-bin
-    desc: Reference to /usr/bin binaries
-    crit: inert
-    conf: 0.66
-    if:
-      type: string
-      regex: "/usr/bin/[\\w\\-]+"
-
   - id: binary-usr-sbin
     desc: Reference to key /usr/sbin daemon binaries
     crit: notable
@@ -28,9 +20,7 @@ traits:
     conf: 0.66
     if:
       type: string
-      regex: "/usr/local/[\\w\\-/]+"
-    not:
-      - exact: "/usr/local/lib/"
+      regex: "/usr/local/(bin|sbin)/[\\w\\-]+"
 
   - id: binary-bin-su
     desc: Reference to /bin/su

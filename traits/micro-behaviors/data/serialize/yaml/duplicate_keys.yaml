@@ -12,7 +12,7 @@ traits:
       type: raw
       # Matches: node.value.append((item_key, item_value))
       # Standard PyYAML uses: node.value[item_key] = item_value
-      regex: 'node\.value\.append\(\((?:item_key, item_value|key, value)\)\)'
+      regex: 'node\.value\.append\(\((item_key, item_value|key, value)\)\)'
 
   - id: disabled-duplicate-check
     desc: "YAML duplicate key check explicitly disabled"

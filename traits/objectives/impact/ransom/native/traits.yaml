@@ -179,7 +179,7 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: (?:readme(?:_to_|-)[a-zA-Z0-9_]+\.txt|HOW_TO_DECRYPT\.txt|READ_ME_NOW\.txt)
+    regex: (readme(_to_|-)[a-zA-Z0-9_]+\.txt|HOW_TO_DECRYPT\.txt|READ_ME_NOW\.txt)
 composite_rules:
 - id: extension-target-list
   desc: File extension targeting list

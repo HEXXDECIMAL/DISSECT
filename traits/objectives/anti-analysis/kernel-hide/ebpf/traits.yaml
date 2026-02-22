@@ -160,9 +160,7 @@ traits:
     crit: suspicious
     conf: 0.8
     if:
-      type: string
-      word: rootkit
-      case_insensitive: true
+      id: micro-behaviors/data/text/malware::rootkit-word
   - id: bpf-probe-write-user
     desc: bpf_probe_write_user function (memory patching)
     crit: suspicious

@@ -46,7 +46,7 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: sdist.{0,40}argv|(?:os\.name|name)\s*==\s*['\"]nt['\"]
+    regex: sdist.{0,40}argv|(os\.name|name)\s*==\s*['\"]nt['\"]
 - id: conditional-exec-eval
   desc: eval execution primitive
   crit: notable
@@ -77,14 +77,14 @@ traits:
   conf: 0.8
   if:
     type: raw
-    regex: setup\s*\([^\)]{0,120}\).{0,250}(?:from|import)\s+(?:os|sys)
+    regex: setup\s*\([^\)]{0,120}\).{0,250}(from|import)\s+(os|sys)
 - id: post-setup-import-base64-subprocess
   desc: setup() followed by base64/subprocess import context
   crit: suspicious
   conf: 0.8
   if:
     type: raw
-    regex: setup\s*\([^\)]{0,120}\).{0,250}(?:from|import)\s+(?:base64|subprocess)
+    regex: setup\s*\([^\)]{0,120}\).{0,250}(from|import)\s+(base64|subprocess)
 - id: tempfile-write-exec
   desc: Write to tempfile then execute
   crit: suspicious

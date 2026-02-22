@@ -32,23 +32,23 @@ traits:
       substr: 'ype ='
 
   # String.fromCharCode
-  - id: from-char-code-fragment
-    desc: String.fromCharCode fragment (romChar/CharCode/ode\()
+  - id: from-char-code-fragment-romchar
+    desc: String.fromCharCode fragment (romChar)
     if:
       type: raw
-      regex: 'romChar|CharCode|ode\('
+      substr: 'romChar'
+
+  - id: from-char-code-fragment-charcode
+    desc: String.fromCharCode fragment (CharCode)
+    if:
+      type: raw
+      substr: 'CharCode'
 
   - id: msxml-fragment-msxml
     desc: MSXML2.XMLHTTP string fragment (MSXML)
     if:
       type: raw
       word: 'MSXML'
-
-  - id: msxml-fragment-xmlhttp
-    desc: MSXML2.XMLHTTP string fragment (XMLHTTP)
-    if:
-      type: raw
-      word: 'XMLHTTP'
 
   # WScript.Shell fragments
   - id: wscript-shell-fragment-shell
@@ -70,14 +70,14 @@ traits:
       type: raw
       word: 'Stream'
 
-  # ExpandEnvironmentStrings fragments
-  - id: expand-env-fragment-env
-    desc: Environment string fragment
-    if:
-      type: raw
-      word: 'Environment'
-
 composite_rules:
+  - id: from-char-code-fragment
+    desc: String.fromCharCode fragment
+    any:
+      - id: from-char-code-fragment-romchar
+      - id: from-char-code-fragment-charcode
+      - id: micro-behaviors/data/source/syntax/keyword::js-keyword-fromcharcode
+
   - id: save-to-file-fragment
     desc: SaveToFile string fragment
     any:
@@ -89,7 +89,7 @@ composite_rules:
     desc: MSXML string fragment (short)
     any:
       - id: msxml-fragment-msxml
-      - id: msxml-fragment-xmlhttp
+      - id: micro-behaviors/communications/http/client::http-client-any
 
   - id: msxml-fragment
     desc: MSXML2.XMLHTTP string fragment
@@ -113,4 +113,4 @@ composite_rules:
     desc: ExpandEnvironmentStrings string fragment (short)
     any:
       - id: objectives/execution/interpreter/script/wsh::wsh-expand-env-strings # ExpandEnvironmentStrings
-      - id: expand-env-fragment-env
+      - id: micro-behaviors/data/text/keywords::environment-keyword

@@ -2,14 +2,6 @@ defaults:
   for: [all]
 
 traits:
-  - id: go-shell-strings
-    desc: Go shell execution strings
-    crit: notable
-    conf: 0.9
-    if:
-      type: string
-      regex: 'exec\.\(\*Cmd\)\.Run|os/exec\.Command'
-
   - id: bash-shell
     desc: Bash shell reference
     crit: notable
@@ -24,7 +16,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "system\\s*[(\"']"
+      regex: "(^|[^A-Za-z0-9_\\.])system\\s*[(\"']"
 
   # NOTE: system() symbol detection for ruby moved to process/create/shell/lang/ruby.yaml
   # This trait now focuses on generic system() for C/binaries
@@ -38,6 +30,14 @@ traits:
       exact: "system"
 
 composite_rules:
+  - id: go-shell-strings
+    desc: Go shell execution strings
+    crit: notable
+    conf: 0.9
+    any:
+      - id: micro-behaviors/process/create/shell::go-os-exec
+      - id: micro-behaviors/process/create/shell/lang::exec-cmd-run
+
   - id: shell-symbols
     desc: Shell execution symbols
     crit: notable

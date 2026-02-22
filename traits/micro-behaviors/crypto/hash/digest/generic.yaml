@@ -24,7 +24,7 @@ traits:
     for: [macho, elf, pe]
     if:
       type: symbol
-      regex: "(?i)sha256"
+      regex: "(?i)\\bsha256\\b"
 
   - id: sha512
     desc: SHA512 hashing functions

@@ -13,8 +13,8 @@ composite_rules:
     conf: 0.85
     attack: "T1564"
     any:
-      - id: micro-behaviors/process/create/flags::detached-option
-      - id: micro-behaviors/process/create/flags::windowshide-option
+      - id: micro-behaviors/process/create/flags::detached-process
+      - id: micro-behaviors/process/create/spawn::windowshide-option
     downgrade:
       # Legitimate use in background tasks
       any:

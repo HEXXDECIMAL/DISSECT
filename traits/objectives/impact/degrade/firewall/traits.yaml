@@ -82,7 +82,7 @@ traits:
   - pe
   if:
     type: string
-    regex: netsh\s+(?:firewall.{0,80}disable|advfirewall.{0,80}state\s+off)
+    regex: netsh\s+(firewall.{0,80}disable|advfirewall.{0,80}state\s+off)
     case_insensitive: true
 composite_rules:
 - id: disabled

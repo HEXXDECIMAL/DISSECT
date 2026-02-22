@@ -81,7 +81,7 @@ traits:
   - javascript
   if:
     type: raw
-    regex: 'for\s*\(\s*(?:var|let|const)\s+\w+\s*=\s*\+\s*!!\s*false'
+    regex: 'for\s*\(\s*(var|let|const)\s+\w+\s*=\s*\+\s*!!\s*false'
 # GuardDog: Dynamic global access via Buffer
 - id: global-buffer-access
   desc: Dynamic global property access via Buffer
@@ -116,7 +116,7 @@ traits:
   - javascript
   if:
     type: raw
-    regex: '(?:var|let|const)\s+_0x[a-fA-F0-9]{4,}\s*='
+    regex: '(var|let|const)\s+_0x[a-fA-F0-9]{4,}\s*='
 # GuardDog: JSFuck obfuscation
 - id: jsfuck-pattern
   desc: JSFuck obfuscation ([]()!+ only)
@@ -128,7 +128,7 @@ traits:
   - javascript
   if:
     type: raw
-    regex: '(?:^|[^/\*])\s*[\[\]\(\)\+\!]{10,}\s*(?:$|[^/\*])'
+    regex: '(^|[^/\*])\s*[\[\]\(\)\+\!]{10,}\s*($|[^/\*])'
 # GuardDog: Whitespace hiding
 - id: whitespace-hiding
   desc: Very long horizontal whitespace to hide code

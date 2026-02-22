@@ -22,14 +22,14 @@ traits:
     if:
       type: kv
       path: home-page
-      regex: "(?:yolasite|weebly|wixsite)\\.com"
+      regex: "(yolasite|weebly|wixsite)\\.com"
 
   - id: pkginfo-free-hosting-homepage-2
     desc: PKG-INFO homepage (000webhostapp/blogspot)
     if:
       type: kv
       path: home-page
-      regex: "(?:000webhostapp|blogspot)\\.com"
+      regex: "(000webhostapp|blogspot)\\.com"
 
   - id: pkginfo-no-homepage
     desc: PKG-INFO missing Home-page field

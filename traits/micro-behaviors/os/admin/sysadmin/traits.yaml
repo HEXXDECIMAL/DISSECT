@@ -35,21 +35,21 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b(?:htop|atop|iotop|iftop)\b
+    regex: \b(htop|atop|iotop|iftop)\b
 - id: monitoring-b
   desc: System monitoring utilities
   crit: inert
   conf: 0.9
   if:
     type: string
-    regex: \b(?:vmstat|iostat|mpstat|sar)\b
+    regex: \b(vmstat|iostat|mpstat|sar)\b
 - id: monitoring-c
   desc: System monitoring utilities
   crit: inert
   conf: 0.9
   if:
     type: string
-    regex: \b(?:lsmem)\b
+    regex: \b(lsmem)\b
   # NOTE: lscpu moved to os/sysinfo/hardware/linux.yaml
   # NOTE: lsblk moved to fs/disk/paths/linux.yaml
 - id: logs-command
@@ -58,14 +58,14 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b(?:journalctl|dmesg|multitail)\b|\btail\s+-f\s+/var/log
+    regex: \b(journalctl|dmesg|multitail)\b|\btail\s+-f\s+/var/log
 - id: logs-path
   desc: Log file path indicators
   crit: inert
   conf: 0.9
   if:
     type: string
-    regex: /var/log/(?:syslog|auth\.log)
+    regex: /var/log/(syslog|auth\.log)
 composite_rules:
 - id: monitoring
   desc: System monitoring utilities

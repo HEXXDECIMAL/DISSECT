@@ -191,10 +191,20 @@ fn main() -> Result<()> {
 
     // Print banner to stderr (status info never goes to stdout) - only in terminal mode
     if format == cli::OutputFormat::Terminal {
-        eprintln!(
-            "DISSECT v{} • Deep static analysis tool\n",
-            env!("CARGO_PKG_VERSION")
-        );
+        // Try to show rule count if cache is available (fast header peek)
+        let enable_third_party = !disabled.third_party;
+        if let Some(rule_count) = yara_engine::peek_cache_rule_count(enable_third_party) {
+            eprintln!(
+                "DISSECT v{} • {} rules\n",
+                env!("CARGO_PKG_VERSION"),
+                rule_count
+            );
+        } else {
+            eprintln!(
+                "DISSECT v{} • Deep static analysis tool\n",
+                env!("CARGO_PKG_VERSION")
+            );
+        }
     }
 
     // Collect zip passwords (default + custom, unless disabled)

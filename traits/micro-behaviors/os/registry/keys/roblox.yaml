@@ -8,4 +8,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: '(?i)(?:SOFTWARE\\Roblox\\RobloxStudioBrowser\\roblox\.com|\.ROBLOSECURITY)'
+      regex: '(?i)(SOFTWARE\\Roblox\\RobloxStudioBrowser\\roblox\.com|\.ROBLOSECURITY)'

@@ -57,7 +57,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: "(?:socks|proxy)[:/].{0,30}1080"
+      regex: "(socks|proxy)[:/].{0,30}1080"
       case_insensitive: true
 
   - id: socks-port-literal
@@ -66,7 +66,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: ":1080(?:\\b|$)"
+      regex: ":1080(\\b|$)"
       case_insensitive: true
 
   - id: socks-port-keyvalue

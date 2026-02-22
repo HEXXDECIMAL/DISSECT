@@ -13,15 +13,6 @@ traits:
       type: string
       regex: "api\\.github\\.com.{0,50}/git/blobs"
 
-  # === Python execution/chmod atomic indicators ===
-  - id: python-os-chmod
-    desc: "Python os.chmod call"
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: "os.chmod("
-
 composite_rules:
   # Python execution/chmod composite
   - id: python-exec-chmod
@@ -29,7 +20,7 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: python-os-chmod
+      - id: micro-behaviors/fs/chmod/commands::python-os-chmod
       - id: micro-behaviors/process/create/subprocess/
 
   - id: execute

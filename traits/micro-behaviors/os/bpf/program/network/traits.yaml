@@ -94,7 +94,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: XDP_FLAGS_(?:UPDATE_IF_NOEXIST|SKB_MODE|DRV_MODE|HW_MODE)
+      regex: XDP_FLAGS_(UPDATE_IF_NOEXIST|SKB_MODE|DRV_MODE|HW_MODE)
   - id: bpf-skeleton-include
     desc: BPF skeleton header include
     crit: notable
@@ -132,7 +132,7 @@ traits:
       - c
     if:
       type: raw
-      regex: swap.{0,30}(?:saddr|daddr)|(?:saddr|daddr).{0,30}swap
+      regex: swap.{0,30}(saddr|daddr)|(saddr|daddr).{0,30}swap
   - id: knock-string-port-knock
     desc: knock string reference
     crit: notable
@@ -152,7 +152,7 @@ traits:
       - c
     if:
       type: string
-      regex: (?i)knock[_-]?(?:sequence|packet|daemon|port)
+      regex: (?i)knock[_-]?(sequence|packet)
 composite_rules:
   - id: knock-string
     desc: knock string reference

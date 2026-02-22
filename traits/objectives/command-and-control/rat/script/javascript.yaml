@@ -16,7 +16,7 @@ traits:
     attack: "T1027.009"
     if:
       type: string
-      regex: 'npm\s+.{0,50}install.{0,50}(?:axios|socket\.io[-\w]*)'
+      regex: 'npm\s+.{0,50}install.{0,50}(axios|socket\.io[-\w]*)'
 
   - id: npm-prefix-install
     desc: npm install with --prefix flag

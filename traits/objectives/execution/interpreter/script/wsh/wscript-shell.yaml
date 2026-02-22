@@ -1,12 +1,3 @@
-traits:
-  - id: wscript-shell-generic
-    desc: WScript.Shell generic marker
-    crit: notable
-    conf: 0.1
-    for: [all]
-    if:
-      id: micro-behaviors/process/create/shell/lang::wscript-shell
-
 composite_rules:
   - id: wscript-shell
     desc: Creates a WScript.Shell object
@@ -15,4 +6,4 @@ composite_rules:
     for: [javascript]
     any:
       - id: micro-behaviors/os/com/object::wscript-shell-literal
-      - id: wscript-shell-generic
+      - id: micro-behaviors/process/create/shell/lang::wscript-shell

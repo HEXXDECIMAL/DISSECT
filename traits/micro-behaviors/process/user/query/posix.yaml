@@ -44,5 +44,4 @@ traits:
     conf: 0.5
     if:
       type: string
-      # Match id as a command invocation
-      regex: '(?:^|[\s;|])id(?:$|[\s;|])'
+      word: "id"

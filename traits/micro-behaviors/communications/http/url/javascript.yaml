@@ -6,5 +6,5 @@ traits:
     for: [javascript, typescript]
     if:
       type: ast
-      regex: "\\.(?:set|append)$"
+      regex: "\\.(set|append)$"
       query: '$.arguments[?(@.value == "tag" || @.value == "affiliate" || @.value == "ref")]'

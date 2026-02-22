@@ -10,7 +10,7 @@ traits:
     for: [c, elf]
     if:
       type: symbol
-      regex: "bpf_(?:core_read_user|probe_read_user)"
+      regex: "bpf_(core_read_user|probe_read_user)"
 
   # === Uprobe Attachment ===
   - id: uprobe-attach
@@ -20,7 +20,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      regex: "(?:attach_uprobe|uprobe_opts|bpf_program__attach_uprobe)"
+      regex: "(attach_uprobe|uprobe_opts|bpf_program__attach_uprobe)"
 
   # eBPF SEC macro uprobe section declaration
   - id: uprobe-sec

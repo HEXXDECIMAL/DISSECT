@@ -53,38 +53,25 @@ traits:
   if:
     type: raw
     regex: cp\s+(-[a-z]*f|-f\s)
-- id: exec-bin-absolute-start
-  desc: Execute binary from /bin (start of line)
+- id: exec-system-bin-start
+  desc: Execute binary from /bin or /sbin
   crit: notable
   conf: 0.7
   attack: T1059.004
   if:
     type: raw
-    regex: ^\s*/bin/[a-z0-9_-]+(?:[\s>$&;]|$)
-- id: exec-bin-absolute-chain
-  desc: Execute binary from /bin (chained)
+    regex: ^\s*/s?bin/[a-z0-9_-]{3,}([\s>$&;]|$)
+  unless:
+  - id: micro-behaviors/process/create/shell::bin-sh-source
+  - id: micro-behaviors/process/create/shell::bin-sh-interactive
+- id: exec-system-bin-chain
+  desc: Execute binary from /bin or /sbin (chained)
   crit: notable
   conf: 0.7
   attack: T1059.004
   if:
     type: raw
-    regex: (?:&&|\|\||;)\s*/bin/[a-z0-9_-]+(?:[\s>$&;]|$)
-- id: exec-sbin-absolute-start
-  desc: Execute binary from /sbin (start of line)
-  crit: notable
-  conf: 0.7
-  attack: T1059.004
-  if:
-    type: raw
-    regex: ^\s*/sbin/[a-z0-9_-]+(?:[\s>$&;]|$)
-- id: exec-sbin-absolute-chain
-  desc: Execute binary from /sbin (chained)
-  crit: notable
-  conf: 0.7
-  attack: T1059.004
-  if:
-    type: raw
-    regex: (?:&&|\|\||;)\s*/sbin/[a-z0-9_-]+(?:[\s>$&;]|$)
+    regex: (&&|\|\||;)\s*/s?bin/[a-z0-9_-]{3,}([\s>$&;]|$)
 - id: rm-bin-path
   desc: Delete file in /bin directory
   crit: suspicious
@@ -93,7 +80,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: rm\s+(?:-[a-z]{1,8}\s+){0,3}(?:--\s+)?/bin/[a-zA-Z0-9_.-]{1,80}
+    regex: rm\s+(-[a-z]{1,8}\s+){0,3}(--\s+)?/bin/[a-zA-Z0-9_.-]{1,80}
 - id: rm-sbin-path
   desc: Delete file in /sbin directory
   crit: suspicious
@@ -102,7 +89,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: rm\s+(?:-[a-z]{1,8}\s+){0,3}(?:--\s+)?/sbin/[a-zA-Z0-9_.-]{1,80}
+    regex: rm\s+(-[a-z]{1,8}\s+){0,3}(--\s+)?/sbin/[a-zA-Z0-9_.-]{1,80}
 - id: cp-and-rm-chain
   desc: Copy then remove chain
   crit: notable
@@ -120,7 +107,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: '&&\s*rm\s+(?:-[a-z]{1,8}\s+){0,3}/(?:usr/(?:local/)?s?bin|s?bin)/'
+    regex: '&&\s*rm\s+(-[a-z]{1,8}\s+){0,3}/(usr/(local/)?s?bin|s?bin)/'
 - id: exec-and-rm-chain
   desc: Execute then remove chain
   crit: notable
@@ -129,7 +116,7 @@ traits:
   attack: T1070.004
   if:
     type: raw
-    regex: /(?:usr/(?:local/)?s?bin|s?bin)/[a-zA-Z0-9_.-]{1,80}.{0,200}&&.{0,200}rm\s+
+    regex: /(usr/(local/)?s?bin|s?bin)/[a-zA-Z0-9_.-]{1,80}.{0,200}&&.{0,200}rm\s+
 composite_rules:
 - id: cp-to-usr-bin
   desc: Copy file to /usr/bin directory
@@ -140,22 +127,14 @@ composite_rules:
   any:
   - id: cp-to-usr-bin-1
   - id: cp-to-usr-bin-2
-- id: exec-bin-absolute
-  desc: Execute binary from /bin
+- id: exec-system-bin
+  desc: Execute binary from /bin or /sbin
   crit: notable
   conf: 0.7
   attack: T1059.004
   any:
-  - id: exec-bin-absolute-start
-  - id: exec-bin-absolute-chain
-- id: exec-sbin-absolute
-  desc: Execute binary from /sbin
-  crit: notable
-  conf: 0.7
-  attack: T1059.004
-  any:
-  - id: exec-sbin-absolute-start
-  - id: exec-sbin-absolute-chain
+  - id: exec-system-bin-start
+  - id: exec-system-bin-chain
 - id: copy-to-system-bin
   desc: Copy file to system bin directory
   crit: suspicious

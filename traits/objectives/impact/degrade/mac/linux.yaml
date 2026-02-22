@@ -43,7 +43,7 @@ traits:
     conf: 0.90
     if:
       type: raw
-      regex: "service\\s+apparmor\\s+stop|systemctl\\s+(?:stop|disable)\\s+apparmor"
+      regex: "service\\s+apparmor\\s+stop|systemctl\\s+(stop|disable)\\s+apparmor"
 
 composite_rules:
   # SELinux disabled via any method

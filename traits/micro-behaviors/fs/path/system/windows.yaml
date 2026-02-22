@@ -60,7 +60,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: '[A-Za-z]:\\Windows(?:\\System32)?|\\Windows\\System32|/Windows/System32'
+      regex: '[A-Za-z]:\\Windows(\\System32)?|\\Windows\\System32|/Windows/System32'
 
   - id: windows-system32
     desc: C:\\Windows\\System32\\ directory path

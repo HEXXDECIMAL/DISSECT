@@ -15,8 +15,8 @@ traits:
     desc: os.homedir() user home directory
     conf: 0.80
     if:
-      type: symbol
-      regex: 'os\.homedir\('
+      type: string
+      substr: 'os.homedir()'
 
   # GuardDog: os.hostname() - system hostname
   - id: js-os-hostname

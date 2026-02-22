@@ -8,7 +8,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: (?:ssh[_-]?)?password[_-]?(?:auth(?:entication)?|method)
+      regex: (ssh[_-]?)?password[_-]?(auth(entication)?|method)
   - id: too-many-auth-failures
     desc: Too many authentication failures error
     crit: notable
@@ -148,7 +148,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: (?:localhost|127\.0\.0\.1|0\.0\.0\.0|\d{1,3}(?:\.\d{1,3}){3}):22\b
+      regex: (localhost|127\.0\.0\.1|0\.0\.0\.0|\d{1,3}(\.\d{1,3}){3}):22\b
   - id: ssh-port-setting-22
     desc: SSH port setting 22
     crit: notable

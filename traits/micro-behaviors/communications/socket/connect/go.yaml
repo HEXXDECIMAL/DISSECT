@@ -31,3 +31,11 @@ traits:
     if:
       type: symbol
       exact: "net.DialTCP"
+
+composite_rules:
+  - id: go-dial-methods
+    desc: Go network dial methods
+    any:
+      - id: dial
+      - id: dialer-dial
+      - id: dial-tcp

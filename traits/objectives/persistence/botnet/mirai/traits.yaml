@@ -10,17 +10,6 @@ traits:
     type: string
     regex: /usr/lib/systemd/systemd
   attack: T1547
-- id: mirai-backdoor-daemons
-  desc: Backdoor daemon launch commands
-  crit: suspicious
-  conf: 0.85
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    regex: (busybox\s+telnetd|dropbear\s+-p\s*[0-9]{2,5}|/usr/sbin/(sshd|httpd))
-  attack: T1021.004
 - id: mirai-process-monitoring
   desc: Process monitoring
   crit: suspicious
@@ -32,29 +21,34 @@ traits:
     type: string
     substr: /dev/watchdog
   attack: T1547
-- id: mirai-malware-competition
-  desc: Competing malware elimination
+composite_rules:
+- id: mirai-backdoor-daemons
+  desc: Backdoor daemon/service references
   crit: suspicious
-  conf: 0.9
+  conf: 0.85
   for:
   - elf
   - shell
-  if:
-    type: string
-    regex: (SHINJI|/Killer)
-  attack: T1531
+  attack: T1021.004
+  any:
+  - id: micro-behaviors/os/admin/daemon::telnetd
+  - id: micro-behaviors/os/admin/daemon::httpd
+  - id: micro-behaviors/os/service/remote::sshd-path
+  - id: micro-behaviors/os/service/remote::dropbear-ref
 - id: mirai-enable-services
-  desc: Enable services on startup
+  desc: Enable Mirai-related services on startup
   crit: suspicious
   conf: 0.8
   for:
   - elf
   - shell
-  if:
-    type: string
-    regex: (systemctl\s+enable|chkconfig\s+.{0,80}on|update-rc\.d\s+.{0,80}enable)
   attack: T1547
-composite_rules:
+  all:
+  - id: mirai-backdoor-daemons
+  any:
+  - id: objectives/persistence/systemd/service::systemctl-enable
+  - id: objectives/persistence/autostart/systemd::chkconfig-cmd
+  - id: objectives/persistence/autostart/systemd::update-rc-d-cmd
 - id: mirai-persistence-layer-2
   desc: Mirai service persistence
   crit: suspicious
@@ -76,7 +70,7 @@ composite_rules:
   attack: T1547
   all:
   - id: mirai-process-monitoring
-  - id: mirai-malware-competition
+  - id: objectives/impact/destroy/malware-competition::malware-killer-pattern
 - id: mirai-complete-persistence-chain
   desc: Mirai complete persistence
   crit: hostile

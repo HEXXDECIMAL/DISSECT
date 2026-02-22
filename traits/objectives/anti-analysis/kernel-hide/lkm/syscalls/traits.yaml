@@ -24,7 +24,7 @@ traits:
     if:
       type: ast
       node: type_definition
-      regex: "t_syscall|sys_?call_(?:fn|ptr)"
+      regex: "t_syscall|sys_?call_(fn|ptr)"
 
   - id: orig-syscall-pattern
     desc: Original syscall saving pattern (hooking

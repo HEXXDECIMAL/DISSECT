@@ -30,7 +30,7 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "from\\s+distutils"
+      substr: "import distutils"
 
   # setup() function call
   - id: setup-call

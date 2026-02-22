@@ -284,7 +284,7 @@ traits:
     mbc: "E1059.006"
     if:
       type: symbol
-      regex: '(?:distutils\.spawn\.spawn|spawn)\('
+      regex: '(distutils\.spawn\.spawn|spawn)\('
 
 composite_rules:
   # All subprocess methods (string-based, AST-based, and content-based)

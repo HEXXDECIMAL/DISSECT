@@ -24,7 +24,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*".{0,120}grab(?:ber)?.{0,120}"'
+      regex: '"name":\s*".{0,120}grab(ber)?.{0,120}"'
       case_insensitive: true
 
   - id: name-steal-keyword
@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '"name":\s*".{0,120}steal(?:er)?.{0,120}"'
+      regex: '"name":\s*".{0,120}steal(er)?.{0,120}"'
       case_insensitive: true
 
   - id: name-hack-keyword
@@ -42,7 +42,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*".{0,120}hack(?:er|ing)?.{0,120}"'
+      regex: '"name":\s*".{0,120}hack(er|ing)?.{0,120}"'
       case_insensitive: true
 
   - id: name-crack-keyword
@@ -51,7 +51,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: '"name":\s*".{0,120}crack(?:er)?.{0,120}"'
+      regex: '"name":\s*".{0,120}crack(er)?.{0,120}"'
       case_insensitive: true
 
   - id: name-token-keyword
@@ -152,7 +152,7 @@ traits:
     conf: 0.5
     if:
       type: raw
-      regex: '"name":\s*".{0,120}pass(?:word)?.{0,120}"'
+      regex: '"name":\s*".{0,120}pass(word)?.{0,120}"'
       case_insensitive: true
 
   # === Package name prefixes legitimate tool names (typosquatting) ===

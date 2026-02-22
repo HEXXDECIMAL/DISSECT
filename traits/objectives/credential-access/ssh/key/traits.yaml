@@ -29,7 +29,7 @@ traits:
   attack: T1552.004
   if:
     type: string
-    regex: (?:\.ssh[/\\]|[/\\])id_rsa(?:\.pub)?$|^id_rsa$
+    regex: (\.ssh[/\\]|[/\\])id_rsa(\.pub)?$|^id_rsa$
 - id: id-dsa
   desc: SSH id_dsa private key reference
   crit: notable
@@ -37,7 +37,7 @@ traits:
   attack: T1552.004
   if:
     type: string
-    regex: (?:\.ssh[/\\]|[/\\])id_dsa(?:\.pub)?$|^id_dsa$
+    regex: (\.ssh[/\\]|[/\\])id_dsa(\.pub)?$|^id_dsa$
 - id: id-ecdsa
   desc: SSH id_ecdsa private key reference
   crit: notable
@@ -45,7 +45,7 @@ traits:
   attack: T1552.004
   if:
     type: string
-    regex: (?:\.ssh[/\\]|[/\\])id_ecdsa(?:\.pub)?$|^id_ecdsa$
+    regex: (\.ssh[/\\]|[/\\])id_ecdsa(\.pub)?$|^id_ecdsa$
 - id: id-ed25519
   desc: SSH id_ed25519 private key reference
   crit: notable
@@ -53,7 +53,7 @@ traits:
   attack: T1552.004
   if:
     type: string
-    regex: (?:\.ssh[/\\]|[/\\])id_ed25519(?:\.pub)?$|^id_ed25519$
+    regex: (\.ssh[/\\]|[/\\])id_ed25519(\.pub)?$|^id_ed25519$
 - id: authorized-keys
   desc: SSH authorized_keys file reference
   crit: notable
@@ -359,21 +359,21 @@ traits:
   conf: 0.3
   if:
     type: string
-    regex: passw(?:or)?d[_-]?(?:hash|auth|cred)
+    regex: passw(or)?d[_-]?(hash|auth|cred)
 - id: password-pattern-1b
   desc: Password pattern reference (prefix 2)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: passw(?:or)?d[_-]?(?:steal|dump)
+    regex: passw(or)?d[_-]?(steal|dump)
 - id: password-pattern-2
   desc: Password pattern reference (suffix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:steal|dump)[_-]?passw(?:or)?d
+    regex: (steal|dump)[_-]?passw(or)?d
 composite_rules:
 - id: password-pattern
   desc: Password pattern reference

@@ -13,7 +13,7 @@ traits:
   - c
   if:
     type: raw
-    regex: sn?printf.{0,80}%s.{0,80}(?:system|popen|execv)
+    regex: sn?printf.{0,80}%s.{0,80}(system|popen|execv)
 - id: format-string-injection-shell
   desc: Format string with user input shell path
   crit: suspicious
@@ -28,7 +28,7 @@ traits:
   - c
   if:
     type: raw
-    regex: sn?printf.{0,80}%s.{0,80}(?:/bin/sh|cmd\.exe)
+    regex: sn?printf.{0,80}%s.{0,80}(/bin/sh|cmd\.exe)
 composite_rules:
 - id: format-string-injection-any
   desc: Format string with user input

@@ -6,7 +6,7 @@ traits:
     for: [elf, pe, macho, scripts] # Applicable to various file types
     if:
       type: string
-      regex: '\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}\b'
+      regex: '\b([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}\b'
     unless:
       - type: raw
         regex: "require\\(['\"]\\.\\./common['\"]\\)"
@@ -20,7 +20,7 @@ traits:
     for: [elf, pe, macho]
     if:
       type: string
-      regex: '\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}\b'
+      regex: '\b([0-9]{1,3}\.){3}[0-9]{1,3}:[0-9]{1,5}\b'
       count_min: 3
     unless:
       - type: raw

@@ -6,4 +6,4 @@ traits:
     for: [java]
     if:
       type: raw
-      regex: 'setPriority\s*\(\s*(?:Thread\.)?MAX_PRIORITY\s*\)'
+      regex: 'setPriority\s*\(\s*(Thread\.)?MAX_PRIORITY\s*\)'

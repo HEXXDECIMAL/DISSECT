@@ -18,7 +18,7 @@ traits:
       - elf
     if:
       type: string
-      regex: (?:[\x00-\x1f]password[\x00-\x1f]?)
+      regex: ([\x00-\x1f]password[\x00-\x1f]?)
   - id: admin123
     desc: "Default credential: admin123"
     crit: suspicious
@@ -48,7 +48,7 @@ traits:
       - elf
     if:
       type: string
-      regex: (?:[\x00-\x1f]guest[\x00-\x1f]?)
+      regex: ([\x00-\x1f]guest[\x00-\x1f]?)
   - id: iot-pte521
     desc: "Default IoT credential: Pte521"
     crit: suspicious
@@ -87,7 +87,7 @@ traits:
       - elf
     if:
       type: string
-      regex: '[\x00-\x1f](?:admin|root|password|default)[\x00-\x1f]?'
+      regex: '[\x00-\x1f](admin|root|password|default)[\x00-\x1f]?'
       count_min: 8
   - id: credential-wordlist-2
     desc: Dense credential wordlist (guest/user/1234/qwerty)
@@ -97,7 +97,7 @@ traits:
       - elf
     if:
       type: string
-      regex: '[\x00-\x1f](?:guest|user|1234|qwerty)[\x00-\x1f]?'
+      regex: '[\x00-\x1f](guest|user|1234|qwerty)[\x00-\x1f]?'
       count_min: 8
 composite_rules:
   - id: credential-wordlist

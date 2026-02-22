@@ -22,7 +22,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?i)(?:(?:a |my )?very basic \w+|\w+pyapp\b)
+      regex: (?i)((a |my )?very basic \w+|\w+pyapp\b)
 
   - id: pkginfo-single-word-summary
     desc: PKG-INFO with single-word summary
@@ -40,7 +40,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:secur|protect)
+      regex: (secur|protect)
       case_insensitive: true
 
   - id: pkginfo-security-claim-2
@@ -50,7 +50,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:antivirus|anti-virus|malware.scanner)
+      regex: (antivirus|anti-virus|malware.scanner)
       case_insensitive: true
 
   - id: summary-requests-admin-1
@@ -60,7 +60,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:admin|root|sudo|elevat)
+      regex: (admin|root|sudo|elevat)
       case_insensitive: true
 
   - id: summary-requests-admin-2
@@ -70,7 +70,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:install|permiss)
+      regex: (install|permiss)
       case_insensitive: true
 
   - id: summary-misspelled-privilege-request-1
@@ -80,7 +80,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:evoid|administative|permisions|adminstrat)
+      regex: (evoid|administative|permisions|adminstrat)
       case_insensitive: true
 
   - id: summary-misspelled-privilege-request-2
@@ -90,7 +90,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: (?:privileg|instaling|elavat)
+      regex: (privileg|instaling|elavat)
       case_insensitive: true
 
   - id: pkginfo-non-latin-summary
@@ -118,7 +118,7 @@ traits:
     desc: Placeholder summary (test)
     crit: notable
     conf: 0.75
-    if: { type: kv, path: summary, regex: '^\s*(?:test|example)\s*$', case_insensitive: true }
+    if: { type: kv, path: summary, regex: '^\s*(test|example)\s*$', case_insensitive: true }
 
   - id: pkginfo-placeholder-summary-placeholder
     desc: Placeholder summary (placeholder)
@@ -130,7 +130,7 @@ traits:
     desc: Placeholder summary (todo)
     crit: notable
     conf: 0.75
-    if: { type: kv, path: summary, regex: '^\s*(?:todo|fixme)\s*$', case_insensitive: true }
+    if: { type: kv, path: summary, regex: '^\s*(todo|fixme)\s*$', case_insensitive: true }
 
   - id: pkginfo-placeholder-summary-2
     desc: Placeholder summary (description/empty/dummy)
@@ -139,7 +139,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: ^\s*(?:description|empty|dummy)\s*$
+      regex: ^\s*(description|empty|dummy)\s*$
       case_insensitive: true
 
 composite_rules:

@@ -18,5 +18,5 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: \b(?:DispatchEx?|EnsureDispatch|CoCreateInstance)\b
+    regex: \b(DispatchEx?|EnsureDispatch|CoCreateInstance)\b
 composite_rules: []

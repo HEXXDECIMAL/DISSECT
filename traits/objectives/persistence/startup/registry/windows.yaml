@@ -75,15 +75,6 @@ traits:
       substr: "CurrentVersion\\Run"
 
   # === RunOnce atomic indicators ===
-  - id: currentversion-runonce
-    desc: CurrentVersion RunOnce path
-    crit: notable
-    conf: 0.7
-    platforms: [windows]
-    if:
-      type: string
-      substr: "CurrentVersion\\RunOnce"
-
   - id: runonce-word
     desc: RunOnce keyword
     crit: notable
@@ -371,7 +362,7 @@ composite_rules:
     crit: suspicious
     platforms: [windows]
     any:
-      - id: currentversion-runonce
+      - id: micro-behaviors/os/registry/persistence::run-once-key
       - id: runonce-word
 
   # Python winreg import composite

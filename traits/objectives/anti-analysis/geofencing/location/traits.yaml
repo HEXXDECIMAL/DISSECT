@@ -136,7 +136,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: 'getTimezoneOffset\(\).{0,20}(?:180|240|300|360)'
+      regex: 'getTimezoneOffset\(\).{0,20}(180|240|300|360)'
 
   # === Locale environment variable access (scripting) ===
   - id: env-lang-check
@@ -146,7 +146,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      regex: "(?:process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LANG['\"]?"
+      regex: "(process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LANG['\"]?"
 
   - id: env-lc-all-check
     desc: LC_ALL environment variable access
@@ -155,7 +155,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      regex: "(?:process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LC_ALL['\"]?"
+      regex: "(process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LC_ALL['\"]?"
 
   - id: env-lc-messages-check
     desc: LC_MESSAGES environment variable access
@@ -164,7 +164,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      regex: "(?:process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LC_MESSAGES['\"]?"
+      regex: "(process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LC_MESSAGES['\"]?"
 
   - id: env-language-check
     desc: LANGUAGE environment variable access
@@ -173,7 +173,7 @@ traits:
     for: [javascript, typescript, python, shell, ruby, php]
     if:
       type: string
-      regex: "(?:process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LANGUAGE['\"]?"
+      regex: "(process\\.env\\.|os\\.environ|ENV\\[|getenv\\()['\"]?LANGUAGE['\"]?"
 
   # === Function naming patterns ===
   - id: func-name-russian-check
@@ -183,7 +183,7 @@ traits:
     for: [javascript, typescript, python, ruby, php]
     if:
       type: string
-      regex: "(?:is|check|detect).{0,30}[Rr]ussian"
+      regex: "(is|check|detect).{0,30}[Rr]ussian"
 
   - id: func-name-russian-specific
     desc: Specific Russian geofencing function names
@@ -192,7 +192,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '\bisRussian(?:Offset|Language|System|Timezone)\b'
+      regex: '\bisRussian(Offset|Language|System|Timezone)\b'
 
   - id: func-name-cis-check
     desc: Function checking for CIS region
@@ -201,7 +201,7 @@ traits:
     for: [javascript, typescript, python, ruby, php]
     if:
       type: string
-      regex: "(?:is|check|detect).{0,30}(?:CIS|Cis)"
+      regex: "(is|check|detect).{0,30}(CIS|Cis)"
 
   # === Russian keyboard layout detection ===
   - id: keyboard-layout-russian
@@ -211,7 +211,7 @@ traits:
     for: [javascript, typescript, python, csharp]
     if:
       type: string
-      regex: "(?:keyboard|layout).{0,30}(?:russian|0419|ru-RU)"
+      regex: "(keyboard|layout).{0,30}(russian|0419|ru-RU)"
       case_insensitive: true
 
 composite_rules:

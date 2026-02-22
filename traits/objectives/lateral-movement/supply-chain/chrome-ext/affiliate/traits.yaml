@@ -10,7 +10,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: "/(?:dp|gp/product)/"
+      regex: "/(dp|gp/product)/"
 
   - id: url-searchparams-api
     desc: URL searchParams API usage
@@ -28,7 +28,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: "params\\.(?:set|append)"
+      regex: "params\\.(set|append)"
 
   - id: href-assignment
     desc: Link href modification
@@ -46,7 +46,7 @@ traits:
     for: [javascript]
     if:
       type: raw
-      regex: "[A-Z_]*(?:AFFILIATE|REFERRAL)[A-Z_]*TAG"
+      regex: "[A-Z_]*(AFFILIATE|REFERRAL)[A-Z_]*TAG"
 
   - id: tag-param-literal
     desc: Tag parameter string literal

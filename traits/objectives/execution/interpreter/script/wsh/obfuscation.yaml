@@ -13,7 +13,7 @@ traits:
     if:
       type: raw
       # Matches .Shel\x6c or .Shell via concatenation
-      regex: '\.Shel(\x6c|["'']\+["'']l)'
+      regex: '\.Shel(\\x6c|["'']\+["'']l)'
 
   - id: wscript-quit-obfuscated
     desc: Obfuscated WScript.Quit call

@@ -42,8 +42,7 @@ traits:
     conf: 0.85
     for: [elf, shell]
     if:
-      type: string
-      word: "dropbear"
+      id: micro-behaviors/os/service/remote::dropbear-ref
     attack: "T1021.004"
 
   # === Shell Access ===

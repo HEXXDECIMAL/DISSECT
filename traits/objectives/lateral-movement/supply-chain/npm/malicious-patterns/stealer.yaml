@@ -41,7 +41,7 @@ traits:
   mbc: B0024
   if:
     type: string
-    regex: process\.argv\.(?:includes|indexOf)\(['"]--postinstall['"]\)
+    regex: process\.argv\.(includes|indexOf)\(['"]--postinstall['"]\)
 - id: postinstall-flag-string
   desc: --postinstall flag string
   crit: notable

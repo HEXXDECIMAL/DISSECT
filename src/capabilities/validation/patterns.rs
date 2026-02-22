@@ -263,6 +263,43 @@ pub(crate) fn find_short_pattern_warnings(
     warnings
 }
 
+/// Detect regex patterns that use non-capturing groups `(?:...)`.
+///
+/// Non-capturing groups are unnecessary in DISSECT because we preserve the entire
+/// matched line for evidence, not individual capture groups. Using `(?:` adds
+/// syntactic noise without benefit and may indicate copy-pasted patterns that
+/// weren't adapted for this codebase.
+pub(crate) fn find_non_capturing_groups(traits: &[TraitDefinition], warnings: &mut Vec<String>) {
+    for trait_def in traits {
+        let pattern_opt = match &trait_def.r#if.condition {
+            Condition::Raw {
+                regex: Some(ref regex_str),
+                ..
+            } => Some(regex_str.as_str()),
+            _ => None,
+        };
+
+        if let Some(pattern) = pattern_opt {
+            if pattern.contains("(?:") {
+                let source_file = trait_def.defined_in.to_str().unwrap_or("unknown").to_string();
+                let line_hint = find_line_number(&source_file, &trait_def.id);
+                let location = if let Some(line) = line_hint {
+                    format!("{}:{}", source_file, line)
+                } else {
+                    source_file
+                };
+
+                warnings.push(format!(
+                    "Unnecessary non-capturing group: trait '{}' in {} uses '(?:' — \
+                     DISSECT preserves entire matched lines, not capture groups. \
+                     Replace (?:...) with plain (...) or remove grouping if only used for alternation.",
+                    trait_def.id, location
+                ));
+            }
+        }
+    }
+}
+
 /// Detect regex patterns that may cause catastrophic backtracking.
 ///
 /// Patterns with nested quantifiers or alternations with overlapping prefixes

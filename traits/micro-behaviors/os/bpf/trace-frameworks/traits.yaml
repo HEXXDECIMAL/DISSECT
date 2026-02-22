@@ -18,7 +18,7 @@ traits:
     if:
       type: string
       # Require "bcc" as a word boundary to avoid matching partial strings
-      regex: "\\bbcc(?:_|/|\\s|$)"
+      regex: "\\bbcc(_|/|\\s|$)"
 
   - id: libbpf
     desc: libbpf library

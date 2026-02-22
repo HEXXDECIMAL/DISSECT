@@ -7,5 +7,5 @@ traits:
   - javascript
   if:
     type: string
-    regex: (?:WScript|this)\[.{0,80}\]\(.{0,80}\)
+    regex: (WScript|this)\[.{0,80}\]\(.{0,80}\)
 composite_rules: []

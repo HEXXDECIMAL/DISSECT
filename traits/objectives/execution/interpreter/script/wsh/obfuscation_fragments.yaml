@@ -17,10 +17,7 @@ traits:
     desc: WScript.Shell string fragment (Shell/Shel)
     if:
       type: raw
-      regex: 't\.Shell|t\.She|\.Shel|pt\.She'
-    not:
-      - "WScript.Shell"
-      - "Interaction.Shell"
+      regex: 't\.She["'']\s*\+|pt\.She["'']\s*\+|\.Shel["'']\s*\+'
 
   - id: adodb-fragment-1
     desc: ADODB.Stream string fragment (ADODB/ADO)
@@ -90,7 +87,7 @@ traits:
     desc: WScript.ScriptFullName fragment
     if:
       type: raw
-      regex: 'riptFull|tFullN|ptFul{1,2}|lName'
+      regex: 'ript["'']\s*\+\s*["'']Full|Full["'']\s*\+\s*["'']Name|ScriptFull["'']\s*\+\s*["'']Name'
 
 composite_rules:
   - id: wscript-shell-fragment

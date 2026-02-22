@@ -57,7 +57,7 @@ traits:
     for: [javascript]
     if:
         type: raw
-        regex: '\b\w+\s*=\s*this(?:[^\.]|$)'
+        regex: '\b\w+\s*=\s*this([^\.]|$)'
 
   - id: js-assign-common-root-1
     desc: Global object assignment (root/self/global)

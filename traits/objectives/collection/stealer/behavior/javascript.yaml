@@ -64,7 +64,7 @@ composite_rules:
       - id: objectives/anti-static/obfuscation/packing::packed-string-decryptor
     any:
       - id: objectives/credential-access/discord/token::appdata-ref
-      - id: objectives/collection/messaging/app::discord-ldb-ext
+      - id: objectives/credential-access/discord/token::ldb-extension
       - id: objectives/impact/ransomware/behavior::writefile-fn
 
   - id: npm-system-stealer-hostile

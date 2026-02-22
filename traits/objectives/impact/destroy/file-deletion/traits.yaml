@@ -16,6 +16,7 @@ traits:
     type: string
     regex: (killing|playing).{0,50}delete.{0,50}files
     case_insensitive: true
+
 - id: deleteFile-function
   desc: deleteFile function call
   crit: suspicious
@@ -32,6 +33,7 @@ traits:
   if:
     type: symbol
     regex: deleteFile
+
 - id: deleteSelf-function
   desc: deleteSelf function call
   crit: suspicious
@@ -48,8 +50,9 @@ traits:
   if:
     type: symbol
     regex: deleteSelf
-- id: explicit-file-deletion-warning-1
-  desc: Explicit warning of file/data deletion (delete/destroy)
+
+- id: explicit-file-deletion-warning-delete
+  desc: Explicit warning of file/data deletion (delete)
   crit: suspicious
   conf: 0.95
   for:
@@ -63,10 +66,11 @@ traits:
   mbc: C0047
   if:
     type: string
-    regex: (delete|destroy).{0,80}(files|data|documents)
+    regex: delete.{0,80}(files|data|documents)
     case_insensitive: true
-- id: explicit-file-deletion-warning-2a
-  desc: Explicit warning of file/data deletion (wipe/erase/eliminate files/data)
+
+- id: explicit-file-deletion-warning-destroy
+  desc: Explicit warning of file/data deletion (destroy)
   crit: suspicious
   conf: 0.95
   for:
@@ -80,10 +84,11 @@ traits:
   mbc: C0047
   if:
     type: string
-    regex: (wipe|erase|eliminate).{0,80}(files|data)
+    regex: destroy.{0,80}(files|data|documents)
     case_insensitive: true
-- id: explicit-file-deletion-warning-2b
-  desc: Explicit warning of file/data deletion (wipe/erase/eliminate documents)
+
+- id: explicit-file-deletion-warning-wipe
+  desc: Explicit warning of file/data deletion (wipe)
   crit: suspicious
   conf: 0.95
   for:
@@ -97,16 +102,47 @@ traits:
   mbc: C0047
   if:
     type: string
-    regex: (wipe|erase|eliminate).{0,80}documents
+    regex: wipe.{0,80}(files|data|documents)
     case_insensitive: true
+
+- id: explicit-file-deletion-warning-erase
+  desc: Explicit warning of file/data deletion (erase)
+  crit: suspicious
+  conf: 0.95
+  for:
+  - elf
+  - macho
+  - pe
+  - dll
+  - dylib
+  - so
+  attack: T1485
+  mbc: C0047
+  if:
+    type: string
+    regex: erase.{0,80}(files|data|documents)
+    case_insensitive: true
+
 composite_rules:
-- id: explicit-file-deletion-warning
-  desc: Explicit warning that program deletes files
+- id: explicit-file-deletion-warning-all
+  desc: Explicit warning of file/data deletion
   crit: suspicious
+  conf: 0.95
+  for:
+  - elf
+  - macho
+  - pe
+  - dll
+  - dylib
+  - so
+  attack: T1485
+  mbc: C0047
   any:
-    - id: explicit-file-deletion-warning-1
-    - id: explicit-file-deletion-warning-2a
-    - id: explicit-file-deletion-warning-2b
+  - id: explicit-file-deletion-warning-delete
+  - id: explicit-file-deletion-warning-destroy
+  - id: explicit-file-deletion-warning-wipe
+  - id: explicit-file-deletion-warning-erase
+
 - id: intentional-file-destruction
   desc: Intentional file destruction pattern
   crit: hostile
@@ -121,5 +157,5 @@ composite_rules:
   attack: T1485
   mbc: C0047
   all:
-  - id: explicit-file-deletion-warning
+  - id: explicit-file-deletion-warning-all
   - id: deleteFile-function

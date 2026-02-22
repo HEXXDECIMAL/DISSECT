@@ -10,14 +10,6 @@ traits:
   if:
     type: string
     regex: bash\s+-i
-- id: sh-interactive
-  desc: Interactive shell spawn
-  crit: notable
-  conf: 0.8
-  attack: T1059.004
-  if:
-    type: string
-    regex: (ba)?sh\s+-i
 - id: socket-to-proc-descriptor
   desc: Socket used as process descriptor
   crit: suspicious
@@ -95,7 +87,7 @@ traits:
   attack: T1059
   if:
     type: string
-    regex: function_exists\(['"](?:exec|system|shell_exec)['"]\)
+    regex: function_exists\(['"](exec|system|shell_exec)['"]\)
 - id: function-exists-exec-2
   desc: Check for passthru/popen/proc_open availability
   crit: suspicious
@@ -103,7 +95,7 @@ traits:
   attack: T1059
   if:
     type: string
-    regex: function_exists\(['"](?:passthru|popen|proc_open)['"]\)
+    regex: function_exists\(['"](passthru|popen|proc_open)['"]\)
 composite_rules:
 - id: function-exists-exec
   desc: Check for exec function availability
@@ -123,8 +115,7 @@ composite_rules:
   - php
   all:
   - id: stream-socket-connect
-  - id: micro-behaviors/process/create/shell
-  - id: sh-interactive
+  - id: micro-behaviors/process/create/shell::sh-interactive
 - id: rat-masquerading
   desc: PHP RAT with process masquerading
   crit: hostile
@@ -198,7 +189,6 @@ composite_rules:
   - id: micro-behaviors/process/create/shell
   - id: function-exists-exec
   - id: socket-to-proc-descriptor
-  - id: sh-interactive
 - id: rat-com-shell
   desc: PHP RAT with Windows COM shell
   crit: hostile

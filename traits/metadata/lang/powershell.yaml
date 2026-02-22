@@ -11,4 +11,4 @@ traits:
     if:
       type: raw
       # param(...), [Parameter(...)]
-      regex: '(?i)(?:param\s*\(|\[Parameter\()'
+      regex: '(?i)(param\s*\(|\[Parameter\()'

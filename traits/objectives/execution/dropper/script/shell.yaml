@@ -11,24 +11,6 @@ traits:
   if:
     type: trait
     id: micro-behaviors/communications/download/curl::wget-cmd
-- id: cli-output-dash-upper-o
-  desc: "CLI tool with -O flag"
-  crit: notable
-  conf: 0.7
-  mbc: C0002
-  attack: T1105
-  if:
-    type: trait
-    id: micro-behaviors/communications/download/curl::wget-output-file
-- id: wget-output-document
-  desc: "Wget with --output-document"
-  crit: notable
-  conf: 0.7
-  mbc: C0002
-  attack: T1105
-  if:
-    type: trait
-    id: micro-behaviors/communications/download/curl::wget-output-file
 
 - id: wget-q-flag
   desc: "wget quiet flag"
@@ -53,24 +35,6 @@ traits:
   if:
     type: trait
     id: micro-behaviors/communications/download/curl::curl-cmd
-- id: curl-output-dash-o
-  desc: "Curl with -o flag"
-  crit: notable
-  conf: 0.7
-  mbc: C0002
-  attack: T1105
-  if:
-    type: trait
-    id: micro-behaviors/communications/download/curl::curl-output-file
-- id: curl-output-flag
-  desc: "Curl with --output"
-  crit: notable
-  conf: 0.7
-  mbc: C0002
-  attack: T1105
-  if:
-    type: trait
-    id: micro-behaviors/communications/download/curl::curl-output-file
 - id: execute-dot-slash
   desc: "./ execution pattern"
   crit: notable
@@ -78,21 +42,12 @@ traits:
   attack: T1059.004
   if:
     type: raw
-    regex: \./[a-zA-Z0-9_.-]+
+    regex: ^\s*\./[a-zA-Z0-9_.-]+
   unless:
   - type: raw
     regex: \./([a-zA-Z0-9_.-]+\.(txt|md|log|conf|html|json|xml|yml|yaml)|ChangeLog)
   - type: raw
     regex: s/\./
-- id: curl-download-file
-  desc: "curl downloading to file (-o, -O, --output)"
-  crit: notable
-  conf: 0.7
-  mbc: C0002
-  attack: T1105
-  if:
-    type: trait
-    id: micro-behaviors/communications/download/curl::curl-output-file
 
 - id: inline__curl-silent-stdout__any_1
   desc: "Curl silent download pattern 1"

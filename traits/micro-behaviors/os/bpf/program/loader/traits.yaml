@@ -8,7 +8,7 @@ traits:
       - elf
     if:
       type: symbol
-      regex: bpf_object__open(?:_file)?
+      regex: bpf_object__open(_file)?
   - id: bpf-object-load
     desc: Load BPF object into kernel
     crit: notable
@@ -38,7 +38,7 @@ traits:
       - elf
     if:
       type: string
-      regex: \w+_bpf__(?:open|load|attach|destroy)
+      regex: \w+_bpf__(open|load|attach|destroy)
   - id: bpf-ring-buffer
     desc: BPF ring buffer usage
     crit: inert
@@ -48,7 +48,7 @@ traits:
       - elf
     if:
       type: string
-      regex: ring_buffer__(?:new|poll|free)
+      regex: ring_buffer__(new|poll|free)
   - id: bpf-ringbuf
     desc: eBPF ringbuf helpers
     crit: notable
@@ -58,7 +58,7 @@ traits:
       - elf
     if:
       type: symbol
-      regex: bpf_ringbuf_(?:reserve|submit|discard|output)
+      regex: bpf_ringbuf_(reserve|submit|discard|output)
   - id: vmlinux-h
     desc: vmlinux.h CO-RE eBPF header
     crit: notable
@@ -105,7 +105,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: \b__u(?:8|16|32|64)\b
+      regex: \b__u(8|16|32|64)\b
   - id: data-event-struct
     desc: eBPF data event structure
     crit: notable
@@ -135,7 +135,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: (?s)RLIMIT_MEMLOCK.{0,200}(?:\d+UL\s*<<\s*20|1\s*<<\s*30)
+      regex: (?s)RLIMIT_MEMLOCK.{0,200}(\d+UL\s*<<\s*20|1\s*<<\s*30)
   - id: bpf-rlimit-memlock-reversed
     desc: RLIMIT_MEMLOCK near high limits (reversed order)
     crit: notable
@@ -145,7 +145,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: (?s)(?:\d+UL\s*<<\s*20|1\s*<<\s*30).{0,200}RLIMIT_MEMLOCK
+      regex: (?s)(\d+UL\s*<<\s*20|1\s*<<\s*30).{0,200}RLIMIT_MEMLOCK
 composite_rules:
   - id: ebpf-core-header
     desc: eBPF CO-RE development header

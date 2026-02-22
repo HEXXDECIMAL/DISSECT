@@ -40,4 +40,4 @@ traits:
     platforms: [linux, unix]
     if:
       type: string
-      regex: '\\blibnss(?:3|ssl3)?\\.so'
+      regex: '\\blibnss(3|ssl3)?\\.so'

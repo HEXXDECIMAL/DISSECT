@@ -10,22 +10,6 @@ defaults:
 traits:
   # kill-target-crond: use objectives/anti-analysis/masquerade/process::fake-crond-path (canonical path ref)
 
-  - id: kill-target-telnetd
-    desc: Telnet daemon path reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/usr/sbin/telnetd"
-
-  - id: kill-target-httpd
-    desc: HTTP daemon path reference
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "/usr/sbin/httpd"
-
   - id: kill-target-syslogd
     desc: Syslog daemon path reference
     crit: notable
@@ -92,9 +76,9 @@ composite_rules:
     needs: 4  # At least 4 different kill targets
     any:
       - id: micro-behaviors/os/service/remote::sshd-path
+      - id: micro-behaviors/os/admin/daemon::telnetd
+      - id: micro-behaviors/os/admin/daemon::httpd
       - id: objectives/anti-analysis/masquerade/process::fake-crond-path
-      - id: kill-target-telnetd
-      - id: kill-target-httpd
       - id: kill-target-syslogd
       - id: kill-target-ntpd
       - id: kill-target-init

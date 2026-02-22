@@ -49,13 +49,20 @@ traits:
   if:
     type: string
     substr: zipfile
-- id: temp-archive-path
-  desc: Temporary directory archive
+- id: tar-temp-archive
+  desc: tar extracts temp archive
   crit: notable
   conf: 0.65
   if:
     type: string
-    regex: (temp|tmp).{0,15}\.(tar|zip|gz)
+    regex: tar\s+x.{0,80}(temp|tmp).{0,15}\.(tar|zip|gz)
+- id: unzip-temp-archive
+  desc: unzip extracts temp archive
+  crit: notable
+  conf: 0.65
+  if:
+    type: string
+    regex: unzip.{0,80}(temp|tmp).{0,15}\.(tar|zip|gz)
 - id: hidden-archive-path
   desc: Hidden path archive extraction
   crit: suspicious
@@ -78,6 +85,13 @@ composite_rules:
   any:
   - id: tar-extract-x
   - id: tar-extract-word
+- id: temp-archive-path
+  desc: Temporary directory archive
+  crit: notable
+  conf: 0.7
+  any:
+  - id: tar-temp-archive
+  - id: unzip-temp-archive
 - id: archive-extraction
   desc: Archive extraction capability
   crit: notable
@@ -124,7 +138,7 @@ composite_rules:
   for:
   - shell
   all:
-  - id: micro-behaviors/fs/file/executable::chmod-plus-x
+  - id: micro-behaviors/fs/chmod/executable::shell-plus-x
   any:
   - id: unzip-command
   - id: tar-extract

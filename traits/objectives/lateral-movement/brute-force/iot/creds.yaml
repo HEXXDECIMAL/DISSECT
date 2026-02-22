@@ -35,7 +35,7 @@ traits:
   desc: "Mirai-style credential patterns (2)"
   if:
     type: string
-    regex: ^(888888|666666|7ujMko0)$
+    regex: ^(888888|666666)$
 - id: busybox-command-injection-1
   desc: "Busybox command injection (Bot names)"
   if:

@@ -119,7 +119,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: raw
-      regex: "(?:key|secret|password|pass)\\s*[=:]\\s*Buffer\\.from\\(['\"][0-9a-fA-F]{32,}['\"]"
+      regex: "(key|secret|password|pass)\\s*[=:]\\s*Buffer\\.from\\(['\"][0-9a-fA-F]{32,}['\"]"
 
   - id: hardcoded-iv-pattern
     desc: Hardcoded IV in string literal

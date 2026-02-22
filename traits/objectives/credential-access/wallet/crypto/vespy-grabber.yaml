@@ -67,7 +67,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: "electrum.{0,50}wallet|electrum.{0,50}path"
+      regex: "Electrum\\.exe|electrum_(wallet|path)"
 
   - id: guarda-wallet-target
     desc: Guarda wallet targeting

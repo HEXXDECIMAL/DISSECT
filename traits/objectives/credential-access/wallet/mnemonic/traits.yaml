@@ -88,14 +88,14 @@ traits:
   crit: suspicious
   if:
     type: string
-    regex: \b(?:mnemonic|seed)\b.{0,40}\b(?:split|len|count)\b
+    regex: \b(mnemonic|seed)\b.{0,40}\b(split|len|count)\b
 - id: word-count-check-prefix-words
   desc: Mnemonic word count validation (words/phrase)
   conf: 0.85
   crit: suspicious
   if:
     type: string
-    regex: \bwords?\b.{0,40}\b(?:split|len|count)\b
+    regex: \bwords?\b.{0,40}\b(split|len|count)\b
 - id: bip39-wordlist
   desc: BIP-39 wordlist reference
   conf: 0.85
@@ -116,7 +116,7 @@ traits:
   size_max: 1000000
   if:
     type: string
-    regex: \b(?:wallet|eth|btc|crypto)\b.{0,50}\bprivate_?key\b
+    regex: \b(wallet|eth|btc|crypto)\b.{0,50}\bprivate_?key\b
 - id: bitcoin-wif-format
   desc: Bitcoin WIF private key format (word)
   conf: 0.85
@@ -130,7 +130,7 @@ traits:
   crit: suspicious
   if:
     type: string
-    regex: (?:wif|bitcoin).{0,20}(?:wif|key|private)
+    regex: (wif|bitcoin).{0,20}(wif|key|private)
 - id: keystore-file
   desc: Ethereum keystore file reference
   conf: 0.8
@@ -142,13 +142,13 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: \b(?:mnemonic|seed_?phrase)\s*[=:]
+    regex: \b(mnemonic|seed_?phrase)\s*[=:]
 - id: variable-names-2
   desc: Mnemonic-related variable names (recovery, secret, wallet)
   conf: 0.8
   if:
     type: string
-    regex: \b(?:recovery_?phrase|secret_?words|wallet_?words)\s*[=:]
+    regex: \b(recovery_?phrase|secret_?words|wallet_?words)\s*[=:]
 composite_rules:
 - id: derivation-path
   desc: HD wallet derivation path (BIP-44/49/84)

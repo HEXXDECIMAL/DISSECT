@@ -12,8 +12,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      # Match curl in command context, not generic word
-      regex: "(?:^|[\\s/])curl(?:\\s+-|\\s+http|\\s+--)"
+      regex: "\\bcurl(\\s+-|\\s+http|\\s+--)"
 
   - id: wget-cmd
     desc: wget command
@@ -21,7 +20,7 @@ traits:
     conf: 0.3
     if:
       type: string
-      regex: "(?:^|[\\s/])wget(?:\\s+-|\\s+http|\\s+--)"
+      regex: "\\bwget(\\s+-|\\s+http|\\s+--)"
 
   # === curl POST operations ===
   - id: curl-post-x

@@ -281,7 +281,7 @@ traits:
   - all
   if:
     type: raw
-    regex: 'credentials:\s*[\s\S]{0,30}(?:username|password):[\s\S]{0,30}(?:key|search):'
+    regex: 'credentials:\s*[\s\S]{0,30}(username|password):[\s\S]{0,30}(key|search):'
 composite_rules:
 - id: config-phishlet-ref
   desc: Evilginx phishlet reference

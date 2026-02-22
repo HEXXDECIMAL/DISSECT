@@ -9,13 +9,6 @@ traits:
     if:
       type: string
       substr: micro-behaviors
-  - id: rtld-next-ref
-    desc: RTLD_NEXT macro reference
-    crit: notable
-    conf: 0.8
-    if:
-      type: string
-      substr: RTLD_NEXT
   - id: dlsym-rtld-next-pattern
     desc: dlsym(RTLD_NEXT pattern
     crit: suspicious
@@ -59,7 +52,7 @@ traits:
       - c
     if:
       type: string
-      regex: /proc/[0-9]+
+      regex: /proc/[0-9]+/(stat|status|cmdline|maps)
   - id: hidden-proc-string
     desc: hidden_proc string reference
     crit: suspicious
@@ -116,17 +109,6 @@ traits:
     if:
       type: string
       substr: .backup_ld.so
-  - id: dlfcn-hook-symbol
-    desc: Contains _dlfcn_hook symbol (dynamic linker
-    crit: suspicious
-    conf: 0.85
-    mbc: F0015
-    attack: T1574.006
-    for:
-      - elf
-    if:
-      type: string
-      substr: _dlfcn_hook
   - id: ld-so-preload-file
     desc: References /etc/ld.so.preload file
     crit: suspicious
@@ -168,7 +150,7 @@ traits:
       - elf
     if:
       type: string
-      regex: original_(connect|socket|unlink)
+      regex: \boriginal_(connect|socket|unlink)\b
   - id: real-prefix-a
     desc: real_ prefix core hook set
     crit: notable
@@ -186,7 +168,7 @@ traits:
       - elf
     if:
       type: string
-      regex: real_(connect|socket|unlink)
+      regex: \breal_(connect|socket|unlink)\b
   - id: ld-so-preload-clear
     desc: Clears /etc/ld.so.preload content
     crit: suspicious
@@ -197,7 +179,7 @@ traits:
       - shell
     if:
       type: string
-      regex: (?:cat\s+/dev/null\s*>|echo\s*>|truncate\s+.{0,50}|>)\s*/etc/ld\.so\.preload
+      regex: (cat\s+/dev/null\s*>|echo\s*>|truncate\s+.{0,50}|>)\s*/etc/ld\.so\.preload
 composite_rules:
   - id: ld-preload
     desc: References LD_PRELOAD environment variable
@@ -214,7 +196,7 @@ composite_rules:
       - id: dlsym-rtld-next-pattern
     all:
       - id: micro-behaviors/dylib/lookup::dlsym-symbol
-      - id: rtld-next-ref
+      - id: micro-behaviors/dylib/lookup::rtld-next
   - id: dlsym-rtld-next
     desc: Uses dlsym with RTLD_NEXT (function
     crit: suspicious
@@ -231,7 +213,7 @@ composite_rules:
     needs: 2
     any:
       - id: micro-behaviors/dylib/lookup::dlsym-symbol
-      - id: rtld-next-ref
+      - id: micro-behaviors/dylib/lookup::rtld-next
       - id: micro-behaviors/os/linker/env::ld-preload
       - id: dlsym-rtld-next-pattern
     unless:

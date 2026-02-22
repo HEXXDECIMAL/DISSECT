@@ -17,7 +17,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: "(?:cat|grep|awk)\\s+[^\\n]{0,50}/\\.ssh/known_hosts"
+      regex: "(cat|grep|awk)\\s+[^\\n]{0,50}/\\.ssh/known_hosts"
 
   - id: known-hosts-ip-extract
     desc: Extracts IPs from known_hosts
@@ -53,7 +53,7 @@ traits:
     if:
       type: raw
       # SSH options commonly used by worms
-      regex: "ssh\\s+[^\\n]{0,50}-o\\s*(?:BatchMode=yes|StrictHostKeyChecking=no|ConnectTimeout=)"
+      regex: "ssh\\s+[^\\n]{0,50}-o\\s*(BatchMode=yes|StrictHostKeyChecking=no|ConnectTimeout=)"
 
   - id: ssh-remote-execute
     desc: SSH remote command execution
@@ -81,7 +81,7 @@ traits:
     if:
       type: raw
       # ssh $host 'curl URL | bash' pattern
-      regex: "ssh\\s+[^']{0,50}'[^']{0,30}(?:curl|wget)[^']{0,50}\\|\\s*bash"
+      regex: "ssh\\s+[^']{0,50}'[^']{0,30}(curl|wget)[^']{0,50}\\|\\s*bash"
 
 composite_rules:
   # Full SSH worm pattern: harvests hosts, has keys, spreads

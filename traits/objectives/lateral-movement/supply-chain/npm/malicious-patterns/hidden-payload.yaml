@@ -18,7 +18,7 @@ traits:
     conf: 0.85
     if:
       type: string
-      regex: '\[\s*["'']0x[0-9a-f]{2}["''](?:\s*,\s*["'']0x[0-9a-f]{2}["'']){10,}\s*\]'
+      regex: '\[\s*["'']0x[0-9a-f]{2}["''](\s*,\s*["'']0x[0-9a-f]{2}["'']){10,}\s*\]'
   - id: join-hex-array
     desc: Joining hex array into string
     crit: suspicious
@@ -40,20 +40,13 @@ traits:
     if:
       type: string
       regex: '["'']\./\.[a-z0-9_-]+\.js["'']'
-  - id: buffer-from-hex
-    desc: Buffer.from with hex encoding
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      regex: Buffer\.from\(.{1,220},\s*['']hex['']\)
   - id: fs-read-hidden
     desc: Reads hidden file from disk
     crit: suspicious
     conf: 0.9
     if:
       type: string
-      regex: (?:readFile|readFileSync)\s*\(.{0,120}['"]\./\..{1,50}['"]
+      regex: (readFile|readFileSync)\s*\(.{0,120}['"]\./\..{1,50}['"]
   - id: eval-hex-decode
     desc: eval() of hex-decoded buffer
     crit: suspicious
@@ -68,13 +61,6 @@ traits:
     if:
       type: string
       substr: process.env.HOME
-  - id: process-env-appdata
-    desc: Accesses process.env.APPDATA
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: process.env.APPDATA
   - id: process-env-username
     desc: Accesses process.env.USERNAME
     crit: notable
@@ -82,13 +68,6 @@ traits:
     if:
       type: string
       substr: process.env.USERNAME
-  - id: os-homedir-call
-    desc: os.homedir() function call
-    crit: notable
-    conf: 0.7
-    if:
-      type: string
-      substr: os.homedir()
   - id: path-join-hidden
     desc: path.join with hidden file path
     crit: suspicious
@@ -178,8 +157,8 @@ composite_rules:
     conf: 0.8
     any:
     - id: process-env-home
-    - id: process-env-appdata
-    - id: os-homedir-call
+    - id: objectives/persistence/env-vars/profile::env-appdata
+    - id: objectives/discovery/host/system::js-os-homedir
   - id: suspicious-eval-transform
     desc: eval() following data transformation
     crit: suspicious

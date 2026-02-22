@@ -18,4 +18,4 @@ traits:
     if:
       type: raw
       # Matches: "WScript.Shell" or 'WScript.Shell' used in Dispatch/EnsureDispatch
-      regex: '["'']WScript\.Shell(?:\.[0-9]+)?["'']'
+      regex: '["'']WScript\.Shell(\.[0-9]+)?["'']'

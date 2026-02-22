@@ -22,7 +22,7 @@ traits:
     for: [shell, batch, powershell]
     if:
       type: raw
-      regex: "(?:pyinstaller|pyi-makespec)\\s+"
+      regex: "(pyinstaller|pyi-makespec)\\s+"
       case_insensitive: true
 
 composite_rules:

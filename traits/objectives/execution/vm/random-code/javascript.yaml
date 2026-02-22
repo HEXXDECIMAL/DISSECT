@@ -28,7 +28,7 @@ traits:
     mbc: B0032
     if:
       type: raw
-      regex: "\\bnew Function\\b|\\beval\\s*\\("
+      regex: '\bnew Function\b'
 
   - id: math-random-index
     desc: Math.random used for indexing (probabilistic character selection)

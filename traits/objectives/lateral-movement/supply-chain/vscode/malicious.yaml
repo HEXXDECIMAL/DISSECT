@@ -86,7 +86,7 @@ composite_rules:
     conf: 0.75
     for: [javascript, typescript]
     any:
-      - id: objectives/lateral-movement/supply-chain/vscode::globalState
+      - id: micro-behaviors/process/create/shell/host::global-state
       - id: postInstall-word
 
   # Credential paths

@@ -73,7 +73,7 @@ traits:
     per_kb_min: 3.0
   unless:
   - type: basename
-    regex: (?i)^(?:test_.*|.*_test)\.py$
+    regex: (?i)^(test_.*|.*_test)\.py$
 - id: python-dense-hex-escapes
   desc: Dense hex escape sequences
   crit: suspicious
@@ -88,7 +88,7 @@ traits:
     per_kb_min: 5.0
   unless:
   - type: basename
-    regex: (?i)^(?:test_.*|.*_test)\.py$
+    regex: (?i)^(test_.*|.*_test)\.py$
   - type: raw
     substr: WalImageFile
 - id: dense-octal-escapes
@@ -104,7 +104,7 @@ traits:
     per_kb_min: 2.0
   unless:
   - type: basename
-    regex: (?i)^(?:test_.*|.*_test)\.py$
+    regex: (?i)^(test_.*|.*_test)\.py$
 - id: dense-ord-calls
   desc: Dense ord() calls (cipher operations)
   crit: suspicious
@@ -118,7 +118,7 @@ traits:
     per_kb_min: 3.0
   unless:
   - type: basename
-    regex: (?i)^(?:test_.*|.*_test)\.py$
+    regex: (?i)^(test_.*|.*_test)\.py$
 - id: dense-lambda-chains
   desc: Dense lambda expressions (obfuscation)
   crit: suspicious
@@ -127,7 +127,7 @@ traits:
   attack: T1027
   unless:
   - type: basename
-    regex: (?i)^(?:test_.*|.*_test)\.py$
+    regex: (?i)^(test_.*|.*_test)\.py$
   if:
     type: raw
     regex: lambda\s+[a-zA-Z_][a-zA-Z0-9_]*\s*:.{0,50}lambda\s+[a-zA-Z_][a-zA-Z0-9_]*
@@ -139,7 +139,7 @@ traits:
   conf: 0.9
   if:
     type: raw
-    regex: (?:fromhex|b64decode|unhexlify).{0,60}\[::-1\]
+    regex: (fromhex|b64decode|unhexlify).{0,60}\[::-1\]
 composite_rules:
 - id: python-decode-functions
   desc: Decoding functions for encoded payloads

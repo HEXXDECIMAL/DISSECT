@@ -21,7 +21,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "(?:app|router)\\.post\\s*\\("
+      regex: "(app|router)\\.post\\s*\\("
 
   - id: express-get-endpoint
     desc: Express GET endpoint
@@ -40,8 +40,7 @@ traits:
     attack: "T1071.001"
     for: [javascript]
     if:
-      type: string
-      regex: "createServer|http\\.Server"
+      id: micro-behaviors/communications/http/server
 
   - id: socket-io
     desc: Socket.io server (real-time C2 potential)

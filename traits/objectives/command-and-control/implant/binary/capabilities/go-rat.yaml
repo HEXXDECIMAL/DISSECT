@@ -13,15 +13,6 @@ defaults:
   mbc: "B0024"
 
 traits:
-  # Go module path for shell execution (common RAT pattern)
-  - id: go-shell-module
-    desc: Go shell execution module path
-    crit: suspicious
-    conf: 0.95
-    if:
-      type: string
-      regex: 'mode/(httpAndTcp/)?shell[./]|/shell/Shell(Linux|Windows|Darwin)\.'
-
   # Go SOCKS5 proxy module (tunneling capability)
   - id: go-socks-proxy-module
     desc: Go SOCKS5 proxy module
@@ -31,7 +22,7 @@ traits:
     attack: "T1090.001"
     if:
       type: string
-      regex: "socket5Quick|socks5Quick|proxy/socks|socksProxy"
+      regex: "socks5Quick|socksProxy|proxy/socks"
 
   # Go port forwarding module (inForward variants)
   - id: go-port-forward-inforward
@@ -197,7 +188,7 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: "socket_quick_(start|stop)|StartProxy|StopProxy"
+      regex: "socket_quick_(start|stop)"
 
 composite_rules:
   - id: go-port-forward-module
@@ -228,7 +219,7 @@ composite_rules:
     attack: "T1059.004"
     for: [elf, macho, pe]
     all:
-      - id: go-shell-module
+      - id: interactive-shell-string
       - id: go-socks-proxy-module
       - id: micro-behaviors/process/create/shell::go-shell-strings
 
@@ -242,7 +233,7 @@ composite_rules:
     attack: "T1059.004"
     for: [elf, macho, pe]
     all:
-      - id: go-shell-module
+      - id: interactive-shell-string
       - id: go-file-utils
       - id: go-system-recon
       - id: micro-behaviors/process/create/shell::go-shell-strings
@@ -257,7 +248,7 @@ composite_rules:
     attack: "T1070"
     for: [elf, macho, pe]
     all:
-      - id: go-shell-module
+      - id: interactive-shell-string
       - id: go-clean-history
       - id: micro-behaviors/process/create/shell::go-shell-strings
 
@@ -271,7 +262,7 @@ composite_rules:
     attack: "T1070.006"
     for: [elf, macho, pe]
     all:
-      - id: go-shell-module
+      - id: interactive-shell-string
       - id: go-timestomp
       - id: micro-behaviors/process/create/shell::go-shell-strings
 

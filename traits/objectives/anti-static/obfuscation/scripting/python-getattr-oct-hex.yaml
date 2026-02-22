@@ -8,4 +8,4 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: 'getattr\s*\(\s*(?:__builtins__|builtins)\s*,\s*oct\.__str__\(\)'
+      regex: 'getattr\s*\(\s*(__builtins__|builtins)\s*,\s*oct\.__str__\(\)'

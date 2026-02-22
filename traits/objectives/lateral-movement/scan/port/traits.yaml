@@ -237,15 +237,6 @@ traits:
   if:
     type: symbol
     regex: ^_?socket$
-- id: sym-connect
-  desc: connect function symbol
-  crit: notable
-  conf: 0.4
-  platforms:
-  - all
-  if:
-    type: symbol
-    regex: ^_?connect$
 - id: probing-keyword
   desc: Probing keyword (explicit scanning intent)
   crit: notable
@@ -265,7 +256,7 @@ traits:
   - scripts
   if:
     type: string
-    regex: (?i)(?:ftp|port|connect).{0,20}[:\s]21\b
+    regex: (?i)(ftp|port|connect).{0,20}[:\s]21\b
 - id: port-number-ssh
   desc: SSH port number (22)
   crit: notable
@@ -287,21 +278,21 @@ traits:
   - scripts
   if:
     type: string
-    regex: (?i)(?:http|port|web|connect).{0,20}[:\s]80\b
+    regex: (?i)(http|port|web|connect).{0,20}[:\s]80\b
 - id: port-number-https-1
   desc: HTTPS port (443) variants (https/port/ssl)
   crit: notable
   conf: 0.6
   if:
     type: string
-    regex: (?i)(?:https|port|ssl).{0,20}[:\s]443\b
+    regex: (?i)(https|port|ssl).{0,20}[:\s]443\b
 - id: port-number-https-2
   desc: HTTPS port (443) variants (tls/connect)
   crit: notable
   conf: 0.6
   if:
     type: string
-    regex: (?i)(?:tls|connect).{0,20}[:\s]443\b
+    regex: (?i)(tls|connect).{0,20}[:\s]443\b
 - id: cidr-range
   desc: CIDR network range notation
   crit: notable
@@ -352,7 +343,7 @@ traits:
   - all
   if:
     type: string
-    regex: \b(?:tcp|udp|icmp)[_\-\s]?probe\b
+    regex: \b(tcp|udp|icmp)[_\-\s]?probe\b
     case_insensitive: true
 composite_rules:
 - id: port-number-https
@@ -481,7 +472,19 @@ composite_rules:
   - all
   any:
   - id: sym-socket
-  - id: sym-connect
+  - id: micro-behaviors/communications/socket/connect::connect-symbol
+  - id: micro-behaviors/communications/socket/connect::_connect-symbol
+  - id: micro-behaviors/communications/socket/connect::socket-connect-call
+- id: sym-connect
+  desc: connect function symbol
+  crit: notable
+  conf: 0.4
+  platforms:
+  - all
+  any:
+  - id: micro-behaviors/communications/socket/connect::connect-symbol
+  - id: micro-behaviors/communications/socket/connect::_connect-symbol
+  - id: micro-behaviors/communications/socket/connect::socket-connect-call
 - id: service-port
   desc: Common service port numbers
   crit: notable

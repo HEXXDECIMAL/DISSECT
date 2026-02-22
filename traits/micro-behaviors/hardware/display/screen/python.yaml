@@ -14,7 +14,7 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: '(?:^|\s)import\s+mss\b|from\s+mss\b'
+      regex: '(^|\s)import\s+mss\b|from\s+mss\b'
       case_insensitive: true
 
   - id: mss-screenshot

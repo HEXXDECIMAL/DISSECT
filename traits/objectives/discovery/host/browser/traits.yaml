@@ -76,7 +76,7 @@ traits:
   - all
   if:
     type: string
-    regex: Edge\s+(?:Browser|Chromium)
+    regex: Edge\s+(Browser|Chromium)
 - id: opera-name-path
   desc: Opera browser name (path)
   crit: notable
@@ -96,7 +96,7 @@ traits:
   - all
   if:
     type: string
-    regex: Opera\s+(?:GX|Stable|Browser)
+    regex: Opera\s+(GX|Stable|Browser)
 - id: brave-name
   desc: Brave browser name
   crit: notable

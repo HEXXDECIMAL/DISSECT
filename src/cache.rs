@@ -27,16 +27,23 @@ use walkdir::WalkDir;
 /// - Linux: ~/.cache/dissect
 /// - Windows: %LOCALAPPDATA%\dissect
 pub(crate) fn cache_dir() -> Result<PathBuf> {
-    let base_cache = dirs::cache_dir().context("Failed to get system cache directory")?;
+    let mut candidates = Vec::new();
+    if let Some(base_cache) = dirs::cache_dir() {
+        candidates.push(base_cache.join("dissect"));
+    }
+    candidates.push(std::env::temp_dir().join("dissect-cache"));
 
-    let cache_path = base_cache.join("dissect");
-
-    // Create cache directory if it doesn't exist
-    if !cache_path.exists() {
-        fs::create_dir_all(&cache_path).context("Failed to create cache directory")?;
+    for cache_path in candidates {
+        if fs::create_dir_all(&cache_path).is_ok() {
+            let probe = cache_path.join(".write-test");
+            if fs::write(&probe, b"ok").is_ok() {
+                let _ = fs::remove_file(probe);
+                return Ok(cache_path);
+            }
+        }
     }
 
-    Ok(cache_path)
+    anyhow::bail!("Failed to create cache directory")
 }
 
 /// Returns the traits directory path from DISSECT_TRAITS_PATH env var or "traits" default

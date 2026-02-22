@@ -53,7 +53,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: /boot(?:/|$)
+      regex: /boot(/|$)
 
   - id: usr-dir
     desc: /usr directory reference

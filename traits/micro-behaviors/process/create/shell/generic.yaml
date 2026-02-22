@@ -38,7 +38,7 @@ traits:
     conf: 0.8
     if:
       type: symbol
-      regex: "^exec(?:l(?:e|p)?|v(?:e|p(?:e)?)?)$"
+      regex: "^exec(l(e|p)?|v(e|p(e)?)?)$"
     platforms: [unix, linux, macos]
     for: [binaries]
 

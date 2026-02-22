@@ -27,7 +27,7 @@ traits:
     if:
       type: raw
       # Matches crontab entries containing curl/wget piped to sh/bash
-      regex: "crontab[^;]{0,50}(?:curl|wget)[^|]{0,50}\\|\\s*(?:sh|bash)"
+      regex: "crontab[^;]{0,50}(curl|wget)[^|]{0,50}\\|\\s*(sh|bash)"
 
   - id: crontab-sed-removal
     desc: Removes crontab entries via sed

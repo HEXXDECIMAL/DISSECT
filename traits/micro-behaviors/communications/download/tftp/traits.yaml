@@ -13,4 +13,4 @@ traits:
     if:
       type: string
       # Require tftp to look like a command invocation (space after, or path prefix)
-      regex: '(?:/usr)?(?:/s?bin/)?tftp\s|\btftp\s+-'
+      regex: '(/usr)?(/s?bin/)?tftp\s|\btftp\s+-'

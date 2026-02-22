@@ -198,7 +198,7 @@ traits:
     for: [php, java, ruby, python, javascript, shell]
     if:
       type: string
-      regex: '(?i)(access\s+(?:is\s+)?denied|(?:access|permission)\s+(?:denied|forbidden))'
+      regex: '(?i)(access\s+(is\s+)?denied|(access|permission)\s+(denied|forbidden))'
 
 composite_rules:
   # PHP webshell patterns (php tag + shell func + request param)

@@ -43,7 +43,7 @@ traits:
   if:
     type: raw
     count_min: 5
-    regex: \(\s*(?:async\s+)?function\s*\([^)]{0,50}\)\s*\{|\(\s*[^)]{0,50}\)\s*=>
+    regex: \(\s*(async\s+)?function\s*\([^)]{0,50}\)\s*\{|\(\s*[^)]{0,50}\)\s*=>
 composite_rules:
 - id: js-obfuscator-pattern
   desc: JavaScript obfuscator tool output

@@ -29,3 +29,11 @@ traits:
     if:
       type: string
       substr: "ssh.service"
+
+  - id: dropbear-ref
+    desc: dropbear SSH daemon reference
+    crit: inert
+    conf: 0.45
+    if:
+      type: string
+      word: "dropbear"

@@ -33,7 +33,7 @@ traits:
     desc: Writes script to Startup folder
     if:
       type: string
-      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.(bat|cmd)"
+      regex: "(?i)Start\\s+Menu\\\\Programs\\\\Startup\\\\[^\\\\]{1,120}\\.bat"
 
 composite_rules:
   - id: path-suspicious-startup-any

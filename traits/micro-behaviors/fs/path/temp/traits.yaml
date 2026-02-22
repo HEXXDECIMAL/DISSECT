@@ -23,7 +23,7 @@ traits:
     desc: Windows %TEMP% or %TMP% environment reference
     if:
       type: string
-      regex: '(?i)%TEMP%|%TMP%'
+      regex: '(?i)%TMP%'
 
   - id: win-temp-path
     desc: Windows Temp directory path

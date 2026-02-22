@@ -12,7 +12,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?:require\([''"]|from [''"])express[''"]'
+      regex: '(require\([''"]|from [''"])express[''"]'
 
   - id: uses-koa
     desc: Uses Koa framework
@@ -20,7 +20,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?:require\([''"]|from [''"])koa[''"]'
+      regex: '(require\([''"]|from [''"])koa[''"]'
 
   - id: uses-fastify
     desc: Uses Fastify framework
@@ -28,7 +28,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?:require\([''"]|from [''"])fastify[''"]'
+      regex: '(require\([''"]|from [''"])fastify[''"]'
 
   - id: uses-hapi
     desc: Uses Hapi framework
@@ -36,7 +36,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?:require\([''"]|from [''"])hapi[''"]'
+      regex: '(require\([''"]|from [''"])hapi[''"]'
 
   # Stream class detection (inert building blocks)
   - id: stream-readable

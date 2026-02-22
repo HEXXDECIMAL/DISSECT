@@ -9,16 +9,6 @@ defaults:
   for: [javascript, typescript]
 
 composite_rules:
-  # === Helper composites ===
-
-  - id: stdio-suppressed
-    desc: Process stdio suppressed
-    crit: suspicious
-    conf: 0.85
-    any:
-      - id: micro-behaviors/process/create/spawn::stdio-ignore-array
-      - id: micro-behaviors/process/create/spawn::stdio-ignore-string
-
   # === Stealth dropper composite ===
 
   # Main pattern: detached + stdio hidden + unref = stealthy background execution
@@ -32,7 +22,7 @@ composite_rules:
     for: [javascript]
     all:
       - id: micro-behaviors/process/create/spawn::detached-true
-      - id: stdio-suppressed
+      - id: micro-behaviors/process/create/spawn::stdio-ignore
       - id: micro-behaviors/process/create/spawn::child-unref-call
     unless:
       - id: metadata/dev/testing::node-core-test
@@ -50,7 +40,7 @@ composite_rules:
     all:
       - id: micro-behaviors/process/create/spawn::process-execpath-spawn
       - id: micro-behaviors/process/create/spawn::detached-true
-      - id: stdio-suppressed
+      - id: micro-behaviors/process/create/spawn::stdio-ignore
       - id: micro-behaviors/process/create/spawn::child-unref-call
     unless:
       - id: metadata/dev/testing::node-core-test

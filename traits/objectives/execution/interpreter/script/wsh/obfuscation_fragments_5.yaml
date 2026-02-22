@@ -42,7 +42,7 @@ traits:
     crit: notable
     if:
       type: string
-      regex: '^(WScr|ipt\.)$'
+      exact: 'ipt.'
     unless:
       - id: metadata/quality/help::usage-title
 

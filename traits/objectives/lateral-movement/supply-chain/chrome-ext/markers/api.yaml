@@ -254,7 +254,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: chrome\.(history|bookmarks|alarms|notifications)
+    regex: chrome\.(alarms|notifications)
 - id: tabs-execute-script-tabs
   desc: Executes script via tabs API
   crit: suspicious

@@ -8,7 +8,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: (?i)icmp[_-]?(?:prog[_-]?)?reply|reply[_-]?icmp
+      regex: (?i)icmp[_-]?(prog[_-]?)?reply|reply[_-]?icmp
   - id: icmphdr-struct
     desc: ICMP header structure
     crit: notable
@@ -37,7 +37,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: ->type\s*==\s*8|type\s*==\s*(?:ICMP_ECHO|8)
+      regex: ->type\s*==\s*8|type\s*==\s*(ICMP_ECHO|8)
   - id: icmp-echo-reply
     desc: ICMP echo reply type (0)
     crit: inert
@@ -47,7 +47,7 @@ traits:
       - elf
     if:
       type: raw
-      regex: ->type\s*=\s*0[^0-9]|type\s*=\s*(?:ICMP_ECHOREPLY|0)[^0-9]
+      regex: ->type\s*=\s*0[^0-9]|type\s*=\s*(ICMP_ECHOREPLY|0)[^0-9]
   - id: icmp-pingback
     desc: ICMP pingback covert channel marker
     crit: suspicious

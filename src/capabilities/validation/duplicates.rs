@@ -225,7 +225,12 @@ fn split_top_level_alternation(pattern: &str) -> Vec<&str> {
         }
 
         if matches_at_end {
-            &pattern[1..pattern.len()-1]
+            let mut start = 1;
+            // Also skip non-capturing group prefix (?:)
+            if pattern[start..].starts_with("?:") {
+                start += 2;
+            }
+            &pattern[start..pattern.len()-1]
         } else {
             pattern
         }

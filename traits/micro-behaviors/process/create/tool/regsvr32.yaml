@@ -29,5 +29,5 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: "7265677376723332(?:2e657865)?"
+      regex: "7265677376723332(2e657865)?"
       case_insensitive: true

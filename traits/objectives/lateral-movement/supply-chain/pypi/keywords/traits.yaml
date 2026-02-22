@@ -34,14 +34,14 @@ traits:
     type: kv
     path: keywords
     case_insensitive: true
-    regex: (?:trojan|backdoor|rootkit|exploit)
+    regex: (trojan|backdoor|rootkit|exploit)
 - id: malware-keyword-in-keywords-2
   desc: Malware term in keywords (payload/stealer/malware/keylog)
   if:
     type: kv
     path: keywords
     case_insensitive: true
-    regex: (?:payload|stealer|malware|keylog)
+    regex: (payload|stealer|malware|keylog)
 composite_rules:
 - id: malware-keyword-in-keywords
   desc: Malware-related term in Keywords field

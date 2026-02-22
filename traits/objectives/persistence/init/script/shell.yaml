@@ -68,7 +68,7 @@ traits:
   attack: T1489
   if:
     type: raw
-    regex: kill\s+(?:-9|-SIGKILL|-KILL)\s+-\$?\{?[a-zA-Z_][a-zA-Z0-9_]*\}?
+    regex: \bkill\b\s+(-9|-SIGKILL|-KILL)\s+-\$?\{?[a-zA-Z_][a-zA-Z0-9_]*\}?
 - id: ps-grep-kill-pattern
   desc: Process hunt via ps/grep/kill
   crit: notable
@@ -76,7 +76,7 @@ traits:
   attack: T1057
   if:
     type: raw
-    regex: ps\s+(?:-ef|-aux)[^|]{0,30}\|[^|]{0,50}grep
+    regex: ps\s+(-ef|-aux)[^|]{0,30}\|[^|]{0,50}grep
 - id: pgrep-discovery
   desc: Process discovery via pgrep
   crit: notable
@@ -108,7 +108,7 @@ traits:
   attack: T1037
   if:
     type: raw
-    regex: \.\s+/etc/init\.d/(?:modules|status)|source\s+/etc/init\.d/(?:modules|status)
+    regex: \.\s+/etc/init\.d/(modules|status)|source\s+/etc/init\.d/(modules|status)
 - id: binary-from-root-dir
   desc: Runs binary from /root
   crit: suspicious

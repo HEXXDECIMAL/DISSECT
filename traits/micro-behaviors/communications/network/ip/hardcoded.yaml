@@ -11,7 +11,7 @@ traits:
     for: [elf, macho, pe]
     if:
       type: string
-      regex: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'
+      regex: '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
       external_ip: true
 
   - id: external-ipv4-script
@@ -22,7 +22,7 @@ traits:
     size_max: 5000
     if:
       type: string
-      regex: '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'
+      regex: '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
       external_ip: true
     not:
       - regex: '^8\.8\.[84]\.[84]$'

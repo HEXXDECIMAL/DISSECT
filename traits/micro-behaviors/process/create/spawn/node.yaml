@@ -15,27 +15,34 @@ traits:
     attack: "T1059"
     if:
       type: raw
-      regex: 'detached:\s*true'
+      regex: 'detached\s*:\s*true'
+
+  - id: windowshide-option
+    desc: windowsHide option
+    crit: inert
+    conf: 0.85
+    if:
+      type: raw
+      regex: 'windowsHide\s*:\s*true'
+
+  - id: shell-false
+    desc: "shell: false option"
+    crit: inert
+    conf: 0.85
+    if:
+      type: raw
+      regex: 'shell\s*:\s*false'
 
   # === Silent I/O patterns ===
 
-  - id: stdio-ignore-array
-    desc: stdio array with ignore values
+  - id: stdio-ignore
+    desc: stdio set to ignore
     crit: notable
     conf: 0.85
     mbc: "F0005"
     if:
       type: raw
-      regex: 'stdio:\s*\[[^\]]{0,220}[''"]ignore[''"]'
-
-  - id: stdio-ignore-string
-    desc: stdio set to ignore
-    crit: notable
-    conf: 0.75
-    mbc: "F0005"
-    if:
-      type: raw
-      regex: 'stdio:\s*[''"]ignore[''"]'
+      regex: "stdio\\s*:\\s*(\\[[^\\]]{0,220}['\"]ignore['\"]|['\"]ignore['\"])"
 
   # === Orphan process patterns ===
 

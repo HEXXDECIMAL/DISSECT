@@ -110,7 +110,7 @@ traits:
     conf: 0.3
     if:
       type: raw
-      regex: '("method"|method:)'
+      regex: '"method"'
 
   - id: http-config-body
     desc: HTTP configuration field (body)

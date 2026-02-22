@@ -9,7 +9,7 @@ traits:
     for: [c, elf]
     if:
       type: raw
-      regex: "(?i)(?:fd_to_ssl|ssl_to_fd)"
+      regex: "(?i)(fd_to_ssl|ssl_to_fd)"
 
   - id: ssl-ctx-map-store
     desc: SSL context tracking map
@@ -18,7 +18,7 @@ traits:
     for: [c, elf]
     if:
       type: raw
-      regex: "(?i)ssl_(?:ctx|context)_(?:map|hash)"
+      regex: "(?i)ssl_(ctx|context)_(map|hash)"
 
   # SSL CTX reference in comments or identifiers
   - id: ssl-ctx-ref
@@ -131,7 +131,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      regex: "(?i)ssl_(?:read|write)"
+      regex: "(?i)ssl_(read|write)"
 
   - id: ssl-gnutls-fn
     desc: GnuTLS function names
@@ -140,7 +140,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      regex: "\\bgnutls_record_(?:send|recv)\\b"
+      regex: "\\bgnutls_record_(send|recv)\\b"
 
   - id: ssl-nss-fn
     desc: NSS/NSPR function names
@@ -149,7 +149,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      regex: "\\bPR_(?:Read|Write|Send|Recv)\\b"
+      regex: "\\bPR_(Read|Write|Send|Recv)\\b"
 
   - id: ssl-op-string
     desc: SSL operation indicator
@@ -158,7 +158,7 @@ traits:
     for: [c, elf]
     if:
       type: raw
-      regex: "SSL_OP_(?:READ|WRITE)"
+      regex: "SSL_OP_(READ|WRITE)"
 
   # SSL operation type definition (ssl_op_t enum/typedef)
   - id: ssl-op-type
@@ -168,7 +168,7 @@ traits:
     for: [c, elf]
     if:
       type: raw
-      regex: "\\bssl_op(?:_t)?\\b"
+      regex: "\\bssl_op(_t)?\\b"
       case_insensitive: true
 
   # === SSL/TLS Function Hooking Targets ===
@@ -179,7 +179,7 @@ traits:
     for: [c, elf]
     if:
       type: string
-      regex: "\\bSSL_(?:read|write|set_fd|connect)\\b"
+      regex: "\\bSSL_(read|write|set_fd|connect)\\b"
 
   - id: ssl-openssl-fn-b
     desc: OpenSSL function names

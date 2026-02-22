@@ -67,14 +67,6 @@ traits:
       type: raw
       substr: "import pip"
 
-  # ensurepip module usage
-  - id: ensurepip
-    desc: "pip bootstrapping via ensurepip"
-    conf: 0.8
-    crit: notable
-    if:
-      id: micro-behaviors/os/package-manager/install::ensurepip-bootstrap
-
   # === Try/except block atomic indicators ===
   - id: try-colon
     desc: "try: statement"
@@ -99,13 +91,6 @@ traits:
     if:
       type: string
       regex: "import\\s+(pip|importlib|setuptools|pkg_resources)\\b"
-
-  - id: pip-install-pattern
-    desc: pip install pattern
-    crit: notable
-    conf: 0.6
-    if:
-      id: micro-behaviors/os/package-manager/install::pip-install
 
   # === Content-based try/except indicators ===
   # Catches obfuscated samples where string extraction fails
@@ -137,7 +122,7 @@ composite_rules:
       - { id: try-colon }
       - { id: except-colon-pattern }
       - { id: import-statement }
-      - { id: pip-install-pattern }
+      - { id: micro-behaviors/os/package-manager/install::pip-install }
 
   # Content-based: catches obfuscated samples where try/except
   # and import keywords are visible but string literals aren't

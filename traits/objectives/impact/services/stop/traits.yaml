@@ -15,6 +15,14 @@ traits:
       type: string
       regex: "systemctl\\s+stop"
 
+  - id: systemctl-disable
+    desc: Systemd service disable
+    crit: suspicious
+    conf: 0.8
+    if:
+      type: string
+      regex: "systemctl\\s+disable"
+
   - id: service-stop
     desc: SysV service stop
     crit: suspicious
@@ -155,7 +163,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      substr: ransom
+      word: ransom
       case_insensitive: true
 
   - id: tor-service-stop
@@ -164,7 +172,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(systemctl|service).{0,50}(stop|disable).{0,50}(tor|tor@)"
+      regex: "(tor|tor@).{0,50}(stop|disable)"
 
   - id: tor-process-kill
     desc: Tor process termination

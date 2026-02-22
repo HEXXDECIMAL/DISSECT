@@ -8,5 +8,5 @@ traits:
   desc: Case-insensitive file extension check using bitwise OR
   if:
     type: raw
-    regex: or e[abcd]x, [0-9a-fA-F]+h?.{0,120}cmp e(?:[abcd]x|[sd]i), ["'][^"']{1,120}["']
+    regex: or e[abcd]x, [0-9a-fA-F]+h?.{0,120}cmp e([abcd]x|[sd]i), ["'][^"']{1,120}["']
 composite_rules: []

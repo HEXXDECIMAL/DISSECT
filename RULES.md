@@ -331,7 +331,7 @@ composite_rules:
     conf: 0.95
     for: [elf, macho]
     all:                              # AND (all must match)
-        - id: micro-behaviors/communications/socket/create
+      - id: micro-behaviors/communications/socket/create
       - id: micro-behaviors/process/fd/dup2
       - id: micro-behaviors/process/create/shell
     any:                              # OR (at least one)
@@ -340,6 +340,58 @@ composite_rules:
     none:                             # NOT (none may match)
       - id: legitimate-use
     needs: 2                          # Min matches from `any:`
+```
+
+## Trait References in `if:`
+
+Atomic traits can reference other traits via `if: id:`. This creates a **derived trait** that fires when the referenced trait matches. This is a hybrid between atomic traits and composites.
+
+```yaml
+traits:
+  # Derived trait: adds section constraint to existing pattern
+  - id: base64-in-rodata
+    desc: Base64 data in rodata section
+    crit: notable                    # Can change criticality
+    if:
+      id: objectives/anti-static/obfuscation/encoding/base64::dense-base64-encoding
+      section: rodata                # Add section constraint
+      count_min: 10                  # Add count constraint
+```
+
+### When to Use Trait References
+
+**Good uses** (add value beyond the referenced trait):
+
+| Addition | Example |
+|----------|---------|
+| Section constraint | `section: rodata` - limit to specific section |
+| Count constraint | `count_min: 5` - require multiple occurrences |
+| Density constraint | `per_kb_min: 2.0` - require density |
+| Criticality change | `crit: suspicious` when base is `notable` |
+| Downgrade rules | Add `downgrade:` for context-aware severity |
+| Unless conditions | Add `unless:` to skip in certain contexts |
+
+**Bad uses** (pure aliases - will produce validation warnings):
+
+```yaml
+# ❌ BAD: Pure alias, no added value
+- id: stratum-tcp
+  desc: Stratum mining protocol
+  crit: notable                      # Same as referenced trait
+  if:
+    id: objectives/impact/cryptojacking/miner::stratum-tcp
+    # No section, count, downgrade, unless, etc.
+```
+
+If you need a short name for use in composite rules, reference the original trait directly instead:
+
+```yaml
+# ✅ GOOD: Reference directly in composite
+composite_rules:
+  - id: miner-indicators
+    any:
+      - id: objectives/impact/cryptojacking/miner::stratum-tcp
+      - id: objectives/impact/cryptojacking/miner::stratum-ssl
 ```
 
 ## Exception Directives

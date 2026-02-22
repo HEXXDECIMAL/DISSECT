@@ -86,7 +86,7 @@ traits:
     conf: 0.5
     if:
       type: string
-      regex: (?i)(?:\.pan\b|pan[_-]?(?:attack|flood)|\bpan[_-]?ddos)
+      regex: (?i)(\.pan\b|pan[_-]?(attack|flood)|\bpan[_-]?ddos)
   - id: attack-udp
     desc: UDP attack type indicator
     crit: notable

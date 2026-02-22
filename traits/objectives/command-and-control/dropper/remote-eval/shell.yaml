@@ -12,7 +12,7 @@ traits:
   attack: T1059.004
   if:
     type: raw
-    regex: (?:curl|wget)\s+[^|]{0,50}\|\s*(?:sh|bash)
+    regex: (curl|wget)\s+[^|]{0,50}\|\s*sh
 - id: download-execute-quiet
   desc: Silent download and execute
   crit: suspicious
@@ -20,21 +20,21 @@ traits:
   attack: T1059.004
   if:
     type: raw
-    regex: (?:curl\s+-[so]|wget\s+-[qO])\s+[^|]{0,50}\|\s*(?:sh|bash)
+    regex: (curl\s+-[so]|wget\s+-[qO])\s+[^|]{0,50}\|\s*sh
 - id: download-save-execute
   desc: Downloads, saves, and executes
   crit: suspicious
   conf: 0.9
   if:
     type: raw
-    regex: (?:curl\s+-o|wget\s+-O)\s+\S+[^&]{0,50}&&[^&]{0,30}chmod\s+\+x
+    regex: (curl\s+-o|wget\s+-O)\s+\S+[^&]{0,50}&&[^&]{0,30}chmod\s+\+x
 - id: download-url-hardcoded
   desc: Hardcoded download URL
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: (?:curl|wget)\s+[^\n]{0,50}https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
+    regex: (curl|wget)\s+[^\n]{0,50}https?://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
   unless:
   - type: raw
     regex: 127\.0\.0\.1|0\.0\.0\.0
@@ -58,14 +58,14 @@ traits:
   conf: 0.85
   if:
     type: raw
-    regex: command\s+-v\s+(?:curl|wget)
+    regex: command\s+-v\s+(curl|wget)
 - id: loader-selection-env-var
   desc: LDR/WGET/DL env var for curl/wget
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: \b(?:LDR|WGET|DL)\s*=\s*(?:curl|wget)
+    regex: \b(LDR|WGET|DL)\s*=\s*(curl|wget)
 composite_rules:
 - id: loader-selection
   desc: Selects curl or wget dynamically

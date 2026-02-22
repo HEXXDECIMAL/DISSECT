@@ -10,7 +10,7 @@ traits:
   - package.json
   if:
     type: string
-    regex: '"main":\s*"(?:index\.js|dist/|lib/|src/)'
+    regex: '"main":\s*"(index\.js|dist/|lib/|src/)'
 - id: has-types-entry
   desc: Package has TypeScript types entry
   crit: notable
@@ -28,7 +28,7 @@ traits:
   - package.json
   if:
     type: string
-    regex: '"sideEffects":\s*(?:false|\[)'
+    regex: '"sideEffects":\s*(false|\[)'
 - id: has-browserslist
   desc: Package has browser target configuration
   crit: notable

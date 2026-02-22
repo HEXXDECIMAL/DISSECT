@@ -24,7 +24,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "#ifdef\\s+__(?:x86_64|arm|i386)__"
+      regex: "#ifdef\\s+__(x86_64|arm|i386)__"
 
   - id: arch-macro-detection-2
     desc: Architecture detection macros (aarch64)
@@ -33,7 +33,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "#ifdef\\s+__(?:aarch64)__"
+      regex: "#ifdef\\s+__(aarch64)__"
 
   - id: arch-const-mapping-1
     desc: Multi-architecture numeric constant mapping (x86/arm)
@@ -42,7 +42,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "#elif\\s+__(?:x86_64|arm|i386)__"
+      regex: "#elif\\s+__(x86_64|arm|i386)__"
       count_min: 2
 
   - id: arch-const-mapping-2
@@ -52,7 +52,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "#elif\\s+__(?:aarch64)__"
+      regex: "#elif\\s+__(aarch64)__"
       count_min: 2
 
   - id: arch-aware-lib-filter-1
@@ -62,7 +62,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:x86_64|arm|i386)"\s*\)'
+      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(x86_64|arm|i386)"\s*\)'
 
   - id: arch-aware-lib-filter-2
     desc: Architecture-aware library filtering (aarch64/linux)
@@ -71,7 +71,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(?:aarch64|linux)"\s*\)'
+      regex: 'strstr\s*\(\s*[^,]{1,120}d_name\s*,\s*"(aarch64|linux)"\s*\)'
 
   # === Library Resolver Function Patterns ===
   # Function naming patterns that suggest library resolution code
@@ -83,7 +83,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "(?i)\\b(?:resolve|search)[_-]?(?:lib(?:rary)?|so|shared)\\b"
+      regex: "(?i)\\b(resolve|search)[_-]?(lib(rary)?|so|shared)\\b"
 
   - id: resolve-library-fn-2
     desc: Library resolver function name (find/lookup)
@@ -92,7 +92,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "(?i)\\b(?:find|lookup)[_-]?(?:lib(?:rary)?|so|shared)\\b"
+      regex: "(?i)\\b(find|lookup)[_-]?(lib(rary)?|so|shared)\\b"
 
   - id: global-search-library-fn
     desc: Global library search function
@@ -101,7 +101,7 @@ traits:
     for: [c]
     if:
       type: raw
-      regex: "(?i)\\bglobal[_-]?search[_-]?lib(?:rary)?\\b"
+      regex: "(?i)\\bglobal[_-]?search[_-]?lib(rary)?\\b"
 
 
   # === macOS Spotlight Application Discovery ===

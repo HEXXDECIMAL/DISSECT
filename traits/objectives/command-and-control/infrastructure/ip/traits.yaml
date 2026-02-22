@@ -37,15 +37,7 @@ traits:
     if:
       id: micro-behaviors/communications/network/ip::external-ipv4-script
 
-  - id: http-raw-ip-url
-    desc: HTTP direct IP in extracted strings
-    crit: suspicious
-    conf: 0.95
-    mbc: "B0030"
-    attack: "T1071.001"
-    for: [elf, macho, pe, scripts]
-    if:
-      id: micro-behaviors/communications/network/ip::http-ip-url
+  # Removed: http-raw-ip-url was a pure alias to micro-behaviors/communications/network/ip::http-ip-url
 
   # === Port number atomic indicators ===
   - id: port-23

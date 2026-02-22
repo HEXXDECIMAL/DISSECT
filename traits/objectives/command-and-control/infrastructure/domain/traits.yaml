@@ -5,13 +5,7 @@ defaults:
   attack: T1071.001
 
 traits:
-- id: iplogger-domain
-  desc: iplogger.org malicious domain
-  crit: suspicious
-  conf: 1.0
-  attack: T1105
-  if:
-    id: objectives/discovery/network/ip-tracker::iplogger
+# Removed: iplogger-domain was a pure alias to objectives/discovery/network/ip-tracker::iplogger
 
 - id: evilpacket-net
   desc: Evilpacket.net malicious domain
@@ -66,7 +60,7 @@ traits:
   size_max: 1000000
   if:
     type: string
-    regex: (?:https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,6}(?:[/?#]|$|:)
+    regex: (https?|wss?)://[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,6}([/?#]|$|:)
   not:
     - substr: "ezgif.com"
     - substr: "w3.org"
@@ -136,7 +130,7 @@ traits:
   - scripts
   if:
     type: string
-    regex: (?:https?|wss?)://(?:[a-zA-Z0-9][-a-zA-Z0-9]*\.){1,6}[a-zA-Z]{2,6}(?:/|$|:)
+    regex: (https?|wss?)://([a-zA-Z0-9][-a-zA-Z0-9]*\.){1,6}[a-zA-Z]{2,6}(/|$|:)
   not:
     - substr: "ezgif.com"
     - substr: "w3.org"
@@ -410,7 +404,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: https?://[a-zA-Z0-9][-a-zA-Z0-9.]{1,120}(?::[0-9]+)?/.{0,220}\.php(?:[?#]|$)
+    regex: https?://[a-zA-Z0-9][-a-zA-Z0-9.]{1,120}(:[0-9]+)?/.{0,220}\.php([?#]|$)
   not:
     - regex: '(?i)sourceforge\.net'
     - regex: '(?i)vim\.org'
@@ -489,7 +483,7 @@ traits:
   attack: T1071
   if:
     type: string
-    regex: '[a-z0-9-]+\.vercel\.app(?:/|$)'
+    regex: '[a-z0-9-]+\.vercel\.app(/|$)'
 
 - id: replit-dev
   desc: Replit.dev endpoint
@@ -498,7 +492,7 @@ traits:
   attack: T1071
   if:
     type: string
-    regex: (?:[a-z0-9-]{1,63}\.){1,6}replit\.dev
+    regex: ([a-z0-9-]{1,63}\.){1,6}replit\.dev
 
 - id: repl-co
   desc: Repl.co endpoint
@@ -507,7 +501,7 @@ traits:
   attack: T1071
   if:
     type: string
-    regex: (?:[a-z0-9-]{1,63}\.){1,6}repl\.co
+    regex: ([a-z0-9-]{1,63}\.){1,6}repl\.co
 
 - id: replit-id-domain
   desc: Replit ID endpoint (commonly abused)
@@ -563,7 +557,7 @@ traits:
     regex: sina\.com\.cn|163\.com|126\.com|sohu\.com|qq\.com|yahoo\.com\.cn|mysite|rambler\.ru|yandex\.ru|mail\.ru|tbcdn\.cn|xn--hgi\.ws|a\.b\.c\.xyz
   if:
     type: raw
-    regex: '[''\"](?:https?://)?(?:[a-zA-Z0-9-]{1,63}\.){1,4}(?:ru|cn|xyz|top)[''"/:]'
+    regex: '[''\"](https?://)?([a-zA-Z0-9-]{1,63}\.){1,4}(ru|cn|xyz|top)[''"/:]'
 
 - id: suspicious-php-filename
   desc: Suspicious PHP endpoint URL (gate/upload/etc)
@@ -571,7 +565,7 @@ traits:
   conf: 0.85
   if:
     type: string
-    regex: https?://[^/]{1,120}/.{0,120}(?:gate|cmd|shell|payload)\.php
+    regex: https?://[^/]{1,120}/.{0,120}(gate|cmd|shell|payload)\.php
 
 - id: internal-api-probe-local
   desc: Probes internal/localhost API endpoints
@@ -583,7 +577,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: http://(?:internal|localhost)[-a-zA-Z0-9.]*/(?:api|health|status)
+    regex: http://(internal|localhost)[-a-zA-Z0-9.]*/(api|health|status)
 
 - id: internal-api-probe-10
   desc: Probes 10.x API endpoints
@@ -595,7 +589,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: http://10\.[-a-zA-Z0-9.]*/(?:api|health|status)
+    regex: http://10\.[-a-zA-Z0-9.]*/(api|health|status)
 
 - id: dynamic-dns-domain-pattern
   desc: Dynamic DNS domain pattern
@@ -603,7 +597,7 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b[a-zA-Z0-9][-a-zA-Z0-9]*\.(?:duckdns|no-ip|ddns|hopto)\.[a-z]{2,6}\b
+    regex: \b[a-zA-Z0-9][-a-zA-Z0-9]*\.(duckdns|no-ip|ddns|hopto)\.[a-z]{2,6}\b
 
 composite_rules:
 - id: internal-api-probe

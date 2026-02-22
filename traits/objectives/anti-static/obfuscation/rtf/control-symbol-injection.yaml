@@ -8,5 +8,5 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: "(?:(?:\\\\\\+){1,2}[0-9a-fA-F]\\s*){4,}"
+      regex: "((\\\\\\+){1,2}[0-9a-fA-F]\\s*){4,}"
       description: "Detects control symbol injection like \\+3\\++1"

@@ -9,7 +9,7 @@ traits:
   attack: T1555.003
   if:
     type: string
-    regex: (?i)Google/Chrome.{0,80}(?:Login Data|Cookies|Web Data|History)
+    regex: (?i)Google/Chrome.{0,80}(Login Data|History)
 - id: brave-path
   desc: Brave browser profile path
   crit: suspicious

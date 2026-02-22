@@ -8,7 +8,7 @@ traits:
     if:
       type: string
       regex: |
-        \[\s*['"](?:[A-Z]:\\\\|/)['"]\s*,\s*['"](?:[A-Z]:\\\\|/home)['"]\s*
+        \[\s*['"]([A-Z]:\\\\|/)['"]\s*,\s*['"]([A-Z]:\\\\|/home)['"]\s*
     unless:
       - id: metadata/library/prototype::copyright
       - id: metadata/library/prototype::header-x

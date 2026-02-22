@@ -17,7 +17,7 @@ traits:
     crit: notable
     if:
       type: symbol
-      regex: '(?:ctypes\.)?CDLL'
+      regex: '(ctypes\.)?CDLL'
 
   # GuardDog: getattr obfuscation
   - id: getattr-write-process-memory

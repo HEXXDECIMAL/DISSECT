@@ -20,8 +20,7 @@ traits:
     attack: "T1082"
     for: [javascript, typescript]
     if:
-      type: string
-      regex: 'os\.homedir\(\)'
+      id: objectives/discovery/host/system/javascript::js-os-homedir
 
   - id: node-userinfo
     desc: Collects user account information

@@ -7,13 +7,7 @@ defaults:
 
 traits:
   # === Config file access atomic indicators ===
-  - id: ssh-id-rsa
-    desc: SSH private key path
-    crit: notable
-    conf: 0.6
-    if:
-      id: objectives/credential-access/ssh/key::id-rsa
-
+  # ssh-id-rsa removed - use objectives/credential-access/ssh/key::id-rsa
   # Removed aws-credentials-file duplicate - use micro-behaviors/fs/path/sensitive/cloud::aws-credentials
 
   - id: kube-config-file
@@ -353,7 +347,7 @@ composite_rules:
     crit: suspicious
     conf: 0.7
     any:
-      - id: ssh-id-rsa
+      - id: objectives/credential-access/ssh/key::id-rsa
       - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
       - id: kube-config-file
 

@@ -8,7 +8,7 @@ traits:
     attack: T1546
     if:
       type: raw
-      regex: '[$]?(?:fwrite|fputs|file_put_contents|fopen)\s*[(]'
+      regex: '[$]?(fwrite|fputs|file_put_contents|fopen)\s*[(]'
       case_insensitive: true
 
   - id: php-file-write-spl

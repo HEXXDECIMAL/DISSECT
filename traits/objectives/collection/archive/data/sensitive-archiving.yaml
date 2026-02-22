@@ -7,7 +7,7 @@ composite_rules:
     crit: notable
     any:
       - id: objectives/credential-access/ssh/key::id-rsa
-      - id: objectives/credential-access/cloud/token::gcloud-config
+      - id: micro-behaviors/fs/path/sensitive/credentials::gcloud-credentials
       - id: objectives/credential-access/cloud/token::gcp-default-credentials
 
   - id: sensitive-archiving

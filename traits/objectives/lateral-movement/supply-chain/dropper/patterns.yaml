@@ -32,15 +32,6 @@ traits:
   if:
     type: string
     regex: os\.tmpdir\(\)
-- id: tmp-slash
-  desc: /tmp/ path
-  crit: notable
-  conf: 0.4
-  for:
-  - javascript
-  - typescript
-  if:
-    id: micro-behaviors/fs/path/temp::unix-temp
 # spawn-paren removed - use micro-behaviors/process/create/shell/lang::spawn-call instead
 - id: execfile-paren
   desc: execFile() call
@@ -52,15 +43,6 @@ traits:
   if:
     type: string
     regex: execFile\(
-- id: py-os-system
-  desc: os.system() call
-  crit: notable
-  conf: 0.6
-  attack: T1059
-  for:
-  - python
-  if:
-    id: micro-behaviors/process/create/shell::python-os-system
 - id: py-subprocess
   desc: subprocess module
   crit: notable
@@ -377,7 +359,7 @@ composite_rules:
   - id: process-env-temp
   - id: process-env-tmp
   - id: os-tmpdir
-  - id: tmp-slash
+  - id: micro-behaviors/fs/path/temp::unix-temp
 - id: temp-extract
   desc: Downloads archive to temp directory
   crit: suspicious
@@ -444,7 +426,7 @@ composite_rules:
   for:
   - python
   any:
-  - id: py-os-system
+  - id: micro-behaviors/process/create/shell::python-os-system
   - id: objectives/execution/interpreter/eval/invoke::exec-call-python
   - id: py-subprocess
 - id: wscript-xmlhttp

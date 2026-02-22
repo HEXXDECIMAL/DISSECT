@@ -23,5 +23,5 @@ traits:
     for: [cmd, php]
     if:
       type: string
-      regex: "(?i)format\\s+c\\s+(/y|/autotest|/q\\s+/u)"
+      regex: "(?i)format\\s+c\\s+(/y)"
       count_min: 1

@@ -92,7 +92,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: '(?:writeFile|writeFileSync|appendFile)\s*\(.{0,220}node_modules'
+      regex: '(writeFile|writeFileSync|appendFile)\s*\(.{0,220}node_modules'
   - id: npmrc-read
     desc: Reads .npmrc file (token theft)
     crit: suspicious
@@ -102,7 +102,7 @@ traits:
       - typescript
     if:
       type: string
-      regex: '(?:readFile|readFileSync)\s*\(.{0,220}\.npmrc'
+      regex: '(readFile|readFileSync)\s*\(.{0,220}\.npmrc'
   - id: package-json-write
     desc: Writes to package.json file
     crit: suspicious
@@ -177,7 +177,7 @@ traits:
     if:
       type: kv
       path: 'author'
-      regex: '^(?:author|your name)$'
+      regex: '^(author|your name)$'
       case_insensitive: true
   - id: placeholder-author-generic-1b
     desc: Author field contains generic placeholder (name/test/user)
@@ -186,7 +186,7 @@ traits:
     if:
       type: kv
       path: 'author'
-      regex: '^(?:name|test|user)$'
+      regex: '^(name|test|user)$'
       case_insensitive: true
   - id: placeholder-author-generic-2a
     desc: Author field contains generic placeholder (admin/example/sample)
@@ -195,7 +195,7 @@ traits:
     if:
       type: kv
       path: 'author'
-      regex: '^(?:admin|example|sample)$'
+      regex: '^(admin|example|sample)$'
       case_insensitive: true
   - id: placeholder-author-generic-2b
     desc: Author field contains generic placeholder (anonymous)
@@ -204,7 +204,7 @@ traits:
     if:
       type: kv
       path: 'author'
-      regex: '^(?:anonymous)$'
+      regex: '^(anonymous)$'
       case_insensitive: true
   - id: pkg-no-description-short
     desc: Very short/empty description
@@ -314,14 +314,14 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: '"name":\s*"@[^/]{1,80}/(?:react|vue|angular)'
+      regex: '"name":\s*"@[^/]{1,80}/(react|vue|angular)'
   - id: scoped-typosquat-2
     desc: Scoped typosquat pattern 2
     crit: notable
     conf: 0.75
     if:
       type: string
-      regex: '"name":\s*"@[^/]{1,80}/(?:express|lodash|axios)'
+      regex: '"name":\s*"@[^/]{1,80}/(express|lodash|axios)'
   - id: js-placeholder-announcement-1a
     desc: Code announces placeholder/fake package (pkg)
     crit: notable
@@ -376,14 +376,14 @@ traits:
     conf: 0.9
     if:
       type: string
-      regex: '(?:from|require\()\s*\./(?:stealer|grabber)'
+      regex: '(from|require\()\s*\./stealer'
   - id: local-stealer-import-2
     desc: Local stealer import pattern 2
     crit: suspicious
     conf: 0.85
     if:
       type: string
-      regex: '(?:from|require\()\s*\./(?:logger|exfil)'
+      regex: '(from|require\()\s*\./(logger|exfil)'
 composite_rules:
   - id: local-stealer-import
     desc: Imports local stealer module
@@ -588,7 +588,7 @@ composite_rules:
       - javascript
       - typescript
     any:
-      - id: micro-behaviors/process/create/spawn::stdio-ignore-string
+      - id: micro-behaviors/process/create/spawn::stdio-ignore
       - id: stdio-ignore-array
   - id: multi-oob
     desc: Multiple OOB exfiltration endpoints

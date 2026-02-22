@@ -30,7 +30,7 @@ traits:
     desc: extension activate function
     if:
       type: string
-      regex: 'function\s+activate\b|activate\s*[:=]\s*function'
+      regex: '^function\s+activate\b|activate\s*[:=]\s*function'
 
   - id: global-state
     desc: vscode globalState access

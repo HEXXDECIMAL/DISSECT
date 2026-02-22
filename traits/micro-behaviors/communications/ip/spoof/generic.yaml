@@ -80,7 +80,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: "(?:rand|rand_cmwc|rand_r)\\s*\\(\\s*\\)"
+      regex: "(rand|rand_cmwc|rand_r)\\s*\\(\\s*\\)"
 
   - id: bitwise-ip-shift-mask
     desc: Bit shift and 0xFF mask pattern

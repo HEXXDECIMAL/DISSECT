@@ -46,7 +46,7 @@ traits:
     for: [batch, shell]
     if:
       type: raw
-      regex: '(?i)del\s+(?:/[a-z]\s+){0,3}"?%~f0"?'
+      regex: '(?i)del\s+(/[a-z]\s+){0,3}"?%~f0"?'
 
 composite_rules:
   - id: delete-win

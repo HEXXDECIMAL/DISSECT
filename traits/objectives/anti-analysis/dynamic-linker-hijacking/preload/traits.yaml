@@ -8,33 +8,11 @@ traits:
       - elf
       - shell
     if:
-      type: string
-      regex: (LD_PRELOAD|LD_PRELOAD=)
+      id: objectives/evasion/hijack-execution-flow/env/preload::ld-preload-string
     downgrade:
       any:
         - id: metadata/dev/testing/gnu-tests::gnu-coreutils-test
 
-  - id: dlfcn-hook-symbol
-    desc: _dlfcn_hook dynamic linker hook
-    crit: suspicious
-    conf: 0.9
-    for:
-      - elf
-    if:
-      type: symbol
-      regex: (^_dlfcn_hook$|_dlfcn_hook)
-    attack: T1547.015
-  - id: rtld-next-symbol
-    desc: RTLD_NEXT runtime linker symbol
-    crit: suspicious
-    conf: 0.85
-    for:
-      - elf
-      - shell
-    if:
-      type: string
-      regex: (RTLD_NEXT|dlsym\(RTLD_NEXT)
-    attack: T1547.015
   - id: dlopen-call
     desc: dlopen dynamic loading call
     crit: notable
@@ -76,7 +54,7 @@ traits:
       - shell
     if:
       type: string
-      regex: LD_PRELOAD\s*=\s*[^\s]{0,120}libc(?:\.so|-)
+      regex: LD_PRELOAD\s*=\s*[^\s]{0,120}libc(\.so|-)
   - id: libc-preload-file
     desc: ld.so.preload references libc
     crit: suspicious
@@ -86,7 +64,7 @@ traits:
       - shell
     if:
       type: string
-      regex: ld\.so\.preload[^\n]{0,80}libc(?:\.so|-)
+      regex: ld\.so\.preload[^\n]{0,80}libc(\.so|-)
 composite_rules:
   - id: dlopen-dlsym-pattern
     desc: dlopen+dlsym dynamic loading pair
@@ -122,7 +100,7 @@ composite_rules:
     attack: T1547.015
     needs: 2
     any:
-      - id: rtld-next-symbol
+      - id: objectives/anti-analysis/kernel-hide/userspace::dlsym-rtld-next-pattern
       - id: dlopen-dlsym-pattern
       - id: function-interception
   - id: dynamic-linker-hijacking
@@ -136,7 +114,7 @@ composite_rules:
     mbc: E1104
     needs: 2
     any:
-      - id: dlfcn-hook-symbol
+      - id: micro-behaviors/dylib/lookup::dlfcn-hook-symbol
       - id: ld-environment-hijacking
       - id: dynamic-function-interception
   - id: libc-preload

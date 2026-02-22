@@ -12,5 +12,5 @@ traits:
     regex: function test\s*\(\)\s*\{
   if:
     type: string
-    regex: \d{1,3}(?:\.\d{1,3}){3}:[0-9]{1,5}
+    regex: \d{1,3}(\.\d{1,3}){3}:[0-9]{1,5}
 composite_rules: []

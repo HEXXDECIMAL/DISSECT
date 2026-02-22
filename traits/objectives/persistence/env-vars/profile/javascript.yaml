@@ -54,8 +54,8 @@ traits:
     crit: notable
     conf: 0.6
     if:
-      type: symbol
-      regex: "process\\.env\\.APPDATA"
+      type: string
+      substr: "process.env.APPDATA"
 
   - id: env-userprofile
     desc: Windows USERPROFILE directory access

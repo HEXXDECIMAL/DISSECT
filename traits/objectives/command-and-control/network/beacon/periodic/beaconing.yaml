@@ -77,14 +77,6 @@ traits:
       type: string
       exact: "while True:"
 
-  - id: infinite-while-one
-    desc: Infinite while 1 loop
-    crit: notable
-    conf: 0.50
-    if:
-      type: string
-      regex: "while\\s+1:"
-
   # === Error Handling in Loops ===
   - id: try-except-sleep
     desc: Try-except with sleep

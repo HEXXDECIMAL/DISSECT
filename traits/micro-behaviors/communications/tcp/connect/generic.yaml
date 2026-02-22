@@ -57,7 +57,7 @@ traits:
   conf: 0.6
   if:
     type: string
-    regex: "connection (?:abort|dropped)"
+    regex: "connection (abort|dropped)"
 composite_rules:
 - id: connect
   desc: TCP connection operations

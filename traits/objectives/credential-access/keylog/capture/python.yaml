@@ -123,13 +123,7 @@ traits:
       type: string
       regex: "on_release\\s*="
 
-  - id: pynput-keyboard
-    desc: pynput keyboard import
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      regex: "pynput.{0,30}keyboard"
+  # pynput-keyboard removed - use objectives/collection/monitor/watch::pynput-keyboard
 
   # HookKeyboard method call
   - id: python-hook-keyboard
@@ -253,7 +247,7 @@ composite_rules:
       - id: import-pyhook
       - id: import-pywinhook
       - id: import-keyboard
-      - id: pynput-keyboard
+      - id: objectives/collection/monitor/watch::pynput-keyboard
 
   # File open for write/append composite
   - id: python-file-open-write

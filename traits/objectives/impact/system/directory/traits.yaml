@@ -76,7 +76,7 @@ traits:
   conf: 0.6
   if:
     type: string
-    regex: (?:rmdir|rd).{0,30}(/s|/q)
+    regex: rd.{0,30}(/s|/q)
 - id: windows-system32-delete-cmd-first
   desc: Windows System32 deletion (cmd first)
   crit: suspicious
@@ -92,18 +92,32 @@ traits:
     regex: '[Ss]ystem32.{0,50}(rmdir|del|remove)'
     platforms: [windows]
 - id: windows-recursive-delete-rd
-  desc: Windows recursive deletion (rmdir/rd)
+  desc: Windows recursive deletion via rmdir/rd
   crit: suspicious
   if:
     type: string
-    regex: (?:r(?:d|mdir)\s+/s).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
+    regex: r(d|mdir)\s+/s
+    platforms: [windows]
+- id: windows-recursive-delete-target-windir
+  desc: Windows recursive deletion target WINDIR
+  crit: notable
+  if:
+    type: string
+    substr: "%WINDIR%"
+    platforms: [windows]
+- id: windows-recursive-delete-target-systemroot
+  desc: Windows recursive deletion target SYSTEMROOT
+  crit: notable
+  if:
+    type: string
+    substr: "%SYSTEMROOT%"
     platforms: [windows]
 - id: windows-recursive-delete-del
-  desc: Windows recursive deletion (del)
+  desc: Windows recursive deletion via del
   crit: suspicious
   if:
     type: string
-    regex: (?:del\s+/f\s+/q).{0,50}(?:Windows|%WINDIR%|%SYSTEMROOT%)
+    regex: del\s+/f\s+/q
     platforms: [windows]
 composite_rules:
 - id: windows-system32-delete
@@ -122,8 +136,32 @@ composite_rules:
   platforms:
   - windows
   any:
-    - id: windows-recursive-delete-rd
-    - id: windows-recursive-delete-del
+  - id: windows-recursive-delete-rd-path
+  - id: windows-recursive-delete-del-path
+- id: windows-recursive-delete-rd-path
+  desc: Windows recursive delete via rmdir with target
+  crit: suspicious
+  conf: 0.9
+  platforms:
+  - windows
+  all:
+  - id: windows-recursive-delete-rd
+  - id: windows-recursive-delete-target
+- id: windows-recursive-delete-del-path
+  desc: Windows recursive delete via del with target
+  crit: suspicious
+  conf: 0.9
+  platforms:
+  - windows
+  all:
+  - id: windows-recursive-delete-del
+  - id: windows-recursive-delete-target
+- id: windows-recursive-delete-target
+  desc: Windows recursive deletion target directories
+  crit: notable
+  any:
+  - id: windows-recursive-delete-target-windir
+  - id: windows-recursive-delete-target-systemroot
 - id: mbr-target
   desc: MBR/Boot sector targeting
   crit: suspicious

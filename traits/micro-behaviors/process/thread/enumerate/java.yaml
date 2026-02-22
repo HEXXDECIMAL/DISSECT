@@ -15,4 +15,4 @@ traits:
     for: [java]
     if:
       type: raw
-      regex: '\.enumerate\s*\(\s*[^,]{1,100},\s*(?:true|false)\s*\)'
+      regex: '\.enumerate\s*\(\s*[^,]{1,100},\s*(true|false)\s*\)'

@@ -9,17 +9,6 @@ traits:
   if:
     type: string
     substr: /etc/ssh/sshd_config
-- id: authorized-keys-path
-  desc: SSH authorized_keys credential file
-  crit: notable
-  conf: 0.7
-  for:
-  - elf
-  - shell
-  if:
-    type: string
-    regex: (authorized_keys|\.ssh/authorized_keys)
-  attack: T1098.004
 - id: ssh-key-generation
   desc: SSH key generation pattern
   crit: notable
@@ -29,7 +18,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (ssh-keygen|id_rsa|id_dsa|id_ecdsa)
+    substr: ssh-keygen
   attack: T1098.004
 - id: sshd-restart
   desc: SSH daemon restart or reload
@@ -110,7 +99,7 @@ composite_rules:
   mbc: C0027
   all:
   - id: ssh-config-modification
-  - id: authorized-keys-path
+  - id: objectives/credential-access/ssh/key::authorized-keys
 - id: ssh-key-theft
   desc: SSH credential harvesting
   crit: suspicious
@@ -120,5 +109,5 @@ composite_rules:
   - shell
   attack: T1555.003
   all:
-  - id: authorized-keys-path
+  - id: objectives/credential-access/ssh/key::authorized-keys
   - id: ssh-key-generation

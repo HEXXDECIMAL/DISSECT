@@ -68,7 +68,7 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: AppData.{0,50}Roaming.{0,50}Microsoft|Roaming.{0,50}Microsoft.{0,50}Windows
+    regex: AppData.{0,50}Roaming.{0,50}Microsoft.{0,50}Windows.{0,50}CurrentVersion
 - id: startup-folder-access
   desc: Startup folder path access
   crit: suspicious
@@ -77,33 +77,19 @@ traits:
     type: string
     regex: Start Menu.{0,50}Programs.{0,50}Startup.{0,50}boot
 - id: directory-masquerade-a
-  desc: Office name with grabber/logger
+  desc: Office name with grabber
   crit: suspicious
   conf: 0.8
   if:
     type: string
-    regex: (Powerpoint|Excel).{0,50}(grabber|logger)
+    regex: (Powerpoint|Excel|Word|Outlook).{0,50}grabber
 - id: directory-masquerade-b
-  desc: Office name with stealer/bot
+  desc: Office name with steal/bot naming
   crit: suspicious
   conf: 0.8
   if:
     type: string
-    regex: (Powerpoint|Excel).{0,50}(stealer|bot)
-- id: directory-masquerade-c
-  desc: Office alt with grabber/logger
-  crit: suspicious
-  conf: 0.8
-  if:
-    type: string
-    regex: (Word|Outlook).{0,50}(grabber|logger)
-- id: directory-masquerade-d
-  desc: Office alt with stealer/bot
-  crit: suspicious
-  conf: 0.8
-  if:
-    type: string
-    regex: (Word|Outlook).{0,50}(stealer|bot)
+    regex: (Powerpoint|Excel|Word|Outlook).{0,50}[sb][a-z]{2,7}
 composite_rules:
 - id: suspicious-folder-name
   desc: Suspicious folder name
@@ -123,8 +109,6 @@ composite_rules:
   any:
   - id: directory-masquerade-a
   - id: directory-masquerade-b
-  - id: directory-masquerade-c
-  - id: directory-masquerade-d
 - id: file-masquerade-execution
   desc: File masquerade for execution
   crit: suspicious

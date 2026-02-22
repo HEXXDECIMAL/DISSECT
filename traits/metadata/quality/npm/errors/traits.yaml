@@ -21,7 +21,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: ^(?:async\s+)?function\s+[a-z][a-zA-Z0-9]*\s*\(
+    regex: ^(async\s+)?function\s+[a-z][a-zA-Z0-9]*\s*\(
 - id: has-type-definitions
   desc: Code defines TypeScript interfaces
   crit: notable
@@ -30,7 +30,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: ^(?:export\s+)?(?:interface|type)\s+[A-Z]
+    regex: ^(export\s+)?(interface|type)\s+[A-Z]
 - id: has-buffer-encoding-1
   desc: Code uses Buffer (utf8/ascii)
   if:
@@ -50,7 +50,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: function\s*\(.{0,160},\s*(?:callback|cb|done|next)\)
+    regex: function\s*\(.{0,160},\s*(callback|cb|done|next)\)
 - id: use-strict
   desc: Code uses strict mode
   crit: notable
@@ -79,7 +79,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: (?:config|options|settings|opts)\s*=\s*\{
+    regex: (config|options|settings|opts)\s*=\s*\{
 - id: has-config-arg
   desc: Function parameter likely used as config/options
   crit: notable
@@ -89,7 +89,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: function\s*\(.{0,220}(?:config|options|settings)\)
+    regex: function\s*\(.{0,220}(config|options|settings)\)
 - id: has-logging-import-1
   desc: Code imports logging (winston/pino/bunyan)
   if:
@@ -139,7 +139,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: require\(['"](?:commander|yargs|meow|minimist)['"]\)
+    regex: require\(['"](commander|yargs|meow|minimist)['"]\)
 - id: has-cli-args-usage
   desc: Code uses CLI argument parser APIs
   crit: notable
@@ -149,7 +149,7 @@ traits:
   - typescript
   if:
     type: string
-    regex: program\.(?:command|option)\(
+    regex: program\.(command|option)\(
 - id: has-typescript-types-1
   desc: Code has TS type annotations (base)
   if:

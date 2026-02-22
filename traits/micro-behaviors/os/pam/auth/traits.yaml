@@ -173,7 +173,7 @@ traits:
     if:
       type: string
       # Match PAM config line format: "auth required pam_unix.so" etc.
-      regex: "(?:auth|account|password|session)\\s+required\\s+pam_"
+      regex: "(auth|account|password|session)\\s+required\\s+pam_"
 
   - id: pam-sufficient-control
     desc: PAM sufficient control flag
@@ -182,7 +182,7 @@ traits:
     if:
       type: string
       # Match PAM config line format: "auth sufficient pam_unix.so" etc.
-      regex: "(?:auth|account|password|session)\\s+sufficient\\s+pam_"
+      regex: "(auth|account|password|session)\\s+sufficient\\s+pam_"
 
 # === Composite Rules ===
 composite_rules:

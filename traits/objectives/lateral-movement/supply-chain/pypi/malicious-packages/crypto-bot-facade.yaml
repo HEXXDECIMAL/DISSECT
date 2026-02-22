@@ -34,44 +34,38 @@ traits:
     conf: 0.60
     if:
       type: raw
-      regex: "from\\s+(?:[a-zA-Z_]{1,30}\\.){0,6}utils\\s+import\\s+\\*"
+      regex: "from\\s+([a-zA-Z_]{1,30}\\.){0,6}utils\\s+import\\s+\\*"
 
   # === Crypto Trading Terminology ===
   - id: defi-protocol-ref-1
     desc: DeFi protocol (uniswap/sushiswap/pancakeswap)
     if:
-      type: string
-      regex: "(?i)(uniswap|sushiswap|pancakeswap)"
+      id: micro-behaviors/data/text/crypto/trading::defi-protocol-dex
 
   - id: defi-protocol-ref-2
     desc: DeFi protocol (curve/aave/compound)
     if:
-      type: string
-      regex: "(?i)(curve|aave|compound)"
+      id: micro-behaviors/data/text/crypto/trading::defi-protocol-lending
 
   - id: token-swap-pattern-1
     desc: Token swap (getReserves/calculatePrice/getPair)
     if:
-      type: string
-      regex: "(getReserves|calculatePrice|getPairContract)"
+      id: micro-behaviors/data/text/crypto/trading::contract-query
 
   - id: token-swap-pattern-2
     desc: Token swap (swapExact/swap_tokens)
     if:
-      type: string
-      regex: "(swapExact|swap_tokens)"
+      id: micro-behaviors/data/text/crypto/trading::swap-operations
 
   - id: arbitrage-terms-1
     desc: Arbitrage (arbitrage/arb_for/arb_against)
     if:
-      type: string
-      regex: "(arbitrage|arb_for|arb_against)"
+      id: micro-behaviors/data/text/crypto/trading::arbitrage-terms
 
   - id: arbitrage-terms-2
     desc: Arbitrage (price_difference/flash_loan)
     if:
-      type: string
-      regex: "(price_difference|flash_loan)"
+      id: micro-behaviors/data/text/crypto/trading::arbitrage-terms
 
   - id: web3-provider
     desc: Web3 provider usage

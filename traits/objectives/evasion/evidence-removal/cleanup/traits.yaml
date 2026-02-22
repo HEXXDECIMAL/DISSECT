@@ -8,7 +8,17 @@ traits:
   - shell
   if:
     type: string
-    regex: (\.ksh_history|HISTFILE=/dev/null)
+    regex: \.ksh_history
+  attack: T1070.003
+- id: history-clear-env-var
+  desc: Clear shell history via env var
+  crit: suspicious
+  conf: 0.8
+  for:
+  - elf
+  - shell
+  if:
+    id: micro-behaviors/os/env/vars::histfile-dev-null
   attack: T1070.003
 - id: sed-deletion-pattern
   desc: sed command for pattern deletion
@@ -52,7 +62,7 @@ traits:
   - shell
   if:
     type: string
-    regex: ((?:^|\s)find\s+.{0,50}-exec\s+rm|(?:^|\s)find\s+.{0,50}-delete\b)
+    regex: ((^|\s)find\s+.{0,50}-exec\s+rm|(^|\s)find\s+.{0,50}-delete\b)
   unless:
   - type: raw
     regex: gcc|gcov
@@ -66,7 +76,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (rm -f /etc/cron|crontab -r|rm.{0,80}cron)
+    regex: (rm -f /etc/cron|crontab -r)
   attack: T1070.003
 - id: systemd-cleanup
   desc: Systemd service removal
@@ -77,7 +87,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (rm -f /etc/systemd/system/|systemctl disable|systemctl stop)
+    substr: "rm -f /etc/systemd/system/"
   attack: T1070.003
 - id: syslog-truncate
   desc: System log truncation
@@ -99,7 +109,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (/var/log/wtmp|/var/log/utmp|/var/run/utmp)
+    regex: (/var/log/utmp|/var/run/utmp)
   attack: T1070.003
 - id: history-clear-bash
   desc: Clear bash history
@@ -125,6 +135,7 @@ composite_rules:
   any:
   - id: history-clear-bash
   - id: history-clear-shell
+  - id: history-clear-env-var
 - id: process-cleanup
   desc: Process trace cleanup
   crit: suspicious

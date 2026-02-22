@@ -9,39 +9,11 @@ defaults:
   platforms: [windows]
 
 traits:
-  # === File Extension Indicators ===
-  - id: exe-extension
-    desc: .exe executable file extension reference
-    conf: 0.4
-    if:
-      id: micro-behaviors/fs/path/extension::exe
-
-  - id: bat-extension
-    desc: .bat batch script file extension reference
-    conf: 0.4
-    if:
-      id: micro-behaviors/fs/path/extension::bat
-
-  - id: ps1-extension
-    desc: .ps1 PowerShell script file extension reference
-    if:
-      id: micro-behaviors/fs/path/extension::ps1
-
-  - id: vbs-extension
-    desc: .vbs VBScript file extension reference
-    if:
-      id: micro-behaviors/fs/path/extension::vbs
-
   # === Command References ===
   - id: cmd-name
     desc: cmd command name
     if:
       id: micro-behaviors/process/create/shell::cmd-name
-
-  - id: powershell-name
-    desc: powershell command name
-    if:
-      id: micro-behaviors/process/create/shell/lang::powershell-keyword
 
 composite_rules:
   - id: cmd-exe
@@ -55,7 +27,7 @@ composite_rules:
     desc: powershell.exe executable reference
     all:
       - id: micro-behaviors/fs/path/extension::exe
-      - id: powershell-name
+      - id: micro-behaviors/process/create/shell/lang::powershell-keyword
 
   # Composite for any Windows executable file type reference
   - id: windows-executable-ref
@@ -64,9 +36,6 @@ composite_rules:
     conf: 0.6
     platforms: [windows]
     any:
-      - id: exe-extension
-      - id: bat-extension
-      - id: ps1-extension
-      - id: vbs-extension
-      - id: powershell-name
+      - id: micro-behaviors/fs/path/extension
+      - id: micro-behaviors/process/create/shell/lang::powershell-keyword
       - id: cmd-exe

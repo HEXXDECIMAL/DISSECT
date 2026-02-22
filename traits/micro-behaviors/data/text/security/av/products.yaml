@@ -22,7 +22,7 @@ traits:
   - pe
   if:
     type: string
-    regex: (?i)Rapport(?:Service|MgmtService|Aegle64|EI64)
+    regex: (?i)Rapport(Service|MgmtService|Aegle64|EI64)
 - id: trusteer-rapport-services-b
   desc: Trusteer Rapport service names
   crit: notable
@@ -30,7 +30,7 @@ traits:
   - pe
   if:
     type: string
-    regex: (?i)Rapport(?:Hades64|KE64|PG64)
+    regex: (?i)Rapport(Hades64|KE64|PG64)
 composite_rules:
 - id: trusteer-rapport-services
   desc: Trusteer Rapport service names

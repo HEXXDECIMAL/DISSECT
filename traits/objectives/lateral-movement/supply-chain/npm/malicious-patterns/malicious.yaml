@@ -10,21 +10,21 @@ traits:
     conf: 0.75
     if:
       type: string
-      regex: process\.env\.(?:TOKEN|KEY|AUTH)
+      regex: process\.env\.(TOKEN|KEY|AUTH)
   - id: process-env-token-2
     desc: Accesses process.env (SECRET/PASSWORD)
     crit: notable
     conf: 0.75
     if:
       type: string
-      regex: process\.env\.(?:SECRET|PASSWORD)
+      regex: process\.env\.(SECRET|PASSWORD)
   - id: process-env-npm-token
     desc: Accesses process.env for NPM tokens
     crit: suspicious
     conf: 0.9
     if:
       type: string
-      regex: process\.env\.(?:NPM_TOKEN|NPMRC_TOKEN)
+      regex: process\.env\.(NPM_TOKEN|NPMRC_TOKEN)
   - id: encoded-id-exfil
     desc: Encoded victim identifier
     crit: notable

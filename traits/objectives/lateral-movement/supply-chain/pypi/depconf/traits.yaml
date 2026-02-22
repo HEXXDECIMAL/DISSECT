@@ -21,7 +21,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: "(?:proof.of.concept|\\bpoc\\b|security.research)"
+      regex: "(proof.of.concept|\\bpoc\\b|security.research)"
       case_insensitive: true
 
   - id: summary-poc-research-2
@@ -29,7 +29,7 @@ traits:
     if:
       type: kv
       path: summary
-      regex: "(?:bug.bounty|dependency.confusion)"
+      regex: "(bug.bounty|dependency.confusion)"
       case_insensitive: true
 
   - id: summary-confirms-install

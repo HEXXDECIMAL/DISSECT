@@ -38,12 +38,13 @@ traits:
       type: string
       exact: "SSH_AGENT_PID"
 
-  - id: ssh-env-prefix
-    desc: SSH_* environment variable (any)
-    conf: 0.5
-    if:
-      type: string
-      regex: '^SSH_[A-Z_]+'
-    unless:
-      - type: string
-        exact: SSH_PRIVATE_KEY
+composite_rules:
+  - id: ssh-env-any
+    desc: Any SSH environment variable
+    conf: 0.6
+    any:
+      - id: ssh-connection-var
+      - id: ssh-client-var
+      - id: ssh-tty-var
+      - id: ssh-auth-sock-var
+      - id: ssh-agent-pid-var

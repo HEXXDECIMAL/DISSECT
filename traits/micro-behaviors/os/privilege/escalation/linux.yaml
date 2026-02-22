@@ -22,4 +22,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(?:Give|Gain|Get) root privil[ae]ges"
+      regex: "(Give|Gain|Get) root privil[ae]ges"

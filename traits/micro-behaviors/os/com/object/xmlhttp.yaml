@@ -16,7 +16,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '(?i)(Msxml2\.XMLHTTP|Microsoft\.XMLHTTP)'
+      regex: '(?i)Msxml2\.XMLHTTP'
 
   - id: clsid-xmlhttp-raw
     desc: Msxml2.XMLHTTP CLSID (Raw string)

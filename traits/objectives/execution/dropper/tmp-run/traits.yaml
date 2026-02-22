@@ -22,7 +22,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: '/tmp/[a-zA-Z_]+'
+      regex: '/tmp/[a-zA-Z_]+$'
 
   - id: os-remove
     desc: Python os.remove call to delete

@@ -7,14 +7,7 @@ defaults:
 
 traits:
   # === Reverse shell string patterns ===
-  - id: reverse-shell-string
-    desc: reverse shell string pattern
-    crit: suspicious
-    conf: 0.7
-    attack: "T1059"
-    if:
-      type: string
-      regex: "(?i)(r[e3]v[e3]rs[e3]|w[3e]b)\\s*sh[e3]ll"
+  # Removed: reverse-shell-string was a pure alias to micro-behaviors/data/text/malware::generic-term-reverse-shell
 
   - id: revshell-string
     desc: revshell string
@@ -42,7 +35,7 @@ composite_rules:
     conf: 0.7
     attack: "T1059"
     any:
-      - id: reverse-shell-string
+      - id: micro-behaviors/data/text/malware::generic-term-reverse-shell
       - id: revshell-string
 
   # Reverse shell composite (migrated from YARA)

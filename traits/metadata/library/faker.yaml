@@ -11,7 +11,7 @@ traits:
     conf: 1.0
     if:
       type: string
-      regex: 'module(?:\[[''exports'']\]|\.exports)\s*=\s*faker'
+      regex: 'module(\[[''exports'']\]|\.exports)\s*=\s*faker'
 
   - id: faker-js-export-str1
     desc: Faker.js export pattern (str1)

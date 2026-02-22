@@ -54,7 +54,7 @@ traits:
     if:
       type: string
       # Match "raw mode", "setraw", "stty raw" etc. Keep cfmakeraw in objectives/pty-shell.
-      regex: "\\braw\\s*(mode)?\\b|setraw|stty\\s+raw"
+      regex: "\\braw\\s+mode\\b|setraw|stty\\s+raw"
 
 composite_rules:
   - id: tty-markers

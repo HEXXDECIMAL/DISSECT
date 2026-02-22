@@ -98,7 +98,7 @@ traits:
   - shell
   if:
     type: string
-    regex: (nmap -p|nmap -sS|nmap -sT)
+    substr: "nmap -p"
   attack: T1046
 - id: ssh-key-reuse
   desc: stolen SSH key usage detected

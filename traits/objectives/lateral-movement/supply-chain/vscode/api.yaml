@@ -30,14 +30,6 @@ traits:
       kind: call
       exact: "openTextDocument"
 
-  - id: globalState
-    desc: VSCode extension globalState access
-    crit: notable
-    conf: 0.7
-    for: [javascript, typescript]
-    if:
-      id: micro-behaviors/process/create/shell/host::global-state
-
   # === Extension Activation atomic indicators ===
   - id: function-activate
     desc: function activate definition

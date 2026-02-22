@@ -14,7 +14,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '\bgcc\s+(?:-|[a-zA-Z0-9_./]+)'
+      regex: '\bgcc\s+(-|[a-zA-Z0-9_./]+)'
 
   - id: gpp-invocation
     desc: G++ C++ compiler invocation
@@ -22,7 +22,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '\bg\+\+\s+(?:-|[a-zA-Z0-9_./]+)'
+      regex: '\bg\+\+\s+(-|[a-zA-Z0-9_./]+)'
 
   - id: clang-invocation
     desc: Clang compiler invocation
@@ -30,7 +30,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '\bclang(?:\+\+)?\s+(?:-|[a-zA-Z0-9_./]+)'
+      regex: '\bclang(\+\+)?\s+(-|[a-zA-Z0-9_./]+)'
 
   - id: cc-invocation
     desc: C compiler invocation
@@ -38,7 +38,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '\bcc\s+(?:-|[a-zA-Z0-9_./]+)'
+      regex: '\bcc\s+(-|[a-zA-Z0-9_./]+)'
 
   - id: make-invocation
     desc: Make build tool invocation
@@ -46,4 +46,4 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '\bmake(?:\s+(?:-|[a-zA-Z0-9_]+))?(?:\s|$)'
+      regex: '\bmake(\s+(-|[a-zA-Z0-9_]+))?(\s|$)'

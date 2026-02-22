@@ -125,14 +125,6 @@ traits:
       regex: "\\bload\\s*\\("
 
   # === Credential paths ===
-  - id: ssh-private-key-path
-    desc: SSH private key path
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      substr: ".ssh/id_rsa"
-
   - id: netrc-path
     desc: .netrc file path
     crit: notable
@@ -148,15 +140,6 @@ traits:
     if:
       type: string
       regex: "\\.config/(google-chrome|chromium)"
-
-  # === Webhook patterns ===
-  - id: ruby-discord-webhook
-    desc: Discord webhook URL
-    crit: suspicious
-    conf: 0.9
-    if:
-      type: string
-      regex: "discord(app)?\\.com/api/webhooks"
 
   # === Remote download patterns ===
   - id: remote-binary-url-1
@@ -341,7 +324,7 @@ composite_rules:
     crit: suspicious
     conf: 0.9
     any:
-      - id: ssh-private-key-path
+      - id: micro-behaviors/fs/path/sensitive/credentials::ssh-private-key
       - id: micro-behaviors/fs/path/sensitive/cloud::aws-credentials
       - id: netrc-path
       - id: micro-behaviors/fs/path/sensitive/browser::login-data
@@ -354,8 +337,8 @@ composite_rules:
     all:
       - id: http-client-imports
     any:
-      - id: ruby-discord-webhook
-      - id: objectives/lateral-movement/supply-chain/npm/install::telegram-bot-api
+      - id: objectives/exfiltration/channel/webhook::discord-webhook-url
+      - id: objectives/exfiltration/channel/webhook::telegram-bot-api
 
   # === HOSTILE: Clear malware patterns ===
 

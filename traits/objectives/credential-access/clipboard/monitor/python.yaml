@@ -55,22 +55,6 @@ traits:
       type: string
       substr: "import pyperclip"
 
-  - id: pyperclip-paste
-    desc: pyperclip.paste
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      substr: "pyperclip.paste"
-
-  - id: pyperclip-copy
-    desc: pyperclip.copy
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: "pyperclip.copy"
-
   # === wxPython clipboard atomic indicators ===
   - id: wx-clipboard
     desc: wx.Clipboard
@@ -96,15 +80,7 @@ traits:
       type: string
       substr: "wx.TheClipboard"
 
-  # === tkinter clipboard atomic indicators ===
-  - id: clipboard-get-method
-    desc: .clipboard_get() method
-    crit: notable
-    conf: 0.5
-    if:
-      type: string
-      substr: ".clipboard_get()"
-
+  # clipboard-get-method removed - use micro-behaviors/hardware/clipboard/access::tkinter-clipboard-get-method instead
   # clipboard-clear-method removed - use micro-behaviors/hardware/clipboard/access::tkinter-clipboard-clear-method instead
 
   # === Windows clipboard chain atomic ===
@@ -257,8 +233,8 @@ composite_rules:
     crit: notable
     any:
       - id: import-pyperclip
-      - id: pyperclip-paste
-      - id: pyperclip-copy
+      - id: micro-behaviors/hardware/clipboard/access::pyperclip-paste
+      - id: micro-behaviors/hardware/clipboard/access::pyperclip-copy
     downgrade:
       any:
         - id: metadata/quality/versioned
@@ -279,7 +255,7 @@ composite_rules:
     conf: 0.65
     crit: notable
     any:
-      - id: clipboard-get-method
+      - id: micro-behaviors/hardware/clipboard/access::tkinter-clipboard-get-method
       - id: micro-behaviors/hardware/clipboard/access::tkinter-clipboard-clear-method
 
 
@@ -310,7 +286,7 @@ composite_rules:
       - id: python-win32clipboard
       - id: python-pyperclip
       - id: python-wx-clipboard
-      - id: clipboard-get-method
+      - id: micro-behaviors/hardware/clipboard/access::tkinter-clipboard-get-method
 
   # Network exfil composite
   - id: python-network-exfil

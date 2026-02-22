@@ -8,7 +8,7 @@ traits:
   conf: 0.95
   if:
     type: string
-    regex: (Encryption|Encrypting).{0,20}complete
+    substr: "Encryption complete"
     case_insensitive: true
   downgrade:
     any:
@@ -240,7 +240,7 @@ traits:
   - macho
   if:
     type: string
-    regex: \[[+!]\]\s+File\s+(?:not\s+)?encrypted
+    regex: \[[+!]\]\s+File\s+(not\s+)?encrypted
 - id: babuk-file-io-errors
   desc: Ransomware file access error logging
   crit: notable
@@ -250,7 +250,7 @@ traits:
   - macho
   if:
     type: string
-    regex: \[!\]\s+Can`t\s+(?:run for|open)\s+file
+    regex: \[!\]\s+Can`t\s+(run for|open)\s+file
 - id: ransom-note-text
   desc: Ransom note message patterns
   crit: suspicious
@@ -273,7 +273,7 @@ traits:
   if:
     type: string
     case_insensitive: true
-    regex: (?:README.{0,20}RESTORE|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)
+    regex: (README.{0,20}RESTORE|HOW[_\-\.].{0,18}RECOVER|RANSOM.{0,20}NOTE|_readme\.txt)
 - id: locker-config-field-extensions-full
   desc: vecFullEncryptionExtensions config field
   crit: notable

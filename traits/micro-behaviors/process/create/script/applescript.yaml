@@ -35,7 +35,7 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: 'osascript\b.{0,100}[\s]-(?:\s|$)'
+      regex: 'osascript\b.{0,100}[\s]-(\s|$)'
 
   # ============================================
   # Low-Level Apple Event Indicators (in strings)

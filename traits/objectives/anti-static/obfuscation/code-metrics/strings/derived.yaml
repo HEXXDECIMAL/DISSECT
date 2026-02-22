@@ -8,4 +8,4 @@ traits:
   desc: Derived raw condition
   if:
     type: raw
-    regex: s?w(?:eave|ig)
+    regex: \bsw(eave|ig)\b

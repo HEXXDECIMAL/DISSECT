@@ -80,7 +80,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*sh(?:[^a-zA-Z0-9_]|$)"
+      regex: "\\|\\s*sh([^a-zA-Z0-9_]|$)"
 
   - id: script-pipe-bash
     desc: Script pipes to bash
@@ -89,7 +89,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*bash(?:[^a-zA-Z0-9_]|$)"
+      regex: "\\|\\s*bash([^a-zA-Z0-9_]|$)"
 
   - id: script-pipe-node
     desc: Script pipes to node
@@ -98,7 +98,7 @@ traits:
     if:
       type: kv
       path: "scripts"
-      regex: "\\|\\s*node(?:[^a-zA-Z0-9_]|$)"
+      regex: "\\|\\s*node([^a-zA-Z0-9_]|$)"
 
   - id: script-eval
     desc: Script uses eval

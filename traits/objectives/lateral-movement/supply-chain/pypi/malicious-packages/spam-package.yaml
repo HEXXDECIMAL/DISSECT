@@ -38,14 +38,14 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: \b(?:hop\.clickbank\.net|jvz\d*\.com)\b
+    regex: \b(hop\.clickbank\.net|jvz\d*\.com)\b
 - id: affiliate-network-url-2
   desc: Affiliate URL (warriorplus/digistore24/impact)
   crit: suspicious
   conf: 0.85
   if:
     type: string
-    regex: \b(?:warriorplus|digistore24|impact)\.com\b
+    regex: \b(warriorplus|digistore24|impact)\.com\b
 composite_rules:
 - id: affiliate-network-url
   desc: Affiliate network redirect URL

@@ -123,7 +123,7 @@ traits:
     for: [shell, javascript, python, go]
     if:
       type: string
-      regex: "(?:port|bind|listen).{0,50}:80\\b"
+      regex: "(port|bind|listen).{0,50}:80\\b"
 
   - id: bind-port-443
     desc: bind to HTTPS port 443
@@ -132,7 +132,7 @@ traits:
     for: [shell, javascript, python, go]
     if:
       type: string
-      regex: "(?:port|bind|listen).{0,50}:443\\b"
+      regex: "(port|bind|listen).{0,50}:443\\b"
 
   - id: bind-port-8080
     desc: bind to port 8080
@@ -141,7 +141,7 @@ traits:
     for: [shell, javascript, python, go]
     if:
       type: string
-      regex: "(?:port|bind|listen).{0,50}:8080\\b"
+      regex: "(port|bind|listen).{0,50}:8080\\b"
 
   - id: bind-port-8000
     desc: bind to port 8000
@@ -150,7 +150,7 @@ traits:
     for: [shell, javascript, python, go]
     if:
       type: string
-      regex: "(?:port|bind|listen).{0,50}:8000\\b"
+      regex: "(port|bind|listen).{0,50}:8000\\b"
 
   - id: bind-port-3000
     desc: bind to port 3000
@@ -159,7 +159,7 @@ traits:
     for: [shell, javascript, python, go]
     if:
       type: string
-      regex: "(?:port|bind|listen).{0,50}:3000\\b"
+      regex: "(port|bind|listen).{0,50}:3000\\b"
 
   # === HTTP server common patterns ===
   - id: listen-keyword
@@ -233,7 +233,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "(?:server|app)\\.listen\\s*\\("
+      regex: "(server|app)\\.listen\\s*\\("
 
 composite_rules:
   # Helper composites

@@ -79,14 +79,6 @@ traits:
       type: string
       substr: "z_stream"
 
-  - id: libz-so
-    desc: libz.so library
-    crit: notable
-    conf: 0.9
-    if:
-      type: string
-      substr: "libz.so"
-
   - id: zlib-decompress-symbol
     desc: zlib.decompress symbol
     crit: notable
@@ -216,7 +208,6 @@ composite_rules:
     any:
       - id: zlib-deflate-inflate
       - id: z-stream
-      - id: libz-so
       - id: micro-behaviors/data/encode/compression::zlib-signature
 
   # Helper: deflate + inflate

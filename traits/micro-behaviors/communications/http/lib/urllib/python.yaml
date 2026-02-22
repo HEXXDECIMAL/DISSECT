@@ -39,4 +39,4 @@ traits:
     attack: "T1105"
     if:
       type: symbol
-      regex: 'urllib\.(?:request\.)?urlretrieve'
+      regex: 'urllib\.(request\.)?urlretrieve'

@@ -58,4 +58,4 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: '(?:^|[^a-zA-Z0-9])bun(?:$|[^a-zA-Z0-9])'
+      word: "bun"

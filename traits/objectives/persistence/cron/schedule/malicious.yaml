@@ -16,29 +16,29 @@ traits:
       substr: "crontab -"
 
   # Download cradles
-  - id: curl-silent
-    desc: curl -s (silent mode)
+  - id: curl-s-flag
+    desc: curl silent flag (-s)
     crit: notable
     conf: 0.6
     if:
-      type: string
-      substr: "curl -s"
+      type: raw
+      regex: "curl\\s+-[a-zA-Z]*s[a-zA-Z]*\\b"
 
-  - id: wget-quiet
-    desc: wget -q (quiet mode)
+  - id: wget-q-flag
+    desc: wget quiet flag (-q)
     crit: notable
     conf: 0.6
     if:
-      type: string
-      substr: "wget -q"
+      type: raw
+      regex: "wget\\s+-[a-zA-Z]*q[a-zA-Z]*\\b"
 
-  - id: wget-stdout
-    desc: wget -O - (output to
+  - id: wget-stdout-flag
+    desc: wget stdout output flag (-O -)
     crit: notable
     conf: 0.6
     if:
-      type: string
-      substr: "wget -O -"
+      type: raw
+      regex: "wget\\s+[^\\n]{0,40}-O\\s+-"
 
   # Base64 decode
   - id: base64-d-raw
@@ -95,6 +95,30 @@ composite_rules:
       - id: wget-quiet
       - id: wget-stdout
     crit: notable
+
+  - id: curl-silent
+    desc: curl -s (silent mode)
+    crit: notable
+    conf: 0.6
+    all:
+      - id: micro-behaviors/communications/http/client::curl-cmd
+      - id: curl-s-flag
+
+  - id: wget-quiet
+    desc: wget -q (quiet mode)
+    crit: notable
+    conf: 0.6
+    all:
+      - id: micro-behaviors/communications/http/client::wget-cmd
+      - id: wget-q-flag
+
+  - id: wget-stdout
+    desc: wget -O - (output to stdout)
+    crit: notable
+    conf: 0.6
+    all:
+      - id: micro-behaviors/communications/http/client::wget-cmd
+      - id: wget-stdout-flag
 
   # Helper: Base64 decoding
   - id: base64-decode

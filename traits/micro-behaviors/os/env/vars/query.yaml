@@ -18,5 +18,4 @@ traits:
     desc: env command
     if:
       type: string
-      # Match env as a command invocation
-      regex: '(?:^|[\s;|])env(?:$|[\s;|])'
+      word: "env"

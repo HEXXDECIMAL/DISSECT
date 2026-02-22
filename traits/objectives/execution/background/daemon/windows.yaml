@@ -61,4 +61,4 @@ composite_rules:
     conf: 0.95
     all:
       - id: start-hidden
-      - id: objectives/execution/autoinstall/pip::pip-install-pattern
+      - id: micro-behaviors/os/package-manager/install::pip-install

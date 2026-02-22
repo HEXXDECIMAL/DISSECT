@@ -9,7 +9,7 @@ traits:
       - pe
     if:
       type: symbol
-      regex: (^GetConsoleMode$|^GetConsoleScreenBufferInfo$)
+      exact: GetConsoleScreenBufferInfo
     attack: T1497
     mbc: B0001
   - id: getenv-api
@@ -26,7 +26,7 @@ traits:
       - macho
     if:
       type: symbol
-      regex: ^GetEnvironment(?:Strings(?:W|A)?|Variable)$|^FreeEnvironmentStringsW$
+      regex: ^GetEnvironment(Strings(W|A)?|Variable)$|^FreeEnvironmentStringsW$
 composite_rules:
   - id: console-environment-detection
     desc: Console environment detection checks

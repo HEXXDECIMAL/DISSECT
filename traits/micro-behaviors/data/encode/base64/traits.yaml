@@ -85,7 +85,7 @@ traits:
             (string) @encoding)
           (#eq? @mod "codecs")
           (#eq? @method "decode")
-          (#match? @encoding "^['\"](?:base64|base_64|base-64|BASE64|BASE_64|BASE-64)['\"]$"))
+          (#match? @encoding "^['\"](base64|base_64|base-64|BASE64|BASE_64|BASE-64)['\"]$"))
 
   - id: importlib-base64
     desc: importlib.import_module('base64') (Python)

@@ -14,8 +14,7 @@ traits:
     attack: "T1005"
     platforms: [all]
     if:
-      type: string
-      regex: "\\bsqlite3?_(open|exec|prepare|step)\\b"
+      id: micro-behaviors/data/db/conn/sqlite::sqlite
 
   # === Atomic: MySQL ===
 

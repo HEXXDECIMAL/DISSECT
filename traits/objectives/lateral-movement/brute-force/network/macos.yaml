@@ -13,7 +13,7 @@ traits:
     if:
       type: encoded
       encoding: base64
-      regex: "(?i)uses (?:pop3|ftp|hotline) protocol to crack passwords"
+      regex: "(?i)uses (pop3|ftp|hotline) protocol to crack passwords"
 
   - id: crack-passwords-protocol-2
     desc: Protocol password cracking wording (msn/icq)
@@ -22,7 +22,7 @@ traits:
     if:
       type: encoded
       encoding: base64
-      regex: "(?i)uses (?:msn|aim/icq2000) protocol to crack passwords"
+      regex: "(?i)uses (msn|aim/icq2000) protocol to crack passwords"
 
   - id: username-dictionary-file
     desc: Username dictionary file for attack

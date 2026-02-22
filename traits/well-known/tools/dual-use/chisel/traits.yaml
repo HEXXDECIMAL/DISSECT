@@ -27,35 +27,17 @@ traits:
     type: string
     word: chisel
     case_insensitive: true
-- id: mode-1
+- id: mode
   desc: Chisel mode (reverse/socks5 with tunnel/proxy/forward)
   if:
     type: string
     regex: (?i)(reverse|socks5)[_-]?(tunnel|proxy|forward)
-- id: mode-2
-  desc: Chisel mode (reverse/socks5 with server/port/mode)
+- id: mode-port-hint
+  desc: Chisel mode with port context
   if:
     type: string
-    regex: (?i)(reverse|socks5)[_-]?(server|port|mode)
-- id: mode-3
-  desc: Chisel mode (proxy with tunnel/proxy/forward)
-  if:
-    type: string
-    regex: (?i)proxy[_-]?(tunnel|proxy|forward)
-- id: mode-4
-  desc: Chisel mode (proxy with server/port/mode)
-  if:
-    type: string
-    regex: (?i)proxy[_-]?(server|port|mode)
+    regex: (?i)chisel.{0,20}port
 composite_rules:
-- id: mode
-  desc: Chisel mode indicators
-  crit: inert
-  any:
-    - id: mode-1
-    - id: mode-2
-    - id: mode-3
-    - id: mode-4
 - id: keyword-with-mode
   desc: Chisel keyword with tunneling mode
   crit: suspicious
@@ -63,7 +45,9 @@ composite_rules:
   attack: T1090
   all:
   - id: keyword
+  any:
   - id: mode
+  - id: mode-port-hint
 - id: chisel-detected
   desc: Chisel tunneling tool detected
   crit: notable

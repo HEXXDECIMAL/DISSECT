@@ -17,12 +17,12 @@ traits:
     type: string
     regex: HTTP/(1\.0|1\.1|2\.0)
 - id: http-methods-main
-  desc: HTTP methods (GET, POST, PUT)
+  desc: HTTP method (PUT)
   crit: notable
   conf: 0.6
   if:
     type: string
-    regex: '^(GET|POST|PUT) '
+    regex: '^PUT '
 - id: http-methods-other
   desc: HTTP methods (HEAD, DELETE, PATCH)
   crit: notable
@@ -35,8 +35,7 @@ traits:
   crit: notable
   conf: 0.85
   if:
-    type: string
-    regex: \*net\.dialer|net\.DialTCP|net\.Dial
+    id: micro-behaviors/communications/socket/connect/go::go-dial-methods
 # go-listen-string removed - use micro-behaviors/communications/socket/listen/go composite instead
 - id: domain-keyword
   desc: Domain configuration keyword

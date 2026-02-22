@@ -140,7 +140,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?i)AppData[/\\](?:Roaming|Local)[/\\](?:Discord|discordcanary|discordptb)'
+      regex: '(?i)AppData[/\\](Roaming|Local)[/\\](Discord|discordcanary|discordptb)'
   - id: extract-tokens-fn
     desc: Token extraction function
     crit: suspicious

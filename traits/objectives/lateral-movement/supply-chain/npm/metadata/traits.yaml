@@ -122,7 +122,7 @@ traits:
     if:
       type: kv
       path: "name"
-      regex: "^[a-z][a-z0-9]{0,60}(?:-[a-z][a-z0-9]{0,60}){1,8}$"
+      regex: "^[a-z][a-z0-9]{0,60}(-[a-z][a-z0-9]{0,60}){1,8}$"
 
   # Package version suggests maturity (>= 0.2.0 or >= 1.0.0)
   - id: version-mature

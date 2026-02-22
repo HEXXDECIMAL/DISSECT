@@ -9,7 +9,7 @@ traits:
     for: [package.json]
     if:
       type: string
-      regex: '"main":\\s*"(?:dist/|lib/|build/|out/)'
+      regex: '"main":\\s*"(dist/|lib/|build/|out/)'
 
   # Has src directory structure
   - id: has-src-directory

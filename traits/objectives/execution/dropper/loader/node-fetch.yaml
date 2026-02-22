@@ -43,7 +43,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: "spawn(?:Sync)?\\s*\\(['\"]node['\"]"
+      regex: "spawn(Sync)?\\s*\\(['\"]node['\"]"
 
   # === Cleanup patterns ===
   - id: unlinkSync-call
@@ -78,23 +78,6 @@ traits:
     if:
       type: string
       regex: "tmppppp|temp[0-9a-f]{8}|rand[0-9]+\\.js"
-
-  # === Detached process patterns ===
-  - id: detached-true
-    desc: detached:true spawn option
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      substr: "detached: true"
-
-  - id: detached-colon-true
-    desc: detached:true spawn option
-    crit: notable
-    conf: 0.75
-    if:
-      type: string
-      substr: "detached:true"
 
   # === IIFE patterns ===
   - id: iife-start
@@ -148,8 +131,8 @@ composite_rules:
     crit: notable
     conf: 0.8
     any:
-      - id: detached-true
-      - id: detached-colon-true
+      - id: micro-behaviors/process/create/spawn::detached-true
+      - id: micro-behaviors/process/create/flags::detached-process
 
   # Temp JS file composite
   - id: temp-js

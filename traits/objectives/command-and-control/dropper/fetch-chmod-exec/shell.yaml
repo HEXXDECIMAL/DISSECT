@@ -14,9 +14,9 @@ composite_rules:
     attack: "T1105"
     for: [shell]
     all:
-      - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
+      - id: micro-behaviors/communications/network/ip::http-ip-url
       - id: objectives/execution/dropper/script::curl-download
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
 
   # Download from raw IP + Gatekeeper bypass + execute
   # Complexity: all(4) = 4 -> hostile
@@ -28,7 +28,7 @@ composite_rules:
     attack: "T1553.001"
     for: [shell]
     all:
-      - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
+      - id: micro-behaviors/communications/network/ip::http-ip-url
       - id: objectives/execution/dropper/script::curl-download
       - id: micro-behaviors/fs/attributes/xattr::xattr-clear
       - id: objectives/execution/dropper/script::execute-dot-slash
@@ -45,7 +45,7 @@ composite_rules:
     all:
       - id: tmpdir-variable
       - id: objectives/execution/dropper/script::curl-download
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
       - id: objectives/execution/dropper/script::execute-dot-slash
 
   # Download from external URL + chmod + execute
@@ -59,8 +59,8 @@ composite_rules:
     for: [shell]
     all:
       - id: objectives/command-and-control/infrastructure/domain::http-url-script
-      - id: objectives/execution/dropper/script::curl-download-file
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/communications/download/curl::curl-output-file
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
       - id: objectives/execution/dropper/script::execute-dot-slash
 
   # Download file + make executable + detached execution
@@ -73,12 +73,12 @@ composite_rules:
     attack: "T1105"
     for: [shell]
     all:
-      - id: objectives/execution/dropper/script::curl-download-file
+      - id: micro-behaviors/communications/download/curl::curl-output-file
       - id: objectives/execution/dropper/script::execute-dot-slash
       - id: objectives/execution/background/daemon::nohup-command
     any:
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
-      - id: micro-behaviors/fs/file/executable::chmod-755
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
+      - id: micro-behaviors/fs/chmod/executable::shell-7xx
 
 traits:
   - id: tmpdir-variable

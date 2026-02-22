@@ -29,12 +29,7 @@ traits:
       regex: "AKIA[0-9A-Z]{16}"
 
   # === Atomic: GCP ===
-  - id: gcloud-config
-    desc: GCloud configuration directory
-    conf: 0.75
-    if:
-      type: string
-      substr: ".config/gcloud"
+  # gcloud-config removed - use micro-behaviors/fs/path/sensitive/credentials::gcloud-credentials
 
   - id: gcp-default-credentials
     desc: GCP application default credentials
@@ -191,6 +186,6 @@ composite_rules:
     desc: GCP credential theft
     conf: 0.85
     all:
-      - id: gcloud-config
+      - id: micro-behaviors/fs/path/sensitive/credentials::gcloud-credentials
     any:
       - id: gcp-default-credentials

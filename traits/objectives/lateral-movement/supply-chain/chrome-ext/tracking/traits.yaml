@@ -13,7 +13,7 @@ traits:
     for: [javascript]
     if:
       type: string
-      regex: "\\b\\d*x?profit\\.(?:io|com|net|org)\\b"
+      regex: "\\b\\d*x?profit\\.(io|com|net|org)\\b"
       case_insensitive: true
 
   - id: affiliate-domain-pattern-1

@@ -55,9 +55,7 @@ traits:
     attack: T1546.004
     if:
       type: string
-      # Match .profile as standalone or in a path context, not as part of compound words
-      # This avoids matching things like "vaGetProfileSupport" or "ProfileManager"
-      regex: '(?:^|[/~])\.profile$|\.profile(?:\s|$)'
+      word: ".profile"
     downgrade:
       any:
         - id: micro-behaviors/dylib/library::system-lib-marker

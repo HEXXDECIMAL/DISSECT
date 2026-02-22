@@ -19,19 +19,19 @@ traits:
   conf: 0.95
   if:
     type: raw
-    regex: (?:oct|hex)\.__str__\(\)\[[^\]]{1,120}\].{0,40}copyright\.__str__\(\)
+    regex: (oct|hex)\.__str__\(\)\[[^\]]{1,120}\].{0,40}copyright\.__str__\(\)
 - id: builtin-str-slice-construction
   desc: Constructs strings by slicing builtin type representations
   crit: suspicious
   conf: 0.9
   if:
     type: raw
-    regex: "[a-z]{3,12}\\.__(?:str|repr)__\\s*\\(\\s*\\)\\s*\\[[^\\]]{1,120}\\]"
+    regex: "[a-z]{3,12}\\.__(str|repr)__\\s*\\(\\s*\\)\\s*\\[[^\\]]{1,120}\\]"
 - id: getattr-builtins-bitwise
   desc: getattr on builtins with bitwise operations
   crit: suspicious
   conf: 0.9
   if:
     type: raw
-    regex: getattr\s*\(\s*__builtins__\s*,[^,]{1,120}(?:<<|>>|&|\^)[^,]{1,120}\)
+    regex: getattr\s*\(\s*__builtins__\s*,[^,]{1,120}(<<|>>|&|\^)[^,]{1,120}\)
 composite_rules: []

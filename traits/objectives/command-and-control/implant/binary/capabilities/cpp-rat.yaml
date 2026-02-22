@@ -129,7 +129,7 @@ traits:
   attack: T1082
   if:
     type: string
-    regex: (CBasicInfoGather|BasicInfoGather|SystemInfoGather)
+    regex: (BasicInfoGather|SystemInfoGather)
 - id: victim-profile-osinfo
   desc: Victim OSInfo format string
   crit: suspicious

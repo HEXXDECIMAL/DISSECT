@@ -46,7 +46,7 @@ composite_rules:
       - shell
     all:
       - id: micro-behaviors/fs/attributes/xattr::xattr-clear
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
   - id: dropper-gatekeeper-bypass
     desc: Download and execute with Gatekeeper bypass
     crit: hostile
@@ -56,5 +56,5 @@ composite_rules:
     all:
       - id: objectives/execution/dropper/script::curl-download
       - id: micro-behaviors/fs/attributes/xattr::xattr-clear
-      - id: micro-behaviors/fs/file/executable::chmod-plus-x
+      - id: micro-behaviors/fs/chmod/executable::shell-plus-x
       - id: objectives/execution/dropper/script::execute-dot-slash

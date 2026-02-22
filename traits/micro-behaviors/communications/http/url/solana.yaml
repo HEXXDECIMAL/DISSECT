@@ -19,13 +19,13 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: \bget(?:SignaturesForAddress|SignFAddress|AccountInfo)\b
+    regex: \bget(SignaturesForAddress|SignFAddress|AccountInfo)\b
 - id: solana-rpc-method-2
   desc: Solana JSON-RPC method (balance/tx/blockhash)
   conf: 0.8
   if:
     type: string
-    regex: \bget(?:Balance|Transaction|LatestBlockhash)\b
+    regex: \bget(Balance|Transaction|LatestBlockhash)\b
 composite_rules:
 - id: solana-rpc-method-any
   desc: Solana JSON-RPC method

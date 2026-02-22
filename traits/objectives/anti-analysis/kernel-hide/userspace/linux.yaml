@@ -15,8 +15,7 @@ traits:
     mbc: "B0003"
     attack: "T1014"
     if:
-      type: string
-      regex: "(?i)rootkit"
+      id: micro-behaviors/data/text/malware::rootkit-word
 
   - id: hide-pid
     desc: hide_pid function

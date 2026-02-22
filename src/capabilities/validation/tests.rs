@@ -1662,8 +1662,87 @@ mod composite_tests {
 
 #[cfg(test)]
 mod pattern_tests {
-    // Pattern quality tests would go here
-    // Tests from original validation.rs lines ~5200-5600
+    use super::super::patterns::find_non_capturing_groups;
+    use crate::composite_rules::{Condition, ConditionWithFilters, FileType, Platform, TraitDefinition};
+    use std::path::PathBuf;
+
+    fn create_raw_regex_trait(id: &str, pattern: &str) -> TraitDefinition {
+        TraitDefinition {
+            id: id.to_string(),
+            desc: "test trait".to_string(),
+            conf: 1.0,
+            crit: crate::types::Criticality::Notable,
+            mbc: None,
+            attack: None,
+            r#if: ConditionWithFilters {
+                condition: Condition::Raw {
+                    exact: None,
+                    substr: None,
+                    regex: Some(pattern.to_string()),
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            r#for: vec![FileType::All],
+            platforms: vec![Platform::All],
+            not: None,
+            unless: None,
+            downgrade: None,
+            defined_in: PathBuf::from("test.yaml"),
+            precision: None,
+        }
+    }
+
+    #[test]
+    fn test_non_capturing_group_detected() {
+        let traits = vec![create_raw_regex_trait(
+            "test-noncap",
+            r"(?:foo|bar)baz",
+        )];
+        let mut warnings = Vec::new();
+        find_non_capturing_groups(&traits, &mut warnings);
+
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("non-capturing group"));
+        assert!(warnings[0].contains("test-noncap"));
+    }
+
+    #[test]
+    fn test_regular_group_no_warning() {
+        let traits = vec![create_raw_regex_trait(
+            "test-cap",
+            r"(foo|bar)baz",
+        )];
+        let mut warnings = Vec::new();
+        find_non_capturing_groups(&traits, &mut warnings);
+
+        assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_no_group_no_warning() {
+        let traits = vec![create_raw_regex_trait(
+            "test-nogroup",
+            r"foobarbaz",
+        )];
+        let mut warnings = Vec::new();
+        find_non_capturing_groups(&traits, &mut warnings);
+
+        assert!(warnings.is_empty());
+    }
 }
 
 #[cfg(test)]
@@ -1674,6 +1753,252 @@ mod taxonomy_tests {
 
 #[cfg(test)]
 mod constraint_tests {
-    // Constraint validation tests would go here
-    // Tests from original validation.rs lines ~5900-6194
+    use crate::capabilities::validation::constraints::find_pure_alias_traits;
+    use crate::composite_rules::{Condition, ConditionWithFilters, FileType, Platform, TraitDefinition};
+    use crate::types::Criticality;
+    use std::path::PathBuf;
+
+    /// Helper to create a trait with a trait reference condition
+    fn create_trait_ref(
+        id: &str,
+        ref_id: &str,
+        crit: Criticality,
+        count_min: Option<usize>,
+        has_downgrade: bool,
+    ) -> TraitDefinition {
+        TraitDefinition {
+            id: id.to_string(),
+            desc: "test trait".to_string(),
+            conf: 1.0,
+            crit,
+            mbc: None,
+            attack: None,
+            r#if: ConditionWithFilters {
+                condition: Condition::Trait {
+                    id: ref_id.to_string(),
+                },
+                size_min: None,
+                size_max: None,
+                count_min,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            r#for: vec![FileType::All],
+            platforms: vec![Platform::All],
+            not: None,
+            unless: None,
+            downgrade: if has_downgrade {
+                Some(crate::composite_rules::DowngradeConditions {
+                    any: Some(vec![Condition::Trait {
+                        id: "some-other-trait".to_string(),
+                    }]),
+                    all: None,
+                    none: None,
+                    needs: None,
+                })
+            } else {
+                None
+            },
+            defined_in: PathBuf::from("test.yaml"),
+            precision: None,
+        }
+    }
+
+    /// Helper to create a base trait (not a reference)
+    fn create_base_trait(id: &str, crit: Criticality) -> TraitDefinition {
+        TraitDefinition {
+            id: id.to_string(),
+            desc: "base trait".to_string(),
+            conf: 1.0,
+            crit,
+            mbc: None,
+            attack: None,
+            r#if: ConditionWithFilters {
+                condition: Condition::String {
+                    exact: Some("test".to_string()),
+                    substr: None,
+                    regex: None,
+                    word: None,
+                    case_insensitive: false,
+                    external_ip: false,
+                    section: None,
+                    offset: None,
+                    offset_range: None,
+                    section_offset: None,
+                    section_offset_range: None,
+                    compiled_regex: None,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            },
+            r#for: vec![FileType::All],
+            platforms: vec![Platform::All],
+            not: None,
+            unless: None,
+            downgrade: None,
+            defined_in: PathBuf::from("test.yaml"),
+            precision: None,
+        }
+    }
+
+    #[test]
+    fn test_pure_alias_detected() {
+        // Trait A references Trait B with same criticality and no constraints
+        let base = create_base_trait("micro-behaviors/test::base", Criticality::Notable);
+        let alias = create_trait_ref(
+            "objectives/test::alias",
+            "micro-behaviors/test::base",
+            Criticality::Notable, // Same as base
+            None,                 // No count_min
+            false,                // No downgrade
+        );
+
+        let traits = vec![base, alias];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert_eq!(violations.len(), 1);
+        assert_eq!(violations[0].0, "objectives/test::alias");
+        assert_eq!(violations[0].1, "micro-behaviors/test::base");
+    }
+
+    #[test]
+    fn test_criticality_change_not_flagged() {
+        // Trait A references Trait B but changes criticality - this adds value
+        let base = create_base_trait("micro-behaviors/test::base", Criticality::Inert);
+        let alias = create_trait_ref(
+            "objectives/test::upgraded",
+            "micro-behaviors/test::base",
+            Criticality::Suspicious, // Different from base
+            None,
+            false,
+        );
+
+        let traits = vec![base, alias];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(violations.is_empty(), "Should not flag criticality changes");
+    }
+
+    #[test]
+    fn test_count_constraint_not_flagged() {
+        // Trait A references Trait B with count_min - this adds value
+        let base = create_base_trait("micro-behaviors/test::base", Criticality::Notable);
+        let alias = create_trait_ref(
+            "objectives/test::with-count",
+            "micro-behaviors/test::base",
+            Criticality::Notable,
+            Some(5), // Has count_min constraint
+            false,
+        );
+
+        let traits = vec![base, alias];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(violations.is_empty(), "Should not flag traits with count constraints");
+    }
+
+    #[test]
+    fn test_downgrade_not_flagged() {
+        // Trait A references Trait B with downgrade - this adds value
+        let base = create_base_trait("micro-behaviors/test::base", Criticality::Notable);
+        let alias = create_trait_ref(
+            "objectives/test::with-downgrade",
+            "micro-behaviors/test::base",
+            Criticality::Notable,
+            None,
+            true, // Has downgrade
+        );
+
+        let traits = vec![base, alias];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(violations.is_empty(), "Should not flag traits with downgrade");
+    }
+
+    #[test]
+    fn test_self_reference_not_flagged() {
+        // Trait references itself - this is a different bug, not a pure alias
+        let self_ref = create_trait_ref(
+            "micro-behaviors/test::self-ref",
+            "micro-behaviors/test::self-ref", // Same ID
+            Criticality::Notable,
+            None,
+            false,
+        );
+
+        let traits = vec![self_ref];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(violations.is_empty(), "Should not flag self-references");
+    }
+
+    #[test]
+    fn test_short_ref_not_flagged() {
+        // Short reference without :: or / should not be flagged
+        let base = create_base_trait("micro-behaviors/test::base", Criticality::Notable);
+        let short_ref = create_trait_ref(
+            "objectives/test::short-ref",
+            "base", // Short reference (no :: or /)
+            Criticality::Notable,
+            None,
+            false,
+        );
+
+        let traits = vec![base, short_ref];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(violations.is_empty(), "Should not flag short references");
+    }
+
+    #[test]
+    fn test_external_ref_not_flagged() {
+        // Reference to trait not in our list - can't compare, don't flag
+        let alias = create_trait_ref(
+            "objectives/test::external-ref",
+            "some-external/trait::not-in-list",
+            Criticality::Notable,
+            None,
+            false,
+        );
+
+        let traits = vec![alias];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert!(
+            violations.is_empty(),
+            "Should not flag references to unknown traits"
+        );
+    }
+
+    #[test]
+    fn test_multiple_violations() {
+        // Multiple pure aliases should all be detected
+        let base1 = create_base_trait("micro-behaviors/a::base1", Criticality::Notable);
+        let base2 = create_base_trait("micro-behaviors/b::base2", Criticality::Suspicious);
+
+        let alias1 = create_trait_ref(
+            "objectives/a::alias1",
+            "micro-behaviors/a::base1",
+            Criticality::Notable,
+            None,
+            false,
+        );
+        let alias2 = create_trait_ref(
+            "objectives/b::alias2",
+            "micro-behaviors/b::base2",
+            Criticality::Suspicious,
+            None,
+            false,
+        );
+
+        let traits = vec![base1, base2, alias1, alias2];
+        let violations = find_pure_alias_traits(&traits);
+
+        assert_eq!(violations.len(), 2);
+    }
 }

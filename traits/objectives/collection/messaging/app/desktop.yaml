@@ -59,13 +59,7 @@ traits:
 
   # === LevelDB/IndexedDB indicators (app-agnostic) ===
 
-  - id: discord-ldb-ext
-    desc: LDB database extension
-    crit: notable
-    conf: 0.5
-    if:
-      id: objectives/credential-access/discord/token::ldb-extension
-
+  # Removed: discord-ldb-ext was a pure alias to objectives/credential-access/discord/token::ldb-extension
   # Removed: discord-log-ext was too generic (.log matches any log file)
   # Discord-specific paths moved to objectives/credential-access/discord/token/
 

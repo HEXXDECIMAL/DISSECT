@@ -12,7 +12,7 @@ traits:
     if:
       type: raw
       # Matches var \uXXXX where \u is literal text in the source
-      regex: '(?:var|function)\s+\\\\u[0-9a-fA-F]{4}'
+      regex: '(var|function)\s+\\\\u[0-9a-fA-F]{4}'
 
   - id: js-activex-via-this-obfuscated
     desc: "ActiveXObject accessed via 'this' with obfuscation"

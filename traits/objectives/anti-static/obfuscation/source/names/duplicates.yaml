@@ -9,7 +9,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: symbol
-      regex: '^[a-zA-Z]{5,6}\.(replace|exec|run|shell)'
+      regex: '^[a-zA-Z]{5,6}\.(replace|exec|run|shell)$'
       count_min: 5
 
   - id: random-identifier-chains-b

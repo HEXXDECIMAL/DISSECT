@@ -41,12 +41,11 @@ traits:
 - id: environment-probe-api
   desc: Environment variable probe API
   crit: notable
-  conf: 0.55
+  conf: 0.8
   for:
   - go
   if:
-    type: string
-    regex: (os|syscall)\.(Getenv|LookupEnv)
+    id: micro-behaviors/os/env/access/go::env-access
 - id: anti-debug
   desc: Ptrace (debugger detection)
   crit: notable

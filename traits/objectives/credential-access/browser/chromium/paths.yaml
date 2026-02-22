@@ -16,8 +16,7 @@ traits:
   - id: cookies
     desc: Chromium Cookies database path
     if:
-      type: string
-      regex: "[/'\"\\\\]Cookies['\"\\\\]?"
+      id: objectives/credential-access/browser/chromium::chromium-cookie-sql
 
   - id: web-data
     desc: Chromium Web Data database path

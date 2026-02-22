@@ -33,7 +33,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: '(?i)set\s+[^=]{1,120}=[^ \t\n\r]{1,4}(?:[\t\r\n ]|$)'
+      regex: '(?i)set\s+[^=]{1,120}=[^ \t\n\r]{1,4}([\t\r\n ]|$)'
       count_min: 5
 
   # Base64-like payload in set command

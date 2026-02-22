@@ -226,7 +226,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '(?:import|require).{0,50}[''"]node-fetch[''"]'
+      regex: '(import|require).{0,50}[''"]node-fetch[''"]'
 
   - id: got-import
     desc: got HTTP client import
@@ -235,7 +235,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '(?:import|require).{0,50}[''"]got[''"]'
+      regex: '(import|require).{0,50}[''"]got[''"]'
 
   - id: superagent-import
     desc: superagent HTTP client import
@@ -244,7 +244,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '(?:import|require).{0,50}[''"]superagent[''"]'
+      regex: '(import|require).{0,50}[''"]superagent[''"]'
 
   - id: needle-import
     desc: needle HTTP client import
@@ -253,7 +253,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '(?:import|require).{0,50}[''"]needle[''"]'
+      regex: '(import|require).{0,50}[''"]needle[''"]'
 
   - id: request-import
     desc: request HTTP client import
@@ -262,7 +262,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: '(?:import|require).{0,50}[''"]request[''"]'
+      regex: '(import|require).{0,50}[''"]request[''"]'
 
   # === HTTP configuration patterns ===
   - id: post-method-string
@@ -272,7 +272,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: string
-      regex: "['\"]POST['\"]"
+      regex: '[''"]POST[''"]'
 
   - id: method-field
     desc: method field in HTTP config

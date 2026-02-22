@@ -58,10 +58,8 @@ impl YaraEngine {
                 tracing::debug!("Attempting to load from cache");
                 match self.load_from_cache(&cache_path) {
                     Ok((builtin, third_party)) => {
-                        // Count actual rules from loaded Rules object
-                        let actual_count = self.rules.as_ref().map(|r| r.iter().count()).unwrap_or(0);
-                        tracing::info!("Loaded {} YARA rules from cache", actual_count);
-                        eprintln!("✅ Loaded {} YARA rules from cache", actual_count);
+                        tracing::info!("Loaded YARA rules from cache");
+                        // No eprintln needed - rule count is shown in header banner
                         return (builtin, third_party);
                     },
                     Err(e) => {
@@ -74,9 +72,16 @@ impl YaraEngine {
             }
         }
 
-        // Cache miss or invalid - compile from source
+        // Cache miss or invalid - compile from source with progress spinner
         tracing::info!("Compiling YARA rules from source");
-        eprintln!("🔨 Compiling YARA rules from source...");
+
+        let pb = indicatif::ProgressBar::new_spinner();
+        pb.set_style(
+            indicatif::ProgressStyle::default_spinner()
+                .template("{spinner:.cyan} {msg}")
+                .expect("valid template"),
+        );
+        pb.enable_steady_tick(std::time::Duration::from_millis(80));
 
         let traits_dir = crate::cache::traits_path();
         let third_party_dir = Path::new("third_party");
@@ -87,28 +92,22 @@ impl YaraEngine {
         let mut inline_count = 0;
 
         // 0. Load inline YARA from trait YAML files
+        pb.set_message("Loading inline rules...");
         if traits_dir.exists() {
             self.compiled_inline_namespaces =
                 Self::load_inline_trait_rules(&mut compiler, &traits_dir);
             inline_count = self.compiled_inline_namespaces.len();
-            if inline_count > 0 {
-                eprintln!("  ✓ {} inline sources", inline_count);
-            }
         }
 
         // 1. Load built-in YARA rules from traits directory
+        pb.set_message("Loading trait rules...");
         if traits_dir.exists() {
             match self.load_rules_into_compiler(&mut compiler, &traits_dir, "traits") {
-                Ok(count) => {
-                    builtin_count = count;
-                    if count > 0 {
-                        eprintln!("  ✓ {} built-in sources", count);
-                    }
-                },
+                Ok(count) => builtin_count = count,
                 Err(e) => {
                     let err_str = e.to_string();
                     if !err_str.contains("No YARA rules found") {
-                        eprintln!("  ⚠️  Failed to load built-in sources: {}", e);
+                        tracing::warn!("Failed to load built-in sources: {}", e);
                     }
                 },
             }
@@ -116,29 +115,19 @@ impl YaraEngine {
 
         // 2. Optionally load third-party YARA rules
         if enable_third_party && third_party_dir.exists() {
-            let count = self.load_third_party_rules(&mut compiler, third_party_dir);
-            third_party_count = count;
-            if count > 0 {
-                eprintln!("  ✓ {} third-party sources", count);
-            }
+            pb.set_message("Loading third-party rules...");
+            third_party_count = self.load_third_party_rules(&mut compiler, third_party_dir);
         }
 
         let total_count = builtin_count + third_party_count + inline_count;
         if total_count == 0 {
+            pb.finish_and_clear();
             eprintln!("⚠️  No YARA rules loaded");
             return (0, 0);
         }
 
-        // Compile all rules with progress indicator
-        let pb = indicatif::ProgressBar::new_spinner();
-        pb.set_style(
-            indicatif::ProgressStyle::default_spinner()
-                .template("{spinner:.green} {msg}")
-                .expect("valid template"),
-        );
-        pb.set_message(format!("Compiling {} rules (JIT optimization)...", total_count));
-        pb.enable_steady_tick(std::time::Duration::from_millis(80));
-
+        // Compile all rules (JIT optimization)
+        pb.set_message(format!("Compiling {} sources...", total_count));
         let compile_start = std::time::Instant::now();
         let rules = compiler.build();
         let compile_time = compile_start.elapsed();
@@ -147,13 +136,17 @@ impl YaraEngine {
         let actual_rule_count = rules.iter().count();
 
         pb.finish_and_clear();
-        eprintln!("✅ Compiled {} rules in {:.1}s", actual_rule_count, compile_time.as_secs_f64());
+        eprintln!(
+            "✅ Compiled {} rules in {:.1}s (first run only)",
+            actual_rule_count,
+            compile_time.as_secs_f64()
+        );
 
         self.rules = Some(rules);
 
         // Save to cache for next time
         if let Ok(cache_path) = crate::cache::yara_cache_path(enable_third_party) {
-            if let Err(e) = self.save_to_cache(&cache_path, builtin_count, third_party_count) {
+            if let Err(e) = self.save_to_cache(&cache_path, builtin_count, third_party_count, actual_rule_count) {
                 eprintln!("⚠️  Failed to save cache: {}", e);
             } else {
                 // Clean up old caches silently
@@ -448,6 +441,7 @@ impl YaraEngine {
 
         let mut total = 0;
         let mut failed = 0;
+        let mut vt_skipped = 0;
 
         for (path, bytes) in sources {
             // Create unique namespace per file: 3p.{vendor}.{subdir}.{filename}
@@ -474,12 +468,22 @@ impl YaraEngine {
             match compiler.add_source(source.as_bytes()) {
                 Ok(_) => total += 1,
                 Err(e) => {
-                    failed += 1;
-                    tracing::warn!("{}: {}", path.display(), e);
+                    let err_str = e.to_string();
+                    // VT (VirusTotal) module rules require VT context and won't work standalone
+                    if err_str.contains("vt.") {
+                        vt_skipped += 1;
+                        tracing::debug!("{}: skipped (requires VirusTotal context)", path.display());
+                    } else {
+                        failed += 1;
+                        tracing::warn!("{}: {}", path.display(), e);
+                    }
                 },
             }
         }
 
+        if vt_skipped > 0 {
+            tracing::info!("{} third-party rule(s) skipped (require VirusTotal context)", vt_skipped);
+        }
         if failed > 0 {
             tracing::warn!("{} third-party file(s) failed to compile", failed);
         }
@@ -876,6 +880,7 @@ impl YaraEngine {
         cache_path: &Path,
         builtin_count: usize,
         third_party_count: usize,
+        rule_count: usize,
     ) -> Result<()> {
         use std::io::Write;
 
@@ -896,11 +901,12 @@ impl YaraEngine {
         // Build the cache file
         let mut file = fs::File::create(cache_path).context("Failed to create cache file")?;
 
-        // Write header
+        // Write header (v5 format)
         file.write_all(CACHE_MAGIC)?;
         file.write_all(&CACHE_VERSION.to_le_bytes())?;
         file.write_all(&(builtin_count as u64).to_le_bytes())?;
         file.write_all(&(third_party_count as u64).to_le_bytes())?;
+        file.write_all(&(rule_count as u64).to_le_bytes())?;
         file.write_all(&(namespaces_data.len() as u64).to_le_bytes())?;
         file.write_all(&(rules_offset as u64).to_le_bytes())?;
         file.write_all(&(rules_data.len() as u64).to_le_bytes())?;
@@ -943,9 +949,10 @@ impl YaraEngine {
 
         let builtin_count = u64::from_le_bytes(mmap[8..16].try_into().unwrap()) as usize;
         let third_party_count = u64::from_le_bytes(mmap[16..24].try_into().unwrap()) as usize;
-        let namespaces_len = u64::from_le_bytes(mmap[24..32].try_into().unwrap()) as usize;
-        let rules_offset = u64::from_le_bytes(mmap[32..40].try_into().unwrap()) as usize;
-        let rules_len = u64::from_le_bytes(mmap[40..48].try_into().unwrap()) as usize;
+        let _rule_count = u64::from_le_bytes(mmap[24..32].try_into().unwrap()) as usize;
+        let namespaces_len = u64::from_le_bytes(mmap[32..40].try_into().unwrap()) as usize;
+        let rules_offset = u64::from_le_bytes(mmap[40..48].try_into().unwrap()) as usize;
+        let rules_len = u64::from_le_bytes(mmap[48..56].try_into().unwrap()) as usize;
 
         let t1 = std::time::Instant::now();
 
@@ -982,11 +989,36 @@ impl YaraEngine {
     }
 }
 
-/// Zero-copy cache format header (v4 - per-file namespaces)
-/// Layout: MAGIC(4) + VERSION(4) + builtin(8) + third_party(8) + namespaces_len(8) + rules_offset(8) + rules_len(8) + namespaces_data + padding + rules_data
+/// Zero-copy cache format header (v5 - adds rule_count for fast header display)
+/// Layout: MAGIC(4) + VERSION(4) + builtin(8) + third_party(8) + rule_count(8) + namespaces_len(8) + rules_offset(8) + rules_len(8) + namespaces_data + padding + rules_data
 const CACHE_MAGIC: &[u8; 4] = b"YARC";
-const CACHE_VERSION: u32 = 4;
-const CACHE_HEADER_SIZE: usize = 4 + 4 + 8 + 8 + 8 + 8 + 8; // 48 bytes
+const CACHE_VERSION: u32 = 5;
+const CACHE_HEADER_SIZE: usize = 4 + 4 + 8 + 8 + 8 + 8 + 8 + 8; // 56 bytes
+
+/// Quickly peek at the cache to get the rule count without loading rules.
+/// Returns None if cache is missing, invalid, or wrong version.
+pub fn peek_cache_rule_count(enable_third_party: bool) -> Option<usize> {
+    let cache_path = crate::cache::yara_cache_path(enable_third_party).ok()?;
+    let file = std::fs::File::open(&cache_path).ok()?;
+    let mut header = [0u8; CACHE_HEADER_SIZE];
+
+    use std::io::Read;
+    let mut reader = std::io::BufReader::new(file);
+    reader.read_exact(&mut header).ok()?;
+
+    // Validate magic and version
+    if &header[0..4] != CACHE_MAGIC {
+        return None;
+    }
+    let version = u32::from_le_bytes(header[4..8].try_into().ok()?);
+    if version != CACHE_VERSION {
+        return None;
+    }
+
+    // rule_count is at offset 24 (after magic + version + builtin + third_party)
+    let rule_count = u64::from_le_bytes(header[24..32].try_into().ok()?) as usize;
+    Some(rule_count)
+}
 
 impl Default for YaraEngine {
     fn default() -> Self {

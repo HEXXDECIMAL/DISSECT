@@ -103,7 +103,7 @@ pub(crate) use composite::{
 };
 
 // Pattern quality checks
-pub(crate) use patterns::{find_short_pattern_warnings, find_slow_regex_patterns};
+pub(crate) use patterns::{find_non_capturing_groups, find_short_pattern_warnings, find_slow_regex_patterns};
 
 // Taxonomy validation
 pub(crate) use taxonomy::{
@@ -116,7 +116,8 @@ pub(crate) use taxonomy::{
 // Logic constraint validation
 pub(crate) use constraints::{
     find_empty_condition_clauses, find_impossible_count_constraints, find_impossible_needs,
-    find_impossible_size_constraints, find_missing_search_patterns, find_redundant_needs_one,
+    find_impossible_size_constraints, find_missing_search_patterns, find_pure_alias_traits,
+    find_redundant_needs_one,
 };
 
 // Utility functions

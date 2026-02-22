@@ -67,7 +67,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:connect)"
+      regex: "(?i)reverse[-_]?(connect)"
 
   - id: reverse-conn
     desc: Reverse conn abbreviation
@@ -76,7 +76,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:conn)"
+      regex: "(?i)reverse[-_]?(conn)"
 
   - id: reverse-tcp
     desc: Reverse TCP indicator
@@ -85,7 +85,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:tcp)"
+      regex: "(?i)reverse[-_]?(tcp)"
 
   - id: reverse-shell
     desc: Reverse shell keyword
@@ -94,7 +94,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:shell)"
+      regex: "(?i)reverse[-_]?(shell)"
 
   - id: reverse-backdoor
     desc: Reverse backdoor reference
@@ -103,7 +103,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:backdoor)"
+      regex: "(?i)reverse[-_]?(backdoor)"
 
   - id: reverse-proxy
     desc: Reverse proxy keyword
@@ -112,7 +112,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:proxy)"
+      regex: "(?i)reverse[-_]?(proxy)"
 
   - id: reverse-tunnel
     desc: Reverse tunnel keyword
@@ -121,7 +121,7 @@ traits:
     platforms: [all]
     if:
       type: string
-      regex: "(?i)reverse[-_]?(?:tunnel)"
+      regex: "(?i)reverse[-_]?(tunnel)"
 
 
   # === Atomic: Ruby Reverse Shell ===

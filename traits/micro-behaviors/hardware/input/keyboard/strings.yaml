@@ -31,7 +31,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(?:CAPSLOCK|SCROLLOCK|NUMLOCK)"
+      regex: "(CAPSLOCK|SCROLLOCK|NUMLOCK)"
 
   - id: keystroke-capture-string-b
     desc: "Key capture strings (actions)"
@@ -39,7 +39,7 @@ traits:
     conf: 0.7
     if:
       type: string
-      regex: "(?:PRINTSCREEN|BACKSPACE)"
+      regex: "(PRINTSCREEN|BACKSPACE)"
 
 composite_rules:
   - id: keystroke-capture-string

@@ -38,7 +38,7 @@ traits:
   conf: 0.9
   if:
     type: raw
-    regex: http://(?:localhost|127\.0\.0\.1).{0,50}/health
+    regex: http://(localhost|127\.0\.0\.1).{0,50}/health
 composite_rules:
 - id: health-check
   desc: HTTP health check pattern

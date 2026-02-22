@@ -155,17 +155,18 @@ traits:
       type: raw
       regex: 'File\.open\(.{0,50}\.vbs|\.vbs.{0,50}File\.open'
 
+composite_rules:
   # === WScript Execution ===
   - id: wscript-execution
     desc: WScript execution
     crit: notable
     conf: 0.85
     attack: "T1059"
-    if:
-      type: string
-      regex: 'wscript|cscript|\.vbs'
+    any:
+      - id: micro-behaviors/process/create/shell/lang::wscript-exe
+      - id: micro-behaviors/process/create/shell/lang::cscript-exe
+      - id: micro-behaviors/fs/path/extension::vbs
 
-composite_rules:
   # === Library require composites ===
   - id: ruby-require-net-http
     desc: Imports HTTP client library

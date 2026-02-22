@@ -226,7 +226,7 @@ traits:
     for: [plist]
     if:
       type: raw
-      regex: "/bin/(sh|bash|zsh)"
+      regex: "<key>Program</key>\\s*<string>/bin/(sh|bash|zsh)</string>"
 
   # Embedded plist template traits (non-plist files containing plist data)
   - id: embedded-plist-shell

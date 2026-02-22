@@ -193,15 +193,6 @@ traits:
       substr: "send payment"
       case_insensitive: true
 
-  - id: ransom-identifier
-    desc: Ransom-related terminology
-    crit: notable
-    conf: 0.6
-    if:
-      type: string
-      word: ransom
-      case_insensitive: true
-
   # === File rename (atomic) ===
   - id: rename-sync
     desc: renameSync function

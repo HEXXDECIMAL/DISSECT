@@ -13,19 +13,19 @@ traits:
     type: raw
     regex: \bpkill\s+-f\b
 - id: miner-process-kill-primary
-  desc: Kills xmrig/minerd/kworkerds miner processes
+  desc: Kills xmrig/kworkerds miner processes
   crit: suspicious
   conf: 0.95
   if:
     type: raw
-    regex: (?:pkill|kill)[^;]{0,30}(?:xmrig|minerd|kworkerds)
+    regex: kill[^;]{0,30}(xmrig|kworkerds)
 - id: miner-process-kill-secondary
-  desc: Kills cryptonight/stratum miner processes
+  desc: Kills cryptonight miner processes
   crit: suspicious
   conf: 0.95
   if:
     type: raw
-    regex: (?:pkill|kill)[^;]{0,30}(?:cryptonight|stratum)
+    regex: kill[^;]{0,30}cryptonight
 - id: mass-tmp-removal
   desc: Mass removal of /tmp files
   crit: suspicious
@@ -39,7 +39,7 @@ traits:
   conf: 0.9
   if:
     type: raw
-    regex: rm\s+-rf?\s+(?:/tmp/kworkerds|/var/tmp/xmrig|/tmp/systemd|/tmp/java)
+    regex: rm\s+-rf?\s+(/tmp/kworkerds|/var/tmp/xmrig|/tmp/systemd|/tmp/java)
 
 - id: docker-container-kill-miner-xmr-mine
   desc: Kills Docker containers mentioning xmr or mine
@@ -47,7 +47,7 @@ traits:
   conf: 0.8
   if:
     type: raw
-    regex: docker\s+(?:ps|kill|rm)[^;]{0,30}(?:xmr|mine)
+    regex: docker\s+(ps|kill|rm)[^;]{0,30}(xmr|mine)
 
 - id: docker-container-kill-miner-monero
   desc: Kills Docker containers with monero clues
@@ -55,7 +55,7 @@ traits:
   conf: 0.8
   if:
     type: raw
-    regex: docker\s+(?:ps|kill|rm)[^;]{0,30}monero
+    regex: docker\s+(ps|kill|rm)[^;]{0,30}monero
 
 - id: docker-container-kill-secondary
   desc: Kills Docker containers with crypto keyword
@@ -63,28 +63,28 @@ traits:
   conf: 0.8
   if:
     type: raw
-    regex: docker\s+(?:ps|kill|rm)[^;]{0,30}crypto
+    regex: docker\s+(ps|kill|rm)[^;]{0,30}crypto
 - id: mass-kill-pattern
   desc: Mass process killing via ps/grep/kill
   crit: suspicious
   conf: 0.85
   if:
     type: raw
-    regex: ps\s+aux.{0,80}grep.{0,80}(?:kill|xargs.{0,20}kill)
+    regex: ps\s+aux.{0,80}grep.{0,80}(kill|xargs.{0,20}kill)
 - id: netstat-kill-pattern
   desc: Kills processes by network connection
   crit: suspicious
   conf: 0.9
   if:
     type: raw
-    regex: netstat.{0,80}grep.{0,80}(?:kill|xargs.{0,20}kill)
+    regex: netstat.{0,80}grep.{0,80}(kill|xargs.{0,20}kill)
 - id: mining-pool-kill-primary
   desc: Kills mining pool connections (moneropool/xmrpool)
   crit: suspicious
   conf: 0.95
   if:
     type: raw
-    regex: (?:grep|pkill)[^;]{0,50}(?:moneropool|xmrpool)
+    regex: pkill[^;]{0,50}(moneropool|xmrpool)
 
 - id: mining-pool-kill-secondary
   desc: Kills mining pool connections (stratum.f2pool/monerohash)
@@ -92,7 +92,7 @@ traits:
   conf: 0.95
   if:
     type: raw
-    regex: (?:grep|pkill)[^;]{0,50}(?:stratum\.f2pool|monerohash)
+    regex: grep[^;]{0,50}(stratum\.f2pool|monerohash)
 composite_rules:
 - id: miner-process-kill
   desc: Kills known miner processes

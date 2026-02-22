@@ -8,5 +8,5 @@ traits:
     conf: 0.9
     if:
       type: raw
-      regex: "(?:\\\\'2F[0-9a-fA-F]{2}\\s*){4,}"
+      regex: "(\\\\'2F[0-9a-fA-F]{2}\\s*){4,}"
       description: "Detects slash-hex encoding like /u/0/."

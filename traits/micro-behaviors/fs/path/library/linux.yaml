@@ -16,14 +16,14 @@ traits:
     conf: 0.4
     if:
       type: string
-      regex: "^/lib(?:32|64)?/$"
+      regex: "^/lib(32|64)?/$"
 
   - id: usr-lib-path
     desc: Reference to /usr/lib directory
     conf: 0.4
     if:
       type: string
-      regex: "^/usr/lib(?:32|64)?/$"
+      regex: "^/usr/lib(32|64)?/$"
 
   - id: usr-local-lib-path
     desc: Reference to /usr/local/lib

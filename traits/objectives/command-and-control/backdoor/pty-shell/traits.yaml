@@ -39,15 +39,6 @@ traits:
 
   # File descriptor duplication - use canonical micro-behaviors/ trait
 
-  # Daemon/background process symbols
-  - id: daemon-symbols
-    desc: Daemonization symbols
-    crit: notable
-    conf: 0.9
-    if:
-      type: symbol
-      regex: "^(daemon|setsid|fork)$"
-
   # /dev/ptm* string - PTY master device
   - id: pty-device-string
     desc: PTY device path string
@@ -158,7 +149,6 @@ composite_rules:
       - id: pty-alloc-symbols
       - id: termios-symbols
       - id: micro-behaviors/communications/socket/
-      - id: daemon-symbols
 
   # Bind shell with PTY - waits for incoming connections
   # Complexity: all(4) + for(1) = 5 >= 4 HOSTILE

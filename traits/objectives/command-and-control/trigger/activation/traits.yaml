@@ -44,84 +44,84 @@ traits:
   conf: 0.5
   if:
     type: string
-    regex: 1337.{0,4}(?:port|pass|key|magic)
+    regex: 1337.{0,4}(port|pass|key|magic)
 - id: magic-1337-suffix
   desc: Magic value 1337 (suffix)
   crit: notable
   conf: 0.5
   if:
     type: string
-    regex: (?:port|pass|key|magic).{0,4}1337
+    regex: (port|pass|key|magic).{0,4}1337
 - id: trigger-keyword-lower-prefix
   desc: trigger keyword (lowercase prefix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:backdoor|payload|shell).{0,2}trigger
+    regex: (backdoor|payload|shell).{0,2}trigger
 - id: trigger-keyword-lower-suffix
   desc: trigger keyword (lowercase suffix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: trigger.{0,2}(?:backdoor|payload|shell)
+    regex: trigger.{0,2}(backdoor|payload|shell)
 - id: trigger-keyword-upper-prefix
   desc: TRIGGER keyword (uppercase prefix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:BACKDOOR|PAYLOAD|SHELL).{0,2}TRIGGER
+    regex: (BACKDOOR|PAYLOAD|SHELL).{0,2}TRIGGER
 - id: trigger-keyword-upper-suffix
   desc: TRIGGER keyword (uppercase suffix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: TRIGGER.{0,2}(?:BACKDOOR|PAYLOAD|SHELL)
+    regex: TRIGGER.{0,2}(BACKDOOR|PAYLOAD|SHELL)
 - id: trigger-keyword-title-prefix
   desc: Trigger keyword (titlecase prefix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:Backdoor|Payload|Shell).{0,2}Trigger
+    regex: (Backdoor|Payload|Shell).{0,2}Trigger
 - id: trigger-keyword-title-suffix
   desc: Trigger keyword (titlecase suffix)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: Trigger.{0,2}(?:Backdoor|Payload|Shell)
+    regex: Trigger.{0,2}(Backdoor|Payload|Shell)
 - id: activate-keyword-lower
   desc: activate keyword (lowercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:backdoor|shell).{0,2}activate|activate.{0,2}(?:backdoor|shell)
+    regex: backdoor.{0,2}activate|activate.{0,2}backdoor
 - id: activate-keyword-upper
   desc: ACTIVATE keyword (uppercase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:BACKDOOR|SHELL).{0,2}ACTIVATE|ACTIVATE.{0,2}(?:BACKDOOR|SHELL)
+    regex: BACKDOOR.{0,2}ACTIVATE|ACTIVATE.{0,2}BACKDOOR
 - id: activate-keyword-title
   desc: Activate keyword (titlecase)
   crit: notable
   conf: 0.3
   if:
     type: string
-    regex: (?:Backdoor|Shell).{0,2}Activate|Activate.{0,2}(?:Backdoor|Shell)
+    regex: Backdoor.{0,2}Activate|Activate.{0,2}Backdoor
 - id: revshell-keyword-lower
   desc: revshell keyword (lowercase)
   crit: notable
   conf: 0.5
   if:
     type: string
-    regex: (?:trigger|activate)[_\-\s]*revshell|revshell[_\-\s]*(?:trigger|activate)
+    regex: (trigger|activate)[_\-\s]*revshell|revshell[_\-\s]*(trigger|activate)
 composite_rules:
 - id: icmp-context
   desc: ICMP packet handling context

@@ -252,7 +252,7 @@ traits:
   - pe
   if:
     type: string
-    regex: '[A-Za-z]\w{5,14}\.\(\*[A-Za-z]\w{5,14}\)\.(?:GenerateKey|NewPrivateKey)'
+    regex: '[A-Za-z]\w{5,14}\.\(\*[A-Za-z]\w{5,14}\)\.(GenerateKey|NewPrivateKey)'
 composite_rules:
 - id: go-ransomware-encrypt
   desc: Go ransomware encryption pattern

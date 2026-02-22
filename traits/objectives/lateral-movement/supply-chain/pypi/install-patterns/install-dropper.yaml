@@ -71,14 +71,14 @@ traits:
   conf: 0.9
   if:
     type: string
-    regex: https?://[^\s'"]{1,120}\.(exe|scr|msi|bat)(?:[?#][^\s'"]{0,120})?$
+    regex: https?://[^\s'"]{1,120}\.(exe|scr|msi|bat)([?#][^\s'"]{0,120})?$
 - id: executable-download-url-b
   desc: URL ending in executable extension
   crit: suspicious
   conf: 0.9
   if:
     type: string
-    regex: https?://[^\s'"]{1,120}\.(cmd|ps1|dll)(?:[?#][^\s'"]{0,120})?$
+    regex: https?://[^\s'"]{1,120}\.(cmd|ps1|dll)([?#][^\s'"]{0,120})?$
 - id: install-run-override
   desc: Install command run() override
   crit: notable
@@ -149,7 +149,7 @@ traits:
   attack: T1204.001
   if:
     type: string
-    regex: '[Ii]nstalling dependencies.{0,50}(?:please wait|please be patient)'
+    regex: '[Ii]nstalling dependencies.{0,50}(please wait|please be patient)'
 
 - id: surveillance-deps-install-1
   desc: Surveillance library (screens/input)
@@ -157,14 +157,14 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: pip install.{0,200}(?:pyscreenshot|pynput|pydirectinput)
+    regex: pip install.{0,200}(pyscreenshot|pynput|pydirectinput)
 - id: surveillance-deps-install-2
   desc: Surveillance library (clip/key)
   crit: notable
   conf: 0.8
   if:
     type: string
-    regex: pip install.{0,200}(?:pyperclip|keyring)
+    regex: pip install.{0,200}(pyperclip|keyring)
 
 - id: cmd-move-rename
   desc: Windows cmd /c move file rename
@@ -206,12 +206,6 @@ traits:
   if:
     type: raw
     substr: os.getenv
-- id: pip-install-string
-  desc: pip install command string
-  crit: notable
-  conf: 0.7
-  if:
-    id: micro-behaviors/os/package-manager/install::pip-install
 - id: pip-module-string
   desc: pip module reference string
   crit: notable
@@ -333,9 +327,8 @@ composite_rules:
   - id: robust-setup-py
   - id: python-command-exec
   any:
-  - id: pip-install-string
+  - id: micro-behaviors/os/package-manager/install::pip-install
   - id: pip-module-string
-  - id: objectives/execution/autoinstall/pip::pip-install-pattern
 - id: windows-start-exec
   desc: Windows start command with executable
   crit: suspicious
@@ -400,7 +393,7 @@ composite_rules:
   attack: T1204.002
   all:
   - id: robust-setup-py
-  - id: objectives/command-and-control/infrastructure/ip::http-raw-ip-url
+  - id: micro-behaviors/communications/network/ip::http-ip-url
   - id: micro-behaviors/process/create/subprocess::methods
 - id: windows-rename-execute-delete
   desc: Windows file rename-execute-delete dropper chain
@@ -487,7 +480,7 @@ composite_rules:
   attack: T1059.001
   all:
   - id: robust-setup-py
-  - id: objectives/execution/dropper/stealth::subprocess-popen
+  - id: micro-behaviors/process/create/subprocess::popen-content
   - id: powershell-download-in-string
   - id: objectives/execution/background/daemon::powershell-hidden
 - id: pypi-powershell-encoded-dropper
@@ -498,7 +491,7 @@ composite_rules:
   attack: T1059.001
   all:
   - id: robust-setup-py
-  - id: objectives/execution/dropper/stealth::subprocess-popen
+  - id: micro-behaviors/process/create/subprocess::popen-content
   - id: powershell-encoded-command-in-string
   - id: objectives/execution/background/daemon::powershell-hidden
 - id: pypi-powershell-stager

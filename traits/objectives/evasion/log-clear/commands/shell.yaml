@@ -17,14 +17,23 @@ traits:
       type: raw
       regex: '>\s*/root/\.bash_history|echo\s*>\s*[^\n]{0,30}\.bash_history'
 
-  - id: wtmp-clear
-    desc: Clears wtmp/utmp logs
+  - id: wtmp-redirect-clear
+    desc: Clears wtmp/utmp/btmp logs via redirect
     crit: suspicious
     conf: 0.95
     attack: "T1070.004"
     if:
       type: raw
-      regex: '>\s*/var/log/(wtmp|utmp|btmp)|echo\s*>\s*/var/log/(wtmp|utmp|btmp)'
+      regex: '>\s*/var/log/(wtmp|utmp|btmp)'
+
+  - id: wtmp-echo-clear
+    desc: Clears wtmp/utmp/btmp logs via echo redirect
+    crit: suspicious
+    conf: 0.95
+    attack: "T1070.004"
+    if:
+      type: raw
+      regex: 'echo\s*>\s*/var/log/(wtmp|utmp|btmp)'
 
   - id: find-exec-rm-log
     desc: Find and remove log files
@@ -33,4 +42,4 @@ traits:
     attack: "T1070.004"
     if:
       type: raw
-      regex: 'find\s+.*\s+-name\s+["'']\*\.log["'']\s+-exec\s+rm'
+      regex: 'find\s+.{0,100}\s+-name\s+["'']\*\.log["'']\s+-exec\s+rm'

@@ -9,11 +9,11 @@ defaults:
 
 traits:
   # === Backdoor intent markers ===
-  - id: backdoor
-    desc: Backdoor naming pattern (suggests malicious intent)
+  - id: backdoor-keywords
+    desc: Backdoor-related naming patterns
     if:
       type: string
-      regex: "\\b(back_?door|bkdr|bd_handler|rootkit)\\w*\\b"
+      regex: "\\b(bkdr|bd_handler)\\w*\\b"
       case_insensitive: true
 
   # === Magic value markers ===
@@ -61,6 +61,14 @@ traits:
       case_insensitive: true
 
 composite_rules:
+  - id: backdoor
+    desc: Backdoor naming pattern (suggests malicious intent)
+    crit: notable
+    conf: 0.6
+    any:
+      - id: backdoor-keywords
+      - id: micro-behaviors/data/text/malware::rootkit-word
+
   - id: magic
     desc: Magic value naming pattern
     crit: notable

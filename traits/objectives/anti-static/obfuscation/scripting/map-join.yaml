@@ -7,5 +7,4 @@ traits:
     crit: suspicious
     conf: 0.95
     if:
-      type: raw
-      regex: '(?:\.join\s*\(|join\s*\()\s*map\s*\(\s*getattr'
+      id: objectives/anti-static/obfuscation/scripting/advanced-python::join-map-getattr-chr

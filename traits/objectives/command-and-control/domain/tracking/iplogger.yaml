@@ -28,7 +28,7 @@ composite_rules:
     crit: suspicious
     conf: 0.95
     any:
-      - id: objectives/discovery/network/ip-tracker/iplogger
+      - id: objectives/discovery/network/ip-tracker::iplogger
       - id: iplogger-domain-b
 
   - id: tracking-services-domain

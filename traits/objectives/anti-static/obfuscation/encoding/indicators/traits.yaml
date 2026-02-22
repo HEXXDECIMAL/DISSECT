@@ -209,7 +209,7 @@ traits:
     for: [javascript, typescript]
     if:
       type: encoded
-      regex: "runIn(?:This|New|Context)Context"
+      regex: "runIn(This|New|Context)Context"
     attack: "T1059.007"
 
   # === Windows Indicators ===
@@ -230,7 +230,7 @@ traits:
     for: [pe, dll, python, javascript]
     if:
       type: encoded
-      regex: "powershell(?:\\.exe)?\\s+[-/]"
+      regex: "powershell(\\.exe)?\\s+[-/]"
     attack: "T1059.001"
 
   - id: encoded-dotnet-diagnostics

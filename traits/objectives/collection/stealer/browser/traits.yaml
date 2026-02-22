@@ -26,13 +26,7 @@ traits:
       exact: "CryptUnprotectData"
 
   # === AWS credential harvesting ===
-  - id: os-getenv
-    desc: os.Getenv function
-    crit: notable
-    conf: 0.5
-    if:
-      id: micro-behaviors/os/env/access::os-getenv
-
+  # Removed: os-getenv was a pure alias to micro-behaviors/os/env/access::os-getenv
   # Removed: aws-access-string (use credential-access/environment/secret-access::aws-access-key)
 
 composite_rules:
@@ -67,7 +61,7 @@ composite_rules:
     conf: 0.85
     attack: "T1552.001"
     all:
-      - { id: os-getenv }
+      - { id: micro-behaviors/os/env/access::os-getenv }
       - { id: aws-env-vars }
 
   - id: credential-harvest

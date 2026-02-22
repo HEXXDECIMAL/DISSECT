@@ -98,7 +98,7 @@ traits:
       type: string
       # Match "check for updates", "check updates", "checking for updates" etc.
       # Exclude matches like "checks if... updates" which are just docstrings
-      regex: "(?i)check(?:ing)?\\s+(?:for\\s+)?updates"
+      regex: "(?i)check(ing)?\\s+(for\\s+)?updates"
 
   - id: install-components
     desc: "Install components lure text"

@@ -146,7 +146,7 @@ composite_rules:
     for: [elf]
     all:
       - id: prctl-symbol
-      - id: objectives/command-and-control/backdoor/pty-shell::daemon-symbols
+      - id: micro-behaviors/process/daemonize/background::daemon
     any:
       - id: fake-smartd
       - id: fake-syslogd
@@ -180,4 +180,4 @@ composite_rules:
     all:
       - id: daemon-paths
       - id: micro-behaviors/communications/socket/create
-      - id: objectives/command-and-control/backdoor/pty-shell::daemon-symbols
+      - id: micro-behaviors/process/daemonize/background::daemon

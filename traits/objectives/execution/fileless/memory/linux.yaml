@@ -137,15 +137,6 @@ traits:
       type: string
       exact: "CDLL"
 
-  - id: libc-so
-    desc: libc.so reference
-    crit: notable
-    conf: 0.4
-    for: [python, c]
-    if:
-      type: string
-      substr: "libc.so"
-
   - id: dot-syscall
     desc: .syscall( call
     crit: notable
@@ -327,9 +318,7 @@ composite_rules:
     all:
       - id: ctypes-mod
       - id: dot-syscall
-    any:
       - id: ctypes-cdll
-      - id: libc-so
 
   # Write to fd with seek
   - id: fd-write

@@ -15,4 +15,4 @@ traits:
       # At capability level, .stop() is suspicious in the context of Thread operations, 
       # but ambiguous generally. However, we'll set it to suspicious 
       # and let the analyst or composite rules decide.
-      regex: '(?:\bThread|\b[a-zA-Z0-9_]+)\.stop\s*\(\s*\)'
+      regex: '(\bThread|\b[a-zA-Z0-9_]+)\.stop\s*\(\s*\)'

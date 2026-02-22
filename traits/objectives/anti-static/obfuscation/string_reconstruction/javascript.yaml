@@ -8,7 +8,7 @@ traits:
   - typescript
   if:
     type: raw
-    regex: 'var\s+\w+\s*=\s*new\s+Array\(((?:\s*[''"][^"'']{2,5}[''"]|\s*\w{2,5})\s*,?){5,}\);
+    regex: 'var\s+\w+\s*=\s*new\s+Array\(((\s*[''"][^"'']{2,5}[''"]|\s*\w{2,5})\s*,?){5,}\);
 
       '
 - id: js-nested-array-table-mapping

@@ -29,14 +29,14 @@ traits:
   conf: 0.85
   if:
     type: string
-    regex: '(?:app|router)\.use\(|middleware\s*[=:]'
+    regex: '(app|router)\.use\(|middleware\s*[=:]'
 - id: has-routes-app-a
   desc: Code defines HTTP routes
   crit: notable
   conf: 0.8
   if:
     type: string
-    regex: 'app\.(?:get|post|put|delete)\s*\([''"]/'
+    regex: 'app\.(get|post|put|delete)\s*\([''"]/'
 - id: has-routes-app-patch
   desc: Code defines HTTP routes
   crit: notable
@@ -50,7 +50,7 @@ traits:
   conf: 0.8
   if:
     type: string
-    regex: 'router\.(?:get|post|put|delete)\s*\([''"]/'
+    regex: 'router\.(get|post|put|delete)\s*\([''"]/'
 - id: has-routes-router-patch
   desc: Code defines HTTP routes
   crit: notable
@@ -78,14 +78,14 @@ traits:
   conf: 0.85
   if:
     type: string
-    regex: '(?:require\([''"]|from [''"])(?:next|nuxt)[''"]'
+    regex: '(require\([''"]|from [''"])(next|nuxt)[''"]'
 - id: has-frontend-framework-core
   desc: Uses React/Vue component primitives
   crit: notable
   conf: 0.9
   if:
     type: string
-    regex: '(?:React|Vue|Component)\.(?:createElement|defineComponent)'
+    regex: '(React|Vue|Component)\.(createElement|defineComponent)'
 - id: has-frontend-framework-hooks
   desc: Uses component decorators or hooks
   crit: notable

@@ -57,14 +57,6 @@ traits:
       type: string
       substr: "lzma_crc64_table"
 
-  - id: lzma-crc64
-    desc: lzma_crc64 reference
-    crit: notable
-    conf: 0.4
-    if:
-      type: string
-      substr: "lzma_crc64"
-
   - id: xz-obf-pattern
     desc: XZ obfuscated function marker bytes
     crit: notable
@@ -149,7 +141,7 @@ composite_rules:
     all:
       - id: micro-behaviors/dylib/lookup::dlsym-symbol
     any:
-      - id: objectives/anti-analysis/kernel-hide/userspace::rtld-next-ref
+      - id: micro-behaviors/dylib/lookup::rtld-next
       - id: metadata/format/elf::rtld-default-ref
 
   # === XZ CRC patterns ===
@@ -161,7 +153,6 @@ composite_rules:
     needs: 2
     any:
       - id: lzma-crc64-table
-      - id: lzma-crc64
       - id: metadata/format/elf::ifunc
 
   # === XZ backdoor signature ===

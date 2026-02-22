@@ -11,7 +11,7 @@ traits:
     conf: 0.6
     if:
       type: string
-      regex: '(?:^|/)kill\s+-[0-9A-Z]+\b|/bin/kill\b'
+      regex: '(^|/)kill\s+-[0-9A-Z]+\b|/bin/kill\b'
     # Basic "kill" is too common, so require flags or full path or context in regex
 
   - id: killall

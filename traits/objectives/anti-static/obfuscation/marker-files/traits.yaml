@@ -12,7 +12,7 @@ traits:
   conf: 0.75
   if:
     type: string
-    regex: touch /tmp/\.[a-z]|touch.{0,50}\.(?:ran|done|exec)
+    regex: touch /tmp/\.[a-z]|touch.{0,50}\.(ran|done|exec)
 - id: hidden-tmp-marker
   desc: Hidden marker in tmp
   crit: suspicious

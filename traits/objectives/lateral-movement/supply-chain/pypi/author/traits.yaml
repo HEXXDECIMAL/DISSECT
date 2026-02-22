@@ -34,7 +34,7 @@ traits:
     if:
       type: kv
       path: author
-      regex: "^(?:Your Name|Test|Author)$"
+      regex: "^(Your Name|Test|Author)$"
       case_insensitive: true
 
   - id: placeholder-author-pkginfo-1b
@@ -42,7 +42,7 @@ traits:
     if:
       type: kv
       path: author
-      regex: "^(?:TODO|FIXME)$"
+      regex: "^(TODO|FIXME)$"
       case_insensitive: true
 
   - id: placeholder-author-pkginfo-2
@@ -50,7 +50,7 @@ traits:
     if:
       type: kv
       path: author
-      regex: "^(?:Example|Change Me|haha|lol)$"
+      regex: "^(Example|Change Me|haha|lol)$"
       case_insensitive: true
 
   - id: placeholder-author-pkginfo-3
@@ -58,7 +58,7 @@ traits:
     if:
       type: kv
       path: author
-      regex: "^(?:none|asdf|abc)$"
+      regex: "^(none|asdf|abc)$"
       case_insensitive: true
 
   - id: pkginfo-short-author
@@ -88,7 +88,7 @@ traits:
     if:
       type: kv
       path: author
-      regex: "(?:[a-zA-Z]+[0-9]{3,}|[0-9]{3,}[a-zA-Z]+)"
+      regex: "([a-zA-Z]+[0-9]{3,}|[0-9]{3,}[a-zA-Z]+)"
 
 composite_rules:
   - id: placeholder-author

@@ -46,7 +46,7 @@ traits:
     size_max: 100
     unless:
       - type: raw
-        regex: "^(?:from\\s+\\S+\\s+import|import\\s+\\S+)"
+        regex: "^(from\\s+\\S+\\s+import|import\\s+\\S+)"
 
   - id: small-no-imports
     desc: Small Python file with no imports

@@ -13,7 +13,7 @@ composite_rules:
     all:
       - id: objectives/persistence/account/create::useradd-command
       - id: objectives/persistence/account/create::user-bash-shell
-      - id: objectives/lateral-movement/ssh-backdoor-installation/deploy::authorized-keys-path
+      - id: objectives/credential-access/ssh/key::authorized-keys
 
   - id: password-set-privilege-escalation
     desc: Password setting with privilege escalation
@@ -36,5 +36,5 @@ composite_rules:
     all:
       - id: objectives/persistence/account/create::account-creation
       - id: objectives/persistence/account/create::privilege-escalation-setup
-      - id: objectives/lateral-movement/ssh-backdoor-installation/deploy::authorized-keys-path
+      - id: objectives/credential-access/ssh/key::authorized-keys
       - id: objectives/lateral-movement/ssh-backdoor-installation/deploy::sshd-restart

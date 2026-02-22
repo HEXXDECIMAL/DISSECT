@@ -28,7 +28,7 @@ traits:
   attack: T1071.001
   if:
     type: string
-    regex: (?i)\b(?:update|crash|api)\.[\w-]+\.(?:qq|microsoft)\.com:8080\b
+    regex: (?i)\b(update|crash|api)\.[\w-]+\.(qq|microsoft)\.com:8080\b
 
 - id: generic-vendor-port-8443
   desc: Vendor subdomain on port 8443
@@ -38,7 +38,7 @@ traits:
   attack: T1071.001
   if:
     type: string
-    regex: (?i)\b(?:update|crash|api)\.[\w-]+\.(?:qq|microsoft)\.com:8443\b
+    regex: (?i)\b(update|crash|api)\.[\w-]+\.(qq|microsoft)\.com:8443\b
 composite_rules:
   - id: generic-vendor-port-misuse
     desc: Vendor subdomain on non-standard port

@@ -8,4 +8,4 @@ traits:
     conf: 0.8
     if:
       type: string
-      regex: "(?:var\\s+\\w+\\s*=\\s*\"htt\"(?:\\s*\\+\\s*\"p\")?|y1\\s*\\+\\s*CDhHN)"
+      regex: "(var\\s+\\w+\\s*=\\s*\"htt\"(\\s*\\+\\s*\"p\")?|y1\\s*\\+\\s*CDhHN)"

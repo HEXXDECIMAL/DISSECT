@@ -11,8 +11,7 @@ traits:
     crit: notable
     conf: 0.8
     if:
-      type: raw
-      regex: '(?i)(?:killer|killAllThreads|AppletKiller)'
+      id: well-known/malware/dos/applet-killer::strings
 
 composite_rules:
   - id: applet-killer-dos

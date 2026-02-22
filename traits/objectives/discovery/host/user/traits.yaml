@@ -100,7 +100,7 @@ traits:
   - macho
   if:
     type: string
-    regex: \bfinger(?:\s+@[a-z]|\s+-[lms])?\b
+    regex: \bfinger(\s+@[a-z]|\s+-[lms])?\b
 - id: last-cmd
   desc: Last command for login history
   crit: suspicious
@@ -112,7 +112,7 @@ traits:
   - macho
   if:
     type: string
-    regex: (?:^|[\s;&|])last(?:\s|$)
+    regex: (^|[\s;&|])last(\s|$)
 - id: w-cmd
   desc: W command for user sessions
   crit: suspicious

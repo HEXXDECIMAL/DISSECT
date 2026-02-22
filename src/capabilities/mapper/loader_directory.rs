@@ -21,9 +21,11 @@ use crate::capabilities::validation::{
     find_impossible_needs, find_impossible_size_constraints, find_inert_obj_rules,
     find_invalid_trait_ids, find_line_number, find_malware_subcategory_violations,
     find_missing_search_patterns, find_oversized_trait_directories, find_overlapping_conditions,
-    find_parent_duplicate_segments, find_platform_named_directories, find_redundant_any_refs,
-    find_redundant_needs_one, find_short_pattern_warnings, find_single_item_clauses,
-    find_slow_regex_patterns, find_string_content_collisions, find_string_pattern_duplicates,
+    find_parent_duplicate_segments, find_platform_named_directories, find_pure_alias_traits,
+    find_redundant_any_refs, find_redundant_needs_one, find_short_pattern_warnings,
+    find_single_item_clauses,
+    find_non_capturing_groups, find_slow_regex_patterns, find_string_content_collisions,
+    find_string_pattern_duplicates,
     precalculate_all_composite_precisions, simple_rule_to_composite_rule,
     validate_composite_trait_only, validate_hostile_composite_precision,
     MAX_TRAITS_PER_DIRECTORY,
@@ -754,6 +756,12 @@ impl super::CapabilityMapper {
             tracing::debug!("Step 1h/15: Detecting potentially slow regex patterns");
             find_slow_regex_patterns(&trait_definitions, &mut warnings);
             tracing::debug!("Step 1h completed in {:?}", step_start.elapsed());
+
+            // Detect unnecessary non-capturing groups in regex patterns
+            let step_start = std::time::Instant::now();
+            tracing::debug!("Step 1h2/15: Detecting non-capturing groups in regex patterns");
+            find_non_capturing_groups(&trait_definitions, &mut warnings);
+            tracing::debug!("Step 1h2 completed in {:?}", step_start.elapsed());
 
             // Check for exact patterns contained by substr patterns (redundancy)
             let step_start = std::time::Instant::now();
@@ -1660,6 +1668,35 @@ impl super::CapabilityMapper {
             warnings.push(format!(
                 "{} composite rules have redundant `needs: 1`",
                 redundant_needs.len()
+            ));
+        }
+
+        // Validate: pure alias traits that add no value
+        let pure_aliases = find_pure_alias_traits(&trait_definitions);
+        if !pure_aliases.is_empty() {
+            eprintln!(
+                "\n⚠️  WARNING: {} traits are pure aliases with no added value",
+                pure_aliases.len()
+            );
+            eprintln!("   These traits reference another trait via `if: id:` but add no constraints:");
+            eprintln!("   - No filtering (count_min, count_max, section, etc.)");
+            eprintln!("   - Same criticality as referenced trait");
+            eprintln!("   - No unless/not/downgrade modifiers");
+            eprintln!("   Either add constraints/modifiers or reference the original trait directly:\n");
+            for (trait_id, ref_id) in &pure_aliases {
+                let source =
+                    rule_source_files.get(trait_id).map(std::string::String::as_str).unwrap_or("unknown");
+                let line_hint = find_line_number(source, trait_id);
+                if let Some(line) = line_hint {
+                    eprintln!("   {}:{}: '{}' -> '{}'", source, line, trait_id, ref_id);
+                } else {
+                    eprintln!("   {}: '{}' -> '{}'", source, trait_id, ref_id);
+                }
+            }
+            eprintln!();
+            warnings.push(format!(
+                "{} traits are pure aliases with no added value",
+                pure_aliases.len()
             ));
         }
 

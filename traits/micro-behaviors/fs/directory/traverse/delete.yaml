@@ -18,7 +18,7 @@ traits:
     for: [javascript, typescript, python]
     if:
       type: raw
-      regex: unlinkSync|os\.(?:remove|unlink)
+      regex: unlinkSync|os\.(remove|unlink)
 
   - id: delete-flag-shell
     desc: Delete flag in shell command

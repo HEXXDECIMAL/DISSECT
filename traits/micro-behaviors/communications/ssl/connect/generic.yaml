@@ -57,7 +57,7 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: "\\bcert_reqs\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
+      regex: "\\bcert_reqs\\s*=\\s*(ssl\\.)?CERT_NONE\\b"
 
   - id: verify-mode-none
     desc: verify_mode = ssl.CERT_NONE (Python)
@@ -66,7 +66,7 @@ traits:
     for: [python]
     if:
       type: raw
-      regex: "\\bverify_mode\\s*=\\s*(?:ssl\\.)?CERT_NONE\\b"
+      regex: "\\bverify_mode\\s*=\\s*(ssl\\.)?CERT_NONE\\b"
     unless:
       - type: string
         regex: "urllib3|requests|botocore"

@@ -11,7 +11,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: 'tag\s*==\s*(?:7|9|10)\b'
+      regex: 'tag\s*==\s*(7|9|10)\b'
 
   - id: constant-pool-tag-check-b
     desc: Constant pool tag checks (11/12/18)
@@ -19,7 +19,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: 'tag\s*==\s*(?:11|12|18)\b'
+      regex: 'tag\s*==\s*(11|12|18)\b'
 
   - id: manual-opcode-injection
     desc: Manual injection of Java Opcodes (e.g. invokestatic=184)
@@ -27,7 +27,7 @@ traits:
     conf: 0.8
     if:
       type: raw
-      regex: '(?:\(byte\)\s*184|\[\d+\]\s*=\s*\(byte\)\s*184)'
+      regex: '(\(byte\)\s*184|\[\d+\]\s*=\s*\(byte\)\s*184)'
 
 composite_rules:
   - id: constant-pool-tag-check

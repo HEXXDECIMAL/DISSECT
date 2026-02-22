@@ -73,7 +73,7 @@ traits:
     conf: 0.7
     if:
       type: raw
-      regex: 'rm\s+(?:-[a-z]{1,8}\s+){0,4}--\s+'
+      regex: 'rm\s+(-[a-z]{1,8}\s+){0,4}--\s+'
 
   - id: rm-dash-prefix-file
     desc: Delete dash-prefix file
@@ -81,7 +81,7 @@ traits:
     conf: 0.85
     if:
       type: raw
-      regex: 'rm\s+(?:-[a-z]{1,8}\s+){0,4}--\s+-[a-zA-Z0-9_]+'
+      regex: 'rm\s+(-[a-z]{1,8}\s+){0,4}--\s+-[a-zA-Z0-9_]+'
 
 composite_rules:
   # Dash-prefix file in system path (any location)

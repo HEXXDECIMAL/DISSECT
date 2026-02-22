@@ -65,13 +65,13 @@ traits:
     desc: Suspicious combo (git/socket/aio with discord/request)
     if:
       type: string
-      regex: "(gitpython|sockets|aiohttp).{0,50}(discord|requests)"
+      regex: "(sockets|aiohttp).{0,50}discord"
 
   - id: suspicious-dep-combo-2
-    desc: Suspicious combo (discord/request with pynput/keyboard)
+    desc: Suspicious combo (discord/request with pynput)
     if:
       type: string
-      regex: "(discord|requests).{0,50}(pynput|keyboard)"
+      regex: "(discord|requests).{0,50}pynput"
 
 composite_rules:
   - id: suspicious-dep-combo

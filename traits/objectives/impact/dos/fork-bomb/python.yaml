@@ -36,14 +36,6 @@ traits:
       substr: "import os"
 
   # Infinite loop patterns
-  - id: while-true
-    desc: Infinite loop with while True
-    crit: notable
-    conf: 0.6
-    if:
-      type: raw
-      exact: "while True:"
-
   - id: while-1
     desc: Infinite loop with while 1
     crit: notable
@@ -149,7 +141,7 @@ composite_rules:
   - id: infinite-loops
     desc: Infinite loop patterns
     any:
-      - id: while-true
+      - id: objectives/command-and-control/network/beacon/periodic::infinite-while-true
       - id: while-1
       - id: for-iter-int
     crit: notable
@@ -195,7 +187,7 @@ composite_rules:
   - id: tight-loops
     desc: Tight loop patterns
     any:
-      - id: while-true
+      - id: objectives/command-and-control/network/beacon/periodic::infinite-while-true
       - id: while-1
       - id: large-range-loop
     crit: notable
@@ -224,7 +216,7 @@ composite_rules:
   - id: infinite-while
     desc: Infinite while loop
     any:
-      - id: while-true
+      - id: objectives/command-and-control/network/beacon/periodic::infinite-while-true
       - id: while-1
     crit: notable
 

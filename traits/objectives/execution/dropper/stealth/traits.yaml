@@ -22,15 +22,6 @@ traits:
       type: raw
       substr: "close_fds=True"
 
-  - id: subprocess-popen
-    desc: "subprocess.Popen call"
-    crit: notable
-    conf: 0.6
-    for: [python]
-    if:
-      type: raw
-      regex: "subprocess\\.Popen\\("
-
 composite_rules:
   - id: python
     desc: "Process execution with output hiding"
@@ -41,7 +32,7 @@ composite_rules:
     for: [python]
     needs: 3
     any:
-      - id: subprocess-popen
+      - id: micro-behaviors/process/create/subprocess::popen-content
       - id: devnull
       - id: micro-behaviors/process/create/setsid::python
       - id: close-fds

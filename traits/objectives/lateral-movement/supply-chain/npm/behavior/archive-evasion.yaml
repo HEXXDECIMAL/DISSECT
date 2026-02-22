@@ -16,4 +16,4 @@ traits:
     if:
       type: string
       # Require a path-like pattern indicating an actual nested archive
-      regex: '(?:^|/)node_modules/[^/]{1,120}/[^/]{1,120}\.tgz$|package/[^/]{1,120}\.tgz'
+      regex: '(^|/)node_modules/[^/]{1,120}/[^/]{1,120}\.tgz$|package/[^/]{1,120}\.tgz'

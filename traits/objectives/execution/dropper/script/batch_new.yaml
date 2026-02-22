@@ -123,7 +123,7 @@ traits:
     for: [shell, batch]
     if:
       type: raw
-      regex: "(?i)certutil(?:\\.exe)?\\s+[^\\n]{0,120}-urlcache[^\\n]{0,60}-split[^\\n]{0,60}-f"
+      regex: "(?i)certutil(\\.exe)?\\s+[^\\n]{0,120}-urlcache[^\\n]{0,60}-split[^\\n]{0,60}-f"
 
   - id: wmic-arch-check
     desc: "Check OS architecture via WMIC"
@@ -159,7 +159,7 @@ traits:
     for: [shell, batch]
     if:
       type: raw
-      regex: "(?i)(?:^|[^-\\w])call(?:$|[^-\\w])"
+      regex: "(?i)(^|[^-\\w])call($|[^-\\w])"
 
   - id: powershell-exe
     desc: "PowerShell.exe invocation"

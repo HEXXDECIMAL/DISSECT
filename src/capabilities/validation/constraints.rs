@@ -161,6 +161,83 @@ pub(crate) fn find_missing_search_patterns(trait_definitions: &[TraitDefinition]
     violations
 }
 
+/// Find traits that are pure aliases: `if: id: other-trait` with no added value.
+///
+/// A pure alias trait references another trait but adds no constraints:
+/// - No filtering (count_min, count_max, section, offset, per_kb_*, size_*)
+/// - No criticality change (same crit as referenced trait)
+/// - No unless/not/downgrade modifiers
+///
+/// These should either add constraints or be removed in favor of direct references.
+///
+/// Returns: `Vec<(trait_id, referenced_trait_id)>`
+#[must_use]
+pub(crate) fn find_pure_alias_traits(
+    trait_definitions: &[TraitDefinition],
+) -> Vec<(String, String)> {
+    use std::collections::HashMap;
+
+    // Build a map of trait ID -> criticality for lookup
+    let crit_map: HashMap<&str, &crate::types::Criticality> = trait_definitions
+        .iter()
+        .map(|t| (t.id.as_str(), &t.crit))
+        .collect();
+
+    let mut violations = Vec::new();
+
+    for t in trait_definitions {
+        // Check if the condition is a trait reference
+        let Condition::Trait { id: ref_id } = &t.r#if.condition else {
+            continue;
+        };
+
+        // Must be a cross-trait reference (contains :: or /)
+        if !ref_id.contains("::") && !ref_id.contains('/') {
+            continue;
+        }
+
+        // Skip self-references (these are a different bug - circular reference)
+        if ref_id == &t.id {
+            continue;
+        }
+
+        // Check for any filtering constraints that add value
+        let has_filters = t.r#if.count_min.is_some()
+            || t.r#if.count_max.is_some()
+            || t.r#if.size_min.is_some()
+            || t.r#if.size_max.is_some()
+            || t.r#if.per_kb_min.is_some()
+            || t.r#if.per_kb_max.is_some();
+
+        if has_filters {
+            continue;
+        }
+
+        // Check for modifiers that add value
+        let has_modifiers = t.unless.as_ref().is_some_and(|v| !v.is_empty())
+            || t.not.as_ref().is_some_and(|v| !v.is_empty())
+            || t.downgrade.is_some();
+
+        if has_modifiers {
+            continue;
+        }
+
+        // Check if criticality differs from referenced trait
+        // If referenced trait isn't found, assume it differs (don't flag)
+        if let Some(ref_crit) = crit_map.get(ref_id.as_str()) {
+            if &t.crit != *ref_crit {
+                continue; // Criticality change adds value
+            }
+        } else {
+            continue; // Referenced trait not found locally, can't compare
+        }
+
+        violations.push((t.id.clone(), ref_id.clone()));
+    }
+
+    violations
+}
+
 /// Find composite rules with redundant `needs: 1` when only `any:` clause exists.
 ///
 /// `needs: 1` is the default, so specifying it explicitly adds noise.
