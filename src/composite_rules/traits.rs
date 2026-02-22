@@ -28,6 +28,10 @@ fn stats_map() -> &'static DashMap<&'static str, (AtomicU64, AtomicU64)> {
 
 /// Print condition evaluation statistics
 pub(crate) fn print_condition_stats() {
+    if std::env::var("DISSECT_VERBOSE").as_deref() != Ok("1") {
+        return;
+    }
+
     let stats = stats_map();
     if stats.is_empty() {
         return;

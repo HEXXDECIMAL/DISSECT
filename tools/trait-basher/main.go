@@ -572,14 +572,17 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 
 // streamStats tracks streaming analysis statistics.
 type streamStats struct {
-	archivesReviewed   int
-	standaloneReviewed int
-	skippedCached      int
-	skippedNoReview    int
-	totalFiles         int
-	totalStandaloneFiles int  // Total standalone files seen (not in archives)
-	reviewTimeTotal    time.Duration // Total time spent in LLM reviews
-	shouldRestart      bool // Set to true when rescan limit reached
+	archivesReviewed     int
+	standaloneReviewed   int
+	skippedCached        int
+	skippedNoReview      int
+	totalFiles           int
+	totalStandaloneFiles int           // Total standalone files seen (not in archives)
+	reviewTimeTotal      time.Duration // Total time spent in LLM reviews
+	shouldRestart        bool          // Set to true when rescan limit reached
+	// Progress tracking
+	estimatedTotal int       // Estimated total files (from pre-count)
+	scanStartTime  time.Time // When scanning started (for rate calculation)
 }
 
 // flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills.
@@ -654,6 +657,8 @@ type streamState struct {
 	filesReviewedCount int // Count of files sent to LLM for review
 	logger             *slog.Logger
 	archiveStartTime   time.Time // Track when current archive started processing
+	currentScanPath    string    // Current file being scanned (for progress display)
+	reviewingPath      string    // Current file being reviewed by LLM (for progress display)
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
@@ -697,14 +702,20 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 	// Stream dissect stderr to our own stderr in background
 	// Include PID prefix for parallel session disambiguation
+	// Filter out noisy periodic memory check logs
 	dissectPID := 0 // Will be set after cmd.Start()
 	go func() {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
+			line := scanner.Text()
+			// Skip noisy periodic memory check logs
+			if strings.Contains(line, "Periodic memory check") {
+				continue
+			}
 			if dissectPID > 0 {
-				fmt.Fprintf(os.Stderr, "[dissect:%d] %s\n", dissectPID, scanner.Text())
+				fmt.Fprintf(os.Stderr, "[dissect:%d] %s\n", dissectPID, line)
 			} else {
-				fmt.Fprintf(os.Stderr, "[dissect] %s\n", scanner.Text())
+				fmt.Fprintf(os.Stderr, "[dissect] %s\n", line)
 			}
 		}
 	}()
@@ -769,10 +780,18 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		"use_cargo", cfg.useCargo,
 	)
 
+	// Pre-count files for progress estimation
+	fmt.Fprint(os.Stderr, "Counting files...")
+	estimatedTotal := countFiles(cfg.dirs)
+	fmt.Fprintf(os.Stderr, " %d files found\n", estimatedTotal)
+
 	state := &streamState{
 		cfg:    cfg,
 		dbMode: dbMode,
-		stats:  &streamStats{},
+		stats: &streamStats{
+			estimatedTotal: estimatedTotal,
+			scanStartTime:  time.Now(),
+		},
 		logger: logger,
 	}
 
@@ -825,9 +844,28 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		}
 
 		n++
+		state.currentScanPath = entry.Path
 
+		// Update progress display periodically
 		if time.Since(last) > 100*time.Millisecond {
-			fmt.Fprintf(os.Stderr, "\r  Scanning... %d files processed", n)
+			elapsed := time.Since(state.stats.scanStartTime).Seconds()
+			filesPerSec := 0.0
+			if elapsed > 0 {
+				filesPerSec = float64(n) / elapsed
+			}
+
+			// Calculate detection rate (correct classifications)
+			// For --bad: skippedNoReview = detected (TP), reviewed = missed (FN)
+			// For --good: skippedNoReview = clean (TN), reviewed = false alarm (FP)
+			totalProcessed := state.stats.skippedNoReview + state.stats.archivesReviewed + state.stats.standaloneReviewed
+			detectionRate := 0.0
+			if totalProcessed > 0 {
+				detectionRate = float64(state.stats.skippedNoReview) / float64(totalProcessed) * 100
+			}
+
+			progress := formatProgress(n, state.stats.estimatedTotal, detectionRate, filesPerSec, entry.Path, cfg.knownGood)
+			// Clear line and print progress (allow long paths)
+			fmt.Fprintf(os.Stderr, "\r\033[K%s", progress)
 			last = time.Now()
 		}
 
@@ -871,12 +909,31 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return state.stats, fmt.Errorf("dissect failed: %w (will retry)", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "\r  Scanned %d files total                    \n", n)
+	// Final scan summary
+	clearProgressLine()
+	elapsed := time.Since(state.stats.scanStartTime).Seconds()
+	filesPerSec := 0.0
+	if elapsed > 0 {
+		filesPerSec = float64(n) / elapsed
+	}
+	totalProcessed := state.stats.skippedNoReview + state.stats.archivesReviewed + state.stats.standaloneReviewed
+	detectionRate := 0.0
+	if totalProcessed > 0 {
+		detectionRate = float64(state.stats.skippedNoReview) / float64(totalProcessed) * 100
+	}
+	rateLabel := "Det"
+	if cfg.knownGood {
+		rateLabel = "Clean"
+	}
+	fmt.Fprintf(os.Stderr, "Scanned %d files in %.1fs (%.0f/s) | %s:%.0f%% | Reviewed:%d Skipped:%d\n",
+		n, elapsed, filesPerSec, rateLabel, detectionRate,
+		state.stats.archivesReviewed+state.stats.standaloneReviewed,
+		state.stats.skippedNoReview+state.stats.skippedCached)
 	return state.stats, nil
 }
 
 func clearProgressLine() {
-	fmt.Fprint(os.Stderr, "\r                                        \r")
+	fmt.Fprint(os.Stderr, "\r\033[K") // ANSI: carriage return + clear to end of line
 }
 
 func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap string) {
@@ -2488,4 +2545,58 @@ func cleanupOrphanedExtractDirs() {
 		fmt.Fprintf(os.Stderr, "Cleaning up orphaned extract directory: %s\n", orphanPath)
 		os.RemoveAll(orphanPath) //nolint:errcheck // best-effort cleanup
 	}
+}
+
+// countFiles quickly counts files in directories for progress estimation.
+// Returns 0 if counting fails or takes too long.
+func countFiles(dirs []string) int {
+	count := 0
+	for _, dir := range dirs {
+		_ = filepath.WalkDir(dir, func(_ string, d os.DirEntry, err error) error { //nolint:errcheck // best-effort counting
+			if err != nil {
+				return nil //nolint:nilerr // intentionally skip errors and continue counting
+			}
+			if !d.IsDir() {
+				count++
+			}
+			return nil
+		})
+	}
+	return count
+}
+
+// formatProgress returns a formatted progress string with stats.
+// Example: "[1234/5678 22%] Det:94% | 52/s | path/to/file.bat".
+func formatProgress(current, total int, detectionRate float64, filesPerSec float64, currentPath string, knownGood bool) string {
+	var sb strings.Builder
+
+	// Progress counter
+	if total > 0 {
+		pct := float64(current) / float64(total) * 100
+		sb.WriteString(fmt.Sprintf("[%d/%d %0.f%%]", current, total, pct))
+	} else {
+		sb.WriteString(fmt.Sprintf("[%d]", current))
+	}
+
+	// Detection/clean rate
+	if current > 0 {
+		if knownGood {
+			// For known-good: show clean rate (files without false positives)
+			sb.WriteString(fmt.Sprintf(" Clean:%.0f%%", detectionRate))
+		} else {
+			// For known-bad: show detection rate (files with true positives)
+			sb.WriteString(fmt.Sprintf(" Det:%.0f%%", detectionRate))
+		}
+	}
+
+	// Files per second
+	if filesPerSec > 0 {
+		sb.WriteString(fmt.Sprintf(" | %.0f/s", filesPerSec))
+	}
+
+	// Current file path
+	sb.WriteString(" | ")
+	sb.WriteString(currentPath)
+
+	return sb.String()
 }

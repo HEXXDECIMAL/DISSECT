@@ -70,6 +70,9 @@ use tracing_subscriber::EnvFilter;
 fn main() -> Result<()> {
     // Parse args early to get verbose flag for logging initialization
     let args = cli::Args::parse();
+    if args.verbose {
+        std::env::set_var("DISSECT_VERBOSE", "1");
+    }
 
     // Determine output format early so we can use it for conditional status messages
     let format = args.format();
