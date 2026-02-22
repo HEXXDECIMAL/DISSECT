@@ -16,11 +16,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"crypto/rand"
-	"crypto/sha256"
-	"database/sql"
 	_ "embed"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -28,115 +24,25 @@ import (
 	"io"
 	"log"
 	"log/slog"
-	mathrand "math/rand/v2"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
-	"text/template"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// fileEntry holds a file path with its finding summary for display.
-type fileEntry struct {
-	Path    string // Extracted path
-	Summary string // e.g., "4 hostile, 2 suspicious"
-	MaxCrit int    // For sorting (3=hostile, 2=suspicious, 1=notable)
-	Total   int    // Total high-severity findings
-}
-
-// promptData holds values for prompt templates.
-type promptData struct {
-	Path                 string      // Primary file path (extracted dir for archives, file path for standalone)
-	ArchiveName          string      // Archive basename for context (empty for standalone)
-	Files                []fileEntry // Top files with findings (sorted by severity)
-	DissectBin           string
-	TraitsDir            string
-	Count                int
-	IsArchive            bool
-	IsBad                bool // true for known-bad mode, false for known-good mode
-	ReportExists         bool   // For bad files: true if research report already exists
-	ReportPath           string // Path to research report (bad files)
-	GapAnalysisPath      string // Path to gap analysis (bad files)
-	RelatedBadReportPath string // For good files: path to report if file exists in bad collection
-	HasRelatedBadReport  bool   // For good files: true if file exists in bad collection
-	BenignMarkerPath     string // Path where ._<filename>.BENIGN marker would be created
-	BadMarkerPath        string // Path where ._<filename>.BAD marker would be created
-	MayBeBenign          bool   // For bad files: suggest checking if it's actually benign
-	MayBeBad             bool   // For good files: suggest checking if it's actually bad
-	HasHostileFindings   bool   // For good files: has hostile findings that need fixing
-	HasSuspiciousFindings bool   // For good files: has suspicious findings to review
-}
-
-//go:embed bad_prompt.tmpl
-var badPromptTemplate string
-
-//go:embed good_prompt.tmpl
-var goodPromptTemplate string
-
-//go:embed tools.tmpl
-var toolsTemplate string
-
 var (
-	badTmpl   *template.Template
-	goodTmpl  *template.Template
-	toolsTmpl *template.Template
-
 	// validatedProviders tracks which providers have been successfully validated
 	validatedProviders   = make(map[string]bool)
 	validatedProvidersMu sync.Mutex
 )
-
-func loadPromptTemplate(repoRoot string) error {
-	var err error
-
-	// Parse tools template (shared)
-	toolsTmpl, err = template.New("tools").Parse(toolsTemplate)
-	if err != nil {
-		return fmt.Errorf("parse tools template: %w", err)
-	}
-
-	// Parse bad prompt template
-	badTmpl, err = template.New("bad").Parse(badPromptTemplate)
-	if err != nil {
-		return fmt.Errorf("parse bad prompt template: %w", err)
-	}
-
-	// Parse good prompt template
-	goodTmpl, err = template.New("good").Parse(goodPromptTemplate)
-	if err != nil {
-		return fmt.Errorf("parse good prompt template: %w", err)
-	}
-
-	return nil
-}
-
-// buildPrompt constructs the full prompt by combining the mode-specific template with shared tools.
-func buildPrompt(data promptData) string {
-	var main bytes.Buffer
-	var tools bytes.Buffer
-
-	// Execute mode-specific template
-	if data.IsBad {
-		_ = badTmpl.Execute(&main, data) //nolint:errcheck // template is validated after load
-	} else {
-		_ = goodTmpl.Execute(&main, data) //nolint:errcheck // template is validated after load
-	}
-
-	// Execute shared tools template
-	_ = toolsTmpl.Execute(&tools, data) //nolint:errcheck // template is validated after load
-
-	// Combine: mode-specific prompt + shared tools section
-	return main.String() + "\n" + tools.String()
-}
 
 // dataDir returns ~/data/<subdir> directory, creating it if needed.
 func dataDir(subdir string) (string, error) {
@@ -173,39 +79,6 @@ func hasMisclassificationMarker(filePath string) (bool, string) {
 	return false, ""
 }
 
-type config struct { //nolint:govet // field alignment optimized for readability, not size
-	db          *sql.DB
-	dirs        []string
-	repoRoot    string
-	dissectBin  string   // Path to dissect binary
-	providers   []string // Ordered list of providers to try (fallback on failure)
-	provider    string   // Current active provider (set during invocation)
-	model       string
-	extractDir  string // Directory where DISSECT extracts files
-	timeout     time.Duration
-	idleTimeout time.Duration // Kill LLM if no output for this duration
-	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
-	concurrency int           // Number of concurrent LLM review sessions
-	knownGood   bool
-	knownBad    bool
-	useCargo    bool
-	flush       bool
-}
-
-// reviewJob represents a file or archive to be reviewed by an LLM.
-type reviewJob struct {
-	archive *ArchiveAnalysis  // non-nil for archive reviews
-	file    *RealFileAnalysis // non-nil for standalone file reviews
-}
-
-// reviewResult contains the outcome of a review job.
-type reviewResult struct {
-	job      reviewJob
-	err      error
-	duration time.Duration
-	provider string
-}
-
 // reviewCoordinator manages concurrent LLM review sessions.
 type reviewCoordinator struct {
 	jobs    chan reviewJob
@@ -214,19 +87,25 @@ type reviewCoordinator struct {
 	cfg     *config
 	logger  *slog.Logger
 
-	// Active review tracking (for progress display)
-	mu            sync.Mutex
-	activeReviews map[string]time.Time // path -> start time
+	// Per-worker state tracking (for progress display)
+	mu      sync.Mutex
+	workers []workerState // indexed by worker ID
 }
 
 // newReviewCoordinator creates a coordinator with N worker goroutines.
 func newReviewCoordinator(ctx context.Context, cfg *config, logger *slog.Logger) *reviewCoordinator {
+	now := time.Now()
+	workers := make([]workerState, cfg.concurrency)
+	for i := range workers {
+		workers[i] = workerState{busy: false, startTime: now} // start idle
+	}
+
 	rc := &reviewCoordinator{
-		jobs:          make(chan reviewJob, cfg.concurrency*2), // buffer for scan-ahead
-		results:       make(chan reviewResult, cfg.concurrency*2),
-		cfg:           cfg,
-		logger:        logger,
-		activeReviews: make(map[string]time.Time),
+		jobs:    make(chan reviewJob, cfg.concurrency*2), // buffer for scan-ahead
+		results: make(chan reviewResult, cfg.concurrency*2),
+		cfg:     cfg,
+		logger:  logger,
+		workers: workers,
 	}
 
 	// Start worker goroutines
@@ -254,36 +133,84 @@ func (rc *reviewCoordinator) close() {
 func (rc *reviewCoordinator) activeCount() int {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
-	return len(rc.activeReviews)
+	count := 0
+	for _, w := range rc.workers {
+		if w.busy {
+			count++
+		}
+	}
+	return count
 }
 
-// activeList returns paths of files currently being reviewed with durations.
-func (rc *reviewCoordinator) activeList() []string {
+// slotStatus returns a slice of status lines, one per worker slot.
+// Example lines: "  [1] claude: /path/to/file.sh (2m30s)" or "  [2] idle (45s)"
+func (rc *reviewCoordinator) slotStatus() []string {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
-	paths := make([]string, 0, len(rc.activeReviews))
-	for p, start := range rc.activeReviews {
-		dur := time.Since(start).Round(time.Second)
-		paths = append(paths, fmt.Sprintf("%s (%v)", filepath.Base(p), dur))
+
+	lines := make([]string, len(rc.workers))
+	for i, w := range rc.workers {
+		dur := time.Since(w.startTime).Round(time.Second)
+		if w.busy {
+			pClr := providerColor(w.provider)
+			lines[i] = fmt.Sprintf("  %s[%d]%s %s%s%s: %s %s(%v)%s",
+				colorDim, i+1, colorReset,
+				pClr, w.provider, colorReset,
+				w.path,
+				colorDim, dur, colorReset)
+		} else {
+			lines[i] = fmt.Sprintf("  %s[%d] idle (%v)%s", colorDim, i+1, dur, colorReset)
+		}
 	}
-	return paths
+	return lines
 }
 
-func (rc *reviewCoordinator) worker(ctx context.Context, _ int) {
+// setWorkerBusy marks a worker as busy with a job.
+func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string) {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	rc.workers[workerID] = workerState{
+		busy:      true,
+		path:      path,
+		provider:  provider,
+		startTime: time.Now(),
+	}
+}
+
+// setWorkerIdle marks a worker as idle.
+func (rc *reviewCoordinator) setWorkerIdle(workerID int) {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	rc.workers[workerID] = workerState{
+		busy:      false,
+		startTime: time.Now(),
+	}
+}
+
+// workerPrefix returns a prefix for LLM output lines: "[1:filename] "
+func (rc *reviewCoordinator) workerPrefix(workerID int) string {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	w := rc.workers[workerID]
+	name := filepath.Base(w.path)
+	if len(name) > 15 {
+		name = name[:12] + "..."
+	}
+	return fmt.Sprintf("[%d:%s] ", workerID+1, name)
+}
+
+func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 	defer rc.wg.Done()
 
 	for job := range rc.jobs {
 		path := rc.jobPath(job)
 
-		// Track active review
-		rc.mu.Lock()
-		rc.activeReviews[path] = time.Now()
-		rc.mu.Unlock()
-
 		// Create a per-job config copy to avoid race conditions on cfg.provider
-		// (the invoke functions mutate cfg.provider as they iterate through providers)
 		jobCfg := *rc.cfg
 		jobCfg.provider = rc.cfg.providers[0]
+
+		// Track worker as busy
+		rc.setWorkerBusy(id, path, jobCfg.provider)
 
 		start := time.Now()
 		var err error
@@ -291,10 +218,15 @@ func (rc *reviewCoordinator) worker(ctx context.Context, _ int) {
 		// Retry loop with exponential backoff
 		const maxRetries = 10
 		for attempt := 1; attempt <= maxRetries; attempt++ {
+			// Update provider in worker state
+			rc.mu.Lock()
+			rc.workers[id].provider = jobCfg.provider
+			rc.mu.Unlock()
+
 			if job.archive != nil {
-				err = invokeAIArchive(ctx, &jobCfg, job.archive, generateSessionID())
+				err = invokeAIArchive(ctx, &jobCfg, job.archive, generateSessionID(), id, rc)
 			} else if job.file != nil {
-				err = rc.reviewFile(ctx, &jobCfg, job.file)
+				err = rc.reviewFile(ctx, &jobCfg, job.file, id)
 			}
 
 			if err == nil {
@@ -320,10 +252,8 @@ func (rc *reviewCoordinator) worker(ctx context.Context, _ int) {
 			time.Sleep(delay)
 		}
 
-		// Remove from active
-		rc.mu.Lock()
-		delete(rc.activeReviews, path)
-		rc.mu.Unlock()
+		// Mark worker as idle
+		rc.setWorkerIdle(id)
 
 		rc.results <- reviewResult{
 			job:      job,
@@ -344,7 +274,7 @@ func (*reviewCoordinator) jobPath(job reviewJob) string {
 	return ""
 }
 
-func (*reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis) error {
+func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis, workerID int) error {
 	// Aggregate findings from root and all fragments
 	agg := file.Root
 	if agg.Path == "" {
@@ -354,7 +284,7 @@ func (*reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *Rea
 		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
 
-	return invokeAI(ctx, cfg, agg, generateSessionID())
+	return invokeAI(ctx, cfg, agg, generateSessionID(), workerID, rc)
 }
 
 const maxYAMLAutoFixAttempts = 3
@@ -368,47 +298,12 @@ var geminiDefaultModels = []string{
 	"gemini-2.5-flash",
 }
 
-// Finding represents a matched trait/capability.
-type Finding struct {
-	ID   string `json:"id"`
-	Crit string `json:"crit"`
-	Desc string `json:"desc"`
-}
-
-// FileAnalysis represents a single analyzed file.
-type FileAnalysis struct {
-	Path          string    `json:"path"`
-	Risk          string    `json:"risk"`
-	ExtractedPath string    `json:"extracted_path,omitempty"`
-	Findings      []Finding `json:"findings"`
-}
-
-// ArchiveAnalysis groups files from the same archive for review as a unit.
-// Archives are the unit of resolution - a bad tar.gz with 100 good files and
-// 1 bad file should be reviewed as a single archive.
-type ArchiveAnalysis struct {
-	ArchivePath     string
-	Members         []FileAnalysis
-	SummaryRisk     string    // Aggregated risk from archive summary entry
-	SummaryFindings []Finding // Archive-level findings (zip-bomb, etc.)
-}
-
-// RealFileAnalysis groups a real file with all its encoded/decoded fragments.
-// Fragments are decoded payloads (e.g., base64-decoded content) that should be
-// analyzed together with their parent file.
-type RealFileAnalysis struct {
-	RealPath  string         // The real file path (stripped of ## fragment delimiters)
-	Root      FileAnalysis   // The root/real file entry
-	Fragments []FileAnalysis // All decoded fragment entries (if any)
-}
-
-// critRank maps criticality levels to numeric ranks for comparison.
-var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostile": 3}
-
 // archiveNeedsReview returns true if the archive needs review.
 // Uses the archive summary findings when available (from DISSECT's aggregated output).
 // For known-good archives: review if ANY hostile OR 2+ suspicious (to reduce false positives).
-//                          Up to 1 suspicious finding is acceptable.
+//
+//	Up to 1 suspicious finding is acceptable.
+//
 // For known-bad archives: review if NOT flagged (missing detections).
 func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	// Use summary findings if available (preferred - avoids race conditions from parallel streaming)
@@ -444,16 +339,6 @@ func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysi
 	return result
 }
 
-// jsonlEntry represents a single JSONL line from streaming output.
-type jsonlEntry struct {
-	Type          string    `json:"type"`
-	Path          string    `json:"path"`
-	FileType      string    `json:"file_type"`
-	Risk          string    `json:"risk"`
-	ExtractedPath string    `json:"extracted_path,omitempty"`
-	Findings      []Finding `json:"findings"`
-}
-
 func main() {
 	log.SetFlags(0)
 
@@ -475,6 +360,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	flush := flag.Bool("flush", false, "Clear analysis cache and reprocess all files")
 	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 	concurrency := flag.Int("concurrency", 2, "Number of concurrent LLM review sessions")
+	verbose := flag.Bool("verbose", false, "Show detailed skip/progress messages")
 
 	flag.Parse()
 
@@ -601,6 +487,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		knownBad:    *knownBad,
 		useCargo:    *useCargo,
 		flush:       *flush,
+		verbose:     *verbose,
 		db:          db,
 		extractDir:  extractDir,
 		rescanAfter: *rescanAfter,
@@ -741,23 +628,6 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	}
 
 	fmt.Fprint(os.Stderr, "Run \"git diff traits/\" to see changes.\n")
-}
-
-// streamStats tracks streaming analysis statistics.
-type streamStats struct {
-	archivesReviewed     int
-	standaloneReviewed   int
-	skippedCached        int
-	skippedNoReview      int
-	totalFiles           int
-	totalStandaloneFiles int           // Total standalone files seen (not in archives)
-	reviewTimeTotal      time.Duration // Total time spent in LLM reviews
-	shouldRestart        bool          // Set to true when rescan limit reached
-	// Progress tracking
-	estimatedTotal int       // Estimated total files (from pre-count)
-	scanStartTime  time.Time // When scanning started (for rate calculation)
-	// Concurrency tracking (mutex protects stats updated from result collector goroutine)
-	mu sync.Mutex
 }
 
 // flushingWriter wraps an io.Writer and flushes after every write to ensure logs survive OOM kills.
@@ -920,9 +790,15 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	// Wrap log file with flushing writer to ensure logs survive OOM kills
 	flushingFile := &flushingWriter{w: logFile}
 
-	// Create dual writer: JSON to file, text to stderr
+	// File handler always logs at Info level for debugging
 	fileHandler := slog.NewJSONHandler(flushingFile, &slog.HandlerOptions{Level: slog.LevelInfo})
-	consoleHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo})
+
+	// Console handler: Warn by default, Info when --verbose
+	consoleLevel := slog.LevelWarn
+	if cfg.verbose {
+		consoleLevel = slog.LevelInfo
+	}
+	consoleHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: consoleLevel})
 
 	// Multi-handler that writes to both
 	baseLogger := slog.New(&multiHandler{handlers: []slog.Handler{fileHandler, consoleHandler}})
@@ -1041,6 +917,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 	n := 0
 	last := time.Now()
+	progressLines := 0 // tracks multi-line progress display for proper clearing
 
 	for scanner.Scan() {
 		// Check if we need to restart (hit review limit)
@@ -1096,17 +973,22 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 				detectionRate = float64(state.stats.skippedNoReview) / float64(totalProcessed) * 100
 			}
 
-			// Get active review info
-			activeCount := coordinator.activeCount()
-			activeInfo := ""
-			if activeCount > 0 {
-				activeList := coordinator.activeList()
-				activeInfo = fmt.Sprintf(" | 🔄 %d: %s", activeCount, strings.Join(activeList, ", "))
-			}
+			// Get slot status for progress display
+			slotLines := coordinator.slotStatus()
 
 			progress := formatProgress(n, state.stats.estimatedTotal, detectionRate, filesPerSec, entry.Path, cfg.knownGood)
-			// Clear line and print progress with active reviews
-			fmt.Fprintf(os.Stderr, "\r\033[K%s%s", progress, activeInfo)
+
+			// Clear previous progress lines (1 main + N slots) and print new ones
+			totalLines := 1 + len(slotLines)
+			if progressLines > 0 {
+				// Move cursor up and clear each line
+				fmt.Fprintf(os.Stderr, "\033[%dA", progressLines)
+			}
+			fmt.Fprintf(os.Stderr, "\033[K%s\n", progress)
+			for _, line := range slotLines {
+				fmt.Fprintf(os.Stderr, "\033[K%s\n", line)
+			}
+			progressLines = totalLines
 			last = time.Now()
 		}
 
@@ -1181,10 +1063,6 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	fmt.Fprintf(os.Stderr, "Scanned %d files in %.1fs (%.0f/s) | %s:%.0f%% | Reviewed:%d Skipped:%d\n",
 		n, elapsed, filesPerSec, rateLabel, detectionRate, reviewed, skipped)
 	return state.stats, nil
-}
-
-func clearProgressLine() {
-	fmt.Fprint(os.Stderr, "\r\033[K") // ANSI: carriage return + clear to end of line
 }
 
 func processFileEntry(ctx context.Context, st *streamState, f FileAnalysis, ap string) {
@@ -1334,7 +1212,9 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 			mode = "good"
 			reason = "archive has insufficient concerning findings (≤1 suspicious, 0 hostile)"
 		}
-		fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
+		if st.cfg.verbose {
+			fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
+		}
 		st.stats.skippedNoReview++
 		logCompletion("skipped_no_review", "reason", reason, "mode", mode)
 		return
@@ -1342,7 +1222,9 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 
 	archiveHash := hashString(archive.ArchivePath)
 	if wasAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode) {
-		fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
+		if st.cfg.verbose {
+			fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
+		}
 		st.stats.skippedCached++
 		logCompletion("skipped_cached", "cache_hash", archiveHash)
 		return
@@ -1459,13 +1341,15 @@ func processRealFile(ctx context.Context, st *streamState) {
 	st.stats.totalStandaloneFiles++
 
 	if !realFileNeedsReview(rf, st.cfg.knownGood) {
-		mode := "bad"
-		reason := "already detected (has suspicious/hostile findings)"
-		if st.cfg.knownGood {
-			mode = "good"
-			reason = "no suspicious/hostile findings"
+		if st.cfg.verbose {
+			mode := "bad"
+			reason := "already detected (has suspicious/hostile findings)"
+			if st.cfg.knownGood {
+				mode = "good"
+				reason = "no suspicious/hostile findings"
+			}
+			fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): %s\n", filepath.Base(rf.RealPath), mode, reason)
 		}
-		fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): %s\n", filepath.Base(rf.RealPath), mode, reason)
 		st.stats.skippedNoReview++
 		return
 	}
@@ -1475,7 +1359,9 @@ func processRealFile(ctx context.Context, st *streamState) {
 		h = hashString(rf.RealPath)
 	}
 	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
-		fmt.Fprintf(os.Stderr, "  [skip] File %s: already analyzed (cache hit)\n", filepath.Base(rf.RealPath))
+		if st.cfg.verbose {
+			fmt.Fprintf(os.Stderr, "  [skip] File %s: already analyzed (cache hit)\n", filepath.Base(rf.RealPath))
+		}
 		st.stats.skippedCached++
 		return
 	}
@@ -1523,7 +1409,9 @@ func processRealFile(ctx context.Context, st *streamState) {
 
 // needsReview determines if a file needs AI review based on mode.
 // --good: Review files WITH hostile findings OR 2+ suspicious findings (reduce false positives).
-//         Up to 1 suspicious finding is acceptable for known-good samples.
+//
+//	Up to 1 suspicious finding is acceptable for known-good samples.
+//
 // --bad: Review files WITHOUT suspicious/hostile findings (find false negatives).
 func needsReview(f FileAnalysis, knownGood bool) bool {
 	if !knownGood {
@@ -1665,7 +1553,7 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 		}
 
 		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid, "[repair] ")
 		cancel()
 
 		if err == nil {
@@ -1673,7 +1561,7 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 		}
 
 		lastErr = err
-		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+		fmt.Fprintf(os.Stderr, "[repair] <<< %s failed: %v\n", p, err)
 
 		// Check if context was cancelled (user interrupt)
 		if ctx.Err() != nil {
@@ -1684,11 +1572,13 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
-func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) error {
+func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string, workerID int, rc *reviewCoordinator) error {
 	// Check for misclassification marker - skip if present
 	if hasMarker, markerType := hasMisclassificationMarker(f.Path); hasMarker {
-		fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
-			filepath.Base(f.Path), markerType, markerType)
+		if cfg.verbose {
+			fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
+				filepath.Base(f.Path), markerType, markerType)
+		}
 		return nil
 	}
 
@@ -1700,13 +1590,13 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 
 	// Build prompt data
 	data := promptData{
-		Path:              f.Path,
-		DissectBin:        cfg.dissectBin,
-		TraitsDir:         cfg.repoRoot + "/traits/",
-		IsArchive:         false,
-		IsBad:             cfg.knownBad,
-		BenignMarkerPath:  misclassificationMarkerPath(f.Path, "BENIGN"),
-		BadMarkerPath:     misclassificationMarkerPath(f.Path, "BAD"),
+		Path:             f.Path,
+		DissectBin:       cfg.dissectBin,
+		TraitsDir:        cfg.repoRoot + "/traits/",
+		IsArchive:        false,
+		IsBad:            cfg.knownBad,
+		BenignMarkerPath: misclassificationMarkerPath(f.Path, "BENIGN"),
+		BadMarkerPath:    misclassificationMarkerPath(f.Path, "BAD"),
 	}
 
 	// Count findings by criticality
@@ -1720,10 +1610,8 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 		}
 	}
 
-	var task string
 	if cfg.knownBad {
 		// Known-bad mode: research report + gap analysis
-		task = "Malware analysis and detection improvement (known-bad collection)"
 		data.MayBeBenign = true
 
 		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
@@ -1745,7 +1633,6 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 		}
 	} else {
 		// Known-good mode: false positive reduction
-		task = "Review for false positives (known-good collection)"
 		data.MayBeBad = true
 		data.HasHostileFindings = hostileCount > 0
 		data.HasSuspiciousFindings = suspiciousCount > 0
@@ -1795,6 +1682,7 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
 	}
 
+	// Build findings summary for display
 	counts := make(map[string]int)
 	for _, fd := range f.Findings {
 		counts[strings.ToLower(fd.Crit)]++
@@ -1806,52 +1694,39 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 		}
 	}
 
-	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
-	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), f.Path)
-	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
-	if f.ExtractedPath != "" {
-		fmt.Fprintf(os.Stderr, "│ Sample: %s\n", f.ExtractedPath)
-	}
-	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
-	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr, "│ Prompt:")
-	for ln := range strings.SplitSeq(prompt, "\n") {
-		fmt.Fprintf(os.Stderr, "│   %s\n", ln)
-	}
-	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr)
+	prefix := rc.workerPrefix(workerID)
 
 	// Try each provider in order until one succeeds
 	var lastErr error
 	for i, p := range cfg.providers {
 		cfg.provider = p
+
+		// Update worker state with current provider
+		rc.mu.Lock()
+		rc.workers[workerID].provider = p
+		rc.mu.Unlock()
+
 		if i > 0 {
-			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+			fmt.Fprintf(os.Stderr, "%s>>> Trying next provider: %s\n", prefix, p)
 		}
 
 		// Validate provider is responsive before running main task
 		if err := validateProvider(ctx, cfg); err != nil {
 			lastErr = err
-			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			fmt.Fprintf(os.Stderr, "%s<<< %s validation failed: %v\n", prefix, p, err)
 			continue
 		}
 
-		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
-		fmt.Fprintln(os.Stderr)
-
 		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid, prefix)
 		cancel()
 
 		if err == nil {
-			fmt.Fprintln(os.Stderr)
-			fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", p)
 			return nil
 		}
 
 		lastErr = err
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+		fmt.Fprintf(os.Stderr, "%s<<< %s failed: %v\n", prefix, p, err)
 
 		// Check if context was cancelled (user interrupt)
 		if ctx.Err() != nil {
@@ -1862,11 +1737,13 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string) erro
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
-func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string) error {
+func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string, workerID int, rc *reviewCoordinator) error {
 	// Check for misclassification marker - skip if present
 	if hasMarker, markerType := hasMisclassificationMarker(a.ArchivePath); hasMarker {
-		fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
-			filepath.Base(a.ArchivePath), markerType, markerType)
+		if cfg.verbose {
+			fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
+				filepath.Base(a.ArchivePath), markerType, markerType)
+		}
 		return nil
 	}
 
@@ -1982,16 +1859,16 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	// Build prompt data
 	data := promptData{
-		Path:              dissectPath,
-		ArchiveName:       archiveName,
-		Files:             fileEntries,
-		Count:             filesWithConcerns,
-		DissectBin:        cfg.dissectBin,
-		TraitsDir:         cfg.repoRoot + "/traits/",
-		IsArchive:         true,
-		IsBad:             cfg.knownBad,
-		BenignMarkerPath:  misclassificationMarkerPath(a.ArchivePath, "BENIGN"),
-		BadMarkerPath:     misclassificationMarkerPath(a.ArchivePath, "BAD"),
+		Path:             dissectPath,
+		ArchiveName:      archiveName,
+		Files:            fileEntries,
+		Count:            filesWithConcerns,
+		DissectBin:       cfg.dissectBin,
+		TraitsDir:        cfg.repoRoot + "/traits/",
+		IsArchive:        true,
+		IsBad:            cfg.knownBad,
+		BenignMarkerPath: misclassificationMarkerPath(a.ArchivePath, "BENIGN"),
+		BadMarkerPath:    misclassificationMarkerPath(a.ArchivePath, "BAD"),
 	}
 
 	// Count findings by criticality
@@ -2007,10 +1884,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	var task string
 	if cfg.knownBad {
-		// Known-bad mode: research report + gap analysis
-		task = "Malware analysis and detection improvement (known-bad collection)"
 		data.MayBeBenign = true
 
 		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
@@ -2031,8 +1905,6 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 			data.ReportExists = true
 		}
 	} else {
-		// Known-good mode: false positive reduction
-		task = "Review for false positives (known-good collection)"
 		data.MayBeBad = true
 		data.HasHostileFindings = hostileCount > 0
 		data.HasSuspiciousFindings = suspiciousCount > 0
@@ -2080,66 +1952,39 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 		}
 	}
 
-	counts := make(map[string]int)
-	for _, m := range a.Members {
-		for _, fd := range m.Findings {
-			counts[strings.ToLower(fd.Crit)]++
-		}
-	}
-	var summary []string
-	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if n := counts[level]; n > 0 {
-			summary = append(summary, fmt.Sprintf("%d %s", n, level))
-		}
-	}
-
-	fmt.Fprintln(os.Stderr, "┌─────────────────────────────────────────────────────────────")
-	fmt.Fprintf(os.Stderr, "│ %s REVIEW: %s\n", strings.ToUpper(cfg.provider), archiveName)
-	fmt.Fprintf(os.Stderr, "│ Files: %d total, %d with concerns\n", len(a.Members), filesWithConcerns)
-	if extractDir != "" {
-		fmt.Fprintf(os.Stderr, "│ Extracted: %s (%d files)\n", extractDir, extractedCount)
-	}
-	fmt.Fprintf(os.Stderr, "│ Findings: %s\n", strings.Join(summary, ", "))
-	fmt.Fprintf(os.Stderr, "│ Task: %s\n", task)
-	fmt.Fprintln(os.Stderr, "├─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr, "│ Prompt:")
-	for ln := range strings.SplitSeq(prompt, "\n") {
-		fmt.Fprintf(os.Stderr, "│   %s\n", ln)
-	}
-	fmt.Fprintln(os.Stderr, "└─────────────────────────────────────────────────────────────")
-	fmt.Fprintln(os.Stderr)
+	prefix := rc.workerPrefix(workerID)
 
 	// Try each provider in order until one succeeds
 	var lastErr error
 	for i, p := range cfg.providers {
 		cfg.provider = p
+
+		// Update worker state with current provider
+		rc.mu.Lock()
+		rc.workers[workerID].provider = p
+		rc.mu.Unlock()
+
 		if i > 0 {
-			fmt.Fprintf(os.Stderr, ">>> Trying next provider: %s\n", p)
+			fmt.Fprintf(os.Stderr, "%s>>> Trying next provider: %s\n", prefix, p)
 		}
 
 		// Validate provider is responsive before running main task
 		if err := validateProvider(ctx, cfg); err != nil {
 			lastErr = err
-			fmt.Fprintf(os.Stderr, "<<< %s validation failed: %v\n", p, err)
+			fmt.Fprintf(os.Stderr, "%s<<< %s validation failed: %v\n", prefix, p, err)
 			continue
 		}
 
-		fmt.Fprintf(os.Stderr, ">>> %s working (timeout: %s)...\n", p, cfg.timeout)
-		fmt.Fprintln(os.Stderr)
-
 		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid, prefix)
 		cancel()
 
 		if err == nil {
-			fmt.Fprintln(os.Stderr)
-			fmt.Fprintf(os.Stderr, "<<< %s finished successfully\n", p)
 			return nil
 		}
 
 		lastErr = err
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintf(os.Stderr, "<<< %s failed: %v\n", p, err)
+		fmt.Fprintf(os.Stderr, "%s<<< %s failed: %v\n", prefix, p, err)
 
 		// Check if context was cancelled (user interrupt)
 		if ctx.Err() != nil {
@@ -2170,11 +2015,9 @@ func validateProvider(ctx context.Context, cfg *config) error {
 	testCfg := *cfg
 	testCfg.timeout = 60 * time.Second
 
-	if err := runAIWithStreaming(testCtx, &testCfg, "Say OK", "validation"); err != nil {
+	if err := runAIWithStreaming(testCtx, &testCfg, "Say OK", "validation", ""); err != nil {
 		return fmt.Errorf("provider validation failed: %w", err)
 	}
-
-	fmt.Fprintf(os.Stderr, ">>> Provider %s validated successfully\n", cfg.provider)
 
 	validatedProvidersMu.Lock()
 	validatedProviders[cfg.provider] = true
@@ -2183,7 +2026,7 @@ func validateProvider(ctx context.Context, cfg *config) error {
 	return nil
 }
 
-func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) error {
+func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix string) error {
 	var cmd *exec.Cmd
 
 	// Handle provider:model syntax (e.g., "gemini:gemini-2.5-pro")
@@ -2243,8 +2086,10 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 
 	cmd.Dir = cfg.repoRoot
 
-	fmt.Fprintf(os.Stderr, ">>> %s %s\n", cmd.Path, strings.Join(cmd.Args[1:], " "))
-	fmt.Fprintf(os.Stderr, ">>> Prompt: %d bytes via stdin\n", len(prompt))
+	if cfg.verbose {
+		fmt.Fprintf(os.Stderr, "%s>>> %s %s\n", prefix, cmd.Path, strings.Join(cmd.Args[1:], " "))
+		fmt.Fprintf(os.Stderr, "%s>>> Prompt: %d bytes via stdin\n", prefix, len(prompt))
+	}
 
 	// Set up pipes
 	stdinPipe, err := cmd.StdinPipe()
@@ -2260,7 +2105,9 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("start %s: %w", cfg.provider, err)
 	}
-	fmt.Fprintf(os.Stderr, ">>> PID %d\n", cmd.Process.Pid)
+	if cfg.verbose {
+		fmt.Fprintf(os.Stderr, "%s>>> PID %d\n", prefix, cmd.Process.Pid)
+	}
 
 	// Write prompt to stdin, then close to signal EOF
 	go func() {
@@ -2282,7 +2129,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 		sc.Buffer(make([]byte, 1024*1024), 10*1024*1024)
 		for sc.Scan() {
 			ln := sc.Text()
-			displayStreamEvent(ln)
+			displayStreamEvent(ln, prefix)
 			outputMu.Lock()
 			output = append(output, ln)
 			outputMu.Unlock()
@@ -2307,13 +2154,13 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid string) er
 				activeMu.Unlock()
 
 				if idle > cfg.idleTimeout {
-					fmt.Fprintf(os.Stderr, "\n>>> Idle timeout (%v), killing...\n", cfg.idleTimeout)
+					fmt.Fprintf(os.Stderr, "\n%s>>> Idle timeout (%v), killing...\n", prefix, cfg.idleTimeout)
 					cmd.Process.Kill() //nolint:errcheck,gosec
 					return fmt.Errorf("idle timeout: no output for %v", cfg.idleTimeout)
 				}
 			}
 		case <-ctx.Done():
-			fmt.Fprintln(os.Stderr, "\n>>> Timeout, killing...")
+			fmt.Fprintf(os.Stderr, "\n%s>>> Timeout, killing...\n", prefix)
 			cmd.Process.Kill() //nolint:errcheck,gosec
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
@@ -2335,7 +2182,7 @@ waitForExit:
 
 // displayStreamEvent parses a stream-json line and displays relevant info.
 // Handles both Claude format (type: assistant/result) and Gemini format (type: message).
-func displayStreamEvent(line string) {
+func displayStreamEvent(line, prefix string) {
 	var ev map[string]any
 	if json.Unmarshal([]byte(line), &ev) != nil {
 		return
@@ -2344,20 +2191,20 @@ func displayStreamEvent(line string) {
 	switch ev["type"] {
 	case "thread.started":
 		if id, ok := ev["thread_id"].(string); ok && id != "" {
-			fmt.Fprintf(os.Stderr, "  [codex] thread %s\n", id)
+			fmt.Fprintf(os.Stderr, "%s[codex] thread %s\n", prefix, id)
 		}
 	case "turn.started":
-		fmt.Fprintln(os.Stderr, "  [codex] turn started")
+		fmt.Fprintf(os.Stderr, "%s[codex] turn started\n", prefix)
 	case "turn.completed":
 		if usage, ok := ev["usage"].(map[string]any); ok {
 			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck // type assertion ok
 			out, _ := usage["output_tokens"].(float64) //nolint:errcheck // type assertion ok
 			if in > 0 || out > 0 {
-				fmt.Fprintf(os.Stderr, "  [codex] tokens: in=%.0f out=%.0f\n", in, out)
+				fmt.Fprintf(os.Stderr, "%s[codex] tokens: in=%.0f out=%.0f\n", prefix, in, out)
 			}
 		}
 	case "turn.failed":
-		fmt.Fprintln(os.Stderr, "  [codex] turn failed")
+		fmt.Fprintf(os.Stderr, "%s[codex] turn failed\n", prefix)
 	case "item/agentMessage/delta":
 		if delta, ok := ev["delta"].(string); ok && delta != "" {
 			fmt.Fprint(os.Stderr, delta)
@@ -2393,29 +2240,29 @@ func displayStreamEvent(line string) {
 		switch itemType {
 		case "agent_message":
 			if text, ok := item["text"].(string); ok && text != "" {
-				fmt.Fprintln(os.Stderr, text)
+				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, text)
 			} else if codexDeltaOpen {
 				fmt.Fprintln(os.Stderr)
 			}
 			codexDeltaOpen = false
 		case "command_execution":
 			if cmd, ok := item["command"].(string); ok && cmd != "" {
-				fmt.Fprintf(os.Stderr, "  [tool] command: %s\n", cmd)
+				fmt.Fprintf(os.Stderr, "%s[tool] command: %s\n", prefix, cmd)
 			}
 		case "file_change":
 			if path, ok := item["path"].(string); ok && path != "" {
-				fmt.Fprintf(os.Stderr, "  [tool] file change: %s\n", path)
+				fmt.Fprintf(os.Stderr, "%s[tool] file change: %s\n", prefix, path)
 			}
 		case "web_search":
 			if q, ok := item["query"].(string); ok && q != "" {
-				fmt.Fprintf(os.Stderr, "  [tool] web search: %s\n", q)
+				fmt.Fprintf(os.Stderr, "%s[tool] web search: %s\n", prefix, q)
 			}
 		case "plan_update":
-			fmt.Fprintln(os.Stderr, "  [tool] plan update")
+			fmt.Fprintf(os.Stderr, "%s[tool] plan update\n", prefix)
 		}
 	case "error":
 		if msg, ok := ev["message"].(string); ok && msg != "" {
-			fmt.Fprintf(os.Stderr, "  [codex] error: %s\n", msg)
+			fmt.Fprintf(os.Stderr, "%s[codex] error: %s\n", prefix, msg)
 		}
 	case "assistant":
 		// Claude format: {"type":"assistant","message":{"content":[{"type":"text","text":"..."}]}}
@@ -2440,7 +2287,7 @@ func displayStreamEvent(line string) {
 				}
 				input, ok := b["input"].(map[string]any)
 				if !ok {
-					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+					fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
 					continue
 				}
 				var detail string
@@ -2454,13 +2301,13 @@ func displayStreamEvent(line string) {
 					detail = detail[:80] + "..."
 				}
 				if detail != "" {
-					fmt.Fprintf(os.Stderr, "  [tool] %s: %s\n", name, detail)
+					fmt.Fprintf(os.Stderr, "%s[tool] %s: %s\n", prefix, name, detail)
 				} else {
-					fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+					fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
 				}
 			case "text":
 				if t, ok := b["text"].(string); ok && t != "" {
-					fmt.Fprintf(os.Stderr, "  %s\n", t)
+					fmt.Fprintf(os.Stderr, "%s%s\n", prefix, t)
 				}
 			}
 		}
@@ -2469,334 +2316,33 @@ func displayStreamEvent(line string) {
 		// Gemini format: {"type":"message","role":"assistant","content":"...","delta":true}
 		if ev["role"] == "assistant" {
 			if content, ok := ev["content"].(string); ok && content != "" {
-				fmt.Fprintln(os.Stderr, content)
+				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, content)
 			}
 		}
 
 	case "tool_call":
 		// Gemini tool calls
 		if name, ok := ev["name"].(string); ok {
-			fmt.Fprintf(os.Stderr, "  [tool] %s\n", name)
+			fmt.Fprintf(os.Stderr, "%s[tool] %s\n", prefix, name)
 		}
 
 	case "result":
 		if r, ok := ev["result"].(string); ok && r != "" {
 			fmt.Fprintln(os.Stderr)
-			fmt.Fprintln(os.Stderr, "--- Result ---")
-			fmt.Fprintln(os.Stderr, r)
+			fmt.Fprintf(os.Stderr, "%s--- Result ---\n", prefix)
+			fmt.Fprintf(os.Stderr, "%s%s\n", prefix, r)
 		}
 		if cost, ok := ev["total_cost_usd"].(float64); ok {
-			fmt.Fprintf(os.Stderr, "\n  Cost: $%.4f\n", cost)
+			fmt.Fprintf(os.Stderr, "%sCost: $%.4f\n", prefix, cost)
+		}
+
+	default:
+		// Log unknown event types to help debug missing output
+		if evType, ok := ev["type"].(string); ok && evType != "" {
+			fmt.Fprintf(os.Stderr, "%s[debug] unknown event type: %s\n", prefix, evType)
 		}
 	}
 }
 
 // codexDeltaOpen tracks whether we've printed streaming agent deltas and need a newline.
 var codexDeltaOpen bool
-
-// retryDelay returns a duration of 2 minutes plus a random amount up to 60 seconds.
-// Uses crypto/rand for true randomness to avoid patterns in retry timing.
-func retryDelay() time.Duration {
-	baseDelay := 2 * time.Minute
-	// Use math/rand/v2 which is automatically seeded and thread-safe
-	randomDelay := time.Duration(mathrand.Int64N(int64(60 * time.Second)))
-	return baseDelay + randomDelay
-}
-
-// formatProvidersForDisplay collapses gemini:model entries into a single "gemini (4 models)"
-// for cleaner display while showing the full fallback chain.
-func formatProvidersForDisplay(providers []string) string {
-	var result []string
-	geminiCount := 0
-
-	for _, p := range providers {
-		if strings.HasPrefix(p, "gemini:") {
-			geminiCount++
-		} else if p == "gemini" {
-			result = append(result, "gemini")
-		} else {
-			// Flush any accumulated gemini models before adding next provider
-			if geminiCount > 0 {
-				if geminiCount == 1 {
-					result = append(result, "gemini")
-				} else {
-					result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
-				}
-				geminiCount = 0
-			}
-			result = append(result, p)
-		}
-	}
-	// Flush remaining gemini models
-	if geminiCount > 0 {
-		if geminiCount == 1 {
-			result = append(result, "gemini")
-		} else {
-			result = append(result, fmt.Sprintf("gemini (%d models)", geminiCount))
-		}
-	}
-	return strings.Join(result, " → ")
-}
-
-// getLogDir returns the platform-appropriate log directory for trait-basher.
-// - macOS: ~/Library/Logs/trait-basher/
-// - Linux: ~/.local/state/trait-basher/ (XDG Base Directory spec)
-// - Windows: %LOCALAPPDATA%\trait-basher\logs\
-func getLogDir() (string, error) {
-	var logDir string
-
-	switch runtime.GOOS {
-	case "darwin":
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		logDir = filepath.Join(home, "Library", "Logs", "trait-basher")
-
-	case "windows":
-		localAppData := os.Getenv("LOCALAPPDATA")
-		if localAppData == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return "", err
-			}
-			localAppData = filepath.Join(home, "AppData", "Local")
-		}
-		logDir = filepath.Join(localAppData, "trait-basher", "logs")
-
-	default:
-		stateHome := os.Getenv("XDG_STATE_HOME")
-		if stateHome == "" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return "", err
-			}
-			stateHome = filepath.Join(home, ".local", "state")
-		}
-		logDir = filepath.Join(stateHome, "trait-basher")
-	}
-
-	if err := os.MkdirAll(logDir, 0755); err != nil {
-		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
-	}
-	return logDir, nil
-}
-
-// getLogFilePath returns the path for trait-basher's archive review logs.
-func getLogFilePath(sessionID string) (string, error) {
-	logDir, err := getLogDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(logDir, fmt.Sprintf("archives-%s.log", sessionID)), nil
-}
-
-// getDissectLogFilePath returns the path for dissect's own verbose logs.
-func getDissectLogFilePath(sessionID string) (string, error) {
-	logDir, err := getLogDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(logDir, fmt.Sprintf("dissect-%s.log", sessionID)), nil
-}
-
-func generateSessionID() string {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		ts := time.Now().UnixNano()
-		return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
-			ts>>32, (ts>>16)&0xffff, ts&0xffff, 0x4000, ts&0xffffffffffff)
-	}
-	b[6] = (b[6] & 0x0f) | 0x40 // Version 4
-	b[8] = (b[8] & 0x3f) | 0x80 // Variant
-	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
-}
-
-// Database functions for tracking analyzed files.
-
-func openDB(ctx context.Context, flush bool) (*sql.DB, error) {
-	// Determine config directory (platform-specific)
-	var base string
-	switch runtime.GOOS {
-	case "darwin":
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return nil, fmt.Errorf("config directory: %w", err)
-		}
-		base = filepath.Join(home, "Library", "Application Support")
-	default:
-		if xdg := os.Getenv("XDG_CONFIG_HOME"); xdg != "" {
-			base = xdg
-		} else {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return nil, fmt.Errorf("config directory: %w", err)
-			}
-			base = filepath.Join(home, ".config")
-		}
-	}
-	dir := filepath.Join(base, "dissect")
-
-	if err := os.MkdirAll(dir, 0o750); err != nil {
-		return nil, fmt.Errorf("create config directory: %w", err)
-	}
-
-	dbPath := filepath.Join(dir, "trait-basher.db")
-
-	if flush {
-		if err := os.Remove(dbPath); err != nil && !os.IsNotExist(err) {
-			return nil, fmt.Errorf("remove database: %w", err)
-		}
-		fmt.Fprintf(os.Stderr, "Flushed analysis cache: %s\n", dbPath)
-	}
-
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return nil, fmt.Errorf("open database: %w", err)
-	}
-
-	_, err = db.ExecContext(ctx, `
-		CREATE TABLE IF NOT EXISTS analyzed_files (
-			file_hash TEXT NOT NULL,
-			mode TEXT NOT NULL,
-			analyzed_at INTEGER NOT NULL,
-			PRIMARY KEY (file_hash, mode)
-		)
-	`)
-	if err != nil {
-		db.Close() //nolint:errcheck,gosec // best-effort cleanup on error
-		return nil, fmt.Errorf("create table: %w", err)
-	}
-
-	return db, nil
-}
-
-func hashFile(path string) (string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close() //nolint:errcheck // best-effort cleanup
-
-	h := sha256.New()
-	if _, err := io.Copy(h, f); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
-}
-
-// hashString returns SHA256 hash of a string (for archive path caching).
-func hashString(s string) string {
-	h := sha256.Sum256([]byte(s))
-	return hex.EncodeToString(h[:])
-}
-
-func wasAnalyzed(ctx context.Context, db *sql.DB, hash, mode string) bool {
-	var n int
-	err := db.QueryRowContext(ctx,
-		"SELECT COUNT(*) FROM analyzed_files WHERE file_hash = ? AND mode = ?",
-		hash, mode,
-	).Scan(&n)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "  [warn] DB query failed: %v\n", err)
-		return false
-	}
-	return n > 0
-}
-
-func markAnalyzed(ctx context.Context, db *sql.DB, hash, mode string) error {
-	_, err := db.ExecContext(ctx,
-		"INSERT OR REPLACE INTO analyzed_files (file_hash, mode, analyzed_at) VALUES (?, ?, ?)",
-		hash, mode, time.Now().Unix(),
-	)
-	return err
-}
-
-// cleanupOrphanedExtractDirs removes tbsh.<pid> directories where the
-// owning process no longer exists. This handles cleanup after crashes or kill -9.
-func cleanupOrphanedExtractDirs() {
-	tmpDir := os.TempDir()
-	entries, err := os.ReadDir(tmpDir)
-	if err != nil {
-		return
-	}
-
-	const prefix = "tbsh."
-	for _, entry := range entries {
-		if !entry.IsDir() || !strings.HasPrefix(entry.Name(), prefix) {
-			continue
-		}
-
-		// Extract PID from directory name
-		pidStr := strings.TrimPrefix(entry.Name(), prefix)
-		pid, err := strconv.Atoi(pidStr)
-		if err != nil {
-			continue // Not a valid PID format
-		}
-
-		// Check if process is still running (signal 0 = check existence)
-		if err := syscall.Kill(pid, 0); err == nil {
-			continue // Process still running, don't clean up
-		}
-
-		// Process is dead, clean up orphaned directory
-		orphanPath := filepath.Join(tmpDir, entry.Name())
-		fmt.Fprintf(os.Stderr, "Cleaning up orphaned extract directory: %s\n", orphanPath)
-		os.RemoveAll(orphanPath) //nolint:errcheck // best-effort cleanup
-	}
-}
-
-// countFiles quickly counts files in directories for progress estimation.
-// Returns 0 if counting fails or takes too long.
-func countFiles(dirs []string) int {
-	count := 0
-	for _, dir := range dirs {
-		_ = filepath.WalkDir(dir, func(_ string, d os.DirEntry, err error) error { //nolint:errcheck // best-effort counting
-			if err != nil {
-				return nil //nolint:nilerr // intentionally skip errors and continue counting
-			}
-			if !d.IsDir() {
-				count++
-			}
-			return nil
-		})
-	}
-	return count
-}
-
-// formatProgress returns a formatted progress string with stats.
-// Example: "[1234/5678 22%] Det:94% | 52/s | path/to/file.bat".
-func formatProgress(current, total int, detectionRate float64, filesPerSec float64, currentPath string, knownGood bool) string {
-	var sb strings.Builder
-
-	// Progress counter
-	if total > 0 {
-		pct := float64(current) / float64(total) * 100
-		sb.WriteString(fmt.Sprintf("[%d/%d %0.f%%]", current, total, pct))
-	} else {
-		sb.WriteString(fmt.Sprintf("[%d]", current))
-	}
-
-	// Detection/clean rate
-	if current > 0 {
-		if knownGood {
-			// For known-good: show clean rate (files without false positives)
-			sb.WriteString(fmt.Sprintf(" Clean:%.0f%%", detectionRate))
-		} else {
-			// For known-bad: show detection rate (files with true positives)
-			sb.WriteString(fmt.Sprintf(" Det:%.0f%%", detectionRate))
-		}
-	}
-
-	// Files per second
-	if filesPerSec > 0 {
-		sb.WriteString(fmt.Sprintf(" | %.0f/s", filesPerSec))
-	}
-
-	// Current file path
-	sb.WriteString(" | ")
-	sb.WriteString(currentPath)
-
-	return sb.String()
-}
