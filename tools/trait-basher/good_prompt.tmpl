@@ -100,6 +100,7 @@ Run `{{.DissectBin}} --format jsonl {{.Path}}` and confirm:
 - ✓ No legitimate behaviors completely hidden (prefer downgrade over unless)
 - ✓ Context-appropriate criticality (`kill()` syscall: suspicious in game, notable in htop)
 - ✓ No trait duplicates (same evidence, same scenario)
+- ✓ Neutral or inert traits should never live in objectives/ - not even if they are only used for unless/downgrade
 - ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable
 {{if .IsValidationSample}}- ✓ Traits are in correct taxonomy directories per TAXONOMY.md
 {{end}}
