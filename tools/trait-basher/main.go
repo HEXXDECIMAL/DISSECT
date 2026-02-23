@@ -2387,8 +2387,8 @@ func displayStreamEvent(line, prefix string) {
 	case "tool_result":
 		// Gemini tool results - silently consume (output already shown during execution)
 
-	case "init":
-		// Gemini/Claude initialization event - silently consume
+	case "init", "user":
+		// Gemini/Claude initialization and user prompt events - silently consume
 
 	case "result":
 		if r, ok := ev["result"].(string); ok && r != "" {
