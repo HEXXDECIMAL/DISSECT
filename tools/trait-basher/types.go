@@ -135,8 +135,9 @@ var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostil
 
 // workerState tracks the current state of a single LLM worker slot.
 type workerState struct {
-	busy      bool      // true if processing a job
-	path      string    // current job path (empty if idle)
-	provider  string    // current provider being used
-	startTime time.Time // when current job/idle started
+	busy         bool      // true if processing a job
+	path         string    // current job path (empty if idle)
+	provider     string    // current provider being used
+	startTime    time.Time // when current job/idle started
+	isValidation bool      // true if this is a validation sample (random audit)
 }

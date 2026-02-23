@@ -145,6 +145,7 @@ func (rc *reviewCoordinator) activeCount() int {
 
 // slotStatus returns a slice of status lines, one per worker slot.
 // Example lines: "  [1] claude: /path/to/file.sh (2m30s)" or "  [2] idle (45s)"
+// Validation samples show "🔍" prefix to distinguish from real exceptions.
 func (rc *reviewCoordinator) slotStatus() []string {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
@@ -154,10 +155,14 @@ func (rc *reviewCoordinator) slotStatus() []string {
 		dur := time.Since(w.startTime).Round(time.Second)
 		if w.busy {
 			pClr := providerColor(w.provider)
-			lines[i] = fmt.Sprintf("  %s[%d]%s %s%s%s: %s %s(%v)%s",
+			prefix := ""
+			if w.isValidation {
+				prefix = "🔍 "
+			}
+			lines[i] = fmt.Sprintf("  %s[%d]%s %s%s%s: %s%s %s(%v)%s",
 				colorDim, i+1, colorReset,
 				pClr, w.provider, colorReset,
-				w.path,
+				prefix, w.path,
 				colorDim, dur, colorReset)
 		} else {
 			lines[i] = fmt.Sprintf("  %s[%d] idle (%v)%s", colorDim, i+1, dur, colorReset)
@@ -167,13 +172,14 @@ func (rc *reviewCoordinator) slotStatus() []string {
 }
 
 // setWorkerBusy marks a worker as busy with a job.
-func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string) {
+func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string, isValidation bool) {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
 	rc.workers[workerID] = workerState{
-		busy:      true,
-		path:      path,
-		provider:  provider,
+		busy:         true,
+		path:         path,
+		provider:     provider,
+		isValidation: isValidation,
 		startTime: time.Now(),
 	}
 }
@@ -212,7 +218,7 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 		jobCfg.provider = rc.cfg.providers[0]
 
 		// Track worker as busy
-		rc.setWorkerBusy(id, path, jobCfg.provider)
+		rc.setWorkerBusy(id, path, jobCfg.provider, job.isValidation)
 
 		start := time.Now()
 		var err error
@@ -850,11 +856,15 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 					logger.Warn("failed to mark analyzed", "path", path, "error", err)
 				}
 			}
-			state.filesReviewedCount++
+			// Only count non-validation reviews toward rescan threshold
+			// Validation samples are random audits that shouldn't trigger rescans
+			if !result.job.isValidation {
+				state.filesReviewedCount++
 
-			// Check rescan threshold
-			if cfg.rescanAfter > 0 && state.filesReviewedCount >= cfg.rescanAfter {
-				state.stats.shouldRestart = true
+				// Check rescan threshold
+				if cfg.rescanAfter > 0 && state.filesReviewedCount >= cfg.rescanAfter {
+					state.stats.shouldRestart = true
+				}
 			}
 			state.stats.mu.Unlock()
 
@@ -1232,7 +1242,11 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
+	if isValidation {
+		fmt.Fprintf(os.Stderr, "\n🔍 %s[VALIDATION]%s %s\n", colorCyan, colorReset, archiveName)
+	} else {
+		fmt.Fprintf(os.Stderr, "\n📦 %s\n", archiveName)
+	}
 	fmt.Fprintf(os.Stderr, "   Files: %d total, %d with concerning findings\n", len(archive.Members), len(filesWithFindings))
 
 	// Show aggregate findings that triggered the review
@@ -1356,7 +1370,11 @@ func processRealFile(ctx context.Context, st *streamState) {
 		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
 
-	fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", rf.RealPath)
+	if isValidation {
+		fmt.Fprintf(os.Stderr, "\n🔍 %s[VALIDATION]%s %s\n", colorCyan, colorReset, rf.RealPath)
+	} else {
+		fmt.Fprintf(os.Stderr, "\n📄 Standalone file: %s\n", rf.RealPath)
+	}
 	if len(rf.Fragments) > 0 {
 		fmt.Fprintf(os.Stderr, "   (with %d decoded fragment(s))\n", len(rf.Fragments))
 	}
