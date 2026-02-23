@@ -46,9 +46,19 @@ use anyhow::Result;
 use crossbeam_channel::bounded;
 use rayon::prelude::*;
 use std::path::Path;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use walkdir::WalkDir;
+
+/// Number of files to process before clearing thread-local caches.
+/// This helps prevent memory growth during long-running scans.
+/// Set DISSECT_CACHE_CLEAR_INTERVAL env var to override (0 to disable).
+fn cache_clear_interval() -> usize {
+    std::env::var("DISSECT_CACHE_CLEAR_INTERVAL")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(100)
+}
 
 /// Run the scan command to analyze multiple files and directories.
 ///
@@ -189,11 +199,25 @@ pub(crate) fn run(
     let error_if_triggered = Arc::new(AtomicBool::new(false));
     let error_if_message: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
 
+    // File counter for periodic cache clearing to prevent memory growth
+    let files_processed = AtomicUsize::new(0);
+    let clear_interval = cache_clear_interval();
+
     // Process regular files in parallel using try_for_each for early termination
     let files_result: Result<(), ()> = all_files.par_iter().try_for_each(|path_str| {
         // Check if another thread already triggered --error-if
         if error_if_triggered.load(Ordering::Relaxed) {
             return Err(());
+        }
+
+        // Periodically clear thread-local caches to prevent memory buildup
+        // This is especially important for long-running scans with many files
+        if clear_interval > 0 {
+            let count = files_processed.fetch_add(1, Ordering::Relaxed);
+            if count > 0 && count % clear_interval == 0 {
+                crate::composite_rules::evaluators::clear_thread_local_caches();
+                tracing::debug!("Cleared thread-local caches after {} files", count);
+            }
         }
 
         match super::analyze_file_with_shared_mapper(

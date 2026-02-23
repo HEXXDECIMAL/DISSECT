@@ -98,7 +98,7 @@ func newReviewCoordinator(ctx context.Context, cfg *config, logger *slog.Logger)
 	now := time.Now()
 	workers := make([]workerState, cfg.concurrency)
 	for i := range workers {
-		workers[i] = workerState{busy: false, startTime: now, sessionID: generateSessionID()} // start idle with unique session
+		workers[i] = workerState{busy: false, startTime: now}
 	}
 
 	rc := &reviewCoordinator{
@@ -175,7 +175,6 @@ func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string) 
 		path:      path,
 		provider:  provider,
 		startTime: time.Now(),
-		sessionID: rc.workers[workerID].sessionID, // preserve session context
 	}
 }
 
@@ -186,7 +185,6 @@ func (rc *reviewCoordinator) setWorkerIdle(workerID int) {
 	rc.workers[workerID] = workerState{
 		busy:      false,
 		startTime: time.Now(),
-		sessionID: rc.workers[workerID].sessionID, // preserve session context
 	}
 }
 
@@ -203,13 +201,6 @@ func (rc *reviewCoordinator) workerPrefix(workerID int) string {
 	return fmt.Sprintf("%s[%d:%s]%s ", pClr, workerID+1, name, colorReset)
 }
 
-// workerSessionID returns the persistent session ID for a worker slot.
-func (rc *reviewCoordinator) workerSessionID(workerID int) string {
-	rc.mu.Lock()
-	defer rc.mu.Unlock()
-	return rc.workers[workerID].sessionID
-}
-
 func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 	defer rc.wg.Done()
 
@@ -224,12 +215,14 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 		rc.setWorkerBusy(id, path, jobCfg.provider)
 
 		start := time.Now()
-		sid := rc.workerSessionID(id)
 		var err error
 
 		// Retry loop with exponential backoff
 		const maxRetries = 10
 		for attempt := 1; attempt <= maxRetries; attempt++ {
+			// Generate fresh session ID for each attempt to avoid "session already in use" errors
+			sid := generateSessionID()
+
 			// Update provider in worker state
 			rc.mu.Lock()
 			rc.workers[id].provider = jobCfg.provider
@@ -2156,7 +2149,7 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix st
 		lastActive = time.Now()
 		activeMu   sync.Mutex
 	)
-	done := make(chan struct{})
+	done := make(chan struct{}, 1) // buffered to prevent goroutine leak on early return
 
 	// Read stderr with prefix (for messages like "YOLO mode is enabled")
 	go func() {

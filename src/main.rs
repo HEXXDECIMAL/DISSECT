@@ -77,25 +77,28 @@ fn main() -> Result<()> {
     // Determine output format early so we can use it for conditional status messages
     let format = args.format();
 
-    // Initialize tracing/logging
-    // Use RUST_LOG env var if set, otherwise use verbose flag
-    // Examples: RUST_LOG=debug, RUST_LOG=dissect=trace, RUST_LOG=dissect::analyzers::archive=trace
-    let env_filter = if std::env::var("RUST_LOG").is_ok() {
-        EnvFilter::from_default_env()
-    } else if args.verbose {
-        // Use trace level for verbose mode to see all instrumentation
-        EnvFilter::new("dissect=trace")
-    } else {
-        // By default, only show warnings and errors
-        EnvFilter::new("dissect=warn")
-    };
-
     // Set up logging with optional file output
+    // When --log-file is specified, use different log levels:
+    // - stderr: warn level (quiet, unless --verbose)
+    // - file: info level (useful for debugging, unless --verbose then trace)
     if let Some(ref log_file) = args.log_file {
         use std::fs::OpenOptions;
         use std::sync::{Arc, Mutex};
         use tracing_subscriber::layer::SubscriberExt;
         use tracing_subscriber::util::SubscriberInitExt;
+        use tracing_subscriber::Layer;
+
+        // Determine log levels
+        let (stderr_filter, file_filter) = if std::env::var("RUST_LOG").is_ok() {
+            // RUST_LOG overrides everything
+            (EnvFilter::from_default_env(), EnvFilter::from_default_env())
+        } else if args.verbose {
+            // Verbose: trace to both
+            (EnvFilter::new("dissect=trace"), EnvFilter::new("dissect=trace"))
+        } else {
+            // Default: warn to stderr, info to file
+            (EnvFilter::new("dissect=warn"), EnvFilter::new("dissect=info"))
+        };
 
         // Create or append to log file
         let file = Arc::new(Mutex::new(
@@ -133,24 +136,33 @@ fn main() -> Result<()> {
             }
         }
 
-        // Create layers for both stderr and file
+        // Create layers with separate filters
         let stderr_layer = tracing_subscriber::fmt::layer()
             .with_target(true)
             .with_line_number(true)
-            .with_writer(std::io::stderr);
+            .with_writer(std::io::stderr)
+            .with_filter(stderr_filter);
 
         let file_layer = tracing_subscriber::fmt::layer()
             .with_target(true)
             .with_line_number(true)
             .with_ansi(false) // No color codes in file
-            .with_writer(LogFile(file));
+            .with_writer(LogFile(file))
+            .with_filter(file_filter);
 
         tracing_subscriber::registry()
-            .with(env_filter)
             .with(stderr_layer)
             .with(file_layer)
             .init();
     } else {
+        // No log file - use single filter for stderr only
+        let env_filter = if std::env::var("RUST_LOG").is_ok() {
+            EnvFilter::from_default_env()
+        } else if args.verbose {
+            EnvFilter::new("dissect=trace")
+        } else {
+            EnvFilter::new("dissect=warn")
+        };
         // No log file, just stderr
         tracing_subscriber::fmt()
             .with_env_filter(env_filter)

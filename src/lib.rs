@@ -58,6 +58,9 @@ pub use types::scores::Metrics;
 pub use types::text_metrics::TextMetrics;
 pub use types::traits_findings::{Evidence, Finding, FindingKind, Trait, TraitKind};
 
+// Re-export cache management function
+pub use composite_rules::evaluators::clear_thread_local_caches;
+
 use anyhow::Result;
 use std::path::Path;
 use std::sync::Arc;
@@ -90,6 +93,34 @@ impl Default for AnalysisOptions {
             all_files: false,
         }
     }
+}
+
+/// Clear thread-local caches on ALL rayon worker threads.
+///
+/// Call this periodically during long-running scans to free memory from:
+/// - UTF-8 conversion caches (can hold large strings from previous files)
+/// - YARA scanner caches
+///
+/// This uses rayon's `broadcast` to ensure all worker threads clear their caches.
+///
+/// # Example
+///
+/// ```ignore
+/// // After processing every N files, clear caches to prevent memory growth
+/// if file_count % 100 == 0 {
+///     dissect::clear_all_thread_caches();
+/// }
+/// ```
+pub fn clear_all_thread_caches() {
+    // Clear on the main thread
+    clear_thread_local_caches();
+
+    // Clear on all rayon worker threads using broadcast
+    rayon::broadcast(|_| {
+        clear_thread_local_caches();
+    });
+
+    tracing::debug!("Cleared thread-local caches on all threads");
 }
 
 /// Analyze a single file and return a detailed report.

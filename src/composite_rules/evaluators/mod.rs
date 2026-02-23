@@ -203,6 +203,26 @@ pub(crate) fn get_utf8_cached(binary_data: &[u8], range: (usize, usize)) -> std:
     })
 }
 
+/// Clear thread-local caches to free memory.
+///
+/// This should be called periodically during long-running scans to prevent
+/// memory growth from accumulating cache entries across many files.
+///
+/// Clears:
+/// - UTF8_CACHE: Thread-local LRU cache of UTF-8 conversions (can hold large strings)
+/// - SCANNER_CACHE: Thread-local YARA scanner cache
+///
+/// Note: This only clears the cache for the CURRENT thread. When using rayon,
+/// call this from within a parallel context to clear caches on worker threads.
+pub fn clear_thread_local_caches() {
+    UTF8_CACHE.with(|cache| {
+        cache.borrow_mut().clear();
+    });
+    SCANNER_CACHE.with(|cache| {
+        cache.borrow_mut().clear();
+    });
+}
+
 /// Check if a symbol matches a pattern (supports exact match or regex).
 /// Uses cached regex compilation for patterns with metacharacters.
 /// Note: Symbols are normalized (leading underscores stripped) at load time.
