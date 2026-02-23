@@ -725,6 +725,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	dissectPID := 0 // Will be set after cmd.Start()
 	go func() {
 		scanner := bufio.NewScanner(stderr)
+		scanner.Buffer(make([]byte, 1024*1024), 1024*1024) // 1MB buffer for panic backtraces
 		for scanner.Scan() {
 			line := scanner.Text()
 			// Skip noisy periodic memory check logs
@@ -886,7 +887,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		// Check if we need to restart (hit review limit)
 		if state.stats.shouldRestart {
 			clearProgressLine()
-			fmt.Fprintf(os.Stderr, "%s⚡%s Reviewed %s%d%s files - restarting scan to verify trait changes\n",
+			fmt.Fprintf(os.Stderr, "%s⚡%s Reviewed %s%d%s files - restarting scan to verify trait changes (killing dissect)\n",
 				colorYellow, colorReset, colorBold, state.cfg.rescanAfter, colorReset)
 			cmd.Process.Kill() //nolint:errcheck,gosec // intentional kill on restart
 			cmd.Wait()         //nolint:errcheck,gosec // reap the process
@@ -990,6 +991,10 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	<-resultsDone
 
 	if err := scanner.Err(); err != nil {
+		// Kill orphaned dissect process before returning
+		log.Printf("killing dissect...")
+		cmd.Process.Kill() //nolint:errcheck,gosec
+		cmd.Wait()         //nolint:errcheck,gosec
 		delay := retryDelay()
 		fmt.Fprintf(os.Stderr, "\n%s⚠️  Error reading dissect output:%s %v\n", colorYellow, colorReset, err)
 		fmt.Fprintf(os.Stderr, "   %sRetrying in %v...%s\n", colorDim, delay.Round(time.Second), colorReset)
@@ -1185,9 +1190,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 			mode = "good"
 			reason = "archive has insufficient concerning findings (≤1 suspicious, 0 hostile)"
 		}
-		if st.cfg.verbose {
-			fmt.Fprintf(os.Stderr, "  [skip] %s (--%-4s): %s\n", archiveName, mode, reason)
-		}
+
 		st.stats.skippedNoReview++
 		logCompletion("skipped_no_review", "reason", reason, "mode", mode)
 		return
@@ -1195,9 +1198,6 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 
 	archiveHash := hashString(archive.ArchivePath)
 	if wasAnalyzed(ctx, st.cfg.db, archiveHash, st.dbMode) {
-		if st.cfg.verbose {
-			fmt.Fprintf(os.Stderr, "  [skip] %s: already analyzed (cache hit)\n", archiveName)
-		}
 		st.stats.skippedCached++
 		logCompletion("skipped_cached", "cache_hash", archiveHash)
 		return
