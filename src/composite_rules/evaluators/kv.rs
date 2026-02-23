@@ -478,8 +478,25 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
         return None;
     };
 
+    // Get the string regex pattern for debug
+    let regex_str = if let Condition::Kv { regex, .. } = condition {
+        regex.clone()
+    } else {
+        None
+    };
+
     let file_path = std::path::Path::new(&ctx.report.target.path);
     let content = ctx.binary_data;
+
+    // Debug: check if regex should be compiled but isn't
+    if std::env::var("DEBUG_KV_REGEX").is_ok() {
+        if regex_str.is_some() && compiled_regex.is_none() {
+            eprintln!(
+                "DEBUG_KV_REGEX: path={} has regex={:?} but compiled_regex is NONE!",
+                path, regex_str
+            );
+        }
+    }
 
     // Check cached format, detect if not cached
     let format = ctx.cached_kv_format.get_or_init(|| detect_format(file_path, content));

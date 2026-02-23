@@ -136,4 +136,5 @@ type workerState struct {
 	path      string    // current job path (empty if idle)
 	provider  string    // current provider being used
 	startTime time.Time // when current job/idle started
+	sessionID string    // persistent session ID for this slot (maintains LLM context)
 }

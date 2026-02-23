@@ -97,7 +97,7 @@ func newReviewCoordinator(ctx context.Context, cfg *config, logger *slog.Logger)
 	now := time.Now()
 	workers := make([]workerState, cfg.concurrency)
 	for i := range workers {
-		workers[i] = workerState{busy: false, startTime: now} // start idle
+		workers[i] = workerState{busy: false, startTime: now, sessionID: generateSessionID()} // start idle with unique session
 	}
 
 	rc := &reviewCoordinator{
@@ -174,6 +174,7 @@ func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string) 
 		path:      path,
 		provider:  provider,
 		startTime: time.Now(),
+		sessionID: rc.workers[workerID].sessionID, // preserve session context
 	}
 }
 
@@ -184,6 +185,7 @@ func (rc *reviewCoordinator) setWorkerIdle(workerID int) {
 	rc.workers[workerID] = workerState{
 		busy:      false,
 		startTime: time.Now(),
+		sessionID: rc.workers[workerID].sessionID, // preserve session context
 	}
 }
 
@@ -198,6 +200,13 @@ func (rc *reviewCoordinator) workerPrefix(workerID int) string {
 	}
 	pClr := providerColor(w.provider)
 	return fmt.Sprintf("%s[%d:%s]%s ", pClr, workerID+1, name, colorReset)
+}
+
+// workerSessionID returns the persistent session ID for a worker slot.
+func (rc *reviewCoordinator) workerSessionID(workerID int) string {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	return rc.workers[workerID].sessionID
 }
 
 func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
@@ -224,10 +233,11 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 			rc.workers[id].provider = jobCfg.provider
 			rc.mu.Unlock()
 
+			sid := rc.workerSessionID(id)
 			if job.archive != nil {
-				err = invokeAIArchive(ctx, &jobCfg, job.archive, generateSessionID(), id, rc)
+				err = invokeAIArchive(ctx, &jobCfg, job.archive, sid, id, rc)
 			} else if job.file != nil {
-				err = rc.reviewFile(ctx, &jobCfg, job.file, id)
+				err = rc.reviewFile(ctx, &jobCfg, job.file, sid, id)
 			}
 
 			if err == nil {
@@ -275,7 +285,7 @@ func jobPath(job reviewJob) string {
 	return ""
 }
 
-func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis, workerID int) error {
+func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis, sid string, workerID int) error {
 	// Aggregate findings from root and all fragments
 	agg := file.Root
 	if agg.Path == "" {
@@ -285,7 +295,7 @@ func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *
 		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
 
-	return invokeAI(ctx, cfg, agg, generateSessionID(), workerID, rc)
+	return invokeAI(ctx, cfg, agg, sid, workerID, rc)
 }
 
 const maxYAMLAutoFixAttempts = 3
@@ -1996,7 +2006,7 @@ func validateProvider(ctx context.Context, cfg *config) error {
 	testCfg := *cfg
 	testCfg.timeout = 60 * time.Second
 
-	if err := runAIWithStreaming(testCtx, &testCfg, "Say OK", "validation", ""); err != nil {
+	if err := runAIWithStreaming(testCtx, &testCfg, "Say OK", generateSessionID(), ""); err != nil {
 		return fmt.Errorf("provider validation failed: %w", err)
 	}
 
@@ -2316,8 +2326,8 @@ func displayStreamEvent(line, prefix string) {
 			}
 		}
 
-	case "tool_call", "tool":
-		// Gemini tool calls
+	case "tool_call", "tool", "tool_use":
+		// Gemini/Claude tool calls
 		if name, ok := ev["name"].(string); ok {
 			fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 		}

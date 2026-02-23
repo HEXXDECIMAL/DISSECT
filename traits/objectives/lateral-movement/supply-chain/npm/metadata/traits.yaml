@@ -40,6 +40,63 @@ traits:
       type: kv
       path: "scripts.install"
 
+  # === Install Hook Installs Package ===
+  # This is highly suspicious: legitimate packages declare dependencies in package.json,
+  # they don't install packages via commands in hooks
+  - id: postinstall-runs-npm-install
+    desc: postinstall hook runs npm install
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.postinstall"
+      regex: "\\bnpm\\s+(install|i|add)\\s"
+
+  - id: postinstall-runs-yarn-add
+    desc: postinstall hook runs yarn add
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.postinstall"
+      regex: "\\byarn\\s+(add|global add)\\s"
+
+  - id: postinstall-runs-pnpm-add
+    desc: postinstall hook runs pnpm add
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.postinstall"
+      regex: "\\bpnpm\\s+(add|install)\\s"
+
+  - id: preinstall-runs-npm-install
+    desc: preinstall hook runs npm install
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.preinstall"
+      regex: "\\bnpm\\s+(install|i|add)\\s"
+
+  - id: preinstall-runs-yarn-add
+    desc: preinstall hook runs yarn add
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.preinstall"
+      regex: "\\byarn\\s+(add|global add)\\s"
+
+  - id: preinstall-runs-pnpm-add
+    desc: preinstall hook runs pnpm add
+    crit: suspicious
+    conf: 0.95
+    if:
+      type: kv
+      path: "scripts.preinstall"
+      regex: "\\bpnpm\\s+(add|install)\\s"
+
   # === Version Patterns ===
   - id: version-1-0-0
     desc: Package version is 1.0.0
@@ -226,6 +283,22 @@ composite_rules:
       - id: preinstall-hook-key
       - id: postinstall-hook-key
       - id: install-hook-key
+
+  # Install hook that installs packages (highly suspicious)
+  # Legitimate packages declare dependencies in package.json - running install commands
+  # in hooks is a supply chain attack indicator
+  - id: install-hook-runs-pkg-install
+    desc: Install hook runs npm/yarn/pnpm install command
+    crit: hostile
+    conf: 0.98
+    attack: "T1195.002"
+    any:
+      - id: postinstall-runs-npm-install
+      - id: postinstall-runs-yarn-add
+      - id: postinstall-runs-pnpm-add
+      - id: preinstall-runs-npm-install
+      - id: preinstall-runs-yarn-add
+      - id: preinstall-runs-pnpm-add
 
   # Version 1.0.0 with install hooks
   - id: version-1-0-0-with-hooks
