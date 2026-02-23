@@ -373,7 +373,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 	concurrency := flag.Int("concurrency", 2, "Number of concurrent LLM review sessions")
 	verbose := flag.Bool("verbose", false, "Show detailed skip/progress messages")
-	validateEvery := flag.Int("validate-every", 250, "Randomly validate 1 in N files even if properly classified (0 = disabled)")
+	validateEvery := flag.Int("validate-every", 500, "Randomly validate 1 in N files even if properly classified (0 = disabled)")
 
 	flag.Parse()
 
