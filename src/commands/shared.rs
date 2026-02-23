@@ -123,7 +123,12 @@ pub(crate) fn check_criticality_error(
 /// to findings with appropriate criticality levels, and adds them to the report.
 pub(crate) fn process_yara_result(
     report: &mut types::AnalysisReport,
-    yara_result: Option<anyhow::Result<(Vec<types::YaraMatch>, std::collections::HashMap<String, Vec<types::Evidence>>)>>,
+    yara_result: Option<
+        anyhow::Result<(
+            Vec<types::YaraMatch>,
+            std::collections::HashMap<String, Vec<types::Evidence>>,
+        )>,
+    >,
     engine: Option<&YaraEngine>,
 ) -> std::collections::HashMap<String, Vec<types::Evidence>> {
     let Some(Ok((matches, inline))) = yara_result else {
@@ -241,7 +246,8 @@ pub(crate) fn analyze_file_with_shared_mapper(
     );
 
     // Check for encoded payloads (hex, base64, etc.) using the stng results
-    let encoded_payloads = crate::extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
+    let encoded_payloads =
+        crate::extractors::encoded_payload::extract_encoded_payloads(&stng_strings);
 
     // Convert stng strings to StringInfo for reuse by binary analyzers (avoids redundant extraction)
     let string_extractor = crate::strings::StringExtractor::new();
@@ -264,18 +270,26 @@ pub(crate) fn analyze_file_with_shared_mapper(
             let file_types: &[&str] = &["macho", "dylib", "kext"];
             let (struct_result, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, arch_data),
-                || engine.filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(arch_data, Some(file_types))
-                }),
+                || {
+                    engine
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(arch_data, Some(file_types)))
+                },
             );
             let mut report = struct_result?;
             // Apply fat binary metadata
             analyzer.apply_fat_metadata(&mut report, file_data);
             // Process YARA results and evaluate with inline YARA
-            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
-            capability_mapper.evaluate_and_merge_findings(&mut report, arch_data, None, Some(&inline_yara));
+            let inline_yara =
+                process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                arch_data,
+                None,
+                Some(&inline_yara),
+            );
             report
-        },
+        }
         FileType::Elf => {
             // Run YARA scan in parallel with structural analysis to get inline results
             let analyzer = analyzers::elf::ElfAnalyzer::new()
@@ -285,17 +299,25 @@ pub(crate) fn analyze_file_with_shared_mapper(
             let file_types: &[&str] = &["elf", "so", "ko"];
             let (mut report, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, file_data),
-                || engine.filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(file_data, Some(file_types))
-                }),
+                || {
+                    engine
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(file_data, Some(file_types)))
+                },
             );
             // Process YARA results and evaluate with inline YARA
-            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
-            capability_mapper.evaluate_and_merge_findings(&mut report, file_data, None, Some(&inline_yara));
+            let inline_yara =
+                process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                file_data,
+                None,
+                Some(&inline_yara),
+            );
             crate::path_mapper::analyze_and_link_paths(&mut report);
             crate::env_mapper::analyze_and_link_env_vars(&mut report);
             report
-        },
+        }
         FileType::Pe => {
             // Run YARA scan in parallel with structural analysis to get inline results
             let mut analyzer = analyzers::pe::PEAnalyzer::new()
@@ -309,21 +331,29 @@ pub(crate) fn analyze_file_with_shared_mapper(
             let file_types: &[&str] = &["pe", "exe", "dll", "bat", "ps1"];
             let (struct_result, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, file_data),
-                || engine.filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(file_data, Some(file_types))
-                }),
+                || {
+                    engine
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(file_data, Some(file_types)))
+                },
             );
             let mut report = struct_result?;
             // Process YARA results and evaluate with inline YARA
-            let inline_yara = process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
-            capability_mapper.evaluate_and_merge_findings(&mut report, file_data, None, Some(&inline_yara));
+            let inline_yara =
+                process_yara_result(&mut report, yara_result, engine.map(|e| e.as_ref()));
+            capability_mapper.evaluate_and_merge_findings(
+                &mut report,
+                file_data,
+                None,
+                Some(&inline_yara),
+            );
             report
-        },
+        }
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = analyzers::archive::ArchiveAnalyzer::new()
@@ -337,22 +367,22 @@ pub(crate) fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        },
+        }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::AppleScript => {
             let analyzer = analyzers::applescript::AppleScriptAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::Archive => {
             let mut analyzer = analyzers::archive::ArchiveAnalyzer::new()
                 .with_capability_mapper_arc(capability_mapper.clone())
@@ -365,7 +395,7 @@ pub(crate) fn analyze_file_with_shared_mapper(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        },
+        }
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             // For file types that use GenericAnalyzer (Batch, Unknown, etc.),
@@ -388,7 +418,7 @@ pub(crate) fn analyze_file_with_shared_mapper(
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        },
+        }
     };
 
     // Add finding for extension/content mismatch if detected
@@ -421,12 +451,15 @@ pub(crate) fn analyze_file_with_shared_mapper(
         let crit = match payload.detected_type {
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
-            },
+            }
             _ => types::Criticality::Notable,
         };
 
         report.findings.push(types::Finding {
-            id: format!("metadata/encoded-payload/{}", payload.encoding_chain.join("-")),
+            id: format!(
+                "metadata/encoded-payload/{}",
+                payload.encoding_chain.join("-")
+            ),
             kind: types::FindingKind::Structural,
             desc: format!(
                 "Encoded payload detected: {}",
@@ -486,10 +519,10 @@ pub(crate) fn analyze_file_with_shared_mapper(
                     if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
                         report.metadata.tools_used.push("yara-x".to_string());
                     }
-                },
+                }
                 Err(e) => {
                     eprintln!("⚠️  YARA scan failed: {}", e);
-                },
+                }
             }
         }
     }
@@ -512,7 +545,11 @@ pub(crate) fn analyze_file_with_shared_mapper(
     // Filter out low-value composite "any" rules before output
     let removed = report.filter_findings(|f| !capability_mapper.is_low_value_any_rule(&f.id));
     if removed > 0 {
-        tracing::debug!("Filtered {} low-value composite 'any' rules from {}", removed, target);
+        tracing::debug!(
+            "Filtered {} low-value composite 'any' rules from {}",
+            removed,
+            target
+        );
     }
 
     // Output as JSONL format for parallel scanning
@@ -553,7 +590,8 @@ pub(crate) fn analyze_archive_streaming_jsonl(
         fa.path = types::file_analysis::encode_archive_path(&archive_path, &fa.path);
 
         // Filter out low-value composite "any" rules before output
-        fa.findings.retain(|f| !capability_mapper.is_low_value_any_rule(&f.id));
+        fa.findings
+            .retain(|f| !capability_mapper.is_low_value_any_rule(&f.id));
 
         if let Ok(line) = crate::output::format_jsonl_line(&fa) {
             println!("{}", line);
@@ -570,7 +608,11 @@ pub(crate) fn analyze_archive_streaming_jsonl(
         .as_ref()
         .and_then(|s| s.max_risk)
         .unwrap_or(types::Criticality::Inert);
-    let mut counts = report.summary.as_ref().map(|s| s.counts.clone()).unwrap_or_default();
+    let mut counts = report
+        .summary
+        .as_ref()
+        .map(|s| s.counts.clone())
+        .unwrap_or_default();
 
     // Filter low-value composite "any" rules from archive-level findings
     let mut filtered_findings = report.findings.clone();
@@ -585,7 +627,7 @@ pub(crate) fn analyze_archive_streaming_jsonl(
             types::Criticality::Hostile => counts.hostile += 1,
             types::Criticality::Suspicious => counts.suspicious += 1,
             types::Criticality::Notable => counts.notable += 1,
-            _ => {},
+            _ => {}
         }
     }
 
@@ -676,7 +718,10 @@ pub(crate) fn create_analysis_report(
 ///
 /// Uses substring matching and Levenshtein distance to find rules
 /// that are similar to the query string.
-pub(crate) fn find_similar_rules(mapper: &crate::capabilities::CapabilityMapper, query: &str) -> Vec<String> {
+pub(crate) fn find_similar_rules(
+    mapper: &crate::capabilities::CapabilityMapper,
+    query: &str,
+) -> Vec<String> {
     let query_lower = query.to_lowercase();
     let mut matches: Vec<(String, usize)> = Vec::new();
 
@@ -781,8 +826,11 @@ pub(crate) fn extract_strings_from_ast(
     };
 
     // Filter strings by min_length
-    let filtered_strings: Vec<_> =
-        report.strings.into_iter().filter(|s| s.value.len() >= min_length).collect();
+    let filtered_strings: Vec<_> = report
+        .strings
+        .into_iter()
+        .filter(|s| s.value.len() >= min_length)
+        .collect();
 
     match format {
         crate::cli::OutputFormat::Jsonl => Ok(serde_json::to_string_pretty(&filtered_strings)?),
@@ -802,8 +850,10 @@ pub(crate) fn extract_strings_from_ast(
                 "", "", "", ""
             ));
             for s in filtered_strings {
-                let offset =
-                    s.offset.map(|o| format!("{:#x}", o)).unwrap_or_else(|| "unknown".to_string());
+                let offset = s
+                    .offset
+                    .map(|o| format!("{:#x}", o))
+                    .unwrap_or_else(|| "unknown".to_string());
                 let stype_str = format!("{:?}", s.string_type);
 
                 // Format encoding chain like binary strings output
@@ -819,7 +869,7 @@ pub(crate) fn extract_strings_from_ast(
                 ));
             }
             Ok(output)
-        },
+        }
     }
 }
 
@@ -846,15 +896,15 @@ pub(crate) fn flatten_json_to_metrics(
                 };
                 flatten_json_to_metrics(val, &new_prefix, result);
             }
-        },
+        }
         serde_json::Value::Null => {
             // Skip null values
-        },
+        }
         _ => {
             // Leaf value - add to result
             if !prefix.is_empty() {
                 result.push((prefix.to_string(), value.clone()));
             }
-        },
+        }
     }
 }

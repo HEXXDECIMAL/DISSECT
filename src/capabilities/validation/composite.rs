@@ -154,7 +154,10 @@ pub(crate) fn find_redundant_any_refs(
                 // Only flag external directories (different from rule's directory)
                 // Skip metadata/ paths since those are auto-generated and can't use directory notation
                 if trait_dir != rule_dir && !trait_dir.starts_with("metadata/") {
-                    dir_refs.entry(trait_dir.to_string()).or_default().push(id.clone());
+                    dir_refs
+                        .entry(trait_dir.to_string())
+                        .or_default()
+                        .push(id.clone());
                 }
             }
             // If no ::, it's a directory reference - these are always fine
@@ -236,17 +239,20 @@ pub(crate) fn find_overlapping_conditions(
 ) -> Vec<(String, &'static str, String, String)> {
     let mut violations = Vec::new();
 
-    for (conditions, clause) in [
-        (rule.all.as_deref(), "all"),
-        (rule.any.as_deref(), "any"),
-    ] {
-        let Some(conditions) = conditions else { continue };
+    for (conditions, clause) in [(rule.all.as_deref(), "all"), (rule.any.as_deref(), "any")] {
+        let Some(conditions) = conditions else {
+            continue;
+        };
 
         let dir_refs: Vec<&str> = conditions
             .iter()
             .filter_map(|c| {
                 if let Condition::Trait { id } = c {
-                    if !id.contains("::") { Some(id.as_str()) } else { None }
+                    if !id.contains("::") {
+                        Some(id.as_str())
+                    } else {
+                        None
+                    }
                 } else {
                     None
                 }

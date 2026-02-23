@@ -173,7 +173,7 @@ pub(crate) fn eval_ast<'a>(
                 precision: 0.0,
                 matched_trait_ids: Vec::new(),
             }
-        },
+        }
     };
 
     let mut parser = tree_sitter::Parser::new();
@@ -223,7 +223,7 @@ fn eval_ast_pattern_multi(
             evidence: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
-        matched_trait_ids: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -239,7 +239,7 @@ fn eval_ast_pattern_multi(
                     precision: 0.0,
                     matched_trait_ids: Vec::new(),
                 };
-            },
+            }
         },
         MatchMode::Exact => {
             let pattern_owned = pattern.to_string();
@@ -248,7 +248,7 @@ fn eval_ast_pattern_multi(
             } else {
                 Box::new(move |s: &str| s == pattern_owned)
             }
-        },
+        }
         MatchMode::Substr => {
             let pattern_owned = pattern.to_string();
             if case_insensitive {
@@ -257,7 +257,7 @@ fn eval_ast_pattern_multi(
             } else {
                 Box::new(move |s: &str| s.contains(&pattern_owned))
             }
-        },
+        }
     };
 
     // Walk the AST and find matching nodes
@@ -285,7 +285,7 @@ fn eval_ast_pattern_multi(
     // Pattern type specificity
     match match_mode {
         MatchMode::Exact | MatchMode::Regex => precision += 1.0, // Most specific / pattern matching
-        MatchMode::Substr => precision += 0.5, // Least specific
+        MatchMode::Substr => precision += 0.5,                   // Least specific
     }
 
     if case_insensitive {
@@ -333,7 +333,7 @@ fn walk_ast_for_pattern_multi<'a>(
 }
 
 /// Evaluate full tree-sitter query condition
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -> ConditionResult {
     // Only works for source code files
     let Ok(source) = std::str::from_utf8(ctx.binary_data) else {
@@ -376,7 +376,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
                 precision: 0.0,
                 matched_trait_ids: Vec::new(),
             };
-        },
+        }
     };
 
     let mut parser = tree_sitter::Parser::new();
@@ -407,7 +407,7 @@ pub(crate) fn eval_ast_query<'a>(query_str: &str, ctx: &EvaluationContext<'a>) -
             evidence: Vec::new(),
             warnings: vec![AnalysisWarning::AstTooDeep { max_depth: 0 }],
             precision: 0.0,
-        matched_trait_ids: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
     }
 

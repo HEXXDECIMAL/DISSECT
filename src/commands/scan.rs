@@ -114,17 +114,17 @@ pub(crate) fn run(
     // Kick off YARA loading on a background thread immediately — it's the slowest
     // initialization step (wasmtime JIT) and is independent of capability loading.
     let yara_disabled = disabled.yara;
-    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> =
-        if yara_disabled {
-            None
-        } else {
-            Some(std::thread::spawn(move || {
-                let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-                let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-                let (builtin, third_party) = engine.load_all_rules(enable_third_party);
-                (engine, builtin, third_party)
-            }))
-        };
+    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> = if yara_disabled
+    {
+        None
+    } else {
+        Some(std::thread::spawn(move || {
+            let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+            let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+            let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+            (engine, builtin, third_party)
+        }))
+    };
 
     // Load capability mapper while YARA compiles in the background.
     let capability_mapper = Arc::new(
@@ -139,9 +139,14 @@ pub(crate) fn run(
     // Join YARA thread now that the mapper is ready.
     // NOTE: set_capability_mapper removed - field is unused in YaraEngine
     let shared_yara_engine: Option<Arc<YaraEngine>> = if let Some(handle) = yara_handle {
-        let (engine, builtin, third_party) =
-            handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
-        if builtin + third_party > 0 { Some(Arc::new(engine)) } else { None }
+        let (engine, builtin, third_party) = handle
+            .join()
+            .unwrap_or_else(|e| std::panic::resume_unwind(e));
+        if builtin + third_party > 0 {
+            Some(Arc::new(engine))
+        } else {
+            None
+        }
     } else {
         None
     };
@@ -238,12 +243,12 @@ pub(crate) fn run(
                         match output::parse_jsonl(&json) {
                             Ok(report) => {
                                 print!("{}", output::format_terminal(&report));
-                            },
+                            }
                             Err(e) => {
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                            },
+                            }
                         }
-                    },
+                    }
                     cli::OutputFormat::Jsonl => {
                         // For JSONL, stream each file immediately
                         match output::parse_jsonl(&json) {
@@ -253,21 +258,23 @@ pub(crate) fn run(
                                         println!("{}", line);
                                     }
                                 }
-                            },
+                            }
                             Err(e) => {
                                 eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                            },
+                            }
                         }
-                    },
+                    }
                 }
-            },
+            }
             Err(e) => {
                 let err_str = e.to_string();
                 // Check if this is an --error-if failure - stop processing
                 if err_str.contains("--error-if") {
                     error_if_triggered.store(true, Ordering::Relaxed);
                     eprintln!("✗ {}: {}", path_str, e);
-                    let mut msg = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                    let mut msg = error_if_message
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
                     if msg.is_none() {
                         *msg = Some(err_str);
                     }
@@ -275,7 +282,7 @@ pub(crate) fn run(
                 }
 
                 eprintln!("✗ {}: {}", path_str, e);
-            },
+            }
         }
 
         Ok(())
@@ -314,10 +321,10 @@ pub(crate) fn run(
                     ) {
                         Ok(()) => {
                             // Files were already streamed via callback
-                        },
+                        }
                         Err(e) => {
                             eprintln!("✗ {}: {}", path_str, e);
-                        },
+                        }
                     }
                     return Ok(());
                 }
@@ -340,7 +347,7 @@ pub(crate) fn run(
                                 match output::parse_jsonl(&json) {
                                     Ok(report) => {
                                         print!("{}", output::format_terminal(&report));
-                                    },
+                                    }
                                     Err(e) => {
                                         eprintln!("DEBUG: JSON parse error: {}", e);
                                         eprintln!(
@@ -348,22 +355,24 @@ pub(crate) fn run(
                                             &json[..json.len().min(500)]
                                         );
                                         eprintln!("Error parsing JSON for {}: {}", path_str, e);
-                                    },
+                                    }
                                 }
-                            },
+                            }
                             cli::OutputFormat::Jsonl => {
                                 // Should not reach here - JSONL uses streaming path above
                                 tracing::warn!("Unexpected JSONL format in terminal output path");
-                            },
+                            }
                         }
-                    },
+                    }
                     Err(e) => {
                         let err_str = e.to_string();
                         // Check if this is an --error-if failure - stop processing
                         if err_str.contains("--error-if") {
                             error_if_triggered.store(true, Ordering::Relaxed);
                             eprintln!("✗ {}: {}", path_str, e);
-                            let mut msg = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                            let mut msg = error_if_message
+                                .lock()
+                                .unwrap_or_else(std::sync::PoisonError::into_inner);
                             if msg.is_none() {
                                 *msg = Some(err_str);
                             }
@@ -371,7 +380,7 @@ pub(crate) fn run(
                         }
 
                         eprintln!("✗ {}: {}", path_str, e);
-                    },
+                    }
                 }
 
                 Ok(())
@@ -389,7 +398,11 @@ pub(crate) fn run(
 
     // If --error-if was triggered, return the error
     if files_result.is_err() || archives_result.is_err() {
-        if let Some(msg) = error_if_message.lock().unwrap_or_else(std::sync::PoisonError::into_inner).take() {
+        if let Some(msg) = error_if_message
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .take()
+        {
             anyhow::bail!(msg);
         }
     }
@@ -400,7 +413,7 @@ pub(crate) fn run(
             // JSONL already streamed files above via analyze_archive_streaming_jsonl
             // Don't emit a summary - the individual file lines were already printed
             Ok(String::new())
-        },
+        }
         cli::OutputFormat::Terminal => Ok(String::new()),
     }
 }

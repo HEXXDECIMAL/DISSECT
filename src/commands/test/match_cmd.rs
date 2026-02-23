@@ -299,7 +299,7 @@ pub(crate) fn run(
                         ));
                     }
                     return Ok(out);
-                },
+                }
             };
 
             // Filter strings by offset range if location constraints are specified
@@ -441,23 +441,32 @@ pub(crate) fn run(
                 }
                 if !count_max_ok {
                     if let Some(max) = count_max {
-                        out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, max));
+                        out.push_str(&format!(
+                            "  count_max: {} > {} (FAILED)\n",
+                            match_count, max
+                        ));
                     }
                 }
                 if !per_kb_min_ok {
                     if let Some(min) = per_kb_min {
-                        out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, min));
+                        out.push_str(&format!(
+                            "  per_kb_min: {:.3} < {:.3} (FAILED)\n",
+                            density, min
+                        ));
                     }
                 }
                 if !per_kb_max_ok {
                     if let Some(max) = per_kb_max {
-                        out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, max));
+                        out.push_str(&format!(
+                            "  per_kb_max: {:.3} > {:.3} (FAILED)\n",
+                            density, max
+                        ));
                     }
                 }
             }
 
             (matched, match_count, out)
-        },
+        }
         cli::SearchType::Symbol => {
             let symbols: Vec<&str> = report
                 .imports
@@ -520,7 +529,7 @@ pub(crate) fn run(
             }
 
             (matched, matched_symbols.len(), out)
-        },
+        }
         cli::SearchType::Raw => {
             // Resolve effective range for content search
             let effective_range = resolve_effective_range(
@@ -546,7 +555,7 @@ pub(crate) fn run(
                         ));
                     }
                     return Ok(out);
-                },
+                }
             };
 
             // Slice binary data to effective range
@@ -570,7 +579,7 @@ pub(crate) fn run(
                     } else {
                         0
                     }
-                },
+                }
                 cli::MatchMethod::Contains => {
                     if external_ip {
                         // For external_ip, we need to check context around each match
@@ -591,7 +600,7 @@ pub(crate) fn run(
                     } else {
                         content.matches(pattern).count()
                     }
-                },
+                }
                 cli::MatchMethod::Regex => regex::Regex::new(pattern)
                     .map(|re| {
                         if external_ip {
@@ -616,7 +625,7 @@ pub(crate) fn run(
                             }
                         })
                         .unwrap_or(0)
-                },
+                }
             };
 
             // Use effective range size for density calculations
@@ -690,23 +699,32 @@ pub(crate) fn run(
                 }
                 if !count_max_ok {
                     if let Some(max) = count_max {
-                        out.push_str(&format!("  count_max: {} > {} (FAILED)\n", match_count, max));
+                        out.push_str(&format!(
+                            "  count_max: {} > {} (FAILED)\n",
+                            match_count, max
+                        ));
                     }
                 }
                 if !per_kb_min_ok {
                     if let Some(min) = per_kb_min {
-                        out.push_str(&format!("  per_kb_min: {:.3} < {:.3} (FAILED)\n", density, min));
+                        out.push_str(&format!(
+                            "  per_kb_min: {:.3} < {:.3} (FAILED)\n",
+                            density, min
+                        ));
                     }
                 }
                 if !per_kb_max_ok {
                     if let Some(max) = per_kb_max {
-                        out.push_str(&format!("  per_kb_max: {:.3} > {:.3} (FAILED)\n", density, max));
+                        out.push_str(&format!(
+                            "  per_kb_max: {:.3} > {:.3} (FAILED)\n",
+                            density, max
+                        ));
                     }
                 }
             }
 
             (matched, match_count, out)
-        },
+        }
         cli::SearchType::Kv => {
             let kv_path_str = kv_path.unwrap_or_default();
 
@@ -814,7 +832,7 @@ pub(crate) fn run(
 
                 (false, 0, out)
             }
-        },
+        }
         cli::SearchType::Hex => {
             use composite_rules::evaluators::eval_hex;
             use composite_rules::SectionMap;
@@ -1017,7 +1035,7 @@ pub(crate) fn run(
             }
 
             (result.matched, match_count, out)
-        },
+        }
         cli::SearchType::Encoded => {
             // Search in encoded/decoded strings with optional encoding filter
             // Parse encoding parameter: single ("base64"), multiple ("base64,hex"), or None (all)
@@ -1037,7 +1055,7 @@ pub(crate) fn run(
                         Some(filters) => {
                             // Accept if ANY filter matches (OR logic)
                             filters.iter().any(|enc| s.encoding_chain.contains(enc))
-                        },
+                        }
                     }
                 })
                 .map(|s| s.value.as_str())
@@ -1148,16 +1166,14 @@ pub(crate) fn run(
                 if encoded_strings.is_empty() {
                     out.push_str("  No encoded strings found in this file\n");
                     if encoding_filter.is_some() {
-                        out.push_str(
-                            "  Try removing --encoding to search all encoded strings\n",
-                        );
+                        out.push_str("  Try removing --encoding to search all encoded strings\n");
                     }
                     out.push_str("  Try `--type string` or `--type raw` instead\n");
                 }
             }
 
             (matched, match_count, out)
-        },
+        }
         cli::SearchType::Section => {
             // Search for sections by name, size, and/or entropy
             // count_min/count_max = number of matching sections
@@ -1190,7 +1206,7 @@ pub(crate) fn run(
                         } else {
                             false
                         }
-                    },
+                    }
                     cli::MatchMethod::Word => {
                         // Word boundary match
                         let word_pattern = format!(r"\b{}\b", regex::escape(&pat));
@@ -1199,7 +1215,7 @@ pub(crate) fn run(
                         } else {
                             false
                         }
-                    },
+                    }
                 }
             };
 
@@ -1303,9 +1319,7 @@ pub(crate) fn run(
                 out.push_str(&format!("\n{}\n", "NOT MATCHED".red().bold()));
                 if report.sections.is_empty() {
                     out.push_str("  No sections found (not a binary file?)\n");
-                    out.push_str(
-                        "  Section search only works on ELF, PE, and Mach-O binaries\n",
-                    );
+                    out.push_str("  Section search only works on ELF, PE, and Mach-O binaries\n");
                 } else {
                     out.push_str(&format!(
                         "Found 0 matching sections (out of {} total)\n",
@@ -1326,7 +1340,7 @@ pub(crate) fn run(
             }
 
             (matched, match_count, out)
-        },
+        }
         cli::SearchType::Metrics => {
             // Test metrics conditions using eval_metrics
             let field = pattern;
@@ -1442,7 +1456,7 @@ pub(crate) fn run(
             }
 
             (matched, match_count, out)
-        },
+        }
     };
 
     // If not matched, provide suggestions
@@ -1481,19 +1495,21 @@ pub(crate) fn run(
                 // Check if pattern exists in content
                 let content = String::from_utf8_lossy(&binary_data);
                 let content_matched = match method {
-                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => {
+                        content.contains(pattern)
+                    }
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                    },
+                    }
                     cli::MatchMethod::Word => {
                         let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                         regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
-                    },
+                    }
                 };
                 if content_matched {
                     output.push_str("  Found in content - try `--type raw`\n");
                 }
-            },
+            }
             cli::SearchType::Symbol => {
                 // Check if pattern exists in strings (try exact first, then contains)
                 let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
@@ -1551,19 +1567,21 @@ pub(crate) fn run(
                 // Check if pattern exists in content
                 let content = String::from_utf8_lossy(&binary_data);
                 let content_matched = match method {
-                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
+                    cli::MatchMethod::Exact | cli::MatchMethod::Contains => {
+                        content.contains(pattern)
+                    }
                     cli::MatchMethod::Regex => {
                         regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                    },
+                    }
                     cli::MatchMethod::Word => {
                         let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                         regex::Regex::new(&word_pattern).is_ok_and(|re| re.is_match(&content))
-                    },
+                    }
                 };
                 if content_matched {
                     output.push_str("  Found in content - try `--type raw`\n");
                 }
-            },
+            }
             cli::SearchType::Raw => {
                 // Check if pattern exists in strings
                 let strings: Vec<&str> = report.strings.iter().map(|s| s.value.as_str()).collect();
@@ -1617,19 +1635,18 @@ pub(crate) fn run(
                         symbol_matches.len()
                     ));
                 }
-            },
+            }
             cli::SearchType::Kv => {
                 // No cross-search suggestions for kv - it's a different paradigm
                 output.push_str("  Check that the path exists in the file structure\n");
                 output.push_str("  Try without a pattern for existence check\n");
-            },
+            }
             cli::SearchType::Hex => {
                 // Suggest content search as alternative
                 output.push_str("  Try --type raw for string-based search\n");
                 output.push_str("  Ensure hex pattern has correct format: \"7F 45 4C 46\"\n");
-                output
-                    .push_str("  Try --offset or --offset-range to target specific locations\n");
-            },
+                output.push_str("  Try --offset or --offset-range to target specific locations\n");
+            }
             cli::SearchType::Encoded => {
                 output.push_str(
                     "  Encoded search looks for decoded strings (base64, hex, xor, etc.)\n",
@@ -1637,7 +1654,7 @@ pub(crate) fn run(
                 output.push_str("  Use --encoding to filter by type: --encoding base64\n");
                 output.push_str("  Try `--type string` for regular strings\n");
                 output.push_str("  Try `--type raw` for raw content search\n");
-            },
+            }
             cli::SearchType::Section => {
                 output.push_str("  Section search matches binary section metadata\n");
                 if pattern.is_empty()
@@ -1649,11 +1666,9 @@ pub(crate) fn run(
                     && count_max.is_none()
                 {
                     output.push_str("  Specify --pattern for name matching\n");
+                    output.push_str("  Use --entropy-min/--entropy-max for entropy constraints\n");
                     output
-                        .push_str("  Use --entropy-min/--entropy-max for entropy constraints\n");
-                    output.push_str(
-                        "  Use --length-min/--length-max for section size constraints\n",
-                    );
+                        .push_str("  Use --length-min/--length-max for section size constraints\n");
                     output.push_str(
                         "  Use --count-min/--count-max for number of matching sections\n",
                     );
@@ -1669,14 +1684,11 @@ pub(crate) fn run(
                             .join(", ")
                     ));
                 }
-            },
+            }
             cli::SearchType::Metrics => {
-                output.push_str(
-                    "  Metrics search tests computed file metrics against thresholds\n",
-                );
-                output.push_str(
-                    "  Use --pattern for field path (e.g., 'binary.avg_complexity')\n",
-                );
+                output
+                    .push_str("  Metrics search tests computed file metrics against thresholds\n");
+                output.push_str("  Use --pattern for field path (e.g., 'binary.avg_complexity')\n");
                 output.push_str("  Use --value-min/--value-max for thresholds\n");
                 output.push_str("  Use --min-size/--max-size for file size constraints\n");
                 if let Some(metrics) = &report.metrics {
@@ -1699,7 +1711,7 @@ pub(crate) fn run(
                 } else {
                     output.push_str("  No metrics available for this file type\n");
                 }
-            },
+            }
         }
 
         // Suggest alternative match methods
@@ -1708,15 +1720,15 @@ pub(crate) fn run(
             cli::MatchMethod::Exact | cli::MatchMethod::Word => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method regex (pattern match)\n");
-            },
+            }
             cli::MatchMethod::Contains => {
                 output.push_str("    --method exact (exact match)\n");
                 output.push_str("    --method regex (pattern match)\n");
-            },
+            }
             cli::MatchMethod::Regex => {
                 output.push_str("    --method contains (substring match)\n");
                 output.push_str("    --method exact (exact match)\n");
-            },
+            }
         }
 
         // Check if pattern would match with different file types
@@ -1752,8 +1764,11 @@ pub(crate) fn run(
                     // Quick check if search would work with this type
                     let would_match = match search_type {
                         cli::SearchType::String => {
-                            let strings: Vec<&str> =
-                                alt_report.strings.iter().map(|s| s.value.as_str()).collect();
+                            let strings: Vec<&str> = alt_report
+                                .strings
+                                .iter()
+                                .map(|s| s.value.as_str())
+                                .collect();
                             let exact = if method == cli::MatchMethod::Exact {
                                 Some(pattern.to_string())
                             } else {
@@ -1783,7 +1798,7 @@ pub(crate) fn run(
                                 case_insensitive,
                             );
                             !matches.is_empty()
-                        },
+                        }
                         cli::SearchType::Symbol => {
                             let symbols: Vec<&str> = alt_report
                                 .imports
@@ -1805,21 +1820,23 @@ pub(crate) fn run(
                             let matches =
                                 find_matching_symbols(&symbols, &exact, &None, &regex, false);
                             !matches.is_empty()
-                        },
+                        }
                         cli::SearchType::Raw => {
                             let content = String::from_utf8_lossy(&binary_data);
                             match method {
-                                cli::MatchMethod::Exact | cli::MatchMethod::Contains => content.contains(pattern),
+                                cli::MatchMethod::Exact | cli::MatchMethod::Contains => {
+                                    content.contains(pattern)
+                                }
                                 cli::MatchMethod::Regex => {
                                     regex::Regex::new(pattern).is_ok_and(|re| re.is_match(&content))
-                                },
+                                }
                                 cli::MatchMethod::Word => {
                                     let word_pattern = format!(r"\b{}\b", regex::escape(pattern));
                                     regex::Regex::new(&word_pattern)
                                         .is_ok_and(|re| re.is_match(&content))
-                                },
+                                }
                             }
-                        },
+                        }
                         cli::SearchType::Kv
                         | cli::SearchType::Hex
                         | cli::SearchType::Encoded

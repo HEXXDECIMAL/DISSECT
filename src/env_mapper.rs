@@ -5,7 +5,7 @@
 use crate::types::*;
 
 /// Extract environment variable access from strings and categorize them
-#[must_use] 
+#[must_use]
 pub(crate) fn extract_envvars_from_strings(strings: &[StringInfo]) -> Vec<EnvVarInfo> {
     let mut env_vars = Vec::new();
 
@@ -29,7 +29,9 @@ fn is_env_var_name(s: &str) -> bool {
     }
 
     // Must be all uppercase with underscores or numbers
-    let valid_chars = s.chars().all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
+    let valid_chars = s
+        .chars()
+        .all(|c| c.is_ascii_uppercase() || c == '_' || c.is_ascii_digit());
     if !valid_chars {
         return false;
     }

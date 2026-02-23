@@ -41,7 +41,7 @@ const MAX_CODE_ENTROPY: f64 = 7.5;
 /// For strings extracted by stng, classification is already done (no regex needed).
 /// For strings from tree-sitter AST, we classify using stng::classify_string().
 /// Returns Some(FileType) if code is detected, None otherwise.
-#[must_use] 
+#[must_use]
 pub fn detect_language(string_info: &StringInfo, is_encoded: bool) -> Option<FileType> {
     let value = &string_info.value;
 
@@ -81,9 +81,9 @@ pub fn detect_language(string_info: &StringInfo, is_encoded: bool) -> Option<Fil
                 StringType::JavaScriptCode => return Some(FileType::JavaScript),
                 StringType::PhpCode => return Some(FileType::Php),
                 StringType::ShellCmd => return Some(FileType::Shell),
-                _ => {},
+                _ => {}
             }
-        },
+        }
     }
 
     None
@@ -354,17 +354,17 @@ pub(crate) fn process_all_strings(
                 total_bytes += string_info.value.len();
                 total_analyzed += 1;
                 encoded_layers.push(*file_analysis);
-            },
+            }
             Ok(EmbeddedAnalysisResult::PlainEmbedded(findings)) => {
                 detected_count += 1;
                 total_bytes += string_info.value.len();
                 total_analyzed += 1;
                 plain_findings.extend(findings);
-            },
+            }
             Err(_) => {
                 // Not code or analysis failed - skip silently
                 continue;
-            },
+            }
         }
     }
 

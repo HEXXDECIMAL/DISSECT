@@ -29,12 +29,12 @@
 //! validate_composite_trait_only(&composite_rule, &mut warnings);
 //! ```
 
-mod precision;
 mod composite;
 mod constraints;
+mod duplicates;
 mod helpers;
 mod patterns;
-mod duplicates;
+mod precision;
 mod taxonomy;
 
 // Shared types used across validation modules
@@ -92,8 +92,8 @@ pub(crate) use duplicates::{
     check_regex_alternative_subsets, check_regex_contains_literal,
     check_regex_or_overlapping_exact, check_regex_should_be_exact,
     check_same_string_different_types, find_alternation_merge_candidates,
-    find_duplicate_traits_and_composites, find_for_only_duplicates,
-    find_string_content_collisions, find_string_pattern_duplicates,
+    find_duplicate_traits_and_composites, find_for_only_duplicates, find_string_content_collisions,
+    find_string_pattern_duplicates,
 };
 
 // Composite rule validation
@@ -103,7 +103,9 @@ pub(crate) use composite::{
 };
 
 // Pattern quality checks
-pub(crate) use patterns::{find_non_capturing_groups, find_short_pattern_warnings, find_slow_regex_patterns};
+pub(crate) use patterns::{
+    find_non_capturing_groups, find_short_pattern_warnings, find_slow_regex_patterns,
+};
 
 // Taxonomy validation
 pub(crate) use taxonomy::{

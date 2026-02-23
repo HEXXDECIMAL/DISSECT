@@ -206,7 +206,7 @@ fn value_to_string(value: &Value) -> String {
 ///
 /// Only recognizes known manifest filenames to avoid processing arbitrary structured data files.
 /// This ensures we only parse files we have explicit support for.
-#[must_use] 
+#[must_use]
 pub(crate) fn detect_format(path: &Path, content: &[u8]) -> StructuredFormat {
     let path_str = path.to_string_lossy().to_lowercase();
 
@@ -299,7 +299,7 @@ pub(crate) fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
                     segments.push(PathSegment::Key(current_key.clone()));
                     current_key.clear();
                 }
-            },
+            }
             '[' => {
                 if !current_key.is_empty() {
                     segments.push(PathSegment::Key(current_key.clone()));
@@ -325,10 +325,10 @@ pub(crate) fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
                 } else {
                     return Err(format!("invalid array index: [{}]", index_str));
                 }
-            },
+            }
             _ => {
                 current_key.push(c);
-            },
+            }
         }
     }
 
@@ -346,7 +346,7 @@ pub(crate) fn parse_path(path: &str) -> Result<Vec<PathSegment>, String> {
 /// Navigate to a path in a JSON value and return all matching values.
 ///
 /// Wildcards expand to multiple values.
-#[must_use] 
+#[must_use]
 pub(crate) fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'a Value> {
     if segments.is_empty() {
         return vec![value];
@@ -363,7 +363,7 @@ pub(crate) fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'
                 }
             }
             Vec::new()
-        },
+        }
         PathSegment::Index(idx) => {
             if let Value::Array(arr) = value {
                 if let Some(v) = arr.get(*idx) {
@@ -371,7 +371,7 @@ pub(crate) fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'
                 }
             }
             Vec::new()
-        },
+        }
         PathSegment::Wildcard => {
             if let Value::Array(arr) = value {
                 let mut results = Vec::new();
@@ -381,7 +381,7 @@ pub(crate) fn navigate<'a>(value: &'a Value, segments: &[PathSegment]) -> Vec<&'
                 return results;
             }
             Vec::new()
-        },
+        }
     }
 }
 
@@ -446,12 +446,12 @@ fn insert_pkginfo_value(map: &mut serde_json::Map<String, Value>, key: &str, val
         match existing {
             Value::Array(arr) => {
                 arr.push(Value::String(value));
-            },
+            }
             Value::String(s) => {
                 let old = s.clone();
                 *existing = Value::Array(vec![Value::String(old), Value::String(value)]);
-            },
-            _ => {},
+            }
+            _ => {}
         }
     } else {
         map.insert(normalized_key, Value::String(value));
@@ -499,7 +499,9 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
     }
 
     // Check cached format, detect if not cached
-    let format = ctx.cached_kv_format.get_or_init(|| detect_format(file_path, content));
+    let format = ctx
+        .cached_kv_format
+        .get_or_init(|| detect_format(file_path, content));
 
     // If format is unknown, no need to parse
     if *format == StructuredFormat::Unknown {
@@ -511,11 +513,9 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
         let parsed_value: Option<Value> = match format {
             StructuredFormat::Json => serde_json::from_slice(content).ok(),
             StructuredFormat::Yaml => serde_yaml::from_slice(content).ok(),
-            StructuredFormat::Toml => {
-                std::str::from_utf8(content)
-                    .ok()
-                    .and_then(|s| toml::from_str(s).ok())
-            }
+            StructuredFormat::Toml => std::str::from_utf8(content)
+                .ok()
+                .and_then(|s| toml::from_str(s).ok()),
             StructuredFormat::Plist => plist::from_bytes(content).ok(),
             StructuredFormat::PkgInfo => parse_pkginfo(content),
             StructuredFormat::Unknown => None,
@@ -637,14 +637,17 @@ fn format_evidence_value(value: &Value) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
     use crate::composite_rules::context::EvaluationContext;
     use crate::composite_rules::types::{FileType, Platform};
     use crate::types::{AnalysisReport, TargetInfo};
+    use serde_json::json;
     use std::sync::OnceLock;
 
     /// Helper to create evaluation context for testing
-    fn create_test_ctx<'a>(binary_data: &'a [u8], path: &'a std::path::Path) -> EvaluationContext<'a> {
+    fn create_test_ctx<'a>(
+        binary_data: &'a [u8],
+        path: &'a std::path::Path,
+    ) -> EvaluationContext<'a> {
         // Create minimal report with the path we need
         let report = Box::leak(Box::new(AnalysisReport::new(TargetInfo {
             path: path.display().to_string(),
@@ -671,7 +674,11 @@ mod tests {
     }
 
     /// Test wrapper for evaluate_kv that creates context automatically
-    fn evaluate_kv_test(condition: &Condition, data: &[u8], path: &std::path::Path) -> Option<Evidence> {
+    fn evaluate_kv_test(
+        condition: &Condition,
+        data: &[u8],
+        path: &std::path::Path,
+    ) -> Option<Evidence> {
         let ctx = create_test_ctx(data, path);
         evaluate_kv(condition, &ctx)
     }
@@ -1079,7 +1086,11 @@ mod tests {
         // Array with 2 elements containing "alice" should pass
         assert!(matcher.matches(&json!(["bob@example.com", "alice@example.com"])));
         // Array with 3 elements should fail (exceeds size_max)
-        assert!(!matcher.matches(&json!(["alice@example.com", "bob@example.com", "charlie@example.com"])));
+        assert!(!matcher.matches(&json!([
+            "alice@example.com",
+            "bob@example.com",
+            "charlie@example.com"
+        ])));
         // Array with 1 element NOT containing "alice" should fail (string match fails)
         assert!(!matcher.matches(&json!(["bob@example.com"])));
     }
@@ -1231,10 +1242,13 @@ mod tests {
     #[test]
     fn test_excessive_keywords_detection() {
         let keywords: Vec<String> = (0..35).map(|i| format!("keyword{}", i)).collect();
-        let package_json = format!(r#"{{
+        let package_json = format!(
+            r#"{{
             "name": "seo-spam-package",
             "keywords": {:?}
-        }}"#, keywords);
+        }}"#,
+            keywords
+        );
         let path = Path::new("package.json");
 
         // 30+ keywords (SEO spam)

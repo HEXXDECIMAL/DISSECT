@@ -73,7 +73,7 @@ impl super::JavaClassAnalyzer {
                     let s = String::from_utf8_lossy(&data[pos..pos + length]).to_string();
                     constant_pool[i] = ConstantPoolEntry::Utf8(s);
                     pos += length;
-                },
+                }
                 7 => {
                     // Class
                     if pos + 2 > data.len() {
@@ -82,7 +82,7 @@ impl super::JavaClassAnalyzer {
                     let name_index = u16::from_be_bytes([data[pos], data[pos + 1]]);
                     constant_pool[i] = ConstantPoolEntry::Class(name_index);
                     pos += 2;
-                },
+                }
                 8 => {
                     // String
                     if pos + 2 > data.len() {
@@ -90,7 +90,7 @@ impl super::JavaClassAnalyzer {
                     }
                     constant_pool[i] = ConstantPoolEntry::String(());
                     pos += 2;
-                },
+                }
                 10 => {
                     // Methodref
                     if pos + 4 > data.len() {
@@ -98,7 +98,7 @@ impl super::JavaClassAnalyzer {
                     }
                     constant_pool[i] = ConstantPoolEntry::MethodRef((), ());
                     pos += 4;
-                },
+                }
                 12 => {
                     // NameAndType
                     if pos + 4 > data.len() {
@@ -106,7 +106,7 @@ impl super::JavaClassAnalyzer {
                     }
                     constant_pool[i] = ConstantPoolEntry::NameAndType((), ());
                     pos += 4;
-                },
+                }
                 3 => {
                     // Integer
                     if pos + 4 > data.len() {
@@ -114,7 +114,7 @@ impl super::JavaClassAnalyzer {
                     }
                     constant_pool[i] = ConstantPoolEntry::Integer(());
                     pos += 4;
-                },
+                }
                 4 => {
                     // Float
                     if pos + 4 > data.len() {
@@ -122,7 +122,7 @@ impl super::JavaClassAnalyzer {
                     }
                     constant_pool[i] = ConstantPoolEntry::Float(());
                     pos += 4;
-                },
+                }
                 5 => {
                     // Long (takes 2 slots)
                     if pos + 8 > data.len() {
@@ -134,7 +134,7 @@ impl super::JavaClassAnalyzer {
                     if i < constant_pool_count {
                         constant_pool[i] = ConstantPoolEntry::Empty;
                     }
-                },
+                }
                 6 => {
                     // Double (takes 2 slots)
                     if pos + 8 > data.len() {
@@ -146,7 +146,7 @@ impl super::JavaClassAnalyzer {
                     if i < constant_pool_count {
                         constant_pool[i] = ConstantPoolEntry::Empty;
                     }
-                },
+                }
                 _ => {
                     // Skip unknown types
                     pos += match tag {
@@ -155,7 +155,7 @@ impl super::JavaClassAnalyzer {
                         16 => 2,          // MethodType
                         _ => 0,
                     };
-                },
+                }
             }
             i += 1;
         }
@@ -170,13 +170,13 @@ impl super::JavaClassAnalyzer {
                     if self.is_interesting_string(s) {
                         strings.insert(s.clone());
                     }
-                },
+                }
                 ConstantPoolEntry::Class(idx) => {
                     if let Some(ConstantPoolEntry::Utf8(name)) = constant_pool.get(*idx as usize) {
                         class_refs.insert(name.clone());
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
 

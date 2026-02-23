@@ -183,19 +183,21 @@ impl<'a> ScptParser<'a> {
 
         // Extract version string (bytes 8-16)
         let version_bytes = &data[8..16];
-        let version = String::from_utf8_lossy(version_bytes).trim_end_matches('\0').to_string();
+        let version = String::from_utf8_lossy(version_bytes)
+            .trim_end_matches('\0')
+            .to_string();
 
         Ok(Self { data, version })
     }
 
     /// Get the AppleScript version string
-    #[must_use] 
+    #[must_use]
     pub fn version(&self) -> &str {
         &self.version
     }
 
     /// Check if this is a valid compiled AppleScript file
-    #[must_use] 
+    #[must_use]
     pub fn is_valid(&self) -> bool {
         // Check for footer magic ("ascr") and terminator ("fade dead")
         self.find_footer().is_some() && self.find_terminator().is_some()
@@ -219,7 +221,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Extract all symbols from the compiled AppleScript
-    #[must_use] 
+    #[must_use]
     pub fn symbols(&self) -> Vec<Symbol> {
         let mut symbols = Vec::new();
         let mut seen: HashSet<(String, SymbolKind)> = HashSet::new();
@@ -522,7 +524,8 @@ impl<'a> ScptParser<'a> {
             return false;
         }
 
-        s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+        s.chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
     }
 
     fn is_interesting_string(s: &str) -> bool {
@@ -598,7 +601,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Get Apple Event information for known event codes in this script
-    #[must_use] 
+    #[must_use]
     pub fn apple_events(&self) -> Vec<AppleEventInfo> {
         let mut events = Vec::new();
         let mut seen = HashSet::new();
@@ -626,7 +629,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Get variable names defined in this script
-    #[must_use] 
+    #[must_use]
     pub fn variables(&self) -> Vec<String> {
         self.symbols()
             .into_iter()
@@ -636,7 +639,7 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Check if this script contains a specific Apple Event
-    #[must_use] 
+    #[must_use]
     pub fn has_apple_event(&self, class: &str, event: &str) -> bool {
         for ae in self.apple_events() {
             if ae.class_code == class && ae.event_code == event {
@@ -647,20 +650,20 @@ impl<'a> ScptParser<'a> {
     }
 
     /// Check if this script uses "do shell script"
-    #[must_use] 
+    #[must_use]
     pub fn uses_shell_script(&self) -> bool {
         self.has_apple_event("syso", "exec")
     }
 
     /// Check if this script uses delay
-    #[must_use] 
+    #[must_use]
     pub fn uses_delay(&self) -> bool {
         self.has_apple_event("syso", "dela")
     }
 }
 
 /// Check if a byte slice starts with the scpt magic
-#[must_use] 
+#[must_use]
 pub fn is_scpt(data: &[u8]) -> bool {
     data.len() >= 8 && data.starts_with(SCPT_MAGIC)
 }

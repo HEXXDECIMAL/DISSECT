@@ -17,7 +17,7 @@ pub(crate) struct VsixManifestAnalyzer {
 }
 
 impl VsixManifestAnalyzer {
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
@@ -25,14 +25,14 @@ impl VsixManifestAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
@@ -98,8 +98,12 @@ impl VsixManifestAnalyzer {
         }
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None, None);
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            None,
+            None,
+        );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["roxmltree".to_string()];
@@ -124,7 +128,11 @@ impl Analyzer for VsixManifestAnalyzer {
     fn can_analyze(&self, file_path: &Path) -> bool {
         file_path
             .file_name()
-            .map(|n| n.to_string_lossy().to_lowercase().ends_with(".vsixmanifest"))
+            .map(|n| {
+                n.to_string_lossy()
+                    .to_lowercase()
+                    .ends_with(".vsixmanifest")
+            })
             .unwrap_or(false)
     }
 }

@@ -17,14 +17,14 @@ pub(crate) enum CommentStyle {
 }
 
 /// Extract and analyze comments from source code
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_comments(content: &str, style: CommentStyle) -> CommentMetrics {
     let comments = extract_comments(content, style);
     analyze_comment_list(&comments, content)
 }
 
 /// Analyze a list of already-extracted comments
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_comment_list(comments: &[String], full_content: &str) -> CommentMetrics {
     let mut metrics = CommentMetrics::default();
 
@@ -342,7 +342,10 @@ fn has_code_patterns(s: &str) -> bool {
     ];
 
     let lower = s.to_lowercase();
-    let count = patterns.iter().filter(|p| lower.contains(&p.to_lowercase())).count();
+    let count = patterns
+        .iter()
+        .filter(|p| lower.contains(&p.to_lowercase()))
+        .count();
 
     // Multiple code patterns suggest actual code
     count >= 2
@@ -446,5 +449,4 @@ mod tests {
         let comments = extract_lua_comments(code);
         assert_eq!(comments.len(), 2);
     }
-
 }

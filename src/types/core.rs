@@ -181,8 +181,8 @@ impl AnalysisReport {
     where
         F: Fn(&Finding) -> bool,
     {
-        let initial_count = self.findings.len()
-            + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
+        let initial_count =
+            self.findings.len() + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
 
         // Filter top-level findings
         self.findings.retain(&predicate);
@@ -192,13 +192,13 @@ impl AnalysisReport {
             file.findings.retain(&predicate);
         }
 
-        let final_count = self.findings.len()
-            + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
+        let final_count =
+            self.findings.len() + self.files.iter().map(|f| f.findings.len()).sum::<usize>();
 
         initial_count - final_count
     }
 
-/// Shrink all Vec fields to fit their contents, freeing excess capacity.
+    /// Shrink all Vec fields to fit their contents, freeing excess capacity.
     /// Call this after analysis is complete to reduce memory footprint.
     pub fn shrink_to_fit(&mut self) {
         self.traits.shrink_to_fit();
@@ -220,7 +220,7 @@ impl AnalysisReport {
 
     /// Get the highest criticality level from findings in this report (excluding sub-reports)
     /// Returns None if there are no findings
-    #[must_use] 
+    #[must_use]
     pub fn highest_criticality(&self) -> Option<Criticality> {
         self.findings.iter().map(|f| f.crit).max()
     }
@@ -275,7 +275,7 @@ impl AnalysisReport {
     ///
     /// This is used internally by convert_to_v2() and by archive analyzers
     /// to convert per-file reports into the flat files array structure.
-    #[must_use] 
+    #[must_use]
     pub fn to_file_analysis(&self, id: u32, verbose: bool) -> FileAnalysis {
         let mut file = FileAnalysis::new(
             id,
@@ -307,7 +307,6 @@ impl AnalysisReport {
 
         file
     }
-
 }
 
 /// Information about the file being analyzed

@@ -8,7 +8,7 @@ use crate::types::TextMetrics;
 use std::collections::HashMap;
 
 /// Analyze raw text content and produce TextMetrics
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_text(content: &str) -> TextMetrics {
     let bytes = content.as_bytes();
     let mut metrics = TextMetrics::default();
@@ -264,7 +264,7 @@ fn count_escapes(content: &str) -> (u32, u32, u32) {
                         i += 4;
                         continue;
                     }
-                },
+                }
                 b'u' => {
                     // \uNNNN or \u{...}
                     if i + 5 < len {
@@ -272,7 +272,7 @@ fn count_escapes(content: &str) -> (u32, u32, u32) {
                         i += 2;
                         continue;
                     }
-                },
+                }
                 b'U' => {
                     // \UNNNNNNNN
                     if i + 9 < len {
@@ -280,14 +280,14 @@ fn count_escapes(content: &str) -> (u32, u32, u32) {
                         i += 2;
                         continue;
                     }
-                },
+                }
                 b'0'..=b'7' => {
                     // Octal escape \NNN
                     octal_count += 1;
                     i += 2;
                     continue;
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
         i += 1;
@@ -298,7 +298,10 @@ fn count_escapes(content: &str) -> (u32, u32, u32) {
 
 /// Count tokens longer than 100 characters without spaces
 fn count_long_tokens(content: &str) -> u32 {
-    content.split_whitespace().filter(|token| token.len() > 100).count() as u32
+    content
+        .split_whitespace()
+        .filter(|token| token.len() > 100)
+        .count() as u32
 }
 
 /// Count sequences of 10+ repeated characters

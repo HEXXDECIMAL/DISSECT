@@ -25,7 +25,6 @@ fn ansi_strip_regex() -> &'static regex::Regex {
     RE.get_or_init(|| regex::Regex::new(r"\x1b\[[0-9;]*m").expect("valid regex"))
 }
 
-
 /// Extract directory path from trait ID (everything except the last component)
 /// e.g., "execution/command/subprocess/popen" -> "execution/command/subprocess"
 /// e.g., "malware/cryptominer/monero/wallet-address" -> "malware/cryptominer/monero"
@@ -90,7 +89,7 @@ pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Findi
                         matched_traits: vec![finding.id.clone()],
                     },
                 );
-            },
+            }
             Some(agg) => {
                 // Add this trait ID to the list
                 if !agg.matched_traits.contains(&finding.id) {
@@ -105,7 +104,7 @@ pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Findi
                 if should_replace {
                     agg.best = finding.clone();
                 }
-            },
+            }
         }
     }
 
@@ -124,7 +123,6 @@ pub(crate) fn aggregate_findings_by_directory(findings: &[Finding]) -> Vec<Findi
     result.extend(internal_findings);
     result
 }
-
 
 /// Get risk emoji based on criticality
 #[allow(dead_code)] // Used by binary target
@@ -206,7 +204,7 @@ fn namespace_long_name(ns: &str) -> String {
         None => {
             // Full uppercase and replace hyphens with spaces for unknown namespaces
             ns.replace('-', " ").to_uppercase()
-        },
+        }
     }
 }
 
@@ -314,7 +312,9 @@ fn format_jsonl_summary(report: &AnalysisReport) -> Result<String> {
 
     let entry = JsonlSummary {
         entry_type: "summary",
-        files_analyzed: summary.map(|s| s.files_analyzed).unwrap_or(report.files.len() as u32),
+        files_analyzed: summary
+            .map(|s| s.files_analyzed)
+            .unwrap_or(report.files.len() as u32),
         hostile: counts.map(|c| c.hostile).unwrap_or(0),
         suspicious: counts.map(|c| c.suspicious).unwrap_or(0),
         notable: counts.map(|c| c.notable).unwrap_or(0),
@@ -364,7 +364,7 @@ pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                 // Parse as FileAnalysis
                 let file: crate::types::FileAnalysis = serde_json::from_value(value)?;
                 files.push(file);
-            },
+            }
             Some("summary") => {
                 // Extract summary metadata
                 if let Some(sv) = value.get("schema_version").and_then(|v| v.as_str()) {
@@ -381,14 +381,21 @@ pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                     scanned_path = sp.as_str().map(std::string::ToString::to_string);
                 }
                 if let Some(tools) = value.get("tools_used").and_then(|v| v.as_array()) {
-                    metadata.tools_used =
-                        tools.iter().filter_map(|v| v.as_str().map(std::string::ToString::to_string)).collect();
+                    metadata.tools_used = tools
+                        .iter()
+                        .filter_map(|v| v.as_str().map(std::string::ToString::to_string))
+                        .collect();
                 }
                 if let Some(errors) = value.get("errors").and_then(|v| v.as_array()) {
-                    metadata.errors =
-                        errors.iter().filter_map(|v| v.as_str().map(std::string::ToString::to_string)).collect();
+                    metadata.errors = errors
+                        .iter()
+                        .filter_map(|v| v.as_str().map(std::string::ToString::to_string))
+                        .collect();
                 }
-                if let Some(duration) = value.get("analysis_duration_ms").and_then(serde_json::Value::as_u64) {
+                if let Some(duration) = value
+                    .get("analysis_duration_ms")
+                    .and_then(serde_json::Value::as_u64)
+                {
                     metadata.analysis_duration_ms = duration;
                 }
                 summary = Some(crate::types::ReportSummary {
@@ -398,17 +405,25 @@ pub(crate) fn parse_jsonl(jsonl: &str) -> Result<AnalysisReport> {
                         .unwrap_or(files.len() as u64) as u32,
                     max_depth: 0,
                     counts: crate::types::FindingCounts {
-                        hostile: value.get("hostile").and_then(serde_json::Value::as_u64).unwrap_or(0) as u32,
-                        suspicious: value.get("suspicious").and_then(serde_json::Value::as_u64).unwrap_or(0)
-                            as u32,
-                        notable: value.get("notable").and_then(serde_json::Value::as_u64).unwrap_or(0) as u32,
+                        hostile: value
+                            .get("hostile")
+                            .and_then(serde_json::Value::as_u64)
+                            .unwrap_or(0) as u32,
+                        suspicious: value
+                            .get("suspicious")
+                            .and_then(serde_json::Value::as_u64)
+                            .unwrap_or(0) as u32,
+                        notable: value
+                            .get("notable")
+                            .and_then(serde_json::Value::as_u64)
+                            .unwrap_or(0) as u32,
                     },
                     max_risk: None,
                 });
-            },
+            }
             _ => {
                 // Unknown entry type, skip
-            },
+            }
         }
     }
 
@@ -490,7 +505,7 @@ pub(crate) fn format_terminal(report: &AnalysisReport) -> String {
                 Criticality::Hostile => hostile_count += 1,
                 Criticality::Suspicious => suspicious_count += 1,
                 Criticality::Notable => notable_count += 1,
-                _ => {},
+                _ => {}
             }
         }
 
@@ -575,10 +590,10 @@ pub(crate) fn format_terminal(report: &AnalysisReport) -> String {
                 let content = match finding.crit {
                     Criticality::Hostile => {
                         format!("{} {} — {}", emoji, trait_id, desc).bright_red()
-                    },
+                    }
                     Criticality::Suspicious => {
                         format!("{} {} — {}", emoji, trait_id, desc).bright_yellow()
-                    },
+                    }
                     _ => format!("{} {} — {}", emoji, trait_id, desc).bright_cyan(),
                 };
 
@@ -586,8 +601,9 @@ pub(crate) fn format_terminal(report: &AnalysisReport) -> String {
                     output.push_str(&format!("│   {}\n", content));
                 } else {
                     // Strip ANSI codes for accurate length measurement
-                    let display_len =
-                        ansi_re.replace_all(&format!("{}: {}", content, evidence), "").len();
+                    let display_len = ansi_re
+                        .replace_all(&format!("{}: {}", content, evidence), "")
+                        .len();
                     if display_len > 120 {
                         output.push_str(&format!("│   {}\n", content));
                         output.push_str(&format!("│      {}\n", evidence.bright_black()));
@@ -615,8 +631,6 @@ pub(crate) fn format_terminal(report: &AnalysisReport) -> String {
 
     output
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -781,7 +795,6 @@ mod tests {
         assert_eq!(aggregated[0].conf, 0.9);
     }
 
-
     #[test]
     fn test_risk_emoji() {
         assert_eq!(risk_emoji(&Criticality::Inert), "⚪");
@@ -892,6 +905,4 @@ mod tests {
         let output = format_terminal(&report);
         assert!(output.contains("execution/shell") || output.contains("shell"));
     }
-
-
 }

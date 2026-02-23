@@ -86,11 +86,13 @@ pub fn generate_trait_map(
         }
 
         // Update source node
-        let node = nodes.entry(source_dir.clone()).or_insert_with(|| GraphNode {
-            trait_count: 0,
-            max_criticality: Criticality::Filtered,
-            criticality_sum: 0.0,
-        });
+        let node = nodes
+            .entry(source_dir.clone())
+            .or_insert_with(|| GraphNode {
+                trait_count: 0,
+                max_criticality: Criticality::Filtered,
+                criticality_sum: 0.0,
+            });
         node.trait_count += 1;
         node.criticality_sum += criticality_to_f32(composite.crit);
         if composite.crit > node.max_criticality {
@@ -117,11 +119,13 @@ pub fn generate_trait_map(
             }
 
             // Ensure target node exists
-            nodes.entry(target_dir.clone()).or_insert_with(|| GraphNode {
-                trait_count: 0,
-                max_criticality: Criticality::Filtered,
-                criticality_sum: 0.0,
-            });
+            nodes
+                .entry(target_dir.clone())
+                .or_insert_with(|| GraphNode {
+                    trait_count: 0,
+                    max_criticality: Criticality::Filtered,
+                    criticality_sum: 0.0,
+                });
 
             // Increment edge weight
             *edges.entry((source_dir.clone(), target_dir)).or_insert(0) += 1;
@@ -260,11 +264,7 @@ fn build_graph_from_findings<R: BufRead>(
             let trait_refs: Vec<&str> = finding
                 .get("trait_refs")
                 .and_then(|v| v.as_array())
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|v| v.as_str())
-                        .collect()
-                })
+                .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect())
                 .unwrap_or_default();
 
             let is_composite = !trait_refs.is_empty();
@@ -303,13 +303,15 @@ fn build_graph_from_findings<R: BufRead>(
                 }
 
                 // Ensure target node exists
-                nodes.entry(target_dir.clone()).or_insert_with(|| FindingNode {
-                    id: target_dir.clone(),
-                    match_count: 0,
-                    max_criticality: Criticality::Filtered,
-                    is_composite: false,
-                    is_low_value: false,
-                });
+                nodes
+                    .entry(target_dir.clone())
+                    .or_insert_with(|| FindingNode {
+                        id: target_dir.clone(),
+                        match_count: 0,
+                        max_criticality: Criticality::Filtered,
+                        is_composite: false,
+                        is_low_value: false,
+                    });
 
                 *edges.entry((dir.clone(), target_dir)).or_insert(0) += 1;
             }
@@ -717,8 +719,7 @@ mod tests {
     fn test_build_graph_from_findings_empty() {
         let input = "";
         let reader = std::io::BufReader::new(input.as_bytes());
-        let graph =
-            build_graph_from_findings(reader, 3, Criticality::Inert, None).unwrap();
+        let graph = build_graph_from_findings(reader, 3, Criticality::Inert, None).unwrap();
         assert!(graph.nodes.is_empty());
         assert!(graph.edges.is_empty());
     }
@@ -727,8 +728,7 @@ mod tests {
     fn test_build_graph_from_findings_basic() {
         let input = r#"{"path":"test.bin","findings":[{"id":"objectives/persistence/bootkit","crit":"hostile","trait_refs":["micro-behaviors/fs/write"]}]}"#;
         let reader = std::io::BufReader::new(input.as_bytes());
-        let graph =
-            build_graph_from_findings(reader, 2, Criticality::Inert, None).unwrap();
+        let graph = build_graph_from_findings(reader, 2, Criticality::Inert, None).unwrap();
 
         assert!(graph.nodes.contains_key("objectives/persistence"));
         assert!(graph.nodes.contains_key("micro-behaviors/fs"));

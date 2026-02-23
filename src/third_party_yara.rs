@@ -18,7 +18,11 @@ pub(crate) fn derive_trait_id(namespace: &str, rule_name: &str, _os_meta: Option
         Some(idx) => (&without_prefix[..idx], &without_prefix[idx + 1..]),
         None => (without_prefix, ""),
     };
-    let subdirs: Vec<&str> = if rest.is_empty() { vec![] } else { rest.split('.').collect() };
+    let subdirs: Vec<&str> = if rest.is_empty() {
+        vec![]
+    } else {
+        rest.split('.').collect()
+    };
 
     if vendor == "YARAForge" {
         derive_yaraforge_id(rule_name)
@@ -193,7 +197,12 @@ fn is_yaraforge_noise(part: &str) -> bool {
     // Month abbreviations
     matches!(
         part,
-        "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun"
+        "Jan"
+            | "Feb"
+            | "Mar"
+            | "Apr"
+            | "May"
+            | "Jun"
             | "Jul"
             | "Aug"
             | "Sep"
@@ -299,8 +308,10 @@ fn filter_vendor_noise<'a>(parts: &[&'a str]) -> Vec<&'a str> {
 
 fn is_trailing_descriptor(part: &str) -> bool {
     let lower = part.to_lowercase();
-    matches!(lower.as_str(), "str" | "hex" | "pe" | "re" | "reg" | "wide" | "bin" | "raw")
-        && part.len() <= 4
+    matches!(
+        lower.as_str(),
+        "str" | "hex" | "pe" | "re" | "reg" | "wide" | "bin" | "raw"
+    ) && part.len() <= 4
         && part.chars().all(|c| c.is_ascii_alphabetic())
 }
 
@@ -319,7 +330,14 @@ fn strip_hex_hash(name: &str) -> (&str, bool) {
 fn is_platform(s: &str) -> bool {
     matches!(
         s,
-        "Win32" | "Win64" | "Windows" | "Linux" | "MacOS" | "Macos" | "OSX" | "Android"
+        "Win32"
+            | "Win64"
+            | "Windows"
+            | "Linux"
+            | "MacOS"
+            | "Macos"
+            | "OSX"
+            | "Android"
             | "Multi"
             | "iOS"
     )
@@ -419,7 +437,11 @@ mod tests {
 
     #[test]
     fn test_elastic_macos_infostealer() {
-        let id = derive_trait_id("3p.elastic", "MacOS_Infostealer_MdQuerySecret_12345678", None);
+        let id = derive_trait_id(
+            "3p.elastic",
+            "MacOS_Infostealer_MdQuerySecret_12345678",
+            None,
+        );
         assert_eq!(id, "third_party/elastic/macos/infostealer/mdquerysecret");
     }
 
@@ -437,8 +459,11 @@ mod tests {
 
     #[test]
     fn test_huntress_screenconnect() {
-        let id =
-            derive_trait_id("3p.huntress", "ScreenConnect_CVE_2024_1709_Exploitation", None);
+        let id = derive_trait_id(
+            "3p.huntress",
+            "ScreenConnect_CVE_2024_1709_Exploitation",
+            None,
+        );
         assert_eq!(id, "third_party/huntress/screenconnect_exploitation");
     }
 
@@ -454,50 +479,76 @@ mod tests {
 
     #[test]
     fn test_platforms_from_win32() {
-        assert_eq!(platforms_from_name_and_os("Win32_Trojan_Foo", None), vec![Platform::Windows]);
+        assert_eq!(
+            platforms_from_name_and_os("Win32_Trojan_Foo", None),
+            vec![Platform::Windows]
+        );
     }
 
     #[test]
     fn test_platforms_from_win64() {
-        assert_eq!(platforms_from_name_and_os("Win64_Backdoor_Bar", None), vec![Platform::Windows]);
+        assert_eq!(
+            platforms_from_name_and_os("Win64_Backdoor_Bar", None),
+            vec![Platform::Windows]
+        );
     }
 
     #[test]
     fn test_platforms_from_linux_prefix() {
-        assert_eq!(platforms_from_name_and_os("Linux_Backdoor_Bash_e427876d", None), vec![Platform::Linux]);
+        assert_eq!(
+            platforms_from_name_and_os("Linux_Backdoor_Bash_e427876d", None),
+            vec![Platform::Linux]
+        );
     }
 
     #[test]
     fn test_platforms_from_macos_prefix() {
-        assert_eq!(platforms_from_name_and_os("MacOS_Infostealer_Foo_12345678", None), vec![Platform::MacOS]);
+        assert_eq!(
+            platforms_from_name_and_os("MacOS_Infostealer_Foo_12345678", None),
+            vec![Platform::MacOS]
+        );
     }
 
     #[test]
     fn test_platforms_from_macos_lowercase_variant() {
         // "Macos" (one capital) appears in some rule names
-        assert_eq!(platforms_from_name_and_os("Macos_Backdoor_Baz", None), vec![Platform::MacOS]);
+        assert_eq!(
+            platforms_from_name_and_os("Macos_Backdoor_Baz", None),
+            vec![Platform::MacOS]
+        );
     }
 
     #[test]
     fn test_platforms_from_osx_prefix() {
-        assert_eq!(platforms_from_name_and_os("OSX_Stealer_Bar", None), vec![Platform::MacOS]);
+        assert_eq!(
+            platforms_from_name_and_os("OSX_Stealer_Bar", None),
+            vec![Platform::MacOS]
+        );
     }
 
     #[test]
     fn test_platforms_from_android_prefix() {
-        assert_eq!(platforms_from_name_and_os("Android_Spyware_X", None), vec![Platform::Android]);
+        assert_eq!(
+            platforms_from_name_and_os("Android_Spyware_X", None),
+            vec![Platform::Android]
+        );
     }
 
     #[test]
     fn test_platforms_from_ios_prefix() {
-        assert_eq!(platforms_from_name_and_os("iOS_Spyware_X", None), vec![Platform::Ios]);
+        assert_eq!(
+            platforms_from_name_and_os("iOS_Spyware_X", None),
+            vec![Platform::Ios]
+        );
     }
 
     #[test]
     fn test_platforms_from_no_prefix_returns_empty() {
         // JPCERT/huntress style — no platform prefix
         assert!(platforms_from_name_and_os("DarkCloud_Stealer", None).is_empty());
-        assert!(platforms_from_name_and_os("ScreenConnect_CVE_2024_1709_Exploitation", None).is_empty());
+        assert!(
+            platforms_from_name_and_os("ScreenConnect_CVE_2024_1709_Exploitation", None).is_empty()
+        );
         assert!(platforms_from_name_and_os("Ganelp", None).is_empty());
     }
 
@@ -507,30 +558,66 @@ mod tests {
 
     #[test]
     fn test_platforms_from_os_meta() {
-        assert_eq!(platforms_from_name_and_os("SomeRule", Some("linux")), vec![Platform::Linux]);
+        assert_eq!(
+            platforms_from_name_and_os("SomeRule", Some("linux")),
+            vec![Platform::Linux]
+        );
     }
 
     #[test]
     fn test_platforms_from_os_meta_windows_variants() {
-        assert_eq!(platforms_from_name_and_os("Rule", Some("windows")), vec![Platform::Windows]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("win32")), vec![Platform::Windows]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("win64")), vec![Platform::Windows]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("win")), vec![Platform::Windows]);
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("windows")),
+            vec![Platform::Windows]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("win32")),
+            vec![Platform::Windows]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("win64")),
+            vec![Platform::Windows]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("win")),
+            vec![Platform::Windows]
+        );
     }
 
     #[test]
     fn test_platforms_from_os_meta_macos_variants() {
-        assert_eq!(platforms_from_name_and_os("Rule", Some("macos")), vec![Platform::MacOS]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("osx")), vec![Platform::MacOS]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("darwin")), vec![Platform::MacOS]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("mac")), vec![Platform::MacOS]);
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("macos")),
+            vec![Platform::MacOS]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("osx")),
+            vec![Platform::MacOS]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("darwin")),
+            vec![Platform::MacOS]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("mac")),
+            vec![Platform::MacOS]
+        );
     }
 
     #[test]
     fn test_platforms_from_os_meta_case_insensitive() {
-        assert_eq!(platforms_from_name_and_os("Rule", Some("LINUX")), vec![Platform::Linux]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("Linux")), vec![Platform::Linux]);
-        assert_eq!(platforms_from_name_and_os("Rule", Some("WINDOWS")), vec![Platform::Windows]);
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("LINUX")),
+            vec![Platform::Linux]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("Linux")),
+            vec![Platform::Linux]
+        );
+        assert_eq!(
+            platforms_from_name_and_os("Rule", Some("WINDOWS")),
+            vec![Platform::Windows]
+        );
     }
 
     #[test]
@@ -568,23 +655,35 @@ mod tests {
 
     #[test]
     fn test_filetypes_from_windows() {
-        assert_eq!(filetypes_from_platforms(&[Platform::Windows]), vec!["pe", "dll"]);
+        assert_eq!(
+            filetypes_from_platforms(&[Platform::Windows]),
+            vec!["pe", "dll"]
+        );
     }
 
     #[test]
     fn test_filetypes_from_linux() {
-        assert_eq!(filetypes_from_platforms(&[Platform::Linux]), vec!["elf", "so"]);
+        assert_eq!(
+            filetypes_from_platforms(&[Platform::Linux]),
+            vec!["elf", "so"]
+        );
     }
 
     #[test]
     fn test_filetypes_from_unix() {
         // Unix is treated the same as Linux for binary format purposes
-        assert_eq!(filetypes_from_platforms(&[Platform::Unix]), vec!["elf", "so"]);
+        assert_eq!(
+            filetypes_from_platforms(&[Platform::Unix]),
+            vec!["elf", "so"]
+        );
     }
 
     #[test]
     fn test_filetypes_from_macos() {
-        assert_eq!(filetypes_from_platforms(&[Platform::MacOS]), vec!["macho", "dylib"]);
+        assert_eq!(
+            filetypes_from_platforms(&[Platform::MacOS]),
+            vec!["macho", "dylib"]
+        );
     }
 
     #[test]
@@ -612,7 +711,11 @@ mod tests {
     fn test_filetypes_multiple_platforms_no_duplicates() {
         // Linux + Unix both map to ELF — result should have no duplicates
         let types = filetypes_from_platforms(&[Platform::Linux, Platform::Unix]);
-        assert_eq!(types, vec!["elf", "so"], "Linux+Unix should deduplicate to a single ELF set");
+        assert_eq!(
+            types,
+            vec!["elf", "so"],
+            "Linux+Unix should deduplicate to a single ELF set"
+        );
     }
 
     #[test]
@@ -652,7 +755,8 @@ mod tests {
 
     #[test]
     fn test_macos_name_yields_macho_dylib_filetypes() {
-        let platforms = platforms_from_name_and_os("MacOS_Infostealer_MdQuerySecret_12345678", None);
+        let platforms =
+            platforms_from_name_and_os("MacOS_Infostealer_MdQuerySecret_12345678", None);
         let types = filetypes_from_platforms(&platforms);
         assert!(types.contains(&"macho"));
         assert!(types.contains(&"dylib"));
@@ -664,7 +768,10 @@ mod tests {
     fn test_generic_name_yields_no_filetypes() {
         let platforms = platforms_from_name_and_os("DarkCloud_Stealer", None);
         let types = filetypes_from_platforms(&platforms);
-        assert!(types.is_empty(), "Generic rule name should produce no filetype constraint");
+        assert!(
+            types.is_empty(),
+            "Generic rule name should produce no filetype constraint"
+        );
     }
 
     #[test]
@@ -695,7 +802,10 @@ mod tests {
 
     #[test]
     fn test_doc_filetype_pdf_uppercase() {
-        assert_eq!(doc_filetypes_from_rule_name("PDF_Launch_Action_EXE"), vec!["pdf"]);
+        assert_eq!(
+            doc_filetypes_from_rule_name("PDF_Launch_Action_EXE"),
+            vec!["pdf"]
+        );
     }
 
     #[test]
@@ -705,22 +815,46 @@ mod tests {
 
     #[test]
     fn test_doc_filetype_rtf() {
-        assert_eq!(doc_filetypes_from_rule_name("RTF_Anti_Analysis_Header"), vec!["rtf", "doc"]);
-        assert_eq!(doc_filetypes_from_rule_name("RTF_Header_Obfuscation"), vec!["rtf", "doc"]);
-        assert_eq!(doc_filetypes_from_rule_name("RTF_Embedded_OLE_Header_Obfuscated"), vec!["rtf", "doc"]);
+        assert_eq!(
+            doc_filetypes_from_rule_name("RTF_Anti_Analysis_Header"),
+            vec!["rtf", "doc"]
+        );
+        assert_eq!(
+            doc_filetypes_from_rule_name("RTF_Header_Obfuscation"),
+            vec!["rtf", "doc"]
+        );
+        assert_eq!(
+            doc_filetypes_from_rule_name("RTF_Embedded_OLE_Header_Obfuscated"),
+            vec!["rtf", "doc"]
+        );
     }
 
     #[test]
     fn test_doc_filetype_office_variants() {
-        assert_eq!(doc_filetypes_from_rule_name("Office_Document_with_VBA_Project"), vec!["doc", "docx", "xls", "xlsx", "ole"]);
-        assert_eq!(doc_filetypes_from_rule_name("Word_Document_with_Suspicious_Metadata"), vec!["doc", "docx", "xls", "xlsx", "ole"]);
-        assert_eq!(doc_filetypes_from_rule_name("OLEfile_in_CAD_FAS_LSP"), vec!["doc", "docx", "xls", "xlsx", "ole"]);
-        assert_eq!(doc_filetypes_from_rule_name("OLE_Embedded_Executable"), vec!["doc", "docx", "xls", "xlsx", "ole"]);
+        assert_eq!(
+            doc_filetypes_from_rule_name("Office_Document_with_VBA_Project"),
+            vec!["doc", "docx", "xls", "xlsx", "ole"]
+        );
+        assert_eq!(
+            doc_filetypes_from_rule_name("Word_Document_with_Suspicious_Metadata"),
+            vec!["doc", "docx", "xls", "xlsx", "ole"]
+        );
+        assert_eq!(
+            doc_filetypes_from_rule_name("OLEfile_in_CAD_FAS_LSP"),
+            vec!["doc", "docx", "xls", "xlsx", "ole"]
+        );
+        assert_eq!(
+            doc_filetypes_from_rule_name("OLE_Embedded_Executable"),
+            vec!["doc", "docx", "xls", "xlsx", "ole"]
+        );
     }
 
     #[test]
     fn test_doc_filetype_onenote() {
-        assert_eq!(doc_filetypes_from_rule_name("OneNote_BuildPath"), vec!["one", "onepkg"]);
+        assert_eq!(
+            doc_filetypes_from_rule_name("OneNote_BuildPath"),
+            vec!["one", "onepkg"]
+        );
     }
 
     #[test]
@@ -751,26 +885,47 @@ mod tests {
     fn test_infer_binary_platform_before_doc() {
         // Binary platform prefix takes priority over any doc inference
         assert_eq!(infer_filetypes("Win32_Trojan_Foo", None), vec!["pe", "dll"]);
-        assert_eq!(infer_filetypes("Linux_Backdoor_Bash_e427876d", None), vec!["elf", "so"]);
-        assert_eq!(infer_filetypes("MacOS_Infostealer_Foo_12345678", None), vec!["macho", "dylib"]);
+        assert_eq!(
+            infer_filetypes("Linux_Backdoor_Bash_e427876d", None),
+            vec!["elf", "so"]
+        );
+        assert_eq!(
+            infer_filetypes("MacOS_Infostealer_Foo_12345678", None),
+            vec!["macho", "dylib"]
+        );
     }
 
     #[test]
     fn test_infer_os_metadata_before_doc() {
         // os metadata takes highest priority
-        assert_eq!(infer_filetypes("PDF_Something", Some("windows")), vec!["pe", "dll"]);
-        assert_eq!(infer_filetypes("RTF_Bad_Doc", Some("linux")), vec!["elf", "so"]);
+        assert_eq!(
+            infer_filetypes("PDF_Something", Some("windows")),
+            vec!["pe", "dll"]
+        );
+        assert_eq!(
+            infer_filetypes("RTF_Bad_Doc", Some("linux")),
+            vec!["elf", "so"]
+        );
     }
 
     #[test]
     fn test_infer_doc_when_no_platform_signal() {
         // No os meta, no platform prefix → fall through to doc inference
         assert_eq!(infer_filetypes("PDF_Launch_Action_EXE", None), vec!["pdf"]);
-        assert_eq!(infer_filetypes("RTF_Anti_Analysis_Header", None), vec!["rtf", "doc"]);
-        assert_eq!(infer_filetypes("Office_Document_with_VBA_Project", None), vec!["doc", "docx", "xls", "xlsx", "ole"]);
+        assert_eq!(
+            infer_filetypes("RTF_Anti_Analysis_Header", None),
+            vec!["rtf", "doc"]
+        );
+        assert_eq!(
+            infer_filetypes("Office_Document_with_VBA_Project", None),
+            vec!["doc", "docx", "xls", "xlsx", "ole"]
+        );
         assert_eq!(infer_filetypes("LNK_Shortcut_Malware", None), vec!["lnk"]);
         assert_eq!(infer_filetypes("ISO_exec", None), vec!["iso", "img"]);
-        assert_eq!(infer_filetypes("OneNote_BuildPath", None), vec!["one", "onepkg"]);
+        assert_eq!(
+            infer_filetypes("OneNote_BuildPath", None),
+            vec!["one", "onepkg"]
+        );
     }
 
     #[test]
@@ -787,7 +942,11 @@ mod tests {
         let pdf_types = infer_filetypes("PDF_Launch_Action_EXE", None);
         let pe_filter = &["pe", "exe", "dll", "bat", "ps1"];
         let matches = pdf_types.iter().any(|t| pe_filter.contains(t));
-        assert!(!matches, "PDF rule types {:?} should not match PE scan filter {:?}", pdf_types, pe_filter);
+        assert!(
+            !matches,
+            "PDF rule types {:?} should not match PE scan filter {:?}",
+            pdf_types, pe_filter
+        );
     }
 
     #[test]
@@ -795,7 +954,11 @@ mod tests {
         let rtf_types = infer_filetypes("RTF_Anti_Analysis_Header", None);
         let elf_filter = &["elf", "so", "ko"];
         let matches = rtf_types.iter().any(|t| elf_filter.contains(t));
-        assert!(!matches, "RTF rule types {:?} should not match ELF scan filter {:?}", rtf_types, elf_filter);
+        assert!(
+            !matches,
+            "RTF rule types {:?} should not match ELF scan filter {:?}",
+            rtf_types, elf_filter
+        );
     }
 
     #[test]
@@ -803,6 +966,10 @@ mod tests {
         let lnk_types = infer_filetypes("LNKR_JS_a", None);
         let macho_filter = &["macho", "dylib"];
         let matches = lnk_types.iter().any(|t| macho_filter.contains(t));
-        assert!(!matches, "LNK rule types {:?} should not match MachO scan filter {:?}", lnk_types, macho_filter);
+        assert!(
+            !matches,
+            "LNK rule types {:?} should not match MachO scan filter {:?}",
+            lnk_types, macho_filter
+        );
     }
 }

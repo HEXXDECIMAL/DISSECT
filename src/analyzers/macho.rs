@@ -44,7 +44,10 @@ impl MachOAnalyzer {
 
     /// Create analyzer with shared capability mapper (avoids cloning)
     #[must_use]
-    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    pub(crate) fn with_capability_mapper_arc(
+        mut self,
+        capability_mapper: Arc<CapabilityMapper>,
+    ) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -60,13 +63,17 @@ impl MachOAnalyzer {
     /// Structural analysis of a thin Mach-O binary (no YARA scan, no trait evaluation).
     /// Only handles thin binaries — fat binary dispatch is done by the caller.
     /// Callers are responsible for running YARA and calling `evaluate_and_merge_findings`.
-    pub(crate) fn analyze_structural(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    pub(crate) fn analyze_structural(
+        &self,
+        file_path: &Path,
+        data: &[u8],
+    ) -> Result<AnalysisReport> {
         let start = std::time::Instant::now(); // Parse with goblin
         let macho = match goblin::mach::Mach::parse(data)? {
             Mach::Binary(m) => m,
             Mach::Fat(_) => {
                 anyhow::bail!("Fat binaries should be handled separately");
-            },
+            }
         };
 
         // Create target info
@@ -180,7 +187,9 @@ impl MachOAnalyzer {
             let has_symbols = macho.symbols().count() > 0;
             if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data (radare2-specific metrics)
-                let r2_binary_metrics = self.radare2.compute_metrics_from_batched(&batched, data.len() as u64);
+                let r2_binary_metrics = self
+                    .radare2
+                    .compute_metrics_from_batched(&batched, data.len() as u64);
 
                 // Enhance existing binary metrics with radare2 data
                 if let Some(ref mut metrics) = report.metrics {
@@ -370,8 +379,11 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm =
-                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_size += section.size;
@@ -419,8 +431,11 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm =
-                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_entropies.push(entropy);
@@ -542,8 +557,11 @@ impl MachOAnalyzer {
                             matches!(section_name_clean, "text" | "stubs" | "stub_helper");
 
                         // Must be in executable segment AND be a known code section
-                        let has_exec_perm =
-                            section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
+                        let has_exec_perm = section
+                            .permissions
+                            .as_ref()
+                            .map(|p| p.contains('x'))
+                            .unwrap_or(false);
 
                         if is_code_section && has_exec_perm {
                             code_size += section.size;
@@ -624,7 +642,6 @@ impl MachOAnalyzer {
                 }],
             });
         }
-
     }
 
     fn analyze_imports<'a>(
@@ -666,7 +683,9 @@ impl MachOAnalyzer {
                         let clean_name = crate::types::binary::normalize_symbol(name);
                         // Only add if not already added by radare2
                         if !report.imports.iter().any(|i| i.symbol == clean_name) {
-                            report.imports.push(Import::new(name, None, "goblin_symtab"));
+                            report
+                                .imports
+                                .push(Import::new(name, None, "goblin_symtab"));
                         }
                     }
                 }
@@ -794,16 +813,16 @@ impl MachOAnalyzer {
                     })
                     .unwrap_or_else(|| team_id.to_string());
                 ("developer", team_id, format!("Developer ID: {}", company))
-            },
+            }
             macho_codesign::SignatureType::Platform => {
                 ("platform", "apple", "macOS Platform Binary".to_string())
-            },
+            }
             macho_codesign::SignatureType::Adhoc => {
                 ("adhoc", "unsigned", "Ad-hoc Signature".to_string())
-            },
+            }
             macho_codesign::SignatureType::Unknown => {
                 ("unknown", "unknown", "Unknown Signature".to_string())
-            },
+            }
         };
 
         report.findings.push(Finding {
@@ -995,7 +1014,11 @@ fn describe_entitlement(key: &str) -> String {
     }
 
     // Fallback: clean up the key name for readability
-    let short_name = key.split('.').next_back().unwrap_or(key).replace(['-', '_'], " ");
+    let short_name = key
+        .split('.')
+        .next_back()
+        .unwrap_or(key)
+        .replace(['-', '_'], " ");
 
     // Capitalize first letter
     let mut chars = short_name.chars();
@@ -1093,8 +1116,10 @@ impl MachOAnalyzer {
     pub(crate) fn apply_fat_metadata(&self, report: &mut AnalysisReport, data: &[u8]) {
         if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
             if let Ok(arches) = fat.arches() {
-                let arch_names: Vec<String> =
-                    arches.iter().map(|a| self.arch_name_from_cputype(a.cputype)).collect();
+                let arch_names: Vec<String> = arches
+                    .iter()
+                    .map(|a| self.arch_name_from_cputype(a.cputype))
+                    .collect();
                 report.target.architectures = Some(arch_names.clone());
                 if let Some(ref mut metrics) = report.metrics {
                     if let Some(ref mut macho_metrics) = metrics.macho {
@@ -1327,8 +1352,11 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check if any entitlement findings are present
-        let entitlement_findings: Vec<_> =
-            report.findings.iter().filter(|f| f.id.contains("entitlement")).collect();
+        let entitlement_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("entitlement"))
+            .collect();
 
         // If the binary has entitlements, verify they're properly extracted
         if !entitlement_findings.is_empty() {
@@ -1336,7 +1364,10 @@ mod tests {
                 // Entitlements should have proper evidence
                 assert!(!finding.evidence.is_empty());
                 // Method should be "entitlements_plist"
-                assert!(finding.evidence.iter().any(|e| e.method == "entitlements_plist"));
+                assert!(finding
+                    .evidence
+                    .iter()
+                    .any(|e| e.method == "entitlements_plist"));
             }
         }
     }
@@ -1353,8 +1384,11 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for team ID findings
-        let team_findings: Vec<_> =
-            report.findings.iter().filter(|f| f.id.contains("signed/team")).collect();
+        let team_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/team"))
+            .collect();
 
         // If team findings exist, verify they have proper structure
         for finding in &team_findings {
@@ -1375,7 +1409,10 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for hardened-runtime finding
-        let hardened = report.findings.iter().find(|f| f.id == "metadata/hardened-runtime");
+        let hardened = report
+            .findings
+            .iter()
+            .find(|f| f.id == "metadata/hardened-runtime");
 
         if let Some(finding) = hardened {
             assert_eq!(finding.evidence[0].method, "code_directory_flags");
@@ -1395,8 +1432,11 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Signature type findings should have Notable criticality
-        let sig_type_findings: Vec<_> =
-            report.findings.iter().filter(|f| f.id.contains("signed/type")).collect();
+        let sig_type_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/type"))
+            .collect();
 
         for finding in &sig_type_findings {
             assert_eq!(finding.crit, Criticality::Notable);
@@ -1416,8 +1456,11 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // All entitlement findings should have high confidence
-        let ent_findings: Vec<_> =
-            report.findings.iter().filter(|f| f.id.contains("entitlement")).collect();
+        let ent_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("entitlement"))
+            .collect();
 
         for finding in &ent_findings {
             assert_eq!(finding.conf, 1.0); // Entitlements from signature have 100% confidence
@@ -1584,8 +1627,11 @@ mod tests {
         let report = analyzer.analyze(&test_file).unwrap();
 
         // Check for identifier findings
-        let identifier_findings: Vec<_> =
-            report.findings.iter().filter(|f| f.id.contains("signed/id")).collect();
+        let identifier_findings: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.id.contains("signed/id"))
+            .collect();
 
         // If identifier findings exist, they should have proper evidence
         for finding in &identifier_findings {

@@ -129,7 +129,7 @@ pub fn analyzer_for_file_type(
                         .with_capability_mapper(mapper_or_empty),
                 ))
             }
-        },
+        }
     }
 }
 
@@ -204,10 +204,9 @@ pub(crate) fn analyzer_for_file_type_arc(
                         .with_capability_mapper_arc(mapper_or_empty),
                 ))
             }
-        },
+        }
     }
 }
-
 
 /// Trait for file analyzers
 pub trait Analyzer {
@@ -220,7 +219,7 @@ pub trait Analyzer {
 
 /// Detect file type from path/extension only (no file access needed)
 /// This is useful for archive entries that don't exist on disk
-#[must_use] 
+#[must_use]
 pub(crate) fn detect_file_type_from_path(file_path: &Path) -> FileType {
     // Check by filename first (for manifest files)
     if let Some(file_name) = file_path.file_name() {
@@ -301,7 +300,7 @@ pub(crate) fn detect_file_type_from_path(file_path: &Path) -> FileType {
             "rtf" => return FileType::Rtf,
             "zip" | "7z" | "rar" | "deb" | "rpm" | "apk" | "ipa" | "xpi" | "epub" | "nupkg"
             | "vsix" | "aar" | "egg" | "whl" | "phar" => return FileType::Archive,
-            _ => {},
+            _ => {}
         }
     }
 
@@ -684,8 +683,10 @@ fn looks_like_python(data: &[u8]) -> bool {
         "if __name__",
         "print(",
     ];
-    let strong_count =
-        strong_indicators.iter().filter(|&&pattern| content.contains(pattern)).count();
+    let strong_count = strong_indicators
+        .iter()
+        .filter(|&&pattern| content.contains(pattern))
+        .count();
 
     // Secondary Python indicators
     let secondary_indicators = [
@@ -782,7 +783,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("TrueType font", &[])) // Trigger mismatch
             }
-        },
+        }
         "otf" => {
             // OpenType: 'OTTO' or TrueType signature
             if file_data.starts_with(b"OTTO")
@@ -793,7 +794,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("OpenType font", &[]))
             }
-        },
+        }
 
         // Image formats
         "gif" => Some(("GIF image", b"GIF89a")), // Also accepts GIF87a
@@ -808,7 +809,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("SVG image", &[]))
             }
-        },
+        }
 
         // Audio/Video (less commonly abused, but worth checking)
         "mp3" => {
@@ -820,7 +821,7 @@ pub fn check_extension_content_mismatch(
             } else {
                 Some(("MP3 audio", &[]))
             }
-        },
+        }
         "wav" => Some(("WAV audio", b"RIFF")), // Also needs "WAVE" at offset 8
 
         _ => None,
@@ -853,10 +854,16 @@ pub fn check_extension_content_mismatch(
             "JPEG image"
         } else if file_data.starts_with(b"GIF8") {
             "GIF image"
-        } else if file_data[0..file_data.len().min(100)].iter().all(|&b| b.is_ascii()) {
+        } else if file_data[0..file_data.len().min(100)]
+            .iter()
+            .all(|&b| b.is_ascii())
+        {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
                 "hex-encoded data"
             } else {
                 "ASCII text"
@@ -887,10 +894,16 @@ pub fn check_extension_content_mismatch(
             "JPEG image"
         } else if file_data.starts_with(b"GIF8") {
             "GIF image"
-        } else if file_data[0..file_data.len().min(100)].iter().all(|&b| b.is_ascii()) {
+        } else if file_data[0..file_data.len().min(100)]
+            .iter()
+            .all(|&b| b.is_ascii())
+        {
             // Check if it's hex-encoded data (common obfuscation)
             let preview = String::from_utf8_lossy(&file_data[..file_data.len().min(200)]);
-            if preview.chars().all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace()) {
+            if preview
+                .chars()
+                .all(|c| c.is_ascii_hexdigit() || c.is_ascii_whitespace())
+            {
                 "hex-encoded data"
             } else {
                 "ASCII text"
@@ -998,7 +1011,7 @@ pub enum FileType {
 impl FileType {
     /// Returns true if this file type represents executable code (binaries, scripts, etc.)
     /// as opposed to data files (images, documents, etc.)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn is_program(&self) -> bool {
         match self {
             FileType::MachO
@@ -1070,7 +1083,7 @@ impl FileType {
 
     /// Get YARA rule filetypes that are relevant for this file type
     /// Returns a list of filetype identifiers to match against YARA metadata
-    #[must_use] 
+    #[must_use]
     pub(crate) fn yara_filetypes(&self) -> Vec<&'static str> {
         match self {
             FileType::MachO => vec!["macho", "elf", "so"],
@@ -1078,7 +1091,7 @@ impl FileType {
             FileType::Pe => vec!["pe", "exe", "dll", "bat", "ps1"],
             FileType::Shell => {
                 vec!["sh", "bash", "zsh", "application/x-sh", "application/x-zsh"]
-            },
+            }
             FileType::Batch => vec!["bat", "cmd", "batch"],
             FileType::Python => vec!["py", "pyc"],
             FileType::JavaScript => vec!["js", "mjs", "cjs", "jsx", "ts"],

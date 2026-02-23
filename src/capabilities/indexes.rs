@@ -56,9 +56,16 @@ impl TraitIndex {
         file_type: &RuleFileType,
     ) -> impl Iterator<Item = usize> + '_ {
         // Universal traits + specific file type traits
-        let specific = self.by_file_type.get(file_type).map(std::vec::Vec::as_slice).unwrap_or(&[]);
+        let specific = self
+            .by_file_type
+            .get(file_type)
+            .map(std::vec::Vec::as_slice)
+            .unwrap_or(&[]);
 
-        self.universal.iter().copied().chain(specific.iter().copied())
+        self.universal
+            .iter()
+            .copied()
+            .chain(specific.iter().copied())
     }
 }
 
@@ -106,7 +113,7 @@ impl StringMatchIndex {
                     '.' | '*' | '+' | '?' | '[' | ']' | '(' | ')' | '{' | '}' | '|' | '^' | '$'
                     | '\\' => {
                         literal.push(c);
-                    },
+                    }
                     _ => literal.push(c),
                 }
                 in_escape = false;
@@ -172,7 +179,7 @@ impl StringMatchIndex {
                         patterns.push(exact_str.clone());
                         pattern_to_traits.push(vec![trait_idx]);
                     }
-                },
+                }
                 // Regex string patterns - extract literal prefix for pre-filtering
                 Condition::String {
                     regex: Some(ref regex_str),
@@ -189,8 +196,8 @@ impl StringMatchIndex {
                             regex_literal_to_traits.push(vec![trait_idx]);
                         }
                     }
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
 
@@ -198,21 +205,30 @@ impl StringMatchIndex {
 
         // Build case-sensitive Aho-Corasick automaton
         let automaton = if !patterns.is_empty() {
-            AhoCorasick::builder().ascii_case_insensitive(false).build(&patterns).ok()
+            AhoCorasick::builder()
+                .ascii_case_insensitive(false)
+                .build(&patterns)
+                .ok()
         } else {
             None
         };
 
         // Build case-insensitive Aho-Corasick automaton
         let ci_automaton = if !ci_patterns.is_empty() {
-            AhoCorasick::builder().ascii_case_insensitive(true).build(&ci_patterns).ok()
+            AhoCorasick::builder()
+                .ascii_case_insensitive(true)
+                .build(&ci_patterns)
+                .ok()
         } else {
             None
         };
 
         // Build regex literal automaton for pre-filtering
         let regex_literal_automaton = if !regex_literals.is_empty() {
-            AhoCorasick::builder().ascii_case_insensitive(false).build(&regex_literals).ok()
+            AhoCorasick::builder()
+                .ascii_case_insensitive(false)
+                .build(&regex_literals)
+                .ok()
         } else {
             None
         };
@@ -320,8 +336,10 @@ impl StringMatchIndex {
         // Traits without extractable literals can't be pre-filtered, so include them
         for &trait_idx in &self.regex_trait_indices {
             // If this trait isn't in any literal bucket, include it as candidate
-            let has_literal =
-                self.regex_literal_to_traits.iter().any(|traits| traits.contains(&trait_idx));
+            let has_literal = self
+                .regex_literal_to_traits
+                .iter()
+                .any(|traits| traits.contains(&trait_idx));
             if !has_literal {
                 candidates.insert(trait_idx);
             }
@@ -420,8 +438,8 @@ impl RawContentRegexIndex {
             match Self::build_regex_set(patterns, traits) {
                 Ok(Some(set)) => {
                     by_file_type.insert(ft, set);
-                },
-                Ok(None) => {},
+                }
+                Ok(None) => {}
                 Err(mut e) => errors.append(&mut e),
             }
         }
@@ -431,7 +449,7 @@ impl RawContentRegexIndex {
             Err(mut e) => {
                 errors.append(&mut e);
                 None
-            },
+            }
         };
 
         if !errors.is_empty() {
@@ -521,7 +539,7 @@ impl RawContentRegexIndex {
                 }
 
                 Err(errors)
-            },
+            }
         }
     }
 
@@ -531,7 +549,9 @@ impl RawContentRegexIndex {
 
     /// Check if any of the given trait indices have content regex patterns
     pub(crate) fn has_applicable_patterns(&self, applicable: &[usize]) -> bool {
-        applicable.iter().any(|idx| self.indexed_traits.contains(idx))
+        applicable
+            .iter()
+            .any(|idx| self.indexed_traits.contains(idx))
     }
 
     /// Check whether a trait is indexed in a compiled regex set.
@@ -610,7 +630,6 @@ mod tests {
         let applicable: Vec<usize> = index.get_applicable(&RuleFileType::All).collect();
         assert!(applicable.is_empty());
     }
-
 
     // ==================== StringMatchIndex Tests ====================
 

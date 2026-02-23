@@ -89,7 +89,11 @@ pub(crate) fn compile_regex_optimal(
     case_insensitive: bool,
 ) -> Result<CachedRegex, regex::Error> {
     // Check if pattern is ASCII-only and doesn't use Unicode features
-    if pattern.is_ascii() && !pattern.contains("\\u") && !pattern.contains("\\p") && !pattern.contains("\\P") {
+    if pattern.is_ascii()
+        && !pattern.contains("\\u")
+        && !pattern.contains("\\p")
+        && !pattern.contains("\\P")
+    {
         // ASCII-only pattern - use bytes regex for performance
         let mut builder = regex::bytes::RegexBuilder::new(pattern);
         builder.case_insensitive(case_insensitive);
@@ -117,7 +121,7 @@ thread_local! {
 /// The Rules pointer must remain valid for the duration of Scanner use.
 /// This is guaranteed because Rules is behind Arc<Rules> held by TraitDefinitions.
 #[allow(clippy::mut_from_ref)] // Intentional: mutable Scanner from thread-local cache
-#[must_use] 
+#[must_use]
 pub(crate) fn get_or_create_scanner<'a>(rules: &'a yara_x::Rules) -> &'a mut yara_x::Scanner<'a> {
     let key = rules as *const yara_x::Rules as usize;
 
@@ -226,7 +230,7 @@ pub fn clear_thread_local_caches() {
 /// Check if a symbol matches a pattern (supports exact match or regex).
 /// Uses cached regex compilation for patterns with metacharacters.
 /// Note: Symbols are normalized (leading underscores stripped) at load time.
-#[must_use] 
+#[must_use]
 pub(crate) fn symbol_matches(symbol: &str, pattern: &str) -> bool {
     // Try exact match first
     if symbol == pattern {
@@ -265,7 +269,7 @@ pub(crate) fn build_regex(pattern: &str, case_insensitive: bool) -> anyhow::Resu
 }
 
 /// Truncate evidence string to max length for display.
-#[must_use] 
+#[must_use]
 pub(crate) fn truncate_evidence(s: &str, max_len: usize) -> String {
     if s.chars().count() <= max_len {
         s.to_string()
@@ -291,7 +295,7 @@ pub(crate) struct ContentLocationParams {
 
 /// Resolve the effective byte range for content search based on location constraints.
 /// Returns (start, end) as absolute offsets into binary data.
-#[must_use] 
+#[must_use]
 pub(crate) fn resolve_effective_range<'a>(
     location: &ContentLocationParams,
     ctx: &crate::composite_rules::context::EvaluationContext<'a>,
@@ -331,7 +335,7 @@ pub(crate) fn resolve_effective_range<'a>(
                 off as usize
             };
             (resolved, file_size)
-        },
+        }
         (None, Some((start, end_opt))) => {
             let file_size_i64 = file_size as i64;
             let resolved_start = if *start < 0 {
@@ -345,14 +349,14 @@ pub(crate) fn resolve_effective_range<'a>(
                 None => file_size,
             };
             (resolved_start, resolved_end)
-        },
+        }
         _ => (0, file_size), // Section constraints without SectionMap - no filtering
     }
 }
 
 /// Resolve effective range as Option for string offset filtering.
 /// Returns None if no location constraints (no filtering needed).
-#[must_use] 
+#[must_use]
 pub(crate) fn resolve_effective_range_opt<'a>(
     location: &ContentLocationParams,
     ctx: &crate::composite_rules::context::EvaluationContext<'a>,
@@ -370,5 +374,3 @@ pub(crate) fn resolve_effective_range_opt<'a>(
     let (start, end) = resolve_effective_range(location, ctx);
     Some((start as u64, end as u64))
 }
-
-

@@ -33,14 +33,14 @@ impl RtfAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
@@ -69,17 +69,18 @@ impl RtfAnalyzer {
                 // Record tools used
                 report.metadata.tools_used.push("rtf-parser".to_string());
                 // Structural analysis is complete; YAML traits will handle pattern detection
-            },
+            }
             Err(_e) => {
                 // Parsing errors are noted but don't abort analysis
                 // YAML traits will still evaluate the raw content
                 report.metadata.tools_used.push("rtf-parser".to_string());
-            },
+            }
         }
 
         // All pattern detection is delegated to capability mapper
         // which evaluates YAML traits against the file content
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, data, None, None);
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, data, None, None);
 
         report
     }

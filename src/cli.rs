@@ -42,7 +42,7 @@ pub(crate) fn parse_platforms(s: &str) -> Vec<crate::composite_rules::Platform> 
             unknown => {
                 eprintln!("⚠️  Unknown platform '{}', ignoring", unknown);
                 None
-            },
+            }
         })
         .collect();
 
@@ -83,7 +83,7 @@ impl DisabledComponents {
                 "radare2" => disabled.radare2 = true,
                 "upx" => disabled.upx = true,
                 "third-party" => disabled.third_party = true,
-                _ => {}, // Ignore unknown components
+                _ => {} // Ignore unknown components
             }
         }
         disabled
@@ -222,9 +222,11 @@ impl Args {
     #[allow(dead_code)] // Used by binary target
     #[must_use]
     pub(crate) fn error_if_levels(&self) -> Option<Vec<crate::types::Criticality>> {
-        self.error_if
-            .as_ref()
-            .map(|s| s.split(',').map(|level| parse_criticality_level(level.trim())).collect())
+        self.error_if.as_ref().map(|s| {
+            s.split(',')
+                .map(|level| parse_criticality_level(level.trim()))
+                .collect()
+        })
     }
 
     /// Parse --platforms flag into a vector of Platform values
@@ -247,7 +249,7 @@ fn parse_criticality_level(s: &str) -> crate::types::Criticality {
         _ => {
             eprintln!("⚠️  Unknown criticality level '{}', treating as 'inert'", s);
             crate::types::Criticality::Inert
-        },
+        }
     }
 }
 
@@ -911,7 +913,6 @@ mod tests {
         assert!(!disabled.upx);
         assert!(!disabled.third_party);
     }
-
 
     #[test]
     fn test_disable_empty_string() {

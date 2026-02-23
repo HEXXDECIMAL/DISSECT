@@ -15,7 +15,7 @@ fn main() {
         Err(e) => {
             eprintln!("Error reading file: {}", e);
             std::process::exit(1);
-        },
+        }
     };
 
     let parser = match ScptParser::new(&data) {
@@ -23,7 +23,7 @@ fn main() {
         Err(e) => {
             eprintln!("Error parsing scpt: {}", e);
             std::process::exit(1);
-        },
+        }
     };
 
     println!("AppleScript Version: {}", parser.version());

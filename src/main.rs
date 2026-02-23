@@ -44,25 +44,28 @@ mod entropy;
 mod env_mapper;
 mod extractors;
 mod ip_validator;
+mod map;
 mod output;
 mod path_mapper;
 mod radare2;
 mod rtf;
-mod map;
 // mod radare2_extended;  // Removed: integrated into radare2.rs
 mod strings;
 mod test_rules;
 #[cfg(test)]
 mod test_rules_filters_test;
+mod third_party_config;
+mod third_party_yara;
 mod types;
 mod upx;
-mod third_party_yara;
-mod third_party_config;
 mod yara_engine;
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use commands::{analyze_command, diff_command, expand_paths, profile_command, scan_command, test_match, test_rules};
+use commands::{
+    analyze_command, diff_command, expand_paths, profile_command, scan_command, test_match,
+    test_rules,
+};
 use std::fs;
 use std::path::Path;
 use tracing_subscriber::EnvFilter;
@@ -94,18 +97,28 @@ fn main() -> Result<()> {
             (EnvFilter::from_default_env(), EnvFilter::from_default_env())
         } else if args.verbose {
             // Verbose: trace to both
-            (EnvFilter::new("dissect=trace"), EnvFilter::new("dissect=trace"))
+            (
+                EnvFilter::new("dissect=trace"),
+                EnvFilter::new("dissect=trace"),
+            )
         } else {
             // Default: warn to stderr, info to file
-            (EnvFilter::new("dissect=warn"), EnvFilter::new("dissect=info"))
+            (
+                EnvFilter::new("dissect=warn"),
+                EnvFilter::new("dissect=info"),
+            )
         };
 
         // Create or append to log file
         let file = Arc::new(Mutex::new(
-            OpenOptions::new().create(true).append(true).open(log_file).unwrap_or_else(|e| {
-                eprintln!("Failed to open log file {}: {}", log_file, e);
-                std::process::exit(1);
-            }),
+            OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(log_file)
+                .unwrap_or_else(|e| {
+                    eprintln!("Failed to open log file {}: {}", log_file, e);
+                    std::process::exit(1);
+                }),
         ));
 
         if format == cli::OutputFormat::Terminal {
@@ -124,7 +137,10 @@ fn main() -> Result<()> {
         struct LogFileWriter(Arc<Mutex<std::fs::File>>);
         impl std::io::Write for LogFileWriter {
             fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-                let mut file = self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                let mut file = self
+                    .0
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner);
                 let result = file.write(buf);
                 // Flush after every write to ensure logs survive OOM kills
                 // This has a performance cost but is critical for debugging crashes
@@ -132,7 +148,10 @@ fn main() -> Result<()> {
                 result
             }
             fn flush(&mut self) -> std::io::Result<()> {
-                self.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).flush()
+                self.0
+                    .lock()
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
+                    .flush()
             }
         }
 
@@ -226,8 +245,10 @@ fn main() -> Result<()> {
     let zip_passwords: Vec<String> = if args.no_zip_passwords {
         Vec::new()
     } else {
-        let mut passwords: Vec<String> =
-            cli::DEFAULT_ZIP_PASSWORDS.iter().map(std::string::ToString::to_string).collect();
+        let mut passwords: Vec<String> = cli::DEFAULT_ZIP_PASSWORDS
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         passwords.extend(args.zip_passwords.clone());
         passwords
     };
@@ -313,7 +334,7 @@ fn main() -> Result<()> {
                     args.validate,
                 )?
             }
-        },
+        }
         Some(cli::Command::Scan { paths }) => {
             let expanded = expand_paths(paths, &format);
             scan_command(
@@ -332,14 +353,20 @@ fn main() -> Result<()> {
                 max_memory_file_size,
                 args.validate,
             )?
-        },
+        }
         Some(cli::Command::Diff { old, new }) => diff_command(&old, &new, &format)?,
         Some(cli::Command::Strings { target, min_length }) => {
             commands::extract::strings::run(&target, min_length, &format)?
-        },
-        Some(cli::Command::Symbols { target }) => commands::extract::symbols::run(&target, &format)?,
-        Some(cli::Command::Sections { target }) => commands::extract::sections::run(&target, &format)?,
-        Some(cli::Command::Metrics { target }) => commands::extract::metrics::run(&target, &format, &disabled)?,
+        }
+        Some(cli::Command::Symbols { target }) => {
+            commands::extract::symbols::run(&target, &format)?
+        }
+        Some(cli::Command::Sections { target }) => {
+            commands::extract::sections::run(&target, &format)?
+        }
+        Some(cli::Command::Metrics { target }) => {
+            commands::extract::metrics::run(&target, &format, &disabled)?
+        }
         Some(cli::Command::TestRules { target, rules }) => test_rules(
             &target,
             &rules,
@@ -437,17 +464,12 @@ fn main() -> Result<()> {
                 )?
             } else {
                 // Definition mode (existing behavior)
-                map::generate_trait_map(
-                    depth,
-                    output.as_deref(),
-                    min_refs,
-                    namespaces.as_deref(),
-                )?
+                map::generate_trait_map(depth, output.as_deref(), min_refs, namespaces.as_deref())?
             }
-        },
+        }
         Some(cli::Command::YaraProfile { target, min_ms }) => {
             return profile_command(Path::new(&target), min_ms);
-        },
+        }
         None => {
             // No subcommand - use paths from top-level args
             if args.paths.is_empty() {
@@ -473,7 +495,7 @@ fn main() -> Result<()> {
                 max_memory_file_size,
                 args.validate,
             )?
-        },
+        }
     };
 
     // Output results

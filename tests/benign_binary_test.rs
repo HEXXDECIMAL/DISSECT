@@ -51,7 +51,9 @@ fn test_analyze_bin_ls_json_output() {
 
     if let Some(findings) = parsed["findings"].as_array() {
         for finding in findings {
-            let crit = finding["crit"].as_str().expect("Finding should have criticality");
+            let crit = finding["crit"]
+                .as_str()
+                .expect("Finding should have criticality");
 
             match crit {
                 "hostile" => hostile_count += 1,

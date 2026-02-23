@@ -231,7 +231,7 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
             } else {
                 Ok("zip") // Android APK (default)
             }
-        },
+        }
         "pkg" => {
             // macOS PKG: XAR ("xar!" at offset 0)
             // FreeBSD pkg: usually starts with xz or zstd magic
@@ -250,7 +250,7 @@ pub(crate) fn detect_archive_type_with_magic(path: &Path) -> std::io::Result<&'s
             } else {
                 Ok("pkg") // Default to macOS
             }
-        },
+        }
         other => Ok(other),
     }
 }

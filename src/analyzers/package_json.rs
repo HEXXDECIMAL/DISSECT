@@ -126,8 +126,12 @@ impl PackageJsonAnalyzer {
 
         // Evaluate all rules (atomic + composite) and merge into report
         // This catches patterns like curl, wget, perl execution, etc.
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None, None);
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            None,
+            None,
+        );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["serde_json".to_string()];
@@ -372,8 +376,10 @@ impl PackageJsonAnalyzer {
             // Check for hidden file references (dotfiles)
             if script.contains("/.") {
                 // Extract the hidden file path
-                let hidden_files: Vec<&str> =
-                    script.split_whitespace().filter(|s| s.contains("/.")).collect();
+                let hidden_files: Vec<&str> = script
+                    .split_whitespace()
+                    .filter(|s| s.contains("/."))
+                    .collect();
                 if !hidden_files.is_empty() {
                     report.add_finding(
                         Finding::indicator(
@@ -964,7 +970,10 @@ impl PackageJsonAnalyzer {
             static RE: OnceLock<regex::Regex> = OnceLock::new();
             RE.get_or_init(|| regex::Regex::new(r#"https?://[^\s'")\]}>]{1,2048}"#).unwrap())
         }
-        url_pattern().find_iter(text).map(|m| m.as_str().to_string()).collect()
+        url_pattern()
+            .find_iter(text)
+            .map(|m| m.as_str().to_string())
+            .collect()
     }
 
     fn extract_ips(&self, text: &str) -> Vec<String> {
@@ -991,7 +1000,9 @@ impl PackageJsonAnalyzer {
         #[allow(clippy::unwrap_used)] // Static regex pattern is hardcoded and valid
         fn path_pattern() -> &'static regex::Regex {
             static RE: OnceLock<regex::Regex> = OnceLock::new();
-            RE.get_or_init(|| regex::Regex::new(r#"(?-u)/[a-zA-Z0-9_./-]+|(?-u)\\[a-zA-Z0-9_.\\-]+"#).unwrap())
+            RE.get_or_init(|| {
+                regex::Regex::new(r#"(?-u)/[a-zA-Z0-9_./-]+|(?-u)\\[a-zA-Z0-9_.\\-]+"#).unwrap()
+            })
         }
         path_pattern()
             .find_iter(text)
@@ -1016,7 +1027,10 @@ impl Analyzer for PackageJsonAnalyzer {
     }
 
     fn can_analyze(&self, file_path: &Path) -> bool {
-        file_path.file_name().map(|n| n == "package.json").unwrap_or(false)
+        file_path
+            .file_name()
+            .map(|n| n == "package.json")
+            .unwrap_or(false)
     }
 }
 
@@ -1035,7 +1049,9 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
+        let report = analyzer
+            .analyze_package(Path::new("package.json"), content)
+            .unwrap();
 
         assert_eq!(report.target.file_type, "package.json");
         assert!(!report.imports.is_empty());
@@ -1052,10 +1068,15 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
+        let report = analyzer
+            .analyze_package(Path::new("package.json"), content)
+            .unwrap();
 
         // Should detect both the install hook and the network operation
-        assert!(report.findings.iter().any(|f| f.id.contains("install-hook")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("install-hook")));
         assert!(report.findings.iter().any(|f| f.id.contains("net/")));
     }
 
@@ -1079,9 +1100,14 @@ mod tests {
         }"#;
 
         let analyzer = PackageJsonAnalyzer::new();
-        let report = analyzer.analyze_package(Path::new("package.json"), content).unwrap();
+        let report = analyzer
+            .analyze_package(Path::new("package.json"), content)
+            .unwrap();
 
-        assert!(report.findings.iter().any(|f| f.id.contains("git-dependency")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("git-dependency")));
     }
 
     #[test]

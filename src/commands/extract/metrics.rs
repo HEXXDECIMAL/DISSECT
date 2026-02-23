@@ -5,7 +5,10 @@
 //! - Source code metrics (lines of code, cyclomatic complexity, etc.)
 //! - Structural metrics (function counts, string statistics)
 
-use crate::analyzers::{self, detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType};
+use crate::analyzers::{
+    self, detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer,
+    FileType,
+};
 use crate::cli;
 use crate::commands::shared::flatten_json_to_metrics;
 use anyhow::Result;
@@ -32,15 +35,15 @@ pub(crate) fn run(
     // analyzers to compute metrics. Radare2 analysis can be slow, but it's controlled
     // by the --disable flag (already in disabled)
     let report = match file_type {
-        FileType::Elf => {
-            ElfAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
-        },
-        FileType::MachO => {
-            MachOAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
-        },
-        FileType::Pe => {
-            PEAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
-        },
+        FileType::Elf => ElfAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
+        FileType::MachO => MachOAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
+        FileType::Pe => PEAnalyzer::new()
+            .with_capability_mapper(capability_mapper)
+            .analyze(path)?,
         _ => {
             // Use the generic analyzer for source code
             if let Some(analyzer) = analyzers::analyzer_for_file_type(&file_type, None) {
@@ -51,7 +54,7 @@ pub(crate) fn run(
                     file_type
                 );
             }
-        },
+        }
     };
 
     // Extract metrics from report and update binary metrics with report data
@@ -68,8 +71,11 @@ pub(crate) fn run(
         // Calculate string metrics
         if !report.strings.is_empty() {
             use crate::entropy::calculate_entropy;
-            let entropies: Vec<f64> =
-                report.strings.iter().map(|s| calculate_entropy(s.value.as_bytes())).collect();
+            let entropies: Vec<f64> = report
+                .strings
+                .iter()
+                .map(|s| calculate_entropy(s.value.as_bytes()))
+                .collect();
 
             let total_entropy: f64 = entropies.iter().sum();
             binary.avg_string_entropy = (total_entropy / entropies.len() as f64) as f32;
@@ -111,8 +117,11 @@ pub(crate) fn run(
 
                 // Track code vs data section entropy
                 let name_lower = section.name.to_lowercase();
-                let is_executable =
-                    section.permissions.as_ref().map(|p| p.contains('x')).unwrap_or(false);
+                let is_executable = section
+                    .permissions
+                    .as_ref()
+                    .map(|p| p.contains('x'))
+                    .unwrap_or(false);
 
                 if name_lower.contains("text") || name_lower.contains("code") || is_executable {
                     code_entropies.push(entropy);
@@ -191,7 +200,7 @@ pub(crate) fn run(
         cli::OutputFormat::Jsonl => {
             // JSON output - just serialize the metrics
             Ok(serde_json::to_string_pretty(&metrics)?)
-        },
+        }
         cli::OutputFormat::Terminal => {
             // Convert metrics to JSON value, then flatten to get all field paths
             let json_value = serde_json::to_value(&metrics)?;
@@ -223,7 +232,7 @@ pub(crate) fn run(
                         } else {
                             n.to_string()
                         }
-                    },
+                    }
                     serde_json::Value::String(s) => s.clone(),
                     serde_json::Value::Bool(b) => b.to_string(),
                     _ => value.to_string(),
@@ -233,6 +242,6 @@ pub(crate) fn run(
             }
 
             Ok(output)
-        },
+        }
     }
 }

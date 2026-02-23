@@ -76,8 +76,8 @@ impl super::CapabilityMapper {
         min_suspicious_precision: f32,
         enable_full_validation: bool,
     ) -> Self {
-        let caps_path = std::env::var("DISSECT_CAPABILITIES")
-            .unwrap_or_else(|_| "traits".to_string());
+        let caps_path =
+            std::env::var("DISSECT_CAPABILITIES").unwrap_or_else(|_| "traits".to_string());
 
         let path = std::path::Path::new(&caps_path);
 

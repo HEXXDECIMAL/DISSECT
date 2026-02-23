@@ -16,19 +16,17 @@ use crate::capabilities::validation::{
     check_same_string_different_types, collect_trait_refs_from_rule,
     find_alternation_merge_candidates, find_banned_directory_segments, find_cap_obj_violations,
     find_depth_violations, find_duplicate_second_level_directories,
-    find_duplicate_traits_and_composites, find_empty_condition_clauses,
-    find_for_only_duplicates, find_hostile_cap_rules, find_impossible_count_constraints,
-    find_impossible_needs, find_impossible_size_constraints, find_inert_obj_rules,
-    find_invalid_trait_ids, find_line_number, find_malware_subcategory_violations,
-    find_missing_search_patterns, find_oversized_trait_directories, find_overlapping_conditions,
+    find_duplicate_traits_and_composites, find_empty_condition_clauses, find_for_only_duplicates,
+    find_hostile_cap_rules, find_impossible_count_constraints, find_impossible_needs,
+    find_impossible_size_constraints, find_inert_obj_rules, find_invalid_trait_ids,
+    find_line_number, find_malware_subcategory_violations, find_missing_search_patterns,
+    find_non_capturing_groups, find_overlapping_conditions, find_oversized_trait_directories,
     find_parent_duplicate_segments, find_platform_named_directories, find_pure_alias_traits,
     find_redundant_any_refs, find_redundant_needs_one, find_short_pattern_warnings,
-    find_single_item_clauses,
-    find_non_capturing_groups, find_slow_regex_patterns, find_string_content_collisions,
-    find_string_pattern_duplicates,
-    precalculate_all_composite_precisions, simple_rule_to_composite_rule,
-    validate_composite_trait_only, validate_hostile_composite_precision,
-    MAX_TRAITS_PER_DIRECTORY,
+    find_single_item_clauses, find_slow_regex_patterns, find_string_content_collisions,
+    find_string_pattern_duplicates, precalculate_all_composite_precisions,
+    simple_rule_to_composite_rule, validate_composite_trait_only,
+    validate_hostile_composite_precision, MAX_TRAITS_PER_DIRECTORY,
 };
 use crate::composite_rules::{
     CompositeTrait, Condition, FileType as RuleFileType, Platform, TraitDefinition,
@@ -130,15 +128,28 @@ impl super::CapabilityMapper {
                                         rayon::join(
                                             || {
                                                 rayon::join(
-                                                    || TraitIndex::build(&cache_data.trait_definitions),
-                                                    || StringMatchIndex::build(&cache_data.trait_definitions),
+                                                    || {
+                                                        TraitIndex::build(
+                                                            &cache_data.trait_definitions,
+                                                        )
+                                                    },
+                                                    || {
+                                                        StringMatchIndex::build(
+                                                            &cache_data.trait_definitions,
+                                                        )
+                                                    },
                                                 )
                                             },
-                                            || RawContentRegexIndex::build(&cache_data.trait_definitions),
+                                            || {
+                                                RawContentRegexIndex::build(
+                                                    &cache_data.trait_definitions,
+                                                )
+                                            },
                                         );
-                                    let raw_content_regex_index = raw_regex_result.map_err(|errs| {
-                                        anyhow::anyhow!("Regex errors: {:?}", errs)
-                                    })?;
+                                    let raw_content_regex_index =
+                                        raw_regex_result.map_err(|errs| {
+                                            anyhow::anyhow!("Regex errors: {:?}", errs)
+                                        })?;
 
                                     return Ok(Self {
                                         symbol_map: cache_data.symbol_map,
@@ -149,15 +160,15 @@ impl super::CapabilityMapper {
                                         raw_content_regex_index,
                                         platforms: vec![Platform::All],
                                     });
-                                },
+                                }
                                 Err(e) => {
                                     tracing::warn!("Failed to deserialize mapper cache: {}", e);
-                                },
+                                }
                             }
-                        },
+                        }
                         Err(e) => {
                             tracing::warn!("Failed to read mapper cache: {}", e);
-                        },
+                        }
                     }
                 }
             }
@@ -248,7 +259,7 @@ impl super::CapabilityMapper {
                     // Format error with full chain (includes filename from context)
                     parse_errors.push(format!("{:#}", e));
                     continue;
-                },
+                }
             };
             files_processed += 1;
 
@@ -374,8 +385,9 @@ impl super::CapabilityMapper {
                     }
 
                     // Check for short case-insensitive patterns (high collision risk)
-                    if let Some(warning) =
-                        trait_def.r#if.check_short_case_insensitive(trait_def.r#for.len())
+                    if let Some(warning) = trait_def
+                        .r#if
+                        .check_short_case_insensitive(trait_def.r#for.len())
                     {
                         warnings.push(format!(
                             "trait '{}' in {:?}: {}",
@@ -464,8 +476,9 @@ impl super::CapabilityMapper {
                     }
 
                     // Check for useless case_insensitive
-                    if let Some(warning) =
-                        trait_def.r#if.check_case_insensitive_on_non_alpha(&trait_def.id)
+                    if let Some(warning) = trait_def
+                        .r#if
+                        .check_case_insensitive_on_non_alpha(&trait_def.id)
                     {
                         warnings.push(format!(
                             "trait '{}' in {:?}: {}",
@@ -542,14 +555,16 @@ impl super::CapabilityMapper {
                 {
                     // If exact is specified, add it directly
                     if let Some(exact_val) = exact {
-                        symbol_map.entry(exact_val.clone()).or_insert_with(|| TraitInfo {
-                            id: trait_def.id.clone(),
-                            desc: trait_def.desc.clone(),
-                            conf: trait_def.conf,
-                            crit: trait_def.crit,
-                            mbc: trait_def.mbc.clone(),
-                            attack: trait_def.attack.clone(),
-                        });
+                        symbol_map
+                            .entry(exact_val.clone())
+                            .or_insert_with(|| TraitInfo {
+                                id: trait_def.id.clone(),
+                                desc: trait_def.desc.clone(),
+                                conf: trait_def.conf,
+                                crit: trait_def.crit,
+                                mbc: trait_def.mbc.clone(),
+                                attack: trait_def.attack.clone(),
+                            });
                     }
 
                     // For each regex pattern (may contain "|" for alternatives)
@@ -678,8 +693,10 @@ impl super::CapabilityMapper {
         }
 
         // Check for unknown file types across all files
-        let file_type_errors: Vec<&String> =
-            warnings.iter().filter(|w| w.contains("Unknown file type")).collect();
+        let file_type_errors: Vec<&String> = warnings
+            .iter()
+            .filter(|w| w.contains("Unknown file type"))
+            .collect();
         if !file_type_errors.is_empty() {
             // Sort and display errors (already include file paths)
             let mut sorted_errors: Vec<&str> =
@@ -890,174 +907,182 @@ impl super::CapabilityMapper {
         // Steps 3-7: Taxonomy and naming validation (skip when validation disabled)
         let dir_list: Vec<String> = known_prefixes.iter().cloned().collect();
         if enable_full_validation {
-        // Check for taxonomy violations: platform/language names as directories
-        // According to TAXONOMY.md, languages should be YAML filenames, not directories
-        tracing::debug!("Step 3/15: Checking for platform-named directories");
-        let platform_dir_violations = find_platform_named_directories(&dir_list);
-        if !platform_dir_violations.is_empty() {
-            eprintln!(
+            // Check for taxonomy violations: platform/language names as directories
+            // According to TAXONOMY.md, languages should be YAML filenames, not directories
+            tracing::debug!("Step 3/15: Checking for platform-named directories");
+            let platform_dir_violations = find_platform_named_directories(&dir_list);
+            if !platform_dir_violations.is_empty() {
+                eprintln!(
                     "\n❌ ERROR: {} directories are named after platforms/languages (TAXONOMY.md violation)",
                     platform_dir_violations.len()
                 );
-            eprintln!("   Languages and platforms should be YAML filenames, not directories:\n");
-            for (dir_path, platform_name) in &platform_dir_violations {
                 eprintln!(
-                    "   {}: contains platform directory '{}'",
-                    dir_path, platform_name
+                    "   Languages and platforms should be YAML filenames, not directories:\n"
                 );
+                for (dir_path, platform_name) in &platform_dir_violations {
+                    eprintln!(
+                        "   {}: contains platform directory '{}'",
+                        dir_path, platform_name
+                    );
+                }
+                eprintln!(
+                    "\n   Example: Instead of 'micro-behaviors/execution/python/runtime.yaml',"
+                );
+                eprintln!("   use 'micro-behaviors/execution/runtime/python.yaml'\n");
+                warnings.push(format!(
+                    "{} directories named after platforms (should be YAML filenames)",
+                    platform_dir_violations.len()
+                ));
             }
-            eprintln!("\n   Example: Instead of 'micro-behaviors/execution/python/runtime.yaml',");
-            eprintln!("   use 'micro-behaviors/execution/runtime/python.yaml'\n");
-            warnings.push(format!(
-                "{} directories named after platforms (should be YAML filenames)",
-                platform_dir_violations.len()
-            ));
-        }
 
-        // Check for duplicate second-level directories across namespaces
-        // According to TAXONOMY.md, directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/
-        tracing::debug!("Step 3b/15: Checking for duplicate second-level directories");
-        let duplicate_dirs = find_duplicate_second_level_directories(&dir_list);
-        if !duplicate_dirs.is_empty() {
-            eprintln!(
+            // Check for duplicate second-level directories across namespaces
+            // According to TAXONOMY.md, directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/
+            tracing::debug!("Step 3b/15: Checking for duplicate second-level directories");
+            let duplicate_dirs = find_duplicate_second_level_directories(&dir_list);
+            if !duplicate_dirs.is_empty() {
+                eprintln!(
                 "\n❌ ERROR: {} second-level directories are duplicated across namespaces (TAXONOMY.md violation)",
                 duplicate_dirs.len()
             );
-            eprintln!("   Second-level directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/:");
-            eprintln!("   This indicates traits are misplaced - objectives should only be in objectives/, capabilities in micro-behaviors/.\n");
-            for (dir_name, namespaces) in &duplicate_dirs {
+                eprintln!("   Second-level directories should not be repeated across metadata/, micro-behaviors/, objectives/, known/:");
+                eprintln!("   This indicates traits are misplaced - objectives should only be in objectives/, capabilities in micro-behaviors/.\n");
+                for (dir_name, namespaces) in &duplicate_dirs {
+                    eprintln!(
+                        "   '{}' appears in: {}/{}/ ",
+                        dir_name,
+                        namespaces.join("/, "),
+                        dir_name
+                    );
+                }
+                eprintln!("\n   Examples:");
+                eprintln!("   - micro-behaviors/command-and-control/ and objectives/command-and-control/ → C2 is an objective, should only be in objectives/");
+                eprintln!("   - micro-behaviors/discovery/ and objectives/discovery/ → Discovery is an objective, should only be in objectives/");
                 eprintln!(
-                    "   '{}' appears in: {}/{}/ ",
-                    dir_name,
-                    namespaces.join("/, "),
-                    dir_name
-                );
-            }
-            eprintln!("\n   Examples:");
-            eprintln!("   - micro-behaviors/command-and-control/ and objectives/command-and-control/ → C2 is an objective, should only be in objectives/");
-            eprintln!("   - micro-behaviors/discovery/ and objectives/discovery/ → Discovery is an objective, should only be in objectives/");
-            eprintln!(
                 "   - micro-behaviors/malware/ and known/malware/ → Malware detection should not be in micro-behaviors/\n"
             );
-            has_fatal_errors = true;
-        }
-
-        // Check for banned meaningless directory segments
-        tracing::debug!("Step 4/15: Checking for banned directory segments");
-        let banned_segment_violations = find_banned_directory_segments(&dir_list);
-        if !banned_segment_violations.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} directories contain meaningless segment names",
-                banned_segment_violations.len()
-            );
-            eprintln!("   These segments add no semantic value and hurt taxonomy clarity:\n");
-            for (dir_path, segment) in &banned_segment_violations {
-                eprintln!("   {}: contains banned segment '{}'", dir_path, segment);
+                has_fatal_errors = true;
             }
-            eprintln!("\n   Use specific, descriptive names instead.\n");
-            warnings.push(format!(
-                "{} directories contain meaningless segments",
-                banned_segment_violations.len()
-            ));
-        }
 
-        // Check for duplicate words in path - REMOVED
-        // This check had too many false positives (e.g., httpx library name)
-
-        // Check for directory names that duplicate their parent
-        tracing::debug!("Step 5/15: Checking for parent duplicate segments");
-        let parent_dup_violations = find_parent_duplicate_segments(&dir_list);
-        if !parent_dup_violations.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} directories duplicate their parent segment",
-                parent_dup_violations.len()
-            );
-            eprintln!("   Child directories should not repeat parent names:\n");
-            for (dir_path, segment) in &parent_dup_violations {
-                eprintln!("   {}: segment '{}' duplicates parent", dir_path, segment);
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} directories duplicate parent segment",
-                parent_dup_violations.len()
-            ));
-        }
-
-        // Check for depth violations: micro-behaviors/ and objectives/ files must be 3-4 subdirectories deep
-        tracing::debug!("Step 6/15: Checking for depth violations");
-        let relative_paths: Vec<String> = yaml_files
-            .iter()
-            .filter_map(|p| {
-                p.strip_prefix(dir_path)
-                    .ok()
-                    .map(|rel| rel.to_string_lossy().replace('\\', "/"))
-            })
-            .collect();
-        let depth_violations = find_depth_violations(&relative_paths);
-        if !depth_violations.is_empty() {
-            let shallow: Vec<_> =
-                depth_violations.iter().filter(|(_, _, kind)| *kind == "shallow").collect();
-            let deep: Vec<_> =
-                depth_violations.iter().filter(|(_, _, kind)| *kind == "deep").collect();
-
-            if !shallow.is_empty() {
+            // Check for banned meaningless directory segments
+            tracing::debug!("Step 4/15: Checking for banned directory segments");
+            let banned_segment_violations = find_banned_directory_segments(&dir_list);
+            if !banned_segment_violations.is_empty() {
                 eprintln!(
+                    "\n❌ ERROR: {} directories contain meaningless segment names",
+                    banned_segment_violations.len()
+                );
+                eprintln!("   These segments add no semantic value and hurt taxonomy clarity:\n");
+                for (dir_path, segment) in &banned_segment_violations {
+                    eprintln!("   {}: contains banned segment '{}'", dir_path, segment);
+                }
+                eprintln!("\n   Use specific, descriptive names instead.\n");
+                warnings.push(format!(
+                    "{} directories contain meaningless segments",
+                    banned_segment_violations.len()
+                ));
+            }
+
+            // Check for duplicate words in path - REMOVED
+            // This check had too many false positives (e.g., httpx library name)
+
+            // Check for directory names that duplicate their parent
+            tracing::debug!("Step 5/15: Checking for parent duplicate segments");
+            let parent_dup_violations = find_parent_duplicate_segments(&dir_list);
+            if !parent_dup_violations.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} directories duplicate their parent segment",
+                    parent_dup_violations.len()
+                );
+                eprintln!("   Child directories should not repeat parent names:\n");
+                for (dir_path, segment) in &parent_dup_violations {
+                    eprintln!("   {}: segment '{}' duplicates parent", dir_path, segment);
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} directories duplicate parent segment",
+                    parent_dup_violations.len()
+                ));
+            }
+
+            // Check for depth violations: micro-behaviors/ and objectives/ files must be 3-4 subdirectories deep
+            tracing::debug!("Step 6/15: Checking for depth violations");
+            let relative_paths: Vec<String> = yaml_files
+                .iter()
+                .filter_map(|p| {
+                    p.strip_prefix(dir_path)
+                        .ok()
+                        .map(|rel| rel.to_string_lossy().replace('\\', "/"))
+                })
+                .collect();
+            let depth_violations = find_depth_violations(&relative_paths);
+            if !depth_violations.is_empty() {
+                let shallow: Vec<_> = depth_violations
+                    .iter()
+                    .filter(|(_, _, kind)| *kind == "shallow")
+                    .collect();
+                let deep: Vec<_> = depth_violations
+                    .iter()
+                    .filter(|(_, _, kind)| *kind == "deep")
+                    .collect();
+
+                if !shallow.is_empty() {
+                    eprintln!(
                     "\n❌ ERROR: {} files are too shallow (need 3-4 subdirectories in micro-behaviors/obj)",
                     shallow.len()
                 );
-                for (path, depth, _) in &shallow {
-                    eprintln!("   {} ({} subdirs, need 3-4)", path, depth);
+                    for (path, depth, _) in &shallow {
+                        eprintln!("   {} ({} subdirs, need 3-4)", path, depth);
+                    }
                 }
-            }
-            if !deep.is_empty() {
-                eprintln!(
+                if !deep.is_empty() {
+                    eprintln!(
                     "\n❌ ERROR: {} files are too deep (max 4 subdirectories in micro-behaviors/obj)",
                     deep.len()
                 );
-                for (path, depth, _) in &deep {
-                    eprintln!("   {} ({} subdirs, max 4)", path, depth);
-                }
-            }
-            warnings.push(format!(
-                "{} files at wrong depth (need 3-4 subdirectories in micro-behaviors/obj)",
-                depth_violations.len()
-            ));
-        }
-
-        // Check for invalid characters in trait/rule IDs
-        tracing::debug!("Step 7/15: Checking for invalid trait IDs");
-        let invalid_ids =
-            find_invalid_trait_ids(&trait_definitions, &composite_rules, &rule_source_files);
-        if !invalid_ids.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} trait/rule IDs contain invalid characters",
-                invalid_ids.len()
-            );
-            if debug {
-                eprintln!("   IDs must only contain alphanumerics, dashes, and underscores:\n");
-                for (id, invalid_char, source_file) in &invalid_ids {
-                    let line_hint = find_line_number(source_file, id);
-                    if let Some(line) = line_hint {
-                        eprintln!(
-                            "   {}:{}: ID '{}' contains invalid char '{}'",
-                            source_file, line, id, invalid_char
-                        );
-                    } else {
-                        eprintln!(
-                            "   {}: ID '{}' contains invalid char '{}'",
-                            source_file, id, invalid_char
-                        );
+                    for (path, depth, _) in &deep {
+                        eprintln!("   {} ({} subdirs, max 4)", path, depth);
                     }
                 }
-                eprintln!("\n   Use only [a-zA-Z0-9_-] in trait IDs. No slashes allowed.\n");
-            } else {
-                eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
+                warnings.push(format!(
+                    "{} files at wrong depth (need 3-4 subdirectories in micro-behaviors/obj)",
+                    depth_violations.len()
+                ));
             }
-            warnings.push(format!(
-                "{} trait/rule IDs contain invalid characters",
-                invalid_ids.len()
-            ));
-        }
+
+            // Check for invalid characters in trait/rule IDs
+            tracing::debug!("Step 7/15: Checking for invalid trait IDs");
+            let invalid_ids =
+                find_invalid_trait_ids(&trait_definitions, &composite_rules, &rule_source_files);
+            if !invalid_ids.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} trait/rule IDs contain invalid characters",
+                    invalid_ids.len()
+                );
+                if debug {
+                    eprintln!("   IDs must only contain alphanumerics, dashes, and underscores:\n");
+                    for (id, invalid_char, source_file) in &invalid_ids {
+                        let line_hint = find_line_number(source_file, id);
+                        if let Some(line) = line_hint {
+                            eprintln!(
+                                "   {}:{}: ID '{}' contains invalid char '{}'",
+                                source_file, line, id, invalid_char
+                            );
+                        } else {
+                            eprintln!(
+                                "   {}: ID '{}' contains invalid char '{}'",
+                                source_file, id, invalid_char
+                            );
+                        }
+                    }
+                    eprintln!("\n   Use only [a-zA-Z0-9_-] in trait IDs. No slashes allowed.\n");
+                } else {
+                    eprintln!("   Set DISSECT_DEBUG=1 to see details\n");
+                }
+                warnings.push(format!(
+                    "{} trait/rule IDs contain invalid characters",
+                    invalid_ids.len()
+                ));
+            }
         } // End of enable_full_validation block for steps 3-7
 
         tracing::debug!("Step 8/15: Validating trait references in composite rules");
@@ -1164,959 +1189,1027 @@ impl super::CapabilityMapper {
 
         // Steps 11-15: Additional validation checks (skip when validation disabled)
         if enable_full_validation {
-        // Validate that composite rules don't reference metadata/internal/ paths
-        // Internal paths are for ML usage only and must not be used in composite rules
-        tracing::debug!("Step 11/15: Checking for internal path references");
-        let mut internal_refs = Vec::new();
-        for rule in &composite_rules {
-            let trait_refs = collect_trait_refs_from_rule(rule);
-            for (ref_id, rule_id) in trait_refs {
-                if ref_id.starts_with("metadata/internal/") {
-                    let source_file =
-                        rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                    internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+            // Validate that composite rules don't reference metadata/internal/ paths
+            // Internal paths are for ML usage only and must not be used in composite rules
+            tracing::debug!("Step 11/15: Checking for internal path references");
+            let mut internal_refs = Vec::new();
+            for rule in &composite_rules {
+                let trait_refs = collect_trait_refs_from_rule(rule);
+                for (ref_id, rule_id) in trait_refs {
+                    if ref_id.starts_with("metadata/internal/") {
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(std::string::String::as_str)
+                            .unwrap_or("unknown");
+                        internal_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
                 }
             }
-        }
 
-        if !internal_refs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules reference internal paths",
-                internal_refs.len()
-            );
-            eprintln!("   Internal paths (metadata/internal/) are for ML usage only and cannot be used in composite rules:\n");
-            for (rule_id, ref_id, source_file) in &internal_refs {
-                let line_hint = find_line_number(source_file, ref_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' references internal path: '{}'",
-                        source_file, line, rule_id, ref_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' references internal path: '{}'",
-                        source_file, rule_id, ref_id
-                    );
+            if !internal_refs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules reference internal paths",
+                    internal_refs.len()
+                );
+                eprintln!("   Internal paths (metadata/internal/) are for ML usage only and cannot be used in composite rules:\n");
+                for (rule_id, ref_id, source_file) in &internal_refs {
+                    let line_hint = find_line_number(source_file, ref_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' references internal path: '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' references internal path: '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
                 }
+                eprintln!("\n   Use metadata/import/ or metadata/dylib/ for import-based detection instead.");
+                warnings.push(format!(
+                    "{} composite rules reference internal paths (metadata/internal/)",
+                    internal_refs.len()
+                ));
             }
-            eprintln!("\n   Use metadata/import/ or metadata/dylib/ for import-based detection instead.");
-            warnings.push(format!(
-                "{} composite rules reference internal paths (metadata/internal/)",
-                internal_refs.len()
-            ));
-        }
 
-        // Validate that micro-behaviors/ rules do not reference objectives/ rules
-        // Cap contains micro-behaviors, obj contains larger behaviors
-        // Cap rules should be independent of obj rules
-        tracing::debug!("Step 12/15: Checking for micro-behaviors/obj violations");
-        let cap_obj_violations =
-            find_cap_obj_violations(&trait_definitions, &composite_rules, &rule_source_files);
+            // Validate that micro-behaviors/ rules do not reference objectives/ rules
+            // Cap contains micro-behaviors, obj contains larger behaviors
+            // Cap rules should be independent of obj rules
+            tracing::debug!("Step 12/15: Checking for micro-behaviors/obj violations");
+            let cap_obj_violations =
+                find_cap_obj_violations(&trait_definitions, &composite_rules, &rule_source_files);
 
-        if !cap_obj_violations.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} micro-behaviors/ rules reference objectives/ rules",
-                cap_obj_violations.len()
-            );
-            eprintln!("   Cap rules (micro-behaviors) should not depend on obj rules (larger behaviors):\n");
-            for (rule_id, ref_id, source_file) in &cap_obj_violations {
-                let line_hint = find_line_number(source_file, ref_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' references obj rule: '{}'",
-                        source_file, line, rule_id, ref_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' references obj rule: '{}'",
-                        source_file, rule_id, ref_id
-                    );
+            if !cap_obj_violations.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} micro-behaviors/ rules reference objectives/ rules",
+                    cap_obj_violations.len()
+                );
+                eprintln!("   Cap rules (micro-behaviors) should not depend on obj rules (larger behaviors):\n");
+                for (rule_id, ref_id, source_file) in &cap_obj_violations {
+                    let line_hint = find_line_number(source_file, ref_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' references obj rule: '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' references obj rule: '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
                 }
-            }
-            eprintln!("\n   Cap rules should only reference other cap rules or meta rules.");
-            warnings.push(format!(
+                eprintln!("\n   Cap rules should only reference other cap rules or meta rules.");
+                warnings.push(format!(
                 "{} micro-behaviors/ rules reference objectives/ rules (cap should not depend on obj)",
                 cap_obj_violations.len()
             ));
-        }
+            }
 
-        // Validate that micro-behaviors/ rules are never hostile
-        // Hostile criticality requires objective-level evidence and belongs in objectives/
-        tracing::debug!("Step 13/15: Checking for hostile cap rules");
-        let hostile_cap_rules =
-            find_hostile_cap_rules(&trait_definitions, &composite_rules, &rule_source_files);
+            // Validate that micro-behaviors/ rules are never hostile
+            // Hostile criticality requires objective-level evidence and belongs in objectives/
+            tracing::debug!("Step 13/15: Checking for hostile cap rules");
+            let hostile_cap_rules =
+                find_hostile_cap_rules(&trait_definitions, &composite_rules, &rule_source_files);
 
-        if !hostile_cap_rules.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} micro-behaviors/ rules have hostile criticality",
-                hostile_cap_rules.len()
-            );
-            eprintln!("   Cap contains micro-behaviors (atomic capabilities) which are generally neutral.");
-            eprintln!(
+            if !hostile_cap_rules.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} micro-behaviors/ rules have hostile criticality",
+                    hostile_cap_rules.len()
+                );
+                eprintln!("   Cap contains micro-behaviors (atomic capabilities) which are generally neutral.");
+                eprintln!(
                 "   Hostile rules require intent inference and should be in objectives/ where they can be"
             );
-            eprintln!("   categorized properly by attacker objective (C2, exfil, impact, etc.):\n");
-            for (rule_id, source_file) in &hostile_cap_rules {
-                let line_hint = find_line_number(source_file, "crit: hostile");
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
-                } else {
-                    eprintln!("   {}: Rule '{}'", source_file, rule_id);
+                eprintln!(
+                    "   categorized properly by attacker objective (C2, exfil, impact, etc.):\n"
+                );
+                for (rule_id, source_file) in &hostile_cap_rules {
+                    let line_hint = find_line_number(source_file, "crit: hostile");
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
+                    } else {
+                        eprintln!("   {}: Rule '{}'", source_file, rule_id);
+                    }
                 }
+                eprintln!("\n   Cap rules max criticality: suspicious (rarely legitimate but still a capability)");
+                eprintln!("   Move hostile rules to objectives/command-and-control/, objectives/exfiltration/, objectives/impact/, etc. based on objective.");
+                warnings.push(format!(
+                    "{} micro-behaviors/ rules have hostile criticality (should be in objectives/)",
+                    hostile_cap_rules.len()
+                ));
             }
-            eprintln!("\n   Cap rules max criticality: suspicious (rarely legitimate but still a capability)");
-            eprintln!("   Move hostile rules to objectives/command-and-control/, objectives/exfiltration/, objectives/impact/, etc. based on objective.");
-            warnings.push(format!(
-                "{} micro-behaviors/ rules have hostile criticality (should be in objectives/)",
-                hostile_cap_rules.len()
-            ));
-        }
 
-        // Validate that objectives/ rules are never inert
-        // Obj rules represent attacker objectives and must carry analytical signal.
-        // Inert rules either belong in micro-behaviors/ or metadata/ (if truly neutral), or should
-        // be upgraded to notable if they indicate something of interest or suspicion.
-        //
-        // NOTE: This is currently a non-fatal warning as an experiment. Other validation
-        // warnings remain fatal.
-        tracing::debug!("Step 13b/15: Checking for inert obj rules");
-        let inert_obj_rules =
-            find_inert_obj_rules(&trait_definitions, &composite_rules, &rule_source_files);
+            // Validate that objectives/ rules are never inert
+            // Obj rules represent attacker objectives and must carry analytical signal.
+            // Inert rules either belong in micro-behaviors/ or metadata/ (if truly neutral), or should
+            // be upgraded to notable if they indicate something of interest or suspicion.
+            //
+            // NOTE: This is currently a non-fatal warning as an experiment. Other validation
+            // warnings remain fatal.
+            tracing::debug!("Step 13b/15: Checking for inert obj rules");
+            let inert_obj_rules =
+                find_inert_obj_rules(&trait_definitions, &composite_rules, &rule_source_files);
 
-        if !inert_obj_rules.is_empty() {
-            eprintln!(
-                "\n⚠️  WARNING: {} objectives/ rules have inert criticality",
-                inert_obj_rules.len()
+            if !inert_obj_rules.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} objectives/ rules have inert criticality",
+                    inert_obj_rules.len()
+                );
+                eprintln!(
+                    "   Obj rules represent attacker objectives and must carry analytical signal."
+                );
+                eprintln!("   Inert findings have no place in objectives/ - every objective implies intent:\n");
+                for (rule_id, source_file) in &inert_obj_rules {
+                    let line_hint = find_line_number(source_file, "crit: inert");
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
+                    } else {
+                        eprintln!("   {}: Rule '{}'", source_file, rule_id);
+                    }
+                }
+                eprintln!("\n   To fix:");
+                eprintln!(
+                    "   - If truly neutral (no intent), migrate to micro-behaviors/ or metadata/"
+                );
+                eprintln!("   - If it leans toward any level of interest or suspicion, upgrade to notable");
+                eprintln!("   - See TAXONOMY.md for guidance on trait classification\n");
+                // NOTE: NOT adding to warnings list - this is non-fatal for now
+            }
+
+            // Validate that malware/ is not used as a subcategory of objectives/ or micro-behaviors/
+            // Malware-specific signatures belong in known/malware/ per TAXONOMY.md
+            tracing::debug!("Step 13b/15: Checking for misplaced malware/ subcategories");
+            let malware_violations = find_malware_subcategory_violations(
+                &trait_definitions,
+                &composite_rules,
+                &rule_source_files,
             );
-            eprintln!("   Obj rules represent attacker objectives and must carry analytical signal.");
-            eprintln!("   Inert findings have no place in objectives/ - every objective implies intent:\n");
-            for (rule_id, source_file) in &inert_obj_rules {
-                let line_hint = find_line_number(source_file, "crit: inert");
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: Rule '{}'", source_file, line, rule_id);
-                } else {
-                    eprintln!("   {}: Rule '{}'", source_file, rule_id);
-                }
-            }
-            eprintln!("\n   To fix:");
-            eprintln!("   - If truly neutral (no intent), migrate to micro-behaviors/ or metadata/");
-            eprintln!("   - If it leans toward any level of interest or suspicion, upgrade to notable");
-            eprintln!("   - See TAXONOMY.md for guidance on trait classification\n");
-            // NOTE: NOT adding to warnings list - this is non-fatal for now
-        }
 
-        // Validate that malware/ is not used as a subcategory of objectives/ or micro-behaviors/
-        // Malware-specific signatures belong in known/malware/ per TAXONOMY.md
-        tracing::debug!("Step 13b/15: Checking for misplaced malware/ subcategories");
-        let malware_violations = find_malware_subcategory_violations(
-            &trait_definitions,
-            &composite_rules,
-            &rule_source_files,
-        );
-
-        if !malware_violations.is_empty() {
-            eprintln!(
+            if !malware_violations.is_empty() {
+                eprintln!(
                 "\n❌ ERROR: {} rules use malware/ as a subcategory of objectives/ or micro-behaviors/",
                 malware_violations.len()
             );
-            eprintln!("   Malware-specific signatures belong in known/malware/, not objectives/ or micro-behaviors/.");
-            eprintln!("   See TAXONOMY.md for the correct taxonomy structure:\n");
-            for (rule_id, source_file) in &malware_violations {
-                eprintln!("   {}: Rule '{}'", source_file, rule_id);
-            }
-            eprintln!("\n   Move these rules to known/malware/<family>/ instead.");
-            warnings.push(format!(
+                eprintln!("   Malware-specific signatures belong in known/malware/, not objectives/ or micro-behaviors/.");
+                eprintln!("   See TAXONOMY.md for the correct taxonomy structure:\n");
+                for (rule_id, source_file) in &malware_violations {
+                    eprintln!("   {}: Rule '{}'", source_file, rule_id);
+                }
+                eprintln!("\n   Move these rules to known/malware/<family>/ instead.");
+                warnings.push(format!(
                 "{} rules misuse malware/ as a subcategory of objectives/ or micro-behaviors/ (see TAXONOMY.md)",
                 malware_violations.len()
             ));
-            has_fatal_errors = true;
-        }
-
-        // Validate that `any:` clauses don't have 3+ traits from the same external directory
-        // Recommend using directory references instead for better maintainability
-        tracing::debug!("Step 14/15: Checking for redundant any refs");
-        let mut redundant_any_refs = Vec::new();
-        for rule in &composite_rules {
-            let violations = find_redundant_any_refs(rule);
-            for (rule_id, dir, count, trait_ids) in violations {
-                let source_file =
-                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                redundant_any_refs.push((rule_id, dir, count, trait_ids, source_file.to_string()));
+                has_fatal_errors = true;
             }
-        }
 
-        if !redundant_any_refs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have redundant any: clauses",
-                redundant_any_refs.len()
-            );
-            eprintln!("   Rules with 4+ trait references from the same directory should use directory notation:\n");
-            for (rule_id, dir, count, trait_ids, source_file) in &redundant_any_refs {
-                let line_hint = find_line_number(source_file, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' references {} traits from '{}'",
-                        source_file, line, rule_id, count, dir
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' references {} traits from '{}'",
-                        source_file, rule_id, count, dir
-                    );
-                }
-                eprintln!("      Traits: {}", trait_ids.join(", "));
-                eprintln!("      Recommendation: Use 'id: {}', or create a new subdirectory within it to hold common traits instead.\n", dir);
-            }
-            warnings.push(format!(
-                "{} composite rules have redundant any: clauses (use directory notation)",
-                redundant_any_refs.len()
-            ));
-        }
-
-        // Validate that `any:` and `all:` clauses don't have exactly 1 item
-        // Single-item clauses are pointless wrappers that add complexity
-        tracing::debug!("Step 15/15: Checking for single-item clauses");
-        let mut single_item_clauses = Vec::new();
-        for rule in &composite_rules {
-            let violations = find_single_item_clauses(rule);
-            for (rule_id, clause_type, trait_id) in violations {
-                let source_file =
-                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                single_item_clauses.push((rule_id, clause_type, trait_id, source_file.to_string()));
-            }
-        }
-
-        if !single_item_clauses.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have single-item any:/all: clauses",
-                single_item_clauses.len()
-            );
-            eprintln!(
-                "   Single-item clauses add no value - reference the trait directly instead:\n"
-            );
-            for (rule_id, clause_type, trait_id, source_file) in &single_item_clauses {
-                let line_hint = find_line_number(source_file, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' has single-item {}: clause referencing '{}'",
-                        source_file, line, rule_id, clause_type, trait_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' has single-item {}: clause referencing '{}'",
-                        source_file, rule_id, clause_type, trait_id
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} composite rules have single-item any:/all: clauses",
-                single_item_clauses.len()
-            ));
-        }
-
-        // Validate that all:/any: clauses don't contain overlapping IDs.
-        // A directory reference subsumes any specific trait from that directory.
-        let mut overlapping = Vec::new();
-        for rule in &composite_rules {
-            for (rule_id, clause, dir_ref, specific_ref) in find_overlapping_conditions(rule) {
-                let source_file =
-                    rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                overlapping.push((rule_id, clause, dir_ref, specific_ref, source_file.to_string()));
-            }
-        }
-        if !overlapping.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have overlapping all:/any: conditions",
-                overlapping.len()
-            );
-            eprintln!("   A directory reference already includes all traits within it;\n   remove the specific trait reference:\n");
-            for (rule_id, clause, dir_ref, specific_ref, source_file) in &overlapping {
-                let line_hint = find_line_number(source_file, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
-                        source_file, line, rule_id, clause, specific_ref, dir_ref
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
-                        source_file, rule_id, clause, specific_ref, dir_ref
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} composite rules have overlapping all:/any: conditions",
-                overlapping.len()
-            ));
-            has_fatal_errors = true;
-        }
-
-        // Validate: string vs raw type collisions (same pattern at same criticality)
-        // These should be merged to just `raw` (which is broader)
-        let collisions = find_string_content_collisions(&trait_definitions);
-        if !collisions.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} trait pairs have string/raw type collisions",
-                collisions.len()
-            );
-            eprintln!("   When both `type: string` and `type: raw` exist for the same pattern,");
-            eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
-            for (string_id, raw_id, pattern) in &collisions {
-                let string_source =
-                    rule_source_files.get(string_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(string_source, string_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: string trait '{}' duplicates raw trait '{}'",
-                        string_source, line, string_id, raw_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: string trait '{}' duplicates raw trait '{}'",
-                        string_source, string_id, raw_id
-                    );
-                }
-                eprintln!("      Pattern: {}", pattern);
-                eprintln!("      Action: Delete the string trait, keep the raw trait\n");
-            }
-            warnings.push(format!(
-                "{} string/raw type collisions (merge to raw only)",
-                collisions.len()
-            ));
-        }
-
-        // Validate: traits that differ only in `for:` field should be merged
-        let for_duplicates = find_for_only_duplicates(&trait_definitions);
-        if !for_duplicates.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} trait groups differ only in `for:` field",
-                for_duplicates.len()
-            );
-            eprintln!("   These traits have identical logic (same criticality, condition, etc.) but different file types.");
-            eprintln!("   Merge them into a single trait with combined `for:` values:\n");
-            for (trait_ids, _pattern) in &for_duplicates {
-                // Find source file for the first trait
-                let first_id = &trait_ids[0];
-                let source =
-                    rule_source_files.get(first_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, first_id);
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
-                } else {
-                    eprintln!("   {}: {}", source, trait_ids.join(", "));
-                }
-                eprintln!(
-                    "      Action: Merge into single trait with `for: [combined file types]`\n"
-                );
-            }
-            warnings.push(format!(
-                "{} trait groups differ only in `for:` field (should be merged)",
-                for_duplicates.len()
-            ));
-        }
-
-        // Validate: regex patterns that could be merged with alternation (case-only differences)
-        // e.g., `nc\s+-e` and `NC\s+-e` -> `(nc|NC)\s+-e`
-        let alternation_candidates =
-            find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
-        if !alternation_candidates.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} trait groups have regex patterns that should use alternation",
-                alternation_candidates.len()
-            );
-            eprintln!("   These traits have identical criticality and regex patterns where the first token differs only in case.");
-            eprintln!("   Merge them into a single trait using alternation syntax:\n");
-            for (trait_ids, _suffix, suggested) in &alternation_candidates {
-                let first_id = &trait_ids[0];
-                let source =
-                    rule_source_files.get(first_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, first_id);
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
-                } else {
-                    eprintln!("   {}: {}", source, trait_ids.join(", "));
-                }
-                eprintln!("      Suggested regex: {}\n", suggested);
-            }
-            warnings.push(format!(
-                "{} trait groups should use regex alternation",
-                alternation_candidates.len()
-            ));
-        }
-
-        // Validate: `needs` value exceeds number of items in `any:` (impossible to satisfy)
-        let impossible_needs = find_impossible_needs(&composite_rules);
-        if !impossible_needs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have impossible `needs` values",
-                impossible_needs.len()
-            );
-            eprintln!("   The `needs` value exceeds the number of items in `any:`:\n");
-            for (rule_id, needs, any_len) in &impossible_needs {
-                let source =
-                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: '{}' has needs: {} but only {} items in any:",
-                        source, line, rule_id, needs, any_len
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: '{}' has needs: {} but only {} items in any:",
-                        source, rule_id, needs, any_len
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} composite rules have impossible `needs` values",
-                impossible_needs.len()
-            ));
-        }
-
-        // Validate: size_min > size_max (impossible constraint)
-        let impossible_sizes =
-            find_impossible_size_constraints(&trait_definitions, &composite_rules);
-        if !impossible_sizes.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} rules have impossible size constraints (size_min > size_max)",
-                impossible_sizes.len()
-            );
-            for (id, min, max, is_composite) in &impossible_sizes {
-                let kind = if *is_composite { "composite" } else { "trait" };
-                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: {} '{}' has size_min: {} > size_max: {}",
-                        source, line, kind, id, min, max
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: {} '{}' has size_min: {} > size_max: {}",
-                        source, kind, id, min, max
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} rules have impossible size constraints",
-                impossible_sizes.len()
-            ));
-        }
-
-        // Validate: count_min > count_max (impossible constraint)
-        let impossible_counts = find_impossible_count_constraints(&trait_definitions);
-        if !impossible_counts.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} traits have impossible count constraints (count_min > count_max)",
-                impossible_counts.len()
-            );
-            for (id, min, max) in &impossible_counts {
-                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: '{}' has count_min: {} > count_max: {}",
-                        source, line, id, min, max
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: '{}' has count_min: {} > count_max: {}",
-                        source, id, min, max
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} traits have impossible count constraints",
-                impossible_counts.len()
-            ));
-        }
-
-        // Validate: empty any:/all: clauses with no other conditions
-        let empty_clauses = find_empty_condition_clauses(&composite_rules);
-        if !empty_clauses.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have empty condition clauses",
-                empty_clauses.len()
-            );
-            eprintln!("   Empty `any:` or `all:` clauses make rules meaningless:\n");
-            for (rule_id, clause_type) in &empty_clauses {
-                let source =
-                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: '{}' has empty `{}:` clause",
-                        source, line, rule_id, clause_type
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: '{}' has empty `{}:` clause",
-                        source, rule_id, clause_type
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} composite rules have empty condition clauses",
-                empty_clauses.len()
-            ));
-        }
-
-        // Validate: string/content conditions with no search pattern
-        let missing_patterns = find_missing_search_patterns(&trait_definitions);
-        if !missing_patterns.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} traits have no search pattern",
-                missing_patterns.len()
-            );
-            eprintln!(
-                "   String/content conditions need at least one of: exact, substr, regex, word:\n"
-            );
-            for id in &missing_patterns {
-                let source = rule_source_files.get(id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, id);
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: '{}'", source, line, id);
-                } else {
-                    eprintln!("   {}: '{}'", source, id);
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} traits have no search pattern",
-                missing_patterns.len()
-            ));
-        }
-
-        // Validate: redundant `needs: 1` when only `any:` exists
-        let redundant_needs = find_redundant_needs_one(&composite_rules);
-        if !redundant_needs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have redundant `needs: 1`",
-                redundant_needs.len()
-            );
-            eprintln!("   `needs: 1` is the default when only `any:` exists - remove it:\n");
-            for rule_id in &redundant_needs {
-                let source =
-                    rule_source_files.get(rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: '{}'", source, line, rule_id);
-                } else {
-                    eprintln!("   {}: '{}'", source, rule_id);
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} composite rules have redundant `needs: 1`",
-                redundant_needs.len()
-            ));
-        }
-
-        // Validate: pure alias traits that add no value
-        let pure_aliases = find_pure_alias_traits(&trait_definitions);
-        if !pure_aliases.is_empty() {
-            eprintln!(
-                "\n⚠️  WARNING: {} traits are pure aliases with no added value",
-                pure_aliases.len()
-            );
-            eprintln!("   These traits reference another trait via `if: id:` but add no constraints:");
-            eprintln!("   - No filtering (count_min, count_max, section, etc.)");
-            eprintln!("   - Same criticality as referenced trait");
-            eprintln!("   - No unless/not/downgrade modifiers");
-            eprintln!("   Either add constraints/modifiers or reference the original trait directly:\n");
-            for (trait_id, ref_id) in &pure_aliases {
-                let source =
-                    rule_source_files.get(trait_id).map(std::string::String::as_str).unwrap_or("unknown");
-                let line_hint = find_line_number(source, trait_id);
-                if let Some(line) = line_hint {
-                    eprintln!("   {}:{}: '{}' -> '{}'", source, line, trait_id, ref_id);
-                } else {
-                    eprintln!("   {}: '{}' -> '{}'", source, trait_id, ref_id);
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} traits are pure aliases with no added value",
-                pure_aliases.len()
-            ));
-        }
-
-        // Validate: short patterns that are likely to produce too many false positives
-        let short_pattern_warnings = find_short_pattern_warnings(&trait_definitions, &trait_source_files);
-        if !short_pattern_warnings.is_empty() {
-            eprintln!(
-                "\n⚠️  WARNING: {} traits have open-ended short patterns",
-                short_pattern_warnings.len()
-            );
-            eprintln!("   Open-ended short patterns are too likely to create false positives.");
-            eprintln!("   Try to create a more specific trait; see RULES.md for details.\n");
-            for (trait_id, pattern, pattern_type, source_file) in &short_pattern_warnings {
-                let line_hint = find_line_number(source_file, pattern);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Trait '{}' uses {} pattern '{}'",
-                        source_file, line, trait_id, pattern_type, pattern
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Trait '{}' uses {} pattern '{}'",
-                        source_file, trait_id, pattern_type, pattern
-                    );
-                }
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} traits have open-ended short patterns",
-                short_pattern_warnings.len()
-            ));
-        }
-
-        // Validate: directories with too many traits (should be split)
-        let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
-        if !oversized_dirs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} directories have more than {} traits",
-                oversized_dirs.len(),
-                MAX_TRAITS_PER_DIRECTORY
-            );
-            eprintln!("   Consider splitting these into subdirectories:\n");
-            for (dir_path, count) in &oversized_dirs {
-                eprintln!("   {}: {} traits", dir_path, count);
-            }
-            eprintln!();
-            warnings.push(format!(
-                "{} directories exceed {} traits (consider splitting)",
-                oversized_dirs.len(),
-                MAX_TRAITS_PER_DIRECTORY
-            ));
-        }
-
-        let mut broken_refs = Vec::new();
-        for rule in &composite_rules {
-            let trait_refs = collect_trait_refs_from_rule(rule);
-            for (ref_id, rule_id) in trait_refs {
-                // Skip validation for directory-level references (intentional loose coupling)
-                // e.g., "discovery/system" matches any trait in that directory
-                // Also allow parent directory refs like "micro-behaviors/fs/write/" when traits exist in subdirs
-                let ref_without_slash = ref_id.trim_end_matches('/');
-                // O(1) prefix hierarchy lookup instead of O(n) iteration
-                let is_directory_ref = prefix_hierarchy.contains(&ref_id)
-                    || prefix_hierarchy.contains(ref_without_slash);
-
-                // Skip validation for dynamically generated metadata/* references
-                // - metadata/import/ and metadata/dylib/ are generated from binary imports
-                // - metadata/signed/ is generated from code signature parsing
-                // - metadata/internal/ is validated separately (forbidden in composite rules)
-                let is_dynamic_or_internal = ref_id.starts_with("metadata/import/")
-                    || ref_id.starts_with("metadata/dylib/")
-                    || ref_id.starts_with("metadata/signed/")
-                    || ref_id.starts_with("metadata/internal/");
-
-                // Check if the exact trait ID exists (unless it's an intentional directory ref)
-                // Note: We require exact matches. References like "micro-behaviors/foo/bar/filename" where
-                // "filename" is a YAML file (not a directory) are invalid - filenames are never
-                // part of trait IDs, only the directory path is used for prefixing.
-                if !is_directory_ref
-                    && !is_dynamic_or_internal
-                    && !valid_trait_ids.contains(&ref_id)
-                {
-                    // Debug: Print broken reference details
-                    if std::env::var("DISSECT_DEBUG").is_ok()
-                        && (ref_id.contains("tiny-elf")
-                            || ref_id.contains("small-elf")
-                            || ref_id.contains("setup-py")
-                            || ref_id.contains("pkginfo"))
-                    {
-                        eprintln!(
-                            "[DEBUG] Broken reference: '{}' (from rule '{}')",
-                            ref_id, rule_id
-                        );
-                    }
-                    let source_file =
-                        rule_source_files.get(&rule_id).map(std::string::String::as_str).unwrap_or("unknown");
-                    broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
-                }
-            }
-        }
-
-        if !broken_refs.is_empty() {
-            eprintln!(
-                "\n⚠️  WARNING: {} broken trait references found in composite rules",
-                broken_refs.len()
-            );
-            eprintln!("   Composite rules reference trait IDs that don't exist:\n");
-            for (rule_id, ref_id, source_file) in &broken_refs {
-                let line_hint = find_line_number(source_file, ref_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Rule '{}' references non-existent trait: '{}'",
-                        source_file, line, rule_id, ref_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Rule '{}' references non-existent trait: '{}'",
-                        source_file, rule_id, ref_id
-                    );
-                }
-            }
-            eprintln!();
-            // NOTE: Temporarily non-fatal - will be fixed separately
-        }
-
-        // Validate metric field references
-        let valid_metric_fields = super::helpers::get_valid_metric_fields();
-        let mut invalid_metric_refs = Vec::new();
-
-        for trait_def in &trait_definitions {
-            let metric_fields = super::helpers::collect_metric_refs_from_trait(trait_def);
-            for field in metric_fields {
-                if !valid_metric_fields.contains(&field) {
-                    let source_file = trait_source_files
-                        .get(&trait_def.id)
+            // Validate that `any:` clauses don't have 3+ traits from the same external directory
+            // Recommend using directory references instead for better maintainability
+            tracing::debug!("Step 14/15: Checking for redundant any refs");
+            let mut redundant_any_refs = Vec::new();
+            for rule in &composite_rules {
+                let violations = find_redundant_any_refs(rule);
+                for (rule_id, dir, count, trait_ids) in violations {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
                         .map(std::string::String::as_str)
                         .unwrap_or("unknown");
-                    invalid_metric_refs.push((
-                        trait_def.id.clone(),
-                        field,
+                    redundant_any_refs.push((
+                        rule_id,
+                        dir,
+                        count,
+                        trait_ids,
                         source_file.to_string(),
                     ));
                 }
             }
-        }
 
-        if !invalid_metric_refs.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} unknown metric field references found in traits",
-                invalid_metric_refs.len()
-            );
-            eprintln!("   Traits reference metric fields that don't exist:\n");
-            for (trait_id, field, source_file) in &invalid_metric_refs {
-                let line_hint = find_line_number(source_file, field);
-                let suggestion = super::helpers::suggest_metric_field(&valid_metric_fields, field);
-                if let Some(line) = line_hint {
-                    if let Some(suggested) = suggestion {
+            if !redundant_any_refs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have redundant any: clauses",
+                    redundant_any_refs.len()
+                );
+                eprintln!("   Rules with 4+ trait references from the same directory should use directory notation:\n");
+                for (rule_id, dir, count, trait_ids, source_file) in &redundant_any_refs {
+                    let line_hint = find_line_number(source_file, rule_id);
+                    if let Some(line) = line_hint {
                         eprintln!(
-                            "   {}:{}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
-                            source_file, line, trait_id, field, suggested
+                            "   {}:{}: Rule '{}' references {} traits from '{}'",
+                            source_file, line, rule_id, count, dir
                         );
                     } else {
                         eprintln!(
-                            "   {}:{}: Trait '{}' references unknown metric '{}'",
-                            source_file, line, trait_id, field
+                            "   {}: Rule '{}' references {} traits from '{}'",
+                            source_file, rule_id, count, dir
                         );
                     }
-                } else if let Some(suggested) = suggestion {
-                    eprintln!(
-                        "   {}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
-                        source_file, trait_id, field, suggested
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Trait '{}' references unknown metric '{}'",
-                        source_file, trait_id, field
-                    );
+                    eprintln!("      Traits: {}", trait_ids.join(", "));
+                    eprintln!("      Recommendation: Use 'id: {}', or create a new subdirectory within it to hold common traits instead.\n", dir);
+                }
+                warnings.push(format!(
+                    "{} composite rules have redundant any: clauses (use directory notation)",
+                    redundant_any_refs.len()
+                ));
+            }
+
+            // Validate that `any:` and `all:` clauses don't have exactly 1 item
+            // Single-item clauses are pointless wrappers that add complexity
+            tracing::debug!("Step 15/15: Checking for single-item clauses");
+            let mut single_item_clauses = Vec::new();
+            for rule in &composite_rules {
+                let violations = find_single_item_clauses(rule);
+                for (rule_id, clause_type, trait_id) in violations {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    single_item_clauses.push((
+                        rule_id,
+                        clause_type,
+                        trait_id,
+                        source_file.to_string(),
+                    ));
                 }
             }
-            eprintln!("\n   Valid metric fields:");
-            let mut sorted_fields: Vec<&String> = valid_metric_fields.iter().collect();
-            sorted_fields.sort();
-            for field in sorted_fields.iter().take(10) {
-                eprintln!("     - {}", field);
-            }
-            if sorted_fields.len() > 10 {
-                eprintln!("     ... and {} more", sorted_fields.len() - 10);
-            }
-            eprintln!();
-            has_fatal_errors = true;
-        }
 
-        // Validate that composite rules only contain trait references (not inline primitives)
-        // Strict mode is the default - composite rules must only reference traits
-        let mut inline_errors = Vec::new();
-        for rule in &composite_rules {
-            let source = rule_source_files.get(&rule.id).map(std::string::String::as_str).unwrap_or("unknown");
-            inline_errors.extend(validate_composite_trait_only(rule, source));
-        }
+            if !single_item_clauses.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have single-item any:/all: clauses",
+                    single_item_clauses.len()
+                );
+                eprintln!(
+                    "   Single-item clauses add no value - reference the trait directly instead:\n"
+                );
+                for (rule_id, clause_type, trait_id, source_file) in &single_item_clauses {
+                    let line_hint = find_line_number(source_file, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' has single-item {}: clause referencing '{}'",
+                            source_file, line, rule_id, clause_type, trait_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' has single-item {}: clause referencing '{}'",
+                            source_file, rule_id, clause_type, trait_id
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} composite rules have single-item any:/all: clauses",
+                    single_item_clauses.len()
+                ));
+            }
 
-        if !inline_errors.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} composite rules have inline primitives\n",
-                inline_errors.len()
+            // Validate that all:/any: clauses don't contain overlapping IDs.
+            // A directory reference subsumes any specific trait from that directory.
+            let mut overlapping = Vec::new();
+            for rule in &composite_rules {
+                for (rule_id, clause, dir_ref, specific_ref) in find_overlapping_conditions(rule) {
+                    let source_file = rule_source_files
+                        .get(&rule_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    overlapping.push((
+                        rule_id,
+                        clause,
+                        dir_ref,
+                        specific_ref,
+                        source_file.to_string(),
+                    ));
+                }
+            }
+            if !overlapping.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have overlapping all:/any: conditions",
+                    overlapping.len()
+                );
+                eprintln!("   A directory reference already includes all traits within it;\n   remove the specific trait reference:\n");
+                for (rule_id, clause, dir_ref, specific_ref, source_file) in &overlapping {
+                    let line_hint = find_line_number(source_file, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
+                            source_file, line, rule_id, clause, specific_ref, dir_ref
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' {}: clause - '{}' is subsumed by '{}'",
+                            source_file, rule_id, clause, specific_ref, dir_ref
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} composite rules have overlapping all:/any: conditions",
+                    overlapping.len()
+                ));
+                has_fatal_errors = true;
+            }
+
+            // Validate: string vs raw type collisions (same pattern at same criticality)
+            // These should be merged to just `raw` (which is broader)
+            let collisions = find_string_content_collisions(&trait_definitions);
+            if !collisions.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} trait pairs have string/raw type collisions",
+                    collisions.len()
+                );
+                eprintln!(
+                    "   When both `type: string` and `type: raw` exist for the same pattern,"
+                );
+                eprintln!("   merge to `raw` only (it's broader and includes string matches):\n");
+                for (string_id, raw_id, pattern) in &collisions {
+                    let string_source = rule_source_files
+                        .get(string_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(string_source, string_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: string trait '{}' duplicates raw trait '{}'",
+                            string_source, line, string_id, raw_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: string trait '{}' duplicates raw trait '{}'",
+                            string_source, string_id, raw_id
+                        );
+                    }
+                    eprintln!("      Pattern: {}", pattern);
+                    eprintln!("      Action: Delete the string trait, keep the raw trait\n");
+                }
+                warnings.push(format!(
+                    "{} string/raw type collisions (merge to raw only)",
+                    collisions.len()
+                ));
+            }
+
+            // Validate: traits that differ only in `for:` field should be merged
+            let for_duplicates = find_for_only_duplicates(&trait_definitions);
+            if !for_duplicates.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} trait groups differ only in `for:` field",
+                    for_duplicates.len()
+                );
+                eprintln!("   These traits have identical logic (same criticality, condition, etc.) but different file types.");
+                eprintln!("   Merge them into a single trait with combined `for:` values:\n");
+                for (trait_ids, _pattern) in &for_duplicates {
+                    // Find source file for the first trait
+                    let first_id = &trait_ids[0];
+                    let source = rule_source_files
+                        .get(first_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, first_id);
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
+                    } else {
+                        eprintln!("   {}: {}", source, trait_ids.join(", "));
+                    }
+                    eprintln!(
+                        "      Action: Merge into single trait with `for: [combined file types]`\n"
+                    );
+                }
+                warnings.push(format!(
+                    "{} trait groups differ only in `for:` field (should be merged)",
+                    for_duplicates.len()
+                ));
+            }
+
+            // Validate: regex patterns that could be merged with alternation (case-only differences)
+            // e.g., `nc\s+-e` and `NC\s+-e` -> `(nc|NC)\s+-e`
+            let alternation_candidates =
+                find_alternation_merge_candidates(&trait_definitions, &trait_source_files);
+            if !alternation_candidates.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} trait groups have regex patterns that should use alternation",
+                    alternation_candidates.len()
+                );
+                eprintln!("   These traits have identical criticality and regex patterns where the first token differs only in case.");
+                eprintln!("   Merge them into a single trait using alternation syntax:\n");
+                for (trait_ids, _suffix, suggested) in &alternation_candidates {
+                    let first_id = &trait_ids[0];
+                    let source = rule_source_files
+                        .get(first_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, first_id);
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: {}", source, line, trait_ids.join(", "));
+                    } else {
+                        eprintln!("   {}: {}", source, trait_ids.join(", "));
+                    }
+                    eprintln!("      Suggested regex: {}\n", suggested);
+                }
+                warnings.push(format!(
+                    "{} trait groups should use regex alternation",
+                    alternation_candidates.len()
+                ));
+            }
+
+            // Validate: `needs` value exceeds number of items in `any:` (impossible to satisfy)
+            let impossible_needs = find_impossible_needs(&composite_rules);
+            if !impossible_needs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have impossible `needs` values",
+                    impossible_needs.len()
+                );
+                eprintln!("   The `needs` value exceeds the number of items in `any:`:\n");
+                for (rule_id, needs, any_len) in &impossible_needs {
+                    let source = rule_source_files
+                        .get(rule_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: '{}' has needs: {} but only {} items in any:",
+                            source, line, rule_id, needs, any_len
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: '{}' has needs: {} but only {} items in any:",
+                            source, rule_id, needs, any_len
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} composite rules have impossible `needs` values",
+                    impossible_needs.len()
+                ));
+            }
+
+            // Validate: size_min > size_max (impossible constraint)
+            let impossible_sizes =
+                find_impossible_size_constraints(&trait_definitions, &composite_rules);
+            if !impossible_sizes.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} rules have impossible size constraints (size_min > size_max)",
+                    impossible_sizes.len()
+                );
+                for (id, min, max, is_composite) in &impossible_sizes {
+                    let kind = if *is_composite { "composite" } else { "trait" };
+                    let source = rule_source_files
+                        .get(id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: {} '{}' has size_min: {} > size_max: {}",
+                            source, line, kind, id, min, max
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: {} '{}' has size_min: {} > size_max: {}",
+                            source, kind, id, min, max
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} rules have impossible size constraints",
+                    impossible_sizes.len()
+                ));
+            }
+
+            // Validate: count_min > count_max (impossible constraint)
+            let impossible_counts = find_impossible_count_constraints(&trait_definitions);
+            if !impossible_counts.is_empty() {
+                eprintln!(
+                "\n❌ ERROR: {} traits have impossible count constraints (count_min > count_max)",
+                impossible_counts.len()
             );
-            for err in &inline_errors {
-                eprintln!("   {}", err);
+                for (id, min, max) in &impossible_counts {
+                    let source = rule_source_files
+                        .get(id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: '{}' has count_min: {} > count_max: {}",
+                            source, line, id, min, max
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: '{}' has count_min: {} > count_max: {}",
+                            source, id, min, max
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} traits have impossible count constraints",
+                    impossible_counts.len()
+                ));
             }
-            eprintln!("\n   Composite rules must only reference traits (type: trait).");
-            eprintln!(
-                "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.\n"
+
+            // Validate: empty any:/all: clauses with no other conditions
+            let empty_clauses = find_empty_condition_clauses(&composite_rules);
+            if !empty_clauses.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have empty condition clauses",
+                    empty_clauses.len()
+                );
+                eprintln!("   Empty `any:` or `all:` clauses make rules meaningless:\n");
+                for (rule_id, clause_type) in &empty_clauses {
+                    let source = rule_source_files
+                        .get(rule_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: '{}' has empty `{}:` clause",
+                            source, line, rule_id, clause_type
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: '{}' has empty `{}:` clause",
+                            source, rule_id, clause_type
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} composite rules have empty condition clauses",
+                    empty_clauses.len()
+                ));
+            }
+
+            // Validate: string/content conditions with no search pattern
+            let missing_patterns = find_missing_search_patterns(&trait_definitions);
+            if !missing_patterns.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} traits have no search pattern",
+                    missing_patterns.len()
+                );
+                eprintln!(
+                "   String/content conditions need at least one of: exact, substr, regex, word:\n"
             );
-            has_fatal_errors = true;
-        }
-
-        // Validate single-rule composites with identical file types
-        // Build map of trait_id -> file_types for quick lookup
-        let mut trait_file_types: FxHashMap<String, Vec<RuleFileType>> = FxHashMap::default();
-        for trait_def in &trait_definitions {
-            trait_file_types.insert(trait_def.id.clone(), trait_def.r#for.clone());
-        }
-        for rule in &composite_rules {
-            trait_file_types.insert(rule.id.clone(), rule.r#for.clone());
-        }
-
-        // Build metadata lookup for traits and composites
-        let mut trait_metadata: FxHashMap<
-            String,
-            (Criticality, f32, Option<String>, Option<String>),
-        > = FxHashMap::default();
-        for trait_def in &trait_definitions {
-            trait_metadata.insert(
-                trait_def.id.clone(),
-                (
-                    trait_def.crit,
-                    trait_def.conf,
-                    trait_def.attack.clone(),
-                    trait_def.mbc.clone(),
-                ),
-            );
-        }
-        for rule in &composite_rules {
-            trait_metadata.insert(
-                rule.id.clone(),
-                (rule.crit, rule.conf, rule.attack.clone(), rule.mbc.clone()),
-            );
-        }
-
-        let mut redundant_composites = Vec::new();
-        let mut unless_only_composites = Vec::new();
-
-        for rule in &composite_rules {
-            // Check if this is a single-rule composite
-            let mut total_conditions = 0;
-            if let Some(ref all) = rule.all {
-                total_conditions += all.len();
-            }
-            if let Some(ref any) = rule.any {
-                total_conditions += any.len();
-            }
-            if let Some(ref none) = rule.none {
-                total_conditions += none.len();
+                for id in &missing_patterns {
+                    let source = rule_source_files
+                        .get(id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, id);
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: '{}'", source, line, id);
+                    } else {
+                        eprintln!("   {}: '{}'", source, id);
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} traits have no search pattern",
+                    missing_patterns.len()
+                ));
             }
 
-            // If it's a single-rule composite, check file types
-            if total_conditions == 1 {
+            // Validate: redundant `needs: 1` when only `any:` exists
+            let redundant_needs = find_redundant_needs_one(&composite_rules);
+            if !redundant_needs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have redundant `needs: 1`",
+                    redundant_needs.len()
+                );
+                eprintln!("   `needs: 1` is the default when only `any:` exists - remove it:\n");
+                for rule_id in &redundant_needs {
+                    let source = rule_source_files
+                        .get(rule_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: '{}'", source, line, rule_id);
+                    } else {
+                        eprintln!("   {}: '{}'", source, rule_id);
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} composite rules have redundant `needs: 1`",
+                    redundant_needs.len()
+                ));
+            }
+
+            // Validate: pure alias traits that add no value
+            let pure_aliases = find_pure_alias_traits(&trait_definitions);
+            if !pure_aliases.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} traits are pure aliases with no added value",
+                    pure_aliases.len()
+                );
+                eprintln!(
+                    "   These traits reference another trait via `if: id:` but add no constraints:"
+                );
+                eprintln!("   - No filtering (count_min, count_max, section, etc.)");
+                eprintln!("   - Same criticality as referenced trait");
+                eprintln!("   - No unless/not/downgrade modifiers");
+                eprintln!("   Either add constraints/modifiers or reference the original trait directly:\n");
+                for (trait_id, ref_id) in &pure_aliases {
+                    let source = rule_source_files
+                        .get(trait_id)
+                        .map(std::string::String::as_str)
+                        .unwrap_or("unknown");
+                    let line_hint = find_line_number(source, trait_id);
+                    if let Some(line) = line_hint {
+                        eprintln!("   {}:{}: '{}' -> '{}'", source, line, trait_id, ref_id);
+                    } else {
+                        eprintln!("   {}: '{}' -> '{}'", source, trait_id, ref_id);
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} traits are pure aliases with no added value",
+                    pure_aliases.len()
+                ));
+            }
+
+            // Validate: short patterns that are likely to produce too many false positives
+            let short_pattern_warnings =
+                find_short_pattern_warnings(&trait_definitions, &trait_source_files);
+            if !short_pattern_warnings.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} traits have open-ended short patterns",
+                    short_pattern_warnings.len()
+                );
+                eprintln!("   Open-ended short patterns are too likely to create false positives.");
+                eprintln!("   Try to create a more specific trait; see RULES.md for details.\n");
+                for (trait_id, pattern, pattern_type, source_file) in &short_pattern_warnings {
+                    let line_hint = find_line_number(source_file, pattern);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Trait '{}' uses {} pattern '{}'",
+                            source_file, line, trait_id, pattern_type, pattern
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Trait '{}' uses {} pattern '{}'",
+                            source_file, trait_id, pattern_type, pattern
+                        );
+                    }
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} traits have open-ended short patterns",
+                    short_pattern_warnings.len()
+                ));
+            }
+
+            // Validate: directories with too many traits (should be split)
+            let oversized_dirs = find_oversized_trait_directories(&trait_definitions);
+            if !oversized_dirs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} directories have more than {} traits",
+                    oversized_dirs.len(),
+                    MAX_TRAITS_PER_DIRECTORY
+                );
+                eprintln!("   Consider splitting these into subdirectories:\n");
+                for (dir_path, count) in &oversized_dirs {
+                    eprintln!("   {}: {} traits", dir_path, count);
+                }
+                eprintln!();
+                warnings.push(format!(
+                    "{} directories exceed {} traits (consider splitting)",
+                    oversized_dirs.len(),
+                    MAX_TRAITS_PER_DIRECTORY
+                ));
+            }
+
+            let mut broken_refs = Vec::new();
+            for rule in &composite_rules {
                 let trait_refs = collect_trait_refs_from_rule(rule);
-                if trait_refs.len() == 1 {
-                    let (ref_id, _) = &trait_refs[0];
+                for (ref_id, rule_id) in trait_refs {
+                    // Skip validation for directory-level references (intentional loose coupling)
+                    // e.g., "discovery/system" matches any trait in that directory
+                    // Also allow parent directory refs like "micro-behaviors/fs/write/" when traits exist in subdirs
+                    let ref_without_slash = ref_id.trim_end_matches('/');
+                    // O(1) prefix hierarchy lookup instead of O(n) iteration
+                    let is_directory_ref = prefix_hierarchy.contains(&ref_id)
+                        || prefix_hierarchy.contains(ref_without_slash);
 
-                    // Look up the referenced trait's file types
-                    if let Some(ref_file_types) = trait_file_types.get(ref_id) {
-                        // Compare file types - warn if identical
-                        if rule.r#for == *ref_file_types {
-                            let source_file = rule_source_files
-                                .get(&rule.id)
-                                .map(std::string::String::as_str)
-                                .unwrap_or("unknown");
+                    // Skip validation for dynamically generated metadata/* references
+                    // - metadata/import/ and metadata/dylib/ are generated from binary imports
+                    // - metadata/signed/ is generated from code signature parsing
+                    // - metadata/internal/ is validated separately (forbidden in composite rules)
+                    let is_dynamic_or_internal = ref_id.starts_with("metadata/import/")
+                        || ref_id.starts_with("metadata/dylib/")
+                        || ref_id.starts_with("metadata/signed/")
+                        || ref_id.starts_with("metadata/internal/");
 
-                            // Check if this composite only adds an 'unless' clause
-                            // If so, it might be better expressed as a downgrade
-                            let has_unless = rule.unless.as_ref().is_some_and(|u| !u.is_empty());
-                            let has_downgrade = rule.downgrade.is_some();
+                    // Check if the exact trait ID exists (unless it's an intentional directory ref)
+                    // Note: We require exact matches. References like "micro-behaviors/foo/bar/filename" where
+                    // "filename" is a YAML file (not a directory) are invalid - filenames are never
+                    // part of trait IDs, only the directory path is used for prefixing.
+                    if !is_directory_ref
+                        && !is_dynamic_or_internal
+                        && !valid_trait_ids.contains(&ref_id)
+                    {
+                        // Debug: Print broken reference details
+                        if std::env::var("DISSECT_DEBUG").is_ok()
+                            && (ref_id.contains("tiny-elf")
+                                || ref_id.contains("small-elf")
+                                || ref_id.contains("setup-py")
+                                || ref_id.contains("pkginfo"))
+                        {
+                            eprintln!(
+                                "[DEBUG] Broken reference: '{}' (from rule '{}')",
+                                ref_id, rule_id
+                            );
+                        }
+                        let source_file = rule_source_files
+                            .get(&rule_id)
+                            .map(std::string::String::as_str)
+                            .unwrap_or("unknown");
+                        broken_refs.push((rule_id.clone(), ref_id, source_file.to_string()));
+                    }
+                }
+            }
 
-                            // Check if metadata is being changed
-                            let metadata_changed =
-                                if let Some((ref_crit, ref_conf, ref_attack, ref_mbc)) =
-                                    trait_metadata.get(ref_id)
-                                {
-                                    rule.crit != *ref_crit
-                                        || (rule.conf - ref_conf).abs() > 0.001
-                                        || rule.attack != *ref_attack
-                                        || rule.mbc != *ref_mbc
-                                } else {
-                                    false
-                                };
+            if !broken_refs.is_empty() {
+                eprintln!(
+                    "\n⚠️  WARNING: {} broken trait references found in composite rules",
+                    broken_refs.len()
+                );
+                eprintln!("   Composite rules reference trait IDs that don't exist:\n");
+                for (rule_id, ref_id, source_file) in &broken_refs {
+                    let line_hint = find_line_number(source_file, ref_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Rule '{}' references non-existent trait: '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Rule '{}' references non-existent trait: '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
+                }
+                eprintln!();
+                // NOTE: Temporarily non-fatal - will be fixed separately
+            }
 
-                            if has_unless && !has_downgrade && !metadata_changed {
-                                // Only adds unless, no metadata changes - suggest downgrade pattern
-                                unless_only_composites.push((
-                                    rule.id.clone(),
-                                    ref_id.clone(),
-                                    source_file.to_string(),
-                                ));
-                            } else if !has_unless && !has_downgrade && !metadata_changed {
-                                // Truly useless - no unless, no downgrade, no metadata changes, same file types
-                                redundant_composites.push((
-                                    rule.id.clone(),
-                                    ref_id.clone(),
-                                    source_file.to_string(),
-                                ));
+            // Validate metric field references
+            let valid_metric_fields = super::helpers::get_valid_metric_fields();
+            let mut invalid_metric_refs = Vec::new();
+
+            for trait_def in &trait_definitions {
+                let metric_fields = super::helpers::collect_metric_refs_from_trait(trait_def);
+                for field in metric_fields {
+                    if !valid_metric_fields.contains(&field) {
+                        let source_file = trait_source_files
+                            .get(&trait_def.id)
+                            .map(std::string::String::as_str)
+                            .unwrap_or("unknown");
+                        invalid_metric_refs.push((
+                            trait_def.id.clone(),
+                            field,
+                            source_file.to_string(),
+                        ));
+                    }
+                }
+            }
+
+            if !invalid_metric_refs.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} unknown metric field references found in traits",
+                    invalid_metric_refs.len()
+                );
+                eprintln!("   Traits reference metric fields that don't exist:\n");
+                for (trait_id, field, source_file) in &invalid_metric_refs {
+                    let line_hint = find_line_number(source_file, field);
+                    let suggestion =
+                        super::helpers::suggest_metric_field(&valid_metric_fields, field);
+                    if let Some(line) = line_hint {
+                        if let Some(suggested) = suggestion {
+                            eprintln!(
+                            "   {}:{}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
+                            source_file, line, trait_id, field, suggested
+                        );
+                        } else {
+                            eprintln!(
+                                "   {}:{}: Trait '{}' references unknown metric '{}'",
+                                source_file, line, trait_id, field
+                            );
+                        }
+                    } else if let Some(suggested) = suggestion {
+                        eprintln!(
+                            "   {}: Trait '{}' references unknown metric '{}' (did you mean '{}'?)",
+                            source_file, trait_id, field, suggested
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Trait '{}' references unknown metric '{}'",
+                            source_file, trait_id, field
+                        );
+                    }
+                }
+                eprintln!("\n   Valid metric fields:");
+                let mut sorted_fields: Vec<&String> = valid_metric_fields.iter().collect();
+                sorted_fields.sort();
+                for field in sorted_fields.iter().take(10) {
+                    eprintln!("     - {}", field);
+                }
+                if sorted_fields.len() > 10 {
+                    eprintln!("     ... and {} more", sorted_fields.len() - 10);
+                }
+                eprintln!();
+                has_fatal_errors = true;
+            }
+
+            // Validate that composite rules only contain trait references (not inline primitives)
+            // Strict mode is the default - composite rules must only reference traits
+            let mut inline_errors = Vec::new();
+            for rule in &composite_rules {
+                let source = rule_source_files
+                    .get(&rule.id)
+                    .map(std::string::String::as_str)
+                    .unwrap_or("unknown");
+                inline_errors.extend(validate_composite_trait_only(rule, source));
+            }
+
+            if !inline_errors.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} composite rules have inline primitives\n",
+                    inline_errors.len()
+                );
+                for err in &inline_errors {
+                    eprintln!("   {}", err);
+                }
+                eprintln!("\n   Composite rules must only reference traits (type: trait).");
+                eprintln!(
+                    "   Convert inline conditions (string, symbol, yara, etc.) to atomic traits.\n"
+                );
+                has_fatal_errors = true;
+            }
+
+            // Validate single-rule composites with identical file types
+            // Build map of trait_id -> file_types for quick lookup
+            let mut trait_file_types: FxHashMap<String, Vec<RuleFileType>> = FxHashMap::default();
+            for trait_def in &trait_definitions {
+                trait_file_types.insert(trait_def.id.clone(), trait_def.r#for.clone());
+            }
+            for rule in &composite_rules {
+                trait_file_types.insert(rule.id.clone(), rule.r#for.clone());
+            }
+
+            // Build metadata lookup for traits and composites
+            let mut trait_metadata: FxHashMap<
+                String,
+                (Criticality, f32, Option<String>, Option<String>),
+            > = FxHashMap::default();
+            for trait_def in &trait_definitions {
+                trait_metadata.insert(
+                    trait_def.id.clone(),
+                    (
+                        trait_def.crit,
+                        trait_def.conf,
+                        trait_def.attack.clone(),
+                        trait_def.mbc.clone(),
+                    ),
+                );
+            }
+            for rule in &composite_rules {
+                trait_metadata.insert(
+                    rule.id.clone(),
+                    (rule.crit, rule.conf, rule.attack.clone(), rule.mbc.clone()),
+                );
+            }
+
+            let mut redundant_composites = Vec::new();
+            let mut unless_only_composites = Vec::new();
+
+            for rule in &composite_rules {
+                // Check if this is a single-rule composite
+                let mut total_conditions = 0;
+                if let Some(ref all) = rule.all {
+                    total_conditions += all.len();
+                }
+                if let Some(ref any) = rule.any {
+                    total_conditions += any.len();
+                }
+                if let Some(ref none) = rule.none {
+                    total_conditions += none.len();
+                }
+
+                // If it's a single-rule composite, check file types
+                if total_conditions == 1 {
+                    let trait_refs = collect_trait_refs_from_rule(rule);
+                    if trait_refs.len() == 1 {
+                        let (ref_id, _) = &trait_refs[0];
+
+                        // Look up the referenced trait's file types
+                        if let Some(ref_file_types) = trait_file_types.get(ref_id) {
+                            // Compare file types - warn if identical
+                            if rule.r#for == *ref_file_types {
+                                let source_file = rule_source_files
+                                    .get(&rule.id)
+                                    .map(std::string::String::as_str)
+                                    .unwrap_or("unknown");
+
+                                // Check if this composite only adds an 'unless' clause
+                                // If so, it might be better expressed as a downgrade
+                                let has_unless =
+                                    rule.unless.as_ref().is_some_and(|u| !u.is_empty());
+                                let has_downgrade = rule.downgrade.is_some();
+
+                                // Check if metadata is being changed
+                                let metadata_changed =
+                                    if let Some((ref_crit, ref_conf, ref_attack, ref_mbc)) =
+                                        trait_metadata.get(ref_id)
+                                    {
+                                        rule.crit != *ref_crit
+                                            || (rule.conf - ref_conf).abs() > 0.001
+                                            || rule.attack != *ref_attack
+                                            || rule.mbc != *ref_mbc
+                                    } else {
+                                        false
+                                    };
+
+                                if has_unless && !has_downgrade && !metadata_changed {
+                                    // Only adds unless, no metadata changes - suggest downgrade pattern
+                                    unless_only_composites.push((
+                                        rule.id.clone(),
+                                        ref_id.clone(),
+                                        source_file.to_string(),
+                                    ));
+                                } else if !has_unless && !has_downgrade && !metadata_changed {
+                                    // Truly useless - no unless, no downgrade, no metadata changes, same file types
+                                    redundant_composites.push((
+                                        rule.id.clone(),
+                                        ref_id.clone(),
+                                        source_file.to_string(),
+                                    ));
+                                }
+                                // If metadata_changed is true, this is a legitimate composite
+                                // that's creating a distinct finding with different properties
                             }
-                            // If metadata_changed is true, this is a legitimate composite
-                            // that's creating a distinct finding with different properties
                         }
                     }
                 }
             }
-        }
 
-        if !redundant_composites.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} single-trait composites add no value",
-                redundant_composites.len()
-            );
-            eprintln!(
+            if !redundant_composites.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} single-trait composites add no value",
+                    redundant_composites.len()
+                );
+                eprintln!(
                 "   These composites only reference one trait with identical file types and no unless/downgrade clauses.\n"
             );
-            eprintln!("   Consider removing them or adding more conditions:\n");
-            for (rule_id, ref_id, source_file) in &redundant_composites {
-                let line_hint = find_line_number(source_file, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Composite '{}' only references '{}'",
-                        source_file, line, rule_id, ref_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Composite '{}' only references '{}'",
-                        source_file, rule_id, ref_id
-                    );
+                eprintln!("   Consider removing them or adding more conditions:\n");
+                for (rule_id, ref_id, source_file) in &redundant_composites {
+                    let line_hint = find_line_number(source_file, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Composite '{}' only references '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Composite '{}' only references '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
                 }
+                eprintln!();
+                has_fatal_errors = true;
             }
-            eprintln!();
-            has_fatal_errors = true;
-        }
 
-        if !unless_only_composites.is_empty() {
-            eprintln!(
-                "\n❌ ERROR: {} single-trait composites only add 'unless' clauses",
-                unless_only_composites.len()
-            );
-            eprintln!("   Instead of creating a composite with only an unless clause:");
-            eprintln!("   1. Increase the criticality of the base trait");
-            eprintln!("   2. Add a downgrade clause to the base trait for the unless conditions\n");
-            for (rule_id, ref_id, source_file) in &unless_only_composites {
-                let line_hint = find_line_number(source_file, rule_id);
-                if let Some(line) = line_hint {
-                    eprintln!(
-                        "   {}:{}: Composite '{}' only adds unless to '{}'",
-                        source_file, line, rule_id, ref_id
-                    );
-                } else {
-                    eprintln!(
-                        "   {}: Composite '{}' only adds unless to '{}'",
-                        source_file, rule_id, ref_id
-                    );
+            if !unless_only_composites.is_empty() {
+                eprintln!(
+                    "\n❌ ERROR: {} single-trait composites only add 'unless' clauses",
+                    unless_only_composites.len()
+                );
+                eprintln!("   Instead of creating a composite with only an unless clause:");
+                eprintln!("   1. Increase the criticality of the base trait");
+                eprintln!(
+                    "   2. Add a downgrade clause to the base trait for the unless conditions\n"
+                );
+                for (rule_id, ref_id, source_file) in &unless_only_composites {
+                    let line_hint = find_line_number(source_file, rule_id);
+                    if let Some(line) = line_hint {
+                        eprintln!(
+                            "   {}:{}: Composite '{}' only adds unless to '{}'",
+                            source_file, line, rule_id, ref_id
+                        );
+                    } else {
+                        eprintln!(
+                            "   {}: Composite '{}' only adds unless to '{}'",
+                            source_file, rule_id, ref_id
+                        );
+                    }
                 }
+                eprintln!();
+                has_fatal_errors = true;
             }
-            eprintln!();
-            has_fatal_errors = true;
-        }
         } // End of enable_full_validation block for steps 11-15 and post-step validations
 
         tracing::debug!("Validation complete");
@@ -2136,7 +2229,7 @@ impl super::CapabilityMapper {
             Ok(index) => index,
             Err(errors) => {
                 return Err(anyhow::anyhow!(errors.join("\n")));
-            },
+            }
         };
         tracing::debug!("Indexes built successfully");
 
@@ -2190,10 +2283,10 @@ impl super::CapabilityMapper {
                                 cache_path
                             );
                         }
-                    },
+                    }
                     Err(e) => {
                         tracing::warn!("Failed to serialize mapper cache: {}", e);
-                    },
+                    }
                 }
             }
         }
@@ -2208,5 +2301,4 @@ impl super::CapabilityMapper {
             platforms: vec![Platform::All],
         })
     }
-
 }

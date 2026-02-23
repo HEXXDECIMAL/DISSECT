@@ -16,7 +16,7 @@ use sha2::{Digest, Sha256};
 /// ```ignore
 /// let sha256 = calculate_sha256(content.as_bytes());
 /// ```
-#[must_use] 
+#[must_use]
 pub(crate) fn calculate_sha256(data: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(data);
@@ -40,7 +40,7 @@ pub(crate) fn calculate_sha256(data: &[u8]) -> String {
 /// let feature = create_language_feature("python", "tree-sitter-python", "Python script");
 /// report.structure.push(feature);
 /// ```
-#[must_use] 
+#[must_use]
 pub(crate) fn create_language_feature(
     language: &str,
     parser_name: &str,
@@ -57,7 +57,6 @@ pub(crate) fn create_language_feature(
         }],
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -39,7 +39,6 @@ fn test_yaml_loading() {
     let _ = count;
 }
 
-
 #[test]
 fn test_mapping_count() {
     let mapper = CapabilityMapper::new_without_validation();
@@ -55,7 +54,6 @@ fn test_lookup_nonexistent() {
     let capability = mapper.lookup("nonexistent_func", "test");
     assert!(capability.is_none());
 }
-
 
 #[test]
 fn test_empty_mapper_counts() {
@@ -90,7 +88,6 @@ fn test_trait_definitions_count() {
     // May or may not have trait definitions depending on traits/ directory
     let _ = count;
 }
-
 
 #[test]
 fn test_apply_string_default_uses_default_when_raw_is_none() {
@@ -892,9 +889,15 @@ fn test_composite_three_level_chain() {
 
     let report = test_report_with_findings(vec![test_finding("level/zero")]);
     let mut mapper = CapabilityMapper::empty();
-    mapper.composite_rules.push(make_composite("level/one", "level/zero"));
-    mapper.composite_rules.push(make_composite("level/two", "level/one"));
-    mapper.composite_rules.push(make_composite("level/three", "level/two"));
+    mapper
+        .composite_rules
+        .push(make_composite("level/one", "level/zero"));
+    mapper
+        .composite_rules
+        .push(make_composite("level/two", "level/one"));
+    mapper
+        .composite_rules
+        .push(make_composite("level/three", "level/two"));
 
     let findings = mapper.evaluate_composite_rules(&report, &[], None, None);
 
@@ -1709,11 +1712,17 @@ fn test_precision_threshold_validation() {
     );
 
     // Check that low precision was downgraded
-    let low_rule = composites.iter().find(|r| r.id == "test/low-precision").unwrap();
+    let low_rule = composites
+        .iter()
+        .find(|r| r.id == "test/low-precision")
+        .unwrap();
     assert_eq!(low_rule.crit, Criticality::Suspicious);
 
     // Check that high precision was NOT downgraded
-    let high_rule = composites.iter().find(|r| r.id == "test/high-precision").unwrap();
+    let high_rule = composites
+        .iter()
+        .find(|r| r.id == "test/high-precision")
+        .unwrap();
     assert_eq!(high_rule.crit, Criticality::Hostile);
 }
 
@@ -1829,11 +1838,17 @@ fn test_suspicious_precision_threshold_validation() {
     );
 
     // Check that low precision suspicious rule was downgraded
-    let low_rule = composites.iter().find(|r| r.id == "test/suspicious-low-precision").unwrap();
+    let low_rule = composites
+        .iter()
+        .find(|r| r.id == "test/suspicious-low-precision")
+        .unwrap();
     assert_eq!(low_rule.crit, Criticality::Notable);
 
     // Check that sufficient precision suspicious rule was NOT downgraded
-    let ok_rule = composites.iter().find(|r| r.id == "test/suspicious-good-precision").unwrap();
+    let ok_rule = composites
+        .iter()
+        .find(|r| r.id == "test/suspicious-good-precision")
+        .unwrap();
     assert_eq!(ok_rule.crit, Criticality::Suspicious);
 }
 
@@ -2596,8 +2611,11 @@ fn test_generate_import_findings_basic() {
     assert!(ids.contains(&"metadata/import/python::os/system"));
 
     // Check finding properties
-    let socket_finding =
-        report.findings.iter().find(|f| f.id == "metadata/import/python::socket").unwrap();
+    let socket_finding = report
+        .findings
+        .iter()
+        .find(|f| f.id == "metadata/import/python::socket")
+        .unwrap();
     assert_eq!(socket_finding.crit, Criticality::Inert);
     assert_eq!(socket_finding.kind, FindingKind::Structural);
     assert!((socket_finding.conf - 0.95).abs() < 0.01);
@@ -2824,8 +2842,14 @@ fn test_generate_import_findings_preserves_existing() {
 
     // Should have 2 findings: original + new import
     assert_eq!(report.findings.len(), 2);
-    assert!(report.findings.iter().any(|f| f.id == "micro-behaviors/execution/shell"));
-    assert!(report.findings.iter().any(|f| f.id == "metadata/import/python::socket"));
+    assert!(report
+        .findings
+        .iter()
+        .any(|f| f.id == "micro-behaviors/execution/shell"));
+    assert!(report
+        .findings
+        .iter()
+        .any(|f| f.id == "metadata/import/python::socket"));
 }
 
 #[test]
@@ -2981,8 +3005,10 @@ fn test_collect_trait_refs_finds_internal_paths() {
     assert_eq!(refs.len(), 4);
 
     // Count how many are internal paths
-    let internal_refs: Vec<_> =
-        refs.iter().filter(|(ref_id, _)| ref_id.starts_with("metadata/internal/")).collect();
+    let internal_refs: Vec<_> = refs
+        .iter()
+        .filter(|(ref_id, _)| ref_id.starts_with("metadata/internal/"))
+        .collect();
     assert_eq!(
         internal_refs.len(),
         2,
@@ -3030,7 +3056,9 @@ fn test_meta_internal_paths_forbidden_in_composite_rules() {
 
     // The validation logic in CapabilityMapper::load_with_path checks for metadata/internal/ refs
     // and adds them to a fatal error list. Here we verify the detection works.
-    let has_internal_ref = refs.iter().any(|(ref_id, _)| ref_id.starts_with("metadata/internal/"));
+    let has_internal_ref = refs
+        .iter()
+        .any(|(ref_id, _)| ref_id.starts_with("metadata/internal/"));
     assert!(
         has_internal_ref,
         "Should detect metadata/internal/ reference in composite rule"
@@ -3080,6 +3108,6 @@ traits:
                 "Error message should mention unknown file type, got: {}",
                 err_msg
             );
-        },
+        }
     }
 }

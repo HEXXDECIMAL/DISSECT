@@ -36,14 +36,14 @@ impl GenericAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
@@ -138,11 +138,13 @@ impl GenericAnalyzer {
             )
         };
 
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            self.file_type_str(),
-            &parser_name,
-            &description,
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                self.file_type_str(),
+                &parser_name,
+                &description,
+            ));
 
         // Parse with tree-sitter ONCE (don't parse multiple times for the same content)
         let t_tree = std::time::Instant::now();
@@ -194,7 +196,10 @@ impl GenericAnalyzer {
             for es in stng_results {
                 // Convert stng fragments to our format (just record offsets, we don't need to reconstruct values)
                 let fragments = es.fragments.as_ref().map(|frags| {
-                    frags.iter().map(|f| format!("{:#x}+{}", f.offset, f.length)).collect()
+                    frags
+                        .iter()
+                        .map(|f| format!("{:#x}+{}", f.offset, f.length))
+                        .collect()
                 });
 
                 report.strings.push(crate::types::binary::StringInfo {
@@ -206,7 +211,7 @@ impl GenericAnalyzer {
                         stng::StringKind::Url => crate::types::binary::StringType::Url,
                         stng::StringKind::Path | stng::StringKind::FilePath => {
                             crate::types::binary::StringType::Path
-                        },
+                        }
                         stng::StringKind::EnvVar => crate::types::binary::StringType::EnvVar,
                         _ => crate::types::binary::StringType::Const,
                     },

@@ -8,7 +8,7 @@ use rustc_hash::FxHashSet;
 
 /// Analyze imports to compute import metrics
 /// Takes the imports already extracted from the file
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_imports(imports: &[Import], file_type: &str) -> ImportMetrics {
     if imports.is_empty() {
         return ImportMetrics::default();

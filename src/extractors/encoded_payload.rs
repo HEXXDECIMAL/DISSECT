@@ -62,10 +62,9 @@ fn method_to_encoding_name(method: stng::StringMethod) -> &'static str {
     }
 }
 
-
 /// Check if a string is a valid base64 candidate (for nested detection)
 /// Uses MIN_PAYLOAD_LENGTH (24 bytes) for nested detection
-#[must_use] 
+#[must_use]
 pub(crate) fn is_base64_candidate(s: &str) -> bool {
     // Check minimum length (lower threshold for nested detection)
     if s.len() < MIN_PAYLOAD_LENGTH {
@@ -143,20 +142,26 @@ fn decompress_if_compressed(data: &[u8]) -> Option<(Vec<u8>, String)> {
         let decoder = ZlibDecoder::new(data);
         let mut decompressed = Vec::with_capacity(data.len() * 4);
 
-        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
             Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
                 Some((decompressed, "zlib".to_string()))
-            },
+            }
             _ => None,
         }
     } else if is_gzip_compressed(data) {
         let decoder = GzDecoder::new(data);
         let mut decompressed = Vec::with_capacity(data.len() * 4);
 
-        match decoder.take(MAX_DECOMPRESSED_SIZE as u64).read_to_end(&mut decompressed) {
+        match decoder
+            .take(MAX_DECOMPRESSED_SIZE as u64)
+            .read_to_end(&mut decompressed)
+        {
             Ok(_) if decompressed.len() < MAX_DECOMPRESSED_SIZE => {
                 Some((decompressed, "gzip".to_string()))
-            },
+            }
             _ => None,
         }
     } else {
@@ -167,12 +172,15 @@ fn decompress_if_compressed(data: &[u8]) -> Option<(Vec<u8>, String)> {
 /// Decode base64 string, checking for and decompressing zlib or gzip if present
 /// Returns the decoded data and the compression algorithm used (if any)
 /// NOTE: This is kept for nested decoding only. Initial base64 detection uses stng.
-#[must_use] 
+#[must_use]
 pub(crate) fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     // Strip whitespace before decoding
-    let cleaned: String = encoded.chars().filter(|c| !c.is_ascii_whitespace()).collect();
+    let cleaned: String = encoded
+        .chars()
+        .filter(|c| !c.is_ascii_whitespace())
+        .collect();
 
     // Try base64 decode
     let decoded = STANDARD.decode(&cleaned).ok()?;
@@ -185,9 +193,8 @@ pub(crate) fn decode_base64(encoded: &str) -> Option<(Vec<u8>, Option<String>)> 
     Some((decoded, None))
 }
 
-
 /// Generate a preview string (first 40 chars, printable only)
-#[must_use] 
+#[must_use]
 pub(crate) fn generate_preview(data: &[u8]) -> String {
     // Check if data is printable ASCII
     let is_printable = data.iter().take(40).all(|&b| {
@@ -293,7 +300,7 @@ fn classify_payload_suspicion(final_bytes: &[u8]) -> Criticality {
             | stng::StringKind::Hostname
             | stng::StringKind::Email => return Criticality::Notable,
 
-            _ => {},
+            _ => {}
         }
     }
 
@@ -370,7 +377,10 @@ pub fn extract_encoded_payloads(stng_strings: &[stng::ExtractedString]) -> Vec<E
     tracing::debug!(
         "Processing {} total strings from stng, {} decoded strings, {} meet size threshold",
         stng_strings.len(),
-        stng_strings.iter().filter(|s| DECODED_METHODS.contains(&s.method)).count(),
+        stng_strings
+            .iter()
+            .filter(|s| DECODED_METHODS.contains(&s.method))
+            .count(),
         decoded_strings.len()
     );
 

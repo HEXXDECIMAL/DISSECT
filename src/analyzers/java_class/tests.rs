@@ -112,7 +112,10 @@ mod tests {
         assert!(!report.target.sha256.is_empty());
 
         // Should have Java bytecode structure
-        assert!(report.structure.iter().any(|s| s.id == "source/language/java"));
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/java"));
     }
 
     #[test]
@@ -203,7 +206,10 @@ mod tests {
         );
 
         // Should detect ProcessBuilder class reference
-        let has_processbuilder = class_info.class_refs.iter().any(|c| c.contains("ProcessBuilder"));
+        let has_processbuilder = class_info
+            .class_refs
+            .iter()
+            .any(|c| c.contains("ProcessBuilder"));
         assert!(
             has_processbuilder,
             "Should reference ProcessBuilder. Class refs: {:?}",
@@ -295,7 +301,11 @@ mod tests {
 
         let result = analyzer.parse_class_file(&data);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().to_lowercase().contains("magic"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .to_lowercase()
+            .contains("magic"));
     }
 
     #[test]

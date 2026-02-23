@@ -101,7 +101,6 @@ mod tests {
         );
     }
 
-
     #[test]
     fn test_generate_preview_printable() {
         let printable = b"import base64;exec(base64.b64decode(bytes('aW1wb3J0...'";
@@ -245,7 +244,6 @@ exec(data)
         assert!(decoded_str.contains("chmod +x"), "Should have chmod");
     }
 
-
     #[test]
     fn test_hex_encoded_woff2_malware() {
         // First 200 bytes of hex-encoded JS from real malware (fa-brands-regular.woff2)
@@ -283,7 +281,10 @@ exec(data)
     fn test_stng_url_encoding() {
         // Test URL-encoded payload detection via stng
         let original = b"Hello World! This is a test message with special chars: @#$%";
-        let encoded = original.iter().map(|&b| format!("%{:02X}", b)).collect::<String>();
+        let encoded = original
+            .iter()
+            .map(|&b| format!("%{:02X}", b))
+            .collect::<String>();
 
         let content = format!("data = '{}'", encoded);
         let payloads = extract_encoded_payloads_from_content(content.as_bytes());
@@ -303,7 +304,10 @@ exec(data)
     fn test_stng_hex_encoding() {
         // Test hex-encoded string detection via stng (not whole-file)
         let original = b"import os; os.system('whoami')";
-        let encoded = original.iter().map(|b| format!("{:02x}", b)).collect::<String>();
+        let encoded = original
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
 
         let content = format!("payload = '{}'", encoded);
         let payloads = extract_encoded_payloads_from_content(content.as_bytes());
@@ -313,7 +317,10 @@ exec(data)
         if !payloads.is_empty() {
             // If found, encoding chain should have hex or base64 (from RawScan extraction)
             assert!(
-                payloads[0].encoding_chain.iter().any(|e| e == "hex" || e == "base64"),
+                payloads[0]
+                    .encoding_chain
+                    .iter()
+                    .any(|e| e == "hex" || e == "base64"),
                 "Should have some encoding in chain"
             );
         }
@@ -328,7 +335,10 @@ exec(data)
     fn test_multiple_encoding_types_in_file() {
         // Test file with multiple different encoded payloads
         let base64_data = general_purpose::STANDARD.encode(b"test base64 payload content");
-        let hex_data = b"test hex payload".iter().map(|b| format!("{:02x}", b)).collect::<String>();
+        let hex_data = b"test hex payload"
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect::<String>();
 
         let content = format!(
             r#"
@@ -398,7 +408,9 @@ long = '{}'
         // Should only extract the long payload
         assert!(
             payloads.iter().all(|p| {
-                std::fs::metadata(&p.temp_path).map(|m| m.len() >= 24).unwrap_or(false)
+                std::fs::metadata(&p.temp_path)
+                    .map(|m| m.len() >= 24)
+                    .unwrap_or(false)
             }),
             "All payloads should be >= 24 bytes after decoding"
         );

@@ -3,7 +3,10 @@
 //! Extracts symbols (imports, exports, functions) from binary files and source code.
 //! Supports ELF, PE, Mach-O binaries as well as various script languages.
 
-use crate::analyzers::{self, detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType};
+use crate::analyzers::{
+    self, detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer,
+    FileType,
+};
 use crate::cli;
 use crate::commands::shared::SymbolInfo;
 use crate::radare2::Radare2Analyzer;
@@ -123,7 +126,7 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         });
                     }
                 }
-            },
+            }
             _ => {
                 // Source file or script - analyze for symbols using unified analyzer
                 let report =
@@ -168,7 +171,7 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         source: func.source,
                     });
                 }
-            },
+            }
         }
     } else {
         anyhow::bail!("Unable to detect file type for: {}", target);
@@ -184,7 +187,7 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                 let num_a = parse_addr(addr_a);
                 let num_b = parse_addr(addr_b);
                 num_a.cmp(&num_b)
-            },
+            }
             (Some(_), None) => std::cmp::Ordering::Less,
             (None, Some(_)) => std::cmp::Ordering::Greater,
             (None, None) => a.name.cmp(&b.name),
@@ -220,6 +223,6 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
             }
 
             Ok(output)
-        },
+        }
     }
 }

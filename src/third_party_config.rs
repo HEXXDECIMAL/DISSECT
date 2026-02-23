@@ -58,11 +58,11 @@ impl Config {
     fn from_yaml(yaml: &str) -> Result<Self, serde_yaml::Error> {
         let file: ConfigFile = serde_yaml::from_str(yaml)?;
 
-        let source_crit = file.sources.into_iter()
-            .map(|s| (s.name, s.crit))
-            .collect();
+        let source_crit = file.sources.into_iter().map(|s| (s.name, s.crit)).collect();
 
-        let overrides = file.overrides.into_iter()
+        let overrides = file
+            .overrides
+            .into_iter()
             .map(|o| (o.id.clone(), o))
             .collect();
 
@@ -82,12 +82,18 @@ impl Config {
             Ok(yaml) => match Self::from_yaml(&yaml) {
                 Ok(config) => config,
                 Err(e) => {
-                    tracing::warn!("Failed to parse third_party/config.yaml: {}, using defaults", e);
+                    tracing::warn!(
+                        "Failed to parse third_party/config.yaml: {}, using defaults",
+                        e
+                    );
                     Self::default()
                 }
             },
             Err(e) => {
-                tracing::warn!("Failed to read third_party/config.yaml: {}, using defaults", e);
+                tracing::warn!(
+                    "Failed to read third_party/config.yaml: {}, using defaults",
+                    e
+                );
                 Self::default()
             }
         }
@@ -171,8 +177,14 @@ overrides:
     reason: "High FP rate"
 "#;
         let config = Config::from_yaml(yaml).unwrap();
-        assert_eq!(config.source_crit.get("elastic"), Some(&"hostile".to_string()));
-        assert_eq!(config.source_crit.get("bartblaze"), Some(&"suspicious".to_string()));
+        assert_eq!(
+            config.source_crit.get("elastic"),
+            Some(&"hostile".to_string())
+        );
+        assert_eq!(
+            config.source_crit.get("bartblaze"),
+            Some(&"suspicious".to_string())
+        );
         assert_eq!(config.overrides.len(), 1);
     }
 
@@ -217,7 +229,10 @@ overrides:
     disable: true
 "#;
         let config = Config::from_yaml(yaml).unwrap();
-        assert_eq!(config.criticality_for("test", Some("third_party/test/disabled")), None);
+        assert_eq!(
+            config.criticality_for("test", Some("third_party/test/disabled")),
+            None
+        );
     }
 
     #[test]

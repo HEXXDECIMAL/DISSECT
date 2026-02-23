@@ -209,7 +209,10 @@ pub(crate) fn decrypt_aes_256_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> O
     let cipher = Aes256CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(<[u8]>::to_vec)
+    cipher
+        .decrypt_padded_mut::<Pkcs7>(&mut buf)
+        .ok()
+        .map(<[u8]>::to_vec)
 }
 
 /// Decrypt AES-128-CBC ciphertext
@@ -227,7 +230,10 @@ pub(crate) fn decrypt_aes_128_cbc(ciphertext: &[u8], key: &[u8], iv: &[u8]) -> O
     let cipher = Aes128CbcDec::new(&key_array.into(), &iv_array.into());
     let mut buf = ciphertext.to_vec();
 
-    cipher.decrypt_padded_mut::<Pkcs7>(&mut buf).ok().map(<[u8]>::to_vec)
+    cipher
+        .decrypt_padded_mut::<Pkcs7>(&mut buf)
+        .ok()
+        .map(<[u8]>::to_vec)
 }
 
 /// Try to decrypt ciphertext with given params
@@ -339,7 +345,7 @@ fn generate_preview(data: &[u8]) -> String {
 }
 
 /// Extract all AES-encrypted payloads from JavaScript/TypeScript content
-#[must_use] 
+#[must_use]
 pub(crate) fn extract_aes_payloads(content: &[u8]) -> Vec<AesExtractedPayload> {
     let mut payloads = Vec::new();
 

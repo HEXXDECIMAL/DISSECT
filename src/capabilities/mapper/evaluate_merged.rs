@@ -50,11 +50,7 @@ impl super::CapabilityMapper {
 
         // Build a seen-IDs set once from existing report findings, then keep it up-to-date
         // as we merge — O(1) per lookup instead of O(n) linear scan.
-        let mut seen: FxHashSet<String> = report
-            .findings
-            .iter()
-            .map(|f| f.id.clone())
-            .collect();
+        let mut seen: FxHashSet<String> = report.findings.iter().map(|f| f.id.clone()).collect();
 
         // Step 2: Merge atomic trait findings into report (so composites can reference them)
         for finding in trait_findings {
@@ -74,11 +70,7 @@ impl super::CapabilityMapper {
 
         // Step 4: Merge composite findings into report.
         // Rebuild seen to include metadata/import findings added in step 2.5.
-        let mut seen: FxHashSet<String> = report
-            .findings
-            .iter()
-            .map(|f| f.id.clone())
-            .collect();
+        let mut seen: FxHashSet<String> = report.findings.iter().map(|f| f.id.clone()).collect();
         for finding in composite_findings {
             if !seen.contains(finding.id.as_str()) {
                 seen.insert(finding.id.clone());

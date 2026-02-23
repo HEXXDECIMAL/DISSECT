@@ -25,7 +25,9 @@ pub(crate) mod types;
 pub(crate) use condition::Condition;
 pub(crate) use context::EvaluationContext;
 pub(crate) use section_map::SectionMap;
-pub(crate) use traits::{CompositeTrait, ConditionWithFilters, DowngradeConditions, TraitDefinition};
+pub(crate) use traits::{
+    CompositeTrait, ConditionWithFilters, DowngradeConditions, TraitDefinition,
+};
 pub(crate) use types::{FileType, Platform};
 
 #[cfg(test)]

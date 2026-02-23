@@ -100,7 +100,8 @@ fn test_desktop_wallet_traits_yaml_valid() {
 #[test]
 #[ignore = "Trait file not yet created - traits/objectives/credential-access/macos/validation/traits.yaml"]
 fn test_macos_validation_traits_yaml_valid() {
-    let yaml = verify_trait_file("traits/objectives/credential-access/macos/validation/traits.yaml");
+    let yaml =
+        verify_trait_file("traits/objectives/credential-access/macos/validation/traits.yaml");
 
     // Verify expected traits exist
     verify_trait_structure(&yaml, &["dscl-authonly", "dscl-read", "dscl-list"]);

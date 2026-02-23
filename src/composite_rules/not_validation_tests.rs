@@ -62,7 +62,9 @@ mod validation_tests {
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
-        assert!(warning.unwrap().contains("consider using 'unless:' instead"));
+        assert!(warning
+            .unwrap()
+            .contains("consider using 'unless:' instead"));
     }
 
     #[test]
@@ -139,7 +141,10 @@ mod validation_tests {
 
         let warning = trait_def.check_not_field_usage();
         assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("does not contain the search substr"));
+        assert!(warning
+            .as_ref()
+            .unwrap()
+            .contains("does not contain the search substr"));
         assert!(warning.as_ref().unwrap().contains("hurl"));
         assert!(warning.as_ref().unwrap().contains("test"));
     }
@@ -1274,7 +1279,10 @@ mod llm_validation_tests {
 
         let warning = cond.check_literal_regex();
         assert!(warning.is_some());
-        assert!(warning.as_ref().unwrap().contains("no regex metacharacters"));
+        assert!(warning
+            .as_ref()
+            .unwrap()
+            .contains("no regex metacharacters"));
     }
 
     #[test]
@@ -1297,7 +1305,6 @@ mod llm_validation_tests {
         let warning = cond.check_literal_regex();
         assert!(warning.is_none());
     }
-
 
     #[test]
     fn test_case_insensitive_on_numeric_pattern() {

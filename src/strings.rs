@@ -47,9 +47,7 @@ fn url_regex() -> &'static Regex {
 #[allow(dead_code)] // Used internally by string classification
 fn ip_regex() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| {
-        Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").expect("ip regex is valid")
-    })
+    RE.get_or_init(|| Regex::new(r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}").expect("ip regex is valid"))
 }
 
 #[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
@@ -106,7 +104,9 @@ impl StringExtractor {
     pub(crate) fn with_functions(mut self, functions: &HashSet<String>) -> Self {
         for func in functions {
             let normalized = Self::normalize_symbol(func).into_owned();
-            self.symbol_map.entry(normalized).or_insert((StringType::FuncName, None));
+            self.symbol_map
+                .entry(normalized)
+                .or_insert((StringType::FuncName, None));
         }
         self
     }
@@ -114,16 +114,21 @@ impl StringExtractor {
     pub(crate) fn with_imports(mut self, imports: &HashSet<String>) -> Self {
         for imp in imports {
             let normalized = Self::normalize_symbol(imp).into_owned();
-            self.symbol_map.insert(normalized, (StringType::Import, None));
+            self.symbol_map
+                .insert(normalized, (StringType::Import, None));
         }
         self
     }
 
-    pub(crate) fn with_import_libraries(mut self, import_libraries: HashMap<String, String>) -> Self {
+    pub(crate) fn with_import_libraries(
+        mut self,
+        import_libraries: HashMap<String, String>,
+    ) -> Self {
         // Update existing imports in symbol_map with library info
         for (imp, lib) in import_libraries {
             let normalized = Self::normalize_symbol(&imp).into_owned();
-            self.symbol_map.insert(normalized, (StringType::Import, Some(lib)));
+            self.symbol_map
+                .insert(normalized, (StringType::Import, Some(lib)));
         }
         self
     }
@@ -131,7 +136,8 @@ impl StringExtractor {
     pub(crate) fn with_exports(mut self, exports: &HashSet<String>) -> Self {
         for exp in exports {
             let normalized = Self::normalize_symbol(exp).into_owned();
-            self.symbol_map.insert(normalized, (StringType::Export, None));
+            self.symbol_map
+                .insert(normalized, (StringType::Export, None));
         }
         self
     }
@@ -168,8 +174,9 @@ impl StringExtractor {
         }
 
         // Slow path: no r2 strings, do full stng extraction
-        let opts =
-            ExtractOptions::new(self.min_length).with_garbage_filter(true).with_xor(None);
+        let opts = ExtractOptions::new(self.min_length)
+            .with_garbage_filter(true)
+            .with_xor(None);
         let lang_strings = stng::extract_strings_with_options(data, &opts);
         let mut strings = Vec::with_capacity(lang_strings.len());
         for es in lang_strings {
@@ -181,13 +188,17 @@ impl StringExtractor {
     /// Convert pre-extracted stng strings to StringInfo (public API for reuse)
     #[allow(dead_code)] // Used by binary target, not visible to library
     pub(crate) fn convert_stng_strings(&self, stng_strings: &[ExtractedString]) -> Vec<StringInfo> {
-        stng_strings.iter().map(|es| self.convert_extracted_string(es.clone())).collect()
+        stng_strings
+            .iter()
+            .map(|es| self.convert_extracted_string(es.clone()))
+            .collect()
     }
 
     /// Convert an R2String directly to StringInfo (fast path when using cached r2 strings)
     fn convert_r2_string(&self, r2: R2String) -> StringInfo {
         let normalized = Self::normalize_symbol(&r2.string);
-        let string_type = if let Some((override_type, _)) = self.symbol_map.get(normalized.as_ref()) {
+        let string_type = if let Some((override_type, _)) = self.symbol_map.get(normalized.as_ref())
+        {
             *override_type
         } else {
             // Classify based on content
@@ -210,7 +221,8 @@ impl StringExtractor {
         // Use stng's classification directly (StringType is now an alias for StringKind)
         // Apply symbol_map overrides if we have them
         let normalized = Self::normalize_symbol(&es.value);
-        let string_type = if let Some((override_type, _)) = self.symbol_map.get(normalized.as_ref()) {
+        let string_type = if let Some((override_type, _)) = self.symbol_map.get(normalized.as_ref())
+        {
             *override_type
         } else {
             // Use stng's kind directly
@@ -262,7 +274,7 @@ impl StringExtractor {
                     StringType::Const
                 };
                 (t, None)
-            },
+            }
         };
 
         StringInfo {
@@ -328,7 +340,9 @@ impl StringExtractor {
 
     fn get_import_library(&self, value: &str) -> Option<String> {
         let normalized = Self::normalize_symbol(value);
-        self.symbol_map.get(normalized.as_ref()).and_then(|(_, l)| l.clone())
+        self.symbol_map
+            .get(normalized.as_ref())
+            .and_then(|(_, l)| l.clone())
     }
 
     fn matches_symbol_set(&self, _set: &HashSet<String>, value: &str) -> bool {
@@ -416,7 +430,6 @@ mod tests {
         assert!(!strings.is_empty());
     }
 
-
     #[test]
     fn test_path_detection() {
         let extractor = StringExtractor::new();
@@ -426,7 +439,6 @@ mod tests {
         assert!(extractor.is_path(r"C:\Windows\System32"));
         assert!(!extractor.is_path("hello world"));
     }
-
 
     #[test]
     fn test_ip_excludes_version_strings() {
@@ -502,10 +514,11 @@ mod tests {
         let extractor = StringExtractor::new();
         let strings = extractor.extract_smart(data, None);
 
-        let email_string = strings.iter().find(|s| matches!(s.string_type, StringType::Email));
+        let email_string = strings
+            .iter()
+            .find(|s| matches!(s.string_type, StringType::Email));
         assert!(email_string.is_some());
     }
-
 
     #[test]
     fn test_min_length_filter() {
@@ -641,7 +654,10 @@ mod tests {
         assert!(
             has_url || has_path,
             "Expected to find URL or Path, but got: {:?}",
-            strings.iter().map(|s| (&s.value, &s.string_type)).collect::<Vec<_>>()
+            strings
+                .iter()
+                .map(|s| (&s.value, &s.string_type))
+                .collect::<Vec<_>>()
         );
     }
 

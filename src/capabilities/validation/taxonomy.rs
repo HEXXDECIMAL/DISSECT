@@ -11,10 +11,10 @@
 //!
 //! The taxonomy is organized hierarchically to support both ML classification and human navigation.
 
+use super::composite::collect_trait_refs_from_rule;
 use crate::composite_rules::{CompositeTrait, Condition, TraitDefinition};
 use crate::types::Criticality;
 use std::collections::HashMap;
-use super::composite::collect_trait_refs_from_rule;
 
 /// Platform and language names that should not appear as directory segments.
 /// These names indicate implementation details rather than behavioral classifications.
@@ -116,8 +116,8 @@ const BANNED_DIRECTORY_SEGMENTS: &[&str] = &[
 /// Directories that are allowed to have segments that duplicate their parent.
 /// These are legitimate cases where the name duplication is intentional and meaningful.
 const PARENT_DUPLICATE_EXCEPTIONS: &[&str] = &[
-    "micro-behaviors/communications/tunnel/tun",  // TUN is a specific tunnel device type
-    "micro-behaviors/os/firewall/firewalld",      // firewalld is a specific firewall daemon name
+    "micro-behaviors/communications/tunnel/tun", // TUN is a specific tunnel device type
+    "micro-behaviors/os/firewall/firewalld",     // firewalld is a specific firewall daemon name
 ];
 
 /// Maximum number of traits allowed in a single directory.

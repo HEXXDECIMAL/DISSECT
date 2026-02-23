@@ -24,7 +24,7 @@ pub(crate) struct FunctionInfo {
 }
 
 /// Analyze a collection of functions and compute metrics
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_functions(functions: &[FunctionInfo], total_lines: u32) -> FunctionMetrics {
     let mut metrics = FunctionMetrics::default();
 

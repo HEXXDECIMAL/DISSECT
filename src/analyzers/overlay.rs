@@ -13,7 +13,7 @@ use std::sync::Arc;
 
 /// Detect if data looks like an archive based on magic bytes.
 /// Returns the archive type if detected, None otherwise.
-#[must_use] 
+#[must_use]
 pub(crate) fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
     if data.len() < 4 {
         return None;
@@ -30,7 +30,7 @@ pub(crate) fn detect_archive_from_bytes(data: &[u8]) -> Option<&'static str> {
         // RAR5: Rar!\x1A\x07\x01\x00
         [0x52, 0x61, 0x72, 0x21] if data.len() >= 8 && data[4..8] == [0x1A, 0x07, 0x01, 0x00] => {
             Some("rar")
-        },
+        }
         // Gzip: \x1F\x8B
         [0x1F, 0x8B, _, _] => Some("gz"),
         // XZ: \xFD7zXZ\x00
@@ -119,8 +119,11 @@ pub(crate) fn analyze_overlay(
                 source_file: Some(binary_path.to_string()),
             };
 
-            Ok(Some(OverlayAnalysis { sfx_finding, archive_report }))
-        },
+            Ok(Some(OverlayAnalysis {
+                sfx_finding,
+                archive_report,
+            }))
+        }
         Err(e) => {
             // Archive extraction failed - still emit a finding about the SFX
             eprintln!("  WARNING: Failed to extract overlay archive: {}", e);
@@ -167,7 +170,7 @@ pub(crate) fn analyze_overlay(
                     architectures: None,
                 }),
             }))
-        },
+        }
     }
 }
 

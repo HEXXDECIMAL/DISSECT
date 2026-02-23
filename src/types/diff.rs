@@ -3,7 +3,9 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use super::binary::{AnalysisMetadata, Export, Function, Import, StringInfo, SyscallInfo, YaraMatch};
+use super::binary::{
+    AnalysisMetadata, Export, Function, Import, StringInfo, SyscallInfo, YaraMatch,
+};
 use super::paths_env::{EnvVarInfo, PathInfo};
 use super::traits_findings::{Finding, Trait};
 use super::{is_zero_f32, is_zero_i32, is_zero_i64};

@@ -67,14 +67,16 @@ pub(crate) fn most_recent_yara_mtime() -> Result<SystemTime> {
     // Check traits directory for both .yar/.yara and .yaml/.yml files
     let traits_dir = traits_path();
     if traits_dir.exists() {
-        for entry in WalkDir::new(&traits_dir).follow_links(false).into_iter().flatten() {
+        for entry in WalkDir::new(&traits_dir)
+            .follow_links(false)
+            .into_iter()
+            .flatten()
+        {
             let path = entry.path();
             if path.is_file()
                 && path
                     .extension()
-                    .map(|ext| {
-                        ext == "yar" || ext == "yara" || ext == "yaml" || ext == "yml"
-                    })
+                    .map(|ext| ext == "yar" || ext == "yara" || ext == "yaml" || ext == "yml")
                     .unwrap_or(false)
             {
                 if let Ok(metadata) = fs::metadata(path) {
@@ -90,10 +92,17 @@ pub(crate) fn most_recent_yara_mtime() -> Result<SystemTime> {
 
     // Check third_party directory
     if Path::new("third_party").exists() {
-        for entry in WalkDir::new("third_party").follow_links(false).into_iter().flatten() {
+        for entry in WalkDir::new("third_party")
+            .follow_links(false)
+            .into_iter()
+            .flatten()
+        {
             let path = entry.path();
             if path.is_file()
-                && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)
+                && path
+                    .extension()
+                    .map(|ext| ext == "yar" || ext == "yara")
+                    .unwrap_or(false)
             {
                 if let Ok(metadata) = fs::metadata(path) {
                     if let Ok(mtime) = metadata.modified() {
@@ -119,7 +128,9 @@ pub(crate) fn binary_mtime() -> Result<SystemTime> {
 
     let metadata = fs::metadata(&exe_path).context("Failed to read binary metadata")?;
 
-    metadata.modified().context("Failed to get binary modification time")
+    metadata
+        .modified()
+        .context("Failed to get binary modification time")
 }
 
 /// Returns the appropriate timestamp for cache invalidation
@@ -149,7 +160,10 @@ pub(crate) fn yara_cache_key(third_party_enabled: bool) -> Result<String> {
     let mode = if is_developer_mode() { "dev" } else { "prod" };
 
     // v3: zero-copy cache format (mmap + direct slice access)
-    Ok(format!("yara-rules-v3-{}-{}-{}.bin", mode, timestamp, suffix))
+    Ok(format!(
+        "yara-rules-v3-{}-{}-{}.bin",
+        mode, timestamp, suffix
+    ))
 }
 
 /// Get the path to the YARA rules cache file
@@ -268,10 +282,10 @@ mod tests {
         match result {
             Ok(path) => {
                 assert!(path.to_string_lossy().contains("dissect"));
-            },
+            }
             Err(_) => {
                 // Some environments may not have cache dir
-            },
+            }
         }
     }
 

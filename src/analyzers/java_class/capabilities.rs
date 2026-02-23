@@ -60,7 +60,11 @@ impl super::JavaClassAnalyzer {
                 "intel/system",
                 "System information access",
             ),
-            ("java/lang/Thread", "execution/thread", "Thread manipulation"),
+            (
+                "java/lang/Thread",
+                "execution/thread",
+                "Thread manipulation",
+            ),
             ("sun/misc/Unsafe", "mem/unsafe", "Unsafe memory operations"),
         ];
 

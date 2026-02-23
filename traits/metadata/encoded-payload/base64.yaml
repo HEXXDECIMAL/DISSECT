@@ -8,5 +8,4 @@ traits:
     if:
       type: encoded
       encoding: base64
-      regex: "."
-      count_min: 1
+      regex: ".{20,100}"

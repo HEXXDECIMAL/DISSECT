@@ -14,7 +14,7 @@ pub(crate) trait ValidFieldPaths {
 
 /// Returns all valid metric field paths for use in YAML rules
 /// Returns paths like "binary.code_to_data_ratio", "text.line_count", etc.
-#[must_use] 
+#[must_use]
 pub(crate) fn all_valid_metric_paths() -> HashSet<String> {
     // Import the trait to access its methods
     use super::field_paths::ValidFieldPaths;

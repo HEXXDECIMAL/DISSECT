@@ -61,7 +61,6 @@ pub struct Trait {
     pub source: String,
 }
 
-
 /// Kind of finding - what type of conclusion this represents
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -174,7 +173,6 @@ impl Finding {
         self.evidence = evidence;
         self
     }
-
 }
 
 /// Legacy trait structure - being replaced by Artifact + Finding model

@@ -30,20 +30,29 @@ impl YaraEngine {
     /// Create a new YARA engine without rules loaded
     #[must_use]
     pub(crate) fn new() -> Self {
-        Self { rules: None, compiled_inline_namespaces: Vec::new() }
+        Self {
+            rules: None,
+            compiled_inline_namespaces: Vec::new(),
+        }
     }
 
     /// Create a new YARA engine with a pre-existing capability mapper (avoids duplicate loading)
     #[must_use]
     pub(crate) fn new_with_mapper(_capability_mapper: CapabilityMapper) -> Self {
-        Self { rules: None, compiled_inline_namespaces: Vec::new() }
+        Self {
+            rules: None,
+            compiled_inline_namespaces: Vec::new(),
+        }
     }
 
     /// Create a new YARA engine for testing (without validation)
     #[cfg(test)]
     #[must_use]
     pub(crate) fn new_for_test() -> Self {
-        Self { rules: None, compiled_inline_namespaces: Vec::new() }
+        Self {
+            rules: None,
+            compiled_inline_namespaces: Vec::new(),
+        }
     }
 
     /// Load all YARA rules (built-in from traits/ + optionally third-party from third_party/)
@@ -61,11 +70,11 @@ impl YaraEngine {
                         tracing::info!("Loaded YARA rules from cache");
                         // No eprintln needed - rule count is shown in header banner
                         return (builtin, third_party);
-                    },
+                    }
                     Err(e) => {
                         tracing::warn!("Cache load failed: {}, recompiling", e);
                         eprintln!("⚠️  Cache invalid, recompiling...");
-                    },
+                    }
                 }
             } else {
                 tracing::debug!("No cache found");
@@ -109,7 +118,7 @@ impl YaraEngine {
                     if !err_str.contains("No YARA rules found") {
                         tracing::warn!("Failed to load built-in sources: {}", e);
                     }
-                },
+                }
             }
         }
 
@@ -146,7 +155,12 @@ impl YaraEngine {
 
         // Save to cache for next time
         if let Ok(cache_path) = crate::cache::yara_cache_path(enable_third_party) {
-            if let Err(e) = self.save_to_cache(&cache_path, builtin_count, third_party_count, actual_rule_count) {
+            if let Err(e) = self.save_to_cache(
+                &cache_path,
+                builtin_count,
+                third_party_count,
+                actual_rule_count,
+            ) {
                 eprintln!("⚠️  Failed to save cache: {}", e);
             } else {
                 // Clean up old caches silently
@@ -183,8 +197,12 @@ impl YaraEngine {
             .collect();
 
         for path in &yaml_files {
-            let Ok(content) = fs::read_to_string(path) else { continue };
-            let Ok(doc) = serde_yaml::from_str::<serde_yaml::Value>(&content) else { continue };
+            let Ok(content) = fs::read_to_string(path) else {
+                continue;
+            };
+            let Ok(doc) = serde_yaml::from_str::<serde_yaml::Value>(&content) else {
+                continue;
+            };
 
             // YAML files may have a top-level `traits:` list or be a bare list
             let items = match &doc {
@@ -199,8 +217,12 @@ impl YaraEngine {
             let Some(items) = items else { continue };
 
             for item in items {
-                let Some(id) = item.get("id").and_then(|v| v.as_str()) else { continue };
-                let Some(if_cond) = item.get("if") else { continue };
+                let Some(id) = item.get("id").and_then(|v| v.as_str()) else {
+                    continue;
+                };
+                let Some(if_cond) = item.get("if") else {
+                    continue;
+                };
 
                 // Only handle `type: yara` conditions
                 if if_cond.get("type").and_then(|v| v.as_str()) != Some("yara") {
@@ -208,7 +230,7 @@ impl YaraEngine {
                 }
 
                 let Some(source) = if_cond.get("source").and_then(|v| v.as_str()) else {
-                    continue
+                    continue;
                 };
 
                 let ns = format!("inline.{}", id);
@@ -217,10 +239,10 @@ impl YaraEngine {
                     Ok(_) => {
                         tracing::trace!("Loaded inline YARA rule for trait {}", id);
                         namespaces.push(ns);
-                    },
+                    }
                     Err(e) => {
                         tracing::warn!("Failed to compile inline YARA for trait {}: {:?}", id, e);
-                    },
+                    }
                 }
             }
         }
@@ -242,13 +264,17 @@ impl YaraEngine {
         use std::time::Duration;
 
         let rules = self.rules.as_ref().context("No YARA rules loaded")?;
-        let inline_ns_set: std::collections::HashSet<&str> =
-            self.compiled_inline_namespaces.iter().map(String::as_str).collect();
+        let inline_ns_set: std::collections::HashSet<&str> = self
+            .compiled_inline_namespaces
+            .iter()
+            .map(String::as_str)
+            .collect();
 
         let mut scanner = yara_x::Scanner::new(rules);
         scanner.set_timeout(Duration::from_secs(30));
-        let scan_results =
-            scanner.scan(data).map_err(|e| anyhow::anyhow!("YARA scan failed: {:?}", e))?;
+        let scan_results = scanner
+            .scan(data)
+            .map_err(|e| anyhow::anyhow!("YARA scan failed: {:?}", e))?;
 
         struct RawRule {
             name: String,
@@ -271,8 +297,10 @@ impl YaraEngine {
                 patterns: rule
                     .patterns()
                     .map(|pat| {
-                        let ranges =
-                            pat.matches().map(|m| (m.range().start, m.range().end)).collect();
+                        let ranges = pat
+                            .matches()
+                            .map(|m| (m.range().start, m.range().end))
+                            .collect();
                         (pat.identifier().to_string(), ranges)
                     })
                     .collect(),
@@ -286,7 +314,8 @@ impl YaraEngine {
         if !slowest.is_empty() {
             eprintln!("\n⏱️  Top 20 slowest YARA rules:");
             for (i, profiling_data) in slowest.iter().enumerate() {
-                let total = profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
+                let total =
+                    profiling_data.condition_exec_time + profiling_data.pattern_matching_time;
                 eprintln!(
                     "  {}. {:>6}ms  {}::{}",
                     i + 1,
@@ -325,13 +354,23 @@ impl YaraEngine {
                     })
                     .collect::<Vec<_>>();
                 // Even if empty (condition match without string patterns), record the hit
-                inline_results.entry(raw.namespace).or_default().extend(evidence);
+                inline_results
+                    .entry(raw.namespace)
+                    .or_default()
+                    .extend(evidence);
                 continue;
             }
 
             // Regular match: build YaraMatch
-            let yara_match = self.build_yara_match(raw.name, raw.namespace, &raw.tags,
-                &raw.metadata, &raw.patterns, data, file_type_filter);
+            let yara_match = self.build_yara_match(
+                raw.name,
+                raw.namespace,
+                &raw.tags,
+                &raw.metadata,
+                &raw.patterns,
+                data,
+                file_type_filter,
+            );
             if let Some(m) = yara_match {
                 yara_matches.push(m);
             }
@@ -356,7 +395,10 @@ impl YaraEngine {
             .filter(|entry| {
                 let path = entry.path();
                 path.is_file()
-                    && path.extension().map(|ext| ext == "yar" || ext == "yara").unwrap_or(false)
+                    && path
+                        .extension()
+                        .map(|ext| ext == "yar" || ext == "yara")
+                        .unwrap_or(false)
             })
             .map(|entry| entry.path().to_path_buf())
             .collect();
@@ -394,7 +436,7 @@ impl YaraEngine {
                 Err(e) => {
                     failed += 1;
                     tracing::warn!("Failed to add {}: {:?}", path.display(), e);
-                },
+                }
             }
         }
 
@@ -425,7 +467,10 @@ impl YaraEngine {
             .filter(|entry| {
                 let path = entry.path();
                 path.is_file()
-                    && path.extension().map(|e| e == "yar" || e == "yara").unwrap_or(false)
+                    && path
+                        .extension()
+                        .map(|e| e == "yar" || e == "yara")
+                        .unwrap_or(false)
             })
             .map(|entry| entry.path().to_path_buf())
             .collect();
@@ -450,8 +495,10 @@ impl YaraEngine {
                 .ok()
                 .and_then(|rel| rel.to_str())
                 .map(|s| {
-                    let parts: Vec<&str> =
-                        s.split(std::path::MAIN_SEPARATOR).filter(|p| !p.is_empty()).collect();
+                    let parts: Vec<&str> = s
+                        .split(std::path::MAIN_SEPARATOR)
+                        .filter(|p| !p.is_empty())
+                        .collect();
                     // Include filename (without extension) in namespace
                     let mut ns_parts = parts.to_vec();
                     if let Some(last) = ns_parts.last_mut() {
@@ -472,17 +519,23 @@ impl YaraEngine {
                     // VT (VirusTotal) module rules require VT context and won't work standalone
                     if err_str.contains("vt.") {
                         vt_skipped += 1;
-                        tracing::debug!("{}: skipped (requires VirusTotal context)", path.display());
+                        tracing::debug!(
+                            "{}: skipped (requires VirusTotal context)",
+                            path.display()
+                        );
                     } else {
                         failed += 1;
                         tracing::warn!("{}: {}", path.display(), e);
                     }
-                },
+                }
             }
         }
 
         if vt_skipped > 0 {
-            tracing::info!("{} third-party rule(s) skipped (require VirusTotal context)", vt_skipped);
+            tracing::info!(
+                "{} third-party rule(s) skipped (require VirusTotal context)",
+                vt_skipped
+            );
         }
         if failed > 0 {
             tracing::warn!("{} third-party file(s) failed to compile", failed);
@@ -553,8 +606,11 @@ impl YaraEngine {
             // Single filetype
             if trimmed.starts_with("filetype") && trimmed.contains('=') {
                 if let Some(value_part) = trimmed.split('=').nth(1) {
-                    let value =
-                        value_part.trim().trim_matches('"').trim_matches('\'').to_lowercase();
+                    let value = value_part
+                        .trim()
+                        .trim_matches('"')
+                        .trim_matches('\'')
+                        .to_lowercase();
 
                     // Check if any filter type matches
                     for filter_type in filter_types {
@@ -587,7 +643,7 @@ impl YaraEngine {
         false
     }
 
-/// Scan a file with loaded YARA rules
+    /// Scan a file with loaded YARA rules
     pub(crate) fn scan_file(&self, file_path: &Path) -> Result<Vec<YaraMatch>> {
         let _rules = self.rules.as_ref().context("No YARA rules loaded")?;
 
@@ -637,7 +693,10 @@ impl YaraEngine {
         let mut os_meta: Option<String> = None;
 
         for tag_name in tags {
-            if matches!(tag_name.as_str(), "inert" | "notable" | "suspicious" | "hostile") {
+            if matches!(
+                tag_name.as_str(),
+                "inert" | "notable" | "suspicious" | "hostile"
+            ) {
                 crit = tag_name.clone();
                 break;
             }
@@ -661,32 +720,38 @@ impl YaraEngine {
                     if !is_third_party {
                         crit = value_str;
                     }
-                },
+                }
                 "capability" => {
                     capability_flag = value_str.to_lowercase() == "true" || value_str == "1";
-                },
+                }
                 "mbc" => mbc_code = Some(value_str),
                 "attack" => attack_code = Some(value_str),
                 "filetype" | "filetypes" => {
-                    rule_filetypes =
-                        value_str.split(',').map(|s| s.trim().to_lowercase()).collect();
-                },
+                    rule_filetypes = value_str
+                        .split(',')
+                        .map(|s| s.trim().to_lowercase())
+                        .collect();
+                }
                 "os" => os_meta = Some(value_str.to_lowercase()),
-                _ => {},
+                _ => {}
             }
         }
 
         if is_third_party && rule_filetypes.is_empty() {
-            let inferred =
-                crate::third_party_yara::infer_filetypes(&rule_name, os_meta.as_deref());
-            rule_filetypes = inferred.iter().map(std::string::ToString::to_string).collect();
+            let inferred = crate::third_party_yara::infer_filetypes(&rule_name, os_meta.as_deref());
+            rule_filetypes = inferred
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect();
         }
 
         if let Some(filter_types) = file_type_filter {
             if !rule_filetypes.is_empty() {
-                let matches_filter = rule_filetypes
-                    .iter()
-                    .any(|rule_type| filter_types.iter().any(|ft| rule_type == &ft.to_lowercase()));
+                let matches_filter = rule_filetypes.iter().any(|rule_type| {
+                    filter_types
+                        .iter()
+                        .any(|ft| rule_type == &ft.to_lowercase())
+                });
                 if !matches_filter {
                     tracing::warn!(
                         rule = %rule_name,
@@ -731,10 +796,9 @@ impl YaraEngine {
 
         // Apply config-based criticality for third-party rules
         if is_third_party {
-            if let Some(config_crit) = crate::third_party_config::third_party_criticality(
-                &namespace,
-                trait_id.as_deref(),
-            ) {
+            if let Some(config_crit) =
+                crate::third_party_config::third_party_criticality(&namespace, trait_id.as_deref())
+            {
                 crit = config_crit;
             }
         }
@@ -753,13 +817,13 @@ impl YaraEngine {
     }
 
     /// Check if rules are loaded
-    #[must_use] 
+    #[must_use]
     pub(crate) fn is_loaded(&self) -> bool {
         self.rules.is_some()
     }
 
     /// Map YARA match to capability evidence
-    #[must_use] 
+    #[must_use]
     pub(crate) fn yara_match_to_evidence(&self, yara_match: &YaraMatch) -> Vec<Evidence> {
         let mut evidence = Vec::new();
 
@@ -798,7 +862,7 @@ impl YaraEngine {
 
     /// Map YARA namespace to capability ID
     /// Returns the capability ID if the namespace maps to a known capability
-    #[must_use] 
+    #[must_use]
     pub(crate) fn namespace_to_capability(&self, namespace: &str) -> Option<String> {
         // YARA namespace format: exec.cmd, anti-static.obfuscation, etc.
         // Convert to capability ID: execution/command, anti-analysis/obfuscation
@@ -887,7 +951,9 @@ impl YaraEngine {
         let rules = self.rules.as_ref().context("No rules to cache")?;
 
         // Serialize the rules using the YARA-X serialization
-        let rules_data = rules.serialize().context("Failed to serialize YARA rules")?;
+        let rules_data = rules
+            .serialize()
+            .context("Failed to serialize YARA rules")?;
 
         // Serialize namespaces as JSON (small, simple)
         let namespaces_data =
@@ -944,7 +1010,11 @@ impl YaraEngine {
         // Parse header
         let version = u32::from_le_bytes(mmap[4..8].try_into().unwrap());
         if version != CACHE_VERSION {
-            anyhow::bail!("Cache version mismatch: expected {}, got {}", CACHE_VERSION, version);
+            anyhow::bail!(
+                "Cache version mismatch: expected {}, got {}",
+                CACHE_VERSION,
+                version
+            );
         }
 
         let builtin_count = u64::from_le_bytes(mmap[8..16].try_into().unwrap()) as usize;
@@ -1031,7 +1101,9 @@ impl YaraEngine {
     /// Compile YARA rules from source text. For tests only.
     fn load_rule_source(&mut self, source: &str) -> Result<()> {
         let mut compiler = yara_x::Compiler::new();
-        compiler.add_source(source.as_bytes()).map_err(|e| anyhow::anyhow!("{:?}", e))?;
+        compiler
+            .add_source(source.as_bytes())
+            .map_err(|e| anyhow::anyhow!("{:?}", e))?;
         self.rules = Some(compiler.build());
         Ok(())
     }
@@ -1103,7 +1175,9 @@ rule test_rule {
         let mut engine = YaraEngine::new_for_test();
         assert!(!engine.is_loaded());
 
-        engine.load_rule_source(r#"rule test { strings: $a = "test" condition: $a }"#).unwrap();
+        engine
+            .load_rule_source(r#"rule test { strings: $a = "test" condition: $a }"#)
+            .unwrap();
 
         assert!(engine.is_loaded());
     }
@@ -1113,7 +1187,10 @@ rule test_rule {
         let engine = YaraEngine::new_for_test();
         let result = engine.scan_bytes(b"test data");
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("No YARA rules loaded"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("No YARA rules loaded"));
     }
 
     #[test]

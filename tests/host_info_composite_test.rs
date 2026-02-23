@@ -95,7 +95,10 @@ fn test_host_info_composite_fires_with_4_atomics() {
     );
 
     // Check that composite rule was triggered
-    let composite = report.findings.iter().find(|f| f.id.contains("host_info_strings"));
+    let composite = report
+        .findings
+        .iter()
+        .find(|f| f.id.contains("host_info_strings"));
 
     println!("\n=== Composite rule ===");
     if let Some(comp) = composite {

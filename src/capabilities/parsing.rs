@@ -80,7 +80,7 @@ pub(crate) fn apply_trait_defaults(
             Err(e) => {
                 warnings.push(format!("Trait '{}': {}", raw.id, e));
                 Criticality::Inert
-            },
+            }
         },
         None => match defaults.crit.as_deref() {
             Some(v) => match parse_criticality(v) {
@@ -88,7 +88,7 @@ pub(crate) fn apply_trait_defaults(
                 Err(e) => {
                     warnings.push(format!("Default criticality: {}", e));
                     Criticality::Inert
-                },
+                }
             },
             None => Criticality::Inert,
         },
@@ -126,20 +126,21 @@ pub(crate) fn apply_trait_defaults(
     // For size-only traits without a condition, create a synthetic "always-true" condition
     // This uses a basename regex that matches everything
     let mut condition_with_filters =
-        raw.condition.unwrap_or_else(|| crate::composite_rules::ConditionWithFilters {
-            condition: crate::composite_rules::Condition::Basename {
-                exact: None,
-                substr: None,
-                regex: Some(".".to_string()),
-                case_insensitive: false,
-            },
-            size_min: None,
-            size_max: None,
-            count_min: None,
-            count_max: None,
-            per_kb_min: None,
-            per_kb_max: None,
-        });
+        raw.condition
+            .unwrap_or_else(|| crate::composite_rules::ConditionWithFilters {
+                condition: crate::composite_rules::Condition::Basename {
+                    exact: None,
+                    substr: None,
+                    regex: Some(".".to_string()),
+                    case_insensitive: false,
+                },
+                size_min: None,
+                size_max: None,
+                count_min: None,
+                count_max: None,
+                per_kb_min: None,
+                per_kb_max: None,
+            });
 
     // Auto-fix: Convert literal regex patterns to substr for better performance
     // If a regex pattern contains only alphanumeric chars and underscores, it's a literal
@@ -210,7 +211,7 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
                     } else {
                         vec![RuleFileType::All]
                     }
-                },
+                }
                 // Groups
                 "binaries" => vec![
                     RuleFileType::Elf,
@@ -292,7 +293,7 @@ pub(crate) fn parse_file_types(types: &[String], warnings: &mut Vec<String>) -> 
                     // Unknown file type - add warning (file path will be added by caller)
                     warnings.push(format!("Unknown file type: '{}'", name));
                     vec![]
-                },
+                }
             };
 
             if name == "*" || name.eq_ignore_ascii_case("all") {
@@ -403,7 +404,7 @@ pub(crate) fn apply_composite_defaults(
             Err(e) => {
                 warnings.push(format!("Composite rule '{}': {}", raw.id, e));
                 Criticality::Inert
-            },
+            }
         },
         None => match defaults.crit.as_deref() {
             Some(v) => match parse_criticality(v) {
@@ -411,7 +412,7 @@ pub(crate) fn apply_composite_defaults(
                 Err(e) => {
                     warnings.push(format!("Default criticality: {}", e));
                     Criticality::Inert
-                },
+                }
             },
             None => Criticality::Inert,
         },
@@ -488,7 +489,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        },
+        }
         Condition::Raw {
             regex: regex_opt,
             substr,
@@ -501,7 +502,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        },
+        }
         Condition::Symbol {
             regex: regex_opt,
             substr,
@@ -514,7 +515,7 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        },
+        }
         Condition::Basename {
             regex: regex_opt,
             substr,
@@ -527,8 +528,8 @@ fn fix_literal_regex_patterns(condition: &mut crate::composite_rules::Condition)
                     *regex_opt = None;
                 }
             }
-        },
-        _ => {},
+        }
+        _ => {}
     }
 }
 
@@ -581,9 +582,9 @@ fn is_simple_alphanumeric_or_chain(pattern: &str) -> bool {
         return false;
     }
 
-    parts.into_iter().all(|part| {
-        !part.is_empty() && part.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
-    })
+    parts
+        .into_iter()
+        .all(|part| !part.is_empty() && part.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))
 }
 
 fn check_regex_length(
@@ -620,10 +621,7 @@ fn check_regex_length(
         if or_symbol_count > MAX_REGEX_OR_SYMBOLS {
             warnings.push(format!(
                 "Trait '{}': regex uses too many '|' symbols ({} > {}): {:?}",
-                trait_id,
-                or_symbol_count,
-                MAX_REGEX_OR_SYMBOLS,
-                pattern
+                trait_id, or_symbol_count, MAX_REGEX_OR_SYMBOLS, pattern
             ));
         }
 
@@ -975,7 +973,10 @@ mod tests {
 
     // ==================== for: validation Tests ====================
 
-    fn make_raw_trait(id: &str, file_types: Option<Vec<String>>) -> super::super::models::RawTraitDefinition {
+    fn make_raw_trait(
+        id: &str,
+        file_types: Option<Vec<String>>,
+    ) -> super::super::models::RawTraitDefinition {
         super::super::models::RawTraitDefinition {
             id: id.to_string(),
             desc: "A valid trait description here".to_string(),
@@ -999,9 +1000,16 @@ mod tests {
         let defaults = super::super::models::TraitDefaults::default();
         let raw = make_raw_trait("test-trait", None);
         let mut warnings = Vec::new();
-        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        super::apply_trait_defaults(
+            raw,
+            &defaults,
+            &mut warnings,
+            std::path::Path::new("test.yaml"),
+        );
         assert!(
-            warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            warnings
+                .iter()
+                .any(|w| w.contains("missing 'for:' declaration")),
             "expected for: warning, got: {:?}",
             warnings
         );
@@ -1012,9 +1020,16 @@ mod tests {
         let defaults = super::super::models::TraitDefaults::default();
         let raw = make_raw_trait("test-trait", Some(vec!["python".to_string()]));
         let mut warnings = Vec::new();
-        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        super::apply_trait_defaults(
+            raw,
+            &defaults,
+            &mut warnings,
+            std::path::Path::new("test.yaml"),
+        );
         assert!(
-            !warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            !warnings
+                .iter()
+                .any(|w| w.contains("missing 'for:' declaration")),
             "unexpected for: warning"
         );
     }
@@ -1027,9 +1042,16 @@ mod tests {
         };
         let raw = make_raw_trait("test-trait", None);
         let mut warnings = Vec::new();
-        super::apply_trait_defaults(raw, &defaults, &mut warnings, std::path::Path::new("test.yaml"));
+        super::apply_trait_defaults(
+            raw,
+            &defaults,
+            &mut warnings,
+            std::path::Path::new("test.yaml"),
+        );
         assert!(
-            !warnings.iter().any(|w| w.contains("missing 'for:' declaration")),
+            !warnings
+                .iter()
+                .any(|w| w.contains("missing 'for:' declaration")),
             "unexpected for: warning"
         );
     }
@@ -1125,7 +1147,9 @@ mod tests {
         };
         let mut warnings = Vec::new();
         super::check_regex_length("test-trait", &condition, &mut warnings);
-        assert!(warnings.iter().any(|w| w.contains("simple alphanumeric alternation chain")));
+        assert!(warnings
+            .iter()
+            .any(|w| w.contains("simple alphanumeric alternation chain")));
     }
 
     #[test]
@@ -1138,7 +1162,9 @@ mod tests {
         };
         let mut warnings = Vec::new();
         super::check_regex_length("test-trait", &condition, &mut warnings);
-        assert!(!warnings.iter().any(|w| w.contains("simple alphanumeric alternation chain")));
+        assert!(!warnings
+            .iter()
+            .any(|w| w.contains("simple alphanumeric alternation chain")));
     }
 }
 

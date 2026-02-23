@@ -32,7 +32,7 @@ fn ip_pattern() -> &'static regex::Regex {
 /// - Documentation ranges (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24)
 /// - Version-like (first octet 0-3)
 /// - IPs with 2+ zero octets
-#[must_use] 
+#[must_use]
 pub(crate) fn is_external_ip(ip: &Ipv4Addr) -> bool {
     let octets = ip.octets();
 
@@ -136,7 +136,7 @@ fn has_valid_octet_format(octet_str: &str) -> bool {
 /// (not private/loopback/reserved).
 ///
 /// Returns Some(Ipv4Addr) if the IP is valid and external, None otherwise.
-#[must_use] 
+#[must_use]
 pub(crate) fn validate_external_ip_string(ip_str: &str) -> Option<Ipv4Addr> {
     let parts: Vec<&str> = ip_str.split('.').collect();
     if parts.len() != 4 {
@@ -173,7 +173,7 @@ pub(crate) fn validate_external_ip_string(ip_str: &str) -> Option<Ipv4Addr> {
 /// This is the main entry point for the `external_ip: true` condition modifier.
 /// It finds all IP-like patterns in the text and returns true if any of them
 /// are valid external external IPs.
-#[must_use] 
+#[must_use]
 pub(crate) fn contains_external_ip(text: &str) -> bool {
     for cap in ip_pattern().captures_iter(text) {
         // Get the full match
@@ -185,7 +185,6 @@ pub(crate) fn contains_external_ip(text: &str) -> bool {
     }
     false
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -5,7 +5,7 @@ use crate::types::DecodedString;
 
 /// Extract and decode base64 strings from binary data
 /// Returns decoded strings that are valid UTF-8 and > 10 characters
-#[must_use] 
+#[must_use]
 pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
     use base64::{engine::general_purpose::STANDARD, Engine as _};
     let mut results = Vec::new();
@@ -29,9 +29,11 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
                 }
 
                 // Check if decoded string contains printable ASCII (heuristic for real content)
-                let printable_ratio =
-                    decoded_str.chars().filter(|c| c.is_ascii() && !c.is_control()).count() as f32
-                        / decoded_str.len() as f32;
+                let printable_ratio = decoded_str
+                    .chars()
+                    .filter(|c| c.is_ascii() && !c.is_control())
+                    .count() as f32
+                    / decoded_str.len() as f32;
 
                 if printable_ratio > 0.7 {
                     let encoded_preview = if encoded.len() > 100 {
@@ -57,7 +59,7 @@ pub fn extract_base64_strings(data: &[u8]) -> Vec<DecodedString> {
 
 /// Extract XOR-decoded strings using common single-byte XOR keys
 /// Returns decoded strings for keys 0x01-0xFF that produce valid UTF-8
-#[must_use] 
+#[must_use]
 pub fn extract_xor_strings(data: &[u8]) -> Vec<DecodedString> {
     let mut results = Vec::new();
 

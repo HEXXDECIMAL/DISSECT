@@ -122,7 +122,7 @@ pub(crate) enum FileType {
 
 impl FileType {
     /// Returns true if this file type is source code (not a compiled binary)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn is_source_code(&self) -> bool {
         matches!(
             self,
@@ -155,7 +155,7 @@ impl FileType {
     }
 
     /// Returns a list of all concrete file types (excluding All)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn all_concrete_variants() -> Vec<FileType> {
         vec![
             // Binary formats
@@ -270,13 +270,13 @@ impl FileType {
 }
 
 /// Default platforms for rules (all platforms)
-#[must_use] 
+#[must_use]
 pub(crate) fn default_platforms() -> Vec<Platform> {
     vec![Platform::All]
 }
 
 /// Default file types for rules (all file types)
-#[must_use] 
+#[must_use]
 pub(crate) fn default_file_types() -> Vec<FileType> {
     vec![FileType::All]
 }

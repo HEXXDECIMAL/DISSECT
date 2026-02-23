@@ -13,11 +13,11 @@
 
 use crate::capabilities::validation::calculate_composite_precision;
 use crate::capabilities::CapabilityMapper;
+use crate::composite_rules::debug::{DebugCollector, EvaluationDebug, RuleType};
 use crate::composite_rules::{
     CompositeTrait, Condition, EvaluationContext, FileType as RuleFileType, Platform, SectionMap,
     TraitDefinition,
 };
-use crate::composite_rules::debug::{DebugCollector, EvaluationDebug, RuleType};
 use crate::types::{AnalysisReport, Evidence};
 use colored::Colorize;
 use rustc_hash::{FxHashSet, FxHasher};
@@ -259,7 +259,9 @@ impl<'a> RuleDebugger<'a> {
         let finding = trait_def.evaluate(&ctx);
 
         // Extract debug info
-        let eval_debug = debug.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let eval_debug = debug
+            .into_inner()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
 
         // Convert to RuleDebugResult
         let mut result = self.convert_eval_debug_to_result(
@@ -300,7 +302,9 @@ impl<'a> RuleDebugger<'a> {
         let finding = composite.evaluate(&ctx);
 
         // Extract debug info
-        let eval_debug = debug.into_inner().unwrap_or_else(std::sync::PoisonError::into_inner);
+        let eval_debug = debug
+            .into_inner()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
 
         // Convert to RuleDebugResult, using composite requirements
         let requirements = build_composite_requirements(composite);
@@ -631,7 +635,7 @@ impl<'a> RuleDebugger<'a> {
                 ..
             } => {
                 self.debug_ast_condition(kind, node, exact, substr, regex, query, *case_insensitive)
-            },
+            }
             Condition::Kv {
                 path,
                 exact,
@@ -678,7 +682,7 @@ impl<'a> RuleDebugger<'a> {
                 let desc = describe_condition(condition);
                 let result = evaluate_condition_simple(condition, &ctx);
                 ConditionDebugResult::new(desc, result.matched).with_evidence(result.evidence)
-            },
+            }
         }
     }
 
@@ -697,7 +701,10 @@ impl<'a> RuleDebugger<'a> {
                 "✓ Found exact match in findings: {}",
                 exact_match[0].id
             ));
-            result.evidence = exact_match.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+            result.evidence = exact_match
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             return result;
         }
 
@@ -707,8 +714,12 @@ impl<'a> RuleDebugger<'a> {
         if slash_count == 0 {
             // Short name: suffix match (e.g., "terminate" matches "execution/process/terminate")
             let suffix = format!("/{}", id);
-            let matching_findings: Vec<_> =
-                self.report.findings.iter().filter(|f| f.id.ends_with(&suffix)).collect();
+            let matching_findings: Vec<_> = self
+                .report
+                .findings
+                .iter()
+                .filter(|f| f.id.ends_with(&suffix))
+                .collect();
 
             if !matching_findings.is_empty() {
                 let mut result = ConditionDebugResult::new(desc, true);
@@ -721,17 +732,25 @@ impl<'a> RuleDebugger<'a> {
                     result.details.push(format!("  - {}", finding.id));
                 }
                 if matching_findings.len() > 5 {
-                    result.details.push(format!("  ... and {} more", matching_findings.len() - 5));
+                    result
+                        .details
+                        .push(format!("  ... and {} more", matching_findings.len() - 5));
                 }
-                result.evidence =
-                    matching_findings.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+                result.evidence = matching_findings
+                    .iter()
+                    .flat_map(|f| f.evidence.iter().cloned())
+                    .collect();
                 return result;
             }
         } else {
             // Directory path: prefix match (any trait within that directory)
             let prefix = format!("{}/", id);
-            let matching_findings: Vec<_> =
-                self.report.findings.iter().filter(|f| f.id.starts_with(&prefix)).collect();
+            let matching_findings: Vec<_> = self
+                .report
+                .findings
+                .iter()
+                .filter(|f| f.id.starts_with(&prefix))
+                .collect();
 
             if !matching_findings.is_empty() {
                 let mut result = ConditionDebugResult::new(desc.clone(), true);
@@ -744,10 +763,14 @@ impl<'a> RuleDebugger<'a> {
                     result.details.push(format!("  - {}", finding.id));
                 }
                 if matching_findings.len() > 5 {
-                    result.details.push(format!("  ... and {} more", matching_findings.len() - 5));
+                    result
+                        .details
+                        .push(format!("  ... and {} more", matching_findings.len() - 5));
                 }
-                result.evidence =
-                    matching_findings.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+                result.evidence = matching_findings
+                    .iter()
+                    .flat_map(|f| f.evidence.iter().cloned())
+                    .collect();
                 return result;
             }
         }
@@ -755,7 +778,9 @@ impl<'a> RuleDebugger<'a> {
         // Step 3: Not found in findings - check if it's a composite rule
         if let Some(_composite) = self.find_composite_rule(id) {
             let mut result = ConditionDebugResult::new(desc, false);
-            result.details.push(format!("✗ Composite rule '{}' not found in findings", id));
+            result
+                .details
+                .push(format!("✗ Composite rule '{}' not found in findings", id));
             result
                 .details
                 .push("  (Composites are evaluated separately from traits)".to_string());
@@ -773,9 +798,13 @@ impl<'a> RuleDebugger<'a> {
                 result
                     .details
                     .push("⚠ Trait re-evaluates as matched but not in findings!".to_string());
-                result.details.push("  This indicates a discrepancy in evaluation".to_string());
+                result
+                    .details
+                    .push("  This indicates a discrepancy in evaluation".to_string());
             } else if let Some(reason) = &trait_debug_result.skipped_reason {
-                result.details.push(format!("✗ Not in findings ({})", reason));
+                result
+                    .details
+                    .push(format!("✗ Not in findings ({})", reason));
             } else {
                 result
                     .details
@@ -907,7 +936,11 @@ impl<'a> RuleDebugger<'a> {
                 .map(|s| s.value.as_str())
                 .collect()
         } else {
-            self.report.strings.iter().map(|s| s.value.as_str()).collect()
+            self.report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect()
         };
 
         let matched_strings = find_matching_strings(
@@ -940,12 +973,16 @@ impl<'a> RuleDebugger<'a> {
                 .details
                 .push(format!("Total strings in file: {}", strings_in_range.len()));
         }
-        result.details.push(format!("Matching strings: {}", matched_strings.len()));
+        result
+            .details
+            .push(format!("Matching strings: {}", matched_strings.len()));
 
         if !matched_strings.is_empty() {
             let display_count = matched_strings.len().min(10);
             for s in matched_strings.iter().take(display_count) {
-                result.details.push(format!("  Matched: \"{}\"", truncate_string(s, 80)));
+                result
+                    .details
+                    .push(format!("  Matched: \"{}\"", truncate_string(s, 80)));
             }
             if matched_strings.len() > display_count {
                 result.details.push(format!(
@@ -999,7 +1036,10 @@ impl<'a> RuleDebugger<'a> {
                 }
             } else if let Some(r) = regex {
                 // Check if regex could be simplified to exact or substr
-                let simple_pattern = r.replace(r"\.", ".").replace(r"\-", "-").replace(r"\_", "_");
+                let simple_pattern = r
+                    .replace(r"\.", ".")
+                    .replace(r"\-", "-")
+                    .replace(r"\_", "_");
                 if !simple_pattern.contains(|c: char| "^$.*+?[](){}|\\".contains(c)) {
                     // Pattern has no regex metacharacters after unescaping common ones
                     if matched_strings.iter().all(|m| {
@@ -1024,7 +1064,9 @@ impl<'a> RuleDebugger<'a> {
         } else if strings_in_range.len() <= 20 {
             result.details.push("All strings in range:".to_string());
             for s in &strings_in_range {
-                result.details.push(format!("  \"{}\"", truncate_string(s, 60)));
+                result
+                    .details
+                    .push(format!("  \"{}\"", truncate_string(s, 60)));
             }
         }
 
@@ -1032,8 +1074,12 @@ impl<'a> RuleDebugger<'a> {
         if !matched {
             // If location constraints are active, check if pattern exists outside the range
             if has_location_constraints {
-                let all_strings: Vec<&str> =
-                    self.report.strings.iter().map(|s| s.value.as_str()).collect();
+                let all_strings: Vec<&str> = self
+                    .report
+                    .strings
+                    .iter()
+                    .map(|s| s.value.as_str())
+                    .collect();
                 let all_matched = find_matching_strings(
                     &all_strings,
                     exact,
@@ -1093,7 +1139,9 @@ impl<'a> RuleDebugger<'a> {
                 false
             };
             if content_matched {
-                result.details.push("💡 Found in raw bytes - try `type: raw` instead".to_string());
+                result
+                    .details
+                    .push("💡 Found in raw bytes - try `type: raw` instead".to_string());
             }
         }
 
@@ -1138,7 +1186,9 @@ impl<'a> RuleDebugger<'a> {
                     // Get section for this string's offset
                     if let Some(offset) = string_info.offset {
                         if let Some(section) = self.section_map.section_for_offset(offset) {
-                            *sections_with_matches.entry(section.to_string()).or_insert(0) += 1;
+                            *sections_with_matches
+                                .entry(section.to_string())
+                                .or_insert(0) += 1;
                         }
                     }
                 }
@@ -1173,7 +1223,10 @@ impl<'a> RuleDebugger<'a> {
                         "📍 Matches by section: {}",
                         section_summary.join(", ")
                     ));
-                    if let (1, Some(section)) = (sections_with_matches.len(), sections_with_matches.keys().next()) {
+                    if let (1, Some(section)) = (
+                        sections_with_matches.len(),
+                        sections_with_matches.keys().next(),
+                    ) {
                         result.details.push(format!(
                             "💡 All matches in '{}' - consider `section: \"{}\"` for precision",
                             section, section
@@ -1229,7 +1282,9 @@ impl<'a> RuleDebugger<'a> {
             self.report.imports.len(),
             self.report.exports.len()
         ));
-        result.details.push(format!("Matching symbols: {}", matched_symbols.len()));
+        result
+            .details
+            .push(format!("Matching symbols: {}", matched_symbols.len()));
 
         if !matched_symbols.is_empty() {
             let display_count = matched_symbols.len().min(10);
@@ -1252,8 +1307,12 @@ impl<'a> RuleDebugger<'a> {
         // Check alternatives if no symbol match
         if !matched {
             // Check strings
-            let string_values: Vec<&str> =
-                self.report.strings.iter().map(|s| s.value.as_str()).collect();
+            let string_values: Vec<&str> = self
+                .report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect();
             let string_matches =
                 find_matching_strings(&string_values, exact, &None, regex, &None, false);
             if !string_matches.is_empty() {
@@ -1273,7 +1332,9 @@ impl<'a> RuleDebugger<'a> {
                 false
             };
             if content_matched {
-                result.details.push("💡 Found in raw bytes - try `type: raw` instead".to_string());
+                result
+                    .details
+                    .push("💡 Found in raw bytes - try `type: raw` instead".to_string());
             }
         }
 
@@ -1301,7 +1362,9 @@ impl<'a> RuleDebugger<'a> {
         if let Some(v) = value {
             result.details.push(format!("Actual value: {:.4}", v));
         } else {
-            result.details.push(format!("Metric '{}' not found in report", field));
+            result
+                .details
+                .push(format!("Metric '{}' not found in report", field));
             if let Some(metrics) = &self.report.metrics {
                 result.details.push("Available metrics:".to_string());
                 if let Some(binary) = &metrics.binary {
@@ -1309,7 +1372,9 @@ impl<'a> RuleDebugger<'a> {
                         "  binary.code_to_data_ratio: {:.2}",
                         binary.code_to_data_ratio
                     ));
-                    result.details.push(format!("  binary.string_count: {}", binary.string_count));
+                    result
+                        .details
+                        .push(format!("  binary.string_count: {}", binary.string_count));
                     result.details.push(format!(
                         "  binary.function_count: {}",
                         binary.function_count
@@ -1318,22 +1383,34 @@ impl<'a> RuleDebugger<'a> {
                         "  binary.avg_complexity: {:.2}",
                         binary.avg_complexity
                     ));
-                    result.details.push(format!("  binary.file_size: {}", binary.file_size));
+                    result
+                        .details
+                        .push(format!("  binary.file_size: {}", binary.file_size));
                 }
                 if let Some(text) = &metrics.text {
-                    result.details.push(format!("  text.total_lines: {}", text.total_lines));
+                    result
+                        .details
+                        .push(format!("  text.total_lines: {}", text.total_lines));
                 }
                 if let Some(funcs) = &metrics.functions {
-                    result.details.push(format!("  functions.count: {}", funcs.total));
+                    result
+                        .details
+                        .push(format!("  functions.count: {}", funcs.total));
                 }
                 if let Some(ids) = &metrics.identifiers {
                     result.details.push(format!(
                         "  identifiers.single_char_ratio: {:.4}",
                         ids.single_char_ratio
                     ));
-                    result.details.push(format!("  identifiers.avg_length: {:.4}", ids.avg_length));
-                    result.details.push(format!("  identifiers.total: {}", ids.total));
-                    result.details.push(format!("  identifiers.unique: {}", ids.unique_count));
+                    result
+                        .details
+                        .push(format!("  identifiers.avg_length: {:.4}", ids.avg_length));
+                    result
+                        .details
+                        .push(format!("  identifiers.total: {}", ids.total));
+                    result
+                        .details
+                        .push(format!("  identifiers.unique: {}", ids.unique_count));
                 }
             }
         }
@@ -1377,9 +1454,13 @@ impl<'a> RuleDebugger<'a> {
         result.evidence = eval_result.evidence;
 
         if eval_result.matched {
-            result.details.push("✓ Inline YARA rule matched".to_string());
+            result
+                .details
+                .push("✓ Inline YARA rule matched".to_string());
         } else {
-            result.details.push("✗ Inline YARA rule did not match".to_string());
+            result
+                .details
+                .push("✗ Inline YARA rule did not match".to_string());
         }
 
         result.details.push(format!(
@@ -1508,7 +1589,9 @@ impl<'a> RuleDebugger<'a> {
                 search_end.saturating_sub(search_start)
             ));
         } else {
-            result.details.push(format!("File size: {} bytes", file_size));
+            result
+                .details
+                .push(format!("File size: {} bytes", file_size));
         }
 
         // Check alternatives if content didn't match
@@ -1553,7 +1636,12 @@ impl<'a> RuleDebugger<'a> {
             }
 
             // Check strings
-            let strings: Vec<&str> = self.report.strings.iter().map(|s| s.value.as_str()).collect();
+            let strings: Vec<&str> = self
+                .report
+                .strings
+                .iter()
+                .map(|s| s.value.as_str())
+                .collect();
             let string_matches = find_matching_strings(&strings, exact, substr, regex, word, false);
             if !string_matches.is_empty() {
                 result.details.push(format!(
@@ -1625,9 +1713,7 @@ impl<'a> RuleDebugger<'a> {
             None,
         );
 
-        if let Some(evidence) =
-            crate::composite_rules::evaluators::evaluate_kv(&condition, &ctx)
-        {
+        if let Some(evidence) = crate::composite_rules::evaluators::evaluate_kv(&condition, &ctx) {
             let mut result = ConditionDebugResult::new(desc, true);
             result.details.push(format!("Matched: {}", evidence.value));
             if let Some(loc) = &evidence.location {
@@ -1644,12 +1730,16 @@ impl<'a> RuleDebugger<'a> {
                 if let Ok(json) = serde_json::from_str::<serde_json::Value>(content) {
                     if let Some(obj) = json.as_object() {
                         let top_keys: Vec<_> = obj.keys().take(10).collect();
-                        result.details.push(format!("Available top-level keys: {:?}", top_keys));
+                        result
+                            .details
+                            .push(format!("Available top-level keys: {:?}", top_keys));
                     }
                 } else if let Ok(yaml) = serde_yaml::from_str::<serde_json::Value>(content) {
                     if let Some(obj) = yaml.as_object() {
                         let top_keys: Vec<_> = obj.keys().take(10).collect();
-                        result.details.push(format!("Available top-level keys: {:?}", top_keys));
+                        result
+                            .details
+                            .push(format!("Available top-level keys: {:?}", top_keys));
                     }
                 }
             }
@@ -1682,9 +1772,15 @@ impl<'a> RuleDebugger<'a> {
                 .as_ref()
                 .map(|e| format!("exact=\"{}\"", truncate_string(e, 30)))
                 .or_else(|| {
-                    substr.as_ref().map(|s| format!("substr=\"{}\"", truncate_string(s, 30)))
+                    substr
+                        .as_ref()
+                        .map(|s| format!("substr=\"{}\"", truncate_string(s, 30)))
                 })
-                .or_else(|| regex.as_ref().map(|r| format!("regex=/{}/", truncate_string(r, 30))))
+                .or_else(|| {
+                    regex
+                        .as_ref()
+                        .map(|r| format!("regex=/{}/", truncate_string(r, 30)))
+                })
                 .unwrap_or_default();
             format!(
                 "ast: {} {} (case_insensitive: {})",
@@ -1695,7 +1791,9 @@ impl<'a> RuleDebugger<'a> {
         // For query mode, show simplified debug info
         if query.is_some() {
             let mut result = ConditionDebugResult::new(desc, false);
-            result.details.push("AST query debugging not yet implemented".to_string());
+            result
+                .details
+                .push("AST query debugging not yet implemented".to_string());
             return result;
         }
 
@@ -1734,13 +1832,19 @@ impl<'a> RuleDebugger<'a> {
             ));
             for ev in eval_result.evidence.iter().take(10) {
                 if let Some(loc) = &ev.location {
-                    result.details.push(format!("  {}: {}", loc, truncate_string(&ev.value, 60)));
+                    result
+                        .details
+                        .push(format!("  {}: {}", loc, truncate_string(&ev.value, 60)));
                 } else {
-                    result.details.push(format!("  {}", truncate_string(&ev.value, 60)));
+                    result
+                        .details
+                        .push(format!("  {}", truncate_string(&ev.value, 60)));
                 }
             }
         } else {
-            result.details.push("No matching AST nodes found".to_string());
+            result
+                .details
+                .push("No matching AST nodes found".to_string());
         }
 
         result
@@ -1801,8 +1905,12 @@ impl<'a> RuleDebugger<'a> {
 
         let mut result = ConditionDebugResult::new(desc, eval_result.matched);
 
-        result.details.push(format!("File size: {} bytes", self.binary_data.len()));
-        result.details.push(format!("Found {} matches", eval_result.evidence.len()));
+        result
+            .details
+            .push(format!("File size: {} bytes", self.binary_data.len()));
+        result
+            .details
+            .push(format!("Found {} matches", eval_result.evidence.len()));
 
         for ev in eval_result.evidence.iter().take(5) {
             if let Some(loc) = &ev.location {
@@ -1834,7 +1942,10 @@ impl<'a> RuleDebugger<'a> {
         );
 
         // Get section bounds
-        let section_size = self.section_map.bounds(section).map(|bounds| bounds.1 - bounds.0);
+        let section_size = self
+            .section_map
+            .bounds(section)
+            .map(|bounds| bounds.1 - bounds.0);
 
         let total_size = self.binary_data.len() as u64;
 
@@ -1868,7 +1979,9 @@ impl<'a> RuleDebugger<'a> {
                 self.section_map.section_names().join(", ")
             ));
         } else {
-            result.details.push("No sections found in binary".to_string());
+            result
+                .details
+                .push("No sections found in binary".to_string());
         }
 
         if let Some(r) = ratio {
@@ -1879,11 +1992,16 @@ impl<'a> RuleDebugger<'a> {
                 if compare_to == "total" {
                     total_size
                 } else {
-                    self.section_map.bounds(compare_to).map(|b| b.1 - b.0).unwrap_or(0)
+                    self.section_map
+                        .bounds(compare_to)
+                        .map(|b| b.1 - b.0)
+                        .unwrap_or(0)
                 }
             ));
         } else {
-            result.details.push(format!("Section '{}' not found", section));
+            result
+                .details
+                .push(format!("Section '{}' not found", section));
         }
 
         result
@@ -1904,7 +2022,12 @@ impl<'a> RuleDebugger<'a> {
             max_total
         );
 
-        let imports: Vec<&str> = self.report.imports.iter().map(|i| i.symbol.as_str()).collect();
+        let imports: Vec<&str> = self
+            .report
+            .imports
+            .iter()
+            .map(|i| i.symbol.as_str())
+            .collect();
         let total_imports = imports.len();
 
         // Check required imports
@@ -1914,7 +2037,11 @@ impl<'a> RuleDebugger<'a> {
 
         // Count suspicious imports
         let suspicious_count = suspicious
-            .map(|susp| susp.iter().filter(|s| imports.iter().any(|i| i.contains(*s))).count())
+            .map(|susp| {
+                susp.iter()
+                    .filter(|s| imports.iter().any(|i| i.contains(*s)))
+                    .count()
+            })
             .unwrap_or(0);
 
         let suspicious_ok = min_suspicious.is_none_or(|min| suspicious_count >= min);
@@ -1924,19 +2051,25 @@ impl<'a> RuleDebugger<'a> {
 
         let mut result = ConditionDebugResult::new(desc, matched);
 
-        result.details.push(format!("Total imports: {}", total_imports));
+        result
+            .details
+            .push(format!("Total imports: {}", total_imports));
 
         if let Some(req) = required {
-            let found: Vec<&String> =
-                req.iter().filter(|r| imports.iter().any(|i| i.contains(*r))).collect();
+            let found: Vec<&String> = req
+                .iter()
+                .filter(|r| imports.iter().any(|i| i.contains(*r)))
+                .collect();
             result.details.push(format!(
                 "Required imports found: {}/{}",
                 found.len(),
                 req.len()
             ));
             if found.len() < req.len() {
-                let missing: Vec<&String> =
-                    req.iter().filter(|r| !imports.iter().any(|i| i.contains(*r))).collect();
+                let missing: Vec<&String> = req
+                    .iter()
+                    .filter(|r| !imports.iter().any(|i| i.contains(*r)))
+                    .collect();
                 for m in missing.iter().take(5) {
                     result.details.push(format!("  Missing: {}", m));
                 }
@@ -1944,8 +2077,10 @@ impl<'a> RuleDebugger<'a> {
         }
 
         if let Some(susp) = suspicious {
-            let found: Vec<&String> =
-                susp.iter().filter(|s| imports.iter().any(|i| i.contains(*s))).collect();
+            let found: Vec<&String> = susp
+                .iter()
+                .filter(|s| imports.iter().any(|i| i.contains(*s)))
+                .collect();
             result.details.push(format!(
                 "Suspicious imports found: {}/{}",
                 found.len(),
@@ -2044,7 +2179,7 @@ fn describe_condition(condition: &Condition) -> String {
             } else {
                 format!("string[?]{}", loc)
             }
-        },
+        }
         Condition::Symbol {
             exact,
             substr,
@@ -2060,12 +2195,12 @@ fn describe_condition(condition: &Condition) -> String {
             } else {
                 "symbol[?]".to_string()
             }
-        },
+        }
         Condition::Metrics {
             field, min, max, ..
         } => {
             format!("metrics: {} [{:?}, {:?}]", field, min, max)
-        },
+        }
         Condition::Yara { .. } => "yara[inline]".to_string(),
         Condition::Structure { feature, .. } => format!("structure: {}", feature),
         Condition::Raw {
@@ -2098,7 +2233,7 @@ fn describe_condition(condition: &Condition) -> String {
             } else {
                 format!("raw[?]{}", loc)
             }
-        },
+        }
         Condition::Kv {
             path,
             exact,
@@ -2116,7 +2251,7 @@ fn describe_condition(condition: &Condition) -> String {
                 "exists"
             };
             format!("kv[{}]: path=\"{}\"", matcher, truncate_string(path, 30))
-        },
+        }
         Condition::Hex {
             pattern,
             offset,
@@ -2130,7 +2265,7 @@ fn describe_condition(condition: &Condition) -> String {
                 desc.push_str(&format!(" @{:#x}+", start));
             }
             desc
-        },
+        }
         Condition::SectionRatio {
             section,
             compare_to,
@@ -2144,7 +2279,7 @@ fn describe_condition(condition: &Condition) -> String {
                 min.unwrap_or(0.0),
                 max.unwrap_or(1.0)
             )
-        },
+        }
         Condition::ImportCombination {
             required,
             suspicious,
@@ -2157,7 +2292,7 @@ fn describe_condition(condition: &Condition) -> String {
                 suspicious.as_ref().map(std::vec::Vec::len).unwrap_or(0),
                 min_suspicious.unwrap_or(0)
             )
-        },
+        }
         _ => format!("{:?}", condition).chars().take(50).collect(),
     }
 }
@@ -2316,7 +2451,7 @@ fn evaluate_condition_simple(
         ),
         Condition::Syscall { name, number, arch } => {
             eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
-        },
+        }
         Condition::ExportsCount { min, max } => eval_exports_count(*min, *max, ctx),
         Condition::StringCount {
             min,
@@ -2524,7 +2659,9 @@ mod tests {
 
         // Test a composite rule that references traits by prefix
         // The rule should match if the findings contain matching prefixes
-        if let Some(result) = debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce") {
+        if let Some(result) =
+            debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce")
+        {
             // Verify consistency: if matched is true, at least one condition should show as matched
             if result.matched {
                 let has_matched_condition = result.condition_results.iter().any(|c| c.matched);
@@ -2658,7 +2795,9 @@ mod tests {
     /// Test that non-matching prefix returns false
     #[test]
     fn test_debug_condition_prefix_no_match() {
-        let findings = vec![create_test_finding("micro-behaviors/data/user-input/request/get")];
+        let findings = vec![create_test_finding(
+            "micro-behaviors/data/user-input/request/get",
+        )];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2711,7 +2850,9 @@ mod tests {
         );
 
         // Find and debug a composite rule
-        if let Some(result) = debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce") {
+        if let Some(result) =
+            debugger.debug_rule("objectives/command-and-control/webshell/backdoor/php-rce")
+        {
             // For each condition group (all/any/none), verify count matches
             for cond_result in &result.condition_results {
                 // Parse the condition description to get claimed count
@@ -2723,8 +2864,9 @@ mod tests {
                     // The description should contain the correct count
                     if let Some(start) = cond_result.condition_desc.find('(') {
                         if let Some(slash) = cond_result.condition_desc.find('/') {
-                            let claimed_count: usize =
-                                cond_result.condition_desc[start + 1..slash].parse().unwrap_or(999);
+                            let claimed_count: usize = cond_result.condition_desc[start + 1..slash]
+                                .parse()
+                                .unwrap_or(999);
                             assert_eq!(
                                 claimed_count, matched_in_sub,
                                 "Claimed match count {} doesn't match actual {}",
@@ -2740,7 +2882,9 @@ mod tests {
     /// Test that exact trait ID match in findings is detected
     #[test]
     fn test_debug_trait_reference_exact_match_in_findings() {
-        let findings = vec![create_test_finding("micro-behaviors/communications/socket/send/send")];
+        let findings = vec![create_test_finding(
+            "micro-behaviors/communications/socket/send/send",
+        )];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2777,7 +2921,9 @@ mod tests {
     /// Test that suffix matching works for short trait names
     #[test]
     fn test_debug_trait_reference_suffix_match() {
-        let findings = vec![create_test_finding("micro-behaviors/execution/process/terminate")];
+        let findings = vec![create_test_finding(
+            "micro-behaviors/execution/process/terminate",
+        )];
         let report = create_test_report_with_findings(findings);
         let binary_data = b"test";
 
@@ -2848,7 +2994,9 @@ mod tests {
         );
 
         // Test the objc-app-hook composite if it exists
-        if let Some(result) = debugger.debug_rule("objectives/lateral-movement/trojanize/app/objc-app-hook") {
+        if let Some(result) =
+            debugger.debug_rule("objectives/lateral-movement/trojanize/app/objc-app-hook")
+        {
             // KEY INVARIANT: If all condition groups show matched, overall should be matched
             // (unless there's a skip reason or other constraint that explains the difference)
             let all_condition_groups_matched = result

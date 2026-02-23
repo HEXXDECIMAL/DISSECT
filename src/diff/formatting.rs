@@ -40,7 +40,11 @@ pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
     }
 
     // Risk assessment upfront
-    let high_risk_changes = report.modified_analysis.iter().filter(|a| a.risk_increase).count();
+    let high_risk_changes = report
+        .modified_analysis
+        .iter()
+        .filter(|a| a.risk_increase)
+        .count();
 
     if high_risk_changes > 0 {
         output.push_str(&format!(
@@ -51,8 +55,11 @@ pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
 
     // Sort modified files: high risk first, then by filename
     let mut sorted_analysis = report.modified_analysis.clone();
-    sorted_analysis
-        .sort_by(|a, b| b.risk_increase.cmp(&a.risk_increase).then_with(|| a.file.cmp(&b.file)));
+    sorted_analysis.sort_by(|a, b| {
+        b.risk_increase
+            .cmp(&a.risk_increase)
+            .then_with(|| a.file.cmp(&b.file))
+    });
 
     // Modified files with capability changes (most important)
     for analysis in &sorted_analysis {
@@ -82,7 +89,11 @@ pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
             let evidence_str = cap
                 .evidence
                 .iter()
-                .find(|e| e.location.as_ref().is_some_and(|l: &String| l.starts_with("line:")))
+                .find(|e| {
+                    e.location
+                        .as_ref()
+                        .is_some_and(|l: &String| l.starts_with("line:"))
+                })
                 .or(cap.evidence.first())
                 .map(|ev| {
                     let loc = ev
@@ -156,10 +167,16 @@ pub(crate) fn format_diff_terminal(report: &DiffReport) -> String {
         summary_parts.push(format!("-{} files", report.changes.removed.len()));
     }
     if !report.modified_analysis.is_empty() {
-        let total_new: usize =
-            report.modified_analysis.iter().map(|a| a.new_capabilities.len()).sum();
-        let total_removed: usize =
-            report.modified_analysis.iter().map(|a| a.removed_capabilities.len()).sum();
+        let total_new: usize = report
+            .modified_analysis
+            .iter()
+            .map(|a| a.new_capabilities.len())
+            .sum();
+        let total_removed: usize = report
+            .modified_analysis
+            .iter()
+            .map(|a| a.removed_capabilities.len())
+            .sum();
         if total_new > 0 {
             summary_parts.push(format!("+{} capabilities", total_new));
         }

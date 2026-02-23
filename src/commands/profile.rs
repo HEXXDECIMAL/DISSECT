@@ -18,12 +18,8 @@ use walkdir::WalkDir;
 /// Scans the target file against each rule file separately, measuring execution time,
 /// and compares with combined scan time. Displays rules that exceed the minimum
 /// millisecond threshold, sorted by execution time.
-pub(crate) fn run(
-    target: &Path,
-    min_ms: u64,
-) -> Result<()> {
-    let data = fs::read(target)
-        .with_context(|| format!("Failed to read {}", target.display()))?;
+pub(crate) fn run(target: &Path, min_ms: u64) -> Result<()> {
+    let data = fs::read(target).with_context(|| format!("Failed to read {}", target.display()))?;
 
     let third_party_dir = Path::new("third_party");
     if !third_party_dir.exists() {
@@ -37,12 +33,19 @@ pub(crate) fn run(
         .filter_map(Result::ok)
         .filter(|e| {
             let p = e.path();
-            p.is_file() && p.extension().map(|x| x == "yar" || x == "yara").unwrap_or(false)
+            p.is_file()
+                && p.extension()
+                    .map(|x| x == "yar" || x == "yara")
+                    .unwrap_or(false)
         })
         .map(|e| e.path().to_path_buf())
         .collect();
 
-    eprintln!("Profiling {} rule files against {} ...", rule_files.len(), target.display());
+    eprintln!(
+        "Profiling {} rule files against {} ...",
+        rule_files.len(),
+        target.display()
+    );
 
     // For each rule file: compile, scan, record elapsed (including sub-threshold files for total)
     let mut total_individual_ms: u64 = 0;
@@ -101,10 +104,21 @@ pub(crate) fn run(
         }
         println!();
     }
-    println!("{:>8}ms  sum of individual scans ({} files)", total_individual_ms, rule_files.len());
-    println!("{:>8}ms  combined scan (all rules together, as in normal operation)", combined_ms);
+    println!(
+        "{:>8}ms  sum of individual scans ({} files)",
+        total_individual_ms,
+        rule_files.len()
+    );
+    println!(
+        "{:>8}ms  combined scan (all rules together, as in normal operation)",
+        combined_ms
+    );
     if !results.is_empty() {
-        println!("\n{} rule files shown (>= {}ms threshold)", results.len(), min_ms);
+        println!(
+            "\n{} rule files shown (>= {}ms threshold)",
+            results.len(),
+            min_ms
+        );
     }
 
     Ok(())

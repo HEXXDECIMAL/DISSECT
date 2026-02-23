@@ -79,7 +79,7 @@ enum PermissionRisk {
 }
 
 impl ChromeManifestAnalyzer {
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::empty()),
@@ -87,14 +87,14 @@ impl ChromeManifestAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = mapper;
         self
@@ -156,8 +156,12 @@ impl ChromeManifestAnalyzer {
         self.check_update_url(&manifest, &mut report);
 
         // Evaluate YAML-based rules
-        self.capability_mapper
-            .evaluate_and_merge_findings(&mut report, content.as_bytes(), None, None);
+        self.capability_mapper.evaluate_and_merge_findings(
+            &mut report,
+            content.as_bytes(),
+            None,
+            None,
+        );
 
         report.metadata.analysis_duration_ms = start.elapsed().as_millis() as u64;
         report.metadata.tools_used = vec!["serde_json".to_string()];
@@ -182,7 +186,7 @@ impl ChromeManifestAnalyzer {
                         location: Some("manifest_version".to_string()),
                     }]),
                 );
-            },
+            }
             Some(3) => {
                 report.add_finding(
                     Finding::indicator(
@@ -198,8 +202,8 @@ impl ChromeManifestAnalyzer {
                         location: Some("manifest_version".to_string()),
                     }]),
                 );
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 
@@ -366,8 +370,10 @@ impl ChromeManifestAnalyzer {
             .iter()
             .filter(|(_, r, _)| *r == PermissionRisk::Critical)
             .count();
-        let high_count =
-            dangerous_perms.iter().filter(|(_, r, _)| *r == PermissionRisk::High).count();
+        let high_count = dangerous_perms
+            .iter()
+            .filter(|(_, r, _)| *r == PermissionRisk::High)
+            .count();
 
         for (perm, risk, desc) in &dangerous_perms {
             let (crit, finding_id) = match risk {
@@ -530,7 +536,12 @@ impl ChromeManifestAnalyzer {
                 .with_evidence(vec![Evidence {
                     method: "heuristic".to_string(),
                     source: "manifest.json".to_string(),
-                    value: all_hosts.iter().take(5).cloned().collect::<Vec<_>>().join(", "),
+                    value: all_hosts
+                        .iter()
+                        .take(5)
+                        .cloned()
+                        .collect::<Vec<_>>()
+                        .join(", "),
                     location: Some("host_permissions".to_string()),
                 }]),
             );
@@ -709,7 +720,9 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
+        let report = analyzer
+            .analyze_manifest(Path::new("manifest.json"), content)
+            .unwrap();
 
         assert_eq!(report.target.file_type, "chrome-manifest");
     }
@@ -724,11 +737,19 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
+        let report = analyzer
+            .analyze_manifest(Path::new("manifest.json"), content)
+            .unwrap();
 
         // Should have findings for dangerous permissions
-        assert!(report.findings.iter().any(|f| f.id.contains("permission-critical")));
-        assert!(report.findings.iter().any(|f| f.id.contains("overprivileged")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("permission-critical")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("overprivileged")));
     }
 
     #[test]
@@ -741,9 +762,14 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
+        let report = analyzer
+            .analyze_manifest(Path::new("manifest.json"), content)
+            .unwrap();
 
-        assert!(report.findings.iter().any(|f| f.desc.contains("ALL websites")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.desc.contains("ALL websites")));
     }
 
     #[test]
@@ -761,9 +787,14 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
+        let report = analyzer
+            .analyze_manifest(Path::new("manifest.json"), content)
+            .unwrap();
 
-        assert!(report.findings.iter().any(|f| f.id.contains("targets-shopping")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("targets-shopping")));
     }
 
     #[test]
@@ -776,8 +807,13 @@ mod tests {
         }"#;
 
         let analyzer = ChromeManifestAnalyzer::new();
-        let report = analyzer.analyze_manifest(Path::new("manifest.json"), content).unwrap();
+        let report = analyzer
+            .analyze_manifest(Path::new("manifest.json"), content)
+            .unwrap();
 
-        assert!(report.findings.iter().any(|f| f.id.contains("external-update-url")));
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id.contains("external-update-url")));
     }
 }

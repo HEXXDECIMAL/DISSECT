@@ -92,9 +92,15 @@ fn library_similarity(name1: &str, name2: &str) -> f64 {
 /// Calculate similarity score between two file paths
 pub(super) fn calculate_file_similarity(path1: &str, path2: &str) -> f64 {
     // Extract just the filename for comparison
-    let name1 = Path::new(path1).file_name().and_then(|n| n.to_str()).unwrap_or(path1);
+    let name1 = Path::new(path1)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(path1);
 
-    let name2 = Path::new(path2).file_name().and_then(|n| n.to_str()).unwrap_or(path2);
+    let name2 = Path::new(path2)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(path2);
 
     // Check if both are shared libraries
     if is_shared_library(name1) && is_shared_library(name2) {
@@ -128,13 +134,19 @@ pub(super) fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRe
 
     for removed_file in removed {
         if let Some(basename) = Path::new(removed_file).file_name().and_then(|n| n.to_str()) {
-            removed_by_basename.entry(basename.to_string()).or_default().push(removed_file);
+            removed_by_basename
+                .entry(basename.to_string())
+                .or_default()
+                .push(removed_file);
         }
     }
 
     for added_file in added {
         if let Some(basename) = Path::new(added_file).file_name().and_then(|n| n.to_str()) {
-            added_by_basename.entry(basename.to_string()).or_default().push(added_file);
+            added_by_basename
+                .entry(basename.to_string())
+                .or_default()
+                .push(added_file);
         }
     }
 
@@ -166,7 +178,10 @@ pub(super) fn detect_renames(removed: &[String], added: &[String]) -> Vec<FileRe
         }
         if let Some(basename) = Path::new(added_file).file_name().and_then(|n| n.to_str()) {
             if let Some(lib_base) = extract_library_base(basename) {
-                added_by_lib_base.entry(lib_base.to_string()).or_default().push(added_file);
+                added_by_lib_base
+                    .entry(lib_base.to_string())
+                    .or_default()
+                    .push(added_file);
             }
         }
     }

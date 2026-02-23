@@ -35,7 +35,7 @@ pub(crate) fn collect_yara_evidence<'a, 'b>(
                         } else {
                             pattern.identifier().to_string()
                         }
-                    },
+                    }
                     None => pattern.identifier().to_string(),
                 };
 
@@ -74,7 +74,7 @@ pub(crate) fn eval_yara_inline<'a>(
             evidence,
             warnings: Vec::new(),
             precision: 1.0,
-        matched_trait_ids: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -97,7 +97,7 @@ pub(crate) fn eval_yara_inline<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
-            matched_trait_ids: Vec::new(),
+                matched_trait_ids: Vec::new(),
             };
         }
         let rules = compiler.build();
@@ -125,7 +125,7 @@ pub(crate) fn eval_yara_inline<'a>(
         evidence,
         warnings: Vec::new(),
         precision: 1.0,
-    matched_trait_ids: Vec::new(),
+        matched_trait_ids: Vec::new(),
     }
 }
 
@@ -160,14 +160,17 @@ fn parse_hex_pattern(pattern: &str) -> Result<Vec<HexSegment>, String> {
             }
             let inner = &token[1..token.len() - 1];
             if let Some(dash_pos) = inner.find('-') {
-                let min: usize =
-                    inner[..dash_pos].parse().map_err(|_| format!("invalid gap min: {}", inner))?;
+                let min: usize = inner[..dash_pos]
+                    .parse()
+                    .map_err(|_| format!("invalid gap min: {}", inner))?;
                 let max: usize = inner[dash_pos + 1..]
                     .parse()
                     .map_err(|_| format!("invalid gap max: {}", inner))?;
                 segments.push(HexSegment::Gap { min, max });
             } else {
-                let n: usize = inner.parse().map_err(|_| format!("invalid gap: {}", inner))?;
+                let n: usize = inner
+                    .parse()
+                    .map_err(|_| format!("invalid gap: {}", inner))?;
                 segments.push(HexSegment::Gap { min: n, max: n });
             }
         } else {
@@ -216,13 +219,13 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
                     return false;
                 }
                 offset += bytes.len();
-            },
+            }
             HexSegment::Wildcard => {
                 if offset >= data.len() {
                     return false;
                 }
                 offset += 1;
-            },
+            }
             HexSegment::Gap { min, max } => {
                 // For gaps, we need to try all possible lengths
                 if *min == *max {
@@ -238,7 +241,7 @@ fn match_pattern_at(data: &[u8], pos: usize, segments: &[HexSegment]) -> bool {
                     }
                     return false;
                 }
-            },
+            }
         }
     }
 
@@ -254,13 +257,13 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> V
         match segment {
             HexSegment::Bytes(bytes) => {
                 offset += bytes.len();
-            },
+            }
             HexSegment::Wildcard => {
                 if offset < data.len() {
                     extracted.push(data[offset]);
                     offset += 1;
                 }
-            },
+            }
             HexSegment::Gap { min, max } => {
                 if min == max {
                     offset += min;
@@ -274,7 +277,7 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> V
                         }
                     }
                 }
-            },
+            }
         }
     }
     extracted
@@ -286,7 +289,7 @@ fn extract_wildcard_bytes(data: &[u8], pos: usize, segments: &[HexSegment]) -> V
 /// 2. Use fast memmem search to find atom candidates
 /// 3. Verify full pattern only at candidate positions
 #[allow(clippy::too_many_arguments)]
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_hex<'a>(
     pattern: &str,
     location: &super::ContentLocationParams,
@@ -308,9 +311,9 @@ pub(crate) fn eval_hex<'a>(
                 }],
                 warnings: Vec::new(),
                 precision: 0.0,
-            matched_trait_ids: Vec::new(),
+                matched_trait_ids: Vec::new(),
             };
-        },
+        }
     };
 
     if segments.is_empty() {
@@ -319,7 +322,7 @@ pub(crate) fn eval_hex<'a>(
             evidence: Vec::new(),
             warnings: Vec::new(),
             precision: 0.0,
-        matched_trait_ids: Vec::new(),
+            matched_trait_ids: Vec::new(),
         };
     }
 
@@ -489,7 +492,7 @@ mod tests {
             HexSegment::Gap { min, max } => {
                 assert_eq!(*min, 4);
                 assert_eq!(*max, 4);
-            },
+            }
             _ => panic!("expected Gap"),
         }
     }
@@ -502,7 +505,7 @@ mod tests {
             HexSegment::Gap { min, max } => {
                 assert_eq!(*min, 2);
                 assert_eq!(*max, 8);
-            },
+            }
             _ => panic!("expected Gap"),
         }
     }

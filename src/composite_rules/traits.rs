@@ -50,7 +50,10 @@ pub(crate) fn print_condition_stats() {
     sorted.sort_by_key(|(_, _, duration)| std::cmp::Reverse(*duration));
 
     eprintln!("\n⏱️  Condition Evaluation Statistics:");
-    eprintln!("  {:20} {:>10} {:>12} {:>10}", "Type", "Count", "Total (ms)", "Avg (µs)");
+    eprintln!(
+        "  {:20} {:>10} {:>12} {:>10}",
+        "Type", "Count", "Total (ms)", "Avg (µs)"
+    );
     eprintln!("  {}", "-".repeat(54));
 
     for (name, count, duration) in sorted.iter().take(20) {
@@ -83,11 +86,13 @@ macro_rules! timed_eval {
         let _elapsed = _start.elapsed();
 
         let stats = stats_map();
-        let entry = stats.entry($name).or_insert_with(|| {
-            (AtomicU64::new(0), AtomicU64::new(0))
-        });
+        let entry = stats
+            .entry($name)
+            .or_insert_with(|| (AtomicU64::new(0), AtomicU64::new(0)));
         entry.0.fetch_add(1, Ordering::Relaxed);
-        entry.1.fetch_add(_elapsed.as_nanos() as u64, Ordering::Relaxed);
+        entry
+            .1
+            .fetch_add(_elapsed.as_nanos() as u64, Ordering::Relaxed);
 
         result
     }};
@@ -107,7 +112,9 @@ fn get_relative_source_file(path: &std::path::Path) -> Option<String> {
         return Some(relative.to_string());
     }
     // Fallback: return the file name only if we can't find "traits/"
-    path.file_name().and_then(|n| n.to_str()).map(std::string::ToString::to_string)
+    path.file_name()
+        .and_then(|n| n.to_str())
+        .map(std::string::ToString::to_string)
 }
 
 /// Wrapper for conditions with common filters applied at trait level.
@@ -149,7 +156,7 @@ impl ConditionWithFilters {
         self.condition.precompile_regexes()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn can_match_file_type(&self, file_type: &FileType) -> bool {
         self.condition.can_match_file_type(file_type)
     }
@@ -158,22 +165,22 @@ impl ConditionWithFilters {
         self.condition.validate(full).map_err(|e| e.to_string())
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_greedy_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_greedy_patterns()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_word_boundary_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_word_boundary_regex()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
         self.condition.check_short_case_insensitive(file_type_count)
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_count_constraints(&self, _trait_id: &str) -> Option<String> {
         // Check count_min and count_max on ConditionWithFilters
         if let (Some(min), Some(max)) = (self.count_min, self.count_max) {
@@ -188,7 +195,7 @@ impl ConditionWithFilters {
         self.condition.check_count_constraints()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_density_constraints(&self, _trait_id: &str) -> Option<String> {
         // Check per_kb_min and per_kb_max on ConditionWithFilters
         if let (Some(min), Some(max)) = (self.per_kb_min, self.per_kb_max) {
@@ -203,32 +210,32 @@ impl ConditionWithFilters {
         self.condition.check_density_constraints()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_match_exclusivity(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_match_exclusivity()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_empty_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_empty_patterns()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_short_patterns(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_short_patterns()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_literal_regex(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_literal_regex()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_case_insensitive_on_non_alpha(&self, _trait_id: &str) -> Option<String> {
         self.condition.check_case_insensitive_on_non_alpha()
     }
 
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_count_min_value(&self, _trait_id: &str) -> Option<String> {
         // Check count_min on ConditionWithFilters
         if let Some(0) = self.count_min {
@@ -383,7 +390,7 @@ impl TraitDefinition {
 
     /// Check if criticality level is valid for user-defined traits.
     /// Returns an error message if invalid, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_criticality(&self) -> Option<String> {
         use crate::types::Criticality;
 
@@ -399,7 +406,7 @@ impl TraitDefinition {
 
     /// Check if confidence value is in valid range.
     /// Returns an error message if invalid, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_confidence(&self) -> Option<String> {
         if self.conf < 0.0 || self.conf > 1.0 {
             return Some(format!(
@@ -412,7 +419,7 @@ impl TraitDefinition {
 
     /// Check if size constraints are valid.
     /// Returns an error message if invalid, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_size_constraints(&self) -> Option<String> {
         // Skip validation for Section conditions - they have their own size_min/size_max
         // for section sizes, which are separate from file size constraints
@@ -433,7 +440,7 @@ impl TraitDefinition {
 
     /// Check for empty or very short descriptions (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_description_quality(&self) -> Option<String> {
         let desc = self.desc.trim();
 
@@ -455,7 +462,7 @@ impl TraitDefinition {
 
     /// Check for empty not: arrays (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_empty_not_array(&self) -> Option<String> {
         if let Some(not_exceptions) = &self.not {
             if not_exceptions.is_empty() {
@@ -470,7 +477,7 @@ impl TraitDefinition {
 
     /// Check for empty unless: arrays (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_empty_unless_array(&self) -> Option<String> {
         if let Some(unless_conditions) = &self.unless {
             if unless_conditions.is_empty() {
@@ -484,7 +491,7 @@ impl TraitDefinition {
 
     /// Check if `not:` field is used appropriately based on match type.
     /// Returns a warning message if misused, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_not_field_usage(&self) -> Option<String> {
         let not_exceptions = self.not.as_ref()?;
 
@@ -516,7 +523,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with symbol exact match - consider using 'unless:' instead for deterministic patterns".to_string()
                 );
-            },
+            }
             Condition::Symbol {
                 substr: Some(search_substr),
                 regex: None,
@@ -532,7 +539,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        },
+                        }
                         NotException::Structured {
                             exact: Some(exc_str),
                             ..
@@ -543,7 +550,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        },
+                        }
                         NotException::Structured {
                             substr: Some(exc_substr),
                             ..
@@ -556,11 +563,11 @@ impl TraitDefinition {
                                     exc_substr, search_substr
                                 ));
                             }
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
-            },
+            }
             Condition::Symbol {
                 regex: Some(pattern),
                 ..
@@ -576,7 +583,7 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        },
+                        }
                         // Validate exact exceptions - check if the exact string matches the regex
                         NotException::Structured {
                             exact: Some(exc_str),
@@ -588,12 +595,12 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        },
+                        }
                         // For substr and regex exceptions, validation is complex - allow them
-                        _ => {},
+                        _ => {}
                     }
                 }
-            },
+            }
             // Exact matches should use `unless:` instead of `not:`
             Condition::String {
                 exact: Some(_),
@@ -604,7 +611,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with exact match - consider using 'unless:' instead for deterministic patterns".to_string()
                 );
-            },
+            }
             // For Content exact matches, not: doesn't make sense
             Condition::Raw {
                 exact: Some(_),
@@ -615,7 +622,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with content/exact match - this doesn't make sense. Content exact matches the entire file content.".to_string()
                 );
-            },
+            }
             // For String substr matches, validate that not: exceptions could match strings containing the substr
             Condition::String {
                 substr: Some(search_substr),
@@ -636,7 +643,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        },
+                        }
                         NotException::Structured {
                             exact: Some(exc_str),
                             ..
@@ -648,7 +655,7 @@ impl TraitDefinition {
                                     exc_str, search_substr
                                 ));
                             }
-                        },
+                        }
                         NotException::Structured {
                             substr: Some(exc_substr),
                             ..
@@ -663,7 +670,7 @@ impl TraitDefinition {
                                     exc_substr, search_substr
                                 ));
                             }
-                        },
+                        }
                         NotException::Structured {
                             regex: Some(_exc_regex),
                             ..
@@ -671,11 +678,11 @@ impl TraitDefinition {
                             // For regex exceptions with substr search, we can't easily validate
                             // The regex might match strings containing the substr
                             // We'll allow this without validation
-                        },
-                        _ => {},
+                        }
+                        _ => {}
                     }
                 }
-            },
+            }
             // For Content substr matches, not: is unclear - content searches don't extract individual strings
             Condition::Raw {
                 substr: Some(_),
@@ -686,7 +693,7 @@ impl TraitDefinition {
                 return Some(
                     "not: field used with content/substr match - behavior is unclear because content searches on binary data don't extract individual strings for filtering. Use regex instead, or use 'string' type with substr.".to_string()
                 );
-            },
+            }
             // For regex matches, validate that exceptions could potentially match
             Condition::String {
                 regex: Some(pattern),
@@ -706,7 +713,7 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        },
+                        }
                         // Validate exact exceptions - check if the exact string matches the regex
                         NotException::Structured {
                             exact: Some(exc_str),
@@ -718,12 +725,12 @@ impl TraitDefinition {
                                     exc_str, pattern
                                 ));
                             }
-                        },
+                        }
                         // For substr and regex exceptions, validation is complex - allow them
-                        _ => {},
+                        _ => {}
                     }
                 }
-            },
+            }
             // For hex patterns, validate exceptions match
             Condition::Hex { pattern: _, .. } => {
                 // For hex patterns, we should validate that not: exceptions make sense
@@ -732,8 +739,8 @@ impl TraitDefinition {
                 for exc in not_exceptions {
                     let _ = exc; // All exception types are allowed for hex patterns
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
 
         None
@@ -982,7 +989,7 @@ impl TraitDefinition {
                         Criticality::Suspicious => Criticality::Notable,
                         Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                             Criticality::Inert
-                        },
+                        }
                     };
                     tracing::debug!(
                         "Downgrade applied: trait '{}' from {:?} → {:?}",
@@ -1102,15 +1109,18 @@ impl TraitDefinition {
                 regex,
                 platforms,
                 compiled_regex,
-            } => timed_eval!("symbol", eval_symbol(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                platforms.as_ref(),
-                compiled_regex.as_ref(),
-                self.not.as_ref(),
-                ctx,
-            )),
+            } => timed_eval!(
+                "symbol",
+                eval_symbol(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    platforms.as_ref(),
+                    compiled_regex.as_ref(),
+                    self.not.as_ref(),
+                    ctx,
+                )
+            ),
             Condition::String {
                 exact,
                 substr,
@@ -1140,12 +1150,14 @@ impl TraitDefinition {
                     section_offset_range: *section_offset_range,
                 };
                 timed_eval!("string", eval_string(&params, self.not.as_ref(), ctx))
-            },
+            }
             Condition::Structure {
                 feature,
                 min_sections,
             } => timed_eval!("structure", eval_structure(feature, *min_sections, ctx)),
-            Condition::ExportsCount { min, max } => timed_eval!("exports_count", eval_exports_count(*min, *max, ctx)),
+            Condition::ExportsCount { min, max } => {
+                timed_eval!("exports_count", eval_exports_count(*min, *max, ctx))
+            }
             Condition::Trait { id } => timed_eval!("trait", eval_trait(id, ctx)),
             Condition::Ast {
                 kind,
@@ -1156,61 +1168,86 @@ impl TraitDefinition {
                 query,
                 case_insensitive,
                 ..
-            } => timed_eval!("ast", eval_ast(
-                kind.as_deref(),
-                node.as_deref(),
-                exact.as_deref(),
-                substr.as_deref(),
-                regex.as_deref(),
-                query.as_deref(),
-                *case_insensitive,
-                ctx,
-            )),
-            Condition::Yara { source, namespace, compiled } => {
-                timed_eval!("yara", eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx))
-            },
+            } => timed_eval!(
+                "ast",
+                eval_ast(
+                    kind.as_deref(),
+                    node.as_deref(),
+                    exact.as_deref(),
+                    substr.as_deref(),
+                    regex.as_deref(),
+                    query.as_deref(),
+                    *case_insensitive,
+                    ctx,
+                )
+            ),
+            Condition::Yara {
+                source,
+                namespace,
+                compiled,
+            } => {
+                timed_eval!(
+                    "yara",
+                    eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
+                )
+            }
             Condition::Syscall { name, number, arch } => {
-                timed_eval!("syscall", eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx))
-            },
+                timed_eval!(
+                    "syscall",
+                    eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+                )
+            }
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
-            } => timed_eval!("section_ratio", eval_section_ratio(section, compare_to, *min, *max, ctx)),
+            } => timed_eval!(
+                "section_ratio",
+                eval_section_ratio(section, compare_to, *min, *max, ctx)
+            ),
             Condition::ImportCombination {
                 required,
                 suspicious,
                 min_suspicious,
                 max_total,
-            } => timed_eval!("import_combo", eval_import_combination(
-                required.as_ref(),
-                suspicious.as_ref(),
-                *min_suspicious,
-                *max_total,
-                ctx,
-            )),
+            } => timed_eval!(
+                "import_combo",
+                eval_import_combination(
+                    required.as_ref(),
+                    suspicious.as_ref(),
+                    *min_suspicious,
+                    *max_total,
+                    ctx,
+                )
+            ),
             Condition::StringCount {
                 min,
                 max,
                 min_length,
                 regex,
                 compiled_regex,
-            } => timed_eval!("string_count", eval_string_count(
-                *min,
-                *max,
-                *min_length,
-                regex.as_ref(),
-                compiled_regex.as_ref(),
-                ctx,
-            )),
+            } => timed_eval!(
+                "string_count",
+                eval_string_count(
+                    *min,
+                    *max,
+                    *min_length,
+                    regex.as_ref(),
+                    compiled_regex.as_ref(),
+                    ctx,
+                )
+            ),
             Condition::Metrics {
                 field,
                 min,
                 max,
                 min_size,
                 max_size,
-            } => timed_eval!("metrics", eval_metrics(field, *min, *max, *min_size, *max_size, ctx)),
+            } => timed_eval!(
+                "metrics",
+                eval_metrics(field, *min, *max, *min_size, *max_size, ctx)
+            ),
             Condition::Hex {
                 pattern,
                 offset,
@@ -1218,17 +1255,20 @@ impl TraitDefinition {
                 section,
                 section_offset,
                 section_offset_range,
-            } => timed_eval!("hex", eval_hex(
-                pattern,
-                &ContentLocationParams {
-                    section: section.clone(),
-                    offset: *offset,
-                    offset_range: *offset_range,
-                    section_offset: *section_offset,
-                    section_offset_range: *section_offset_range,
-                },
-                ctx,
-            )),
+            } => timed_eval!(
+                "hex",
+                eval_hex(
+                    pattern,
+                    &ContentLocationParams {
+                        section: section.clone(),
+                        offset: *offset,
+                        offset_range: *offset_range,
+                        section_offset: *section_offset,
+                        section_offset_range: *section_offset_range,
+                    },
+                    ctx,
+                )
+            ),
             Condition::Raw {
                 exact,
                 substr,
@@ -1251,19 +1291,22 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                timed_eval!("raw", eval_raw(
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    word.as_ref(),
-                    *case_insensitive,
-                    *external_ip,
-                    compiled_regex.as_ref(),
-                    self.not.as_ref(),
-                    &location,
-                    ctx,
-                ))
-            },
+                timed_eval!(
+                    "raw",
+                    eval_raw(
+                        exact.as_ref(),
+                        substr.as_ref(),
+                        regex.as_ref(),
+                        word.as_ref(),
+                        *case_insensitive,
+                        *external_ip,
+                        compiled_regex.as_ref(),
+                        self.not.as_ref(),
+                        &location,
+                        ctx,
+                    )
+                )
+            }
             Condition::Section {
                 exact,
                 substr,
@@ -1277,21 +1320,24 @@ impl TraitDefinition {
                 readable,
                 writable,
                 executable,
-            } => timed_eval!("section", eval_section(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                word.as_ref(),
-                *case_insensitive,
-                *length_min,
-                *length_max,
-                *entropy_min,
-                *entropy_max,
-                *readable,
-                *writable,
-                *executable,
-                ctx,
-            )),
+            } => timed_eval!(
+                "section",
+                eval_section(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    word.as_ref(),
+                    *case_insensitive,
+                    *length_min,
+                    *length_max,
+                    *entropy_min,
+                    *entropy_max,
+                    *readable,
+                    *writable,
+                    *executable,
+                    ctx,
+                )
+            ),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -1314,30 +1360,36 @@ impl TraitDefinition {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                timed_eval!("encoded", eval_encoded(
-                    encoding.as_ref(),
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    word.as_ref(),
-                    *case_insensitive,
-                    compiled_regex.as_ref(),
-                    &location,
-                    ctx,
-                ))
-            },
+                timed_eval!(
+                    "encoded",
+                    eval_encoded(
+                        encoding.as_ref(),
+                        exact.as_ref(),
+                        substr.as_ref(),
+                        regex.as_ref(),
+                        word.as_ref(),
+                        *case_insensitive,
+                        compiled_regex.as_ref(),
+                        &location,
+                        ctx,
+                    )
+                )
+            }
             Condition::Basename {
                 exact,
                 substr,
                 regex,
                 case_insensitive,
-            } => timed_eval!("basename", eval_basename(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                ctx,
-            )),
+            } => timed_eval!(
+                "basename",
+                eval_basename(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    ctx,
+                )
+            ),
             Condition::Kv { .. } => {
                 timed_eval!("kv", {
                     // Delegate to kv evaluator with caching
@@ -1347,7 +1399,7 @@ impl TraitDefinition {
                         ConditionResult::no_match()
                     }
                 })
-            },
+            }
         }
     }
 }
@@ -1539,7 +1591,7 @@ impl CompositeTrait {
     }
 
     /// Evaluate this rule against the analysis context
-    #[must_use] 
+    #[must_use]
     pub(crate) fn evaluate<'a>(&self, ctx: &EvaluationContext<'a>) -> Option<Finding> {
         use super::debug::{DowngradeDebug, ProximityDebug, SkipReason};
 
@@ -1653,7 +1705,7 @@ impl CompositeTrait {
                     precision: 0.0,
                     matched_trait_ids: combined_trait_ids,
                 }
-            },
+            }
             (Some(conds), None) => self.eval_requires_all(conds, ctx),
             (None, Some(conds)) => {
                 // Handle needs constraint on `any` conditions
@@ -1662,7 +1714,7 @@ impl CompositeTrait {
                 } else {
                     self.eval_requires_any(conds, ctx)
                 }
-            },
+            }
             (None, None) => {
                 // No positive conditions - will check none below
                 ConditionResult {
@@ -1672,7 +1724,7 @@ impl CompositeTrait {
                     precision: 0.0,
                     matched_trait_ids: Vec::new(),
                 }
-            },
+            }
         };
 
         if !positive_result.matched {
@@ -1752,7 +1804,7 @@ impl CompositeTrait {
                         Criticality::Suspicious => Criticality::Notable,
                         Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                             Criticality::Inert
-                        },
+                        }
                     };
                 }
 
@@ -1844,7 +1896,7 @@ impl CompositeTrait {
     /// Evaluate downgrade conditions and return final criticality.
     /// Public so that mapper can re-evaluate downgrades after all findings are collected.
     /// When matched, drops one level: hostile→suspicious→notable→inert
-    #[must_use] 
+    #[must_use]
     pub(crate) fn evaluate_downgrade<'a>(
         &self,
         conditions: &DowngradeConditions,
@@ -1857,7 +1909,7 @@ impl CompositeTrait {
                 Criticality::Suspicious => Criticality::Notable,
                 Criticality::Notable | Criticality::Inert | Criticality::Filtered => {
                     Criticality::Inert
-                },
+                }
             };
         }
         *base_crit
@@ -2112,7 +2164,7 @@ impl CompositeTrait {
                     section_offset_range: *section_offset_range,
                 };
                 eval_string(&params, self.not.as_ref(), ctx)
-            },
+            }
             Condition::Structure {
                 feature,
                 min_sections,
@@ -2128,61 +2180,86 @@ impl CompositeTrait {
                 query,
                 case_insensitive,
                 ..
-            } => timed_eval!("ast", eval_ast(
-                kind.as_deref(),
-                node.as_deref(),
-                exact.as_deref(),
-                substr.as_deref(),
-                regex.as_deref(),
-                query.as_deref(),
-                *case_insensitive,
-                ctx,
-            )),
-            Condition::Yara { source, namespace, compiled } => {
-                timed_eval!("yara", eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx))
-            },
+            } => timed_eval!(
+                "ast",
+                eval_ast(
+                    kind.as_deref(),
+                    node.as_deref(),
+                    exact.as_deref(),
+                    substr.as_deref(),
+                    regex.as_deref(),
+                    query.as_deref(),
+                    *case_insensitive,
+                    ctx,
+                )
+            ),
+            Condition::Yara {
+                source,
+                namespace,
+                compiled,
+            } => {
+                timed_eval!(
+                    "yara",
+                    eval_yara_inline(source, namespace.as_deref(), compiled.as_ref(), ctx)
+                )
+            }
             Condition::Syscall { name, number, arch } => {
-                timed_eval!("syscall", eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx))
-            },
+                timed_eval!(
+                    "syscall",
+                    eval_syscall(name.as_ref(), number.as_ref(), arch.as_ref(), ctx)
+                )
+            }
             Condition::SectionRatio {
                 section,
                 compare_to,
                 min,
                 max,
-            } => timed_eval!("section_ratio", eval_section_ratio(section, compare_to, *min, *max, ctx)),
+            } => timed_eval!(
+                "section_ratio",
+                eval_section_ratio(section, compare_to, *min, *max, ctx)
+            ),
             Condition::ImportCombination {
                 required,
                 suspicious,
                 min_suspicious,
                 max_total,
-            } => timed_eval!("import_combo", eval_import_combination(
-                required.as_ref(),
-                suspicious.as_ref(),
-                *min_suspicious,
-                *max_total,
-                ctx,
-            )),
+            } => timed_eval!(
+                "import_combo",
+                eval_import_combination(
+                    required.as_ref(),
+                    suspicious.as_ref(),
+                    *min_suspicious,
+                    *max_total,
+                    ctx,
+                )
+            ),
             Condition::StringCount {
                 min,
                 max,
                 min_length,
                 regex,
                 compiled_regex,
-            } => timed_eval!("string_count", eval_string_count(
-                *min,
-                *max,
-                *min_length,
-                regex.as_ref(),
-                compiled_regex.as_ref(),
-                ctx,
-            )),
+            } => timed_eval!(
+                "string_count",
+                eval_string_count(
+                    *min,
+                    *max,
+                    *min_length,
+                    regex.as_ref(),
+                    compiled_regex.as_ref(),
+                    ctx,
+                )
+            ),
             Condition::Metrics {
                 field,
                 min,
                 max,
                 min_size,
                 max_size,
-            } => timed_eval!("metrics", eval_metrics(field, *min, *max, *min_size, *max_size, ctx)),
+            } => timed_eval!(
+                "metrics",
+                eval_metrics(field, *min, *max, *min_size, *max_size, ctx)
+            ),
             Condition::Hex {
                 pattern,
                 offset,
@@ -2190,17 +2267,20 @@ impl CompositeTrait {
                 section,
                 section_offset,
                 section_offset_range,
-            } => timed_eval!("hex", eval_hex(
-                pattern,
-                &ContentLocationParams {
-                    section: section.clone(),
-                    offset: *offset,
-                    offset_range: *offset_range,
-                    section_offset: *section_offset,
-                    section_offset_range: *section_offset_range,
-                },
-                ctx,
-            )),
+            } => timed_eval!(
+                "hex",
+                eval_hex(
+                    pattern,
+                    &ContentLocationParams {
+                        section: section.clone(),
+                        offset: *offset,
+                        offset_range: *offset_range,
+                        section_offset: *section_offset,
+                        section_offset_range: *section_offset_range,
+                    },
+                    ctx,
+                )
+            ),
             Condition::Raw {
                 exact,
                 substr,
@@ -2223,19 +2303,22 @@ impl CompositeTrait {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                timed_eval!("raw", eval_raw(
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    word.as_ref(),
-                    *case_insensitive,
-                    *external_ip,
-                    compiled_regex.as_ref(),
-                    self.not.as_ref(),
-                    &location,
-                    ctx,
-                ))
-            },
+                timed_eval!(
+                    "raw",
+                    eval_raw(
+                        exact.as_ref(),
+                        substr.as_ref(),
+                        regex.as_ref(),
+                        word.as_ref(),
+                        *case_insensitive,
+                        *external_ip,
+                        compiled_regex.as_ref(),
+                        self.not.as_ref(),
+                        &location,
+                        ctx,
+                    )
+                )
+            }
             Condition::Section {
                 exact,
                 substr,
@@ -2249,21 +2332,24 @@ impl CompositeTrait {
                 readable,
                 writable,
                 executable,
-            } => timed_eval!("section", eval_section(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                word.as_ref(),
-                *case_insensitive,
-                *length_min,
-                *length_max,
-                *entropy_min,
-                *entropy_max,
-                *readable,
-                *writable,
-                *executable,
-                ctx,
-            )),
+            } => timed_eval!(
+                "section",
+                eval_section(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    word.as_ref(),
+                    *case_insensitive,
+                    *length_min,
+                    *length_max,
+                    *entropy_min,
+                    *entropy_max,
+                    *readable,
+                    *writable,
+                    *executable,
+                    ctx,
+                )
+            ),
             Condition::Encoded {
                 encoding,
                 exact,
@@ -2286,30 +2372,36 @@ impl CompositeTrait {
                     section_offset: *section_offset,
                     section_offset_range: *section_offset_range,
                 };
-                timed_eval!("encoded", eval_encoded(
-                    encoding.as_ref(),
-                    exact.as_ref(),
-                    substr.as_ref(),
-                    regex.as_ref(),
-                    word.as_ref(),
-                    *case_insensitive,
-                    compiled_regex.as_ref(),
-                    &location,
-                    ctx,
-                ))
-            },
+                timed_eval!(
+                    "encoded",
+                    eval_encoded(
+                        encoding.as_ref(),
+                        exact.as_ref(),
+                        substr.as_ref(),
+                        regex.as_ref(),
+                        word.as_ref(),
+                        *case_insensitive,
+                        compiled_regex.as_ref(),
+                        &location,
+                        ctx,
+                    )
+                )
+            }
             Condition::Basename {
                 exact,
                 substr,
                 regex,
                 case_insensitive,
-            } => timed_eval!("basename", eval_basename(
-                exact.as_ref(),
-                substr.as_ref(),
-                regex.as_ref(),
-                *case_insensitive,
-                ctx,
-            )),
+            } => timed_eval!(
+                "basename",
+                eval_basename(
+                    exact.as_ref(),
+                    substr.as_ref(),
+                    regex.as_ref(),
+                    *case_insensitive,
+                    ctx,
+                )
+            ),
             Condition::Kv { .. } => {
                 timed_eval!("kv", {
                     // Delegate to kv evaluator with caching
@@ -2319,7 +2411,7 @@ impl CompositeTrait {
                         ConditionResult::no_match()
                     }
                 })
-            },
+            }
         }
     }
 
@@ -2346,7 +2438,7 @@ impl CompositeTrait {
                     evidence: Vec::new(),
                     warnings: Vec::new(),
                     precision: 0.0,
-                matched_trait_ids: Vec::new(),
+                    matched_trait_ids: Vec::new(),
                 };
             }
         }
@@ -2388,7 +2480,7 @@ impl CompositeTrait {
             },
             warnings: Vec::new(),
             precision: 0.0,
-        matched_trait_ids: Vec::new(),
+            matched_trait_ids: Vec::new(),
         }
     }
 
@@ -2433,7 +2525,9 @@ impl CompositeTrait {
             .iter()
             .filter_map(|e| {
                 e.location.as_ref().and_then(|loc| {
-                    loc.split(':').next().and_then(|line_str| line_str.parse::<usize>().ok())
+                    loc.split(':')
+                        .next()
+                        .and_then(|line_str| line_str.parse::<usize>().ok())
                 })
             })
             .collect();
@@ -2482,7 +2576,9 @@ impl CompositeTrait {
                         return Some(offset);
                     }
                     // Otherwise try "line:column" format - column is often byte position within line
-                    loc.split(':').nth(1).and_then(|col_str| col_str.parse::<usize>().ok())
+                    loc.split(':')
+                        .nth(1)
+                        .and_then(|col_str| col_str.parse::<usize>().ok())
                 })
             })
             .collect();
@@ -2514,7 +2610,7 @@ impl CompositeTrait {
     }
 
     /// Returns true if this rule has negative (none) conditions
-    #[must_use] 
+    #[must_use]
     pub(crate) fn has_negative_conditions(&self) -> bool {
         self.none.as_ref().map(|n| !n.is_empty()).unwrap_or(false)
     }

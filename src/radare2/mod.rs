@@ -26,9 +26,9 @@ mod parsing;
 // Re-export public types from models
 pub(crate) use models::{R2Export, R2Function, R2Import, R2Section, R2String, R2Symbol};
 
-use crate::types::BinaryMetrics;
 #[cfg(test)]
 use crate::types::binary::SyscallInfo;
+use crate::types::BinaryMetrics;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -157,7 +157,11 @@ impl Radare2Analyzer {
     /// `has_symbols`: when false (stripped binary), function analysis (`aa; aflj`) is skipped.
     /// Stripped binaries yield only heuristically-guessed unnamed functions of limited value,
     /// so sections and strings alone are extracted instead — much faster and equally useful.
-    pub(crate) fn extract_batched(&self, file_path: &Path, has_symbols: bool) -> Result<BatchedAnalysis> {
+    pub(crate) fn extract_batched(
+        &self,
+        file_path: &Path,
+        has_symbols: bool,
+    ) -> Result<BatchedAnalysis> {
         use tracing::{debug, trace, warn};
         let _t_start = std::time::Instant::now();
 
@@ -181,8 +185,7 @@ impl Radare2Analyzer {
         const MAX_SIZE_FOR_FULL_ANALYSIS: u64 = 20 * 1024 * 1024; // 20MB
 
         let file_size = std::fs::metadata(file_path).map(|m| m.len()).unwrap_or(0);
-        let skip_function_analysis =
-            file_size > MAX_SIZE_FOR_FULL_ANALYSIS || !has_symbols;
+        let skip_function_analysis = file_size > MAX_SIZE_FOR_FULL_ANALYSIS || !has_symbols;
 
         if file_size > MAX_SIZE_FOR_FULL_ANALYSIS {
             debug!(
@@ -279,7 +282,11 @@ impl Radare2Analyzer {
 
     /// Compute binary metrics from pre-extracted batched analysis
     /// Much faster than compute_binary_metrics as it doesn't spawn new r2 processes
-    pub(crate) fn compute_metrics_from_batched(&self, batched: &BatchedAnalysis, file_size: u64) -> BinaryMetrics {
+    pub(crate) fn compute_metrics_from_batched(
+        &self,
+        batched: &BatchedAnalysis,
+        file_size: u64,
+    ) -> BinaryMetrics {
         use parsing::calculate_char_entropy;
 
         let mut metrics = BinaryMetrics {

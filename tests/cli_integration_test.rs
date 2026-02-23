@@ -63,7 +63,12 @@ fn test_analyze_json_output() {
 
     // JSON Lines format outputs: {"type":"file",...} followed by {"type":"summary",...}
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "--json", "analyze", script_path.to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "--json",
+            "analyze",
+            script_path.to_str().unwrap(),
+        ])
         .assert()
         .success()
         .stdout(predicate::str::contains(r#""type":"file""#))
@@ -109,7 +114,11 @@ fn test_scan_empty_directory() {
     let temp_dir = TempDir::new().unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "scan", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "scan",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success();
 }
@@ -126,7 +135,11 @@ fn test_scan_multiple_files() {
     fs::write(&script2, "#!/bin/bash\necho 'test2'\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "scan", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "scan",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success()
         .stdout(predicate::str::contains("test1.sh"))
@@ -212,7 +225,12 @@ fn test_verbose_flag() {
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "-v", "analyze", script.to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "-v",
+            "analyze",
+            script.to_str().unwrap(),
+        ])
         .assert()
         .success();
 }
@@ -258,7 +276,12 @@ fn test_scan_json_output() {
     fs::write(&script, "#!/bin/bash\n").unwrap();
 
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "--json", "scan", temp_dir.path().to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "--json",
+            "scan",
+            temp_dir.path().to_str().unwrap(),
+        ])
         .assert()
         .success()
         .stdout(predicate::str::contains("["));
@@ -487,7 +510,13 @@ fn test_error_if_single_file_match() {
 
     // --error-if=notable should fail because this file has Notable+ criticality
     let output = assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "--error-if", "notable", "analyze", script.to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "--error-if",
+            "notable",
+            "analyze",
+            script.to_str().unwrap(),
+        ])
         .assert()
         .failure();
 
@@ -514,7 +543,13 @@ fn test_error_if_single_file_no_match() {
 
     // --error-if=hostile should succeed because this file is Notable/Suspicious (not Hostile)
     assert_cmd::cargo_bin_cmd!("dissect")
-        .args(["--validate=false", "--error-if", "hostile", "analyze", script.to_str().unwrap()])
+        .args([
+            "--validate=false",
+            "--error-if",
+            "hostile",
+            "analyze",
+            script.to_str().unwrap(),
+        ])
         .assert()
         .success();
 }

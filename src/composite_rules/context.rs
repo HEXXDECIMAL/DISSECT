@@ -54,7 +54,7 @@ pub(crate) struct EvaluationContext<'a> {
 
 impl<'a> EvaluationContext<'a> {
     /// Create a new evaluation context
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new(
         report: &'a AnalysisReport,
         binary_data: &'a [u8],
@@ -101,16 +101,13 @@ impl<'a> EvaluationContext<'a> {
     /// Attach pre-scanned inline YARA results from the combined engine.
     /// Keyed by namespace (`"inline.{trait_id}"`); maps to matched evidence.
     #[must_use]
-    pub(crate) fn with_inline_yara(
-        mut self,
-        results: &'a HashMap<String, Vec<Evidence>>,
-    ) -> Self {
+    pub(crate) fn with_inline_yara(mut self, results: &'a HashMap<String, Vec<Evidence>>) -> Self {
         self.inline_yara_results = Some(results);
         self
     }
 
     /// Check if a finding ID exists (exact match only, O(1))
-    #[must_use] 
+    #[must_use]
     pub(crate) fn has_finding_exact(&self, id: &str) -> bool {
         if let Some(ref index) = self.finding_id_index {
             index.contains(&hash_str(id))
@@ -140,7 +137,7 @@ impl std::fmt::Display for AnalysisWarning {
         match self {
             Self::AstTooDeep { max_depth } => {
                 write!(f, "AST nesting limit hit (depth: {})", max_depth)
-            },
+            }
         }
     }
 }

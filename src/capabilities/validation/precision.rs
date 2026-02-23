@@ -66,7 +66,7 @@ fn score_condition(condition: &Condition) -> f32 {
                     score += score_string_value(&format!("{:?}", platform).to_lowercase());
                 }
             }
-        },
+        }
         Condition::String {
             exact,
             substr,
@@ -97,7 +97,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        },
+        }
         Condition::Raw {
             exact,
             substr,
@@ -128,21 +128,21 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        },
+        }
         Condition::Structure {
             feature,
             min_sections,
         } => {
             score += score_string_value(feature);
             score += score_presence(min_sections.as_ref());
-        },
+        }
         Condition::ExportsCount { min, max } => {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
-        },
+        }
         Condition::Trait { id } => {
             score += score_string_value(id);
-        },
+        }
         Condition::Ast {
             kind,
             node,
@@ -163,10 +163,10 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        },
+        }
         Condition::Yara { source, .. } => {
             score += score_regex_value(source);
-        },
+        }
         Condition::Syscall { name, number, arch } => {
             if let Some(names) = name {
                 for value in names {
@@ -182,7 +182,7 @@ fn score_condition(condition: &Condition) -> f32 {
                 }
             }
             // count_min, count_max, per_kb_min, per_kb_max now scored at trait level
-        },
+        }
         Condition::SectionRatio {
             section,
             compare_to,
@@ -193,7 +193,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_regex_value(compare_to);
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
-        },
+        }
         Condition::ImportCombination {
             required,
             suspicious,
@@ -212,7 +212,7 @@ fn score_condition(condition: &Condition) -> f32 {
             }
             score += score_presence(min_suspicious.as_ref());
             score += score_presence(max_total.as_ref());
-        },
+        }
         Condition::StringCount {
             min,
             max,
@@ -222,7 +222,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(min.as_ref());
             score += score_presence(max.as_ref());
             score += score_presence(min_length.as_ref());
-        },
+        }
         Condition::Metrics {
             field,
             min,
@@ -235,7 +235,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += score_presence(max.as_ref());
             score += score_presence(min_size.as_ref());
             score += score_presence(max_size.as_ref());
-        },
+        }
         Condition::Hex {
             pattern,
             offset,
@@ -251,7 +251,7 @@ fn score_condition(condition: &Condition) -> f32 {
             score += section.as_deref().map(score_string_value).unwrap_or(0.0);
             score += score_presence(section_offset.as_ref());
             score += score_presence(section_offset_range.as_ref());
-        },
+        }
         Condition::Section {
             exact,
             substr,
@@ -294,7 +294,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if entropy_max.is_some() {
                 score += PARAM_UNIT;
             }
-        },
+        }
         Condition::Encoded {
             exact,
             substr,
@@ -321,7 +321,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        },
+        }
         Condition::Basename {
             exact,
             substr,
@@ -341,7 +341,7 @@ fn score_condition(condition: &Condition) -> f32 {
             if *case_insensitive {
                 score *= CASE_INSENSITIVE_MULTIPLIER;
             }
-        },
+        }
     }
 
     score
@@ -353,7 +353,7 @@ fn score_not_exceptions(exceptions: &[crate::composite_rules::condition::NotExce
         match exception {
             crate::composite_rules::condition::NotException::Shorthand(value) => {
                 score += score_string_value(value);
-            },
+            }
             crate::composite_rules::condition::NotException::Structured {
                 exact,
                 substr,
@@ -362,7 +362,7 @@ fn score_not_exceptions(exceptions: &[crate::composite_rules::condition::NotExce
                 score += exact.as_deref().map(score_string_value).unwrap_or(0.0);
                 score += substr.as_deref().map(score_string_value).unwrap_or(0.0);
                 score += regex.as_deref().map(score_regex_value).unwrap_or(0.0);
-            },
+            }
         }
     }
     score
@@ -392,7 +392,11 @@ pub(crate) fn calculate_trait_precision(trait_def: &TraitDefinition) -> f32 {
         precision += score_string_value(&format!("{:?}", platform).to_lowercase());
     }
 
-    for file_type in trait_def.r#for.iter().filter(|f| !matches!(f, RuleFileType::All)) {
+    for file_type in trait_def
+        .r#for
+        .iter()
+        .filter(|f| !matches!(f, RuleFileType::All))
+    {
         precision += score_string_value(&format!("{:?}", file_type).to_lowercase());
     }
 
@@ -464,7 +468,11 @@ pub(crate) fn calculate_composite_precision(
     if let Some(rule) = rule {
         let mut precision = 0.0f32;
 
-        for file_type in rule.r#for.iter().filter(|f| !matches!(f, RuleFileType::All)) {
+        for file_type in rule
+            .r#for
+            .iter()
+            .filter(|f| !matches!(f, RuleFileType::All))
+        {
             let score = score_string_value(&format!("{:?}", file_type).to_lowercase());
             precision += score;
             if debug {
@@ -493,14 +501,14 @@ pub(crate) fn calculate_composite_precision(
                                 rule_id, id, score
                             );
                         }
-                    },
+                    }
                     _ => {
                         let score = score_condition(cond);
                         precision += score;
                         if debug {
                             eprintln!("  [DEBUG] {} all condition score: {:.2}", rule_id, score);
                         }
-                    },
+                    }
                 }
             }
         }
@@ -527,7 +535,7 @@ pub(crate) fn calculate_composite_precision(
                                 );
                             }
                             s
-                        },
+                        }
                         _ => {
                             let s = score_condition(cond);
                             if debug {
@@ -537,7 +545,7 @@ pub(crate) fn calculate_composite_precision(
                                 );
                             }
                             s
-                        },
+                        }
                     };
                     score
                 })
@@ -684,8 +692,10 @@ pub(crate) fn precalculate_all_composite_precisions(
     // Build lookup tables (immutable borrow)
     let composite_lookup: HashMap<&str, &CompositeTrait> =
         composite_rules.iter().map(|r| (r.id.as_str(), r)).collect();
-    let trait_lookup: HashMap<&str, &TraitDefinition> =
-        trait_definitions.iter().map(|t| (t.id.as_str(), t)).collect();
+    let trait_lookup: HashMap<&str, &TraitDefinition> = trait_definitions
+        .iter()
+        .map(|t| (t.id.as_str(), t))
+        .collect();
 
     // First pass: Calculate precisions for rules that don't have them (immutable borrow)
     let calculated_precisions: Vec<(String, f32)> = composite_rules
@@ -745,12 +755,12 @@ pub(crate) fn validate_hostile_composite_precision(
             Criticality::Hostile if precision < min_hostile_precision => {
                 // Silently downgrade - the precision calculation handles this automatically
                 rule.crit = Criticality::Suspicious;
-            },
+            }
             Criticality::Suspicious if precision < min_suspicious_precision => {
                 // Silently downgrade - the precision calculation handles this automatically
                 rule.crit = Criticality::Notable;
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 }

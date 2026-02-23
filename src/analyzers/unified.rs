@@ -50,8 +50,10 @@ pub(crate) struct LanguageConfig {
 }
 
 /// Get the language configuration for a file type.
-#[must_use] 
-pub(crate) fn config_for_file_type(file_type: &crate::analyzers::FileType) -> Option<LanguageConfig> {
+#[must_use]
+pub(crate) fn config_for_file_type(
+    file_type: &crate::analyzers::FileType,
+) -> Option<LanguageConfig> {
     use crate::analyzers::FileType;
 
     match file_type {
@@ -323,9 +325,13 @@ impl std::fmt::Debug for UnifiedSourceAnalyzer {
 
 impl UnifiedSourceAnalyzer {
     /// Create a new analyzer for the given language configuration.
-    pub(crate) fn new(config: LanguageConfig, file_type: crate::analyzers::FileType) -> anyhow::Result<Self> {
+    pub(crate) fn new(
+        config: LanguageConfig,
+        file_type: crate::analyzers::FileType,
+    ) -> anyhow::Result<Self> {
         let mut parser = Parser::new();
-        parser.set_language(&config.language)
+        parser
+            .set_language(&config.language)
             .map_err(|e| anyhow::anyhow!("Failed to load language grammar: {:?}", e))?;
 
         Ok(Self {
@@ -337,10 +343,9 @@ impl UnifiedSourceAnalyzer {
     }
 
     /// Create an analyzer for the given file type.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn for_file_type(file_type: &crate::analyzers::FileType) -> Option<Self> {
-        config_for_file_type(file_type)
-            .and_then(|config| Self::new(config, file_type.clone()).ok())
+        config_for_file_type(file_type).and_then(|config| Self::new(config, file_type.clone()).ok())
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
@@ -350,7 +355,10 @@ impl UnifiedSourceAnalyzer {
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    pub(crate) fn with_capability_mapper_arc(
+        mut self,
+        capability_mapper: Arc<CapabilityMapper>,
+    ) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -389,11 +397,13 @@ impl UnifiedSourceAnalyzer {
         let mut report = AnalysisReport::new(target);
 
         // Add structural feature
-        report.structure.push(crate::analyzers::utils::create_language_feature(
-            self.config.name,
-            &format!("tree-sitter-{}", self.config.name),
-            self.config.description,
-        ));
+        report
+            .structure
+            .push(crate::analyzers::utils::create_language_feature(
+                self.config.name,
+                &format!("tree-sitter-{}", self.config.name),
+                self.config.description,
+            ));
 
         // Extract functions
         self.extract_functions(&root, content.as_bytes(), &mut report);
@@ -403,7 +413,9 @@ impl UnifiedSourceAnalyzer {
 
         // Also run stng extraction to get fuzzy base64 and other decoded content
         // Use original_bytes (UTF-16 if present) so stng can detect BOM and use fuzzy base64
-        let opts = stng::ExtractOptions::new(4).with_garbage_filter(true).with_xor(None);
+        let opts = stng::ExtractOptions::new(4)
+            .with_garbage_filter(true)
+            .with_xor(None);
         let stng_strings = stng::extract_strings_with_options(original_bytes, &opts);
 
         // Convert stng strings to StringInfo and add to report
@@ -490,7 +502,7 @@ impl UnifiedSourceAnalyzer {
                     } else {
                         None
                     }
-                },
+                }
                 FileType::Shell => {
                     if let Some(analyzer) = UnifiedSourceAnalyzer::for_file_type(&FileType::Shell) {
                         analyzer
@@ -503,11 +515,11 @@ impl UnifiedSourceAnalyzer {
                     } else {
                         None
                     }
-                },
+                }
                 _ => {
                     // For binary or unknown, create basic report
                     None
-                },
+                }
             };
 
             // Process payload report - convert to FileAnalysis for v2 flat files array
@@ -524,11 +536,11 @@ impl UnifiedSourceAnalyzer {
                         match &evidence.location {
                             None => {
                                 evidence.location = Some(format!("extracted:{}", virtual_path));
-                            },
+                            }
                             Some(loc) => {
                                 evidence.location =
                                     Some(format!("extracted:{}:{}", virtual_path, loc));
-                            },
+                            }
                         }
                     }
                 }
@@ -580,7 +592,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    },
+                    }
                     FileType::Python => {
                         if let Some(analyzer) =
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Python)
@@ -595,7 +607,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    },
+                    }
                     FileType::Shell => {
                         if let Some(analyzer) =
                             UnifiedSourceAnalyzer::for_file_type(&FileType::Shell)
@@ -610,7 +622,7 @@ impl UnifiedSourceAnalyzer {
                         } else {
                             None
                         }
-                    },
+                    }
                     _ => None,
                 };
 
@@ -639,11 +651,11 @@ impl UnifiedSourceAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(format!("decrypted:{}", virtual_path));
-                                },
+                                }
                                 Some(loc) => {
                                     evidence.location =
                                         Some(format!("decrypted:{}:{}", virtual_path, loc));
-                                },
+                                }
                             }
                         }
                     }
@@ -885,7 +897,10 @@ impl UnifiedSourceAnalyzer {
         let text = text_metrics::analyze_text(content);
 
         let identifiers = self.extract_identifiers(root, source);
-        let ident_refs: Vec<&str> = identifiers.iter().map(std::string::String::as_str).collect();
+        let ident_refs: Vec<&str> = identifiers
+            .iter()
+            .map(std::string::String::as_str)
+            .collect();
         let identifier_metrics = identifier_metrics::analyze_identifiers(&ident_refs);
 
         let strings = self.extract_string_values(root, source);
@@ -1305,7 +1320,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
             "Expected micro-behaviors/process/create/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1322,7 +1340,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/process/create/direct::syscall-exec"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/process/create/direct::syscall-exec"),
             "Expected micro-behaviors/process/create/direct::syscall-exec, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1341,12 +1362,18 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
             "Expected micro-behaviors/communications/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
             "Expected micro-behaviors/process/create/direct::exec-command, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1363,7 +1390,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/listen::listen-go"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/socket/listen::listen-go"),
             "Expected micro-behaviors/communications/socket/listen::listen-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1380,7 +1410,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/socket/connect::dial"),
             "Expected micro-behaviors/communications/socket/connect::dial, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1397,7 +1430,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
             "Expected micro-behaviors/communications/http/get::http-get, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1414,7 +1450,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/server::server-go"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/http/server::server-go"),
             "Expected micro-behaviors/communications/http/server::server-go, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1474,7 +1513,10 @@ func main() {
 "#;
         let report = analyze_go_code(code);
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/fs/file/operations::os-create"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/fs/file/operations::os-create"),
             "Expected micro-behaviors/fs/file/operations::os-create, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
@@ -1484,7 +1526,10 @@ func main() {
     fn test_go_structural_feature() {
         let code = "package main\nfunc main() {}";
         let report = analyze_go_code(code);
-        assert!(report.structure.iter().any(|s| s.id == "source/language/go"));
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id == "source/language/go"));
     }
 
     #[test]
@@ -1525,11 +1570,17 @@ func main() {
             report.findings.len()
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/process/create/direct::exec-command"),
             "Expected micro-behaviors/process/create/direct::exec-command"
         );
         assert!(
-            report.findings.iter().any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
+            report
+                .findings
+                .iter()
+                .any(|c| c.id == "micro-behaviors/communications/http/get::http-get"),
             "Expected micro-behaviors/communications/http/get::http-get"
         );
     }

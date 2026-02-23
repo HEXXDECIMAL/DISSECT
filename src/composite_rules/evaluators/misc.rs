@@ -10,7 +10,7 @@ use crate::composite_rules::context::{ConditionResult, EvaluationContext};
 use crate::types::Evidence;
 
 /// Evaluate structure condition
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_structure<'a>(
     feature: &str,
     min_sections: Option<usize>,
@@ -111,7 +111,10 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
             .collect();
 
         if !matching.is_empty() {
-            let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+            let evidence = matching
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             let matched_ids: Vec<String> = matching.iter().map(|f| f.id.clone()).collect();
 
             return ConditionResult {
@@ -138,7 +141,10 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
             .collect();
 
         if !matching.is_empty() {
-            let evidence = matching.iter().flat_map(|f| f.evidence.iter().cloned()).collect();
+            let evidence = matching
+                .iter()
+                .flat_map(|f| f.evidence.iter().cloned())
+                .collect();
             let matched_ids: Vec<String> = matching.iter().map(|f| f.id.clone()).collect();
 
             return ConditionResult {
@@ -161,7 +167,7 @@ pub(crate) fn eval_trait<'a>(id: &str, ctx: &EvaluationContext<'a>) -> Condition
 }
 
 /// Evaluate a basename condition - match against the final path component
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_basename<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
@@ -171,7 +177,10 @@ pub(crate) fn eval_basename<'a>(
 ) -> ConditionResult {
     // Extract basename from path
     let path = &ctx.report.target.path;
-    let basename = std::path::Path::new(path).file_name().and_then(|s| s.to_str()).unwrap_or("");
+    let basename = std::path::Path::new(path)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("");
 
     // Match against the basename
     let (compare_basename, compare_exact, compare_substr) = if case_insensitive {
@@ -194,7 +203,9 @@ pub(crate) fn eval_basename<'a>(
         } else {
             regex_str.clone()
         };
-        regex::Regex::new(&pattern).map(|re| re.is_match(basename)).unwrap_or(false)
+        regex::Regex::new(&pattern)
+            .map(|re| re.is_match(basename))
+            .unwrap_or(false)
     } else {
         false
     };
@@ -231,4 +242,3 @@ pub(crate) fn eval_basename<'a>(
         matched_trait_ids: Vec::new(),
     }
 }
-

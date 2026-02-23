@@ -65,7 +65,6 @@ impl ExtractedFile {
             ExtractedFile::InMemory { path, .. } | ExtractedFile::OnDisk { path, .. } => path,
         }
     }
-
 }
 
 /// Result of analyzing a single file within an archive
@@ -111,10 +110,10 @@ impl ArchiveAnalyzer {
             match yara_engine.scan_bytes(data) {
                 Ok(matches) => {
                     file_analysis.yara_matches = matches;
-                },
+                }
                 Err(e) => {
                     tracing::debug!("YARA scan failed for {}: {}", relative_path, e);
-                },
+                }
             }
         }
 
@@ -165,7 +164,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            },
+            }
 
             // Binary files - need temp file for goblin parsing
             FileType::Elf | FileType::MachO | FileType::Pe => {
@@ -188,7 +187,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            },
+            }
 
             // Java class files
             FileType::JavaClass => {
@@ -204,7 +203,7 @@ impl ArchiveAnalyzer {
                         file_analysis.imports = report.imports;
                     }
                 }
-            },
+            }
 
             // Nested archives - need recursive handling
             FileType::Archive | FileType::Jar => {
@@ -248,7 +247,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            },
+            }
 
             // Package manifests
             FileType::PackageJson => {
@@ -262,7 +261,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            },
+            }
 
             FileType::VsixManifest => {
                 if let Some(mapper) = &self.capability_mapper {
@@ -275,7 +274,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            },
+            }
 
             FileType::ChromeManifest => {
                 if let Some(mapper) = &self.capability_mapper {
@@ -288,7 +287,7 @@ impl ArchiveAnalyzer {
                         file_analysis.findings = report.findings;
                     }
                 }
-            },
+            }
 
             // Python package metadata - use generic analyzer
             FileType::PkgInfo | FileType::Plist => {
@@ -306,7 +305,7 @@ impl ArchiveAnalyzer {
                         }
                     }
                 }
-            },
+            }
 
             // Manifest, image, certificate, and unknown files - no specific deep analysis beyond YARA/traits
             FileType::CargoToml
@@ -316,7 +315,7 @@ impl ArchiveAnalyzer {
             | FileType::Jpeg
             | FileType::Png
             | FileType::Certificate
-            | FileType::Unknown => {},
+            | FileType::Unknown => {}
         }
 
         // Compute summary
@@ -378,9 +377,10 @@ impl ArchiveAnalyzer {
                 let target_str = link_target.to_string_lossy();
                 let symlink_path = temp_dir.join(entry_name);
                 if symlink_escapes(&symlink_path, &target_str, temp_dir) {
-                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
-                        format!("{} -> {}", entry_name, target_str),
-                    ));
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(format!(
+                        "{} -> {}",
+                        entry_name, target_str
+                    )));
                 }
             }
             return Ok(None);
@@ -589,7 +589,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 
-
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
         let archive_sha256 =
@@ -651,7 +650,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to read TAR entry: {}", e);
                         continue;
-                    },
+                    }
                 };
 
                 let entry_name = match entry.path() {
@@ -659,7 +658,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to get entry path: {}", e);
                         continue;
-                    },
+                    }
                 };
 
                 // Extract to memory or disk
@@ -676,13 +675,13 @@ impl ArchiveAnalyzer {
                             // Receiver dropped, stop extraction
                             break;
                         }
-                    },
+                    }
                     Ok(None) => {
                         // Skipped (directory, symlink, etc.)
-                    },
+                    }
                     Err(e) => {
                         tracing::debug!("Failed to extract {}: {}", entry_name, e);
-                    },
+                    }
                 }
             }
 
@@ -713,7 +712,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                },
+                }
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -724,10 +723,10 @@ impl ArchiveAnalyzer {
                         Ok(data) => {
                             total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                             analyzer_ref.analyze_in_memory(path, &data, file_type)
-                        },
+                        }
                         Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                     }
-                },
+                }
             };
 
             match result {
@@ -739,23 +738,23 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
 
                     // Invoke callback for streaming output
                     on_file_ref(file_result);
-                },
+                }
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                },
+                }
             }
         });
 
@@ -764,9 +763,7 @@ impl ArchiveAnalyzer {
             .join()
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
-        Ok(ArchiveSummary {
-            hostile_reasons,
-        })
+        Ok(ArchiveSummary { hostile_reasons })
     }
 
     /// Analyze a ZIP archive with streaming extraction and parallel analysis.
@@ -786,7 +783,6 @@ impl ArchiveAnalyzer {
         use crossbeam_channel::bounded;
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
-
 
         // Calculate archive SHA256 for extraction directory grouping
         // This ensures all files from the same archive end up in one directory
@@ -833,7 +829,7 @@ impl ArchiveAnalyzer {
                         Ok(_) => {
                             // Successfully read entry without password means not encrypted (or dir)
                             tracing::debug!("Entry {} read successfully without password", i);
-                        },
+                        }
                         Err(e) => {
                             // Check if it's a password error
                             let error_msg = e.to_string();
@@ -844,7 +840,7 @@ impl ArchiveAnalyzer {
                             }
                             // Other errors might be corruption or other issues
                             tracing::debug!("Error reading entry {}: {}", i, e);
-                        },
+                        }
                     }
                 }
                 tracing::info!("ZIP archive is_encrypted: {}", found_encrypted);
@@ -869,11 +865,17 @@ impl ArchiveAnalyzer {
                     let mut password_works = false;
                     for i in 0..test_archive.len() {
                         // Check if it's a directory without holding a borrow
-                        let is_dir =
-                            test_archive.by_index(i).ok().map(|e| e.is_dir()).unwrap_or(false);
+                        let is_dir = test_archive
+                            .by_index(i)
+                            .ok()
+                            .map(|e| e.is_dir())
+                            .unwrap_or(false);
                         if !is_dir {
                             // Try to decrypt this file
-                            if test_archive.by_index_decrypt(i, password.as_bytes()).is_ok() {
+                            if test_archive
+                                .by_index_decrypt(i, password.as_bytes())
+                                .is_ok()
+                            {
                                 password_works = true;
                             }
                             break;
@@ -916,14 +918,14 @@ impl ArchiveAnalyzer {
                         Err(e) => {
                             tracing::debug!("Failed to decrypt ZIP entry {}: {}", i, e);
                             continue;
-                        },
+                        }
                     },
                     None => match archive.by_index(i) {
                         Ok(e) => e,
                         Err(e) => {
                             tracing::debug!("Failed to read ZIP entry {}: {}", i, e);
                             continue;
-                        },
+                        }
                     },
                 };
 
@@ -938,11 +940,11 @@ impl ArchiveAnalyzer {
                         if tx.send(extracted).is_err() {
                             break;
                         }
-                    },
-                    Ok(None) => {},
+                    }
+                    Ok(None) => {}
                     Err(e) => {
                         tracing::debug!("Failed to extract ZIP entry: {}", e);
-                    },
+                    }
                 }
             }
 
@@ -970,7 +972,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                },
+                }
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -979,7 +981,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    },
+                    }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -992,22 +994,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
 
                     on_file_ref(file_result);
-                },
+                }
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                },
+                }
             }
         });
 
@@ -1015,9 +1017,7 @@ impl ArchiveAnalyzer {
             .join()
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
-        Ok(ArchiveSummary {
-            hostile_reasons,
-        })
+        Ok(ArchiveSummary { hostile_reasons })
     }
 
     /// Analyze a DEB package with streaming extraction and parallel analysis.
@@ -1040,7 +1040,6 @@ impl ArchiveAnalyzer {
         use crossbeam_channel::bounded;
         use rayon::prelude::*;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
-
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1078,7 +1077,7 @@ impl ArchiveAnalyzer {
                     Err(e) => {
                         tracing::debug!("Failed to read AR entry: {}", e);
                         continue;
-                    },
+                    }
                 };
 
                 let name = String::from_utf8_lossy(entry.header().identifier()).to_string();
@@ -1102,7 +1101,7 @@ impl ArchiveAnalyzer {
                             Err(e) => {
                                 tracing::debug!("Failed to create zstd decoder: {}", e);
                                 continue;
-                            },
+                            }
                         }
                     } else if name.ends_with(".bz2") {
                         Box::new(bzip2::read::BzDecoder::new(entry))
@@ -1122,7 +1121,7 @@ impl ArchiveAnalyzer {
                             Err(e) => {
                                 tracing::debug!("Failed to read TAR entry: {}", e);
                                 continue;
-                            },
+                            }
                         };
 
                         let entry_name = match tar_entry.path() {
@@ -1141,11 +1140,11 @@ impl ArchiveAnalyzer {
                                 if tx.send(extracted).is_err() {
                                     break;
                                 }
-                            },
-                            Ok(None) => {},
+                            }
+                            Ok(None) => {}
                             Err(e) => {
                                 tracing::debug!("Failed to extract {}: {}", entry_name, e);
-                            },
+                            }
                         }
                     }
                 }
@@ -1175,7 +1174,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                },
+                }
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1184,7 +1183,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    },
+                    }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1197,22 +1196,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
 
                     on_file_ref(file_result);
-                },
+                }
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                },
+                }
             }
         });
 
@@ -1220,9 +1219,7 @@ impl ArchiveAnalyzer {
             .join()
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
-        Ok(ArchiveSummary {
-            hostile_reasons,
-        })
+        Ok(ArchiveSummary { hostile_reasons })
     }
 
     /// Analyze an RPM package with streaming extraction and parallel analysis.
@@ -1242,7 +1239,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use std::io::BufReader;
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
-
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1356,7 +1352,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                },
+                }
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1365,7 +1361,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    },
+                    }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1378,22 +1374,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
 
                     on_file_ref(file_result);
-                },
+                }
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                },
+                }
             }
         });
 
@@ -1401,9 +1397,7 @@ impl ArchiveAnalyzer {
             .join()
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
-        Ok(ArchiveSummary {
-            hostile_reasons,
-        })
+        Ok(ArchiveSummary { hostile_reasons })
     }
 }
 
@@ -1413,7 +1407,11 @@ impl ArchiveAnalyzer {
     /// 7z uses solid compression so extraction must be sequential, but we can
     /// analyze files in parallel as they're extracted.
     #[allow(dead_code)] // Used by binary target
-    pub(crate) fn analyze_7z_streaming<F>(&self, archive_path: &Path, on_file: F) -> Result<ArchiveSummary>
+    pub(crate) fn analyze_7z_streaming<F>(
+        &self,
+        archive_path: &Path,
+        on_file: F,
+    ) -> Result<ArchiveSummary>
     where
         F: Fn(StreamingFileResult) + Send + Sync,
     {
@@ -1421,7 +1419,6 @@ impl ArchiveAnalyzer {
         use rayon::prelude::*;
         use sevenz_rust::{Password, SevenZReader};
         use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
-
 
         // Calculate archive SHA256 for extraction directory grouping
         let archive_sha256 =
@@ -1576,7 +1573,7 @@ impl ArchiveAnalyzer {
                 } => {
                     total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                     analyzer_ref.analyze_in_memory(path, data, file_type)
-                },
+                }
                 ExtractedFile::OnDisk {
                     path,
                     temp_path,
@@ -1585,7 +1582,7 @@ impl ArchiveAnalyzer {
                     Ok(data) => {
                         total_bytes_ref.fetch_add(data.len() as u64, Ordering::Relaxed);
                         analyzer_ref.analyze_in_memory(path, &data, file_type)
-                    },
+                    }
                     Err(e) => Err(anyhow::anyhow!("Failed to read temp file: {}", e)),
                 },
             };
@@ -1598,22 +1595,22 @@ impl ArchiveAnalyzer {
                         match risk {
                             crate::types::Criticality::Hostile => {
                                 hostile_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Suspicious => {
                                 suspicious_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
+                            }
                             crate::types::Criticality::Notable => {
                                 notable_count_ref.fetch_add(1, Ordering::Relaxed);
-                            },
-                            _ => {},
+                            }
+                            _ => {}
                         }
                     }
 
                     on_file_ref(file_result);
-                },
+                }
                 Err(e) => {
                     tracing::debug!("Failed to analyze {}: {}", file.path(), e);
-                },
+                }
             }
         });
 
@@ -1621,9 +1618,7 @@ impl ArchiveAnalyzer {
             .join()
             .map_err(|_| anyhow::anyhow!("Extractor thread panicked"))??;
 
-        Ok(ArchiveSummary {
-            hostile_reasons,
-        })
+        Ok(ArchiveSummary { hostile_reasons })
     }
 }
 
@@ -1681,7 +1676,7 @@ fn extract_cpio_streaming<R: Read>(
                     break;
                 }
                 return Err(e.into());
-            },
+            }
         };
 
         let entry = entry_reader.entry();
@@ -1863,7 +1858,7 @@ fn detect_file_type_from_magic(data: &[u8]) -> Option<FileType> {
         [b'P', b'K', 0x03, 0x04] | [b'P', b'K', 0x05, 0x06] => {
             // Could be ZIP or JAR - check extension or contents
             Some(FileType::Archive)
-        },
+        }
         // Gzip / XZ / Bzip2
         [0x1f, 0x8b, ..] | [0xfd, b'7', b'z', b'X'] | [b'B', b'Z', b'h', ..] => {
             Some(FileType::Archive)
@@ -1937,7 +1932,10 @@ mod tests {
         let mut cursor = std::io::Cursor::new(header);
         let result = skip_rpm_header(&mut cursor);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Invalid RPM header magic"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid RPM header magic"));
     }
 
     type StreamingAnalyzerFn =

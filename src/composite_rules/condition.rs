@@ -13,7 +13,9 @@ mod offset_range_serde {
     use serde::de::{self, Deserializer, SeqAccess};
     use serde::ser::Serializer;
 
-    pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Option<(i64, Option<i64>)>, D::Error>
+    pub(crate) fn deserialize<'de, D>(
+        deserializer: D,
+    ) -> Result<Option<(i64, Option<i64>)>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -80,7 +82,7 @@ mod offset_range_serde {
                 seq.serialize_element(start)?;
                 seq.serialize_element(end)?;
                 seq.end()
-            },
+            }
         }
     }
 }
@@ -119,12 +121,12 @@ pub(crate) enum NotException {
 
 impl NotException {
     /// Check if a string matches this exception
-    #[must_use] 
+    #[must_use]
     pub(crate) fn matches(&self, value: &str) -> bool {
         match self {
             NotException::Shorthand(pattern) => {
                 value.to_lowercase().contains(&pattern.to_lowercase())
-            },
+            }
             NotException::Structured {
                 exact,
                 substr,
@@ -135,11 +137,13 @@ impl NotException {
                 } else if let Some(substr_str) = substr {
                     value.to_lowercase().contains(&substr_str.to_lowercase())
                 } else if let Some(regex_str) = regex {
-                    regex::Regex::new(regex_str).map(|re| re.is_match(value)).unwrap_or(false)
+                    regex::Regex::new(regex_str)
+                        .map(|re| re.is_match(value))
+                        .unwrap_or(false)
                 } else {
                     false
                 }
-            },
+            }
         }
     }
 }
@@ -199,13 +203,21 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
     Structure {
@@ -309,7 +321,11 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end, null = open-ended)
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section constraint: only match in this section (supports fuzzy names like "text")
         #[serde(default)]
@@ -318,7 +334,11 @@ enum ConditionTagged {
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -348,13 +368,21 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -432,13 +460,21 @@ enum ConditionTagged {
         #[serde(default)]
         offset: Option<i64>,
         /// Absolute offset range: [start, end) (negative values resolved from file end)
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         offset_range: Option<(i64, Option<i64>)>,
         /// Section-relative offset: only match at this offset within the section
         #[serde(default)]
         section_offset: Option<i64>,
         /// Section-relative offset range: [start, end) within section bounds
-        #[serde(default, deserialize_with = "offset_range_serde::deserialize", serialize_with = "offset_range_serde::serialize")]
+        #[serde(
+            default,
+            deserialize_with = "offset_range_serde::deserialize",
+            serialize_with = "offset_range_serde::serialize"
+        )]
         section_offset_range: Option<(i64, Option<i64>)>,
     },
 
@@ -571,7 +607,7 @@ impl From<ConditionDeser> for Condition {
                 },
                 ConditionTagged::Syscall { name, number, arch } => {
                     Condition::Syscall { name, number, arch }
-                },
+                }
                 ConditionTagged::SectionRatio {
                     section,
                     compare_to,
@@ -823,11 +859,9 @@ impl From<Condition> for ConditionTagged {
                 compiled: _,
                 namespace: _,
             } => ConditionTagged::Yara { source },
-            Condition::Syscall { name, number, arch } => ConditionTagged::Syscall {
-                name,
-                number,
-                arch,
-            },
+            Condition::Syscall { name, number, arch } => {
+                ConditionTagged::Syscall { name, number, arch }
+            }
             Condition::SectionRatio {
                 section,
                 compare_to,
@@ -1491,10 +1525,9 @@ fn default_compare_to() -> String {
     "total".to_string()
 }
 
-
 impl Condition {
     /// Returns true if this condition is a trait reference
-    #[must_use] 
+    #[must_use]
     pub(crate) fn is_trait_reference(&self) -> bool {
         matches!(self, Condition::Trait { .. })
     }
@@ -1502,7 +1535,7 @@ impl Condition {
     /// Check if this condition can possibly match for a given file type.
     /// Returns false for conditions that require binary section analysis
     /// when evaluating source/text files.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn can_match_file_type(&self, file_type: &super::FileType) -> bool {
         use super::FileType;
 
@@ -1532,7 +1565,7 @@ impl Condition {
     }
 
     /// Returns a description of the condition type for error messages
-    #[must_use] 
+    #[must_use]
     pub(crate) fn type_name(&self) -> &'static str {
         match self {
             Condition::Symbol { .. } => "symbol",
@@ -1568,7 +1601,7 @@ impl Condition {
                     .add_source(source.as_bytes())
                     .map_err(|e| anyhow::anyhow!("invalid YARA rule: {}", e))?;
                 Ok(())
-            },
+            }
             Condition::Ast {
                 kind,
                 node,
@@ -1621,7 +1654,7 @@ impl Condition {
                 }
 
                 Ok(())
-            },
+            }
             Condition::Kv {
                 path,
                 exact,
@@ -1649,7 +1682,7 @@ impl Condition {
                 }
 
                 Ok(())
-            },
+            }
             // Validate location constraints for string/content conditions
             Condition::String {
                 section,
@@ -1698,7 +1731,7 @@ impl Condition {
                     *section_offset_range,
                     "hex",
                 )
-            },
+            }
             // Other conditions don't need compilation validation
             _ => Ok(()),
         }
@@ -1707,7 +1740,10 @@ impl Condition {
     /// Pre-compile YARA rules for faster evaluation.
     /// Used for unless/composite conditions that are not in the combined engine.
     pub(crate) fn compile_yara(&mut self) {
-        if let Condition::Yara { source, compiled, .. } = self {
+        if let Condition::Yara {
+            source, compiled, ..
+        } = self
+        {
             if compiled.is_none() {
                 let mut compiler = yara_x::Compiler::new();
                 compiler.new_namespace("inline");
@@ -1756,11 +1792,12 @@ impl Condition {
 
     /// Check for regex patterns that are just `\bWORD\b` which should use `type: word` instead.
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_word_boundary_regex(&self) -> Option<String> {
         let regex_to_check = match self {
-            Condition::String { regex: Some(r), .. }
-            | Condition::Raw { regex: Some(r), .. } => Some(r.as_str()),
+            Condition::String { regex: Some(r), .. } | Condition::Raw { regex: Some(r), .. } => {
+                Some(r.as_str())
+            }
             _ => None,
         };
 
@@ -1771,7 +1808,11 @@ impl Condition {
             let unwrapped = pattern
                 .strip_prefix("(?:")
                 .and_then(|s| s.strip_suffix(")"))
-                .map(|s| s.strip_prefix("(?:").and_then(|s| s.strip_suffix(")")).unwrap_or(s))
+                .map(|s| {
+                    s.strip_prefix("(?:")
+                        .and_then(|s| s.strip_suffix(")"))
+                        .unwrap_or(s)
+                })
                 .unwrap_or(pattern);
 
             if unwrapped.starts_with(r"\b") && unwrapped.ends_with(r"\b") && unwrapped.len() > 4 {
@@ -1780,7 +1821,9 @@ impl Condition {
 
                 // Check if it's a simple alphanumeric word (no regex metacharacters)
                 if !word.is_empty()
-                    && word.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-')
+                    && word
+                        .chars()
+                        .all(|c| c.is_alphanumeric() || c == '_' || c == '-')
                 {
                     return Some(format!(
                         "regex is a simple word boundary pattern - use 'word: \"{}\"' instead",
@@ -1799,7 +1842,7 @@ impl Condition {
     ///
     ///   Mixed alphanumeric strings (like "x509") are exempt - they have fewer variants
     ///   Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_short_case_insensitive(&self, file_type_count: usize) -> Option<String> {
         let check_pattern = |s: &str| -> Option<String> {
             let len = s.len();
@@ -1870,7 +1913,7 @@ impl Condition {
 
     /// Check if count constraints are valid (count_max >= count_min).
     /// Returns a warning message if invalid, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_count_constraints(&self) -> Option<String> {
         // Count constraints are now at trait level (ConditionWithFilters), not per-condition
         None
@@ -1878,7 +1921,7 @@ impl Condition {
 
     /// Check if per-KB density constraints are valid (per_kb_max >= per_kb_min).
     /// Returns a warning message if invalid, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_density_constraints(&self) -> Option<String> {
         // Density constraints are now at trait level (ConditionWithFilters), not per-condition
         None
@@ -1886,7 +1929,7 @@ impl Condition {
 
     /// Check for empty or whitespace-only pattern strings (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_empty_patterns(&self) -> Option<String> {
         let check_empty = |s: &str, field: &str| -> Option<String> {
             if s.trim().is_empty() {
@@ -1902,9 +1945,15 @@ impl Condition {
             Condition::String { exact: Some(s), .. }
             | Condition::Raw { exact: Some(s), .. }
             | Condition::Symbol { exact: Some(s), .. } => check_empty(s, "exact"),
-            Condition::String { substr: Some(s), .. }
-            | Condition::Raw { substr: Some(s), .. }
-            | Condition::Symbol { substr: Some(s), .. } => check_empty(s, "substr"),
+            Condition::String {
+                substr: Some(s), ..
+            }
+            | Condition::Raw {
+                substr: Some(s), ..
+            }
+            | Condition::Symbol {
+                substr: Some(s), ..
+            } => check_empty(s, "substr"),
             Condition::String { regex: Some(s), .. }
             | Condition::Raw { regex: Some(s), .. }
             | Condition::Symbol { regex: Some(s), .. } => check_empty(s, "regex"),
@@ -1917,7 +1966,7 @@ impl Condition {
 
     /// Check for overly short patterns that will match too broadly (common LLM mistake).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_short_patterns(&self) -> Option<String> {
         let check_short = |s: &str, field: &str, min_len: usize| -> Option<String> {
             if s.len() < min_len {
@@ -1944,7 +1993,7 @@ impl Condition {
                     ));
                 }
                 None
-            },
+            }
             // For substr, warn if less than 3 characters (more prone to false positives)
             Condition::String {
                 substr: Some(s),
@@ -1966,7 +2015,7 @@ impl Condition {
 
     /// Check for regex patterns that are just literal strings (should use substr/exact instead).
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_literal_regex(&self) -> Option<String> {
         let is_literal = |s: &str| -> bool {
             // Check if string contains any regex metacharacters
@@ -2001,15 +2050,14 @@ impl Condition {
                     ));
                 }
                 None
-            },
+            }
             _ => None,
         }
     }
 
-
     /// Check if case_insensitive is used with patterns that have no letters.
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_case_insensitive_on_non_alpha(&self) -> Option<String> {
         let check_pattern = |s: &str, field: &str| -> Option<String> {
             if !s.chars().any(char::is_alphabetic) {
@@ -2043,7 +2091,7 @@ impl Condition {
 
     /// Check for nonsensical count_min values.
     /// Returns a warning message if found, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_count_min_value(&self) -> Option<String> {
         // count_min is now at trait level (ConditionWithFilters), not per-condition
         None
@@ -2051,7 +2099,7 @@ impl Condition {
 
     /// Check if mutually exclusive match types are used together.
     /// Returns a warning message if multiple are set, None otherwise.
-    #[must_use] 
+    #[must_use]
     pub(crate) fn check_match_exclusivity(&self) -> Option<String> {
         let check_exclusive =
             |exact: bool, substr: bool, regex: bool, word: bool| -> Option<String> {
@@ -2128,7 +2176,7 @@ impl Condition {
                 *compiled_regex = Some(regex::Regex::new(regex_pattern).map_err(|e| {
                     anyhow::anyhow!("Failed to compile symbol regex '{}': {}", regex_pattern, e)
                 })?);
-            },
+            }
             Condition::String {
                 regex,
                 word,
@@ -2175,7 +2223,7 @@ impl Condition {
                         })?
                     });
                 }
-            },
+            }
             Condition::Raw {
                 regex,
                 word,
@@ -2222,7 +2270,7 @@ impl Condition {
                         })?
                     });
                 }
-            },
+            }
             Condition::Kv {
                 regex: Some(regex_pattern),
                 case_insensitive,
@@ -2243,7 +2291,7 @@ impl Condition {
                         anyhow::anyhow!("Failed to compile kv regex '{}': {}", regex_pattern, e)
                     })?
                 });
-            },
+            }
             Condition::StringCount {
                 regex: Some(regex_pattern),
                 compiled_regex,
@@ -2257,8 +2305,8 @@ impl Condition {
                         e
                     )
                 })?);
-            },
-            _ => {},
+            }
+            _ => {}
         }
         Ok(())
     }
@@ -2292,11 +2340,11 @@ fn validate_ast_query(query: &str, language: Option<&str>) -> Result<()> {
                 "unsupported language for ast query: {}",
                 other
             ))
-        },
+        }
         None => {
             // No language specified - skip validation, will validate at runtime
             return Ok(());
-        },
+        }
     };
     tree_sitter::Query::new(&lang, query)
         .map_err(|e| anyhow::anyhow!("invalid tree-sitter query: {}", e))?;
@@ -2544,7 +2592,10 @@ mod location_constraint_tests {
     fn test_validate_location_section_offset_without_section_fails() {
         let result = validate_location_constraints(&None, None, None, Some(0x100), None, "content");
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("requires 'section'"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("requires 'section'"));
     }
 
     #[test]

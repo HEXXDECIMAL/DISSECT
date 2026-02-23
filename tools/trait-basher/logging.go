@@ -90,7 +90,7 @@ func getLogDir() (string, error) {
 		logDir = filepath.Join(stateHome, "trait-basher")
 	}
 
-	if err := os.MkdirAll(logDir, 0755); err != nil {
+	if err := os.MkdirAll(logDir, 0o755); err != nil {
 		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
 	}
 	return logDir, nil
@@ -117,7 +117,7 @@ func getDissectLogFilePath(sessionID string) (string, error) {
 // generateSessionID returns a UUID v4 for session tracking.
 func generateSessionID() string {
 	b := make([]byte, 16)
-	_, _ = rand.Read(b) // crypto/rand.Read never fails on supported platforms
+	_, _ = rand.Read(b)         // crypto/rand.Read never fails on supported platforms
 	b[6] = (b[6] & 0x0f) | 0x40 // Version 4
 	b[8] = (b[8] & 0x3f) | 0x80 // Variant
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",

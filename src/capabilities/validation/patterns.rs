@@ -12,10 +12,10 @@
 //! Pattern analysis helps maintain rule quality by ensuring patterns have adequate specificity
 //! for their target domain.
 
+use super::helpers::find_line_number;
 use crate::composite_rules::{Condition, TraitDefinition};
 use std::collections::HashMap;
 use std::sync::OnceLock;
-use super::helpers::find_line_number;
 
 /// Count the minimum number of literal characters that MUST match in a regex pattern.
 ///
@@ -40,8 +40,11 @@ fn count_regex_min_literals(pattern: &str) -> usize {
                 // Escape sequence - peek ahead
                 if let Some(&next) = chars.peek() {
                     chars.next(); // Consume the next character
-                    // Special escape sequences that match variable content don't count as literals
-                    if !matches!(next, 'w' | 'W' | 'd' | 'D' | 's' | 'S' | 'b' | 'B' | 'A' | 'Z') {
+                                  // Special escape sequences that match variable content don't count as literals
+                    if !matches!(
+                        next,
+                        'w' | 'W' | 'd' | 'D' | 's' | 'S' | 'b' | 'B' | 'A' | 'Z'
+                    ) {
                         // \n, \t, \x.., \u.., etc. are literals
                         count += 1;
                         // For \x.. and similar, consume additional hex digits
@@ -193,17 +196,16 @@ pub(crate) fn find_short_pattern_warnings(
         };
 
         // Skip if trait has any specificity constraints
-        if has_meaningful_count || has_specific_file_types || has_location_constraints(&trait_def.r#if.condition) {
+        if has_meaningful_count
+            || has_specific_file_types
+            || has_location_constraints(&trait_def.r#if.condition)
+        {
             continue;
         }
 
         // Check the condition
         match &trait_def.r#if.condition {
-            Condition::Raw {
-                substr,
-                regex,
-                ..
-            } => {
+            Condition::Raw { substr, regex, .. } => {
                 // Check substr length
                 if let Some(pattern) = substr {
                     if pattern.len() <= 3 {
@@ -281,7 +283,11 @@ pub(crate) fn find_non_capturing_groups(traits: &[TraitDefinition], warnings: &m
 
         if let Some(pattern) = pattern_opt {
             if pattern.contains("(?:") {
-                let source_file = trait_def.defined_in.to_str().unwrap_or("unknown").to_string();
+                let source_file = trait_def
+                    .defined_in
+                    .to_str()
+                    .unwrap_or("unknown")
+                    .to_string();
                 let line_hint = find_line_number(&source_file, &trait_def.id);
                 let location = if let Some(line) = line_hint {
                     format!("{}:{}", source_file, line)
@@ -342,7 +348,11 @@ pub(crate) fn find_slow_regex_patterns(traits: &[TraitDefinition], warnings: &mu
             }
 
             if !issues.is_empty() {
-                let source_file = trait_def.defined_in.to_str().unwrap_or("unknown").to_string();
+                let source_file = trait_def
+                    .defined_in
+                    .to_str()
+                    .unwrap_or("unknown")
+                    .to_string();
 
                 let line_hint = find_line_number(&source_file, &trait_def.id);
                 let location = if let Some(line) = line_hint {

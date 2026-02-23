@@ -82,10 +82,7 @@ pub(crate) mod test;
 pub(crate) use shared::expand_paths;
 
 // Re-export shared utilities needed internally by command submodules (for super:: access)
-pub(super) use shared::{
-    analyze_archive_streaming_jsonl,
-    analyze_file_with_shared_mapper,
-};
+pub(super) use shared::{analyze_archive_streaming_jsonl, analyze_file_with_shared_mapper};
 
 // Re-export command functions for main.rs
 pub(crate) use analyze::run as analyze_command;

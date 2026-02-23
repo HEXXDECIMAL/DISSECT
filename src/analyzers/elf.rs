@@ -46,7 +46,10 @@ impl ElfAnalyzer {
 
     /// Create analyzer with shared capability mapper (avoids cloning)
     #[must_use]
-    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    pub(crate) fn with_capability_mapper_arc(
+        mut self,
+        capability_mapper: Arc<CapabilityMapper>,
+    ) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -102,7 +105,7 @@ impl ElfAnalyzer {
 
                 // Analyze sections and entropy
                 self.analyze_sections(&elf, data, &mut report);
-            },
+            }
             Err(e) => {
                 // Parsing failed - this is a strong indicator of malformed/hostile binary
                 report.findings.push(Finding {
@@ -119,8 +122,11 @@ impl ElfAnalyzer {
                     source_file: None,
                 });
 
-                report.metadata.errors.push(format!("ELF parse error: {}", e));
-            },
+                report
+                    .metadata
+                    .errors
+                    .push(format!("ELF parse error: {}", e));
+            }
         }
 
         // Use radare2 for deep analysis if available - SINGLE r2 spawn for all data
@@ -130,7 +136,9 @@ impl ElfAnalyzer {
             // Use batched extraction - single r2 session for functions, sections, strings, imports
             if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
-                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched, data.len() as u64);
+                let mut binary_metrics = self
+                    .radare2
+                    .compute_metrics_from_batched(&batched, data.len() as u64);
 
                 // Override code_size with goblin-based calculation (more accurate)
                 // In ELF, only sections with SHF_EXECINSTR flag contain executable code
@@ -285,7 +293,6 @@ impl ElfAnalyzer {
                 }],
             });
         }
-
     }
 
     fn analyze_dynamic_symbols<'a>(
@@ -371,15 +378,9 @@ impl ElfAnalyzer {
                 }
             }
         }
-
     }
 
-    fn analyze_sections<'a>(
-        &self,
-        elf: &Elf<'a>,
-        data: &[u8],
-        report: &mut AnalysisReport,
-    ) {
+    fn analyze_sections<'a>(&self, elf: &Elf<'a>, data: &[u8], report: &mut AnalysisReport) {
         for section in &elf.section_headers {
             if let Some(name) = elf.shdr_strtab.get_at(section.sh_name) {
                 let section_offset = section.sh_offset as usize;
@@ -414,7 +415,6 @@ impl ElfAnalyzer {
                 }
             }
         }
-
     }
 
     fn arch_name<'a>(&self, elf: &Elf<'a>) -> String {
@@ -433,7 +433,10 @@ impl ElfAnalyzer {
     fn merge_reports(&self, packed: &mut AnalysisReport, unpacked: AnalysisReport) {
         // Merge findings by ID, keeping highest criticality
         for unpacked_finding in unpacked.findings {
-            if let Some(existing) = packed.findings.iter_mut().find(|f| f.id == unpacked_finding.id)
+            if let Some(existing) = packed
+                .findings
+                .iter_mut()
+                .find(|f| f.id == unpacked_finding.id)
             {
                 // Merge evidence
                 existing.evidence.extend(unpacked_finding.evidence);
@@ -539,10 +542,10 @@ impl ElfAnalyzer {
                         if metrics.relro.is_some() {
                             metrics.relro = Some("full".to_string());
                         }
-                    },
+                    }
                     DT_INIT_ARRAYSZ => init_arraysz = dyn_entry.d_val,
                     DT_FINI_ARRAYSZ => fini_arraysz = dyn_entry.d_val,
-                    _ => {},
+                    _ => {}
                 }
             }
 
@@ -570,12 +573,12 @@ impl ElfAnalyzer {
                     if metrics.relro.is_none() {
                         metrics.relro = Some("partial".to_string());
                     }
-                },
+                }
                 PT_GNU_STACK => {
                     // Check if stack is executable
                     metrics.nx_enabled = (ph.p_flags & PF_X) == 0;
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
 
@@ -621,7 +624,7 @@ impl ElfAnalyzer {
                     ".got" | ".got.plt" => metrics.has_got = true,
                     ".eh_frame" => metrics.has_eh_frame = true,
                     n if n.starts_with(".note") => metrics.has_note = true,
-                    _ => {},
+                    _ => {}
                 }
             }
         }
@@ -698,12 +701,12 @@ impl ElfAnalyzer {
                         report.metadata.tools_used.push("upx".to_string());
                     }
                 }
-            },
+            }
             Err(e) => {
                 let description = match e {
                     UPXError::DecompressionFailed(msg) => {
                         format!("UPX decompression failed (possibly tampered): {}", msg)
-                    },
+                    }
                     _ => format!("UPX decompression failed: {}", e),
                 };
                 report.findings.push(
@@ -714,7 +717,7 @@ impl ElfAnalyzer {
                     )
                     .with_criticality(Criticality::Suspicious),
                 );
-            },
+            }
         }
 
         // Update binary metrics with final counts after UPX merge
@@ -744,7 +747,8 @@ impl Analyzer for ElfAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = fs::read(file_path).context("Failed to read file")?;
         let mut report = self.analyze_structural(file_path, &data);
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, &data, None, None);
         crate::path_mapper::analyze_and_link_paths(&mut report);
         crate::env_mapper::analyze_and_link_env_vars(&mut report);
         Ok(report)

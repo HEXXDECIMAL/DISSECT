@@ -4,7 +4,9 @@
 //! specified rules against a target file and shows detailed evaluation traces.
 
 use crate::analyzers::{detect_file_type, macho::MachOAnalyzer, FileType};
-use crate::commands::shared::{create_analysis_report, find_rules_in_directory, find_similar_rules};
+use crate::commands::shared::{
+    create_analysis_report, find_rules_in_directory, find_similar_rules,
+};
 use crate::{cli, composite_rules, test_rules};
 use anyhow::Result;
 use std::fs;
@@ -44,8 +46,10 @@ pub(crate) fn run(
     eprintln!("Analyzing: {}", target);
 
     // Parse rule IDs, stripping trailing slashes
-    let rule_ids: Vec<String> =
-        rules.split(',').map(|s| s.trim().trim_end_matches('/').to_string()).collect();
+    let rule_ids: Vec<String> = rules
+        .split(',')
+        .map(|s| s.trim().trim_end_matches('/').to_string())
+        .collect();
     eprintln!("Debugging {} rule(s): {:?}", rule_ids.len(), rule_ids);
 
     // Detect file type

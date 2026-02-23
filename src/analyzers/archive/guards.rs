@@ -139,11 +139,11 @@ pub(crate) fn sanitize_entry_path(entry_name: &str, dest_dir: &Path) -> Option<P
     for component in path.components() {
         match component {
             Component::Normal(c) => result.push(c),
-            Component::CurDir => {}, // Skip "."
+            Component::CurDir => {} // Skip "."
             Component::ParentDir | Component::Prefix(_) | Component::RootDir => {
                 // Reject "..", drive prefixes, and root
                 return None;
-            },
+            }
         }
     }
 
@@ -159,11 +159,7 @@ pub(crate) fn sanitize_entry_path(entry_name: &str, dest_dir: &Path) -> Option<P
 ///
 /// Returns true if the symlink target points outside dest_dir when resolved
 /// from the symlink's location.
-pub(crate) fn symlink_escapes(
-    symlink_path: &Path,
-    target: &str,
-    dest_dir: &Path,
-) -> bool {
+pub(crate) fn symlink_escapes(symlink_path: &Path, target: &str, dest_dir: &Path) -> bool {
     let target_path = Path::new(target);
 
     // Absolute targets always escape
@@ -179,7 +175,7 @@ pub(crate) fn symlink_escapes(
     for component in target_path.components() {
         match component {
             Component::Normal(c) => resolved.push(c),
-            Component::CurDir => {}, // "." doesn't change path
+            Component::CurDir => {} // "." doesn't change path
             Component::ParentDir => {
                 // ".." moves up one level
                 resolved.pop();

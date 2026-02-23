@@ -114,7 +114,11 @@ fn test_layer_path_computation() {
 
     // Helper to compute layer path
     let compute_layer_path = |s: &StringInfo| {
-        let section = s.section.as_ref().cloned().unwrap_or_else(|| "content".to_string());
+        let section = s
+            .section
+            .as_ref()
+            .cloned()
+            .unwrap_or_else(|| "content".to_string());
         if !s.encoding_chain.is_empty() {
             format!("metadata/layers/{}/{}", section, s.encoding_chain.join("/"))
         } else {
@@ -123,7 +127,10 @@ fn test_layer_path_computation() {
     };
 
     // Compute layer path for case 1: stack string in .text
-    assert_eq!(compute_layer_path(&stack_text), "metadata/layers/.text/stack");
+    assert_eq!(
+        compute_layer_path(&stack_text),
+        "metadata/layers/.text/stack"
+    );
 
     // Case 2: Base64+zlib in .rodata
     let encoded_rodata = StringInfo {

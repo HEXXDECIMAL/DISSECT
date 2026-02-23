@@ -52,7 +52,7 @@ func dataDir(subdir string) (string, error) {
 		return "", err
 	}
 	dir := filepath.Join(home, "data", subdir)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return "", err
 	}
 	return dir, nil
@@ -180,7 +180,7 @@ func (rc *reviewCoordinator) setWorkerBusy(workerID int, path, provider string, 
 		path:         path,
 		provider:     provider,
 		isValidation: isValidation,
-		startTime: time.Now(),
+		startTime:    time.Now(),
 	}
 }
 
@@ -670,7 +670,6 @@ func (f *flushingWriter) Write(p []byte) (n int, err error) {
 	return n, nil
 }
 
-
 // streamState tracks the current processing state as we stream files.
 type streamState struct {
 	cfg                *config
@@ -760,7 +759,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not determine log path: %w", err)
 	}
 
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 	if err != nil {
 		return nil, fmt.Errorf("could not create log file: %w", err)
 	}
@@ -1003,7 +1002,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	if err := scanner.Err(); err != nil {
 		// Kill orphaned dissect process before returning
 		log.Printf("killing dissect...")
-;		cmd.Process.Kill() //nolint:errcheck,gosec
+		cmd.Process.Kill() //nolint:errcheck,gosec
 		cmd.Wait()         //nolint:errcheck,gosec
 		delay := retryDelay()
 		fmt.Fprintf(os.Stderr, "\n%s⚠️  Error reading dissect output:%s %v\n", colorYellow, colorReset, err)
@@ -1336,14 +1335,6 @@ func processRealFile(ctx context.Context, st *streamState) {
 
 	needsRev, isValidation := realFileNeedsReview(rf, st.cfg.knownGood, st.cfg.validateEvery)
 	if !needsRev {
-		if st.cfg.verbose {
-			mode := "bad"
-			reason := "already detected (has suspicious/hostile findings)"
-			if st.cfg.knownGood {
-				mode = "good"
-				reason = "no suspicious/hostile findings"
-			}
-		}
 		st.stats.skippedNoReview++
 		return
 	}

@@ -9,13 +9,15 @@ mod tests {
     use aes::cipher::{block_padding::Pkcs7, BlockEncryptMut, KeyIvInit};
 
     // Helper to encrypt test data with AES-256-CBC
-    fn encrypt_aes_256_cbc(plaintext: &[u8], key: &[u8], iv: &[u8]) -> Result<Vec<u8>, &'static str> {
+    fn encrypt_aes_256_cbc(
+        plaintext: &[u8],
+        key: &[u8],
+        iv: &[u8],
+    ) -> Result<Vec<u8>, &'static str> {
         type Aes256CbcEnc = cbc::Encryptor<aes::Aes256>;
 
-        let key_array: [u8; 32] = key.try_into()
-            .map_err(|_| "Key must be exactly 32 bytes")?;
-        let iv_array: [u8; 16] = iv.try_into()
-            .map_err(|_| "IV must be exactly 16 bytes")?;
+        let key_array: [u8; 32] = key.try_into().map_err(|_| "Key must be exactly 32 bytes")?;
+        let iv_array: [u8; 16] = iv.try_into().map_err(|_| "IV must be exactly 16 bytes")?;
 
         let cipher = Aes256CbcEnc::new(&key_array.into(), &iv_array.into());
 

@@ -7,7 +7,7 @@ use crate::types::StringMetrics;
 use std::collections::HashMap;
 
 /// Analyze a collection of string literals
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_strings(strings: &[&str]) -> StringMetrics {
     let mut metrics = StringMetrics::default();
 
@@ -377,7 +377,9 @@ fn is_domain(s: &str) -> bool {
     let lower = s.to_lowercase();
     if tlds.iter().any(|tld| lower.ends_with(tld)) {
         // Basic domain character check
-        return s.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-');
+        return s
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-');
     }
 
     false
@@ -518,5 +520,4 @@ mod tests {
         // First string should have low entropy, second higher
         assert!(metrics.avg_entropy > 0.0);
     }
-
 }

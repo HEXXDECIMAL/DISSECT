@@ -36,8 +36,10 @@ fn test_utf16le_wsh_dropper_analysis() {
     );
 
     // Should detect hostile or suspicious findings
-    let has_hostile =
-        report.findings.iter().any(|f| matches!(f.crit, dissect::Criticality::Hostile));
+    let has_hostile = report
+        .findings
+        .iter()
+        .any(|f| matches!(f.crit, dissect::Criticality::Hostile));
     let has_suspicious = report
         .findings
         .iter()
@@ -205,8 +207,10 @@ fn test_utf16be_support() {
     use tempfile::Builder;
 
     // Create a simple UTF-16 BE JavaScript file with .js extension
-    let mut temp_file =
-        Builder::new().suffix(".js").tempfile().expect("Failed to create temp file");
+    let mut temp_file = Builder::new()
+        .suffix(".js")
+        .tempfile()
+        .expect("Failed to create temp file");
 
     // UTF-16 BE BOM (FE FF) + "console.log('test');" in UTF-16 BE
     let utf16be_js = vec![
@@ -233,7 +237,9 @@ fn test_utf16be_support() {
         0x00, 0x3B, // ;
     ];
 
-    temp_file.write_all(&utf16be_js).expect("Failed to write UTF-16 BE test file");
+    temp_file
+        .write_all(&utf16be_js)
+        .expect("Failed to write UTF-16 BE test file");
     temp_file.flush().expect("Failed to flush temp file");
 
     let options = AnalysisOptions::default();
@@ -258,8 +264,10 @@ fn test_utf8_passthrough() {
     use tempfile::Builder;
 
     // Create a regular UTF-8 JavaScript file with .js extension
-    let mut temp_file =
-        Builder::new().suffix(".js").tempfile().expect("Failed to create temp file");
+    let mut temp_file = Builder::new()
+        .suffix(".js")
+        .tempfile()
+        .expect("Failed to create temp file");
     temp_file
         .write_all(b"console.log('Hello, world!');\n")
         .expect("Failed to write UTF-8 test file");

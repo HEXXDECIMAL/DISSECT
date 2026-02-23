@@ -85,7 +85,11 @@ pub(crate) fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'s
                 vec!["import_statement", "import_declaration"]
             }
             FileType::Ruby | FileType::Elixir => vec!["call"],
-            FileType::Go | FileType::Java | FileType::Swift | FileType::Groovy | FileType::Scala => {
+            FileType::Go
+            | FileType::Java
+            | FileType::Swift
+            | FileType::Groovy
+            | FileType::Scala => {
                 vec!["import_declaration"]
             }
             FileType::C | FileType::ObjectiveC => vec!["preproc_include", "preproc_import"],
@@ -245,7 +249,11 @@ pub(crate) fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'s
             | FileType::Groovy => vec!["member_expression"],
             FileType::Ruby => vec!["call"], // method calls look like attribute access
             FileType::Go => vec!["selector_expression"],
-            FileType::C | FileType::ObjectiveC | FileType::Rust | FileType::Lua | FileType::Scala => {
+            FileType::C
+            | FileType::ObjectiveC
+            | FileType::Rust
+            | FileType::Lua
+            | FileType::Scala => {
                 vec!["field_expression"]
             }
             FileType::Java | FileType::Zig => vec!["field_access"],
@@ -278,7 +286,11 @@ pub(crate) fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'s
         },
 
         "conditional" => match file_type {
-            FileType::Python | FileType::C | FileType::ObjectiveC | FileType::CSharp | FileType::Php => {
+            FileType::Python
+            | FileType::C
+            | FileType::ObjectiveC
+            | FileType::CSharp
+            | FileType::Php => {
                 vec!["if_statement", "conditional_expression"]
             }
             FileType::JavaScript | FileType::TypeScript | FileType::Java | FileType::Swift => {
@@ -296,9 +308,9 @@ pub(crate) fn map_kind_to_node_types(kind: &str, file_type: FileType) -> Vec<&'s
         },
 
         "loop" => match file_type {
-            FileType::Python
-            | FileType::Shell
-            | FileType::Groovy => vec!["for_statement", "while_statement"],
+            FileType::Python | FileType::Shell | FileType::Groovy => {
+                vec!["for_statement", "while_statement"]
+            }
             FileType::JavaScript | FileType::TypeScript => {
                 vec![
                     "for_statement",

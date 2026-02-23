@@ -13,7 +13,7 @@ const KEYBOARD_PATTERNS: &[&str] = &[
 ];
 
 /// Analyze a collection of identifiers
-#[must_use] 
+#[must_use]
 pub(crate) fn analyze_identifiers(identifiers: &[&str]) -> IdentifierMetrics {
     let mut metrics = IdentifierMetrics::default();
 
@@ -268,14 +268,15 @@ fn is_sequential(s: &str) -> bool {
     if s.len() >= 2 {
         if let Some(last) = s.chars().last() {
             if last.is_ascii_digit() {
-            let prefix: String = s.chars().take(s.len() - 1).collect();
-            // Common sequential prefixes
-            let common = [
-                "var", "tmp", "temp", "arg", "param", "item", "val", "x", "y", "z", "i", "j", "k",
-            ];
-            if common.iter().any(|p| prefix.eq_ignore_ascii_case(p)) {
-                return true;
-            }
+                let prefix: String = s.chars().take(s.len() - 1).collect();
+                // Common sequential prefixes
+                let common = [
+                    "var", "tmp", "temp", "arg", "param", "item", "val", "x", "y", "z", "i", "j",
+                    "k",
+                ];
+                if common.iter().any(|p| prefix.eq_ignore_ascii_case(p)) {
+                    return true;
+                }
             }
         }
     }
@@ -330,7 +331,7 @@ mod tests {
         assert_eq!(metrics.keyboard_pattern_names, 2);
     }
 
-#[test]
+    #[test]
     fn test_repeated_char_names() {
         let idents = vec!["aaa", "xxx", "zzz", "normal"];
         let metrics = analyze_identifiers(&idents);

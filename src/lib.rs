@@ -22,8 +22,8 @@ pub mod decoders;
 mod entropy;
 pub mod extractors;
 pub mod file_io;
-pub mod map;
 pub mod ip_validator;
+pub mod map;
 pub mod memory_tracker;
 mod radare2;
 mod strings;
@@ -41,8 +41,8 @@ pub mod diff;
 pub mod env_mapper;
 pub mod output;
 pub mod path_mapper;
-pub mod third_party_yara;
 pub mod third_party_config;
+pub mod third_party_yara;
 pub mod types;
 pub mod yara_engine;
 
@@ -50,9 +50,9 @@ pub mod yara_engine;
 pub use analyzers::{detect_file_type, Analyzer, FileType};
 pub use capabilities::CapabilityMapper;
 pub use diff::DiffAnalyzer;
-pub use types::core::{AnalysisReport, Criticality, TargetInfo};
 pub use types::binary::StringInfo;
 pub use types::code_structure::{BinaryProperties, SourceCodeMetrics};
+pub use types::core::{AnalysisReport, Criticality, TargetInfo};
 pub use types::diff::{DiffReport, ModifiedFileAnalysis};
 pub use types::scores::Metrics;
 pub use types::text_metrics::TextMetrics;
@@ -86,7 +86,10 @@ impl Default for AnalysisOptions {
     fn default() -> Self {
         Self {
             enable_third_party_yara: true,
-            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS.iter().map(std::string::ToString::to_string).collect(),
+            zip_passwords: cli::DEFAULT_ZIP_PASSWORDS
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect(),
             disable_yara: false,
             disable_radare2: false,
             disable_upx: false,
@@ -243,26 +246,18 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
     // For ELF/MachO/PE the YARA engine is NOT passed to the analyzer; YARA scanning
     // happens in the post-analysis block below via scan_file_to_findings.
     let mut report = match file_type {
-        FileType::MachO => {
-            analyzers::macho::MachOAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
-        FileType::Elf => {
-            analyzers::elf::ElfAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
-        FileType::Pe => {
-            analyzers::pe::PEAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
-        FileType::JavaClass => {
-            analyzers::java_class::JavaClassAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
+        FileType::MachO => analyzers::macho::MachOAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
+        FileType::Elf => analyzers::elf::ElfAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
+        FileType::Pe => analyzers::pe::PEAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
+        FileType::JavaClass => analyzers::java_class::JavaClassAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
         FileType::Jar | FileType::Archive => {
             let mut analyzer = analyzers::archive::ArchiveAnalyzer::new()
                 .with_capability_mapper_arc(mapper_arc.clone())
@@ -271,17 +266,13 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
                 analyzer = analyzer.with_yara(engine);
             }
             analyzer.analyze(path)?
-        },
-        FileType::PackageJson => {
-            analyzers::package_json::PackageJsonAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
-        FileType::VsixManifest => {
-            analyzers::vsix_manifest::VsixManifestAnalyzer::new()
-                .with_capability_mapper_arc(mapper_arc.clone())
-                .analyze(path)?
-        },
+        }
+        FileType::PackageJson => analyzers::package_json::PackageJsonAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
+        FileType::VsixManifest => analyzers::vsix_manifest::VsixManifestAnalyzer::new()
+            .with_capability_mapper_arc(mapper_arc.clone())
+            .analyze(path)?,
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
@@ -291,7 +282,7 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        },
+        }
     };
 
     // Add finding for extension/content mismatch if detected
@@ -324,12 +315,15 @@ pub fn analyze_file_with_mapper<P: AsRef<Path>>(
         let crit = match payload.detected_type {
             FileType::Python | FileType::Shell | FileType::Elf | FileType::MachO | FileType::Pe => {
                 types::Criticality::Suspicious
-            },
+            }
             _ => types::Criticality::Notable,
         };
 
         report.findings.push(types::Finding {
-            id: format!("metadata/encoded-payload/{}", payload.encoding_chain.join("-")),
+            id: format!(
+                "metadata/encoded-payload/{}",
+                payload.encoding_chain.join("-")
+            ),
             kind: types::FindingKind::Structural,
             desc: format!(
                 "Encoded payload detected: {}",

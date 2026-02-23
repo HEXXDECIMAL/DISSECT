@@ -81,10 +81,7 @@ impl super::CapabilityMapper {
         for exp in &report.exports {
             // Parse export offset from hex string to u64
             let offset = exp.offset.as_ref().and_then(|s| {
-                let s = s
-                    .trim()
-                    .trim_start_matches("0x")
-                    .trim_start_matches("0X");
+                let s = s.trim().trim_start_matches("0x").trim_start_matches("0X");
                 u64::from_str_radix(s, 16).ok()
             });
             all_strings.push(crate::types::StringInfo {
@@ -115,13 +112,13 @@ impl super::CapabilityMapper {
             && self
                 .raw_content_regex_index
                 .has_applicable_patterns(&applicable_indices);
-        let (raw_regex_matched_traits, _has_excessive_line_length) =
-            if raw_regex_prefilter_enabled {
-                self.raw_content_regex_index
-                    .find_matches(binary_data, &file_type)
-            } else {
-                (FxHashSet::default(), false)
-            };
+        let (raw_regex_matched_traits, _has_excessive_line_length) = if raw_regex_prefilter_enabled
+        {
+            self.raw_content_regex_index
+                .find_matches(binary_data, &file_type)
+        } else {
+            (FxHashSet::default(), false)
+        };
 
         // Evaluate only applicable traits in parallel
         // For exact string traits with cached evidence, use that directly instead of re-evaluating
@@ -154,10 +151,7 @@ impl super::CapabilityMapper {
                 let is_simple_exact_string = trait_def.downgrade.is_none()
                     && matches!(
                         &trait_def.r#if.condition,
-                        Condition::String {
-                            exact: Some(_),
-                            ..
-                        }
+                        Condition::String { exact: Some(_), .. }
                     )
                     && trait_def.r#if.count_min.unwrap_or(1) == 1
                     && trait_def.r#if.count_max.is_none()
@@ -198,8 +192,7 @@ impl super::CapabilityMapper {
                 }
 
                 // If trait has a regex string pattern and its literal wasn't found, skip it
-                if self.string_match_index.is_regex_trait(idx) && !regex_candidates.contains(&idx)
-                {
+                if self.string_match_index.is_regex_trait(idx) && !regex_candidates.contains(&idx) {
                     skip_count.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     return None;
                 }
@@ -207,10 +200,7 @@ impl super::CapabilityMapper {
                 // Check if this trait has a content-based regex/word pattern that wasn't matched
                 let has_content_regex = matches!(
                     trait_def.r#if.condition,
-                    Condition::Raw {
-                        regex: Some(_),
-                        ..
-                    } | Condition::Raw { word: Some(_), .. }
+                    Condition::Raw { regex: Some(_), .. } | Condition::Raw { word: Some(_), .. }
                 );
 
                 // Skip only when pre-filtering is enabled and this trait is indexed there.

@@ -14,7 +14,11 @@ mod tests {
     }
 
     /// Helper to create a composite rule with `any` and optional `needs`
-    fn create_any_rule(id: &str, conditions: Vec<Condition>, needs: Option<usize>) -> CompositeTrait {
+    fn create_any_rule(
+        id: &str,
+        conditions: Vec<Condition>,
+        needs: Option<usize>,
+    ) -> CompositeTrait {
         CompositeTrait {
             id: id.to_string(),
             desc: "Test rule".to_string(),
@@ -109,7 +113,11 @@ mod tests {
         // Rule with needs=1 should be filtered (low-value)
         let rules = vec![create_any_rule(
             "rule-needs-one",
-            vec![trait_ref("trait-a"), trait_ref("trait-b"), trait_ref("trait-c")],
+            vec![
+                trait_ref("trait-a"),
+                trait_ref("trait-b"),
+                trait_ref("trait-c"),
+            ],
             Some(1),
         )];
         let mapper = create_test_mapper_with_rules(rules);
@@ -141,7 +149,11 @@ mod tests {
         // Rule with needs=2 should NOT be filtered (adds value)
         let rules = vec![create_any_rule(
             "rule-needs-two",
-            vec![trait_ref("trait-a"), trait_ref("trait-b"), trait_ref("trait-c")],
+            vec![
+                trait_ref("trait-a"),
+                trait_ref("trait-b"),
+                trait_ref("trait-c"),
+            ],
             Some(2),
         )];
         let mapper = create_test_mapper_with_rules(rules);
@@ -176,8 +188,10 @@ mod tests {
     #[test]
     fn test_is_not_low_value_all_rule() {
         // Rule with `all` clause (not `any`) should NOT be filtered
-        let rules =
-            vec![create_all_rule("rule-all", vec![trait_ref("trait-a"), trait_ref("trait-b")])];
+        let rules = vec![create_all_rule(
+            "rule-all",
+            vec![trait_ref("trait-a"), trait_ref("trait-b")],
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
         assert!(
@@ -189,7 +203,11 @@ mod tests {
     #[test]
     fn test_is_not_low_value_nonexistent_rule() {
         // Non-existent rule should NOT be filtered
-        let rules = vec![create_any_rule("rule-exists", vec![trait_ref("trait-a")], None)];
+        let rules = vec![create_any_rule(
+            "rule-exists",
+            vec![trait_ref("trait-a")],
+            None,
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
         assert!(
@@ -200,7 +218,11 @@ mod tests {
 
     #[test]
     fn test_filter_low_value_any_rules_removes_single_condition() {
-        let rules = vec![create_any_rule("low-value-single", vec![trait_ref("trait-a")], None)];
+        let rules = vec![create_any_rule(
+            "low-value-single",
+            vec![trait_ref("trait-a")],
+            None,
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
         let findings = vec![
@@ -238,7 +260,11 @@ mod tests {
     fn test_filter_low_value_any_rules_keeps_needs_two() {
         let rules = vec![create_any_rule(
             "valuable-needs-two",
-            vec![trait_ref("trait-a"), trait_ref("trait-b"), trait_ref("trait-c")],
+            vec![
+                trait_ref("trait-a"),
+                trait_ref("trait-b"),
+                trait_ref("trait-c"),
+            ],
             Some(2),
         )];
         let mapper = create_test_mapper_with_rules(rules);
@@ -257,11 +283,16 @@ mod tests {
 
     #[test]
     fn test_filter_low_value_any_rules_keeps_all_rules() {
-        let rules =
-            vec![create_all_rule("valuable-all", vec![trait_ref("trait-a"), trait_ref("trait-b")])];
+        let rules = vec![create_all_rule(
+            "valuable-all",
+            vec![trait_ref("trait-a"), trait_ref("trait-b")],
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
-        let findings = vec![create_finding("valuable-all"), create_finding("other-finding")];
+        let findings = vec![
+            create_finding("valuable-all"),
+            create_finding("other-finding"),
+        ];
 
         let filtered = mapper.filter_low_value_any_rules(findings);
 
@@ -274,10 +305,18 @@ mod tests {
     fn test_filter_low_value_any_rules_mixed_findings() {
         let rules = vec![
             create_any_rule("low-value-1", vec![trait_ref("trait-a")], None),
-            create_any_rule("low-value-2", vec![trait_ref("trait-b"), trait_ref("trait-c")], Some(1)),
+            create_any_rule(
+                "low-value-2",
+                vec![trait_ref("trait-b"), trait_ref("trait-c")],
+                Some(1),
+            ),
             create_any_rule(
                 "valuable-1",
-                vec![trait_ref("trait-d"), trait_ref("trait-e"), trait_ref("trait-f")],
+                vec![
+                    trait_ref("trait-d"),
+                    trait_ref("trait-e"),
+                    trait_ref("trait-f"),
+                ],
                 Some(2),
             ),
             create_all_rule("valuable-2", vec![trait_ref("trait-g")]),
@@ -304,7 +343,11 @@ mod tests {
 
     #[test]
     fn test_filter_low_value_any_rules_empty_findings() {
-        let rules = vec![create_any_rule("low-value", vec![trait_ref("trait-a")], None)];
+        let rules = vec![create_any_rule(
+            "low-value",
+            vec![trait_ref("trait-a")],
+            None,
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
         let findings = vec![];
@@ -344,7 +387,11 @@ mod tests {
 
     #[test]
     fn test_filter_low_value_any_rules_handles_duplicates() {
-        let rules = vec![create_any_rule("low-value", vec![trait_ref("trait-a")], None)];
+        let rules = vec![create_any_rule(
+            "low-value",
+            vec![trait_ref("trait-a")],
+            None,
+        )];
         let mapper = create_test_mapper_with_rules(rules);
 
         // Multiple findings with same ID (shouldn't happen in practice, but test robustness)

@@ -6,7 +6,7 @@ use crate::types::*;
 use std::collections::HashMap;
 
 /// Extract paths from strings and categorize them
-#[must_use] 
+#[must_use]
 pub(crate) fn extract_paths_from_strings(strings: &[StringInfo]) -> Vec<PathInfo> {
     let mut paths = Vec::new();
 
@@ -140,7 +140,7 @@ fn classify_path_category(path: &str) -> PathCategory {
 }
 
 /// Group paths by directory
-#[must_use] 
+#[must_use]
 pub(crate) fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess> {
     let mut dir_map: HashMap<String, Vec<&PathInfo>> = HashMap::new();
 
@@ -161,7 +161,12 @@ pub(crate) fn group_into_directories(paths: &[PathInfo]) -> Vec<DirectoryAccess>
 
         let files: Vec<String> = dir_paths
             .iter()
-            .map(|p| p.path.trim_start_matches(&dir).trim_start_matches('/').to_string())
+            .map(|p| {
+                p.path
+                    .trim_start_matches(&dir)
+                    .trim_start_matches('/')
+                    .to_string()
+            })
             .collect();
 
         let file_count = files.len();
@@ -215,8 +220,10 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
     }
 
     // Check for batch operations (all same operation)
-    let access_types: std::collections::HashSet<_> =
-        paths.iter().filter_map(|p| p.access_type.as_ref()).collect();
+    let access_types: std::collections::HashSet<_> = paths
+        .iter()
+        .filter_map(|p| p.access_type.as_ref())
+        .collect();
 
     if access_types.len() == 1 && files.len() > 2 {
         if let Some(op_type) = access_types.iter().next() {
@@ -231,7 +238,7 @@ fn determine_access_pattern(files: &[String], paths: &[&PathInfo]) -> DirectoryA
 }
 
 /// Generate traits from path patterns
-#[must_use] 
+#[must_use]
 pub(crate) fn generate_traits_from_paths(paths: &[PathInfo]) -> Vec<Finding> {
     let mut traits = Vec::new();
 
@@ -309,7 +316,11 @@ pub(crate) fn analyze_and_link_paths(report: &mut AnalysisReport) {
     let mut updated_directories = directories;
     for dir in &mut updated_directories {
         for trait_obj in &new_traits {
-            if trait_obj.evidence.iter().any(|e| e.location.as_ref() == Some(&dir.directory)) {
+            if trait_obj
+                .evidence
+                .iter()
+                .any(|e| e.location.as_ref() == Some(&dir.directory))
+            {
                 dir.generated_traits.push(trait_obj.id.clone());
             }
         }
@@ -530,7 +541,9 @@ mod tests {
 
         let traits = detect_platform_from_paths(&paths);
 
-        assert!(traits.iter().any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
+        assert!(traits
+            .iter()
+            .any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
     }
 
     #[test]

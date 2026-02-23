@@ -55,7 +55,7 @@ pub(crate) fn extract_imports(source: &str, file_type: &FileType, report: &mut A
                 tree_sitter_javascript::LANGUAGE.into()
             };
             (lang, extract_js_import)
-        },
+        }
         FileType::Lua => (tree_sitter_lua::LANGUAGE.into(), extract_lua_import),
         FileType::Go => (tree_sitter_go::LANGUAGE.into(), extract_go_import),
         FileType::Perl => (tree_sitter_perl::LANGUAGE.into(), extract_perl_import),
@@ -144,13 +144,19 @@ fn extract_python_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Opt
         "import_statement" => {
             // import foo.bar -> extract "foo.bar"
             let name_node = node.child_by_field_name("name")?;
-            name_node.utf8_text(source).ok().map(std::string::ToString::to_string)
-        },
+            name_node
+                .utf8_text(source)
+                .ok()
+                .map(std::string::ToString::to_string)
+        }
         "import_from_statement" => {
             // from foo.bar import baz -> extract "foo.bar"
             let module_node = node.child_by_field_name("module_name")?;
-            module_node.utf8_text(source).ok().map(std::string::ToString::to_string)
-        },
+            module_node
+                .utf8_text(source)
+                .ok()
+                .map(std::string::ToString::to_string)
+        }
         _ => None,
     }
 }
@@ -205,7 +211,10 @@ fn extract_perl_import<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
     for i in 0..node.child_count() {
         if let Some(child) = node.child(i as u32) {
             if child.kind() == "package_name" || child.kind() == "bareword" {
-                return child.utf8_text(source).ok().map(std::string::ToString::to_string);
+                return child
+                    .utf8_text(source)
+                    .ok()
+                    .map(std::string::ToString::to_string);
             }
         }
     }
@@ -293,7 +302,10 @@ fn extract_calls<'a>(
         if call_types.contains(&node_type) {
             if let Some(func_name) = extract_function_name(&node, source) {
                 // Clean up the function name
-                let clean_name = func_name.trim().trim_start_matches('_').trim_start_matches('$');
+                let clean_name = func_name
+                    .trim()
+                    .trim_start_matches('_')
+                    .trim_start_matches('$');
                 if !clean_name.is_empty() && clean_name.len() < 100 {
                     symbols.insert(clean_name.to_string());
                 }
@@ -362,7 +374,10 @@ fn get_full_identifier<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
             | "string"
             | "string_literal"
     ) {
-        return node.utf8_text(source).ok().map(std::string::ToString::to_string);
+        return node
+            .utf8_text(source)
+            .ok()
+            .map(std::string::ToString::to_string);
     }
 
     // Recursive case: member/selector expressions
@@ -406,7 +421,6 @@ fn get_full_identifier<'a>(node: &tree_sitter::Node<'a>, source: &[u8]) -> Optio
 
     None
 }
-
 
 #[cfg(test)]
 mod tests {

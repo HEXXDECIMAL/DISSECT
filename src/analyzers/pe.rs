@@ -54,7 +54,10 @@ impl PEAnalyzer {
 
     /// Create analyzer with shared capability mapper (avoids cloning)
     #[must_use]
-    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    pub(crate) fn with_capability_mapper_arc(
+        mut self,
+        capability_mapper: Arc<CapabilityMapper>,
+    ) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -71,7 +74,11 @@ impl PEAnalyzer {
     /// Overlay analysis (self-extracting archives) still runs and uses the YARA engine
     /// stored in this analyzer if set. Callers are responsible for running the main YARA
     /// scan and calling `evaluate_and_merge_findings` on the returned report.
-    pub(crate) fn analyze_structural(&self, file_path: &Path, data: &[u8]) -> Result<AnalysisReport> {
+    pub(crate) fn analyze_structural(
+        &self,
+        file_path: &Path,
+        data: &[u8],
+    ) -> Result<AnalysisReport> {
         let start = std::time::Instant::now();
 
         // Parse with goblin
@@ -116,7 +123,9 @@ impl PEAnalyzer {
             let has_symbols = !pe.imports.is_empty();
             if let Ok(batched) = self.radare2.extract_batched(file_path, has_symbols) {
                 // Compute metrics from batched data
-                let mut binary_metrics = self.radare2.compute_metrics_from_batched(&batched, data.len() as u64);
+                let mut binary_metrics = self
+                    .radare2
+                    .compute_metrics_from_batched(&batched, data.len() as u64);
 
                 // Override code_size with goblin-based calculation (more accurate)
                 // In PE, only sections with IMAGE_SCN_MEM_EXECUTE characteristic contain executable code
@@ -285,7 +294,10 @@ impl PEAnalyzer {
                     // Merge archive contents with proper path encoding
                     for mut entry in overlay_analysis.archive_report.archive_contents {
                         // Encode path using standard archive delimiter
-                        if !entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER) {
+                        if !entry
+                            .path
+                            .contains(crate::types::file_analysis::ARCHIVE_DELIMITER)
+                        {
                             entry.path = crate::types::file_analysis::encode_archive_path(
                                 pe_filename,
                                 &entry.path,
@@ -295,7 +307,9 @@ impl PEAnalyzer {
                     }
 
                     // Merge strings from archive
-                    report.strings.extend(overlay_analysis.archive_report.strings);
+                    report
+                        .strings
+                        .extend(overlay_analysis.archive_report.strings);
 
                     // Add tools used from archive analysis
                     for tool in overlay_analysis.archive_report.metadata.tools_used {
@@ -303,14 +317,14 @@ impl PEAnalyzer {
                             tools_used.push(tool);
                         }
                     }
-                },
+                }
                 Ok(None) => {
                     // Overlay exists but is not an archive (signature, resources, etc.)
-                },
+                }
                 Err(_e) => {
                     // Overlay extraction/analysis failed - silently skip
                     // (could be corrupted archive, unsupported format, etc.)
-                },
+                }
             }
         }
 
@@ -326,7 +340,10 @@ impl PEAnalyzer {
             desc: format!(
                 "PE file (machine: {}, subsystem: {:?})",
                 self.arch_name(pe),
-                pe.header.optional_header.as_ref().map(|h| h.windows_fields.subsystem)
+                pe.header
+                    .optional_header
+                    .as_ref()
+                    .map(|h| h.windows_fields.subsystem)
             ),
             evidence: vec![Evidence {
                 method: "header".to_string(),
@@ -363,7 +380,6 @@ impl PEAnalyzer {
                 }],
             });
         }
-
     }
 
     fn analyze_imports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) {
@@ -381,7 +397,6 @@ impl PEAnalyzer {
                 }
             }
         }
-
     }
 
     fn analyze_exports<'a>(&self, pe: &PE<'a>, report: &mut AnalysisReport) {
@@ -394,18 +409,13 @@ impl PEAnalyzer {
                 ));
             }
         }
-
     }
 
-    fn analyze_sections<'a>(
-        &self,
-        pe: &PE<'a>,
-        data: &[u8],
-        report: &mut AnalysisReport,
-    ) {
+    fn analyze_sections<'a>(&self, pe: &PE<'a>, data: &[u8], report: &mut AnalysisReport) {
         for section in &pe.sections {
-            let name =
-                String::from_utf8_lossy(&section.name).trim_matches(char::from(0)).to_string();
+            let name = String::from_utf8_lossy(&section.name)
+                .trim_matches(char::from(0))
+                .to_string();
             let size = section.size_of_raw_data as u64;
             let offset = section.pointer_to_raw_data as u64;
 
@@ -452,7 +462,6 @@ impl PEAnalyzer {
             // NOTE: W^X section detection moved to YAML:
             // - traits/objectives/anti-static/hardening/memory/wx-sections.yaml
         }
-
     }
 
     fn arch_name<'a>(&self, pe: &PE<'a>) -> String {
@@ -606,7 +615,8 @@ impl Analyzer for PEAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = fs::read(file_path).context("Failed to read file")?;
         let mut report = self.analyze_structural(file_path, &data)?;
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, &data, None, None);
         Ok(report)
     }
 
@@ -787,7 +797,10 @@ mod tests {
 
         // Should detect the self-extracting archive
         assert!(
-            report.findings.iter().any(|f| f.id.contains("self-extracting")),
+            report
+                .findings
+                .iter()
+                .any(|f| f.id.contains("self-extracting")),
             "Should detect self-extracting archive"
         );
 
@@ -810,7 +823,9 @@ mod tests {
         // All archive content paths should use standard archive delimiter
         for entry in &report.archive_contents {
             assert!(
-                entry.path.contains(crate::types::file_analysis::ARCHIVE_DELIMITER),
+                entry
+                    .path
+                    .contains(crate::types::file_analysis::ARCHIVE_DELIMITER),
                 "Archive path should use '!!': {}",
                 entry.path
             );

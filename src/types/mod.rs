@@ -57,8 +57,8 @@ pub use core::{AnalysisReport, ArchiveEntry, Criticality, TargetInfo};
 
 #[allow(unused_imports)]
 pub(crate) use file_analysis::{
-    encode_archive_path, encode_decoded_path, FileAnalysis, FindingCounts,
-    ReportSummary, ARCHIVE_DELIMITER, ENCODING_DELIMITER,
+    encode_archive_path, encode_decoded_path, FileAnalysis, FindingCounts, ReportSummary,
+    ARCHIVE_DELIMITER, ENCODING_DELIMITER,
 };
 
 #[allow(unused_imports)]
@@ -162,7 +162,12 @@ impl SampleExtractionConfig {
     ///
     /// Skips writing if file already exists with correct size (optimization for
     /// repeated scans with the same extract directory).
-    pub(crate) fn extract(&self, file_sha256: &str, relative_path: &str, data: &[u8]) -> Option<PathBuf> {
+    pub(crate) fn extract(
+        &self,
+        file_sha256: &str,
+        relative_path: &str,
+        data: &[u8],
+    ) -> Option<PathBuf> {
         // Use archive SHA256 if set, otherwise use the individual file's SHA256
         let sha256 = self.archive_sha256.as_deref().unwrap_or(file_sha256);
 

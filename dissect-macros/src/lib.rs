@@ -55,7 +55,7 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
                             }
                         })
                         .collect::<Vec<_>>()
-                },
+                }
                 _ => {
                     return syn::Error::new_spanned(
                         name,
@@ -63,9 +63,9 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
                     )
                     .to_compile_error()
                     .into();
-                },
+                }
             }
-        },
+        }
         _ => {
             return syn::Error::new_spanned(
                 name,
@@ -73,7 +73,7 @@ pub fn derive_valid_field_paths(input: TokenStream) -> TokenStream {
             )
             .to_compile_error()
             .into();
-        },
+        }
     };
 
     // Generate the implementation

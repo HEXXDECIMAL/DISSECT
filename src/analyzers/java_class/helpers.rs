@@ -98,7 +98,7 @@ impl super::JavaClassAnalyzer {
                     }
                 }
                 class_name.replace('/', ".")
-            },
+            }
             _ => "unknown".to_string(),
         }
     }
@@ -140,11 +140,11 @@ impl super::JavaClassAnalyzer {
                     // Object type - skip until ';'
                     while chars.next() != Some(';') {}
                     count += 1;
-                },
+                }
                 Some('B' | 'C' | 'D' | 'F' | 'I' | 'J' | 'S' | 'Z') => {
                     chars.next();
                     count += 1;
-                },
+                }
                 _ => break,
             }
         }

@@ -32,7 +32,7 @@ fn offset_in_range(offset: Option<u64>, range: Option<(u64, u64)>) -> bool {
 // Helper functions moved to mod.rs
 
 /// Evaluate symbol condition - matches symbols in imports/exports.
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_symbol<'a>(
     exact: Option<&String>,
     substr: Option<&String>,
@@ -55,7 +55,7 @@ pub(crate) fn eval_symbol<'a>(
                 evidence: Vec::new(),
                 warnings: Vec::new(),
                 precision: 0.0,
-            matched_trait_ids: Vec::new(),
+                matched_trait_ids: Vec::new(),
             };
         }
     }
@@ -178,7 +178,7 @@ fn symbol_matches_condition(
 /// as well as imports and exports if they match the string criteria.
 ///
 /// For searching raw file content, use `eval_raw()` instead.
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_string<'a, 'b>(
     params: &StringParams<'a>,
     trait_not: Option<&Vec<NotException>>,
@@ -221,7 +221,7 @@ pub(crate) fn eval_string<'a, 'b>(
                         off as u64
                     };
                     Some((resolved, resolved + 1))
-                },
+                }
                 (None, Some((start, end_opt))) => {
                     let file_size = ctx.binary_data.len() as i64;
                     let resolved_start = if start < 0 {
@@ -235,7 +235,7 @@ pub(crate) fn eval_string<'a, 'b>(
                         None => file_size as u64,
                     };
                     Some((resolved_start, resolved_end))
-                },
+                }
                 _ => None, // Section constraints without SectionMap - no filtering
             }
         }
@@ -399,7 +399,10 @@ pub(crate) fn eval_string<'a, 'b>(
 /// Returns true if the pattern contains only ASCII characters and doesn't use Unicode escapes.
 #[inline]
 fn can_use_byte_matching(pattern: &str) -> bool {
-    pattern.is_ascii() && !pattern.contains("\\u") && !pattern.contains("\\p") && !pattern.contains("\\P")
+    pattern.is_ascii()
+        && !pattern.contains("\\u")
+        && !pattern.contains("\\p")
+        && !pattern.contains("\\P")
 }
 
 /// Used by `type: raw` conditions to search raw file content rather than extracted strings.
@@ -461,7 +464,8 @@ pub(crate) fn eval_raw<'a>(
                 .ok();
 
             #[allow(clippy::redundant_closure_for_method_calls)]
-            if let Some(super::CachedRegex::Bytes(bytes_re)) = bytes_re.as_ref().map(|r| r.value()) {
+            if let Some(super::CachedRegex::Bytes(bytes_re)) = bytes_re.as_ref().map(|r| r.value())
+            {
                 let mut first_match = None;
                 for (idx, mat) in bytes_re.find_iter(search_data).enumerate() {
                     if idx >= MAX_MATCHES_TO_PROCESS {
@@ -671,7 +675,9 @@ pub(crate) fn eval_raw<'a>(
                     if case_insensitive {
                         let pattern_lower = substr_str.to_ascii_lowercase();
                         let needle = pattern_lower.as_bytes();
-                        match_count = memchr::memmem::find_iter(&search_data.to_ascii_lowercase(), needle).count();
+                        match_count =
+                            memchr::memmem::find_iter(&search_data.to_ascii_lowercase(), needle)
+                                .count();
                     } else {
                         let needle = substr_str.as_bytes();
                         match_count = memchr::memmem::find_iter(search_data, needle).count();
@@ -825,7 +831,7 @@ pub(crate) fn eval_raw<'a>(
 /// # Pattern Matching
 /// Supports exact, substr, regex, and word boundary matching
 #[allow(clippy::too_many_arguments)]
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_encoded<'a>(
     encoding: Option<&crate::composite_rules::condition::EncodingSpec>,
     exact: Option<&String>,
@@ -880,15 +886,15 @@ pub(crate) fn eval_encoded<'a>(
             None => {
                 // No filter: match ANY encoded string (non-empty encoding_chain)
                 !enc_chain.is_empty()
-            },
+            }
             Some(EncodingSpec::Single(enc)) => {
                 // Single encoding: must be in the chain
                 enc_chain.contains(enc)
-            },
+            }
             Some(EncodingSpec::Multiple(encodings)) => {
                 // Multiple encodings: match if ANY encoding is in the chain (OR logic)
                 encodings.iter().any(|enc| enc_chain.contains(enc))
-            },
+            }
         }
     };
 
@@ -919,7 +925,10 @@ pub(crate) fn eval_encoded<'a>(
         if !matches {
             if let Some(substr_str) = substr {
                 matches = if case_insensitive {
-                    string_info.value.to_lowercase().contains(&substr_str.to_lowercase())
+                    string_info
+                        .value
+                        .to_lowercase()
+                        .contains(&substr_str.to_lowercase())
                 } else {
                     string_info.value.contains(substr_str.as_str())
                 };
@@ -993,7 +1002,7 @@ pub(crate) fn eval_encoded<'a>(
 /// Helper to search encoded strings (with given encoding in chain) for patterns.
 #[allow(clippy::too_many_arguments)]
 /// Evaluate string count condition - check if string count is within bounds.
-#[must_use] 
+#[must_use]
 pub(crate) fn eval_string_count<'a>(
     min: Option<usize>,
     max: Option<usize>,
@@ -1043,7 +1052,6 @@ pub(crate) fn eval_string_count<'a>(
         },
         warnings: Vec::new(),
         precision: 0.0,
-    matched_trait_ids: Vec::new(),
+        matched_trait_ids: Vec::new(),
     }
 }
-

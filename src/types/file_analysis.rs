@@ -136,7 +136,7 @@ pub struct FileAnalysis {
 
 impl FileAnalysis {
     /// Create a new FileAnalysis with minimal required fields
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new(id: u32, path: String, file_type: String, sha256: String, size: u64) -> Self {
         Self {
             id,
@@ -169,7 +169,7 @@ impl FileAnalysis {
         }
     }
 
-/// Compute risk and counts from findings
+    /// Compute risk and counts from findings
     pub(crate) fn compute_summary(&mut self) {
         if self.findings.is_empty() {
             self.risk = None;
@@ -185,7 +185,7 @@ impl FileAnalysis {
                 Criticality::Hostile => counts.hostile += 1,
                 Criticality::Suspicious => counts.suspicious += 1,
                 Criticality::Notable => counts.notable += 1,
-                _ => {},
+                _ => {}
             }
             if finding.crit > max_crit {
                 max_crit = finding.crit;
@@ -259,7 +259,7 @@ pub struct ReportSummary {
 
 impl ReportSummary {
     /// Compute summary from files array
-    #[must_use] 
+    #[must_use]
     pub(crate) fn from_files(files: &[FileAnalysis]) -> Self {
         let mut summary = Self {
             files_analyzed: files.len() as u32,
@@ -296,7 +296,7 @@ impl ReportSummary {
 /// Encode an archive member path
 ///
 /// Example: encode_archive_path("foo.zip", "inner/file.py") -> "foo.zip!!inner/file.py"
-#[must_use] 
+#[must_use]
 pub(crate) fn encode_archive_path(parent: &str, member: &str) -> String {
     format!("{}{}{}", parent, ARCHIVE_DELIMITER, member)
 }
@@ -304,7 +304,7 @@ pub(crate) fn encode_archive_path(parent: &str, member: &str) -> String {
 /// Encode a decoded content path
 ///
 /// Example: encode_decoded_path("file.py", &["base64", "gzip"], 1234) -> "file.py##base64+gzip@1234"
-#[must_use] 
+#[must_use]
 pub(crate) fn encode_decoded_path(parent: &str, encoding: &[String], offset: usize) -> String {
     let encoding_str = encoding.join("+");
     format!(
@@ -312,8 +312,6 @@ pub(crate) fn encode_decoded_path(parent: &str, encoding: &[String], offset: usi
         parent, ENCODING_DELIMITER, encoding_str, offset
     )
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -642,7 +640,6 @@ mod tests {
             "file.py##base64+gzip@1234"
         );
     }
-
 
     #[test]
     fn test_finding_counts() {

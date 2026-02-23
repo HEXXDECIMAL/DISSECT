@@ -143,7 +143,9 @@ fn test_eval_structure_no_match() {
 #[test]
 fn test_eval_trait_exact_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("execution/process/spawn"));
+    report
+        .findings
+        .push(create_test_finding("execution/process/spawn"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -161,7 +163,9 @@ fn test_eval_trait_exact_match() {
 #[test]
 fn test_eval_trait_suffix_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("execution/process/terminate"));
+    report
+        .findings
+        .push(create_test_finding("execution/process/terminate"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -222,7 +226,9 @@ fn test_eval_trait_additional_findings() {
 #[test]
 fn test_eval_trait_no_match() {
     let mut report = create_test_report("/test/binary");
-    report.findings.push(create_test_finding("execution/shell/bash"));
+    report
+        .findings
+        .push(create_test_finding("execution/shell/bash"));
     let data = vec![];
     let ctx = EvaluationContext::new(
         &report,
@@ -374,4 +380,3 @@ fn test_eval_basename_no_pattern() {
     let result = eval_basename(None, None, None, false, &ctx);
     assert!(!result.matched);
 }
-

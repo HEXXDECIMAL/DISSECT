@@ -287,10 +287,10 @@ mod tests {
         match result {
             Err(UPXError::NotInstalled) => {
                 // UPX not installed - this is acceptable
-            },
+            }
             Err(UPXError::DecompressionFailed(_)) => {
                 // UPX installed but file is not UPX-packed - expected
-            },
+            }
             _ => panic!("Expected NotInstalled or DecompressionFailed error"),
         }
     }

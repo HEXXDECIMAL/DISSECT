@@ -240,7 +240,9 @@ fn test_exotic_arch_mips_trait() {
         if let Some(target) = json.get("target") {
             if let Some(archs) = target.get("architectures").and_then(|a| a.as_array()) {
                 let is_mips = archs.iter().any(|a| {
-                    a.as_str().map(|s| s.to_lowercase().contains("mips")).unwrap_or(false)
+                    a.as_str()
+                        .map(|s| s.to_lowercase().contains("mips"))
+                        .unwrap_or(false)
                 });
                 if is_mips {
                     eprintln!("Detected MIPS architecture");

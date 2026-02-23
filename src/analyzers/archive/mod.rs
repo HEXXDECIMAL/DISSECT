@@ -86,7 +86,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Set the path prefix for nested archive paths (used for recursion)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_archive_prefix(mut self, prefix: String) -> Self {
         self.archive_path_prefix = Some(prefix);
         self
@@ -100,7 +100,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper_arc(mut self, mapper: Arc<CapabilityMapper>) -> Self {
         self.capability_mapper = Some(mapper);
         self
@@ -114,7 +114,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Set YARA engine from an existing Arc (for nested analyzers)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_yara_arc(mut self, engine: Arc<YaraEngine>) -> Self {
         self.yara_engine = Some(engine);
         self
@@ -128,7 +128,7 @@ impl ArchiveAnalyzer {
     }
 
     /// Set passwords from an existing Arc (for nested analyzers)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_zip_passwords_arc(mut self, passwords: Arc<[String]>) -> Self {
         self.zip_passwords = passwords;
         self
@@ -194,7 +194,11 @@ impl ArchiveAnalyzer {
     /// # Returns
     /// The full `AnalysisReport` with aggregated results
     #[allow(dead_code)] // Used by binary target
-    pub(crate) fn analyze_streaming<F>(&self, file_path: &Path, on_file: F) -> Result<AnalysisReport>
+    pub(crate) fn analyze_streaming<F>(
+        &self,
+        file_path: &Path,
+        on_file: F,
+    ) -> Result<AnalysisReport>
     where
         F: Fn(&FileAnalysis) + Send + Sync,
     {
@@ -231,7 +235,10 @@ impl ArchiveAnalyzer {
         };
 
         let mut report = AnalysisReport::new(target);
-        report.metadata.tools_used.push("streaming_analyzer".to_string());
+        report
+            .metadata
+            .tools_used
+            .push("streaming_analyzer".to_string());
 
         // Track aggregate data incrementally (instead of accumulating all files)
         let files_analyzed = std::sync::Arc::new(std::sync::atomic::AtomicU32::new(0));
@@ -288,7 +295,7 @@ impl ArchiveAnalyzer {
                         update_aggregates(nested);
                     }
                 })?
-            },
+            }
             "zip" | "jar" | "war" | "ear" | "aar" | "egg" | "whl" | "phar" | "nupkg" | "vsix"
             | "xpi" | "ipa" | "epub" => {
                 self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
@@ -303,7 +310,7 @@ impl ArchiveAnalyzer {
                         update_aggregates(nested);
                     }
                 })?
-            },
+            }
             // Handle "apk" that wasn't resolved by magic (fallback to zip for Android)
             "apk" => self.analyze_zip_streaming(file_path, |result: StreamingFileResult| {
                 on_file(&result.file_analysis);
@@ -356,7 +363,7 @@ impl ArchiveAnalyzer {
             _ => {
                 // Fall back to non-streaming for unsupported formats (rar, pkg)
                 return self.analyze_archive(file_path);
-            },
+            }
         };
 
         // Add hostile findings from extraction
@@ -632,30 +639,32 @@ impl ArchiveAnalyzer {
             "crx" => zip::extract_crx_safe(archive_path, dest_dir, guard),
             "7z" => {
                 system_packages::extract_7z_safe(archive_path, dest_dir, guard, &self.zip_passwords)
-            },
+            }
             "tar" => tar::extract_tar_safe(archive_path, dest_dir, None, guard),
             "tar.gz" | "tgz" => tar::extract_tar_safe(archive_path, dest_dir, Some("gzip"), guard),
             "tar.bz2" | "tbz" | "tbz2" => {
                 tar::extract_tar_safe(archive_path, dest_dir, Some("bzip2"), guard)
-            },
+            }
             "tar.xz" | "txz" => tar::extract_tar_safe(archive_path, dest_dir, Some("xz"), guard),
             "tar.zst" | "tzst" => {
                 tar::extract_tar_safe(archive_path, dest_dir, Some("zstd"), guard)
-            },
+            }
             "xz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "xz", guard),
             "gz" => system_packages::extract_compressed_safe(archive_path, dest_dir, "gzip", guard),
             "zst" => {
                 system_packages::extract_compressed_safe(archive_path, dest_dir, "zstd", guard)
-            },
+            }
             "bz2" => {
                 system_packages::extract_compressed_safe(archive_path, dest_dir, "bzip2", guard)
-            },
+            }
             "deb" => system_packages::extract_deb_safe(archive_path, dest_dir, guard),
             "rpm" => system_packages::extract_rpm(archive_path, dest_dir, guard),
             "pkg" => system_packages::extract_pkg_safe(archive_path, dest_dir, guard),
             "rar" => system_packages::extract_rar(archive_path, dest_dir, guard),
             // Handle zip and ambiguous "apk" that wasn't resolved by magic detection
-            "zip" | "apk" => zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords),
+            "zip" | "apk" => {
+                zip::extract_zip_safe(archive_path, dest_dir, guard, &self.zip_passwords)
+            }
             _ => anyhow::bail!("Unsupported archive type: {}", archive_type),
         }
     }
@@ -1131,7 +1140,10 @@ mod tests {
         assert!(result.is_ok());
         let report = result.unwrap();
         assert_eq!(report.target.file_type, "zip");
-        assert!(report.structure.iter().any(|s| s.id.starts_with("archive/")));
+        assert!(report
+            .structure
+            .iter()
+            .any(|s| s.id.starts_with("archive/")));
     }
 
     #[test]
@@ -1152,7 +1164,10 @@ mod tests {
 
         let result = analyzer.analyze(&zip_path);
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("Maximum archive depth"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Maximum archive depth"));
     }
 
     #[test]
@@ -1216,7 +1231,10 @@ mod tests {
         let analyzer = ArchiveAnalyzer::new().with_zip_passwords(vec!["wrongpass".to_string()]);
         let result = analyzer.analyze(&zip_path);
         assert!(result.is_err(), "Should fail with wrong password");
-        assert!(result.unwrap_err().to_string().contains("tried 1 passwords"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("tried 1 passwords"));
     }
 
     #[test]
@@ -1369,7 +1387,9 @@ mod tests {
 
         // Verify hostile reason was recorded
         let reasons = guard.take_reasons();
-        assert!(reasons.iter().any(|r| matches!(r, HostileArchiveReason::ExcessiveFileCount(_))));
+        assert!(reasons
+            .iter()
+            .any(|r| matches!(r, HostileArchiveReason::ExcessiveFileCount(_))));
     }
 
     #[test]
@@ -1383,7 +1403,9 @@ mod tests {
         assert!(!guard.check_compression_ratio(100, 100_000)); // 1000:1
 
         let reasons = guard.take_reasons();
-        assert!(reasons.iter().any(|r| matches!(r, HostileArchiveReason::ZipBomb { .. })));
+        assert!(reasons
+            .iter()
+            .any(|r| matches!(r, HostileArchiveReason::ZipBomb { .. })));
     }
     #[test]
     fn test_nested_archive_zip_containing_tar_gz() {
@@ -1439,11 +1461,17 @@ mod tests {
         );
 
         // Should have entry for inner.tar.gz
-        let has_inner = report.archive_contents.iter().any(|e| e.path == "inner.tar.gz");
+        let has_inner = report
+            .archive_contents
+            .iter()
+            .any(|e| e.path == "inner.tar.gz");
         assert!(has_inner, "Should have inner.tar.gz entry");
 
         // Should have entry for nested script with ! separator
-        let has_nested = report.archive_contents.iter().any(|e| e.path == "inner.tar.gz!script.sh");
+        let has_nested = report
+            .archive_contents
+            .iter()
+            .any(|e| e.path == "inner.tar.gz!script.sh");
         assert!(
             has_nested,
             "Should have nested entry with ! separator: {:?}",
@@ -1495,7 +1523,10 @@ mod tests {
         let result = at_max.analyze(&zip_path);
         assert!(result.is_err(), "Should fail at max depth");
         assert!(
-            result.unwrap_err().to_string().contains("Maximum archive depth"),
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Maximum archive depth"),
             "Error should mention depth"
         );
     }
@@ -1537,8 +1568,14 @@ mod tests {
         assert!(!report.archive_contents.is_empty());
 
         // Verify files were extracted and analyzed
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("package.json")));
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("index.js")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("package.json")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("index.js")));
     }
 
     #[test]
@@ -1567,7 +1604,10 @@ mod tests {
         assert!(result.is_ok());
         let report = result.unwrap();
         assert!(!report.archive_contents.is_empty());
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("background.js")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("background.js")));
     }
 
     #[test]
@@ -1581,10 +1621,12 @@ mod tests {
         let options = zip::write::FileOptions::<()>::default()
             .compression_method(zip::CompressionMethod::Deflated);
 
-        zip.start_file("Payload/App.app/Info.plist", options).unwrap();
+        zip.start_file("Payload/App.app/Info.plist", options)
+            .unwrap();
         std::io::Write::write_all(&mut zip, b"<?xml version=\"1.0\"?>").unwrap();
 
-        zip.start_file("Payload/App.app/executable", options).unwrap();
+        zip.start_file("Payload/App.app/executable", options)
+            .unwrap();
         std::io::Write::write_all(&mut zip, b"\x00\x00\x00\x00").unwrap();
 
         zip.finish().unwrap();
@@ -1594,7 +1636,10 @@ mod tests {
 
         assert!(result.is_ok());
         let report = result.unwrap();
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("Info.plist")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("Info.plist")));
     }
 
     #[test]
@@ -1676,7 +1721,10 @@ mod tests {
         let report = result.unwrap();
         assert_eq!(report.target.file_type, "crx");
         assert!(!report.archive_contents.is_empty());
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("manifest.json")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("manifest.json")));
     }
 
     #[test]
@@ -1706,7 +1754,10 @@ mod tests {
         let report = result.unwrap();
 
         // Path traversal file should not be in archive_contents
-        assert!(!report.archive_contents.iter().any(|e| e.path.contains("etc/evil")));
+        assert!(!report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("etc/evil")));
 
         // Should have detected path traversal
         assert!(report
@@ -1730,7 +1781,8 @@ mod tests {
         zip.start_file("package/__init__.py", options).unwrap();
         std::io::Write::write_all(&mut zip, b"import os; os.system('evil')").unwrap();
 
-        zip.start_file("package-1.0.0.dist-info/METADATA", options).unwrap();
+        zip.start_file("package-1.0.0.dist-info/METADATA", options)
+            .unwrap();
         std::io::Write::write_all(&mut zip, b"Name: package").unwrap();
 
         zip.finish().unwrap();
@@ -1741,7 +1793,10 @@ mod tests {
         assert!(result.is_ok());
         let report = result.unwrap();
         assert!(!report.archive_contents.is_empty());
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("__init__.py")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("__init__.py")));
     }
 
     #[test]
@@ -1771,7 +1826,10 @@ mod tests {
         let report = result.unwrap();
         assert_eq!(report.target.file_type, "7z");
         assert!(!report.archive_contents.is_empty());
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("test.txt")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("test.txt")));
     }
 
     #[test]
@@ -1805,7 +1863,10 @@ mod tests {
         );
         let report = result.unwrap();
         assert!(!report.archive_contents.is_empty());
-        assert!(report.archive_contents.iter().any(|e| e.path.contains("test.txt")));
+        assert!(report
+            .archive_contents
+            .iter()
+            .any(|e| e.path.contains("test.txt")));
     }
 
     #[test]
@@ -1838,9 +1899,10 @@ mod tests {
         let report = result.unwrap();
 
         // Should have detected excessive file size
-        assert!(
-            report.findings.iter().any(|f| f.id == "anti-analysis/archive/large-file"
-                && f.desc.contains("excessively large file"))
-        );
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.id == "anti-analysis/archive/large-file"
+                && f.desc.contains("excessively large file")));
     }
 }

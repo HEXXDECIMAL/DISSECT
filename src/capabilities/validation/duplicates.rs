@@ -11,10 +11,12 @@
 //! - **For-only duplicates**: Traits identical except for the `for:` field, indicating mergeable rules
 //! - **Alternation merge candidates**: Regex patterns differing only in first token case that could be combined
 
-use crate::composite_rules::{CompositeTrait, Condition, FileType as RuleFileType, TraitDefinition};
+use super::shared::{MatchSignature, PatternLocation};
+use crate::composite_rules::{
+    CompositeTrait, Condition, FileType as RuleFileType, TraitDefinition,
+};
 use crate::types::Criticality;
 use std::collections::{HashMap, HashSet};
-use super::shared::{PatternLocation, MatchSignature};
 use std::sync::OnceLock;
 
 /// Combined: ~100-500x faster than original mutex-based implementation.
@@ -230,7 +232,7 @@ fn split_top_level_alternation(pattern: &str) -> Vec<&str> {
             if pattern[start..].starts_with("?:") {
                 start += 2;
             }
-            &pattern[start..pattern.len()-1]
+            &pattern[start..pattern.len() - 1]
         } else {
             pattern
         }
@@ -341,8 +343,11 @@ fn normalize_pattern_for_comparison(pattern: &str, is_regex: bool) -> String {
 fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation)> {
     let mut patterns = Vec::new();
 
-    let for_types: HashSet<String> =
-        trait_def.r#for.iter().map(|ft| format!("{:?}", ft).to_lowercase()).collect();
+    let for_types: HashSet<String> = trait_def
+        .r#for
+        .iter()
+        .map(|ft| format!("{:?}", ft).to_lowercase())
+        .collect();
 
     let file_path = trait_def.defined_in.to_string_lossy().to_string();
 
@@ -391,7 +396,7 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
             if let Some(v) = regex {
                 add_pattern("string", "regex", v.clone());
             }
-        },
+        }
         Condition::Symbol {
             exact,
             substr,
@@ -407,7 +412,7 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
             if let Some(v) = regex {
                 add_pattern("symbol", "regex", v.clone());
             }
-        },
+        }
         Condition::Raw {
             exact,
             substr,
@@ -427,8 +432,8 @@ fn extract_patterns(trait_def: &TraitDefinition) -> Vec<(String, PatternLocation
             if let Some(v) = regex {
                 add_pattern("raw", "regex", v.clone());
             }
-        },
-        _ => {}, // Skip Encoded, Yara, etc.
+        }
+        _ => {} // Skip Encoded, Yara, etc.
     }
 
     patterns
@@ -539,12 +544,14 @@ pub(crate) fn find_string_pattern_duplicates(
                 checked_any_pair = true;
 
                 // Check if patterns differ by >2 characters
-                let len_diff = (loc_a.original_value.len() as i32 - loc_b.original_value.len() as i32).abs();
+                let len_diff =
+                    (loc_a.original_value.len() as i32 - loc_b.original_value.len() as i32).abs();
                 let patterns_differ = len_diff > 2;
 
                 // Check if confidence differs by >=0.2 OR criticality differs
                 let conf_diff = (loc_a.confidence - loc_b.confidence).abs();
-                let conf_or_crit_differs = conf_diff >= 0.2 || loc_a.criticality != loc_b.criticality;
+                let conf_or_crit_differs =
+                    conf_diff >= 0.2 || loc_a.criticality != loc_b.criticality;
 
                 // If this pair doesn't meet carveout criteria, bail out
                 if !(patterns_differ && conf_or_crit_differs) {
@@ -696,7 +703,10 @@ pub(crate) fn check_regex_or_overlapping_exact(
         let patterns = extract_patterns(trait_def);
         for (normalized, location) in patterns {
             if location.match_type != "regex" {
-                literal_patterns.entry(normalized).or_default().push(location);
+                literal_patterns
+                    .entry(normalized)
+                    .or_default()
+                    .push(location);
             }
         }
     }
@@ -807,7 +817,8 @@ pub(crate) fn check_overlapping_regex_patterns(
             // specificity levels like "\.exe$" vs "7z\.exe" while catching duplicates.
             let max_len = a.original_value.len().max(b.original_value.len());
             let len_diff_pct = if max_len > 0 {
-                (a.original_value.len() as f32 - b.original_value.len() as f32).abs() / max_len as f32
+                (a.original_value.len() as f32 - b.original_value.len() as f32).abs()
+                    / max_len as f32
             } else {
                 0.0
             };
@@ -921,8 +932,12 @@ pub(crate) fn check_regex_should_be_exact(
                 if !has_regex_operators {
                     // Additional check: if it's just a simple word or escaped word, flag it
                     let is_simple_word = inner.chars().all(|c| c.is_alphanumeric() || c == '_');
-                    let is_escaped_word =
-                        inner.replace("\\\\", "").chars().filter(|&c| c == '\\').count() <= 2;
+                    let is_escaped_word = inner
+                        .replace("\\\\", "")
+                        .chars()
+                        .filter(|&c| c == '\\')
+                        .count()
+                        <= 2;
 
                     if is_simple_word || (is_escaped_word && inner.len() < 50) {
                         warnings.push(format!(
@@ -1067,7 +1082,10 @@ pub(crate) fn check_exact_contained_by_substr(
         for (normalized, location) in extract_patterns(trait_def) {
             match location.match_type.as_str() {
                 "exact" => exact_patterns.entry(normalized).or_default().push(location),
-                "substr" => substr_patterns.entry(normalized).or_default().push(location),
+                "substr" => substr_patterns
+                    .entry(normalized)
+                    .or_default()
+                    .push(location),
                 _ => {}
             }
         }
@@ -1090,7 +1108,11 @@ pub(crate) fn check_exact_contained_by_substr(
                     let tier_note = if exact_tier == substr_tier && exact_tier.is_some() {
                         format!(" (same tier: {})", exact_tier.unwrap())
                     } else if exact_tier.is_some() && substr_tier.is_some() {
-                        format!(" (cross-tier: {} → {})", exact_tier.unwrap(), substr_tier.unwrap())
+                        format!(
+                            " (cross-tier: {} → {})",
+                            exact_tier.unwrap(),
+                            substr_tier.unwrap()
+                        )
                     } else {
                         String::new()
                     };
@@ -1305,7 +1327,9 @@ pub(crate) fn check_case_insensitive_overlaps(
                         p2.file_path,
                         p2.trait_id,
                     ));
-                } else if !p1.case_insensitive && p2.case_insensitive && p1.normalized != p2.normalized
+                } else if !p1.case_insensitive
+                    && p2.case_insensitive
+                    && p1.normalized != p2.normalized
                 {
                     let tier_note = make_tier_note(&p1.trait_id, &p2.trait_id);
                     warnings.push(format!(
@@ -1327,7 +1351,9 @@ pub(crate) fn check_case_insensitive_overlaps(
                     ));
                 }
                 // Case 2: Both case_insensitive=true, differ only in case (duplicate)
-                else if p1.case_insensitive && p2.case_insensitive && p1.normalized != p2.normalized
+                else if p1.case_insensitive
+                    && p2.case_insensitive
+                    && p1.normalized != p2.normalized
                 {
                     let tier_note = make_tier_note(&p1.trait_id, &p2.trait_id);
                     warnings.push(format!(
@@ -1444,19 +1470,18 @@ pub(crate) fn check_regex_contains_literal(
             .collect();
         let file_path = trait_def.defined_in.to_string_lossy().to_string();
 
-        let mut add_regex =
-            |condition_type: &str, pattern: String| {
-                let normalized = normalize_pattern_for_comparison(&pattern, true);
-                regex_patterns.push(RegexPattern {
-                    pattern,
-                    normalized,
-                    condition_type: condition_type.to_string(),
-                    trait_id: trait_def.id.clone(),
-                    file_path: file_path.clone(),
-                    for_types: for_types.clone(),
-                    crit: trait_def.crit,
-                });
-            };
+        let mut add_regex = |condition_type: &str, pattern: String| {
+            let normalized = normalize_pattern_for_comparison(&pattern, true);
+            regex_patterns.push(RegexPattern {
+                pattern,
+                normalized,
+                condition_type: condition_type.to_string(),
+                trait_id: trait_def.id.clone(),
+                file_path: file_path.clone(),
+                for_types: for_types.clone(),
+                crit: trait_def.crit,
+            });
+        };
 
         match &trait_def.r#if.condition {
             Condition::String { regex: Some(r), .. } => add_regex("string", r.clone()),
@@ -1477,20 +1502,19 @@ pub(crate) fn check_regex_contains_literal(
             .collect();
         let file_path = trait_def.defined_in.to_string_lossy().to_string();
 
-        let mut add_literal =
-            |condition_type: &str, match_type: &str, pattern: String| {
-                let normalized = normalize_pattern_for_comparison(&pattern, false);
-                literal_patterns.push(LiteralPattern {
-                    pattern,
-                    normalized,
-                    match_type: match_type.to_string(),
-                    condition_type: condition_type.to_string(),
-                    trait_id: trait_def.id.clone(),
-                    file_path: file_path.clone(),
-                    for_types: for_types.clone(),
-                    crit: trait_def.crit,
-                });
-            };
+        let mut add_literal = |condition_type: &str, match_type: &str, pattern: String| {
+            let normalized = normalize_pattern_for_comparison(&pattern, false);
+            literal_patterns.push(LiteralPattern {
+                pattern,
+                normalized,
+                match_type: match_type.to_string(),
+                condition_type: condition_type.to_string(),
+                trait_id: trait_def.id.clone(),
+                file_path: file_path.clone(),
+                for_types: for_types.clone(),
+                crit: trait_def.crit,
+            });
+        };
 
         match &trait_def.r#if.condition {
             Condition::String {
@@ -1571,7 +1595,8 @@ pub(crate) fn check_regex_contains_literal(
             // vs "mimikatz.exe" while catching true duplicates like "foo" vs "foo.*".
             let max_len = regex_pat.pattern.len().max(literal_pat.pattern.len());
             let len_diff_pct = if max_len > 0 {
-                (regex_pat.pattern.len() as f32 - literal_pat.pattern.len() as f32).abs() / max_len as f32
+                (regex_pat.pattern.len() as f32 - literal_pat.pattern.len() as f32).abs()
+                    / max_len as f32
             } else {
                 0.0
             };
@@ -1585,18 +1610,26 @@ pub(crate) fn check_regex_contains_literal(
             let is_trivial_extension = if regex_pat.pattern.starts_with(&escaped_literal) {
                 // Literal is a prefix - check if remainder is just metacharacters/anchors
                 let remainder = &regex_pat.pattern[escaped_literal.len()..];
-                remainder.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                remainder
+                    .chars()
+                    .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
             } else if regex_pat.pattern.ends_with(&escaped_literal) {
                 // Literal is a suffix - check if prefix is just metacharacters/anchors
                 let prefix = &regex_pat.pattern[..regex_pat.pattern.len() - escaped_literal.len()];
-                prefix.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                prefix
+                    .chars()
+                    .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
             } else if regex_pat.pattern.contains(&escaped_literal) {
                 // Literal appears in the middle - check if surrounding chars are metacharacters
                 if let Some(idx) = regex_pat.pattern.find(&escaped_literal) {
                     let before = &regex_pat.pattern[..idx];
                     let after = &regex_pat.pattern[idx + escaped_literal.len()..];
-                    before.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\')) &&
-                    after.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                    before
+                        .chars()
+                        .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                        && after
+                            .chars()
+                            .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
                 } else {
                     false
                 }
@@ -1812,16 +1845,10 @@ pub(crate) fn check_regex_alternative_subsets(
             // If patterns have same alternatives but different case_insensitive flags
             if p1.case_insensitive != p2.case_insensitive {
                 // Normalize both to lowercase for comparison
-                let set1_lower: HashSet<String> = p1
-                    .alternatives
-                    .iter()
-                    .map(|a| a.to_lowercase())
-                    .collect();
-                let set2_lower: HashSet<String> = p2
-                    .alternatives
-                    .iter()
-                    .map(|a| a.to_lowercase())
-                    .collect();
+                let set1_lower: HashSet<String> =
+                    p1.alternatives.iter().map(|a| a.to_lowercase()).collect();
+                let set2_lower: HashSet<String> =
+                    p2.alternatives.iter().map(|a| a.to_lowercase()).collect();
 
                 if set1_lower == set2_lower {
                     let (case_insensitive_pat, case_sensitive_pat) = if p1.case_insensitive {
@@ -1940,7 +1967,7 @@ pub(crate) fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            },
+            }
             Condition::String {
                 substr: Some(s), ..
             } => {
@@ -1951,7 +1978,7 @@ pub(crate) fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            },
+            }
             Condition::Symbol { exact: Some(s), .. } => {
                 literal_patterns.push((
                     s.clone(),
@@ -1960,7 +1987,7 @@ pub(crate) fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            },
+            }
             Condition::Symbol {
                 substr: Some(s), ..
             } => {
@@ -1971,8 +1998,8 @@ pub(crate) fn validate_regex_overlap_with_literal(
                     t.crit,
                     t.r#for.clone(),
                 ));
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 
@@ -2019,18 +2046,26 @@ pub(crate) fn validate_regex_overlap_with_literal(
                     let is_trivial_extension = if regex.starts_with(&escaped_literal) {
                         // Literal is a prefix - check if remainder is just metacharacters/anchors
                         let remainder = &regex[escaped_literal.len()..];
-                        remainder.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                        remainder
+                            .chars()
+                            .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
                     } else if regex.ends_with(&escaped_literal) {
                         // Literal is a suffix - check if prefix is just metacharacters/anchors
                         let prefix = &regex[..regex.len() - escaped_literal.len()];
-                        prefix.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                        prefix
+                            .chars()
+                            .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
                     } else if regex.contains(&escaped_literal) {
                         // Literal appears in the middle - check if surrounding chars are metacharacters
                         if let Some(idx) = regex.find(&escaped_literal) {
                             let before = &regex[..idx];
                             let after = &regex[idx + escaped_literal.len()..];
-                            before.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\')) &&
-                            after.chars().all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                            before
+                                .chars()
+                                .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
+                                && after
+                                    .chars()
+                                    .all(|c| matches!(c, '.' | '*' | '+' | '?' | '$' | '^' | '\\'))
                         } else {
                             false
                         }
@@ -2075,7 +2110,10 @@ pub(crate) fn find_string_content_collisions(
             let platforms_key = format!("{:?}", t.platforms);
             let key = (sig, crit_key, for_key, platforms_key);
 
-            groups.entry(key).or_default().push((t.id.clone(), is_string));
+            groups
+                .entry(key)
+                .or_default()
+                .push((t.id.clone(), is_string));
         }
     }
 
@@ -2127,7 +2165,10 @@ pub(crate) fn find_for_only_duplicates(
             "{:?}:{:?}:{:.2}:{:?}:{:?}:{:?}:{:?}:{:?}",
             t.r#if, t.crit, t.conf, t.platforms, t.r#if.size_min, t.r#if.size_max, t.not, t.unless
         );
-        groups.entry(signature).or_default().push((t.id.clone(), t.r#for.clone()));
+        groups
+            .entry(signature)
+            .or_default()
+            .push((t.id.clone(), t.r#for.clone()));
     }
 
     // Find groups with multiple traits (different `for:` values)
@@ -2174,8 +2215,9 @@ pub(crate) fn find_alternation_merge_candidates(
 
     for t in trait_definitions {
         let regex_pattern = match &t.r#if.condition {
-            Condition::String { regex: Some(r), .. }
-            | Condition::Raw { regex: Some(r), .. } => Some(r.clone()),
+            Condition::String { regex: Some(r), .. } | Condition::Raw { regex: Some(r), .. } => {
+                Some(r.clone())
+            }
             _ => None,
         };
 
@@ -2341,7 +2383,9 @@ fn extract_match_signature(condition: &Condition) -> Option<(bool, MatchSignatur
 #[allow(clippy::expect_used)] // Static regex pattern is hardcoded and valid
 fn prefix_regex() -> &'static regex::Regex {
     static RE: OnceLock<regex::Regex> = OnceLock::new();
-    RE.get_or_init(|| regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex"))
+    RE.get_or_init(|| {
+        regex::Regex::new(r"^(\^?)([a-zA-Z_][a-zA-Z0-9_-]*)(.*)$").expect("valid regex")
+    })
 }
 
 /// Check for duplicate basename patterns in atomic traits
@@ -2515,8 +2559,11 @@ pub(crate) fn check_basename_pattern_duplicates(
                 let has_groups = test_pattern.contains('(');
                 let has_wildcards = test_pattern.contains('.');
 
-                let is_simple =
-                    !has_alternation && !has_char_class && !has_quantifiers && !has_groups && !has_wildcards;
+                let is_simple = !has_alternation
+                    && !has_char_class
+                    && !has_quantifiers
+                    && !has_groups
+                    && !has_wildcards;
 
                 if is_simple {
                     // Suggest converting to exact

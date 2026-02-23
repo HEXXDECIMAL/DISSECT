@@ -40,18 +40,18 @@ type promptData struct {
 
 // config holds all configuration for a trait-basher session.
 type config struct {
-	db          *sql.DB
-	dirs        []string
-	repoRoot    string
-	dissectBin  string   // Path to dissect binary
-	providers   []string // Ordered list of providers to try (fallback on failure)
-	provider    string   // Current active provider (set during invocation)
-	model       string
-	extractDir  string // Directory where DISSECT extracts files
-	timeout     time.Duration
-	idleTimeout time.Duration // Kill LLM if no output for this duration
-	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
-	concurrency int           // Number of concurrent LLM review sessions
+	db            *sql.DB
+	dirs          []string
+	repoRoot      string
+	dissectBin    string   // Path to dissect binary
+	providers     []string // Ordered list of providers to try (fallback on failure)
+	provider      string   // Current active provider (set during invocation)
+	model         string
+	extractDir    string // Directory where DISSECT extracts files
+	timeout       time.Duration
+	idleTimeout   time.Duration // Kill LLM if no output for this duration
+	rescanAfter   int           // Number of files to review before restarting scan (0 = disabled)
+	concurrency   int           // Number of concurrent LLM review sessions
 	knownGood     bool
 	knownBad      bool
 	useCargo      bool

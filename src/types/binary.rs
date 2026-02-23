@@ -226,7 +226,10 @@ pub struct Section {
 #[inline]
 #[must_use]
 pub(crate) fn normalize_symbol(symbol: &str) -> String {
-    symbol.trim_start_matches('_').trim_start_matches('_').to_string()
+    symbol
+        .trim_start_matches('_')
+        .trim_start_matches('_')
+        .to_string()
 }
 
 /// An imported symbol (function or variable from an external library)

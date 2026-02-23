@@ -3,7 +3,9 @@
 //! Extracts section information from binary files (ELF, PE, Mach-O).
 //! Provides section names, addresses, sizes, entropy, and permissions.
 
-use crate::analyzers::{detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType};
+use crate::analyzers::{
+    detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType,
+};
 use crate::cli;
 use crate::commands::shared::SectionInfo;
 use anyhow::Result;
@@ -30,9 +32,9 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                     FileType::MachO => MachOAnalyzer::new()
                         .with_capability_mapper(capability_mapper)
                         .analyze(path)?,
-                    FileType::Pe => {
-                        PEAnalyzer::new().with_capability_mapper(capability_mapper).analyze(path)?
-                    },
+                    FileType::Pe => PEAnalyzer::new()
+                        .with_capability_mapper(capability_mapper)
+                        .analyze(path)?,
                     _ => anyhow::bail!("unsupported binary file type for section extraction"),
                 };
 
@@ -46,13 +48,13 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                         permissions: section.permissions,
                     });
                 }
-            },
+            }
             _ => {
                 anyhow::bail!(
                     "Unsupported file type for section extraction: {:?}. Only ELF, PE, and Mach-O binaries are supported.",
                     file_type
                 );
-            },
+            }
         }
     } else {
         anyhow::bail!("Unable to detect file type for: {}", target);
@@ -68,7 +70,7 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
                 let num_a = parse_addr(addr_a);
                 let num_b = parse_addr(addr_b);
                 num_a.cmp(&num_b)
-            },
+            }
             (Some(_), None) => std::cmp::Ordering::Less,
             (None, Some(_)) => std::cmp::Ordering::Greater,
             (None, None) => a.name.cmp(&b.name),
@@ -104,6 +106,6 @@ pub(crate) fn run(target: &str, format: &cli::OutputFormat) -> Result<String> {
             }
 
             Ok(output)
-        },
+        }
     }
 }

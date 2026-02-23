@@ -148,17 +148,17 @@ pub(crate) fn run(
 
     // Kick off YARA loading on a background thread while the main thread builds the mapper.
     let yara_disabled = disabled.yara;
-    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> =
-        if yara_disabled {
-            None
-        } else {
-            Some(std::thread::spawn(move || {
-                let empty_mapper = crate::capabilities::CapabilityMapper::empty();
-                let mut engine = YaraEngine::new_with_mapper(empty_mapper);
-                let (builtin, third_party) = engine.load_all_rules(enable_third_party);
-                (engine, builtin, third_party)
-            }))
-        };
+    let yara_handle: Option<std::thread::JoinHandle<(YaraEngine, usize, usize)>> = if yara_disabled
+    {
+        None
+    } else {
+        Some(std::thread::spawn(move || {
+            let empty_mapper = crate::capabilities::CapabilityMapper::empty();
+            let mut engine = YaraEngine::new_with_mapper(empty_mapper);
+            let (builtin, third_party) = engine.load_all_rules(enable_third_party);
+            (engine, builtin, third_party)
+        }))
+    };
 
     let capability_mapper = crate::capabilities::CapabilityMapper::new_with_precision_thresholds(
         min_hostile_precision,
@@ -174,8 +174,9 @@ pub(crate) fn run(
         eprintln!("[INFO] YARA scanning disabled");
         None
     } else if let Some(handle) = yara_handle {
-        let (engine, builtin_count, third_party_count) =
-            handle.join().unwrap_or_else(|e| std::panic::resume_unwind(e));
+        let (engine, builtin_count, third_party_count) = handle
+            .join()
+            .unwrap_or_else(|e| std::panic::resume_unwind(e));
         tracing::info!(
             "YARA engine loaded with {} rules",
             builtin_count + third_party_count
@@ -199,16 +200,18 @@ pub(crate) fn run(
         FileType::MachO => {
             let data = fs::read(path).context("Failed to read file")?;
             let engine = yara_engine.take(); // take prevents source-type double-scan below
-            let analyzer =
-                MachOAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            let analyzer = MachOAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             let range = analyzer.preferred_arch_range(&data);
             let arch_data = &data[range];
             let file_types: &[&str] = &["macho", "dylib", "kext"];
             let (struct_result, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, arch_data),
-                || engine.as_ref().filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(arch_data, Some(file_types))
-                }),
+                || {
+                    engine
+                        .as_ref()
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(arch_data, Some(file_types)))
+                },
             );
             let mut report = struct_result?;
             analyzer.apply_fat_metadata(&mut report, &data);
@@ -220,18 +223,20 @@ pub(crate) fn run(
                 Some(&inline_yara),
             );
             report
-        },
+        }
         FileType::Elf => {
             let data = fs::read(path).context("Failed to read file")?;
             let engine = yara_engine.take(); // take prevents source-type double-scan below
-            let analyzer =
-                ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            let analyzer = ElfAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             let file_types: &[&str] = &["elf", "so", "ko"];
             let (mut report, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, &data),
-                || engine.as_ref().filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(&data, Some(file_types))
-                }),
+                || {
+                    engine
+                        .as_ref()
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(&data, Some(file_types)))
+                },
             );
             let inline_yara = process_yara_result(&mut report, yara_result, engine.as_ref());
             capability_mapper.evaluate_and_merge_findings(
@@ -243,26 +248,27 @@ pub(crate) fn run(
             crate::path_mapper::analyze_and_link_paths(&mut report);
             crate::env_mapper::analyze_and_link_env_vars(&mut report);
             report
-        },
+        }
         FileType::Pe => {
             let data = fs::read(path).context("Failed to read file")?;
             // Arc lets PE use the engine for overlay analysis while we also run a parallel scan
             let yara_arc = yara_engine.take().map(Arc::new);
-            let mut analyzer =
-                PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
+            let mut analyzer = PEAnalyzer::new().with_capability_mapper(capability_mapper.clone());
             if let Some(arc) = &yara_arc {
                 analyzer = analyzer.with_yara_arc(arc.clone());
             }
             let file_types: &[&str] = &["pe", "exe", "dll", "bat", "ps1"];
             let (struct_result, yara_result) = rayon::join(
                 || analyzer.analyze_structural(path, &data),
-                || yara_arc.as_ref().filter(|e| e.is_loaded()).map(|e| {
-                    e.scan_bytes_with_inline(&data, Some(file_types))
-                }),
+                || {
+                    yara_arc
+                        .as_ref()
+                        .filter(|e| e.is_loaded())
+                        .map(|e| e.scan_bytes_with_inline(&data, Some(file_types)))
+                },
             );
             let mut report = struct_result?;
-            let inline_yara =
-                process_yara_result(&mut report, yara_result, yara_arc.as_deref());
+            let inline_yara = process_yara_result(&mut report, yara_result, yara_arc.as_deref());
             capability_mapper.evaluate_and_merge_findings(
                 &mut report,
                 &data,
@@ -270,12 +276,12 @@ pub(crate) fn run(
                 Some(&inline_yara),
             );
             report
-        },
+        }
         FileType::JavaClass => {
             let analyzer = analyzers::java_class::JavaClassAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::Jar => {
             // JAR files are analyzed like archives but with Java-specific handling
             let mut analyzer = ArchiveAnalyzer::new()
@@ -289,17 +295,17 @@ pub(crate) fn run(
                 analyzer = analyzer.with_sample_extraction(config.clone());
             }
             analyzer.analyze(path)?
-        },
+        }
         FileType::PackageJson => {
             let analyzer = analyzers::package_json::PackageJsonAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::VsixManifest => {
             let analyzer = analyzers::vsix_manifest::VsixManifestAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone());
             analyzer.analyze(path)?
-        },
+        }
         FileType::Archive => {
             let mut analyzer = ArchiveAnalyzer::new()
                 .with_capability_mapper(capability_mapper.clone())
@@ -321,7 +327,7 @@ pub(crate) fn run(
             } else {
                 analyzer.analyze(path)?
             }
-        },
+        }
         // All source code languages use the unified analyzer (or generic fallback)
         _ => {
             if let Some(analyzer) =
@@ -331,7 +337,7 @@ pub(crate) fn run(
             } else {
                 anyhow::bail!("Unsupported file type: {:?}", file_type);
             }
-        },
+        }
     };
 
     // Run YARA universally for file types that didn't handle it internally
@@ -363,10 +369,10 @@ pub(crate) fn run(
                     if !report.metadata.tools_used.contains(&"yara-x".to_string()) {
                         report.metadata.tools_used.push("yara-x".to_string());
                     }
-                },
+                }
                 Err(e) => {
                     eprintln!("⚠️  YARA scan failed: {}", e);
-                },
+                }
             }
         }
     }
@@ -384,7 +390,10 @@ pub(crate) fn run(
     // These are rules with needs=1 that add no value over the underlying trait
     let removed = report.filter_findings(|f| !capability_mapper.is_low_value_any_rule(&f.id));
     if removed > 0 {
-        tracing::debug!("Filtered {} low-value composite 'any' rules from output", removed);
+        tracing::debug!(
+            "Filtered {} low-value composite 'any' rules from output",
+            removed
+        );
     }
 
     // Format output based on requested format

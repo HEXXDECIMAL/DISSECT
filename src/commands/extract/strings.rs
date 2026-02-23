@@ -6,7 +6,9 @@
 //! - Multiple encoding detection (UTF-8, UTF-16, base64, etc.)
 //! - String classification (URLs, IPs, emails, paths, shell commands)
 
-use crate::analyzers::{detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType};
+use crate::analyzers::{
+    detect_file_type, elf::ElfAnalyzer, macho::MachOAnalyzer, pe::PEAnalyzer, Analyzer, FileType,
+};
 use crate::cli;
 use crate::commands::shared::extract_strings_from_ast;
 use crate::radare2::Radare2Analyzer;
@@ -139,8 +141,8 @@ pub(crate) fn run(target: &str, min_length: usize, format: &cli::OutputFormat) -
                         }
                     }
                 }
-            },
-            _ => {},
+            }
+            _ => {}
         }
     }
 
@@ -177,7 +179,10 @@ pub(crate) fn run(target: &str, min_length: usize, format: &cli::OutputFormat) -
                     current_section = section;
                 }
 
-                let offset = s.offset.map(|o| format!("{}", o)).unwrap_or_else(|| "-".to_string());
+                let offset = s
+                    .offset
+                    .map(|o| format!("{}", o))
+                    .unwrap_or_else(|| "-".to_string());
 
                 // Use stng-style type labels
                 let stype_str = match s.string_type {
@@ -202,8 +207,11 @@ pub(crate) fn run(target: &str, min_length: usize, format: &cli::OutputFormat) -
                 };
 
                 // Escape control characters for display
-                let mut val_display =
-                    s.value.replace('\n', "\\n").replace('\r', "\\r").replace('\t', "\\t");
+                let mut val_display = s
+                    .value
+                    .replace('\n', "\\n")
+                    .replace('\r', "\\r")
+                    .replace('\t', "\\t");
 
                 if s.string_type == crate::types::StringType::Base64 {
                     use base64::{engine::general_purpose, Engine as _};
@@ -232,6 +240,6 @@ pub(crate) fn run(target: &str, min_length: usize, format: &cli::OutputFormat) -
                 ));
             }
             Ok(output)
-        },
+        }
     }
 }

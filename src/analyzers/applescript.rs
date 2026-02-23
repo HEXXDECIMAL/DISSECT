@@ -18,7 +18,7 @@ pub(crate) struct AppleScriptAnalyzer {
 }
 
 impl AppleScriptAnalyzer {
-    #[must_use] 
+    #[must_use]
     pub(crate) fn new() -> Self {
         Self {
             capability_mapper: Arc::new(CapabilityMapper::new()),
@@ -27,15 +27,18 @@ impl AppleScriptAnalyzer {
     }
 
     /// Create analyzer with pre-existing capability mapper (wraps in Arc)
-    #[must_use] 
+    #[must_use]
     pub(crate) fn with_capability_mapper(mut self, capability_mapper: CapabilityMapper) -> Self {
         self.capability_mapper = Arc::new(capability_mapper);
         self
     }
 
     /// Create analyzer with shared capability mapper (avoids cloning)
-    #[must_use] 
-    pub(crate) fn with_capability_mapper_arc(mut self, capability_mapper: Arc<CapabilityMapper>) -> Self {
+    #[must_use]
+    pub(crate) fn with_capability_mapper_arc(
+        mut self,
+        capability_mapper: Arc<CapabilityMapper>,
+    ) -> Self {
         self.capability_mapper = capability_mapper;
         self
     }
@@ -141,7 +144,8 @@ impl Analyzer for AppleScriptAnalyzer {
         report.findings.extend(plain_findings);
 
         // Evaluate all rules (atomic + composite) and merge into report
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, &data, None, None);
+        self.capability_mapper
+            .evaluate_and_merge_findings(&mut report, &data, None, None);
 
         Ok(report)
     }

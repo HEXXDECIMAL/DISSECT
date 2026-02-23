@@ -65,9 +65,10 @@ pub(crate) fn extract_tar_safe(
             if let Ok(Some(link_target)) = entry.link_name() {
                 let target_str = link_target.to_string_lossy();
                 if symlink_escapes(&outpath, &target_str, dest_dir) {
-                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
-                        format!("{} -> {}", entry_name, target_str),
-                    ));
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(format!(
+                        "{} -> {}",
+                        entry_name, target_str
+                    )));
                 }
             }
             // Skip symlinks regardless (we don't extract them)
@@ -135,9 +136,10 @@ pub(crate) fn extract_tar_entries_safe<R: Read>(
             if let Ok(Some(link_target)) = entry.link_name() {
                 let target_str = link_target.to_string_lossy();
                 if symlink_escapes(&outpath, &target_str, dest_dir) {
-                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(
-                        format!("{} -> {}", entry_name, target_str),
-                    ));
+                    guard.add_hostile_reason(HostileArchiveReason::SymlinkEscape(format!(
+                        "{} -> {}",
+                        entry_name, target_str
+                    )));
                 }
             }
             // Skip symlinks regardless (we don't extract them)

@@ -90,7 +90,10 @@ impl ArchiveAnalyzer {
                         // Record the YARA matches
                         if let Ok(mut all_matches) = yara_matches.lock() {
                             for yara_match in matches {
-                                if !all_matches.iter().any(|m: &YaraMatch| m.rule == yara_match.rule) {
+                                if !all_matches
+                                    .iter()
+                                    .any(|m: &YaraMatch| m.rule == yara_match.rule)
+                                {
                                     all_matches.push(yara_match);
                                 }
                             }
@@ -162,8 +165,10 @@ impl ArchiveAnalyzer {
             .take(20) // Limit to 20 non-flagged classes
             .collect();
 
-        let classes_to_analyze: Vec<_> =
-            interesting_classes.into_iter().chain(sample_classes).collect();
+        let classes_to_analyze: Vec<_> = interesting_classes
+            .into_iter()
+            .chain(sample_classes)
+            .collect();
 
         eprintln!("  Full analysis on {} classes", classes_to_analyze.len());
 
@@ -215,7 +220,15 @@ impl ArchiveAnalyzer {
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-                let (Ok(mut caps), Ok(mut traits), Ok(mut all_traits), Ok(mut all_yara), Ok(mut all_strings), Ok(mut all_archive_entries), Ok(mut all_files)) = (
+                let (
+                    Ok(mut caps),
+                    Ok(mut traits),
+                    Ok(mut all_traits),
+                    Ok(mut all_yara),
+                    Ok(mut all_strings),
+                    Ok(mut all_archive_entries),
+                    Ok(mut all_files),
+                ) = (
                     total_capabilities.lock(),
                     total_traits.lock(),
                     collected_traits.lock(),
@@ -223,7 +236,8 @@ impl ArchiveAnalyzer {
                     collected_strings.lock(),
                     collected_archive_entries.lock(),
                     collected_files.lock(),
-                ) else {
+                )
+                else {
                     return; // Skip this file if any lock is poisoned
                 };
 
@@ -241,12 +255,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                },
+                                }
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                },
-                                _ => {}, // Already has archive: prefix from nested analysis
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -349,7 +363,15 @@ impl ArchiveAnalyzer {
             if let Ok(mut file_report) = self.analyze_extracted_file_with_timeout(entry.path()) {
                 files_analyzed.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
 
-                let (Ok(mut caps), Ok(mut traits), Ok(mut all_traits), Ok(mut all_yara), Ok(mut all_strings), Ok(mut all_archive_entries), Ok(mut all_files)) = (
+                let (
+                    Ok(mut caps),
+                    Ok(mut traits),
+                    Ok(mut all_traits),
+                    Ok(mut all_yara),
+                    Ok(mut all_strings),
+                    Ok(mut all_archive_entries),
+                    Ok(mut all_files),
+                ) = (
                     total_capabilities.lock(),
                     total_traits.lock(),
                     collected_traits.lock(),
@@ -357,7 +379,8 @@ impl ArchiveAnalyzer {
                     collected_strings.lock(),
                     collected_archive_entries.lock(),
                     collected_files.lock(),
-                ) else {
+                )
+                else {
                     return; // Skip this file if any lock is poisoned
                 };
 
@@ -372,12 +395,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                },
+                                }
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                },
-                                _ => {}, // Already has archive: prefix from nested analysis
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -651,12 +674,12 @@ impl ArchiveAnalyzer {
                             match &evidence.location {
                                 None => {
                                     evidence.location = Some(archive_location.clone());
-                                },
+                                }
                                 Some(loc) if !loc.starts_with("archive:") => {
                                     evidence.location =
                                         Some(format!("{}:{}", archive_location, loc));
-                                },
-                                _ => {}, // Already has archive: prefix from nested analysis
+                                }
+                                _ => {} // Already has archive: prefix from nested analysis
                             }
                         }
                         all_traits.push(new_finding);
@@ -857,10 +880,10 @@ impl ArchiveAnalyzer {
                 });
 
                 Ok(report)
-            },
+            }
             Err(mpsc::RecvTimeoutError::Disconnected) => {
                 Err(anyhow::anyhow!("Analysis thread crashed"))
-            },
+            }
         }
     }
 
@@ -894,7 +917,10 @@ impl ArchiveAnalyzer {
             }
 
             // Build the prefix for nested paths
-            let file_name = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("nested");
+            let file_name = file_path
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or("nested");
             let nested_prefix = match &self.archive_path_prefix {
                 Some(prefix) => format!("{}!{}", prefix, file_name),
                 None => file_name.to_string(),

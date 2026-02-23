@@ -12,7 +12,9 @@ mod precision_tests {
 mod duplicate_tests {
     use super::super::duplicates::*;
     use super::super::helpers::extract_tier;
-    use crate::composite_rules::{Condition, ConditionWithFilters, FileType, Platform, TraitDefinition};
+    use crate::composite_rules::{
+        Condition, ConditionWithFilters, FileType, Platform, TraitDefinition,
+    };
     use std::path::PathBuf;
 
     // ========================================================================
@@ -26,7 +28,14 @@ mod duplicate_tests {
         for_types: Vec<FileType>,
         file_path: &str,
     ) -> TraitDefinition {
-        create_test_trait_with_conf_crit(id, condition, for_types, file_path, 1.0, crate::types::Criticality::Notable)
+        create_test_trait_with_conf_crit(
+            id,
+            condition,
+            for_types,
+            file_path,
+            1.0,
+            crate::types::Criticality::Notable,
+        )
     }
 
     /// Create a trait definition with specific confidence and criticality
@@ -239,20 +248,9 @@ mod duplicate_tests {
 
     #[test]
     fn test_hex_escape_duplicate_detection() {
-        let trait1 = create_string_exact(
-            "test::a",
-            "\\x27",
-            false,
-            vec![FileType::All],
-            "file1.yaml",
-        );
-        let trait2 = create_string_exact(
-            "test::b",
-            "'",
-            false,
-            vec![FileType::All],
-            "file2.yaml",
-        );
+        let trait1 =
+            create_string_exact("test::a", "\\x27", false, vec![FileType::All], "file1.yaml");
+        let trait2 = create_string_exact("test::b", "'", false, vec![FileType::All], "file2.yaml");
 
         let mut warnings = Vec::new();
         find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
@@ -268,14 +266,14 @@ mod duplicate_tests {
         // Hex escape vs literal - exact patterns that normalize the same
         let trait1 = create_string_exact(
             "test::a",
-            "\\x27",  // \x27 is hex for single quote '
+            "\\x27", // \x27 is hex for single quote '
             false,
             vec![FileType::All],
             "file1.yaml",
         );
         let trait2 = create_string_exact(
             "test::b",
-            "'",  // Literal single quote
+            "'", // Literal single quote
             false,
             vec![FileType::All],
             "file2.yaml",
@@ -330,7 +328,7 @@ mod duplicate_tests {
         );
         let substr = create_string_substr(
             "test::substr",
-            "os.rename ",  // trailing space
+            "os.rename ", // trailing space
             false,
             vec![FileType::All],
             "file2.yaml",
@@ -603,20 +601,10 @@ mod duplicate_tests {
 
     #[test]
     fn test_filetype_overlap_all_vs_specific() {
-        let trait1 = create_string_exact(
-            "test::a",
-            "test",
-            false,
-            vec![FileType::All],
-            "file1.yaml",
-        );
-        let trait2 = create_string_exact(
-            "test::b",
-            "test",
-            false,
-            vec![FileType::Elf],
-            "file2.yaml",
-        );
+        let trait1 =
+            create_string_exact("test::a", "test", false, vec![FileType::All], "file1.yaml");
+        let trait2 =
+            create_string_exact("test::b", "test", false, vec![FileType::Elf], "file2.yaml");
 
         let mut warnings = Vec::new();
         find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
@@ -627,20 +615,10 @@ mod duplicate_tests {
 
     #[test]
     fn test_filetype_no_overlap_disjoint() {
-        let trait1 = create_string_exact(
-            "test::a",
-            "test",
-            false,
-            vec![FileType::Elf],
-            "file1.yaml",
-        );
-        let trait2 = create_string_exact(
-            "test::b",
-            "test",
-            false,
-            vec![FileType::Pe],
-            "file2.yaml",
-        );
+        let trait1 =
+            create_string_exact("test::a", "test", false, vec![FileType::Elf], "file1.yaml");
+        let trait2 =
+            create_string_exact("test::b", "test", false, vec![FileType::Pe], "file2.yaml");
 
         let mut warnings = Vec::new();
         find_string_pattern_duplicates(&[trait1, trait2], &mut warnings);
@@ -979,7 +957,7 @@ mod duplicate_tests {
             },
             vec![FileType::All],
             "file2.yaml",
-            0.9, // conf diff = 0.1 < 0.2
+            0.9,                                // conf diff = 0.1 < 0.2
             crate::types::Criticality::Notable, // Same criticality
         );
 
@@ -1110,7 +1088,7 @@ mod duplicate_tests {
             },
             vec![FileType::All],
             "file2.yaml",
-            0.9, // conf diff from trait1 = 0.1 < 0.2
+            0.9,                                // conf diff from trait1 = 0.1 < 0.2
             crate::types::Criticality::Notable, // Same as trait1 - FAILS carveout
         );
 
@@ -1150,10 +1128,22 @@ mod duplicate_tests {
 
     #[test]
     fn test_extract_tier() {
-        assert_eq!(extract_tier("micro-behaviors/fs/file/delete::unlink"), Some("micro-behaviors"));
-        assert_eq!(extract_tier("objectives/collection/metadata::home-env"), Some("objectives"));
-        assert_eq!(extract_tier("well-known/malware/rat::geacon"), Some("well-known"));
-        assert_eq!(extract_tier("metadata/format/extension::exe"), Some("metadata"));
+        assert_eq!(
+            extract_tier("micro-behaviors/fs/file/delete::unlink"),
+            Some("micro-behaviors")
+        );
+        assert_eq!(
+            extract_tier("objectives/collection/metadata::home-env"),
+            Some("objectives")
+        );
+        assert_eq!(
+            extract_tier("well-known/malware/rat::geacon"),
+            Some("well-known")
+        );
+        assert_eq!(
+            extract_tier("metadata/format/extension::exe"),
+            Some("metadata")
+        );
 
         // Invalid formats
         assert_eq!(extract_tier("invalid-id"), None);
@@ -1305,19 +1295,17 @@ mod duplicate_tests {
 
     #[test]
     fn test_basename_regex_should_be_exact_case_insensitive() {
-        let traits = vec![
-            create_test_trait(
-                "test1",
-                Condition::Basename {
-                    exact: None,
-                    substr: None,
-                    regex: Some("(?i)^setup\\.py$".to_string()),
-                    case_insensitive: false,
-                },
-                vec![FileType::Python],
-                "file1.yaml",
-            ),
-        ];
+        let traits = vec![create_test_trait(
+            "test1",
+            Condition::Basename {
+                exact: None,
+                substr: None,
+                regex: Some("(?i)^setup\\.py$".to_string()),
+                case_insensitive: false,
+            },
+            vec![FileType::Python],
+            "file1.yaml",
+        )];
 
         let mut warnings = Vec::new();
         check_basename_pattern_duplicates(&traits, &mut warnings);
@@ -1364,19 +1352,17 @@ mod duplicate_tests {
 
     #[test]
     fn test_basename_empty_pattern_skipped() {
-        let traits = vec![
-            create_test_trait(
-                "test1",
-                Condition::Basename {
-                    exact: None,
-                    substr: None,
-                    regex: None,
-                    case_insensitive: false,
-                },
-                vec![FileType::All],
-                "file1.yaml",
-            ),
-        ];
+        let traits = vec![create_test_trait(
+            "test1",
+            Condition::Basename {
+                exact: None,
+                substr: None,
+                regex: None,
+                case_insensitive: false,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+        )];
 
         let mut warnings = Vec::new();
         check_basename_pattern_duplicates(&traits, &mut warnings);
@@ -1387,19 +1373,17 @@ mod duplicate_tests {
 
     #[test]
     fn test_basename_bogus_dot_pattern_skipped() {
-        let traits = vec![
-            create_test_trait(
-                "test1",
-                Condition::Basename {
-                    exact: None,
-                    substr: None,
-                    regex: Some(".".to_string()),
-                    case_insensitive: false,
-                },
-                vec![FileType::All],
-                "file1.yaml",
-            ),
-        ];
+        let traits = vec![create_test_trait(
+            "test1",
+            Condition::Basename {
+                exact: None,
+                substr: None,
+                regex: Some(".".to_string()),
+                case_insensitive: false,
+            },
+            vec![FileType::All],
+            "file1.yaml",
+        )];
 
         let mut warnings = Vec::new();
         check_basename_pattern_duplicates(&traits, &mut warnings);
@@ -1460,8 +1444,20 @@ mod duplicate_tests {
         use crate::capabilities::validation::duplicates::validate_regex_overlap_with_literal;
 
         let traits = vec![
-            create_string_exact("exact_trait", "chrome.exe", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_trait", "chrome\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_exact(
+                "exact_trait",
+                "chrome.exe",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_trait",
+                "chrome\\.exe",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1479,8 +1475,20 @@ mod duplicate_tests {
         let traits = vec![
             // ".exe" = 4 chars, "7z.exe" = 6 chars
             // Diff: 2/6 = 33.33% -> should be allowed
-            create_string_substr("substr_trait", ".exe", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_trait", "7z\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_substr(
+                "substr_trait",
+                ".exe",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_trait",
+                "7z\\.exe",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1496,8 +1504,20 @@ mod duplicate_tests {
 
         let traits = vec![
             // Even with length difference, alternation should block the exemption
-            create_string_exact("exact_trait", "chrome.exe", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_trait", "(chrome\\.exe|firefox\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_exact(
+                "exact_trait",
+                "chrome.exe",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_trait",
+                "(chrome\\.exe|firefox\\.exe)",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1515,8 +1535,20 @@ mod duplicate_tests {
         let traits = vec![
             // "foo" (3 chars) vs "foo.*" (5 chars) = 40% difference
             // BUT "foo" is a prefix of "foo.*", so should still be blocked
-            create_string_exact("exact_trait", "foo", false, vec![FileType::All], "file1.yaml"),
-            create_string_regex("regex_trait", "foo.*", false, vec![FileType::All], "file2.yaml"),
+            create_string_exact(
+                "exact_trait",
+                "foo",
+                false,
+                vec![FileType::All],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_trait",
+                "foo.*",
+                false,
+                vec![FileType::All],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1533,8 +1565,20 @@ mod duplicate_tests {
 
         let traits = vec![
             // ".exe" is a suffix of ".*\.exe", should be blocked
-            create_string_substr("substr_trait", ".exe", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_trait", ".*\\.exe", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_substr(
+                "substr_trait",
+                ".exe",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_trait",
+                ".*\\.exe",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1607,8 +1651,20 @@ mod duplicate_tests {
 
         let traits = vec![
             // Both regexes, >33% length difference, one has no alternation
-            create_string_regex("regex_short", "\\.exe$", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_long", "7z\\.exe$", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_regex(
+                "regex_short",
+                "\\.exe$",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_long",
+                "7z\\.exe$",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1624,8 +1680,20 @@ mod duplicate_tests {
 
         let traits = vec![
             // Both have alternation and share alternatives
-            create_string_regex("regex_a", "(chrome\\.exe|firefox\\.exe)", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_b", "(firefox\\.exe|safari\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_regex(
+                "regex_a",
+                "(chrome\\.exe|firefox\\.exe)",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_b",
+                "(firefox\\.exe|safari\\.exe)",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1642,8 +1710,20 @@ mod duplicate_tests {
 
         let traits = vec![
             // One has alternation, but >33% length difference
-            create_string_regex("regex_simple", "\\.exe", false, vec![FileType::Pe], "file1.yaml"),
-            create_string_regex("regex_alternation", "(chrome\\.exe|firefox\\.exe|safari\\.exe)", false, vec![FileType::Pe], "file2.yaml"),
+            create_string_regex(
+                "regex_simple",
+                "\\.exe",
+                false,
+                vec![FileType::Pe],
+                "file1.yaml",
+            ),
+            create_string_regex(
+                "regex_alternation",
+                "(chrome\\.exe|firefox\\.exe|safari\\.exe)",
+                false,
+                vec![FileType::Pe],
+                "file2.yaml",
+            ),
         ];
 
         let mut warnings = Vec::new();
@@ -1663,7 +1743,9 @@ mod composite_tests {
 #[cfg(test)]
 mod pattern_tests {
     use super::super::patterns::find_non_capturing_groups;
-    use crate::composite_rules::{Condition, ConditionWithFilters, FileType, Platform, TraitDefinition};
+    use crate::composite_rules::{
+        Condition, ConditionWithFilters, FileType, Platform, TraitDefinition,
+    };
     use std::path::PathBuf;
 
     fn create_raw_regex_trait(id: &str, pattern: &str) -> TraitDefinition {
@@ -1708,10 +1790,7 @@ mod pattern_tests {
 
     #[test]
     fn test_non_capturing_group_detected() {
-        let traits = vec![create_raw_regex_trait(
-            "test-noncap",
-            r"(?:foo|bar)baz",
-        )];
+        let traits = vec![create_raw_regex_trait("test-noncap", r"(?:foo|bar)baz")];
         let mut warnings = Vec::new();
         find_non_capturing_groups(&traits, &mut warnings);
 
@@ -1722,10 +1801,7 @@ mod pattern_tests {
 
     #[test]
     fn test_regular_group_no_warning() {
-        let traits = vec![create_raw_regex_trait(
-            "test-cap",
-            r"(foo|bar)baz",
-        )];
+        let traits = vec![create_raw_regex_trait("test-cap", r"(foo|bar)baz")];
         let mut warnings = Vec::new();
         find_non_capturing_groups(&traits, &mut warnings);
 
@@ -1734,10 +1810,7 @@ mod pattern_tests {
 
     #[test]
     fn test_no_group_no_warning() {
-        let traits = vec![create_raw_regex_trait(
-            "test-nogroup",
-            r"foobarbaz",
-        )];
+        let traits = vec![create_raw_regex_trait("test-nogroup", r"foobarbaz")];
         let mut warnings = Vec::new();
         find_non_capturing_groups(&traits, &mut warnings);
 
@@ -1754,7 +1827,9 @@ mod taxonomy_tests {
 #[cfg(test)]
 mod constraint_tests {
     use crate::capabilities::validation::constraints::find_pure_alias_traits;
-    use crate::composite_rules::{Condition, ConditionWithFilters, FileType, Platform, TraitDefinition};
+    use crate::composite_rules::{
+        Condition, ConditionWithFilters, FileType, Platform, TraitDefinition,
+    };
     use crate::types::Criticality;
     use std::path::PathBuf;
 
@@ -1899,7 +1974,10 @@ mod constraint_tests {
         let traits = vec![base, alias];
         let violations = find_pure_alias_traits(&traits);
 
-        assert!(violations.is_empty(), "Should not flag traits with count constraints");
+        assert!(
+            violations.is_empty(),
+            "Should not flag traits with count constraints"
+        );
     }
 
     #[test]
@@ -1917,7 +1995,10 @@ mod constraint_tests {
         let traits = vec![base, alias];
         let violations = find_pure_alias_traits(&traits);
 
-        assert!(violations.is_empty(), "Should not flag traits with downgrade");
+        assert!(
+            violations.is_empty(),
+            "Should not flag traits with downgrade"
+        );
     }
 
     #[test]
