@@ -35,6 +35,7 @@ type promptData struct {
 	MayBeBad              bool   // For good files: suggest checking if it's actually bad
 	HasHostileFindings    bool   // For good files: has hostile findings that need fixing
 	HasSuspiciousFindings bool   // For good files: has suspicious findings to review
+	IsValidationSample    bool   // True when file was randomly selected for validation (passed normal thresholds)
 }
 
 // config holds all configuration for a trait-basher session.
@@ -51,17 +52,19 @@ type config struct {
 	idleTimeout time.Duration // Kill LLM if no output for this duration
 	rescanAfter int           // Number of files to review before restarting scan (0 = disabled)
 	concurrency int           // Number of concurrent LLM review sessions
-	knownGood   bool
-	knownBad    bool
-	useCargo    bool
-	flush       bool
-	verbose     bool // Show detailed skip/progress messages
+	knownGood     bool
+	knownBad      bool
+	useCargo      bool
+	flush         bool
+	verbose       bool // Show detailed skip/progress messages
+	validateEvery int  // Randomly validate 1 in N files even if properly classified (0 = disabled)
 }
 
 // reviewJob represents a file or archive to be reviewed by an LLM.
 type reviewJob struct {
-	archive *ArchiveAnalysis  // non-nil for archive reviews
-	file    *RealFileAnalysis // non-nil for standalone file reviews
+	archive      *ArchiveAnalysis  // non-nil for archive reviews
+	file         *RealFileAnalysis // non-nil for standalone file reviews
+	isValidation bool              // true if this is a validation sample (randomly selected for audit)
 }
 
 // reviewResult contains the outcome of a review job.

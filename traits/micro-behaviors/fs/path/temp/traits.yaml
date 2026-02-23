@@ -29,7 +29,7 @@ traits:
     desc: Windows Temp directory path
     if:
       type: string
-      regex: '(?i)\Temp'
+      regex: '(?i)\\Temp'
 
 composite_rules:
   - id: any-temp-path

@@ -24,6 +24,7 @@ import (
 	"io"
 	"log"
 	"log/slog"
+	"math/rand/v2"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -223,6 +224,7 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 		rc.setWorkerBusy(id, path, jobCfg.provider)
 
 		start := time.Now()
+		sid := rc.workerSessionID(id)
 		var err error
 
 		// Retry loop with exponential backoff
@@ -232,12 +234,10 @@ func (rc *reviewCoordinator) worker(ctx context.Context, id int) {
 			rc.mu.Lock()
 			rc.workers[id].provider = jobCfg.provider
 			rc.mu.Unlock()
-
-			sid := rc.workerSessionID(id)
 			if job.archive != nil {
-				err = invokeAIArchive(ctx, &jobCfg, job.archive, sid, id, rc)
+				err = invokeAIArchive(ctx, &jobCfg, job.archive, job.isValidation, sid, id, rc)
 			} else if job.file != nil {
-				err = rc.reviewFile(ctx, &jobCfg, job.file, sid, id)
+				err = rc.reviewFile(ctx, &jobCfg, job.file, job.isValidation, sid, id)
 			}
 
 			if err == nil {
@@ -285,7 +285,7 @@ func jobPath(job reviewJob) string {
 	return ""
 }
 
-func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis, sid string, workerID int) error {
+func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *RealFileAnalysis, isValidation bool, sid string, workerID int) error {
 	// Aggregate findings from root and all fragments
 	agg := file.Root
 	if agg.Path == "" {
@@ -295,7 +295,7 @@ func (rc *reviewCoordinator) reviewFile(ctx context.Context, cfg *config, file *
 		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
 
-	return invokeAI(ctx, cfg, agg, sid, workerID, rc)
+	return invokeAI(ctx, cfg, agg, isValidation, sid, workerID, rc)
 }
 
 const maxYAMLAutoFixAttempts = 3
@@ -310,13 +310,14 @@ var geminiDefaultModels = []string{
 }
 
 // archiveNeedsReview returns true if the archive needs review.
+// Returns (needsReview, isValidationSample).
 // Uses the archive summary findings when available (from DISSECT's aggregated output).
 // For known-good archives: review if ANY hostile OR 2+ suspicious (to reduce false positives).
 //
 //	Up to 1 suspicious finding is acceptable.
 //
 // For known-bad archives: review if NOT flagged (missing detections).
-func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
+func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool, validateEvery int) (bool, bool) {
 	// Use summary findings if available (preferred - avoids race conditions from parallel streaming)
 	if len(a.SummaryFindings) > 0 || a.SummaryRisk != "" {
 		// Create aggregate FileAnalysis from summary to reuse needsReview logic
@@ -325,7 +326,7 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 			Risk:     a.SummaryRisk,
 			Findings: a.SummaryFindings,
 		}
-		return needsReview(agg, knownGood)
+		return needsReview(agg, knownGood, validateEvery)
 	}
 
 	// Fallback to member-based logic (legacy behavior, shouldn't happen with new DISSECT)
@@ -334,7 +335,7 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 	for _, m := range a.Members {
 		agg.Findings = append(agg.Findings, m.Findings...)
 	}
-	return needsReview(agg, knownGood)
+	return needsReview(agg, knownGood, validateEvery)
 }
 
 // archiveProblematicMembers returns members that individually meet the review threshold.
@@ -343,7 +344,8 @@ func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool) bool {
 func archiveProblematicMembers(a *ArchiveAnalysis, knownGood bool) []FileAnalysis {
 	var result []FileAnalysis
 	for _, m := range a.Members {
-		if needsReview(m, knownGood) {
+		// For member selection, we don't use validation sampling - just normal thresholds
+		if review, _ := needsReview(m, knownGood, 0); review {
 			result = append(result, m)
 		}
 	}
@@ -372,6 +374,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	rescanAfter := flag.Int("rescan-after", 4, "Restart scan after reviewing N files to verify fixes (0 = disabled)")
 	concurrency := flag.Int("concurrency", 2, "Number of concurrent LLM review sessions")
 	verbose := flag.Bool("verbose", false, "Show detailed skip/progress messages")
+	validateEvery := flag.Int("validate-every", 250, "Randomly validate 1 in N files even if properly classified (0 = disabled)")
 
 	flag.Parse()
 
@@ -487,22 +490,23 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	defer db.Close()               //nolint:errcheck // best-effort cleanup
 
 	cfg := &config{
-		dirs:        dirs,
-		repoRoot:    resolvedRoot,
-		providers:   providers,
-		provider:    providers[0], // Current active provider
-		model:       *model,
-		timeout:     *timeout,
-		idleTimeout: *idleTimeout,
-		knownGood:   *knownGood,
-		knownBad:    *knownBad,
-		useCargo:    *useCargo,
-		flush:       *flush,
-		verbose:     *verbose,
-		db:          db,
-		extractDir:  extractDir,
-		rescanAfter: *rescanAfter,
-		concurrency: *concurrency,
+		dirs:          dirs,
+		repoRoot:      resolvedRoot,
+		providers:     providers,
+		provider:      providers[0], // Current active provider
+		model:         *model,
+		timeout:       *timeout,
+		idleTimeout:   *idleTimeout,
+		knownGood:     *knownGood,
+		knownBad:      *knownBad,
+		useCargo:      *useCargo,
+		flush:         *flush,
+		verbose:       *verbose,
+		db:            db,
+		extractDir:    extractDir,
+		rescanAfter:   *rescanAfter,
+		concurrency:   *concurrency,
+		validateEvery: *validateEvery,
 	}
 
 	ctx := context.Background()
@@ -1180,7 +1184,8 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		}
 	}
 
-	if !archiveNeedsReview(archive, st.cfg.knownGood) {
+	needsRev, isValidation := archiveNeedsReview(archive, st.cfg.knownGood, st.cfg.validateEvery)
+	if !needsRev {
 		mode := "bad"
 		reason := "already has detections"
 		if st.cfg.knownGood {
@@ -1291,6 +1296,9 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
+	if isValidation {
+		reason = "🔍 validation sample (random audit)"
+	}
 	activeCount := st.coordinator.activeCount()
 	fmt.Fprintf(os.Stderr, "   %s[queue]%s %s%s%s: %s %s(%d active)%s\n",
 		colorBlue, colorReset,
@@ -1306,8 +1314,8 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 		SummaryRisk:     archive.SummaryRisk,
 		SummaryFindings: append([]Finding(nil), archive.SummaryFindings...),
 	}
-	st.coordinator.submit(reviewJob{archive: archiveCopy})
-	logCompletion("queued_for_review", "files_with_concerns", len(filesWithFindings))
+	st.coordinator.submit(reviewJob{archive: archiveCopy, isValidation: isValidation})
+	logCompletion("queued_for_review", "files_with_concerns", len(filesWithFindings), "is_validation", isValidation)
 }
 
 func processRealFile(ctx context.Context, st *streamState) {
@@ -1319,7 +1327,8 @@ func processRealFile(ctx context.Context, st *streamState) {
 	st.stats.totalFiles++
 	st.stats.totalStandaloneFiles++
 
-	if !realFileNeedsReview(rf, st.cfg.knownGood) {
+	needsRev, isValidation := realFileNeedsReview(rf, st.cfg.knownGood, st.cfg.validateEvery)
+	if !needsRev {
 		if st.cfg.verbose {
 			mode := "bad"
 			reason := "already detected (has suspicious/hostile findings)"
@@ -1374,6 +1383,9 @@ func processRealFile(ctx context.Context, st *streamState) {
 	if st.cfg.knownBad {
 		reason = "missing detections on known-bad sample"
 	}
+	if isValidation {
+		reason = "🔍 validation sample (random audit)"
+	}
 	activeCount := st.coordinator.activeCount()
 	fmt.Fprintf(os.Stderr, "   %s[queue]%s %s%s%s: %s %s(%d active)%s\n",
 		colorBlue, colorReset,
@@ -1388,25 +1400,43 @@ func processRealFile(ctx context.Context, st *streamState) {
 		Root:      rf.Root,
 		Fragments: append([]FileAnalysis(nil), rf.Fragments...),
 	}
-	st.coordinator.submit(reviewJob{file: fileCopy})
+	st.coordinator.submit(reviewJob{file: fileCopy, isValidation: isValidation})
+
+	// Log file queued for review
+	if st.logger != nil {
+		st.logger.Info("file_queued_for_review",
+			"file_path", rf.RealPath,
+			"file_name", filepath.Base(rf.RealPath),
+			"fragment_count", len(rf.Fragments),
+			"is_validation", isValidation,
+		)
+	}
 }
 
 // needsReview determines if a file needs AI review based on mode.
+// Returns (needsReview, isValidationSample).
 // --good: Review files WITH hostile findings OR 2+ suspicious findings (reduce false positives).
 //
 //	Up to 1 suspicious finding is acceptable for known-good samples.
 //
 // --bad: Review files WITHOUT suspicious/hostile findings (find false negatives).
-func needsReview(f FileAnalysis, knownGood bool) bool {
+//
+// When validateEvery > 0, randomly selects 1 in N files that would normally be skipped
+// for validation review (checking for sneaky issues even in "passing" files).
+func needsReview(f FileAnalysis, knownGood bool, validateEvery int) (review bool, isValidation bool) {
 	if !knownGood {
 		// Known-bad mode: review if no suspicious/hostile findings (FN check)
 		for _, finding := range f.Findings {
 			c := strings.ToLower(finding.Crit)
 			if c == "suspicious" || c == "hostile" {
-				return false // Has detection, skip review
+				// Has detection - normally skip, but maybe validate
+				if validateEvery > 0 && rand.IntN(validateEvery) == 0 {
+					return true, true // Validation sample
+				}
+				return false, false // Has detection, skip review
 			}
 		}
-		return true // No detection, needs review
+		return true, false // No detection, needs review
 	}
 
 	// Known-good mode: count hostile and suspicious separately
@@ -1422,11 +1452,20 @@ func needsReview(f FileAnalysis, knownGood bool) bool {
 	}
 
 	// Review if: any hostile OR 2+ suspicious
-	return hostileCount > 0 || suspiciousCount > 1
+	if hostileCount > 0 || suspiciousCount > 1 {
+		return true, false // Normal review needed
+	}
+
+	// Would normally skip - but maybe validate
+	if validateEvery > 0 && rand.IntN(validateEvery) == 0 {
+		return true, true // Validation sample
+	}
+	return false, false
 }
 
 // realFileNeedsReview determines if a real file (with all its fragments) needs review.
-func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool) bool {
+// Returns (needsReview, isValidationSample).
+func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool, validateEvery int) (bool, bool) {
 	// Aggregate findings from root and all fragments for accurate counting
 	agg := FileAnalysis{
 		Path:     rf.RealPath,
@@ -1435,7 +1474,7 @@ func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool) bool {
 	for _, frag := range rf.Fragments {
 		agg.Findings = append(agg.Findings, frag.Findings...)
 	}
-	return needsReview(agg, knownGood)
+	return needsReview(agg, knownGood, validateEvery)
 }
 
 // sanityCheck runs dissect on /bin/ls to catch code errors early.
@@ -1562,7 +1601,7 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
-func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string, workerID int, rc *reviewCoordinator) error {
+func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation bool, sid string, workerID int, rc *reviewCoordinator) error {
 	// Check for misclassification marker - skip if present
 	if hasMarker, markerType := hasMisclassificationMarker(f.Path); hasMarker {
 		if cfg.verbose {
@@ -1580,13 +1619,14 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string, work
 
 	// Build prompt data
 	data := promptData{
-		Path:             f.Path,
-		DissectBin:       cfg.dissectBin,
-		TraitsDir:        cfg.repoRoot + "/traits/",
-		IsArchive:        false,
-		IsBad:            cfg.knownBad,
-		BenignMarkerPath: misclassificationMarkerPath(f.Path, "BENIGN"),
-		BadMarkerPath:    misclassificationMarkerPath(f.Path, "BAD"),
+		Path:               f.Path,
+		DissectBin:         cfg.dissectBin,
+		TraitsDir:          cfg.repoRoot + "/traits/",
+		IsArchive:          false,
+		IsBad:              cfg.knownBad,
+		IsValidationSample: isValidation,
+		BenignMarkerPath:   misclassificationMarkerPath(f.Path, "BENIGN"),
+		BadMarkerPath:      misclassificationMarkerPath(f.Path, "BAD"),
 	}
 
 	// Count findings by criticality
@@ -1727,7 +1767,7 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, sid string, work
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
-func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid string, workerID int, rc *reviewCoordinator) error {
+func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isValidation bool, sid string, workerID int, rc *reviewCoordinator) error {
 	// Check for misclassification marker - skip if present
 	if hasMarker, markerType := hasMisclassificationMarker(a.ArchivePath); hasMarker {
 		if cfg.verbose {
@@ -1849,16 +1889,17 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, sid s
 
 	// Build prompt data
 	data := promptData{
-		Path:             dissectPath,
-		ArchiveName:      archiveName,
-		Files:            fileEntries,
-		Count:            filesWithConcerns,
-		DissectBin:       cfg.dissectBin,
-		TraitsDir:        cfg.repoRoot + "/traits/",
-		IsArchive:        true,
-		IsBad:            cfg.knownBad,
-		BenignMarkerPath: misclassificationMarkerPath(a.ArchivePath, "BENIGN"),
-		BadMarkerPath:    misclassificationMarkerPath(a.ArchivePath, "BAD"),
+		Path:               dissectPath,
+		ArchiveName:        archiveName,
+		Files:              fileEntries,
+		Count:              filesWithConcerns,
+		DissectBin:         cfg.dissectBin,
+		TraitsDir:          cfg.repoRoot + "/traits/",
+		IsArchive:          true,
+		IsBad:              cfg.knownBad,
+		IsValidationSample: isValidation,
+		BenignMarkerPath:   misclassificationMarkerPath(a.ArchivePath, "BENIGN"),
+		BadMarkerPath:      misclassificationMarkerPath(a.ArchivePath, "BAD"),
 	}
 
 	// Count findings by criticality

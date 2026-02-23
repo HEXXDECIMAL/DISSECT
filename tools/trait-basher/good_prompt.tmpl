@@ -1,4 +1,4 @@
-# Known-Good Sample: False Positive Reduction
+# Known-Good Sample: {{if .IsValidationSample}}Validation Audit{{else}}False Positive Reduction{{end}}
 
 {{if .IsArchive}}**Archive**: {{.ArchiveName}} ({{.Count}} files with concerning findings)
 {{range .Files}}- {{.Path}}{{if .Summary}} — {{.Summary}}{{end}}
@@ -7,15 +7,22 @@
 
 **Your Role**: Security engineer improving DISSECT detection accuracy.
 
-**Goal**: Eliminate inaccurate or misleading detections on this known-benign file while preserving genuinely accurate findings.
+{{if .IsValidationSample}}**Goal**: This file passed normal thresholds (random validation audit). Verify there are no sneaky false positives, misleading findings (even inert ones), or taxonomy violations hiding in the output.
+{{else}}**Goal**: Eliminate inaccurate or misleading detections on this known-benign file while preserving genuinely accurate findings.
+{{end}}
 
 ---
 
 ## Current Status
 
-{{if .HasHostileFindings}}🔴 **Hostile findings present** — These MUST be eliminated. Hostile criticality means unquestionably malicious behavior.
+{{if .IsValidationSample}}🔍 **Validation Sample** — This file passed normal review thresholds. Audit ALL findings for accuracy:
+- Are there any false positives hiding at lower criticality levels?
+- Are any findings misleading about what the file actually does?
+- Are traits placed in the correct directories per TAXONOMY.md?
+- Are any inert findings inaccurate or mischaracterizing the file?
+{{else}}{{if .HasHostileFindings}}🔴 **Hostile findings present** — These MUST be eliminated. Hostile criticality means unquestionably malicious behavior.
 {{end}}{{if .HasSuspiciousFindings}}🟡 **Suspicious findings present** — Review each one. Some may be legitimate for this tool's purpose.
-{{end}}
+{{end}}{{end}}
 
 {{if .HasRelatedBadReport}}**Context**: This file also appears in a bad collection. Review malware analysis at `{{.RelatedBadReportPath}}` to understand if the file has malicious variants or was misclassified.
 {{end}}
@@ -30,9 +37,11 @@ Determine the file's legitimate purpose:
 {{.DissectBin}} --format jsonl {{.Path}}
 ```
 
-### Step 2: Evaluate Each Finding
+### Step 2: Evaluate {{if .IsValidationSample}}All Findings{{else}}Each Finding{{end}}
 
-For each hostile or suspicious finding:
+{{if .IsValidationSample}}Audit every finding at ALL criticality levels (hostile, suspicious, notable, AND inert):
+{{else}}For each hostile or suspicious finding:
+{{end}}
 
 **Is it technically accurate?**
 - Does the file actually exhibit this behavior?
@@ -41,6 +50,12 @@ For each hostile or suspicious finding:
 **Is it misleading in this context?**
 - Is this behavior expected for this tool type?
 - Example: Process manager killing processes is notable, not hostile
+{{if .IsValidationSample}}
+**Is it in the correct taxonomy location?**
+- Check trait paths against TAXONOMY.md
+- `micro-behaviors/` traits must NOT reference `objectives/` traits
+- Intent-based detections belong in `objectives/`, not `micro-behaviors/`
+{{end}}
 
 ### Step 3: Fix Strategy
 
@@ -86,6 +101,8 @@ Run `{{.DissectBin}} --format jsonl {{.Path}}` and confirm:
 - ✓ Context-appropriate criticality (`kill()` syscall: suspicious in game, notable in htop)
 - ✓ No trait duplicates (same evidence, same scenario)
 - ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable
+{{if .IsValidationSample}}- ✓ Traits are in correct taxonomy directories per TAXONOMY.md
+{{end}}
 
 {{if .MayBeBad}}
 **⚠️ Misclassification Check**: If analysis reveals this file is actually malicious:

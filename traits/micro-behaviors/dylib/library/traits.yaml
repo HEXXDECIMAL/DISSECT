@@ -249,7 +249,7 @@ traits:
     conf: 0.7
     if:
       type: symbol
-      regex: "^(__libc_(?!start(_main)?\\b)|__ctype_|__tzname\\b|__progname\\b)"
+      regex: "^(__ctype_|__tzname\\b|__progname\\b)"
   - id: libc-characteristic-symbols
     desc: "Characteristic system library exports"
     crit: inert

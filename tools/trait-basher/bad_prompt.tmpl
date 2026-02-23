@@ -1,4 +1,4 @@
-# Known-Bad Sample: Malware Analysis & Detection Engineering
+# Known-Bad Sample: {{if .IsValidationSample}}Detection Validation{{else}}Malware Analysis & Detection Engineering{{end}}
 
 {{if .IsArchive}}**Archive**: {{.ArchiveName}} ({{.Count}} files with concerning findings)
 {{range .Files}}- {{.Path}}{{if .Summary}} — {{.Summary}}{{end}}
@@ -7,10 +7,72 @@
 
 **Your Role**: Senior malware reverse engineer improving open-source detection capabilities in DISSECT - a tool to detect subtle supply-chain attacks or other kinds of malware through differential analysis.
 
-**Goal**: Analyze this known-malicious sample, create research documentation, and build reusable high-precision traits to detect it and similar malware, or supply-chain attacks that use similar techniques.
+{{if .IsValidationSample}}**Goal**: This sample was detected (random validation audit). Verify the research report is complete, gap analysis shows we're catching ALL malware behaviors, no misleading findings exist, and traits are in correct taxonomy directories.
+{{else}}**Goal**: Analyze this known-malicious sample, create research documentation, and build reusable high-precision traits to detect it and similar malware, or supply-chain attacks that use similar techniques.
+{{end}}
 
 ---
 
+{{if .IsValidationSample}}
+## 🔍 Validation Mode
+
+This sample was properly detected. Validate completeness of our detection:
+
+### Step 1: Verify Research Report
+
+{{if .ReportExists}}Read the existing analysis at `{{.ReportPath}}` and verify it covers all malware behaviors.
+{{else}}**No research report exists!** Create one at `{{.ReportPath}}` before proceeding:
+
+Start with reconnaissance:
+```bash
+{{.DissectBin}} strings {{.Path}}         # Extract all strings (including encoded)
+{{.DissectBin}} --format jsonl {{.Path}}  # Current DISSECT findings
+```
+
+Use rizin or Ghidra for deeper analysis of control flow, API calls, and obfuscation.
+
+**Report must cover**:
+- Executive summary: What is this malware? What does it do? Threat level?
+- Files accessed/leaked with purpose
+- Persistence mechanisms (method, location)
+- Network command-and-control/exfil (URLs, IPs, protocols, beaconing intervals)
+- Hidden/encoded text (strings, decoding methods)
+- Structural anomalies (unusual program structure)
+- Execution flow (initial execution → final payload)
+- Unique characteristics (obfuscation, syscalls, custom protocols, fingerprints)
+{{end}}
+
+### Step 2: Gap Analysis
+
+Read the gap analysis at `{{.GapAnalysisPath}}` (create/update if needed).
+
+Compare DISSECT output against research findings:
+- Does DISSECT detect the C2 pattern?
+- Persistence method?
+- File exfil?
+- Obfuscation?
+- Structural anomalies?
+
+**Are we catching ALL documented behaviors?**
+
+### Step 3: Audit All Findings
+
+Review every finding at ALL criticality levels:
+
+**Is it technically accurate?**
+- Does the finding correctly describe what the malware does?
+- Are there any misleading findings (even inert ones)?
+
+**Is it in the correct taxonomy location?**
+- Check trait paths against TAXONOMY.md
+- `micro-behaviors/` traits must NOT reference `objectives/` traits
+- Intent-based detections belong in `objectives/`, not `micro-behaviors/`
+
+### Step 4: Fix Any Issues
+
+If gaps or issues found, use the strategies below to fix them.
+
+{{else}}
 {{if .ReportExists}}
 ## Step 1: Review Prior Analysis ✓
 
@@ -46,8 +108,9 @@ Use rizin or Ghidra for deeper analysis of control flow, API calls, and obfuscat
 **Create**: `{{.GapAnalysisPath}}`
 
 Compare DISSECT output against your research findings. Document gaps: Does DISSECT detect the C2 pattern? Persistence method? File exfil? Obfuscation? Structural anomalies?
+{{end}}
 
-## Step 3: Build Detection Traits
+## {{if .IsValidationSample}}Fix Strategies{{else}}Step 3: Build Detection Traits{{end}}
 
 ### Create Atomic Capabilities (`micro-behaviors/`)
 - Place traits in semantically correct directories per TAXONOMY.md
@@ -101,3 +164,7 @@ touch {{.BenignMarkerPath}}
 - ✓ Inert traits are accurate and not misleading; inert traits that describe a programs purpose should be upgraded to notable
 - ✓ Zero misleading or inaccurate findings (even inert ones)
 - ✓ Output accurately describes file capabilities - no false positives.
+{{if .IsValidationSample}}- ✓ Research report covers ALL malware behaviors
+- ✓ Gap analysis is current and accurate
+- ✓ Traits are in correct taxonomy directories per TAXONOMY.md
+{{end}}

@@ -98,12 +98,32 @@ impl super::CapabilityMapper {
                     match fs::read(&cache_path) {
                         Ok(mut bytes) => {
                             match simd_json::from_slice::<MapperCacheData>(&mut bytes) {
-                                Ok(cache_data) => {
+                                Ok(mut cache_data) => {
                                     tracing::info!(
                                         "Loaded mapper from cache ({} traits, {} composites)",
                                         cache_data.trait_definitions.len(),
                                         cache_data.composite_rules.len()
                                     );
+
+                                    // Re-compile regexes (not serialized due to #[serde(skip)])
+                                    for trait_def in &mut cache_data.trait_definitions {
+                                        if let Err(e) = trait_def.precompile_regexes() {
+                                            tracing::warn!(
+                                                "Failed to compile regex for cached trait {}: {}",
+                                                trait_def.id,
+                                                e
+                                            );
+                                        }
+                                    }
+                                    for rule in &mut cache_data.composite_rules {
+                                        if let Err(e) = rule.precompile_regexes() {
+                                            tracing::warn!(
+                                                "Failed to compile regex for cached composite {}: {}",
+                                                rule.id,
+                                                e
+                                            );
+                                        }
+                                    }
 
                                     // Rebuild indexes from cached trait definitions (in parallel)
                                     let ((trait_index, string_match_index), raw_regex_result) =
@@ -268,7 +288,15 @@ impl super::CapabilityMapper {
             for rule in mappings.simple_rules {
                 // If rule has platform or file_type constraints, convert to composite rule
                 if !rule.platforms.is_empty() || !rule.file_types.is_empty() {
-                    let composite = simple_rule_to_composite_rule(rule, &mut parsing_warnings);
+                    let mut composite = simple_rule_to_composite_rule(rule, &mut parsing_warnings);
+                    // Pre-compile regexes for this composite rule
+                    if let Err(e) = composite.precompile_regexes() {
+                        return Err(anyhow::anyhow!(
+                            "Failed to compile regex for simple rule '{}': {}",
+                            composite.id,
+                            e
+                        ));
+                    }
                     composite_rules_map.insert(composite.id.clone(), composite);
                 } else {
                     // No constraints - add to symbol map for fast lookup
@@ -542,6 +570,16 @@ impl super::CapabilityMapper {
                     }
                 }
 
+                // Pre-compile regexes for this trait
+                if let Err(e) = trait_def.precompile_regexes() {
+                    return Err(anyhow::anyhow!(
+                        "Failed to compile regex for trait '{}' in {:?}: {:#}",
+                        trait_def.id,
+                        path,
+                        e
+                    ));
+                }
+
                 // Track source file for error reporting
                 let source_path = path.display().to_string();
                 trait_source_files.insert(trait_def.id.clone(), source_path.clone());
@@ -602,6 +640,16 @@ impl super::CapabilityMapper {
                     warnings.push(format!("  Composite: {}", path.display()));
                     // Remove the trait definition
                     trait_definitions_map.remove(&rule.id);
+                }
+
+                // Pre-compile regexes for this composite rule
+                if let Err(e) = rule.precompile_regexes() {
+                    return Err(anyhow::anyhow!(
+                        "Failed to compile regex for composite '{}' in {:?}: {}",
+                        rule.id,
+                        path,
+                        e
+                    ));
                 }
 
                 // Track source file for error reporting
