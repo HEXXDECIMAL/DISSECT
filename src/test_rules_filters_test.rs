@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 /// Tests to ensure debug output matches evaluation output for all filter types
 /// This prevents discrepancies where debug shows "matched" but evaluation returns None
 use crate::composite_rules::condition::Condition;

@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for YARA and hex pattern evaluators
 //!
 //! Comprehensive test coverage for:

@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Test for ValidFieldPaths derive macro
 
 #[cfg(test)]

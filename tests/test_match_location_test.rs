@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for test-match CLI command location constraint behavior.
 //!
 //! Verifies that --offset, --offset-range, --section, --section-offset, and

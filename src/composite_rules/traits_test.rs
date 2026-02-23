@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for TraitDefinition evaluation with focus on constraints and security features.
 //!
 //! Comprehensive test coverage for:

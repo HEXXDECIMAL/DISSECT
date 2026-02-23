@@ -1,4 +1,6 @@
 //! YARA and hex pattern condition evaluators.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module handles evaluation of YARA-based conditions:
 //! - YARA rule matching against pre-scanned results

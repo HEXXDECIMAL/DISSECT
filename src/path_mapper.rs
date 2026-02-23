@@ -516,94 +516,13 @@ mod tests {
         assert!(!path_info.evidence.is_empty());
     }
 
-    #[test]
-    fn test_detect_platform_from_paths_mtd() {
-        let paths = vec![
-            PathInfo {
-                path: "/mnt/mtd/config".to_string(),
-                path_type: PathType::Absolute,
-                category: PathCategory::Other,
-                access_type: None,
-                source: "strings".to_string(),
-                evidence: vec![],
-                referenced_by_traits: vec![],
-            },
-            PathInfo {
-                path: "/dev/mtdblock0".to_string(),
-                path_type: PathType::Absolute,
-                category: PathCategory::Device,
-                access_type: None,
-                source: "strings".to_string(),
-                evidence: vec![],
-                referenced_by_traits: vec![],
-            },
-        ];
+    // NOTE: test_detect_platform_from_paths_mtd and test_detect_privilege_requirements
+    // were removed because the underlying functions (detect_platform_from_paths,
+    // detect_privilege_requirements) have been stubbed out. The functionality has
+    // moved to YAML-based trait definitions.
 
-        let traits = detect_platform_from_paths(&paths);
-
-        assert!(traits
-            .iter()
-            .any(|t| t.id.contains("embedded") && t.id.contains("mtd")));
-    }
-
-    #[test]
-    fn test_detect_privilege_requirements() {
-        let paths = vec![PathInfo {
-            path: "/etc/shadow".to_string(),
-            path_type: PathType::Absolute,
-            category: PathCategory::Config,
-            access_type: None,
-            source: "strings".to_string(),
-            evidence: vec![],
-            referenced_by_traits: vec![],
-        }];
-
-        let traits = detect_privilege_requirements(&paths);
-
-        assert!(traits.iter().any(|t| t.id.contains("root-access")));
-    }
-
-    #[test]
-    fn test_detect_anomalous_paths_excludes_debug_paths() {
-        // DWARF debug paths with relative components should NOT trigger hidden file detection
-        let debug_path = PathInfo {
-            path: "/usr/xenocara/lib/mesa/mk/libGLESv1_CM/../../src/mapi/entry.c".to_string(),
-            path_type: PathType::Absolute,
-            category: PathCategory::Hidden, // Even if classified as Hidden
-            access_type: None,
-            source: "strings".to_string(),
-            evidence: vec![],
-            referenced_by_traits: vec![],
-        };
-
-        let traits = detect_anomalous_paths(&[debug_path]);
-
-        // Should NOT generate a persistence/hidden_file finding due to /../
-        assert!(
-            !traits.iter().any(|t| t.id == "persistence/hidden_file"),
-            "DWARF debug paths with /../ should not trigger hidden file detection"
-        );
-    }
-
-    #[test]
-    fn test_detect_anomalous_paths_detects_real_hidden_files() {
-        // Actual hidden files in system directories SHOULD trigger detection
-        let hidden_path = PathInfo {
-            path: "/usr/lib/.malware".to_string(),
-            path_type: PathType::Absolute,
-            category: PathCategory::Hidden,
-            access_type: None,
-            source: "strings".to_string(),
-            evidence: vec![],
-            referenced_by_traits: vec![],
-        };
-
-        let traits = detect_anomalous_paths(&[hidden_path]);
-
-        // Should generate a persistence/hidden_file finding
-        assert!(
-            traits.iter().any(|t| t.id == "persistence/hidden_file"),
-            "Real hidden files in system directories should trigger detection"
-        );
-    }
+    // NOTE: test_detect_anomalous_paths_excludes_debug_paths and
+    // test_detect_anomalous_paths_detects_real_hidden_files were removed because
+    // detect_anomalous_paths has been stubbed out. The functionality has moved
+    // to YAML-based trait definitions in traits/objectives/persistence/hidden-files/
 }

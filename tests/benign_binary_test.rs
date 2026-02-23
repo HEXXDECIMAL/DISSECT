@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 /// Integration test for analyzing benign system binaries.
 ///
 /// Ensures that legitimate system binaries like /bin/ls are correctly

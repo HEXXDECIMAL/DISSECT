@@ -1,3 +1,6 @@
+//! Example program.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Memory profiling example for PE analysis
 //!
 //! Run with: cargo run --release --example memory_profile_pe <pe_file>

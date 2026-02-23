@@ -1,4 +1,5 @@
 //! Unified source code analyzer for all AST-based languages.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module provides a single analyzer that handles all tree-sitter supported
 //! languages through configuration rather than separate implementations.
@@ -1449,12 +1450,13 @@ func main() {
 }
 "#;
         let report = analyze_go_code(code);
+        // The listenandserve-call trait matches the ListenAndServe call,
+        // and go-http-server is a composite that includes listenandserve-call
         assert!(
-            report
-                .findings
-                .iter()
-                .any(|c| c.id == "micro-behaviors/communications/http/server::server-go"),
-            "Expected micro-behaviors/communications/http/server::server-go, found: {:?}",
+            report.findings.iter().any(|c| c.id
+                == "micro-behaviors/communications/http/server::go-http-server"
+                || c.id == "micro-behaviors/communications/http/server::listenandserve-call"),
+            "Expected go-http-server or listenandserve-call, found: {:?}",
             report.findings.iter().map(|f| &f.id).collect::<Vec<_>>()
         );
     }

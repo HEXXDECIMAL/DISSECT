@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for validation module.
 //!
 //! Tests are organized by submodule to match the module structure.

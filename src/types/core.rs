@@ -1,4 +1,5 @@
 //! Core analysis types - the foundation of DISSECT reports
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};

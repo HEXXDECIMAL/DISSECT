@@ -1,3 +1,4 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 use crate::rtf::error::{Result, RtfError};
 
 /// Decode a hex string into bytes. Tolerates whitespace.

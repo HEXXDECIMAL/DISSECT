@@ -1,4 +1,5 @@
 //! Chrome extension manifest.json analyzer.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! Detects suspicious patterns in Chrome extension manifests including:
 //! - Dangerous permissions (debugger, webRequest, cookies, history)

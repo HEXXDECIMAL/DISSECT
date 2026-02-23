@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Integration tests for embedded code detection in strings
 
 use dissect::analyzers::embedded_code_detector::{

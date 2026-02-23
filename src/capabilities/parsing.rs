@@ -1,4 +1,5 @@
 //! YAML data processing and default application.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module handles:
 //! - Applying file-level defaults to raw trait and composite rule definitions

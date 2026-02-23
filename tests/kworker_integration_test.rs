@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Integration test for kworker StackString detection via layer_path traits
 //!
 //! This test verifies that:

@@ -1684,12 +1684,17 @@ impl CompositeTrait {
 
         let positive_result = match (&self.all, &self.any) {
             (Some(all), Some(any)) => {
-                // Both all AND any: all must match AND any must match
+                // Both all AND any: all must match AND any must match (respecting `needs`)
                 let all_result = self.eval_requires_all(all, ctx);
                 if !all_result.matched {
                     return None;
                 }
-                let any_result = self.eval_requires_any(any, ctx);
+                // Handle needs constraint on `any` conditions (same as any-only case)
+                let any_result = if let Some(required_count) = self.needs {
+                    self.eval_count_constraints(any, None, Some(required_count), None, ctx)
+                } else {
+                    self.eval_requires_any(any, ctx)
+                };
                 if !any_result.matched {
                     return None;
                 }

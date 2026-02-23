@@ -1,3 +1,6 @@
+//! Example program.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use dissect::analyzers::pe::PEAnalyzer;
 use dissect::memory_tracker::current_rss;
 

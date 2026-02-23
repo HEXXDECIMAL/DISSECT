@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 /// Test to ensure binary metrics are always collected, even when radare2 fails
 /// This prevents regression of the bug where metrics were missing from test-rules output
 use dissect::analyzers::analyzer_for_file_type;

@@ -1,4 +1,5 @@
 //! String extraction from binaries.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //!
 //! This module extracts human-readable strings from binary files,
 //! classifying them as URLs, IPs, file paths, or generic strings.

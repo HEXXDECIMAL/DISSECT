@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 /// Test for host_info_strings composite rule
 /// This test specifically debugs why the composite rule doesn't fire
 use dissect::capabilities::CapabilityMapper;

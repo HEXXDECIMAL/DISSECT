@@ -1,3 +1,6 @@
+//! Integration tests for scpt parser.
+#![allow(clippy::unwrap_used)] // Tests use unwrap for simplicity
+
 use scpt::{is_scpt, ScptParser, SymbolKind};
 
 const SHELL_SCRIPT_SCPT: &[u8] = include_bytes!("fixtures/shell_script.scpt");

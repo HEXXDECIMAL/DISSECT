@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Test that random JSON/YAML/TOML files are not processed during scanning.
 //!
 //! This test verifies that only known manifest filenames are analyzed,

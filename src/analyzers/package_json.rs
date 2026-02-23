@@ -1,4 +1,5 @@
 //! package.json analyzer for npm packages.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;

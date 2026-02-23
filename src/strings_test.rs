@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for string extraction and classification
 //!
 //! Comprehensive test coverage for:

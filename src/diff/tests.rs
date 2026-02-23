@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use super::*;
 use crate::diff::formatting::format_diff_terminal;
 use crate::diff::utils::{

@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 use assert_cmd::Command;
 use std::fs::File;
 use std::io::Write;

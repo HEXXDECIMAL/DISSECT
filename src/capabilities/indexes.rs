@@ -1,4 +1,5 @@
 //! Performance optimization indices for fast trait matching.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module provides specialized indices for efficient trait lookup and matching:
 //! - `TraitIndex`: Fast trait lookup by file type

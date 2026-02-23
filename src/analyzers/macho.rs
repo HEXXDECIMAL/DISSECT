@@ -1,4 +1,5 @@
 //! Mach-O binary analyzer for macOS executables.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use crate::analyzers::macho_codesign;
 use crate::analyzers::Analyzer;
@@ -1088,6 +1089,7 @@ impl MachOAnalyzer {
     /// Returns byte ranges for ALL architecture slices in a fat binary.
     /// For thin binaries, returns a single range covering the entire file.
     /// This ensures we scan all architectures and don't miss malware hidden in non-preferred slices.
+    #[allow(clippy::single_range_in_vec_init)] // Intentional: returns single range for thin binaries
     pub(crate) fn all_arch_ranges(&self, data: &[u8]) -> Vec<std::ops::Range<usize>> {
         if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
             if let Ok(arches) = fat.arches() {
@@ -1108,6 +1110,7 @@ impl MachOAnalyzer {
                 }
             }
         }
+        // Return the full data range as a single-element Vec for thin binaries
         vec![0..data.len()]
     }
 

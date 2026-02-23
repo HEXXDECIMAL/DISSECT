@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for AES encrypted payload extraction
 //!
 //! Comprehensive tests for AES key extraction, decryption, and payload analysis.

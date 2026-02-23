@@ -1,4 +1,5 @@
 //! Key-Value condition evaluator for structured manifest files.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! Supports querying JSON, YAML, and TOML manifests using path expressions.
 //!
@@ -489,13 +490,11 @@ pub(crate) fn evaluate_kv(condition: &Condition, ctx: &EvaluationContext<'_>) ->
     let content = ctx.binary_data;
 
     // Debug: check if regex should be compiled but isn't
-    if std::env::var("DEBUG_KV_REGEX").is_ok() {
-        if regex_str.is_some() && compiled_regex.is_none() {
-            eprintln!(
-                "DEBUG_KV_REGEX: path={} has regex={:?} but compiled_regex is NONE!",
-                path, regex_str
-            );
-        }
+    if std::env::var("DEBUG_KV_REGEX").is_ok() && regex_str.is_some() && compiled_regex.is_none() {
+        eprintln!(
+            "DEBUG_KV_REGEX: path={} has regex={:?} but compiled_regex is NONE!",
+            path, regex_str
+        );
     }
 
     // Check cached format, detect if not cached

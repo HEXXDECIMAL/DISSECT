@@ -1,4 +1,5 @@
 //! YARA rule engine integration.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //!
 //! This module provides YARA pattern matching for malware detection.
 //! It loads and compiles YARA rules from:
@@ -85,6 +86,7 @@ impl YaraEngine {
         tracing::info!("Compiling YARA rules from source");
 
         let pb = indicatif::ProgressBar::new_spinner();
+        #[allow(clippy::expect_used)] // Static template string is always valid
         pb.set_style(
             indicatif::ProgressStyle::default_spinner()
                 .template("{spinner:.cyan} {msg}")
@@ -307,7 +309,7 @@ impl YaraEngine {
             })
             .collect();
 
-        drop(scan_results);
+        // scan_results is dropped here, releasing the scanner borrow
 
         // Report top 20 slowest rules
         let slowest = scanner.slowest_rules(20);
@@ -992,6 +994,7 @@ impl YaraEngine {
     }
 
     /// Load compiled YARA rules from cache using zero-copy memory-mapped I/O
+    #[allow(clippy::unwrap_used)] // Slice-to-array conversions are safe after size check
     fn load_from_cache(&mut self, cache_path: &Path) -> Result<(usize, usize)> {
         let t0 = std::time::Instant::now();
 
@@ -1110,6 +1113,7 @@ impl YaraEngine {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)] // Tests use unwrap for simplicity
 mod tests {
     use super::*;
 

@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Comprehensive test suite for capabilities module.
 //!
 //! Tests are organized by category:

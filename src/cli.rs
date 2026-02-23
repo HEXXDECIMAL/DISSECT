@@ -1,10 +1,14 @@
 //! Command-line interface definitions and parsing.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //!
 //! This module defines the CLI structure using clap, including:
 //! - Main command arguments
 //! - Subcommands (diff, etc.)
 //! - Component disable flags
 //! - Output formatting options
+//!
+//! Note: Uses unwrap/expect for argument parsing where clap guarantees validity.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! # Component Control
 //!

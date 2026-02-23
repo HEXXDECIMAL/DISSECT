@@ -5,6 +5,9 @@
 //!
 //! Automatically detects and converts UTF-16 LE/BE files to UTF-8 for
 //! consistent text processing across all analysis modules.
+//!
+//! Note: Uses unwrap for internal slice operations where bounds are verified.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use anyhow::Result;
 use encoding_rs::{UTF_16BE, UTF_16LE};

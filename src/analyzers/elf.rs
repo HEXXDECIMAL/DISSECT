@@ -1,4 +1,5 @@
 //! ELF binary analyzer for Linux executables.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! Analyzes ELF binaries using radare2/rizin and string extraction.
 

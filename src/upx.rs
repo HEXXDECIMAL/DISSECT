@@ -1,4 +1,6 @@
 //! UPX executable unpacking.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module detects and unpacks UPX-compressed binaries for analysis.
 

@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for Chrome extension manifest analyzer - supply chain security
 //!
 //! Comprehensive test coverage for:

@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 #[cfg(test)]
 mod path_mapper_tests {
     use crate::path_mapper::*;

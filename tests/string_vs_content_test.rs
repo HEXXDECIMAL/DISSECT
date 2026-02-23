@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for string vs raw condition behavior.
 //!
 //! Verifies that `type: string` conditions search AST-extracted strings (excluding comments)

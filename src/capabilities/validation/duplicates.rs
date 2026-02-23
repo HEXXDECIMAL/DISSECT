@@ -1,4 +1,6 @@
 //! Duplicate trait and pattern detection.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module detects various types of duplicates and redundancies in trait definitions:
 //!
@@ -48,7 +50,7 @@ pub(crate) fn find_duplicate_traits_and_composites(
                     // Serialize the trait's unique characteristics
                     // Note: size_min/size_max are already inside r#if, no need to serialize separately
                     if let Ok(serialized) = bincode::serde::encode_to_vec(
-                        &(&t.r#if, &t.platforms, &t.r#for, &t.not, &t.unless),
+                        (&t.r#if, &t.platforms, &t.r#for, &t.not, &t.unless),
                         bincode::config::standard(),
                     ) {
                         // Hash the serialized data to get a u64 key (much faster HashMap operations)
@@ -124,7 +126,7 @@ pub(crate) fn find_duplicate_traits_and_composites(
 
                     // Serialize the rule's unique characteristics
                     if let Ok(serialized) = bincode::serde::encode_to_vec(
-                        &(
+                        (
                             &r.all,
                             &r.any,
                             &r.none,
@@ -1105,16 +1107,10 @@ pub(crate) fn check_exact_contained_by_substr(
                     let exact_tier = extract_tier(&exact_loc.trait_id);
                     let substr_tier = extract_tier(&substr_loc.trait_id);
 
-                    let tier_note = if exact_tier == substr_tier && exact_tier.is_some() {
-                        format!(" (same tier: {})", exact_tier.unwrap())
-                    } else if exact_tier.is_some() && substr_tier.is_some() {
-                        format!(
-                            " (cross-tier: {} → {})",
-                            exact_tier.unwrap(),
-                            substr_tier.unwrap()
-                        )
-                    } else {
-                        String::new()
+                    let tier_note = match (exact_tier, substr_tier) {
+                        (Some(e), Some(s)) if e == s => format!(" (same tier: {e})"),
+                        (Some(e), Some(s)) => format!(" (cross-tier: {e} → {s})"),
+                        _ => String::new(),
                     };
 
                     let for_exact = if exact_loc.for_types.is_empty() {
@@ -1409,12 +1405,10 @@ fn make_tier_note(trait_id_1: &str, trait_id_2: &str) -> String {
     let tier1 = extract_tier(trait_id_1);
     let tier2 = extract_tier(trait_id_2);
 
-    if tier1 == tier2 && tier1.is_some() {
-        format!(" (same tier: {})", tier1.unwrap())
-    } else if tier1.is_some() && tier2.is_some() {
-        format!(" (cross-tier: {} ↔ {})", tier1.unwrap(), tier2.unwrap())
-    } else {
-        String::new()
+    match (tier1, tier2) {
+        (Some(t1), Some(t2)) if t1 == t2 => format!(" (same tier: {t1})"),
+        (Some(t1), Some(t2)) => format!(" (cross-tier: {t1} ↔ {t2})"),
+        _ => String::new(),
     }
 }
 
@@ -2417,35 +2411,34 @@ pub(crate) fn check_basename_pattern_duplicates(
     let mut basename_patterns: Vec<BasenamePattern> = Vec::new();
 
     for trait_def in trait_definitions {
-        match &trait_def.r#if.condition {
-            Condition::Basename {
-                exact,
-                substr,
-                regex,
-                case_insensitive,
-            } => {
-                // Skip basename conditions that don't actually have any patterns
-                // (These can occur when a trait only has size constraints)
-                if exact.is_none() && substr.is_none() && regex.is_none() {
-                    continue;
-                }
-
-                // Skip bogus regex patterns that are likely deserialization artifacts
-                // A regex of just "." is meaningless (matches any basename with 1+ chars)
-                if exact.is_none() && substr.is_none() && regex.as_deref() == Some(".") {
-                    continue;
-                }
-
-                basename_patterns.push(BasenamePattern {
-                    trait_id: trait_def.id.clone(),
-                    file_path: trait_def.defined_in.to_string_lossy().to_string(),
-                    exact: exact.clone(),
-                    substr: substr.clone(),
-                    regex: regex.clone(),
-                    case_insensitive: *case_insensitive,
-                });
+        // Only process basename conditions
+        if let Condition::Basename {
+            exact,
+            substr,
+            regex,
+            case_insensitive,
+        } = &trait_def.r#if.condition
+        {
+            // Skip basename conditions that don't actually have any patterns
+            // (These can occur when a trait only has size constraints)
+            if exact.is_none() && substr.is_none() && regex.is_none() {
+                continue;
             }
-            _ => {} // Skip non-basename conditions
+
+            // Skip bogus regex patterns that are likely deserialization artifacts
+            // A regex of just "." is meaningless (matches any basename with 1+ chars)
+            if exact.is_none() && substr.is_none() && regex.as_deref() == Some(".") {
+                continue;
+            }
+
+            basename_patterns.push(BasenamePattern {
+                trait_id: trait_def.id.clone(),
+                file_path: trait_def.defined_in.to_string_lossy().to_string(),
+                exact: exact.clone(),
+                substr: substr.clone(),
+                regex: regex.clone(),
+                case_insensitive: *case_insensitive,
+            });
         }
     }
 

@@ -1,3 +1,6 @@
+//! Example program.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Detailed memory profiling to identify memory hotspots
 
 use dissect::analyzers::{pe::PEAnalyzer, Analyzer};

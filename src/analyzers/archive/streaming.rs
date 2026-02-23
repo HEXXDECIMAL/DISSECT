@@ -1,4 +1,5 @@
 //! Streaming archive analysis with in-memory extraction.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module provides streaming analysis of archives where files are extracted
 //! to memory (for files under MAX_MEMORY_FILE_SIZE) and analyzed in parallel via

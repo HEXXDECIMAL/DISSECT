@@ -1608,8 +1608,213 @@ func invokeYAMLTraitFixer(ctx context.Context, cfg *config, phase, failureOutput
 	return fmt.Errorf("all providers failed, last error: %w", lastErr)
 }
 
+// countFindingsByCrit counts hostile and suspicious findings.
+func countFindingsByCrit(findings []Finding) (hostileCount, suspiciousCount int) {
+	for _, fd := range findings {
+		switch strings.ToLower(fd.Crit) {
+		case "hostile":
+			hostileCount++
+		case "suspicious":
+			suspiciousCount++
+		default:
+			// ignore other criticality levels
+		}
+	}
+	return hostileCount, suspiciousCount
+}
+
+// setupReportPaths configures report and gap analysis paths in promptData based on mode.
+func setupReportPaths(data *promptData, cfg *config, fileHash string, hostileCount, suspiciousCount int) error {
+	if cfg.knownBad {
+		data.MayBeBenign = true
+		reportsDir, err := dataDir("reports")
+		if err != nil {
+			return fmt.Errorf("failed to create reports directory: %w", err)
+		}
+		data.ReportPath = filepath.Join(reportsDir, fileHash+".md")
+
+		gapsDir, err := dataDir("gaps")
+		if err != nil {
+			return fmt.Errorf("failed to create gaps directory: %w", err)
+		}
+		data.GapAnalysisPath = filepath.Join(gapsDir, fileHash+".md")
+
+		if _, err := os.Stat(data.ReportPath); err == nil {
+			data.ReportExists = true
+		}
+	} else {
+		data.MayBeBad = true
+		data.HasHostileFindings = hostileCount > 0
+		data.HasSuspiciousFindings = suspiciousCount > 0
+
+		if reportsDir, err := dataDir("reports"); err == nil {
+			badReportPath := filepath.Join(reportsDir, fileHash+".md")
+			if _, err := os.Stat(badReportPath); err == nil {
+				data.HasRelatedBadReport = true
+				data.RelatedBadReportPath = badReportPath
+			}
+		}
+	}
+	return nil
+}
+
+// buildFindingsSummary builds a markdown summary of hostile/suspicious findings.
+func buildFindingsSummary(findings []Finding) string {
+	var susp, host []Finding
+	for _, fd := range findings {
+		switch strings.ToLower(fd.Crit) {
+		case "hostile":
+			host = append(host, fd)
+		case "suspicious":
+			susp = append(susp, fd)
+		default:
+			// ignore other criticality levels
+		}
+	}
+	if len(host) == 0 && len(susp) == 0 {
+		return ""
+	}
+	var sb strings.Builder
+	sb.WriteString("\n\n## Current Findings\n")
+	if len(host) > 0 {
+		sb.WriteString("**Hostile:**\n")
+		for _, fd := range host {
+			fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
+		}
+	}
+	if len(susp) > 0 {
+		sb.WriteString("**Suspicious:**\n")
+		for _, fd := range susp {
+			fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
+		}
+	}
+	return sb.String()
+}
+
+// collectArchiveFindings gathers all findings from archive members.
+func collectArchiveFindings(members []FileAnalysis) []Finding {
+	var all []Finding
+	for _, m := range members {
+		all = append(all, m.Findings...)
+	}
+	return all
+}
+
+// buildFileEntry creates a fileEntry from a FileAnalysis with summary stats.
+func buildFileEntry(m FileAnalysis) fileEntry {
+	counts := make(map[string]int)
+	maxCrit := 0
+	for _, f := range m.Findings {
+		c := strings.ToLower(f.Crit)
+		counts[c]++
+		if r := critRank[c]; r > maxCrit {
+			maxCrit = r
+		}
+	}
+	var parts []string
+	total := 0
+	for _, level := range []string{"hostile", "suspicious", "notable"} {
+		if n := counts[level]; n > 0 {
+			parts = append(parts, fmt.Sprintf("%d %s", n, level))
+			total += n
+		}
+	}
+	path := m.ExtractedPath
+	if path == "" {
+		path = m.Path
+	}
+	return fileEntry{
+		Path:    path,
+		Summary: strings.Join(parts, ", "),
+		MaxCrit: maxCrit,
+		Total:   total,
+	}
+}
+
+// buildArchiveFileEntries builds sorted file entries for an archive.
+func buildArchiveFileEntries(sourceFiles []FileAnalysis, extractDirRoot string) (entries []fileEntry, extractDir string) {
+	for _, m := range sourceFiles {
+		if m.ExtractedPath != "" && extractDir == "" {
+			rel := strings.TrimPrefix(m.ExtractedPath, extractDirRoot+"/")
+			if idx := strings.Index(rel, "/"); idx > 0 {
+				extractDir = filepath.Join(extractDirRoot, rel[:idx])
+			} else {
+				extractDir = m.ExtractedPath
+			}
+		}
+		entries = append(entries, buildFileEntry(m))
+	}
+
+	// Sort by severity (hostile > suspicious > notable), then by count.
+	sort.Slice(entries, func(i, j int) bool {
+		if entries[i].MaxCrit != entries[j].MaxCrit {
+			return entries[i].MaxCrit > entries[j].MaxCrit
+		}
+		return entries[i].Total > entries[j].Total
+	})
+
+	// Take top 10.
+	if len(entries) > 10 {
+		entries = entries[:10]
+	}
+	return entries, extractDir
+}
+
+// countFilesWithConcerns counts archive members with hostile/suspicious findings.
+func countFilesWithConcerns(members []FileAnalysis) int {
+	count := 0
+	for _, m := range members {
+		for _, f := range m.Findings {
+			c := strings.ToLower(f.Crit)
+			if c == "hostile" || c == "suspicious" {
+				count++
+				break
+			}
+		}
+	}
+	return count
+}
+
+// tryProviders attempts to run the AI task with each provider in order until one succeeds.
+func tryProviders(ctx context.Context, cfg *config, prompt, sid, prefix string, workerID int, rc *reviewCoordinator) error {
+	var lastErr error
+	for i, p := range cfg.providers {
+		cfg.provider = p
+
+		rc.mu.Lock()
+		rc.workers[workerID].provider = p
+		rc.mu.Unlock()
+
+		if i > 0 {
+			fmt.Fprintf(os.Stderr, "%s>>> Trying next provider: %s\n", prefix, p)
+		}
+
+		if err := validateProvider(ctx, cfg); err != nil {
+			lastErr = err
+			fmt.Fprintf(os.Stderr, "%s<<< %s validation failed: %v\n", prefix, p, err)
+			continue
+		}
+
+		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
+		err := runAIWithStreaming(tctx, cfg, prompt, sid, prefix)
+		cancel()
+
+		if err == nil {
+			return nil
+		}
+
+		lastErr = err
+		fmt.Fprintf(os.Stderr, "%s<<< %s failed: %v\n", prefix, p, err)
+
+		if ctx.Err() != nil {
+			return fmt.Errorf("interrupted: %w", ctx.Err())
+		}
+	}
+	return fmt.Errorf("all providers failed, last error: %w", lastErr)
+}
+
 func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation bool, sid string, workerID int, rc *reviewCoordinator) error {
-	// Check for misclassification marker - skip if present
+	// Check for misclassification marker - skip if present.
 	if hasMarker, markerType := hasMisclassificationMarker(f.Path); hasMarker {
 		if cfg.verbose {
 			fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
@@ -1618,13 +1823,14 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 		return nil
 	}
 
-	// Compute file hash for report paths
+	// Compute file hash for report paths.
 	fileHash, err := hashFile(f.Path)
 	if err != nil {
 		fileHash = hashString(f.Path) // Fallback to path hash
 	}
 
-	// Build prompt data
+	hostileCount, suspiciousCount := countFindingsByCrit(f.Findings)
+
 	data := promptData{
 		Path:               f.Path,
 		DissectBin:         cfg.dissectBin,
@@ -1636,88 +1842,15 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 		BadMarkerPath:      misclassificationMarkerPath(f.Path, "BAD"),
 	}
 
-	// Count findings by criticality
-	var hostileCount, suspiciousCount int
-	for _, fd := range f.Findings {
-		switch strings.ToLower(fd.Crit) {
-		case "hostile":
-			hostileCount++
-		case "suspicious":
-			suspiciousCount++
-		default:
-			// ignore other criticality levels
-		}
-	}
-
-	if cfg.knownBad {
-		// Known-bad mode: research report + gap analysis
-		data.MayBeBenign = true
-
-		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
-		reportsDir, err := dataDir("reports")
-		if err != nil {
-			return fmt.Errorf("failed to create reports directory: %w", err)
-		}
-		data.ReportPath = filepath.Join(reportsDir, fileHash+".md")
-
-		gapsDir, err := dataDir("gaps")
-		if err != nil {
-			return fmt.Errorf("failed to create gaps directory: %w", err)
-		}
-		data.GapAnalysisPath = filepath.Join(gapsDir, fileHash+".md")
-
-		// Check if report already exists
-		if _, err := os.Stat(data.ReportPath); err == nil {
-			data.ReportExists = true
-		}
-	} else {
-		// Known-good mode: false positive reduction
-		data.MayBeBad = true
-		data.HasHostileFindings = hostileCount > 0
-		data.HasSuspiciousFindings = suspiciousCount > 0
-
-		// Check if file exists in bad collection (can reference report)
-		if reportsDir, err := dataDir("reports"); err == nil {
-			badReportPath := filepath.Join(reportsDir, fileHash+".md")
-			if _, err := os.Stat(badReportPath); err == nil {
-				data.HasRelatedBadReport = true
-				data.RelatedBadReportPath = badReportPath
-			}
-		}
+	if err := setupReportPaths(&data, cfg, fileHash, hostileCount, suspiciousCount); err != nil {
+		return err
 	}
 
 	prompt := buildPrompt(&data)
 
-	// Add findings summary for good files
+	// Add findings summary for good files.
 	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
-		var susp, host []Finding
-		for _, fd := range f.Findings {
-			switch strings.ToLower(fd.Crit) {
-			case "hostile":
-				host = append(host, fd)
-			case "suspicious":
-				susp = append(susp, fd)
-			default:
-				// ignore other criticality levels
-			}
-		}
-		if len(host) > 0 || len(susp) > 0 {
-			var sb strings.Builder
-			sb.WriteString("\n\n## Current Findings\n")
-			if len(host) > 0 {
-				sb.WriteString("**Hostile:**\n")
-				for _, fd := range host {
-					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
-				}
-			}
-			if len(susp) > 0 {
-				sb.WriteString("**Suspicious:**\n")
-				for _, fd := range susp {
-					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
-				}
-			}
-			prompt += sb.String()
-		}
+		prompt += buildFindingsSummary(f.Findings)
 	}
 
 	if f.ExtractedPath != "" {
@@ -1725,51 +1858,11 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
 	}
 
-	prefix := rc.workerPrefix(workerID)
-
-	// Try each provider in order until one succeeds
-	var lastErr error
-	for i, p := range cfg.providers {
-		cfg.provider = p
-
-		// Update worker state with current provider
-		rc.mu.Lock()
-		rc.workers[workerID].provider = p
-		rc.mu.Unlock()
-
-		if i > 0 {
-			fmt.Fprintf(os.Stderr, "%s>>> Trying next provider: %s\n", prefix, p)
-		}
-
-		// Validate provider is responsive before running main task
-		if err := validateProvider(ctx, cfg); err != nil {
-			lastErr = err
-			fmt.Fprintf(os.Stderr, "%s<<< %s validation failed: %v\n", prefix, p, err)
-			continue
-		}
-
-		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid, prefix)
-		cancel()
-
-		if err == nil {
-			return nil
-		}
-
-		lastErr = err
-		fmt.Fprintf(os.Stderr, "%s<<< %s failed: %v\n", prefix, p, err)
-
-		// Check if context was cancelled (user interrupt)
-		if ctx.Err() != nil {
-			return fmt.Errorf("interrupted: %w", ctx.Err())
-		}
-	}
-
-	return fmt.Errorf("all providers failed, last error: %w", lastErr)
+	return tryProviders(ctx, cfg, prompt, sid, rc.workerPrefix(workerID), workerID, rc)
 }
 
 func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isValidation bool, sid string, workerID int, rc *reviewCoordinator) error {
-	// Check for misclassification marker - skip if present
+	// Check for misclassification marker - skip if present.
 	if hasMarker, markerType := hasMisclassificationMarker(a.ArchivePath); hasMarker {
 		if cfg.verbose {
 			fmt.Fprintf(os.Stderr, "  [skip] %s: marked as %s (._<filename>.%s exists)\n",
@@ -1778,122 +1871,32 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isVal
 		return nil
 	}
 
-	prob := archiveProblematicMembers(a, cfg.knownGood)
-	archiveName := filepath.Base(a.ArchivePath)
-
-	// Build file entries with finding summaries, sorted by severity.
-	// DISSECT extracts to <extract-dir>/<sha256>/<relative-path>.
-	var extractDir string
-	var fileEntries []fileEntry
-
-	// Helper to build a fileEntry from a FileAnalysis
-	buildEntry := func(m FileAnalysis) fileEntry {
-		counts := make(map[string]int)
-		maxCrit := 0
-		for _, f := range m.Findings {
-			c := strings.ToLower(f.Crit)
-			counts[c]++
-			if r := critRank[c]; r > maxCrit {
-				maxCrit = r
-			}
-		}
-		var parts []string
-		total := 0
-		for _, level := range []string{"hostile", "suspicious", "notable"} {
-			if n := counts[level]; n > 0 {
-				parts = append(parts, fmt.Sprintf("%d %s", n, level))
-				total += n
-			}
-		}
-		path := m.ExtractedPath
-		if path == "" {
-			path = m.Path
-		}
-		return fileEntry{
-			Path:    path,
-			Summary: strings.Join(parts, ", "),
-			MaxCrit: maxCrit,
-			Total:   total,
-		}
-	}
-
-	// For --good mode: use files that individually meet threshold (most concerning)
-	// For --bad mode: use all files (sorted by size as proxy for complexity)
-	var sourceFiles []FileAnalysis
+	// Select source files based on mode.
+	sourceFiles := a.Members
 	if cfg.knownGood {
-		sourceFiles = prob
-	} else {
-		sourceFiles = a.Members
+		sourceFiles = archiveProblematicMembers(a, cfg.knownGood)
 	}
 
-	for _, m := range sourceFiles {
-		if m.ExtractedPath != "" {
-			// Extract the SHA256 directory from first file
-			if extractDir == "" {
-				rel := strings.TrimPrefix(m.ExtractedPath, cfg.extractDir+"/")
-				if idx := strings.Index(rel, "/"); idx > 0 {
-					extractDir = filepath.Join(cfg.extractDir, rel[:idx])
-				} else {
-					extractDir = m.ExtractedPath
-				}
-			}
-		}
-		fileEntries = append(fileEntries, buildEntry(m))
-	}
+	fileEntries, extractDir := buildArchiveFileEntries(sourceFiles, cfg.extractDir)
 
-	// Sort by severity (hostile > suspicious > notable), then by count
-	sort.Slice(fileEntries, func(i, j int) bool {
-		if fileEntries[i].MaxCrit != fileEntries[j].MaxCrit {
-			return fileEntries[i].MaxCrit > fileEntries[j].MaxCrit
-		}
-		return fileEntries[i].Total > fileEntries[j].Total
-	})
-
-	// Take top 10
-	if len(fileEntries) > 10 {
-		fileEntries = fileEntries[:10]
-	}
-
-	// Count files with hostile/suspicious findings for display
-	filesWithConcerns := 0
-	for _, m := range a.Members {
-		for _, f := range m.Findings {
-			c := strings.ToLower(f.Crit)
-			if c == "hostile" || c == "suspicious" {
-				filesWithConcerns++
-				break
-			}
-		}
-	}
-
-	// Count extracted files once for reuse
-	extractedCount := 0
-	if extractDir != "" {
-		for _, m := range a.Members {
-			if m.ExtractedPath != "" {
-				extractedCount++
-			}
-		}
-	}
-
-	// Use extracted directory as the path for dissect commands
 	dissectPath := extractDir
 	if dissectPath == "" {
-		dissectPath = a.ArchivePath // Fallback if no extraction
+		dissectPath = a.ArchivePath
 	}
 
-	// Compute file hash for report paths (use archive path)
 	fileHash, err := hashFile(a.ArchivePath)
 	if err != nil {
-		fileHash = hashString(a.ArchivePath) // Fallback to path hash
+		fileHash = hashString(a.ArchivePath)
 	}
 
-	// Build prompt data
+	allFindings := collectArchiveFindings(a.Members)
+	hostileCount, suspiciousCount := countFindingsByCrit(allFindings)
+
 	data := promptData{
 		Path:               dissectPath,
-		ArchiveName:        archiveName,
+		ArchiveName:        filepath.Base(a.ArchivePath),
 		Files:              fileEntries,
-		Count:              filesWithConcerns,
+		Count:              countFilesWithConcerns(a.Members),
 		DissectBin:         cfg.dissectBin,
 		TraitsDir:          cfg.repoRoot + "/traits/",
 		IsArchive:          true,
@@ -1903,134 +1906,18 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isVal
 		BadMarkerPath:      misclassificationMarkerPath(a.ArchivePath, "BAD"),
 	}
 
-	// Count findings by criticality
-	var hostileCount, suspiciousCount int
-	for _, m := range a.Members {
-		for _, fd := range m.Findings {
-			switch strings.ToLower(fd.Crit) {
-			case "hostile":
-				hostileCount++
-			case "suspicious":
-				suspiciousCount++
-			default:
-				// ignore other criticality levels
-			}
-		}
-	}
-
-	if cfg.knownBad {
-		data.MayBeBenign = true
-
-		// Build report paths: ~/data/reports/<sha256>.md and ~/data/gaps/<sha256>.md
-		reportsDir, err := dataDir("reports")
-		if err != nil {
-			return fmt.Errorf("failed to create reports directory: %w", err)
-		}
-		data.ReportPath = filepath.Join(reportsDir, fileHash+".md")
-
-		gapsDir, err := dataDir("gaps")
-		if err != nil {
-			return fmt.Errorf("failed to create gaps directory: %w", err)
-		}
-		data.GapAnalysisPath = filepath.Join(gapsDir, fileHash+".md")
-
-		// Check if report already exists
-		if _, err := os.Stat(data.ReportPath); err == nil {
-			data.ReportExists = true
-		}
-	} else {
-		data.MayBeBad = true
-		data.HasHostileFindings = hostileCount > 0
-		data.HasSuspiciousFindings = suspiciousCount > 0
-
-		// Check if file exists in bad collection (can reference report)
-		if reportsDir, err := dataDir("reports"); err == nil {
-			badReportPath := filepath.Join(reportsDir, fileHash+".md")
-			if _, err := os.Stat(badReportPath); err == nil {
-				data.HasRelatedBadReport = true
-				data.RelatedBadReportPath = badReportPath
-			}
-		}
+	if err := setupReportPaths(&data, cfg, fileHash, hostileCount, suspiciousCount); err != nil {
+		return err
 	}
 
 	prompt := buildPrompt(&data)
 
-	// Add findings summary for good archives
+	// Add findings summary for good archives.
 	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
-		var susp, host []Finding
-		// Collect ALL hostile/suspicious findings across all members (not just prob)
-		for _, m := range a.Members {
-			for _, fd := range m.Findings {
-				switch strings.ToLower(fd.Crit) {
-				case "hostile":
-					host = append(host, fd)
-				case "suspicious":
-					susp = append(susp, fd)
-				default:
-					// ignore other criticality levels
-				}
-			}
-		}
-		if len(host) > 0 || len(susp) > 0 {
-			var sb strings.Builder
-			sb.WriteString("\n\n## Current Findings\n")
-			if len(host) > 0 {
-				sb.WriteString("**Hostile:**\n")
-				for _, fd := range host {
-					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
-				}
-			}
-			if len(susp) > 0 {
-				sb.WriteString("**Suspicious:**\n")
-				for _, fd := range susp {
-					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
-				}
-			}
-			prompt += sb.String()
-		}
+		prompt += buildFindingsSummary(allFindings)
 	}
 
-	prefix := rc.workerPrefix(workerID)
-
-	// Try each provider in order until one succeeds
-	var lastErr error
-	for i, p := range cfg.providers {
-		cfg.provider = p
-
-		// Update worker state with current provider
-		rc.mu.Lock()
-		rc.workers[workerID].provider = p
-		rc.mu.Unlock()
-
-		if i > 0 {
-			fmt.Fprintf(os.Stderr, "%s>>> Trying next provider: %s\n", prefix, p)
-		}
-
-		// Validate provider is responsive before running main task
-		if err := validateProvider(ctx, cfg); err != nil {
-			lastErr = err
-			fmt.Fprintf(os.Stderr, "%s<<< %s validation failed: %v\n", prefix, p, err)
-			continue
-		}
-
-		tctx, cancel := context.WithTimeout(ctx, cfg.timeout)
-		err := runAIWithStreaming(tctx, cfg, prompt, sid, prefix)
-		cancel()
-
-		if err == nil {
-			return nil
-		}
-
-		lastErr = err
-		fmt.Fprintf(os.Stderr, "%s<<< %s failed: %v\n", prefix, p, err)
-
-		// Check if context was cancelled (user interrupt)
-		if ctx.Err() != nil {
-			return fmt.Errorf("interrupted: %w", ctx.Err())
-		}
-	}
-
-	return fmt.Errorf("all providers failed, last error: %w", lastErr)
+	return tryProviders(ctx, cfg, prompt, sid, rc.workerPrefix(workerID), workerID, rc)
 }
 
 // validateProvider tests if the AI provider is responsive with a simple test prompt.
@@ -2249,121 +2136,21 @@ func displayStreamEvent(line, prefix string) {
 	case "turn.started":
 		fmt.Fprintf(os.Stderr, "%s%s[codex]%s turn started\n", prefix, colorGreen, colorReset)
 	case "turn.completed":
-		if usage, ok := ev["usage"].(map[string]any); ok {
-			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck,revive // type assertion ok, defaults to 0
-			out, _ := usage["output_tokens"].(float64) //nolint:errcheck,revive // type assertion ok, defaults to 0
-			if in > 0 || out > 0 {
-				fmt.Fprintf(os.Stderr, "%s%s[codex]%s tokens: %sin=%.0f out=%.0f%s\n",
-					prefix, colorGreen, colorReset, colorDim, in, out, colorReset)
-			}
-		}
+		displayTurnCompleted(ev, prefix)
 	case "turn.failed":
 		fmt.Fprintf(os.Stderr, "%s%s[codex]%s %sturn failed%s\n", prefix, colorRed, colorReset, colorRed, colorReset)
-	case "item/agentMessage/delta":
-		if delta, ok := ev["delta"].(string); ok && delta != "" {
-			fmt.Fprint(os.Stderr, delta)
-			codexDeltaOpen = true
-		} else if text, ok := ev["text"].(string); ok && text != "" {
-			fmt.Fprint(os.Stderr, text)
-			codexDeltaOpen = true
-		}
+	case "item/agentMessage/delta", "item/plan/delta":
+		displayDelta(ev, "delta", "text")
 	case "item/commandExecution/outputDelta", "item/fileChange/outputDelta":
-		if delta, ok := ev["delta"].(string); ok && delta != "" {
-			fmt.Fprint(os.Stderr, delta)
-		} else if out, ok := ev["output"].(string); ok && out != "" {
-			fmt.Fprint(os.Stderr, out)
-		}
-	case "item/plan/delta":
-		if delta, ok := ev["delta"].(string); ok && delta != "" {
-			fmt.Fprint(os.Stderr, delta)
-		} else if text, ok := ev["text"].(string); ok && text != "" {
-			fmt.Fprint(os.Stderr, text)
-		}
+		displayDelta(ev, "delta", "output")
 	case "item.started", "item.completed":
-		item, ok := ev["item"].(map[string]any)
-		if !ok {
-			return
-		}
-		itemType, _ := item["type"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
-		switch itemType {
-		case "agent_message":
-			if text, ok := item["text"].(string); ok && text != "" {
-				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, text)
-			} else if codexDeltaOpen {
-				fmt.Fprintln(os.Stderr)
-			}
-			codexDeltaOpen = false
-		case "command_execution":
-			if cmd, ok := item["command"].(string); ok && cmd != "" {
-				fmt.Fprintf(os.Stderr, "%s%s[tool]%s command: %s\n", prefix, colorYellow, colorReset, cmd)
-			}
-		case "file_change":
-			if path, ok := item["path"].(string); ok && path != "" {
-				fmt.Fprintf(os.Stderr, "%s%s[tool]%s file change: %s\n", prefix, colorYellow, colorReset, path)
-			}
-		case "web_search":
-			if q, ok := item["query"].(string); ok && q != "" {
-				fmt.Fprintf(os.Stderr, "%s%s[tool]%s web search: %s\n", prefix, colorYellow, colorReset, q)
-			}
-		case "plan_update":
-			fmt.Fprintf(os.Stderr, "%s%s[tool]%s plan update\n", prefix, colorYellow, colorReset)
-		default:
-			// ignore other item types
-		}
+		displayCodexItem(ev, prefix)
 	case "error":
 		if msg, ok := ev["message"].(string); ok && msg != "" {
 			fmt.Fprintf(os.Stderr, "%s%s[codex] error:%s %s\n", prefix, colorRed, colorReset, msg)
 		}
 	case "assistant":
-		// Claude format: {"type":"assistant","message":{"content":[{"type":"text","text":"..."}]}}
-		msg, ok := ev["message"].(map[string]any)
-		if !ok {
-			return
-		}
-		content, ok := msg["content"].([]any)
-		if !ok {
-			return
-		}
-		for _, c := range content {
-			b, ok := c.(map[string]any)
-			if !ok {
-				continue
-			}
-			switch b["type"] {
-			case "tool_use":
-				name, _ := b["name"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
-				if name == "" {
-					name = "unknown"
-				}
-				input, ok := b["input"].(map[string]any)
-				if !ok {
-					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
-					continue
-				}
-				var detail string
-				for _, k := range []string{"description", "command", "pattern", "file_path"} {
-					if v, ok := input[k].(string); ok {
-						detail = v
-						break
-					}
-				}
-				if len(detail) > 80 {
-					detail = detail[:80] + "..."
-				}
-				if detail != "" {
-					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s: %s\n", prefix, colorYellow, colorReset, name, detail)
-				} else {
-					fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
-				}
-			case "text":
-				if t, ok := b["text"].(string); ok && t != "" {
-					fmt.Fprintf(os.Stderr, "%s%s\n", prefix, t)
-				}
-			default:
-				// ignore other content types
-			}
-		}
-
+		displayClaudeAssistant(ev, prefix)
 	case "message":
 		// Gemini format: {"type":"message","role":"assistant","content":"...","delta":true}
 		if ev["role"] == "assistant" {
@@ -2371,31 +2158,154 @@ func displayStreamEvent(line, prefix string) {
 				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, content)
 			}
 		}
-
 	case "tool_call", "tool", "tool_use":
-		// Gemini/Claude tool calls
 		if name, ok := ev["name"].(string); ok {
 			fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 		}
-
 	case "tool_result", "init", "user":
 		// Silently consume: tool results (output already shown), initialization, user prompts
-
 	case "result":
-		if r, ok := ev["result"].(string); ok && r != "" {
-			fmt.Fprintln(os.Stderr)
-			fmt.Fprintf(os.Stderr, "%s%s--- Result ---%s\n", prefix, colorGreen, colorReset)
-			fmt.Fprintf(os.Stderr, "%s%s\n", prefix, r)
-		}
-		if cost, ok := ev["total_cost_usd"].(float64); ok {
-			fmt.Fprintf(os.Stderr, "%s%sCost: $%.4f%s\n", prefix, colorDim, cost, colorReset)
-		}
-
+		displayResult(ev, prefix)
 	default:
-		// Log unknown event types to help debug missing output
 		if evType, ok := ev["type"].(string); ok && evType != "" {
 			fmt.Fprintf(os.Stderr, "%s%s[debug]%s unknown event type: %s\n", prefix, colorDim, colorReset, evType)
 		}
+	}
+}
+
+// displayTurnCompleted handles the turn.completed event showing token usage.
+func displayTurnCompleted(ev map[string]any, prefix string) {
+	usage, ok := ev["usage"].(map[string]any)
+	if !ok {
+		return
+	}
+	in, _ := usage["input_tokens"].(float64)   //nolint:errcheck,revive // type assertion ok, defaults to 0
+	out, _ := usage["output_tokens"].(float64) //nolint:errcheck,revive // type assertion ok, defaults to 0
+	if in > 0 || out > 0 {
+		fmt.Fprintf(os.Stderr, "%s%s[codex]%s tokens: %sin=%.0f out=%.0f%s\n",
+			prefix, colorGreen, colorReset, colorDim, in, out, colorReset)
+	}
+}
+
+// displayDelta prints streaming delta content, checking primary and fallback keys.
+func displayDelta(ev map[string]any, primaryKey, fallbackKey string) {
+	if delta, ok := ev[primaryKey].(string); ok && delta != "" {
+		fmt.Fprint(os.Stderr, delta)
+		if primaryKey == "delta" && fallbackKey == "text" {
+			codexDeltaOpen = true
+		}
+	} else if text, ok := ev[fallbackKey].(string); ok && text != "" {
+		fmt.Fprint(os.Stderr, text)
+		if primaryKey == "delta" && fallbackKey == "text" {
+			codexDeltaOpen = true
+		}
+	}
+}
+
+// displayCodexItem handles item.started and item.completed events.
+func displayCodexItem(ev map[string]any, prefix string) {
+	item, ok := ev["item"].(map[string]any)
+	if !ok {
+		return
+	}
+	itemType, _ := item["type"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
+
+	switch itemType {
+	case "agent_message":
+		if text, ok := item["text"].(string); ok && text != "" {
+			fmt.Fprintf(os.Stderr, "%s%s\n", prefix, text)
+		} else if codexDeltaOpen {
+			fmt.Fprintln(os.Stderr)
+		}
+		codexDeltaOpen = false
+	case "command_execution":
+		if cmd, ok := item["command"].(string); ok && cmd != "" {
+			fmt.Fprintf(os.Stderr, "%s%s[tool]%s command: %s\n", prefix, colorYellow, colorReset, cmd)
+		}
+	case "file_change":
+		if path, ok := item["path"].(string); ok && path != "" {
+			fmt.Fprintf(os.Stderr, "%s%s[tool]%s file change: %s\n", prefix, colorYellow, colorReset, path)
+		}
+	case "web_search":
+		if q, ok := item["query"].(string); ok && q != "" {
+			fmt.Fprintf(os.Stderr, "%s%s[tool]%s web search: %s\n", prefix, colorYellow, colorReset, q)
+		}
+	case "plan_update":
+		fmt.Fprintf(os.Stderr, "%s%s[tool]%s plan update\n", prefix, colorYellow, colorReset)
+	default:
+		// ignore other item types
+	}
+}
+
+// displayClaudeAssistant handles Claude format assistant messages.
+func displayClaudeAssistant(ev map[string]any, prefix string) {
+	msg, ok := ev["message"].(map[string]any)
+	if !ok {
+		return
+	}
+	content, ok := msg["content"].([]any)
+	if !ok {
+		return
+	}
+	for _, c := range content {
+		b, ok := c.(map[string]any)
+		if !ok {
+			continue
+		}
+		switch b["type"] {
+		case "tool_use":
+			displayToolUse(b, prefix)
+		case "text":
+			if t, ok := b["text"].(string); ok && t != "" {
+				fmt.Fprintf(os.Stderr, "%s%s\n", prefix, t)
+			}
+		default:
+			// ignore other content types
+		}
+	}
+}
+
+// displayToolUse handles tool_use content blocks with detail extraction.
+func displayToolUse(b map[string]any, prefix string) {
+	name, _ := b["name"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
+	if name == "" {
+		name = "unknown"
+	}
+	input, ok := b["input"].(map[string]any)
+	if !ok {
+		fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
+		return
+	}
+	detail := extractToolDetail(input)
+	if detail != "" {
+		fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s: %s\n", prefix, colorYellow, colorReset, name, detail)
+	} else {
+		fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
+	}
+}
+
+// extractToolDetail extracts a display-friendly detail from tool input.
+func extractToolDetail(input map[string]any) string {
+	for _, k := range []string{"description", "command", "pattern", "file_path"} {
+		if v, ok := input[k].(string); ok && v != "" {
+			if len(v) > 80 {
+				return v[:80] + "..."
+			}
+			return v
+		}
+	}
+	return ""
+}
+
+// displayResult handles the result event showing final output and cost.
+func displayResult(ev map[string]any, prefix string) {
+	if r, ok := ev["result"].(string); ok && r != "" {
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintf(os.Stderr, "%s%s--- Result ---%s\n", prefix, colorGreen, colorReset)
+		fmt.Fprintf(os.Stderr, "%s%s\n", prefix, r)
+	}
+	if cost, ok := ev["total_cost_usd"].(float64); ok {
+		fmt.Fprintf(os.Stderr, "%s%sCost: $%.4f%s\n", prefix, colorDim, cost, colorReset)
 	}
 }
 

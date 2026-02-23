@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for package.json analyzer - supply chain security detection
 //!
 //! Comprehensive test coverage for:

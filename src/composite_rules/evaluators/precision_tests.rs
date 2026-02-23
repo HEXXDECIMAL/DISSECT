@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Comprehensive tests for precision scoring in condition evaluation
 //!
 //! These tests validate that precision points are calculated correctly for all constraint types,

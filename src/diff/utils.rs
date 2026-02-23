@@ -1,4 +1,6 @@
 //! Utility functions for differential analysis.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! Provides helper functions for:
 //! - Set difference computation

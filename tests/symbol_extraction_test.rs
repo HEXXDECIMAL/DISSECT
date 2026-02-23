@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Integration tests for AST-based symbol extraction across all supported languages.
 //!
 //! This test file verifies that symbol extraction works correctly for all

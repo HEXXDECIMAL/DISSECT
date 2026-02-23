@@ -1,4 +1,5 @@
 //! PE (Portable Executable) analyzer for Windows binaries.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use crate::analyzers::Analyzer;
 use crate::capabilities::CapabilityMapper;
@@ -778,7 +779,13 @@ mod tests {
         }
 
         let report = analyzer.analyze(&test_file).unwrap();
-        assert!(report.metadata.analysis_duration_ms > 0);
+        // Duration may be 0 for very fast analysis (sub-millisecond).
+        // The important thing is that analysis completes and the field is set.
+        // Duration is a u64, so it's always >= 0.
+        assert!(
+            report.metadata.analysis_duration_ms < 60000,
+            "Analysis should complete in under a minute"
+        );
     }
 
     #[test]

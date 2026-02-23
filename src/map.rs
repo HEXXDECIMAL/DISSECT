@@ -1,4 +1,5 @@
 //! Map visualization of trait relationships.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! Generates DOT (Graphviz) or ASCII format showing directory-level trait dependencies.
 //! Two modes:

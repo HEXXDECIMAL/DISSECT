@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for CapabilityMapper
 //!
 //! Comprehensive test coverage for the core capability mapping functionality.

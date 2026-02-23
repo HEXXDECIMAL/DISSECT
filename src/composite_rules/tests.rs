@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for composite rules module.
 
 use super::*;
@@ -2302,5 +2305,518 @@ fn test_composite_unless_multiple_conditions_any_matches() {
     assert!(
         result.is_none(),
         "Composite rule should be skipped when ANY unless condition matches"
+    );
+}
+
+// ============================================================================
+// Tests for `needs` constraint with both `all` and `any` conditions
+// ============================================================================
+
+#[test]
+fn test_needs_with_any_only_respects_threshold() {
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    // Rule with needs: 3, but only 2 conditions can match (socket, connect)
+    let rule = CompositeTrait {
+        id: "test/needs-any-only".to_string(),
+        desc: "Needs constraint with any only".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: None,
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("socket".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent1".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent2".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: Some(3), // Require 3 matches, but only 2 exist
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // Should NOT match because only 2 of 3 required conditions match
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Rule with needs:3 should NOT match when only 2 conditions are satisfied"
+    );
+}
+
+#[test]
+fn test_needs_with_any_only_matches_when_threshold_met() {
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    // Rule with needs: 2, and 2 conditions can match (socket, connect)
+    let rule = CompositeTrait {
+        id: "test/needs-any-met".to_string(),
+        desc: "Needs constraint met".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: None,
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("socket".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: Some(2), // Require 2 matches, and 2 exist
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // Should match because exactly 2 conditions are satisfied
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_some(),
+        "Rule with needs:2 should match when 2 conditions are satisfied"
+    );
+}
+
+#[test]
+fn test_needs_with_all_and_any_respects_threshold() {
+    // This is the bug that was fixed: when both all and any are present,
+    // the needs constraint on any was being ignored
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    // Rule with:
+    // - all: socket (matches)
+    // - any: connect, nonexistent1, nonexistent2, nonexistent3 (only 1 matches)
+    // - needs: 3 (requires 3 from any)
+    let rule = CompositeTrait {
+        id: "test/needs-all-any-fail".to_string(),
+        desc: "Needs with all and any - should NOT match".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: Some("socket".to_string()),
+            substr: None,
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent1".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent2".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent3".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: Some(3), // Require 3 from any, but only 1 matches
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // BUG FIX: This should NOT match because:
+    // - all conditions pass (socket matches)
+    // - BUT any conditions fail: only 1 of 3 required matches
+    // Before the fix, this would incorrectly match because needs was ignored
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Rule with all + any + needs:3 should NOT match when only 1 any-condition is satisfied"
+    );
+}
+
+#[test]
+fn test_needs_with_all_and_any_matches_when_threshold_met() {
+    let (mut report, data) = create_test_context();
+
+    // Add more imports so we can match the threshold
+    report.imports.push(Import {
+        symbol: "send".to_string(),
+        library: None,
+        source: "test".to_string(),
+    });
+    report.imports.push(Import {
+        symbol: "recv".to_string(),
+        library: None,
+        source: "test".to_string(),
+    });
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    // Rule with:
+    // - all: socket (matches)
+    // - any: connect, send, recv, nonexistent (3 match)
+    // - needs: 3 (requires 3 from any)
+    let rule = CompositeTrait {
+        id: "test/needs-all-any-pass".to_string(),
+        desc: "Needs with all and any - should match".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: Some("socket".to_string()),
+            substr: None,
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("send".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("recv".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: Some(3), // Require 3 from any, and 3 match
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // Should match because:
+    // - all conditions pass (socket matches)
+    // - any conditions pass: 3 of 3 required match (connect, send, recv)
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_some(),
+        "Rule with all + any + needs:3 should match when 3 any-conditions are satisfied"
+    );
+}
+
+#[test]
+fn test_needs_with_all_and_any_all_fails() {
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    // Rule where all fails but any would pass
+    let rule = CompositeTrait {
+        id: "test/needs-all-fails".to_string(),
+        desc: "All fails, any passes".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: Some("nonexistent_required".to_string()),
+            substr: None,
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("socket".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: Some(1),
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // Should NOT match because all fails (even though any would pass)
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_none(),
+        "Rule should NOT match when all condition fails, even if any would pass"
+    );
+}
+
+#[test]
+fn test_all_and_any_without_needs_requires_one_any() {
+    // When needs is NOT specified, any should require just 1 match (default behavior)
+    let (report, data) = create_test_context();
+
+    let ctx = EvaluationContext {
+        report: &report,
+        binary_data: &data,
+        file_type: FileType::Elf,
+        platforms: vec![Platform::All],
+        additional_findings: None,
+        cached_ast: None,
+        finding_id_index: None,
+        debug_collector: None,
+        section_map: None,
+        inline_yara_results: None,
+        cached_kv_format: OnceLock::new(),
+        cached_kv_parsed: OnceLock::new(),
+    };
+
+    let rule = CompositeTrait {
+        id: "test/all-any-no-needs".to_string(),
+        desc: "All and any without needs".to_string(),
+        conf: 0.9,
+        crit: Criticality::Suspicious,
+        mbc: None,
+        attack: None,
+        platforms: vec![Platform::All],
+        r#for: vec![FileType::All],
+        size_min: None,
+        size_max: None,
+        all: Some(vec![Condition::Symbol {
+            exact: Some("socket".to_string()),
+            substr: None,
+            regex: None,
+            platforms: None,
+            compiled_regex: None,
+        }]),
+        any: Some(vec![
+            Condition::Symbol {
+                exact: Some("connect".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent1".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+            Condition::Symbol {
+                exact: Some("nonexistent2".to_string()),
+                substr: None,
+                regex: None,
+                platforms: None,
+                compiled_regex: None,
+            },
+        ]),
+        none: None,
+        unless: None,
+        not: None,
+        downgrade: None,
+        needs: None, // No needs constraint - default is any 1
+        near_lines: None,
+        near_bytes: None,
+        defined_in: std::path::PathBuf::from("test.yaml"),
+        precision: None,
+    };
+
+    // Should match because:
+    // - all passes (socket)
+    // - any passes (connect matches, which is sufficient without needs)
+    let result = rule.evaluate(&ctx);
+    assert!(
+        result.is_some(),
+        "Rule with all + any (no needs) should match when 1 any-condition is satisfied"
     );
 }

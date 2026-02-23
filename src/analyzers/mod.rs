@@ -1,4 +1,5 @@
 //! File format analyzers.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 //!
 //! This module contains analyzers for various file formats:
 //! - Binary formats: ELF, PE, Mach-O (dedicated analyzers)

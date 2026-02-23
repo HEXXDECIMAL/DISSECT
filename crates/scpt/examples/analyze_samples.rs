@@ -1,3 +1,6 @@
+//! Example: analyze sample scpt files.
+#![allow(clippy::unwrap_used)] // Examples use unwrap for simplicity
+
 use std::collections::{HashMap, HashSet};
 use std::fs;
 

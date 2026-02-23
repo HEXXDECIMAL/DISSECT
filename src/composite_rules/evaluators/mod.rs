@@ -153,6 +153,7 @@ pub(crate) fn get_or_create_scanner<'a>(rules: &'a yara_x::Rules) -> &'a mut yar
 // Cache size: 32 entries provides good hit rate without excessive memory (max ~480MB for 15MB files).
 thread_local! {
     /// Thread-local UTF-8 conversion cache with LRU eviction
+    #[allow(clippy::expect_used)] // Default is 32, guaranteed to be > 0
     static UTF8_CACHE: RefCell<lru::LruCache<Utf8CacheKey, std::sync::Arc<str>>> = {
         use std::num::NonZeroUsize;
         RefCell::new(lru::LruCache::new(

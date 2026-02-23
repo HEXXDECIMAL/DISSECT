@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for UTF-16 LE/BE file support.
 //!
 //! Ensures that UTF-16 encoded source files are properly detected,

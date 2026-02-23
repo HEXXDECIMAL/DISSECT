@@ -1,3 +1,6 @@
+//! Integration test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Integration tests for AMOS-related traits
 //!
 //! These tests verify that the new traits for AMOS stealer detection

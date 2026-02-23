@@ -1,3 +1,6 @@
+//! Example program.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Heap profiling using dhat to identify memory allocation hotspots
 
 use dissect::AnalysisOptions;

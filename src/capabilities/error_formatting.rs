@@ -1,4 +1,5 @@
 //! Enhanced error formatting for YAML parsing errors.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //!
 //! Provides user-friendly error messages with context, suggestions, and clear guidance.
 

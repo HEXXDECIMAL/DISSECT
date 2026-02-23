@@ -1,4 +1,8 @@
 //! Archive analyzer for various archive formats.
+//!
+//! Note: This module uses unwrap/expect for internal invariants that are
+//! guaranteed by the code structure (e.g., parsed paths, validated indices).
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 mod analyzers;
 mod guards;

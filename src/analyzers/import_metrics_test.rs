@@ -1,3 +1,6 @@
+//! Test module.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+
 //! Tests for import_metrics module
 //!
 //! Comprehensive test coverage for import analysis functionality.

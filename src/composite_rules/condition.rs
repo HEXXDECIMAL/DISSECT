@@ -1,4 +1,5 @@
 //! Condition types for composite rules.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use super::types::Platform;
 use anyhow::Result;

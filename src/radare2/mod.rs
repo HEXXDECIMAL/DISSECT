@@ -1,4 +1,5 @@
 //! Radare2/rizin integration for binary analysis.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 //!
 //! This module provides deep binary analysis using radare2/rizin, including:
 //! - Function extraction with control flow metrics
