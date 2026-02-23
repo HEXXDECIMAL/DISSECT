@@ -1042,6 +1042,7 @@ impl Default for MachOAnalyzer {
 impl MachOAnalyzer {
     /// Returns the byte range of the preferred architecture slice within a fat binary,
     /// or `0..data.len()` for thin binaries.
+    /// Used by test-rules/test-match for consistent single-arch evaluation.
     pub(crate) fn preferred_arch_range(&self, data: &[u8]) -> std::ops::Range<usize> {
         if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
             if let Ok(arches) = fat.arches() {
@@ -1059,6 +1060,32 @@ impl MachOAnalyzer {
             }
         }
         0..data.len()
+    }
+
+    /// Returns byte ranges for ALL architecture slices in a fat binary.
+    /// For thin binaries, returns a single range covering the entire file.
+    /// This ensures we scan all architectures and don't miss malware hidden in non-preferred slices.
+    pub(crate) fn all_arch_ranges(&self, data: &[u8]) -> Vec<std::ops::Range<usize>> {
+        if let Ok(Mach::Fat(fat)) = goblin::mach::Mach::parse(data) {
+            if let Ok(arches) = fat.arches() {
+                let ranges: Vec<_> = arches
+                    .iter()
+                    .filter_map(|arch| {
+                        let offset = arch.offset as usize;
+                        let size = arch.size as usize;
+                        if offset + size <= data.len() {
+                            Some(offset..offset + size)
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                if !ranges.is_empty() {
+                    return ranges;
+                }
+            }
+        }
+        vec![0..data.len()]
     }
 
     /// Updates a report with fat binary metadata (architecture list, universal binary flag).
@@ -1085,11 +1112,25 @@ impl MachOAnalyzer {
 impl Analyzer for MachOAnalyzer {
     fn analyze(&self, file_path: &Path) -> Result<AnalysisReport> {
         let data = fs::read(file_path).context("Failed to read file")?;
-        let range = self.preferred_arch_range(&data);
-        let arch_data = &data[range];
-        let mut report = self.analyze_structural(file_path, arch_data)?;
+
+        // Get all architecture slices (for FAT binaries) or the single slice (for thin binaries)
+        let arch_ranges = self.all_arch_ranges(&data);
+
+        // Use preferred arch for structural analysis (imports, exports, strings, etc.)
+        let preferred_range = self.preferred_arch_range(&data);
+        let preferred_data = &data[preferred_range];
+        let mut report = self.analyze_structural(file_path, preferred_data)?;
         self.apply_fat_metadata(&mut report, &data);
-        self.capability_mapper.evaluate_and_merge_findings(&mut report, arch_data, None, None);
+
+        // Evaluate traits against ALL architecture slices to catch malware in any arch.
+        // This prevents attackers from hiding malicious code in non-preferred architectures
+        // (e.g., x86_64 slice that runs via Rosetta 2 on Apple Silicon).
+        for arch_range in &arch_ranges {
+            let arch_data = &data[arch_range.clone()];
+            self.capability_mapper
+                .evaluate_and_merge_findings(&mut report, arch_data, None, None);
+        }
+
         Ok(report)
     }
 

@@ -211,6 +211,62 @@ impl FileType {
             FileType::Png,
         ]
     }
+
+    /// Parse a file type string into a FileType enum variant.
+    /// This is the canonical mapping used by both production scanning and test-rules.
+    #[must_use]
+    pub(crate) fn from_str(file_type: &str) -> FileType {
+        match file_type.to_lowercase().as_str() {
+            "elf" => FileType::Elf,
+            "macho" => FileType::Macho,
+            "pe" | "exe" => FileType::Pe,
+            "dylib" => FileType::Dylib,
+            "so" => FileType::So,
+            "dll" => FileType::Dll,
+            "shell" | "shellscript" | "shell_script" => FileType::Shell,
+            "batch" | "bat" | "cmd" => FileType::Batch,
+            "python" | "python_script" => FileType::Python,
+            "javascript" | "js" => FileType::JavaScript,
+            "typescript" | "ts" => FileType::TypeScript,
+            "c" | "h" => FileType::C,
+            "rust" | "rs" => FileType::Rust,
+            "go" => FileType::Go,
+            "java" => FileType::Java,
+            "class" => FileType::Class,
+            "ruby" | "rb" => FileType::Ruby,
+            "php" => FileType::Php,
+            "csharp" | "cs" => FileType::CSharp,
+            "lua" => FileType::Lua,
+            "perl" | "pl" => FileType::Perl,
+            "powershell" | "ps1" => FileType::PowerShell,
+            "swift" => FileType::Swift,
+            "objectivec" | "objc" | "m" => FileType::ObjectiveC,
+            "groovy" | "gradle" => FileType::Groovy,
+            "scala" | "sc" => FileType::Scala,
+            "zig" => FileType::Zig,
+            "elixir" | "ex" | "exs" => FileType::Elixir,
+            "applescript" | "scpt" => FileType::AppleScript,
+            "vbs" | "vbscript" => FileType::Vbs,
+            "html" | "htm" => FileType::Html,
+            "cpp" | "cxx" | "cc" | "hpp" | "hxx" => FileType::Cpp,
+            // Manifest/config formats
+            "package.json" | "packagejson" => FileType::PackageJson,
+            "chrome-manifest" | "chromemanifest" => FileType::ChromeManifest,
+            "cargo-toml" | "cargotoml" | "cargo.toml" => FileType::CargoToml,
+            "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => FileType::PyProjectToml,
+            "github-actions" | "githubactions" => FileType::GithubActions,
+            "composer-json" | "composerjson" | "composer.json" => FileType::ComposerJson,
+            "jpeg" | "jpg" => FileType::Jpeg,
+            "png" => FileType::Png,
+            // Additional formats
+            "plist" => FileType::Plist,
+            "pkginfo" | "pkg-info" | "pkg_info" => FileType::PkgInfo,
+            "rtf" => FileType::Rtf,
+            "ipa" => FileType::Ipa,
+            "text" | "txt" => FileType::Text,
+            _ => FileType::All,
+        }
+    }
 }
 
 /// Default platforms for rules (all platforms)

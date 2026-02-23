@@ -1003,7 +1003,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	if err := scanner.Err(); err != nil {
 		// Kill orphaned dissect process before returning
 		log.Printf("killing dissect...")
-		cmd.Process.Kill() //nolint:errcheck,gosec
+;		cmd.Process.Kill() //nolint:errcheck,gosec
 		cmd.Wait()         //nolint:errcheck,gosec
 		delay := retryDelay()
 		fmt.Fprintf(os.Stderr, "\n%s⚠️  Error reading dissect output:%s %v\n", colorYellow, colorReset, err)
@@ -1343,7 +1343,6 @@ func processRealFile(ctx context.Context, st *streamState) {
 				mode = "good"
 				reason = "no suspicious/hostile findings"
 			}
-			fmt.Fprintf(os.Stderr, "  [skip] File %s (--%-4s): %s\n", filepath.Base(rf.RealPath), mode, reason)
 		}
 		st.stats.skippedNoReview++
 		return
@@ -1354,9 +1353,6 @@ func processRealFile(ctx context.Context, st *streamState) {
 		h = hashString(rf.RealPath)
 	}
 	if wasAnalyzed(ctx, st.cfg.db, h, st.dbMode) {
-		if st.cfg.verbose {
-			fmt.Fprintf(os.Stderr, "  [skip] File %s: already analyzed (cache hit)\n", filepath.Base(rf.RealPath))
-		}
 		st.stats.skippedCached++
 		return
 	}

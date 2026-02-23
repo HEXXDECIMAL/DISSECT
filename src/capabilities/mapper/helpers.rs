@@ -9,47 +9,7 @@ use std::path::Path;
 impl super::CapabilityMapper {
     /// Detect file type from file type string
     pub(super) fn detect_file_type(&self, file_type: &str) -> RuleFileType {
-        match file_type.to_lowercase().as_str() {
-            "elf" => RuleFileType::Elf,
-            "macho" => RuleFileType::Macho,
-            "pe" | "exe" => RuleFileType::Pe,
-            "dylib" => RuleFileType::Dylib,
-            "so" => RuleFileType::So,
-            "dll" => RuleFileType::Dll,
-            "shell" | "shellscript" | "shell_script" => RuleFileType::Shell,
-            "batch" | "bat" | "cmd" => RuleFileType::Batch,
-            "python" | "python_script" => RuleFileType::Python,
-            "javascript" | "js" => RuleFileType::JavaScript,
-            "typescript" | "ts" => RuleFileType::TypeScript,
-            "c" | "h" => RuleFileType::C,
-            "rust" | "rs" => RuleFileType::Rust,
-            "go" => RuleFileType::Go,
-            "java" => RuleFileType::Java,
-            "class" => RuleFileType::Class,
-            "ruby" | "rb" => RuleFileType::Ruby,
-            "php" => RuleFileType::Php,
-            "csharp" | "cs" => RuleFileType::CSharp,
-            "lua" => RuleFileType::Lua,
-            "perl" | "pl" => RuleFileType::Perl,
-            "powershell" | "ps1" => RuleFileType::PowerShell,
-            "swift" => RuleFileType::Swift,
-            "objectivec" | "objc" | "m" => RuleFileType::ObjectiveC,
-            "groovy" | "gradle" => RuleFileType::Groovy,
-            "scala" | "sc" => RuleFileType::Scala,
-            "zig" => RuleFileType::Zig,
-            "elixir" | "ex" | "exs" => RuleFileType::Elixir,
-            "applescript" | "scpt" => RuleFileType::AppleScript,
-            // Manifest/config formats
-            "package.json" | "packagejson" => RuleFileType::PackageJson,
-            "chrome-manifest" | "chromemanifest" => RuleFileType::ChromeManifest,
-            "cargo-toml" | "cargotoml" | "cargo.toml" => RuleFileType::CargoToml,
-            "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => RuleFileType::PyProjectToml,
-            "github-actions" | "githubactions" => RuleFileType::GithubActions,
-            "composer-json" | "composerjson" | "composer.json" => RuleFileType::ComposerJson,
-            "jpeg" | "jpg" => RuleFileType::Jpeg,
-            "png" => RuleFileType::Png,
-            _ => RuleFileType::All,
-        }
+        RuleFileType::from_str(file_type)
     }
 }
 

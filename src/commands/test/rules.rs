@@ -3,7 +3,7 @@
 //! This module provides the `test-rules` command implementation, which evaluates
 //! specified rules against a target file and shows detailed evaluation traces.
 
-use crate::analyzers::detect_file_type;
+use crate::analyzers::{detect_file_type, macho::MachOAnalyzer, FileType};
 use crate::commands::shared::{create_analysis_report, find_rules_in_directory, find_similar_rules};
 use crate::{cli, composite_rules, test_rules};
 use anyhow::Result;
@@ -61,13 +61,41 @@ pub(crate) fn run(
     .with_platforms(platforms.clone());
 
     // Read file data
-    let binary_data = fs::read(path)?;
+    let full_data = fs::read(path)?;
 
-    // Create a basic report by analyzing the file
+    // For Mach-O FAT binaries, we need to evaluate ALL architecture slices (like production).
+    // This ensures findings from any arch are visible, preventing discrepancies where traits
+    // match in x86_64 but not ARM64 (or vice versa).
+    let (binary_data, arch_slices): (Vec<u8>, Vec<Vec<u8>>) = if file_type == FileType::MachO {
+        let analyzer = MachOAnalyzer::new();
+        let preferred_range = analyzer.preferred_arch_range(&full_data);
+        let all_ranges = analyzer.all_arch_ranges(&full_data);
+
+        if all_ranges.len() > 1 {
+            eprintln!(
+                "Note: FAT binary with {} architectures, evaluating all slices",
+                all_ranges.len()
+            );
+        }
+
+        let slices: Vec<Vec<u8>> = all_ranges
+            .iter()
+            .map(|r| full_data[r.clone()].to_vec())
+            .collect();
+        let preferred = full_data[preferred_range].to_vec();
+        (preferred, slices)
+    } else {
+        (full_data.clone(), vec![full_data])
+    };
+
+    // Create a basic report by analyzing the file (uses preferred arch for structure)
     let mut report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
 
-    // Evaluate traits first to populate findings
-    capability_mapper.evaluate_and_merge_findings(&mut report, &binary_data, None, None);
+    // Evaluate traits against ALL architecture slices to match production behavior.
+    // Findings are merged/deduplicated, so traits matching in any arch will be visible.
+    for slice in &arch_slices {
+        capability_mapper.evaluate_and_merge_findings(&mut report, slice, None, None);
+    }
 
     // Create debugger and debug each rule
     // Pass platforms from CLI for consistency with production evaluation

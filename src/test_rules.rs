@@ -2350,38 +2350,7 @@ fn evaluate_condition_simple(
 }
 
 fn detect_file_type(file_type: &str) -> RuleFileType {
-    match file_type.to_lowercase().as_str() {
-        "elf" => RuleFileType::Elf,
-        "macho" => RuleFileType::Macho,
-        "pe" | "exe" => RuleFileType::Pe,
-        "dylib" => RuleFileType::Dylib,
-        "so" => RuleFileType::So,
-        "dll" => RuleFileType::Dll,
-        "shell" | "shellscript" => RuleFileType::Shell,
-        "batch" | "bat" | "cmd" => RuleFileType::Batch,
-        "python" => RuleFileType::Python,
-        "javascript" => RuleFileType::JavaScript,
-        "typescript" => RuleFileType::TypeScript,
-        "go" => RuleFileType::Go,
-        "rust" => RuleFileType::Rust,
-        "ruby" => RuleFileType::Ruby,
-        "java" => RuleFileType::Java,
-        "c" | "cpp" | "c++" => RuleFileType::C,
-        "php" => RuleFileType::Php,
-        "lua" => RuleFileType::Lua,
-        "perl" => RuleFileType::Perl,
-        "csharp" | "cs" => RuleFileType::CSharp,
-        "powershell" | "ps1" => RuleFileType::PowerShell,
-        "applescript" => RuleFileType::AppleScript,
-        // Manifest/config formats
-        "packagejson" | "package.json" => RuleFileType::PackageJson,
-        "chrome-manifest" | "chromemanifest" => RuleFileType::ChromeManifest,
-        "cargo-toml" | "cargotoml" | "cargo.toml" => RuleFileType::CargoToml,
-        "pyproject-toml" | "pyprojecttoml" | "pyproject.toml" => RuleFileType::PyProjectToml,
-        "github-actions" | "githubactions" => RuleFileType::GithubActions,
-        "composer-json" | "composerjson" | "composer.json" => RuleFileType::ComposerJson,
-        _ => RuleFileType::All,
-    }
+    RuleFileType::from_str(file_type)
 }
 
 /// Format the debug results for terminal output

@@ -3,7 +3,7 @@
 //! This module provides the `test-match` command implementation, which validates
 //! search patterns, count constraints, and location filters with detailed diagnostics.
 
-use crate::analyzers::{detect_file_type, FileType};
+use crate::analyzers::{detect_file_type, macho::MachOAnalyzer, FileType};
 use crate::commands::shared::{cli_file_type_to_internal, create_analysis_report};
 use crate::{cli, composite_rules, ip_validator, test_rules, types};
 use anyhow::Result;
@@ -153,7 +153,24 @@ pub(crate) fn run(
     .with_platforms(platforms.clone());
 
     // Read file data
-    let binary_data = fs::read(path)?;
+    let full_data = fs::read(path)?;
+
+    // For Mach-O files, extract the preferred architecture slice to match production behavior.
+    // This ensures test-match evaluates the same data as a full scan, preventing discrepancies
+    // with count-based constraints (min_count) and offset-based patterns (hex offset, YARA at N).
+    let binary_data: Vec<u8> = if file_type == FileType::MachO {
+        let analyzer = MachOAnalyzer::new();
+        let range = analyzer.preferred_arch_range(&full_data);
+        if range != (0..full_data.len()) {
+            eprintln!(
+                "Note: FAT binary detected, testing preferred arch slice (bytes {}..{})",
+                range.start, range.end
+            );
+        }
+        full_data[range].to_vec()
+    } else {
+        full_data
+    };
 
     // Create a basic report by analyzing the file
     let report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
