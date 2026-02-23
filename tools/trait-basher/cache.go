@@ -148,6 +148,6 @@ func cleanupOrphanedExtractDirs() {
 		// Process is dead, clean up orphaned directory
 		orphanPath := filepath.Join(tmpDir, entry.Name())
 		fmt.Fprintf(os.Stderr, "%s⚡%s Cleaning up orphaned extract directory: %s%s%s\n", colorYellow, colorReset, colorDim, orphanPath, colorReset)
-		os.RemoveAll(orphanPath) //nolint:errcheck // best-effort cleanup
+		os.RemoveAll(orphanPath) //nolint:errcheck,gosec // best-effort cleanup
 	}
 }

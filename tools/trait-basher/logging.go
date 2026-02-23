@@ -15,7 +15,7 @@ import (
 // Uses math/rand/v2 which is automatically seeded and thread-safe.
 func retryDelay() time.Duration {
 	baseDelay := 2 * time.Minute
-	randomDelay := time.Duration(mathrand.Int64N(int64(60 * time.Second)))
+	randomDelay := time.Duration(mathrand.Int64N(int64(60 * time.Second))) //nolint:gosec // non-cryptographic use
 	return baseDelay + randomDelay
 }
 
@@ -53,9 +53,9 @@ func formatProvidersForDisplay(providers []string) string {
 }
 
 // getLogDir returns the platform-appropriate log directory for trait-basher.
-// - macOS: ~/Library/Logs/trait-basher/
-// - Linux: ~/.local/state/trait-basher/ (XDG Base Directory spec)
-// - Windows: %LOCALAPPDATA%\trait-basher\logs\
+//   - macOS: ~/Library/Logs/trait-basher/
+//   - Linux: ~/.local/state/trait-basher/ (XDG Base Directory spec)
+//   - Windows: %LOCALAPPDATA%\trait-basher\logs\.
 func getLogDir() (string, error) {
 	var logDir string
 
@@ -90,7 +90,7 @@ func getLogDir() (string, error) {
 		logDir = filepath.Join(stateHome, "trait-basher")
 	}
 
-	if err := os.MkdirAll(logDir, 0o755); err != nil {
+	if err := os.MkdirAll(logDir, 0o755); err != nil { //nolint:gosec // logs need user readability
 		return "", fmt.Errorf("could not create log directory %s: %w", logDir, err)
 	}
 	return logDir, nil
@@ -117,7 +117,7 @@ func getDissectLogFilePath(sessionID string) (string, error) {
 // generateSessionID returns a UUID v4 for session tracking.
 func generateSessionID() string {
 	b := make([]byte, 16)
-	_, _ = rand.Read(b)         // crypto/rand.Read never fails on supported platforms
+	_, _ = rand.Read(b)         //nolint:errcheck // crypto/rand.Read never fails on supported platforms
 	b[6] = (b[6] & 0x0f) | 0x40 // Version 4
 	b[8] = (b[8] & 0x3f) | 0x80 // Variant
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x",

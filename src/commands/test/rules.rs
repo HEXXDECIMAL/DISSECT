@@ -2,13 +2,19 @@
 //!
 //! This module provides the `test-rules` command implementation, which evaluates
 //! specified rules against a target file and shows detailed evaluation traces.
+//!
+//! This command uses the exact same evaluation path as production: YARA pre-scan
+//! followed by trait/composite evaluation with inline YARA results. The only
+//! difference is the addition of debug tracing via `DebugCollector`.
 
 use crate::analyzers::{detect_file_type, macho::MachOAnalyzer, FileType};
 use crate::commands::shared::{
-    create_analysis_report, find_rules_in_directory, find_similar_rules,
+    create_analysis_report, find_rules_in_directory, find_similar_rules, process_yara_result,
 };
+use crate::yara_engine::YaraEngine;
 use crate::{cli, composite_rules, test_rules};
 use anyhow::Result;
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
@@ -64,6 +70,11 @@ pub(crate) fn run(
     )
     .with_platforms(platforms.clone());
 
+    // Load YARA engine to match production path exactly
+    let mut yara_engine = YaraEngine::new();
+    let (builtin_count, _third_party_count) = yara_engine.load_all_rules(false);
+    let yara_loaded = builtin_count > 0 && yara_engine.is_loaded();
+
     // Read file data
     let full_data = fs::read(path)?;
 
@@ -95,14 +106,43 @@ pub(crate) fn run(
     // Create a basic report by analyzing the file (uses preferred arch for structure)
     let mut report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
 
+    // Run YARA scan on preferred arch slice (matching production behavior)
+    // This gives us inline YARA results for traits with `type: yara` conditions
+    let file_type_filter: &[&str] = match file_type {
+        FileType::MachO => &["macho", "dylib", "kext"],
+        FileType::Elf => &["elf", "so", "ko"],
+        FileType::Pe => &["pe", "exe", "dll", "sys"],
+        _ => &[],
+    };
+
+    let inline_yara: HashMap<String, Vec<crate::types::Evidence>> = if yara_loaded {
+        let yara_result = yara_engine.scan_bytes_with_inline(
+            &binary_data,
+            if file_type_filter.is_empty() {
+                None
+            } else {
+                Some(file_type_filter)
+            },
+        );
+        process_yara_result(&mut report, Some(yara_result), Some(&yara_engine))
+    } else {
+        HashMap::new()
+    };
+
     // Evaluate traits against ALL architecture slices to match production behavior.
     // Findings are merged/deduplicated, so traits matching in any arch will be visible.
+    let inline_yara_ref = if inline_yara.is_empty() {
+        None
+    } else {
+        Some(&inline_yara)
+    };
     for slice in &arch_slices {
-        capability_mapper.evaluate_and_merge_findings(&mut report, slice, None, None);
+        capability_mapper.evaluate_and_merge_findings(&mut report, slice, None, inline_yara_ref);
     }
 
     // Create debugger and debug each rule
     // Pass platforms from CLI for consistency with production evaluation
+    // Pass inline_yara so debug evaluation uses the exact same context as production
     let debugger = test_rules::RuleDebugger::new(
         &capability_mapper,
         &report,
@@ -110,6 +150,7 @@ pub(crate) fn run(
         &capability_mapper.composite_rules,
         capability_mapper.trait_definitions(),
         platforms,
+        inline_yara_ref,
     );
 
     let mut results = Vec::new();

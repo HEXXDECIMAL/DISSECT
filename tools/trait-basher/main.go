@@ -40,7 +40,7 @@ import (
 )
 
 var (
-	// validatedProviders tracks which providers have been successfully validated
+	// validatedProviders tracks which providers have been successfully validated.
 	validatedProviders   = make(map[string]bool)
 	validatedProvidersMu sync.Mutex
 )
@@ -52,7 +52,7 @@ func dataDir(subdir string) (string, error) {
 		return "", err
 	}
 	dir := filepath.Join(home, "data", subdir)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil { //nolint:gosec // data dirs need user readability
 		return "", err
 	}
 	return dir, nil
@@ -67,7 +67,7 @@ func misclassificationMarkerPath(filePath, markerType string) string {
 }
 
 // hasMisclassificationMarker checks if a misclassification marker exists.
-func hasMisclassificationMarker(filePath string) (bool, string) {
+func hasMisclassificationMarker(filePath string) (found bool, markerType string) {
 	benignPath := misclassificationMarkerPath(filePath, "BENIGN")
 	badPath := misclassificationMarkerPath(filePath, "BAD")
 
@@ -84,13 +84,11 @@ func hasMisclassificationMarker(filePath string) (bool, string) {
 type reviewCoordinator struct {
 	jobs    chan reviewJob
 	results chan reviewResult
-	wg      sync.WaitGroup
 	cfg     *config
 	logger  *slog.Logger
-
-	// Per-worker state tracking (for progress display)
+	workers []workerState
+	wg      sync.WaitGroup
 	mu      sync.Mutex
-	workers []workerState // indexed by worker ID
 }
 
 // newReviewCoordinator creates a coordinator with N worker goroutines.
@@ -194,7 +192,7 @@ func (rc *reviewCoordinator) setWorkerIdle(workerID int) {
 	}
 }
 
-// workerPrefix returns a colored prefix for LLM output lines: "[1:filename] "
+// workerPrefix returns a colored prefix for LLM output lines: "[1:filename] ".
 func (rc *reviewCoordinator) workerPrefix(workerID int) string {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
@@ -316,7 +314,7 @@ var geminiDefaultModels = []string{
 //	Up to 1 suspicious finding is acceptable.
 //
 // For known-bad archives: review if NOT flagged (missing detections).
-func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool, validateEvery int) (bool, bool) {
+func archiveNeedsReview(a *ArchiveAnalysis, knownGood bool, validateEvery int) (review bool, isValidation bool) {
 	// Use summary findings if available (preferred - avoids race conditions from parallel streaming)
 	if len(a.SummaryFindings) > 0 || a.SummaryRisk != "" {
 		// Create aggregate FileAnalysis from summary to reuse needsReview logic
@@ -480,8 +478,8 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 	go func() {
 		<-sigChan
 		fmt.Fprintf(os.Stderr, "\n%sInterrupted.%s Cleaning up %s...\n", colorYellow, colorReset, extractDir)
-		os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup on signal
-		db.Close()               //nolint:errcheck // best-effort cleanup on signal
+		os.RemoveAll(extractDir) //nolint:errcheck,gosec // best-effort cleanup on signal
+		db.Close()               //nolint:errcheck,gosec // best-effort cleanup on signal
 		os.Exit(1)
 	}()
 
@@ -521,8 +519,9 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		cmd.Stderr = &stderr
 
 		if err := cmd.Run(); err != nil {
-			db.Close()               //nolint:errcheck // best-effort cleanup before fatal
-			os.RemoveAll(extractDir) //nolint:errcheck // best-effort cleanup before fatal
+			db.Close()               //nolint:errcheck,gosec // best-effort cleanup before fatal
+			os.RemoveAll(extractDir) //nolint:errcheck,gosec // best-effort cleanup before fatal
+			//nolint:gocritic // exitAfterDefer is intentional; manual cleanup done above
 			log.Fatalf("cargo build --release failed: %v (%s)", err, stderr.String())
 		}
 
@@ -552,7 +551,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 			if fixErr := invokeYAMLTraitFixer(ctx, cfg, "initial sanity check", err.Error(), attempt, maxYAMLAutoFixAttempts); fixErr != nil {
 				log.Fatalf("Sanity check failed: %v (YAML trait auto-fix failed: %v)", err, fixErr)
 			}
-			fmt.Fprintf(os.Stderr, "Waiting 1 second before re-running sanity check...\n")
+			fmt.Fprint(os.Stderr, "Waiting 1 second before re-running sanity check...\n")
 			time.Sleep(1 * time.Second)
 			continue
 		}
@@ -602,15 +601,17 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		if err != nil {
 			if isYAMLTraitIssue(err.Error()) && yamlFixAttempts < maxYAMLAutoFixAttempts {
 				yamlFixAttempts++
-				if fixErr := invokeYAMLTraitFixer(ctx, cfg, "scan/restart loop", err.Error(), yamlFixAttempts, maxYAMLAutoFixAttempts); fixErr != nil {
+				errMsg := err.Error()
+				fixErr := invokeYAMLTraitFixer(ctx, cfg, "scan/restart loop", errMsg, yamlFixAttempts, maxYAMLAutoFixAttempts)
+				if fixErr != nil {
 					log.Fatalf("Analysis failed: %v (YAML trait auto-fix failed: %v)", err, fixErr)
 				}
-				fmt.Fprintf(os.Stderr, "Waiting 1 second before restarting scan...\n")
+				fmt.Fprint(os.Stderr, "Waiting 1 second before restarting scan...\n")
 				time.Sleep(1 * time.Second)
 				continue
 			}
 			// For dissect or other errors, retry after delay (already slept in streamAnalyzeAndReview)
-			fmt.Fprintf(os.Stderr, "Restarting scan after error...\n")
+			fmt.Fprint(os.Stderr, "Restarting scan after error...\n")
 			continue
 		}
 		yamlFixAttempts = 0
@@ -618,7 +619,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		if !stats.shouldRestart {
 			// No more files to review
 			wallClockTime := time.Since(sessionStartTime)
-			fmt.Fprintf(os.Stderr, "\n=== Session Complete ===\n")
+			fmt.Fprint(os.Stderr, "\n=== Session Complete ===\n")
 			fmt.Fprintf(os.Stderr, "Reviewed: %d archives, %d standalone files\n",
 				stats.archivesReviewed, stats.standaloneReviewed)
 			fmt.Fprintf(os.Stderr, "Skipped: %d (cached), %d (no review needed)\n",
@@ -642,7 +643,7 @@ gemini-2.5-pro, gemini-2.5-flash. Popular choices:
 		}
 
 		// Restart to verify fixes on the next batch
-		fmt.Fprintf(os.Stderr, "Waiting 1 second before restarting scan...\n")
+		fmt.Fprint(os.Stderr, "Waiting 1 second before restarting scan...\n")
 		time.Sleep(1 * time.Second)
 	}
 
@@ -672,18 +673,22 @@ func (f *flushingWriter) Write(p []byte) (n int, err error) {
 
 // streamState tracks the current processing state as we stream files.
 type streamState struct {
-	cfg                *config
+	// time.Time first (24 bytes)
+	archiveStartTime time.Time // Track when current archive started processing
+	// Pointers and slices (8 bytes each)
+	cfg             *config
+	stats           *streamStats
+	currentArchive  *ArchiveAnalysis
+	currentRealFile *RealFileAnalysis
+	logger          *slog.Logger
+	coordinator     *reviewCoordinator
+	// Strings (16 bytes each)
 	dbMode             string
-	stats              *streamStats
-	currentArchive     *ArchiveAnalysis
 	currentArchivePath string
-	currentRealFile    *RealFileAnalysis
 	currentRealPath    string
+	currentScanPath    string // Current file being scanned (for progress display)
+	// Ints
 	filesReviewedCount int // Count of files sent to LLM for review
-	logger             *slog.Logger
-	archiveStartTime   time.Time // Track when current archive started processing
-	currentScanPath    string    // Current file being scanned (for progress display)
-	coordinator        *reviewCoordinator
 }
 
 // streamAnalyzeAndReview streams dissect output and reviews archives as they complete.
@@ -759,7 +764,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 		return nil, fmt.Errorf("could not determine log path: %w", err)
 	}
 
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644) //nolint:gosec // logs need user readability
 	if err != nil {
 		return nil, fmt.Errorf("could not create log file: %w", err)
 	}
@@ -888,7 +893,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	scanner := bufio.NewScanner(stdout)
 	scanner.Buffer(make([]byte, 128*1024*1024), 128*1024*1024) // 128MB buffer
 
-	n := 0
+	fileCount := 0
 	last := time.Now()
 	progressLines := 0 // tracks multi-line progress display for proper clearing
 
@@ -925,7 +930,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			}
 		}
 
-		n++
+		fileCount++
 		state.currentScanPath = entry.Path
 
 		// Update progress display periodically
@@ -933,7 +938,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			elapsed := time.Since(state.stats.scanStartTime).Seconds()
 			filesPerSec := 0.0
 			if elapsed > 0 {
-				filesPerSec = float64(n) / elapsed
+				filesPerSec = float64(fileCount) / elapsed
 			}
 
 			// Calculate detection rate (correct classifications)
@@ -950,7 +955,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 			// Get slot status for progress display
 			slotLines := coordinator.slotStatus()
 
-			progress := formatProgress(n, state.stats.estimatedTotal, detectionRate, filesPerSec, entry.Path, cfg.knownGood)
+			progress := formatProgress(fileCount, state.stats.estimatedTotal, detectionRate, filesPerSec, entry.Path, cfg.knownGood)
 
 			// Clear previous progress lines (1 main + N slots) and print new ones
 			totalLines := 1 + len(slotLines)
@@ -1001,9 +1006,9 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 
 	if err := scanner.Err(); err != nil {
 		// Kill orphaned dissect process before returning
-		log.Printf("killing dissect...")
-		cmd.Process.Kill() //nolint:errcheck,gosec
-		cmd.Wait()         //nolint:errcheck,gosec
+		log.Print("killing dissect...")
+		cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on error, process may already be dead
+		cmd.Wait()         //nolint:errcheck,gosec // reap the process, error doesn't matter
 		delay := retryDelay()
 		fmt.Fprintf(os.Stderr, "\n%s⚠️  Error reading dissect output:%s %v\n", colorYellow, colorReset, err)
 		fmt.Fprintf(os.Stderr, "   %sRetrying in %v...%s\n", colorDim, delay.Round(time.Second), colorReset)
@@ -1024,7 +1029,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	elapsed := time.Since(state.stats.scanStartTime).Seconds()
 	filesPerSec := 0.0
 	if elapsed > 0 {
-		filesPerSec = float64(n) / elapsed
+		filesPerSec = float64(fileCount) / elapsed
 	}
 	state.stats.mu.Lock()
 	totalProcessed := state.stats.skippedNoReview + state.stats.archivesReviewed + state.stats.standaloneReviewed
@@ -1042,7 +1047,7 @@ func streamAnalyzeAndReview(ctx context.Context, cfg *config, dbMode string) (*s
 	rateClr := rateColor(detectionRate)
 	fmt.Fprintf(os.Stderr, "%s✓%s Scanned %s%d%s files in %.1fs (%s%.0f/s%s) | %s%s:%.0f%%%s | Reviewed:%s%d%s Skipped:%s%d%s\n",
 		colorGreen, colorReset,
-		colorBold, n, colorReset,
+		colorBold, fileCount, colorReset,
 		elapsed,
 		colorCyan, filesPerSec, colorReset,
 		rateClr, rateLabel, detectionRate, colorReset,
@@ -1223,13 +1228,15 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 	for _, m := range archive.Members {
 		var concerningFindings []Finding
 		for _, f := range m.Findings {
-			c := strings.ToLower(f.Crit)
-			if c == "hostile" {
+			switch strings.ToLower(f.Crit) {
+			case "hostile":
 				aggHostile++
 				concerningFindings = append(concerningFindings, f)
-			} else if c == "suspicious" {
+			case "suspicious":
 				aggSuspicious++
 				concerningFindings = append(concerningFindings, f)
+			default:
+				// ignore other criticality levels
 			}
 		}
 		// Track files with any hostile/suspicious findings
@@ -1263,7 +1270,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 
 	// List files with hostile/suspicious findings (up to 10)
 	if len(filesWithFindings) > 0 {
-		fmt.Fprintf(os.Stderr, "   Files with concerning findings:\n")
+		fmt.Fprint(os.Stderr, "   Files with concerning findings:\n")
 		for i, ff := range filesWithFindings {
 			if i >= 10 {
 				fmt.Fprintf(os.Stderr, "   ... and %d more files\n", len(filesWithFindings)-10)
@@ -1272,7 +1279,7 @@ func processCompletedArchive(ctx context.Context, st *streamState) {
 			// Count by criticality for summary
 			hostileCount, suspiciousCount := 0, 0
 			for _, f := range ff.findings {
-				if strings.ToLower(f.Crit) == "hostile" {
+				if strings.EqualFold(f.Crit, "hostile") {
 					hostileCount++
 				} else {
 					suspiciousCount++
@@ -1428,7 +1435,7 @@ func needsReview(f FileAnalysis, knownGood bool, validateEvery int) (review bool
 			c := strings.ToLower(finding.Crit)
 			if c == "suspicious" || c == "hostile" {
 				// Has detection - normally skip, but maybe validate
-				if validateEvery > 0 && rand.IntN(validateEvery) == 0 {
+				if validateEvery > 0 && rand.IntN(validateEvery) == 0 { //nolint:gosec // non-cryptographic sampling
 					return true, true // Validation sample
 				}
 				return false, false // Has detection, skip review
@@ -1441,11 +1448,13 @@ func needsReview(f FileAnalysis, knownGood bool, validateEvery int) (review bool
 	hostileCount := 0
 	suspiciousCount := 0
 	for _, finding := range f.Findings {
-		c := strings.ToLower(finding.Crit)
-		if c == "hostile" {
+		switch strings.ToLower(finding.Crit) {
+		case "hostile":
 			hostileCount++
-		} else if c == "suspicious" {
+		case "suspicious":
 			suspiciousCount++
+		default:
+			// ignore other criticality levels
 		}
 	}
 
@@ -1455,7 +1464,7 @@ func needsReview(f FileAnalysis, knownGood bool, validateEvery int) (review bool
 	}
 
 	// Would normally skip - but maybe validate
-	if validateEvery > 0 && rand.IntN(validateEvery) == 0 {
+	if validateEvery > 0 && rand.IntN(validateEvery) == 0 { //nolint:gosec // non-cryptographic sampling
 		return true, true // Validation sample
 	}
 	return false, false
@@ -1463,7 +1472,7 @@ func needsReview(f FileAnalysis, knownGood bool, validateEvery int) (review bool
 
 // realFileNeedsReview determines if a real file (with all its fragments) needs review.
 // Returns (needsReview, isValidationSample).
-func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool, validateEvery int) (bool, bool) {
+func realFileNeedsReview(rf *RealFileAnalysis, knownGood bool, validateEvery int) (review bool, isValidation bool) {
 	// Aggregate findings from root and all fragments for accurate counting
 	agg := FileAnalysis{
 		Path:     rf.RealPath,
@@ -1635,6 +1644,8 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 			hostileCount++
 		case "suspicious":
 			suspiciousCount++
+		default:
+			// ignore other criticality levels
 		}
 	}
 
@@ -1675,7 +1686,7 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 		}
 	}
 
-	prompt := buildPrompt(data)
+	prompt := buildPrompt(&data)
 
 	// Add findings summary for good files
 	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
@@ -1686,40 +1697,32 @@ func invokeAI(ctx context.Context, cfg *config, f FileAnalysis, isValidation boo
 				host = append(host, fd)
 			case "suspicious":
 				susp = append(susp, fd)
+			default:
+				// ignore other criticality levels
 			}
 		}
 		if len(host) > 0 || len(susp) > 0 {
-			prompt += "\n\n## Current Findings\n"
+			var sb strings.Builder
+			sb.WriteString("\n\n## Current Findings\n")
 			if len(host) > 0 {
-				prompt += "**Hostile:**\n"
+				sb.WriteString("**Hostile:**\n")
 				for _, fd := range host {
-					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
+					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
 			if len(susp) > 0 {
-				prompt += "**Suspicious:**\n"
+				sb.WriteString("**Suspicious:**\n")
 				for _, fd := range susp {
-					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
+					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
+			prompt += sb.String()
 		}
 	}
 
 	if f.ExtractedPath != "" {
 		prompt += fmt.Sprintf("\n\n## Extracted Sample\nThe file has been extracted to: %s\n"+
 			"Use this path for binary analysis tools (radare2, strings, objdump, xxd, nm).", f.ExtractedPath)
-	}
-
-	// Build findings summary for display
-	counts := make(map[string]int)
-	for _, fd := range f.Findings {
-		counts[strings.ToLower(fd.Crit)]++
-	}
-	var summary []string
-	for _, level := range []string{"hostile", "suspicious", "notable", "inert"} {
-		if n := counts[level]; n > 0 {
-			summary = append(summary, fmt.Sprintf("%d %s", n, level))
-		}
 	}
 
 	prefix := rc.workerPrefix(workerID)
@@ -1909,6 +1912,8 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isVal
 				hostileCount++
 			case "suspicious":
 				suspiciousCount++
+			default:
+				// ignore other criticality levels
 			}
 		}
 	}
@@ -1948,7 +1953,7 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isVal
 		}
 	}
 
-	prompt := buildPrompt(data)
+	prompt := buildPrompt(&data)
 
 	// Add findings summary for good archives
 	if cfg.knownGood && (hostileCount > 0 || suspiciousCount > 0) {
@@ -1961,23 +1966,27 @@ func invokeAIArchive(ctx context.Context, cfg *config, a *ArchiveAnalysis, isVal
 					host = append(host, fd)
 				case "suspicious":
 					susp = append(susp, fd)
+				default:
+					// ignore other criticality levels
 				}
 			}
 		}
 		if len(host) > 0 || len(susp) > 0 {
-			prompt += "\n\n## Current Findings\n"
+			var sb strings.Builder
+			sb.WriteString("\n\n## Current Findings\n")
 			if len(host) > 0 {
-				prompt += "**Hostile:**\n"
+				sb.WriteString("**Hostile:**\n")
 				for _, fd := range host {
-					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
+					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
 			if len(susp) > 0 {
-				prompt += "**Suspicious:**\n"
+				sb.WriteString("**Suspicious:**\n")
 				for _, fd := range susp {
-					prompt += fmt.Sprintf("- `%s`: %s\n", fd.ID, fd.Desc)
+					fmt.Fprintf(&sb, "- `%s`: %s\n", fd.ID, fd.Desc)
 				}
 			}
+			prompt += sb.String()
 		}
 	}
 
@@ -2144,8 +2153,8 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix st
 
 	// Write prompt to stdin, then close to signal EOF
 	go func() {
-		defer stdinPipe.Close()           //nolint:errcheck
-		io.WriteString(stdinPipe, prompt) //nolint:errcheck
+		defer stdinPipe.Close()           //nolint:errcheck // close error irrelevant after write
+		io.WriteString(stdinPipe, prompt) //nolint:errcheck,gosec // write error handled by process exit
 	}()
 
 	var (
@@ -2199,13 +2208,13 @@ func runAIWithStreaming(ctx context.Context, cfg *config, prompt, sid, prefix st
 
 				if idle > cfg.idleTimeout {
 					fmt.Fprintf(os.Stderr, "\n%s>>> Idle timeout (%v), killing...\n", prefix, cfg.idleTimeout)
-					cmd.Process.Kill() //nolint:errcheck,gosec
+					cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on timeout
 					return fmt.Errorf("idle timeout: no output for %v", cfg.idleTimeout)
 				}
 			}
 		case <-ctx.Done():
 			fmt.Fprintf(os.Stderr, "\n%s>>> Timeout, killing...\n", prefix)
-			cmd.Process.Kill() //nolint:errcheck,gosec
+			cmd.Process.Kill() //nolint:errcheck,gosec // best-effort kill on context cancel
 			return fmt.Errorf("timeout: %w", ctx.Err())
 		}
 	}
@@ -2241,8 +2250,8 @@ func displayStreamEvent(line, prefix string) {
 		fmt.Fprintf(os.Stderr, "%s%s[codex]%s turn started\n", prefix, colorGreen, colorReset)
 	case "turn.completed":
 		if usage, ok := ev["usage"].(map[string]any); ok {
-			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck // type assertion ok
-			out, _ := usage["output_tokens"].(float64) //nolint:errcheck // type assertion ok
+			in, _ := usage["input_tokens"].(float64)   //nolint:errcheck,revive // type assertion ok, defaults to 0
+			out, _ := usage["output_tokens"].(float64) //nolint:errcheck,revive // type assertion ok, defaults to 0
 			if in > 0 || out > 0 {
 				fmt.Fprintf(os.Stderr, "%s%s[codex]%s tokens: %sin=%.0f out=%.0f%s\n",
 					prefix, colorGreen, colorReset, colorDim, in, out, colorReset)
@@ -2258,13 +2267,7 @@ func displayStreamEvent(line, prefix string) {
 			fmt.Fprint(os.Stderr, text)
 			codexDeltaOpen = true
 		}
-	case "item/commandExecution/outputDelta":
-		if delta, ok := ev["delta"].(string); ok && delta != "" {
-			fmt.Fprint(os.Stderr, delta)
-		} else if out, ok := ev["output"].(string); ok && out != "" {
-			fmt.Fprint(os.Stderr, out)
-		}
-	case "item/fileChange/outputDelta":
+	case "item/commandExecution/outputDelta", "item/fileChange/outputDelta":
 		if delta, ok := ev["delta"].(string); ok && delta != "" {
 			fmt.Fprint(os.Stderr, delta)
 		} else if out, ok := ev["output"].(string); ok && out != "" {
@@ -2281,7 +2284,7 @@ func displayStreamEvent(line, prefix string) {
 		if !ok {
 			return
 		}
-		itemType, _ := item["type"].(string) //nolint:errcheck // type assertion ok
+		itemType, _ := item["type"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
 		switch itemType {
 		case "agent_message":
 			if text, ok := item["text"].(string); ok && text != "" {
@@ -2304,6 +2307,8 @@ func displayStreamEvent(line, prefix string) {
 			}
 		case "plan_update":
 			fmt.Fprintf(os.Stderr, "%s%s[tool]%s plan update\n", prefix, colorYellow, colorReset)
+		default:
+			// ignore other item types
 		}
 	case "error":
 		if msg, ok := ev["message"].(string); ok && msg != "" {
@@ -2326,7 +2331,7 @@ func displayStreamEvent(line, prefix string) {
 			}
 			switch b["type"] {
 			case "tool_use":
-				name, _ := b["name"].(string) //nolint:errcheck // type assertion ok, defaults to empty
+				name, _ := b["name"].(string) //nolint:errcheck,revive // type assertion ok, defaults to empty
 				if name == "" {
 					name = "unknown"
 				}
@@ -2354,6 +2359,8 @@ func displayStreamEvent(line, prefix string) {
 				if t, ok := b["text"].(string); ok && t != "" {
 					fmt.Fprintf(os.Stderr, "%s%s\n", prefix, t)
 				}
+			default:
+				// ignore other content types
 			}
 		}
 
@@ -2371,11 +2378,8 @@ func displayStreamEvent(line, prefix string) {
 			fmt.Fprintf(os.Stderr, "%s%s[tool]%s %s\n", prefix, colorYellow, colorReset, name)
 		}
 
-	case "tool_result":
-		// Gemini tool results - silently consume (output already shown during execution)
-
-	case "init", "user":
-		// Gemini/Claude initialization and user prompt events - silently consume
+	case "tool_result", "init", "user":
+		// Silently consume: tool results (output already shown), initialization, user prompts
 
 	case "result":
 		if r, ok := ev["result"].(string); ok && r != "" {

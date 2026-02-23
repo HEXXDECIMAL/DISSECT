@@ -176,6 +176,7 @@ pub(crate) fn run(
     let report = create_analysis_report(path, &file_type, &binary_data, &capability_mapper)?;
 
     // Create debugger to access search functions
+    // Note: test-match doesn't use YARA results since it tests individual conditions
     let debugger = RuleDebugger::new(
         &capability_mapper,
         &report,
@@ -183,6 +184,7 @@ pub(crate) fn run(
         &capability_mapper.composite_rules,
         capability_mapper.trait_definitions(),
         platforms.clone(),
+        None, // test-match evaluates conditions directly, not via full rule path
     );
     let context_info = debugger.context_info();
 
@@ -1758,6 +1760,7 @@ pub(crate) fn run(
                         &capability_mapper.composite_rules,
                         capability_mapper.trait_definitions(),
                         vec![composite_rules::Platform::All], // Check all platforms for alt file types
+                        None, // test-match evaluates conditions directly
                     );
                     let alt_context = alt_debugger.context_info();
 

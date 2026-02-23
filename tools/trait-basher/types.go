@@ -16,48 +16,48 @@ type fileEntry struct {
 
 // promptData holds values for prompt templates.
 type promptData struct {
-	Path                  string      // Primary file path (extracted dir for archives, file path for standalone)
-	ArchiveName           string      // Archive basename for context (empty for standalone)
-	Files                 []fileEntry // Top files with findings (sorted by severity)
+	Path                  string
+	ArchiveName           string
 	DissectBin            string
 	TraitsDir             string
+	ReportPath            string
+	GapAnalysisPath       string
+	RelatedBadReportPath  string
+	BenignMarkerPath      string
+	BadMarkerPath         string
+	Files                 []fileEntry
 	Count                 int
 	IsArchive             bool
-	IsBad                 bool   // true for known-bad mode, false for known-good mode
-	ReportExists          bool   // For bad files: true if research report already exists
-	ReportPath            string // Path to research report (bad files)
-	GapAnalysisPath       string // Path to gap analysis (bad files)
-	RelatedBadReportPath  string // For good files: path to report if file exists in bad collection
-	HasRelatedBadReport   bool   // For good files: true if file exists in bad collection
-	BenignMarkerPath      string // Path where ._<filename>.BENIGN marker would be created
-	BadMarkerPath         string // Path where ._<filename>.BAD marker would be created
-	MayBeBenign           bool   // For bad files: suggest checking if it's actually benign
-	MayBeBad              bool   // For good files: suggest checking if it's actually bad
-	HasHostileFindings    bool   // For good files: has hostile findings that need fixing
-	HasSuspiciousFindings bool   // For good files: has suspicious findings to review
-	IsValidationSample    bool   // True when file was randomly selected for validation (passed normal thresholds)
+	IsBad                 bool
+	ReportExists          bool
+	HasRelatedBadReport   bool
+	MayBeBenign           bool
+	MayBeBad              bool
+	HasHostileFindings    bool
+	HasSuspiciousFindings bool
+	IsValidationSample    bool
 }
 
 // config holds all configuration for a trait-basher session.
 type config struct {
 	db            *sql.DB
-	dirs          []string
 	repoRoot      string
-	dissectBin    string   // Path to dissect binary
-	providers     []string // Ordered list of providers to try (fallback on failure)
-	provider      string   // Current active provider (set during invocation)
+	dissectBin    string
+	provider      string
 	model         string
-	extractDir    string // Directory where DISSECT extracts files
+	extractDir    string
+	dirs          []string
+	providers     []string
 	timeout       time.Duration
-	idleTimeout   time.Duration // Kill LLM if no output for this duration
-	rescanAfter   int           // Number of files to review before restarting scan (0 = disabled)
-	concurrency   int           // Number of concurrent LLM review sessions
+	idleTimeout   time.Duration
+	rescanAfter   int
+	concurrency   int
+	validateEvery int
 	knownGood     bool
 	knownBad      bool
 	useCargo      bool
 	flush         bool
-	verbose       bool // Show detailed skip/progress messages
-	validateEvery int  // Randomly validate 1 in N files even if properly classified (0 = disabled)
+	verbose       bool
 }
 
 // reviewJob represents a file or archive to be reviewed by an LLM.
@@ -69,10 +69,10 @@ type reviewJob struct {
 
 // reviewResult contains the outcome of a review job.
 type reviewResult struct {
-	job      reviewJob
 	err      error
-	duration time.Duration
+	job      reviewJob
 	provider string
+	duration time.Duration
 }
 
 // Finding represents a matched trait/capability.
@@ -117,17 +117,17 @@ type jsonlEntry struct {
 
 // streamStats tracks streaming analysis statistics.
 type streamStats struct {
+	scanStartTime        time.Time
+	reviewTimeTotal      time.Duration
 	archivesReviewed     int
 	standaloneReviewed   int
 	skippedCached        int
 	skippedNoReview      int
 	totalFiles           int
-	totalStandaloneFiles int           // Total standalone files seen (not in archives)
-	reviewTimeTotal      time.Duration // Total time spent in LLM reviews
-	shouldRestart        bool          // Set to true when rescan limit reached
-	estimatedTotal       int           // Estimated total files (from pre-count)
-	scanStartTime        time.Time     // When scanning started (for rate calculation)
-	mu                   sync.Mutex    // Protects stats updated from result collector goroutine
+	totalStandaloneFiles int
+	estimatedTotal       int
+	mu                   sync.Mutex
+	shouldRestart        bool
 }
 
 // critRank maps criticality levels to numeric ranks for comparison.
@@ -135,9 +135,12 @@ var critRank = map[string]int{"inert": 0, "notable": 1, "suspicious": 2, "hostil
 
 // workerState tracks the current state of a single LLM worker slot.
 type workerState struct {
-	busy         bool      // true if processing a job
-	path         string    // current job path (empty if idle)
-	provider     string    // current provider being used
-	startTime    time.Time // when current job/idle started
-	isValidation bool      // true if this is a validation sample (random audit)
+	// time.Time first (24 bytes)
+	startTime time.Time // when current job/idle started
+	// Strings (16 bytes each on 64-bit)
+	path     string // current job path (empty if idle)
+	provider string // current provider being used
+	// Booleans
+	busy         bool // true if processing a job
+	isValidation bool // true if this is a validation sample (random audit)
 }

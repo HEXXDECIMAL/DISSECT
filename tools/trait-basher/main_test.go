@@ -9,7 +9,7 @@ import (
 )
 
 func TestCleanupOrphanedExtractDirs(t *testing.T) {
-	tmpDir := os.TempDir()
+	tmpDir := os.TempDir() //nolint:usetesting // testing cleanup of dirs in system temp dir
 
 	// Create a fake orphaned directory with a non-existent PID
 	// Use PID 1 billion which definitely doesn't exist
@@ -29,7 +29,7 @@ func TestCleanupOrphanedExtractDirs(t *testing.T) {
 	if err := os.MkdirAll(currentDir, 0o750); err != nil {
 		t.Fatalf("Failed to create current process dir: %v", err)
 	}
-	defer os.RemoveAll(currentDir) //nolint:errcheck // test cleanup
+	t.Cleanup(func() { os.RemoveAll(currentDir) }) //nolint:errcheck // test cleanup
 
 	// Run cleanup
 	cleanupOrphanedExtractDirs()
@@ -47,7 +47,7 @@ func TestCleanupOrphanedExtractDirs(t *testing.T) {
 }
 
 func TestCleanupOrphanedExtractDirs_IgnoresNonMatchingDirs(t *testing.T) {
-	tmpDir := os.TempDir()
+	tmpDir := os.TempDir() //nolint:usetesting // testing cleanup of dirs in system temp dir
 
 	// Create directories that should NOT be touched
 	testDirs := []string{
@@ -60,7 +60,8 @@ func TestCleanupOrphanedExtractDirs_IgnoresNonMatchingDirs(t *testing.T) {
 		if err := os.MkdirAll(dir, 0o750); err != nil {
 			t.Fatalf("Failed to create test dir %s: %v", dir, err)
 		}
-		defer os.RemoveAll(dir) //nolint:errcheck // test cleanup
+		d := dir                              // capture for closure
+		t.Cleanup(func() { os.RemoveAll(d) }) //nolint:errcheck // test cleanup
 	}
 
 	// Run cleanup
@@ -77,9 +78,11 @@ func TestCleanupOrphanedExtractDirs_IgnoresNonMatchingDirs(t *testing.T) {
 func TestExtractDirNaming(t *testing.T) {
 	// Verify the naming convention includes PID
 	pid := os.Getpid()
+	//nolint:usetesting // testing that extract dirs use os.TempDir()
 	expected := filepath.Join(os.TempDir(), fmt.Sprintf("tbsh.%d", pid))
 
 	// This is the same logic used in main()
+	//nolint:usetesting // testing that extract dirs use os.TempDir()
 	actual := filepath.Join(os.TempDir(), fmt.Sprintf("tbsh.%d", pid))
 
 	if actual != expected {
@@ -102,8 +105,8 @@ func TestProcessExistsCheck(t *testing.T) {
 func TestFormatProvidersForDisplay(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    []string
 		expected string
+		input    []string
 	}{
 		{
 			name:     "single provider",
@@ -213,10 +216,8 @@ func TestFindingDescriptionTruncation(t *testing.T) {
 				if result[len(result)-3:] != "..." {
 					t.Error("Truncated description should end with '...'")
 				}
-			} else {
-				if len(result) > 256 {
-					t.Error("Expected description to not be truncated but it was")
-				}
+			} else if len(result) > 256 {
+				t.Error("Expected description to not be truncated but it was")
 			}
 		})
 	}

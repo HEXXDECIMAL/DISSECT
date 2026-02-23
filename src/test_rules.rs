@@ -94,6 +94,7 @@ pub(crate) struct RuleDebugger<'a> {
     composites: &'a [CompositeTrait],
     traits: &'a [TraitDefinition],
     section_map: SectionMap,
+    inline_yara_results: Option<&'a HashMap<String, Vec<Evidence>>>,
 }
 
 impl<'a> RuleDebugger<'a> {
@@ -106,6 +107,7 @@ impl<'a> RuleDebugger<'a> {
     /// * `composites` - Composite rule definitions
     /// * `traits` - Trait definitions
     /// * `platforms` - Platform filter from CLI (use vec![Platform::All] to show all)
+    /// * `inline_yara_results` - Pre-scanned inline YARA results (matches production path)
     pub(crate) fn new(
         mapper: &'a CapabilityMapper,
         report: &'a AnalysisReport,
@@ -113,6 +115,7 @@ impl<'a> RuleDebugger<'a> {
         composites: &'a [CompositeTrait],
         traits: &'a [TraitDefinition],
         platforms: Vec<Platform>,
+        inline_yara_results: Option<&'a HashMap<String, Vec<Evidence>>>,
     ) -> Self {
         let file_type = detect_file_type(&report.target.file_type);
         let section_map = SectionMap::from_binary(binary_data);
@@ -126,6 +129,7 @@ impl<'a> RuleDebugger<'a> {
             composites,
             traits,
             section_map,
+            inline_yara_results,
         }
     }
 
@@ -223,7 +227,8 @@ impl<'a> RuleDebugger<'a> {
         (0, file_size)
     }
 
-    /// Create an evaluation context with an optional debug collector
+    /// Create an evaluation context with an optional debug collector.
+    /// Uses the same inline YARA results as production for consistent evaluation.
     fn create_eval_context<'b>(
         &'b self,
         debug_collector: Option<&'b DebugCollector>,
@@ -241,7 +246,7 @@ impl<'a> RuleDebugger<'a> {
             finding_id_index: Some(self.build_finding_index()),
             debug_collector,
             section_map: Some(self.section_map.clone()),
-            inline_yara_results: None,
+            inline_yara_results: self.inline_yara_results,
             cached_kv_format: std::sync::OnceLock::new(),
             cached_kv_parsed: std::sync::OnceLock::new(),
         }
@@ -2655,6 +2660,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test a composite rule that references traits by prefix
@@ -2691,6 +2697,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test a rule that requires ELF file type (zstd-magic is for binaries)
@@ -2734,6 +2741,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::Linux],
+            None,
         );
 
         // Test mirai detection which has size_min: 30000
@@ -2774,6 +2782,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Directly test the prefix matching in debug_condition
@@ -2812,6 +2821,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test a prefix that doesn't match any findings
@@ -2847,6 +2857,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Find and debug a composite rule
@@ -2899,6 +2910,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test exact match - should find the finding directly
@@ -2938,6 +2950,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test suffix match with short name
@@ -2991,6 +3004,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::MacOS],
+            None,
         );
 
         // Test the objc-app-hook composite if it exists
@@ -3050,6 +3064,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test a trait that exists in definitions but not in findings
@@ -3088,6 +3103,7 @@ mod tests {
             composites,
             traits,
             vec![Platform::All],
+            None,
         );
 
         // Test prefix match - should find both findings
